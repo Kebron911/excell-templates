@@ -18,11 +18,33 @@ from brand_config import (
     COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
     COLOR_BG_LIGHT, COLOR_ERROR, FONT_HEAD, FONT_BODY, FONT_MONO,
     apply_brand_header, input_cell_style, formula_cell_style,
-    set_col_widths, add_upgrade_banner, apply_style,
+    header_row_style, set_col_widths, add_upgrade_banner, apply_style,
     BRAND_DOMAIN,
 )
 
 OUT = Path(__file__).resolve().parent.parent / "_masters" / "GST-001-welcome-book.xlsx"
+
+# --- Sample data (MVP placeholders — user swaps in their own) ---
+
+LOCAL_GUIDE_CATEGORIES = [
+    "Coffee", "Coffee",
+    "Restaurant", "Restaurant", "Restaurant",
+    "Grocery", "Grocery",
+    "Takeout", "Takeout",
+    "Pharmacy", "Gas station", "Hospital/Urgent care",
+    "Coffee alt",
+    "Outdoor/Hike", "Outdoor/Hike",
+    "Kid-friendly", "Kid-friendly",
+    "Date night", "Bar/Nightlife",
+    "Emergency (non-911)",
+]
+
+LOCAL_GUIDE_SAMPLES = {
+    # row-offset-from-6 → (name, distance, phone, notes)
+    0: ("Mountain Grind", "0.8 mi", "(865) 555-0100", "Best espresso in town; small pastry case fills fast"),
+    2: ("The Cast Iron", "2.1 mi", "(865) 555-0118", "Sunday brunch is chef's-kiss — reserve ahead"),
+    3: ("Ridge BBQ", "1.4 mi", "(865) 555-0122", "Brisket sells out by 7 PM Fri/Sat"),
+}
 
 
 def add_dropdown(ws, cell_ref, options):
@@ -258,48 +280,32 @@ def build_local_tab(wb):
     ws.row_dimensions[4].height = 12
 
     # Row 5: header row
-    from brand_config import header_row_style
     headers = ["Category", "Name", "Distance", "Phone", "Why we love it"]
     for col, h in enumerate(headers, start=1):
         cell = ws.cell(row=5, column=col, value=h)
         apply_style(cell, header_row_style())
 
-    # 20 categories in rows 6-25, col A
-    categories = [
-        "Coffee", "Coffee", "Restaurant", "Restaurant", "Restaurant",
-        "Grocery", "Grocery", "Takeout", "Takeout", "Pharmacy",
-        "Gas station", "Hospital/Urgent care", "Coffee alt", "Outdoor/Hike", "Outdoor/Hike",
-        "Kid-friendly", "Kid-friendly", "Date night", "Bar/Nightlife", "Emergency (non-911)",
-    ]
-    for i, cat in enumerate(categories):
-        row = 6 + i
+    # 20 categories in rows 6-25
+    for idx, cat in enumerate(LOCAL_GUIDE_CATEGORIES):
+        row = idx + 6
         ws.cell(row=row, column=1, value=cat).font = Font(
             name=FONT_BODY, size=11, color=COLOR_TEXT
         )
+
+        sample = LOCAL_GUIDE_SAMPLES.get(idx)
+        if sample:
+            name, dist, phone, notes = sample
+            ws.cell(row=row, column=2, value=name)
+            ws.cell(row=row, column=3, value=dist)
+            ws.cell(row=row, column=4, value=phone)
+            ws.cell(row=row, column=5, value=notes)
+            for c in (2, 3, 4, 5):
+                apply_style(ws.cell(row=row, column=c), input_cell_style())
+                ws.cell(row=row, column=c).alignment = Alignment(wrap_text=True, vertical="top")
+        else:
+            for c in (2, 3, 4, 5):
+                apply_style(ws.cell(row=row, column=c), input_cell_style())
         ws.row_dimensions[row].height = 28
-        # Input cells B-E
-        for col in range(2, 6):
-            cell = ws.cell(row=row, column=col, value="")
-            apply_style(cell, input_cell_style())
-
-    # Sample populated rows:
-    # Coffee row 1 (row 6): Mountain Grind
-    ws.cell(row=6, column=2, value="Mountain Grind")
-    ws.cell(row=6, column=3, value="0.8 mi")
-    ws.cell(row=6, column=4, value="(865) 555-0100")
-    ws.cell(row=6, column=5, value="Best espresso in town; small pastry case fills fast")
-
-    # Restaurant row 1 (row 8): The Cast Iron
-    ws.cell(row=8, column=2, value="The Cast Iron")
-    ws.cell(row=8, column=3, value="2.1 mi")
-    ws.cell(row=8, column=4, value="(865) 555-0118")
-    ws.cell(row=8, column=5, value="Sunday brunch is chef's-kiss — reserve ahead")
-
-    # Restaurant row 2 (row 9): Ridge BBQ
-    ws.cell(row=9, column=2, value="Ridge BBQ")
-    ws.cell(row=9, column=3, value="1.4 mi")
-    ws.cell(row=9, column=4, value="(865) 555-0122")
-    ws.cell(row=9, column=5, value="Brisket sells out by 7 PM Fri/Sat")
 
     set_col_widths(ws, [("A", 22), ("B", 28), ("C", 10), ("D", 16), ("E", 45)])
     ws.print_area = "A1:E25"
