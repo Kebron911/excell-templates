@@ -8,7 +8,7 @@
 | Airtable | airtable.com | (pending) | pending | Password manager + MCP env | PAT to be created for MCP |
 | Influencersoft | (pending) | (pending) | pending | Password manager | LTD license owned |
 | Stripe | dashboard.stripe.com | (pending) | pending | Password manager + IS | Stripe Tax enabled |
-| Ghost | (pending host) | (pending) | pending | Password manager | Subdomain blog.<domain> |
+| Ghost | (pending host) | (pending) | pending | Password manager | Subdomain blog.thestrledger.com |
 | Google Workspace | admin.google.com | (pending) | pending | Password manager | Used for backups + custom email |
 | Cloudflare | dash.cloudflare.com | (pending) | pending | Password manager | DNS + Tunnel + Registrar |
 | Hetzner/DO VPS | (pending host) | (pending) | pending | SSH keys + PM | n8n host |

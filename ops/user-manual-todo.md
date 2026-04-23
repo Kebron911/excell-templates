@@ -37,11 +37,11 @@ This single decision unblocks ~15 other tasks. Don't overthink it; you can reski
 
 Depends on 0.1.
 
-1. Go to https://dash.cloudflare.com → Domain Registration → search for `<brand>.com` → buy it ($10–15/yr)
+1. Go to https://dash.cloudflare.com → Domain Registration → search for `thestrledger.com` → buy it ($10–15/yr)
 2. Cloudflare auto-activates DNS — verify in DNS tab that nameservers are Cloudflare
-3. Sign up for Google Workspace at https://workspace.google.com → $6/user/mo → use `<brand>.com` as domain → follow DNS verification (add TXT + MX records in Cloudflare)
-4. Create `hello@<brand>.com` as primary inbox
-5. From any other email, send a test email to `hello@<brand>.com` → confirm receipt
+3. Sign up for Google Workspace at https://workspace.google.com → $6/user/mo → use `thestrledger.com` as domain → follow DNS verification (add TXT + MX records in Cloudflare)
+4. Create `hello@thestrledger.com` as primary inbox
+5. From any other email, send a test email to `hello@thestrledger.com` → confirm receipt
 6. Update `ops/credentials-inventory.md` with Cloudflare + Google Workspace rows (fill the "Owner" + "2FA" columns)
 
 **Tell Claude "domain live" when done.**
@@ -73,14 +73,14 @@ Depends on 0.1.
 ### [ ] 0.4 — Open Etsy seller account (45 min)
 
 1. Go to https://www.etsy.com/sell
-2. Use `hello@<brand>.com` as the account email
+2. Use `hello@thestrledger.com` as the account email
 3. Shop name = the brand name from 0.1
 4. Country: United States; Language: English; Currency: USD
 5. Add bank account info (or business bank if you've formed an LLC)
 6. Enter tax ID — SSN for sole prop, EIN for LLC
 7. Enable 2FA — Settings → Privacy & Security → Two-factor auth → authenticator app (not SMS)
 8. Upload shop banner + icon from Canva (see 0.5)
-9. Paste shop About + Policies from `copy/etsy-listings/shop-about.md` and `copy/etsy-listings/shop-policies.md` (replace `<brand>` and `<domain>` tokens before pasting)
+9. Paste shop About + Policies from `copy/etsy-listings/shop-about.md` and `copy/etsy-listings/shop-policies.md` (replace `The STR Ledger` and `thestrledger.com` tokens before pasting)
 10. Save shop as **"On vacation"** until you have products ready to list (keeps your listings fresh when it launches publicly)
 11. Update `ops/credentials-inventory.md`
 
@@ -127,7 +127,7 @@ Depends on 0.1 (colors + fonts + name).
 
 1. SSH into VPS as your non-root user
 2. Create `/home/<user>/n8n/docker-compose.yml` with the content from plan Task B2 Step 4 — **fill in real values** for:
-   - `N8N_HOST` (will be `n8n.<brand>.com`)
+   - `N8N_HOST` (will be `n8n.thestrledger.com`)
    - `N8N_BASIC_AUTH_USER` (make up a username)
    - `N8N_BASIC_AUTH_PASSWORD` (generate a strong password, save to password manager)
    - `N8N_ENCRYPTION_KEY` (generate 32+ chars random, save to password manager — this is the most important key in the stack)
@@ -143,11 +143,11 @@ Depends on 0.1 (colors + fonts + name).
 2. Name: `n8n-host`
 3. Follow install instructions for Ubuntu — run the `cloudflared` install command on the VPS
 4. In the Tunnel config UI:
-   - Hostname: `n8n.<brand>.com`
+   - Hostname: `n8n.thestrledger.com`
    - Service type: HTTP
    - URL: `http://localhost:5678`
 5. DNS record will auto-create
-6. Verify: browse to `https://n8n.<brand>.com` from your laptop → n8n basic-auth prompt → log in with the user/password from 1.2
+6. Verify: browse to `https://n8n.thestrledger.com` from your laptop → n8n basic-auth prompt → log in with the user/password from 1.2
 7. Update `infrastructure/n8n/install.md` with the actual hostname
 
 **Tell Claude "n8n accessible via Cloudflare" when done.**
@@ -157,13 +157,13 @@ Depends on 0.1 (colors + fonts + name).
 1. Log into IS with your LTD credentials
 2. Complete their getting-started wizard
 3. Set brand name, colors, fonts from 0.1
-4. Connect domain: IS → Settings → Domain → add `<brand>.com` and `app.<brand>.com` (or whatever subdomain IS uses) → follow CNAME instructions → add records in Cloudflare DNS
+4. Connect domain: IS → Settings → Domain → add `thestrledger.com` and `app.thestrledger.com` (or whatever subdomain IS uses) → follow CNAME instructions → add records in Cloudflare DNS
 5. Connect Stripe:
    - If you don't have a Stripe account, create one at https://dashboard.stripe.com
    - In IS → Integrations → Stripe → connect
    - Verify with a $1 test-mode purchase that fires through IS's checkout
 6. Email sender identity:
-   - IS → Email settings → Sender → add `hello@<brand>.com`
+   - IS → Email settings → Sender → add `hello@thestrledger.com`
    - It will give you DNS records (SPF, DKIM, DMARC) — add them all in Cloudflare DNS
    - Verify the domain in IS's email panel
 7. **Survey IS's API / Webhooks / Integrations panel.** Screenshot or write down what you find (native API yes/no, webhook events available, Zapier/Make support). This tells Claude which n8n integration path to take in Task B8.
@@ -188,9 +188,9 @@ Depends on 1.4 — Stripe account must exist.
 
 ### [ ] 1.6 — Set up Ghost blog (30 min)
 
-Recommended: Ghost(Pro) managed hosting at https://ghost.org/pricing → $9/mo starter → custom domain `blog.<brand>.com`.
+Recommended: Ghost(Pro) managed hosting at https://ghost.org/pricing → $9/mo starter → custom domain `blog.thestrledger.com`.
 
-1. Sign up with `hello@<brand>.com`
+1. Sign up with `hello@thestrledger.com`
 2. Set custom domain → follow DNS instructions (CNAME in Cloudflare)
 3. Pick clean default theme: "Source" or "Casper"
 4. Upload logo + apply brand colors from 0.5
@@ -249,7 +249,7 @@ Claude will draft these from the content plan — but you need to:
 
 ### [ ] 3.1 — Create Pinterest Business account (30 min)
 
-1. https://business.pinterest.com → sign up with `hello@<brand>.com`
+1. https://business.pinterest.com → sign up with `hello@thestrledger.com`
 2. Enable 2FA
 3. Claim your domain → Pinterest gives a TXT record → add in Cloudflare DNS → verify
 4. Create 5 boards per plan Task C2 Step 2
@@ -281,7 +281,7 @@ Use [copy/fb-group/launch-plan.md](../copy/fb-group/launch-plan.md) as the playb
 
 Do this after at least 1 template is finished and listed on Etsy (so you have the files to mirror).
 
-1. https://gumroad.com → sign up with `hello@<brand>.com`
+1. https://gumroad.com → sign up with `hello@thestrledger.com`
 2. Username = brand name (lowercase, hyphenated)
 3. Enable 2FA
 4. Submit bank info
@@ -296,7 +296,7 @@ Run through this the week before Week 8 milestone to make sure nothing slipped.
 
 ### [ ] 4.1 — Email nurture sequence live-test
 
-1. Subscribe your own personal email to `<brand>.com/47` landing page
+1. Subscribe your own personal email to `thestrledger.com/47` landing page
 2. Receive email 1 (Day 0) immediately
 3. In IS, use "jump ahead" or "test mode" to fire emails 2 through 9 in sequence
 4. Confirm each renders correctly, each link works, each CTA goes to the right page
@@ -354,7 +354,7 @@ Open `ops/week-8-milestone-checklist.md` (created by Claude in Task M1). Work th
 When you finish a numbered section, tell Claude one of these:
 
 - "Section 0.1 done — brand is `<name>`" → token substitution across all docs
-- "Section 0.2 done — domain live at `<domain>`" → more substitutions
+- "Section 0.2 done — domain live at `thestrledger.com`" → more substitutions
 - "Section 0.3 done — Airtable MCP connected" → Claude populates schema
 - "Section 0.4 done — Etsy account open" → Claude drafts first listing
 - "Section 0.5 done — brand assets exported" → Claude drafts pin designs
