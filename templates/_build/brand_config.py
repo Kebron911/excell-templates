@@ -68,21 +68,32 @@ def formula_cell_style():
     }
 
 def set_col_widths(ws, widths):
-    """widths is a list of (col_letter, width) pairs."""
+    """widths is a list of (col_letter_or_int, width) pairs.
+
+    Accepts either a column letter ("A") or a 1-based integer index.
+    """
     for col, w in widths:
+        if isinstance(col, int):
+            col = get_column_letter(col)
         ws.column_dimensions[col].width = w
+
+def apply_style(cell, style_dict):
+    """Apply a style dict (returned by the *_style() helpers below) to a cell.
+
+    Callers: apply_style(ws.cell(row=5, column=1), input_cell_style())
+    """
+    for attr, value in style_dict.items():
+        setattr(cell, attr, value)
 
 def add_upgrade_banner(ws, row):
     """Place a prominent upgrade CTA on the given row."""
-    ws.cell(row=row, column=1, value=(
+    cell = ws.cell(row=row, column=1, value=(
         f"💡 Upgrade to the Full version at {BRAND_DOMAIN}/upgrade "
         f"— multi-property, depreciation, multi-LLC support."
     ))
-    ws.cell(row=row, column=1).font = Font(
-        name=FONT_BODY, size=11, bold=True, color="FFFFFF"
-    )
-    ws.cell(row=row, column=1).fill = PatternFill("solid", fgColor=COLOR_ACCENT)
-    ws.cell(row=row, column=1).alignment = Alignment(
+    cell.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    cell.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
+    cell.alignment = Alignment(
         horizontal="center", vertical="center", wrap_text=True
     )
     ws.row_dimensions[row].height = 30
