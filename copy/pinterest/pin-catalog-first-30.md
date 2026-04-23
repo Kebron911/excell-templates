@@ -29,46 +29,46 @@ Each row: pin number, title (what shows on the pin image), style, linked URL, bo
 
 | # | Pin title (on image) | Style | URL | Board | Day |
 |---|---|---|---|---|---|
-| 1 | 47 Airbnb Tax Deductions Most Hosts Miss | Tip-list | `<domain>/47` | STR Tax Tips | 1 |
-| 2 | The $8,427 Deduction (most STR hosts miss this) | Quote-card | `<domain>/47` | STR Tax Tips | 2 |
-| 3 | Every Airbnb Deduction You Can Legally Take | Tip-list | `<domain>/47` | Airbnb Host Resources | 3 |
-| 4 | "Did I miss anything?" — Tax Deduction Checklist | Question | `<domain>/47` | STR Tax Tips | 4 |
-| 5 | Your CPA Won't Ask About #23 (You Should) | Quote-card | `<domain>/47` | STR Tax Tips | 5 |
-| 6 | Airbnb Tax Deductions — The Full Printable List | Tip-list | `<domain>/47` | STR Templates & Tools | 6 |
-| 7 | Top 10 Missed STR Deductions (with IRS codes) | Tip-list | `<domain>/blog/airbnb-tax-deductions` | STR Tax Tips | 7 |
-| 8 | Host-Friendly Tax Prep: 47 Deductions in One PDF | Before/after | `<domain>/47` | Hosting Like a Business | 8 |
-| 9 | Cost Segregation for STRs (plain-English guide) | Infographic | `<domain>/blog/airbnb-tax-deductions` | STR Tax Tips | 9 |
-| 10 | STR Tax Deductions Quick-Reference | Tip-list | `<domain>/47` | STR Tax Tips | 10 |
+| 1 | 47 Airbnb Tax Deductions Most Hosts Miss | Tip-list | `thestrledger.com/47` | STR Tax Tips | 1 |
+| 2 | The $8,427 Deduction (most STR hosts miss this) | Quote-card | `thestrledger.com/47` | STR Tax Tips | 2 |
+| 3 | Every Airbnb Deduction You Can Legally Take | Tip-list | `thestrledger.com/47` | Airbnb Host Resources | 3 |
+| 4 | "Did I miss anything?" — Tax Deduction Checklist | Question | `thestrledger.com/47` | STR Tax Tips | 4 |
+| 5 | Your CPA Won't Ask About #23 (You Should) | Quote-card | `thestrledger.com/47` | STR Tax Tips | 5 |
+| 6 | Airbnb Tax Deductions — The Full Printable List | Tip-list | `thestrledger.com/47` | STR Templates & Tools | 6 |
+| 7 | Top 10 Missed STR Deductions (with IRS codes) | Tip-list | `thestrledger.com/blog/airbnb-tax-deductions` | STR Tax Tips | 7 |
+| 8 | Host-Friendly Tax Prep: 47 Deductions in One PDF | Before/after | `thestrledger.com/47` | Hosting Like a Business | 8 |
+| 9 | Cost Segregation for STRs (plain-English guide) | Infographic | `thestrledger.com/blog/airbnb-tax-deductions` | STR Tax Tips | 9 |
+| 10 | STR Tax Deductions Quick-Reference | Tip-list | `thestrledger.com/47` | STR Tax Tips | 10 |
 
 ### Pins 11–20: Promoting Blog Post 2 (Schedule E) + Schedule E Product
 
 | # | Pin title | Style | URL | Board | Day |
 |---|---|---|---|---|---|
-| 11 | Schedule E vs Schedule C for Airbnb — Which Do You File? | Question | `<domain>/blog/airbnb-schedule-e` | STR Tax Tips | 11 |
-| 12 | How to File Airbnb Income on Schedule E (the right way) | Tip-list | `<domain>/blog/airbnb-schedule-e` | STR Tax Tips | 12 |
-| 13 | The Schedule E Mistake That Cost One Host $3,200 | Quote-card | `<domain>/blog/airbnb-schedule-e` | STR Tax Tips | 13 |
-| 14 | STR Schedule E Template (Excel, business-grade) | Before/after | `<domain>/products/schedule-e` | STR Templates & Tools | 14 |
-| 15 | Material Participation Rules for STR Hosts | Infographic | `<domain>/blog/airbnb-schedule-e` | STR Tax Tips | 15 |
-| 16 | Every Schedule E Line, Explained for Airbnb Hosts | Tip-list | `<domain>/blog/airbnb-schedule-e` | STR Tax Tips | 16 |
-| 17 | Passive vs Active Income — STR Edition | Question | `<domain>/blog/airbnb-schedule-e` | Short-Term Rental Business | 17 |
-| 18 | Schedule E or C for Your Airbnb? (Free decision guide) | Question | `<domain>/blog/airbnb-schedule-e` | STR Tax Tips | 18 |
-| 19 | The Schedule E Workbook That Saved Tax Season | Before/after | `<domain>/products/schedule-e` | STR Templates & Tools | 19 |
-| 20 | STR Schedule E: What to Do Before April 15 | Tip-list | `<domain>/blog/airbnb-schedule-e` | STR Tax Tips | 20 |
+| 11 | Schedule E vs Schedule C for Airbnb — Which Do You File? | Question | `thestrledger.com/blog/airbnb-schedule-e` | STR Tax Tips | 11 |
+| 12 | How to File Airbnb Income on Schedule E (the right way) | Tip-list | `thestrledger.com/blog/airbnb-schedule-e` | STR Tax Tips | 12 |
+| 13 | The Schedule E Mistake That Cost One Host $3,200 | Quote-card | `thestrledger.com/blog/airbnb-schedule-e` | STR Tax Tips | 13 |
+| 14 | STR Schedule E Template (Excel, business-grade) | Before/after | `thestrledger.com/products/schedule-e` | STR Templates & Tools | 14 |
+| 15 | Material Participation Rules for STR Hosts | Infographic | `thestrledger.com/blog/airbnb-schedule-e` | STR Tax Tips | 15 |
+| 16 | Every Schedule E Line, Explained for Airbnb Hosts | Tip-list | `thestrledger.com/blog/airbnb-schedule-e` | STR Tax Tips | 16 |
+| 17 | Passive vs Active Income — STR Edition | Question | `thestrledger.com/blog/airbnb-schedule-e` | Short-Term Rental Business | 17 |
+| 18 | Schedule E or C for Your Airbnb? (Free decision guide) | Question | `thestrledger.com/blog/airbnb-schedule-e` | STR Tax Tips | 18 |
+| 19 | The Schedule E Workbook That Saved Tax Season | Before/after | `thestrledger.com/products/schedule-e` | STR Templates & Tools | 19 |
+| 20 | STR Schedule E: What to Do Before April 15 | Tip-list | `thestrledger.com/blog/airbnb-schedule-e` | STR Tax Tips | 20 |
 
 ### Pins 21–30: Promoting Blog Post 3 (Depreciation) + Depreciation Tracker
 
 | # | Pin title | Style | URL | Board | Day |
 |---|---|---|---|---|---|
-| 21 | Airbnb Depreciation Explained in 5 Minutes | Tip-list | `<domain>/blog/str-depreciation` | STR Tax Tips | 21 |
-| 22 | The 27.5-Year Rule (and the one exception hosts miss) | Quote-card | `<domain>/blog/str-depreciation` | STR Tax Tips | 22 |
-| 23 | STR Depreciation — 5/7/15/27.5 Year Breakdown | Infographic | `<domain>/blog/str-depreciation` | STR Tax Tips | 23 |
-| 24 | Bonus Depreciation for STR Hosts in 2026 | Tip-list | `<domain>/blog/str-depreciation` | STR Tax Tips | 24 |
-| 25 | What Depreciates Over 5 Years vs 27.5 Years in an STR | Question | `<domain>/blog/str-depreciation` | STR Tax Tips | 25 |
-| 26 | The Depreciation Tracker Every STR Owner Needs | Before/after | `<domain>/products/depreciation-tracker` | STR Templates & Tools | 26 |
-| 27 | DIY Cost Segregation (hosts under $500K) | Infographic | `<domain>/blog/str-depreciation` | STR Tax Tips | 27 |
-| 28 | Section 179 vs Bonus Depreciation for Your STR | Question | `<domain>/blog/str-depreciation` | STR Tax Tips | 28 |
-| 29 | Furniture, Fixtures, Building — Separating Them Correctly | Tip-list | `<domain>/blog/str-depreciation` | STR Tax Tips | 29 |
-| 30 | The Depreciation Mistake That Triggers Audits | Quote-card | `<domain>/blog/str-depreciation` | STR Tax Tips | 30 |
+| 21 | Airbnb Depreciation Explained in 5 Minutes | Tip-list | `thestrledger.com/blog/str-depreciation` | STR Tax Tips | 21 |
+| 22 | The 27.5-Year Rule (and the one exception hosts miss) | Quote-card | `thestrledger.com/blog/str-depreciation` | STR Tax Tips | 22 |
+| 23 | STR Depreciation — 5/7/15/27.5 Year Breakdown | Infographic | `thestrledger.com/blog/str-depreciation` | STR Tax Tips | 23 |
+| 24 | Bonus Depreciation for STR Hosts in 2026 | Tip-list | `thestrledger.com/blog/str-depreciation` | STR Tax Tips | 24 |
+| 25 | What Depreciates Over 5 Years vs 27.5 Years in an STR | Question | `thestrledger.com/blog/str-depreciation` | STR Tax Tips | 25 |
+| 26 | The Depreciation Tracker Every STR Owner Needs | Before/after | `thestrledger.com/products/depreciation-tracker` | STR Templates & Tools | 26 |
+| 27 | DIY Cost Segregation (hosts under $500K) | Infographic | `thestrledger.com/blog/str-depreciation` | STR Tax Tips | 27 |
+| 28 | Section 179 vs Bonus Depreciation for Your STR | Question | `thestrledger.com/blog/str-depreciation` | STR Tax Tips | 28 |
+| 29 | Furniture, Fixtures, Building — Separating Them Correctly | Tip-list | `thestrledger.com/blog/str-depreciation` | STR Tax Tips | 29 |
+| 30 | The Depreciation Mistake That Triggers Audits | Quote-card | `thestrledger.com/blog/str-depreciation` | STR Tax Tips | 30 |
 
 ---
 
