@@ -10,7 +10,7 @@
 
 ## Trigger
 
-HTTP POST webhook: `https://n8n.<domain>/webhook/order-gumroad`
+HTTP POST webhook: `https://n8n.thestrledger.com/webhook/order-gumroad`
 
 Configured in **Gumroad → Settings → Advanced → Ping URL**. Gumroad does NOT send per-event webhooks like Stripe; it sends a "ping" on every sale with all sale data in the body. Shared-secret authentication (not signature-based).
 
@@ -152,7 +152,7 @@ Same pattern as W01:
 
 - Airtable Products rows exist with `Gumroad product ID` populated for live products
 - IS API accessible
-- Gumroad ping URL configured as `https://n8n.<domain>/webhook/order-gumroad?secret=<shared_secret>`
+- Gumroad ping URL configured as `https://n8n.thestrledger.com/webhook/order-gumroad?secret=<shared_secret>`
 
 ## Edge cases
 
@@ -181,7 +181,7 @@ Same metrics as W01 with Gumroad scope.
 ## Deployment
 
 1. Create workflow, configure credentials
-2. In Gumroad: Settings → Advanced → Ping URL → paste `https://n8n.<domain>/webhook/order-gumroad?secret=<your_secret>`
+2. In Gumroad: Settings → Advanced → Ping URL → paste `https://n8n.thestrledger.com/webhook/order-gumroad?secret=<your_secret>`
 3. Test: make a real $1 purchase in Gumroad test mode → verify Airtable writes
 4. Enable live mode → verify production sale creates Airtable row within 60s
 5. Export to JSON, commit

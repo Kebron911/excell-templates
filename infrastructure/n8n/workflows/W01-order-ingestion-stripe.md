@@ -10,7 +10,7 @@
 
 ## Trigger
 
-HTTP POST webhook: `https://n8n.<domain>/webhook/order-stripe`
+HTTP POST webhook: `https://n8n.thestrledger.com/webhook/order-stripe`
 
 Configured in **Stripe Dashboard → Developers → Webhooks → Add endpoint**.
 
@@ -294,7 +294,7 @@ If any node fails:
 3. Set environment variables in `docker-compose.yml` or n8n admin UI
 4. Activate workflow
 5. In Stripe: create webhook endpoint → copy signing secret → paste into n8n env → activate webhook endpoint
-6. Test: use Stripe CLI `stripe listen --forward-to https://n8n.<domain>/webhook/order-stripe` + `stripe trigger checkout.session.completed`
+6. Test: use Stripe CLI `stripe listen --forward-to https://n8n.thestrledger.com/webhook/order-stripe` + `stripe trigger checkout.session.completed`
 7. Verify Airtable writes occurred correctly
 8. Export workflow as JSON → save to `infrastructure/n8n/workflows/W01-order-ingestion-stripe.json` → commit
 

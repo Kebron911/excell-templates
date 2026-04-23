@@ -229,7 +229,7 @@ Each section includes: trigger, inputs, core nodes, outputs, error handling, dep
 
 **Priority:** P0 — blocks every downstream analytics and customer workflow.
 
-**Trigger:** HTTP Webhook at `https://n8n.<domain>/webhook/order-stripe`
+**Trigger:** HTTP Webhook at `https://n8n.thestrledger.com/webhook/order-stripe`
 
 **Stripe events to subscribe to:**
 - `charge.succeeded`
@@ -296,7 +296,7 @@ Each section includes: trigger, inputs, core nodes, outputs, error handling, dep
 
 **Priority:** P0
 
-**Trigger:** HTTP Webhook at `https://n8n.<domain>/webhook/order-gumroad`
+**Trigger:** HTTP Webhook at `https://n8n.thestrledger.com/webhook/order-gumroad`
 
 Gumroad sends "Ping" webhooks for sales. Configure in Gumroad Settings → Advanced → Ping URL.
 
@@ -508,13 +508,13 @@ Gumroad sends "Ping" webhooks for sales. Configure in Gumroad Settings → Advan
    - "Channel revenue breakdown"
    - "Anomalies needing attention"
    - "Suggested actions for this week"
-4. Email Daniel with the briefing (sent from `hello@<domain>`)
+4. Email Daniel with the briefing (sent from `hello@thestrledger.com`)
 5. Also commit a markdown copy to Airtable Metrics > WeeklyBriefings linked table for history
 
 **Prompt template for Claude in this workflow:**
 
 ```
-You are the weekly ops analyst for <brand>. Given the following data, write a concise
+You are the weekly ops analyst for The STR Ledger. Given the following data, write a concise
 briefing (under 500 words) for Daniel. Lead with revenue total + trend. Then top
 products. Then channel breakdown. Then anomalies (flag any metric outside its
 target band — refunds >8%, email open <25%, CAC >$4). End with 3 suggested actions.
@@ -557,7 +557,7 @@ Dashboard: https://airtable.com/<link to filtered view>
 
 **Priority:** P1
 
-**Trigger:** Email received at `hello@<domain>` (via Google Workspace API push or IMAP polling).
+**Trigger:** Email received at `hello@thestrledger.com` (via Google Workspace API push or IMAP polling).
 
 **Nodes:**
 1. Email trigger (IMAP or Google Workspace)
@@ -613,7 +613,7 @@ huge difference for a small shop like ours:
 
 If something didn't work, hit reply. I'll fix it.
 
-— <brand>
+— The STR Ledger
 ```
 
 ---
@@ -916,7 +916,7 @@ Maintain a parallel Airtable base called `STR Platform — STAGING` with the sam
 ### Alerting channels
 
 - Slack channel `#str-platform-alerts` for all threshold alerts + workflow failures
-- Email to `hello@<domain>` for weekly briefing only
+- Email to `hello@thestrledger.com` for weekly briefing only
 - SMS (via Twilio) for P0 alerts only: Stripe auth failure, Airtable API outage, n8n VPS unreachable
 
 ---

@@ -10,7 +10,7 @@
 
 ## Trigger
 
-**Path A (preferred):** IS webhook on `subscriber.created` or `contact.updated` events → POST `https://n8n.<domain>/webhook/subscriber-is`
+**Path A (preferred):** IS webhook on `subscriber.created` or `contact.updated` events → POST `https://n8n.thestrledger.com/webhook/subscriber-is`
 
 **Path B (fallback):** Cron every 1 hour → pull IS API for contacts modified since last sync
 
