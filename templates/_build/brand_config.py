@@ -6,19 +6,25 @@ Single source of truth — if brand palette changes, update here only.
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, NamedStyle
 from openpyxl.utils import get_column_letter
 
-# --- Brand palette (from brand/brand-decisions.md) ---
+# --- Brand palette (authoritative: brand/brand-decisions.md §4.1) ---
 BRAND_NAME = "The STR Ledger"
 BRAND_DOMAIN = "thestrledger.com"
 BRAND_EMAIL = "hello@thestrledger.com"
 
-# Primary dark navy-blue, secondary warm tan, accent deep green
-COLOR_PRIMARY = "0E2A47"      # navy
-COLOR_SECONDARY = "C9A875"    # warm tan
-COLOR_ACCENT = "2E6B4F"       # deep green
-COLOR_TEXT = "1C1C1C"         # near-black
-COLOR_MUTED = "6B7280"        # slate gray
-COLOR_BG_LIGHT = "F7F4EE"     # cream
-COLOR_ERROR = "B91C1C"        # red (for over-threshold warnings)
+# Authoritative: brand/brand-decisions.md §4.1
+COLOR_PRIMARY = "12304E"      # Harbor Navy — authority, hero bg, primary type
+COLOR_SECONDARY = "B5725E"    # Clay Rose — warmth, secondary accent (use sparingly)
+COLOR_ACCENT = "C9A24B"       # Muted Gold — period-mark, rules, highlights
+COLOR_TEXT = "2B2B2B"         # Graphite — body copy (softer than pure black)
+COLOR_BG_LIGHT = "F6EFE2"     # Parchment — paper, warmed white, default bg
+COLOR_MUTED = "6B7280"        # Slate — captions/footnotes (non-brand utility)
+COLOR_ERROR = "B91C1C"        # Red — threshold warnings (non-brand utility)
+
+# Tints/shades (brand-decisions.md §4.3) for UI states
+COLOR_NAVY_TINT = "2A4867"       # hover, secondary navy
+COLOR_NAVY_SHADE = "0A1F35"      # pressed, shadow
+COLOR_PARCHMENT_ALT = "EFE5D0"   # alt-row banding, subtle card
+COLOR_GOLD_SOFT = "E2C884"       # disabled/muted accent
 
 # --- Fonts ---
 FONT_HEAD = "Georgia"         # serif for headings
