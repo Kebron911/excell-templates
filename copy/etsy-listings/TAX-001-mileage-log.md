@@ -2,118 +2,112 @@
 
 **SKU:** TAX-001
 
-**Status:** ⚠️ SPECULATIVE — review after brief complete.
+**Status:** Ready to publish. Brief + spec committed. Excel build pending (Task 9b). Delivery assets complete. Awaiting Etsy upload (Task 11).
 
-**Pricing:** $17 Etsy · $17 own-site · Gumroad $17 (same across all)
+**Pricing:** $17 Etsy · $17 own-site (same)
 
-**Category path:** Digital Downloads > Other Digital Downloads > Business & Office > Accounting & Finance
+**Category path:** Digital Downloads > Other Digital Downloads > Business & Office
+
+**Files to attach on Etsy (5):**
+1. `templates/_masters/TAX-001-mileage-log.xlsx`
+2. `templates/_delivery/_shared/etsy-upgrade-insert.pdf` (shared — from Task 10)
+3. `templates/_delivery/TAX-001-mileage-log/TAX-001-howto.pdf`
+4. `templates/_delivery/TAX-001-mileage-log/TAX-001-license.pdf`
+5. (optional) preview PDF
 
 ---
 
 ## Title
 
 ```
-Airbnb Mileage Log Template | STR Tax Deduction Tracker | IRS Mileage Log Excel | Vacation Rental Business Expense | Instant Download
+Airbnb Mileage Log Spreadsheet | IRS Compliant STR Mileage Tracker | Excel + Google Sheets | Vacation Rental Tax Deduction
 ```
 
-**Character count: 134/140** ✅
+**Character count: 120/140** ✅
 
 ---
 
 ## Description
 
 ```
-✨ AUTO-CALCULATING MILEAGE LOG FOR AIRBNB & VRBO HOSTS ✨
+IRS-compliant mileage log for Airbnb and STR hosts. Auto-calculates deduction at 2026 IRS rate ($0.70/mi). Editable Excel.
 
-The 2026 IRS standard mileage rate is 70¢ per mile. For an active host,
-every trip to the property — cleaning inspection, maintenance, guest
-emergency, restocking supplies — is a deductible business mile.
+Close your year before April does.
 
-The problem: without a real log, you can't claim those miles.
+The IRS requires four things per business-mile entry: date, destination, business purpose, and miles. Most STR hosts have none of it at tax time. Active hosts miss $2,000–$8,000 per year in mileage deductions — not because they didn't drive, but because they didn't document.
 
-This is the log I built after the IRS audited my 2022 return.
-It survived the audit. It now tracks every mile for my three properties
-and has auto-calculated $4,200+ in deductions every year since.
+This log captures all four fields plus odometer readings, property allocation, and auto-calculated dollar deduction at the current IRS standard mileage rate. Hand the monthly summary and YTD dashboard to your CPA. Done.
 
 ═══════════════════════════════════════════
 WHAT'S INCLUDED
 ═══════════════════════════════════════════
 
-📊 Excel workbook with:
-   • Trip-logging tab (date, purpose, start/end odometer, miles, notes)
-   • Auto-calculated deduction (uses 2026 IRS rate — easily updated annually)
-   • Per-property rollup (see which property is eating your time)
-   • Monthly and YTD totals
-   • Print-ready summary tab for your CPA
-   • Sample-data tab showing filled-in example
-📊 Companion PDF: "How to Document Mileage for an IRS Audit" (1-page guide)
-📊 Editable tax rate (update when IRS changes the per-mile rate)
-📊 Supports unlimited trips across unlimited properties
+Excel workbook (5 tabs):
+
+- Mileage Log — one row per trip. Date, property, destination, business purpose, start/end odometer OR typed miles, notes. 2,000-row capacity.
+- Monthly Summary — miles + dollar deduction per month, auto-calculated from the log
+- YTD Dashboard — totals + breakdown by business purpose (7 categories: property inspection, turnover, supplies run, guest transport, repairs, meeting cleaner, other)
+- Welcome tab — IRS compliance note + how-to guide
+- Settings tab — editable IRS rate (update every January 1), property list, purpose list (source for all dropdowns)
+
+Compliance check column (col K): green ✓ when a row meets IRS Pub 463 requirements, red ⚠ when something required is missing.
+
+Formula auto-detects odometer method (start + end odo) OR stated-miles method (typed). Use whichever you prefer.
 
 ═══════════════════════════════════════════
-WHY THIS PAYS FOR ITSELF ON THE FIRST TRIP
+WHY THIS PAYS FOR ITSELF IN ONE TRIP
 ═══════════════════════════════════════════
 
-💵 25 miles round-trip × 70¢/mile = $17.50 deduction → this template pays
-   for itself on ONE trip
-💵 Active hosts average $2,000–$8,000/year in mileage deductions
-💵 IRS audit-defensible format (matches what they actually want to see)
+25 miles round-trip × $0.70/mi = $17.50 deduction.
+
+This template pays for itself on one trip. Active STR hosts who document consistently recover $2,000–$8,000 per year. At a 25% tax bracket, every 100 documented miles is $17.50 back in your pocket.
+
+The IRS does not accept "I think I drove a lot." They want a log. This is the log.
 
 ═══════════════════════════════════════════
-WHO THIS IS FOR
+WHO IT'S FOR
 ═══════════════════════════════════════════
 
-🚗 Self-managed STR hosts (you drive to your property)
-🚗 Multi-property hosts (auto-tracks per-property)
-🚗 Hosts who currently jot miles on napkins or forget altogether
-🚗 Anyone who's realized they've been leaving this deduction on the table
-
-═══════════════════════════════════════════
-WHAT'S NOT INCLUDED (BE UPFRONT)
-═══════════════════════════════════════════
-
-❌ Auto-tracking via GPS — this is a manual-entry log. If you want GPS
-   auto-tracking, apps like MileIQ or Everlance do that (and still export
-   data you can paste into this template for CPA-friendly formatting).
-❌ Multi-year historical data — this is a fresh-year log; copy/paste
-   prior years in if needed.
-❌ State mileage tables — federal IRS rate only.
+- STR hosts who drive to their properties for inspections, turnovers, supply runs, repairs, or guest transport
+- Multi-property hosts who want per-property mileage allocation
+- Hosts filing Schedule C or Schedule E who want an audit-defensible record
+- Anyone who told their CPA "I didn't keep a mileage log" and doesn't want to say that again
 
 ═══════════════════════════════════════════
 HOW IT WORKS
 ═══════════════════════════════════════════
 
-1️⃣ Purchase → instant download in 60 seconds
-2️⃣ Open in Excel or Google Sheets
-3️⃣ Log trips as they happen (5 seconds per trip)
-4️⃣ At tax time, copy the summary tab to give your CPA
+1. Purchase → instant download
+2. Open Settings tab — confirm IRS rate (2026: $0.70/mi), enter your property names
+3. Open Mileage Log — fill one row per trip (5 seconds)
+4. Column K flags any incomplete rows in red
+5. At tax time: print Monthly Summary + YTD Dashboard to PDF, send to CPA
 
 ═══════════════════════════════════════════
 FILE COMPATIBILITY
 ═══════════════════════════════════════════
 
-✅ Microsoft Excel 2016+ (Windows and Mac)
-✅ Microsoft Excel 365
-✅ Google Sheets (imports cleanly)
+Microsoft Excel 2016+ (Windows and Mac)
+Microsoft Excel 365
+Google Sheets (imports cleanly)
 
 ═══════════════════════════════════════════
 REFUNDS + SUPPORT
 ═══════════════════════════════════════════
 
-14-day refund, no questions asked. Message if anything doesn't work.
+14-day refund, no questions asked. If the file doesn't work on your setup or doesn't solve the problem you bought it for, email hello@thestrledger.com — real humans, fast replies.
+
+Not tax advice. Consult your CPA for your specific situation.
 
 ═══════════════════════════════════════════
-ABOUT The STR Ledger
+ABOUT THE STR LEDGER
 ═══════════════════════════════════════════
 
-We build business-grade Excel systems for hosts who treat their STR
-portfolio like a real business. Full tax + operations library at thestrledger.com.
+The STR Ledger builds business-grade Excel systems for hosts who treat their STR portfolio like a real business. Full tax + operations template library at thestrledger.com.
 
-═══════════════════════════════════════════
+Tax Season Bundle: mileage log + home office deduction + 1099-NEC tracker + Schedule E prep workbook, $147. Details at thestrledger.com/tax-bundle.
 
-⚠️ This is a DIGITAL PRODUCT. No physical item will be shipped.
-⚠️ Personal/business use for hosts. Not for resale.
-⚠️ Not tax advice — consult your CPA for your specific situation.
+This is a digital product. No physical item will be shipped.
 ```
 
 ---
@@ -121,18 +115,18 @@ portfolio like a real business. Full tax + operations library at thestrledger.co
 ## Tags (13)
 
 1. `airbnb mileage log`
-2. `str tax template`
-3. `mileage tracker excel`
-4. `airbnb taxes`
-5. `vrbo expenses`
-6. `vacation rental tax`
-7. `business mileage`
-8. `irs mileage log`
-9. `airbnb host`
-10. `tax deduction`
-11. `str business`
-12. `rental property tax`
-13. `expense tracker`
+2. `str mileage tracker`
+3. `irs mileage log`
+4. `vacation rental tax`
+5. `mileage spreadsheet`
+6. `airbnb tax`
+7. `rental mileage`
+8. `business mileage`
+9. `tax template`
+10. `vrbo tax`
+11. `str tax`
+12. `schedule c mileage`
+13. `airbnb template`
 
 ---
 
@@ -141,47 +135,42 @@ portfolio like a real business. Full tax + operations library at thestrledger.co
 - **Type:** Digital Download
 - **Who made it:** I did
 - **When was it made:** Made to order
-- **Category:** Digital Downloads → Business & Office → Accounting & Finance
+- **Category:** Digital Downloads > Other Digital Downloads > Business & Office
 
 ---
 
 ## Thumbnails shot list (5)
 
+See `templates/_delivery/TAX-001-mileage-log/thumbnails.md` for full Vista Create specs.
+
 **Image 1 — Hero**
-- Mockup: phone showing mileage log spreadsheet with a highway background
-- Headline: "The Mileage Log That Survived an IRS Audit"
-- Sub: "$17 · Excel · Every deductible mile · Instant download"
+- MacBook mockup showing Mileage Log tab (rows 6-12 visible) + Settings IRS rate highlighted
+- Headline: "STR Mileage Log — IRS Pub 463 Compliant"
+- Sub: "$0.70/mi auto. CPA-ready. Editable."
 
-**Image 2 — The calculation**
-- Screenshot of actual sheet: 30 trips listed, total at bottom highlighted "$2,147 in deductions"
-- Caption: "Auto-calculates the 2026 IRS rate"
+**Image 2 — The deduction you're missing**
+- YTD Dashboard screenshot with "$2,847 deducted" overlay in Muted Gold (#C9A24B)
+- Headline: "The Deduction You're Missing."
+- Sub: "Every trip. Every property. Every dollar."
 
-**Image 3 — Per-property rollup**
-- Screenshot of summary tab showing 3 properties with miles + $ each
-- Caption: "See which property is eating your windshield time"
+**Image 3 — Before / After**
+- Split: notebook scribbles LEFT / Monthly Summary tab RIGHT
+- Headline: "Stop Guessing at Tax Time."
+- Sub: "Your CPA will love this file."
 
-**Image 4 — Print-ready for CPA**
-- PDF export of printable summary
-- Caption: "Hand this to your CPA (or the IRS, if needed)"
+**Image 4 — Auto-calc**
+- Trip row → formula arrow → deduction cell visualization
+- Headline: "Type. Save. Auto-Deducted."
+- Sub: "Odometer or typed miles — formula handles both."
 
-**Image 5 — The receipt/audit story**
-- Quote card:
-  - "$17 template. $4,200 in deductions every year. My best ROI as a host."
-  - — Daniel, 3-property host
-- Or host-testimonial after first 5 sales
-
----
-
-## Files attached
-
-1. `TAX-001-mileage-log.xlsx` — master
-2. `TAX-001-audit-survival-guide.pdf` — companion
-3. `etsy-upgrade-insert.pdf` — shared upgrade CTA
-4. `TAX-001-license.pdf`
-5. (optional) `TAX-001-instructions.pdf`
+**Image 5 — What's included**
+- Feature card on Clay Rose (#B5725E) background listing 6 key inclusions
+- Headline: "What You Get"
+- Sub: "Opens in Excel 2016+, Excel 365, Google Sheets"
 
 ---
 
 ## Iteration log
 
 - `2026-04-22` — Initial speculative draft.
+- `2026-04-22` — Refreshed: brief + spec committed. Status updated, tokens substituted, description rewritten to OPS-001 pattern, tags updated, thumbnails moved to delivery folder.
