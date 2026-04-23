@@ -2,14 +2,14 @@
 
 **Spec reference:** §7.3 of master strategy. Targets: traffic → email capture → Day 0 welcome → Day 21 bundle close.
 
-**Trigger:** form submission on `<domain>/47`
+**Trigger:** form submission on `thestrledger.com/47`
 
 **Default tag at entry:** `source:hero-magnet` (overridden if UTM indicates pinterest/etsy/blog — opens of each segment branch with a different first paragraph in Email 1)
 
 **Token conventions:**
 - `{{ first_name | default: "there" }}` — substitute IS/your-platform's syntax
 - `{{ tax_season_weeks_out }}` — computed by IS dynamic field (Tax Day − today in weeks)
-- `<brand>`, `<domain>` — replace after Task A1 brand lock
+- `The STR Ledger`, `thestrledger.com` — replace after Task A1 brand lock
 
 ---
 
@@ -37,7 +37,7 @@ One favor while you're here: if you want the ongoing systems and not just the on
 Tomorrow I'll tell you about the $8,427 deduction specifically. Some of it you've probably heard of. Some of it will be new.
 
 Talk then,
-<brand> · <signature>
+The STR Ledger · <signature>
 
 P.S. If this email ended up in Promotions, drag it to the Primary tab and the next 8 will land in the right place. Email providers are weird about new senders.
 ```
@@ -67,7 +67,7 @@ The cost seg workbook that was sitting in Amanda's toolkit is **item #23 in the 
 
 Tomorrow: why QuickBooks keeps failing STR hosts (and what to use instead).
 
-— <brand>
+— The STR Ledger
 ```
 
 ---
@@ -97,7 +97,7 @@ That's the entire premise of what we build.
 
 Tomorrow I want to show you the one template that changed how I run my portfolio: the mileage log I built after the IRS audited my 2022 return. $17. Rounding error. Pays for itself on a single trip.
 
-— <brand>
+— The STR Ledger
 ```
 
 ---
@@ -129,7 +129,7 @@ When you check out, you'll see an option to add the **Per-Diem Meal Tracker** fo
 
 14-day refund if it's not what you expected. No hoops.
 
-— <brand>
+— The STR Ledger
 
 P.S. If $17 feels steep and you just want the free stuff, that's fine — the 47 Deductions guide and the FB Group are where the bulk of the value is. I'll keep writing. No pressure.
 ```
@@ -157,7 +157,7 @@ $97. 30-day refund. I'll tell you more about it on Day 11.
 
 For now: open the mileage log, punch in your trips from the last month, and see what pops out at the bottom. Most hosts are $500+ ahead of where they thought they were by the end of the first session.
 
-— <brand>
+— The STR Ledger
 ```
 
 ### Branch 5B — Non-buyer: Amanda case study
@@ -189,7 +189,7 @@ Before this setup, Amanda's tax season was a full weekend (16 hours minimum) of 
 
 I'll pitch you this workbook directly on Day 11. For now, just sit with this: most STR hosts' real problem is not lack of tax knowledge. It's lack of a system.
 
-— <brand>
+— The STR Ledger
 ```
 
 ---
@@ -232,7 +232,7 @@ After you buy: you'll see a one-time offer for the **Portfolio Bundle** at $297 
 
 30-day refund on the workbook. 30-day refund on the bundle.
 
-— <brand>
+— The STR Ledger
 ```
 
 ---
@@ -264,7 +264,7 @@ If you'd rather start with the lighter tax kit (single property, simpler returns
 
 Either way. Start this week.
 
-— <brand>
+— The STR Ledger
 ```
 
 ---
@@ -300,7 +300,7 @@ If you're still on the fence, grab the free 47 Deductions guide (you already hav
 
 One more email in this sequence. Then I'll stop pitching and go back to the free weekly tips.
 
-— <brand>
+— The STR Ledger
 ```
 
 ---
@@ -342,7 +342,7 @@ I'm going to go back to writing the weekly Friday tips. They'll land in your inb
 
 Thanks for letting me in your inbox for 21 days.
 
-— <brand>
+— The STR Ledger
 ```
 
 ---
@@ -400,11 +400,11 @@ Contacts who purchased anything during the sequence stay on the broadcast list p
 
 Before going live with each email:
 
-1. Replace every `<brand>` and `<domain>` token
+1. Replace every `The STR Ledger` and `thestrledger.com` token
 2. Check every link (404 check on all CTAs)
 3. Preview in desktop + mobile + Gmail + Outlook — look for broken CTAs or mis-rendered PS lines
 4. Verify the unsubscribe link is present (legal requirement)
-5. Confirm sender name + reply-to is `hello@<brand>.com` (not `noreply@`)
+5. Confirm sender name + reply-to is `hello@thestrledger.com` (not `noreply@`)
 6. Verify DNS: SPF, DKIM, DMARC records are all set (Task B3 Step 4)
 7. Send to yourself first, read out loud, fix any clunky sentences
 8. Send to 1–2 friends who host STRs — ask for honest feedback on tone
