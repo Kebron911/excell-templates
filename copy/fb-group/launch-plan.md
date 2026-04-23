@@ -2,7 +2,7 @@
 
 ## Setup
 
-- **Name:** `<brand>` Inner Circle (default — can change after A1 brand lock). Alternatives: "STR Systems Society", "Hosts Who Host Like a Business"
+- **Name:** `The STR Ledger` Inner Circle (default — can change after A1 brand lock). Alternatives: "STR Systems Society", "Hosts Who Host Like a Business"
 - **Type:** Private + Visible (so people can find it in search, but content is members-only — builds scarcity)
 - **URL slug:** facebook.com/groups/`<slug>` (use a clean slug without numbers — more memorable)
 - **Cover photo:** Canva 820×312px, brand colors, one clear value prop line
@@ -92,7 +92,7 @@ These drive buyers to your paid library by demonstrating quality at zero cost. A
 
 ## What this group is NOT
 
-- Not a support desk for product questions (send those to `hello@<domain>`)
+- Not a support desk for product questions (send those to `hello@thestrledger.com`)
 - Not a free-coaching zone (one-on-one asks → DM → book a paid call)
 - Not a place to cross-post from Reddit, Twitter, or other forums
 - Not a venue for "Does anyone know a good CPA?" referral spam (legit question once, then follow-up in DMs)
@@ -101,4 +101,4 @@ These drive buyers to your paid library by demonstrating quality at zero cost. A
 
 At 500 members, the free FB Group becomes the **TOFU layer**. The paid community (members-only content, deeper Q&A, monthly template drops) moves inside Influencersoft. FB Group continues as a free on-ramp — it's not deprecated, just demoted.
 
-Transition communication: "The free community stays exactly as-is. For hosts who want more — monthly template drops, priority Q&A, a quarterly live workshop — we're opening the paid Inner Circle at `<domain>/inner-circle`."
+Transition communication: "The free community stays exactly as-is. For hosts who want more — monthly template drops, priority Q&A, a quarterly live workshop — we're opening the paid Inner Circle at `thestrledger.com/inner-circle`."
