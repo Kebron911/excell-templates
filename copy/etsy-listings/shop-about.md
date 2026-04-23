@@ -1,10 +1,10 @@
-# Shop About — `<brand name>`
+# Shop About — `The STR Ledger`
 
-> Fill in `<brand name>` and `<domain>` after Task A1 completes.
+> Fill in `The STR Ledger` and `thestrledger.com` after Task A1 completes.
 
 ## The story (1–3 paragraphs for Etsy About section)
 
-`<brand name>` builds Excel systems for short-term rental hosts who treat their property portfolio like a real business — not a side hustle, not a lifestyle experiment, but a serious operation that happens to be on Airbnb and VRBO.
+`The STR Ledger` builds Excel systems for short-term rental hosts who treat their property portfolio like a real business — not a side hustle, not a lifestyle experiment, but a serious operation that happens to be on Airbnb and VRBO.
 
 Our templates are the tools we built for ourselves after years of trying to bolt QuickBooks onto an STR portfolio and watching it fail: wrong categories, missing deductions, no way to track per-property margins, and no answer when our CPA asked "where are your books?" Everything here is Excel-native, built for hosts, and priced so the template pays for itself on the first use.
 

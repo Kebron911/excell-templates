@@ -1,6 +1,6 @@
-# Shop Policies — `<brand name>`
+# Shop Policies — `The STR Ledger`
 
-> Fill in `<brand name>` and `<domain>` after Task A1 completes.
+> Fill in `The STR Ledger` and `thestrledger.com` after Task A1 completes.
 
 ## Delivery
 
@@ -21,7 +21,7 @@ All templates work on:
 
 ## Support
 
-Email `hello@<domain>` — replies within 1 business day (usually same day).
+Email `hello@thestrledger.com` — replies within 1 business day (usually same day).
 
 ## Customization
 
