@@ -10,7 +10,7 @@
 
 ## Trigger
 
-Airtable automation: "When record matches conditions" → call n8n webhook at `https://n8n.<domain>/webhook/product-publish`.
+Airtable automation: "When record matches conditions" → call n8n webhook at `https://n8n.thestrledger.com/webhook/product-publish`.
 
 **Conditions:**
 - Table: Products
@@ -189,7 +189,7 @@ Each platform sub-flow has its own error handler:
 | File attachment missing | Platform sub-flow fails gracefully, logged in Errors with specific file missing |
 | API rate limit hit | Exponential backoff retry, max 3 attempts |
 | Platform returns 409 "already exists" | Update instead of create (call W06 logic) |
-| Description exceeds platform max length | Truncate with "... see full version at <domain>" |
+| Description exceeds platform max length | Truncate with "... see full version at thestrledger.com" |
 | Price = 0 or null | Reject publish, Slack alert "Cannot publish <sku> — price missing" |
 | Thumbnail missing | Use placeholder brand thumbnail, log warning |
 

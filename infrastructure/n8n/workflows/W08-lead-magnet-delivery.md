@@ -12,7 +12,7 @@
 
 IS webhook on `form.submitted` for the `/47` (hero magnet) landing page form.
 
-POST to `https://n8n.<domain>/webhook/lead-magnet-47`
+POST to `https://n8n.thestrledger.com/webhook/lead-magnet-47`
 
 Similar webhook exists for each secondary magnet (`/pinterest-cashflow`, `/etsy-post`, `/blog-cost-per-stay`) — can be one workflow with Switch by magnet ID, or separate workflows per magnet (prefer single workflow with Switch).
 
@@ -73,7 +73,7 @@ else if (parsed.referrer) {
   if (parsed.referrer.includes('pinterest.com')) acquisition_source = 'pinterest';
   else if (parsed.referrer.includes('etsy.com')) acquisition_source = 'etsy-post-purchase';
   else if (parsed.referrer.includes('facebook.com')) acquisition_source = 'fb-group';
-  else if (parsed.referrer.includes(`blog.<domain>`)) acquisition_source = 'blog';
+  else if (parsed.referrer.includes(`blog.thestrledger.com`)) acquisition_source = 'blog';
   else acquisition_source = 'other';
 }
 // Priority 3: magnet-id default

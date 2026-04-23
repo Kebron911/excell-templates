@@ -218,7 +218,7 @@ The P&L Lite is single-property only; the Full version (multi-property, deprecia
 - [ ] `templates/_briefs/` has 10 files (5 briefs + 5 specs) committed
 - [ ] `templates/_delivery/<sku>/` has thumbnail specs + companion PDF + license PDF for each of 5
 - [ ] `templates/_lite/` has 1 file (P&L Lite)
-- [ ] `copy/etsy-listings/` has 5 finalized listing files, no `<brand>` / `<domain>` tokens, no "speculative" warnings
+- [ ] `copy/etsy-listings/` has 5 finalized listing files, brand name and domain verified, no "speculative" warnings
 - [ ] `infrastructure/etsy/shop-setup.md` and `infrastructure/gumroad/setup.md` exist and committed
 - [ ] ≥1 test purchase completed successfully (file downloads, opens in Excel, upgrade CTA visible, email arrives at `hello@thestrledger.com`)
 

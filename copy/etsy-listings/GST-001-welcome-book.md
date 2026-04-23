@@ -10,7 +10,7 @@
 
 **Review target before publish:**
 - [ ] Template brief exists and matches this description
-- [ ] All `<brand>` and `<domain>` tokens replaced
+- [ ] Brand name and domain verified throughout
 - [ ] Thumbnails designed per shot list below
 - [ ] All 5 files prepared: Master .xlsx, companion PDF, license, preview PDF, upgrade insert
 
@@ -108,12 +108,12 @@ REFUNDS + SUPPORT
 work for your setup, message us — we'll fix it.
 
 ═══════════════════════════════════════════
-ABOUT <brand>
+ABOUT The STR Ledger
 ═══════════════════════════════════════════
 
 We build Excel systems for Airbnb/VRBO hosts who treat their portfolio like
 a business. Our full library covers tax prep, P&L tracking, pricing, and
-operations — all available at <domain>.
+operations — all available at thestrledger.com.
 
 ═══════════════════════════════════════════
 

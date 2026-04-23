@@ -71,7 +71,7 @@ WHAT'S INCLUDED
 
 The Etsy version covers ONE property with 12 months of tracking.
 
-The FULL version (available at <domain>/upgrade) supports:
+The FULL version (available at thestrledger.com/upgrade) supports:
    • Multi-property portfolios (unlimited properties)
    • Auto-rollup across properties
    • Depreciation schedule integration
@@ -127,11 +127,11 @@ REFUNDS + SUPPORT
 14-day refund, no questions asked.
 
 ═══════════════════════════════════════════
-ABOUT <brand>
+ABOUT The STR Ledger
 ═══════════════════════════════════════════
 
 Business-grade Excel systems for hosts who run their STR like a real
-business. Full library at <domain>.
+business. Full library at thestrledger.com.
 
 ═══════════════════════════════════════════
 
@@ -210,7 +210,7 @@ This listing is the **biggest upsell opportunity** on Etsy. The price gap ($27 �
 - Companion PDF first page
 - etsy-upgrade-insert.pdf
 
-Measure: track clicks to `<domain>/upgrade` from Etsy buyers via UTM. Target: >15% of Etsy P&L Lite buyers click through to upgrade page within 30 days.
+Measure: track clicks to `thestrledger.com/upgrade` from Etsy buyers via UTM. Target: >15% of Etsy P&L Lite buyers click through to upgrade page within 30 days.
 
 ---
 

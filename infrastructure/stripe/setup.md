@@ -15,15 +15,15 @@ Do this **before** connecting Stripe to Influencersoft.
 ### 1.1 Create Stripe account
 
 1. Go to https://dashboard.stripe.com/register
-2. Use `hello@<domain>` (same as all other SaaS accounts)
+2. Use `hello@thestrledger.com` (same as all other SaaS accounts)
 3. Business type:
    - **Sole proprietor** — simplest, your SSN is the tax ID
    - **Single-member LLC** — requires EIN (free at irs.gov/ein)
    - **Multi-member LLC / S-corp** — requires EIN + formation docs
 4. Industry: "Digital products" → "Software" subcategory
 5. Product description: *"Excel spreadsheet templates for short-term rental property operators. Instant digital downloads."*
-6. Business website: `<domain>.com`
-7. Support email: `hello@<domain>`
+6. Business website: `thestrledger.com`
+7. Support email: `hello@thestrledger.com`
 8. Statement descriptor: **short** — Stripe limits to 22 chars, shows on cardholder statements. E.g., `BRAND STR TEMPLATES`
 
 ### 1.2 Verify business

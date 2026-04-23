@@ -17,7 +17,7 @@
 > **⚠️ User review required before publishing:**
 >
 > 1. Every tax claim verified against IRS Schedule E instructions, Pub 527, and recent court rulings on STR material participation
-> 2. Replace `<brand>` and `<domain>` tokens
+> 2. Verify brand name (`The STR Ledger`) and domain (`thestrledger.com`) are correct throughout
 > 3. Confirm the "7 material participation tests" language matches current Treasury Regulation § 1.469-5T
 > 4. Add disclaimer at top
 > 5. Review the Schedule C vs E decision framework — it's the most important section and most commonly misunderstood
@@ -41,7 +41,7 @@ This guide walks through:
 
 By the end, you'll know exactly which form you should be filing, how to fill it out, and where the tripwires are.
 
-**[Grab the free 47 Deductions Checklist →](<domain>/47)** — the companion PDF to this guide, covers every deduction allowed on Schedule E.
+**[Grab the free 47 Deductions Checklist →](thestrledger.com/47)** — the companion PDF to this guide, covers every deduction allowed on Schedule E.
 
 ---
 
@@ -184,7 +184,7 @@ Property taxes. Some hosts put local STR license fees here (acceptable) vs Line 
 Electric, gas, water, sewer, trash, internet, streaming services, cable — anything you pay on behalf of the guest experience.
 
 **Line 18 — Depreciation**
-Calculated via Form 4562. This is a big deal — covered in depth in our [depreciation blog post](<domain>/blog/str-depreciation).
+Calculated via Form 4562. This is a big deal — covered in depth in our [depreciation blog post](thestrledger.com/blog/str-depreciation).
 
 For the building: 27.5-year straight-line MACRS.
 For furniture, appliances, electronics: 5-year.
@@ -237,8 +237,8 @@ Three paths:
 
 1. **Confirm your filing classification.** Schedule E vs Schedule C vs material participation non-passive. Read the 7 tests. If unclear, 30 minutes with a CPA is worth it.
 2. **Gather your inputs.** 1099-K from Airbnb/VRBO, expense receipts by category, contractor payments ≥$600, mileage log, depreciation schedule.
-3. **Get the workbook if you want it structured.** [Schedule E Workbook →](<domain>/products/schedule-e) — $97, 30-day refund, covers 1–10 properties.
-4. **Grab the free deduction checklist.** [47 Deductions →](<domain>/47) — check every deduction you might be missing before you file.
+3. **Get the workbook if you want it structured.** [Schedule E Workbook →](thestrledger.com/products/schedule-e) — $97, 30-day refund, covers 1–10 properties.
+4. **Grab the free deduction checklist.** [47 Deductions →](thestrledger.com/47) — check every deduction you might be missing before you file.
 
 ---
 
@@ -263,7 +263,7 @@ Three paths:
 
 ## Publication checklist
 
-- [ ] All `<brand>` and `<domain>` tokens replaced
+- [ ] Brand name and domain verified throughout
 - [ ] Every cited IRS rule verified against current year
 - [ ] Disclaimer in header
 - [ ] Featured image uploaded

@@ -103,11 +103,11 @@ REFUNDS + SUPPORT
 14-day refund, no questions asked. Message if anything doesn't work.
 
 ═══════════════════════════════════════════
-ABOUT <brand>
+ABOUT The STR Ledger
 ═══════════════════════════════════════════
 
 We build business-grade Excel systems for hosts who treat their STR
-portfolio like a real business. Full tax + operations library at <domain>.
+portfolio like a real business. Full tax + operations library at thestrledger.com.
 
 ═══════════════════════════════════════════
 
