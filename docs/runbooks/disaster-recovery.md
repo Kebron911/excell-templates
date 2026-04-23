@@ -32,7 +32,7 @@ When things break. Read top to bottom before an incident, not during.
    - Set prices per `infrastructure/airtable/schema.md` (Price — Payhip column)
 
 3. **Redirect traffic (2 hours):**
-   - Cloudflare DNS: point `<domain>` A record to Payhip's custom-domain instructions
+   - Cloudflare DNS: point `thestrledger.com` A record to Payhip's custom-domain instructions
    - Update Etsy listing Lite upgrade CTA to Payhip URL temporarily
    - Update Pinterest pin destinations via Tailwind bulk edit
 
@@ -114,7 +114,7 @@ When things break. Read top to bottom before an incident, not during.
    - This is why 2FA on registrar is non-negotiable
 
 3. **If truly lost (rare — only after multiple failures):**
-   - Activate mirror domain (TODO: reserve one in Phase 2 — e.g., `<brand>templates.com` as backup for `<brand>.com`)
+   - Activate mirror domain (TODO: reserve one in Phase 2 — e.g., `thestrledgertemplates.com` as backup for `thestrledger.com`)
    - Email list + domain.backup DNS flips → new domain takes over
    - Rebrand communication: email campaign explaining the new domain
 
