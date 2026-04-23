@@ -162,7 +162,7 @@ cat > ops/credentials-inventory.md <<'EOF'
 | Airtable | airtable.com | (pending) | pending | Password manager + MCP env | Pat created for MCP |
 | Influencersoft | (pending) | (pending) | pending | Password manager | LTD license owned |
 | Stripe | dashboard.stripe.com | (pending) | pending | Password manager + IS | Stripe Tax enabled |
-| Ghost | (pending host) | (pending) | pending | Password manager | Subdomain blog.<domain> |
+| Ghost | (pending host) | (pending) | pending | Password manager | Subdomain blog.thestrledger.com |
 | Google Workspace | admin.google.com | (pending) | pending | Password manager | Used for backups |
 | Cloudflare | dash.cloudflare.com | (pending) | pending | Password manager | DNS + tunnel |
 | Hetzner/DO VPS | (pending host) | (pending) | pending | SSH keys + PM | n8n host |
@@ -242,8 +242,8 @@ cat > brand/brand-decisions.md <<'EOF'
 - [x] No obvious USPTO TESS conflict
 
 ## Related handles reserved
-- Domain: <domain>.com
-- Email inbox: hello@<domain>.com
+- Domain: thestrledger.com
+- Email inbox: hello@thestrledger.com
 - Instagram: @<handle>
 - Pinterest: <handle>
 - TikTok: (phase 2)
@@ -259,7 +259,7 @@ git commit -m "brand: lock name, identity, and tone"
 
 **Files:** update `brand/brand-decisions.md`, `ops/credentials-inventory.md`
 
-**Acceptance criteria:** domain resolves, `hello@<domain>` receives a test email.
+**Acceptance criteria:** domain resolves, `hello@thestrledger.com` receives a test email.
 
 - [ ] **Step 1: Purchase domain**
 
@@ -273,11 +273,11 @@ In Cloudflare DNS, add:
 
 - [ ] **Step 3: Set up email**
 
-Google Workspace ($6/user/mo) — go to workspace.google.com, sign up with domain, verify DNS, create `hello@<domain>`.
+Google Workspace ($6/user/mo) — go to workspace.google.com, sign up with domain, verify DNS, create `hello@thestrledger.com`.
 
 - [ ] **Step 4: Send a test email**
 
-From another address, email `hello@<domain>` with subject "test". Confirm it arrives.
+From another address, email `hello@thestrledger.com` with subject "test". Confirm it arrives.
 
 - [ ] **Step 5: Update inventory and commit**
 
@@ -298,7 +298,7 @@ git commit -m "infra: register domain, provision email"
 
 - [ ] **Step 1: Open Etsy seller dashboard**
 
-Go to https://www.etsy.com/sell. Create account with `hello@<domain>`. Shop name = brand name from Task A1.
+Go to https://www.etsy.com/sell. Create account with `hello@thestrledger.com`. Shop name = brand name from Task A1.
 
 - [ ] **Step 2: Configure shop preferences**
 
@@ -394,11 +394,11 @@ git commit -m "brand: canva asset pack + exports"
 cd "C:/Users/Kebron/Desktop/Claude OS/Excell-Templates"
 mkdir -p copy/etsy-listings
 cat > copy/etsy-listings/shop-about.md <<'EOF'
-# Shop About — <brand name>
+# Shop About — The STR Ledger
 
 ## The story (1–3 paragraphs for Etsy About section)
 
-<brand name> builds Excel systems for short-term rental hosts who treat their property portfolio like a real business — not a side hustle, not a lifestyle experiment, but a serious operation that happens to be on Airbnb and VRBO.
+The STR Ledger builds Excel systems for short-term rental hosts who treat their property portfolio like a real business — not a side hustle, not a lifestyle experiment, but a serious operation that happens to be on Airbnb and VRBO.
 
 Our templates are the tools we built for ourselves after years of trying to bolt QuickBooks onto an STR portfolio and watching it fail: wrong categories, missing deductions, no way to track per-property margins, and no answer when our CPA asked "where are your books?" Everything here is Excel-native, built for hosts, and priced so the template pays for itself on the first use.
 
@@ -410,7 +410,7 @@ EOF
 
 ```bash
 cat > copy/etsy-listings/shop-policies.md <<'EOF'
-# Shop Policies — <brand name>
+# Shop Policies — The STR Ledger
 
 ## Delivery
 All products are instant digital downloads. Your files appear immediately after payment in your Etsy account under "Purchases & reviews" and as a download link in your confirmation email.
@@ -422,7 +422,7 @@ All products are instant digital downloads. Your files appear immediately after 
 All templates work on Microsoft Excel 2016+ (Windows and Mac), Excel 365, and Google Sheets (with some formula re-import). Not tested on Apple Numbers — please ask before purchase.
 
 ## Support
-Email hello@<domain>.com — replies within 1 business day.
+Email hello@thestrledger.com — replies within 1 business day.
 
 ## Customization
 We do custom dashboards and multi-LLC setups as a separate service, not inside Etsy. Message us if interested.
@@ -541,7 +541,7 @@ After brief is in git, run the template-production-process runbook end to end.
 
 - [ ] **Step 3: Verify first-sale flow**
 
-Do a test purchase from a secondary Etsy account (or friend). Confirm the file downloads, opens cleanly in Excel, the upgrade CTA appears, and the email hits `hello@<domain>`.
+Do a test purchase from a secondary Etsy account (or friend). Confirm the file downloads, opens cleanly in Excel, the upgrade CTA appears, and the email hits `hello@thestrledger.com`.
 
 - [ ] **Step 4: Commit everything**
 
@@ -649,16 +649,16 @@ Thanks for grabbing <template name>.
 ### Body (3 short paragraphs)
 This template is part of a growing library built specifically for Airbnb and VRBO hosts who treat their portfolio like a real business.
 
-You can upgrade this template to the full version (more tabs, multi-property support, premium tax integrations) at <domain>.com/upgrade — your Etsy purchase gives you an automatic credit.
+You can upgrade this template to the full version (more tabs, multi-property support, premium tax integrations) at thestrledger.com/upgrade — your Etsy purchase gives you an automatic credit.
 
-Or grab our free **"47 Airbnb Tax Deductions Most Hosts Miss"** guide — the PDF + Excel checklist we wish every host had before their first tax season. Scan the QR code or visit <domain>.com/47.
+Or grab our free **"47 Airbnb Tax Deductions Most Hosts Miss"** guide — the PDF + Excel checklist we wish every host had before their first tax season. Scan the QR code or visit thestrledger.com/47.
 
 ### Big CTA block
-**→ <domain>.com/47**
+**→ thestrledger.com/47**
 QR code to same URL
 
 ### Fine print
-hello@<domain>.com · <brand name> · © 2026
+hello@thestrledger.com · The STR Ledger · © 2026
 EOF
 git add copy/lead-magnets/etsy-buyer-pdf.md
 git commit -m "copy: etsy buyer upgrade/lead PDF content"
@@ -685,11 +685,11 @@ git commit -m "delivery: etsy companion PDF with upgrade + lead magnet CTAs"
 
 **Files:** `infrastructure/gumroad/setup.md`
 
-**Acceptance criteria:** all 5 products live on Gumroad with same files, same descriptions, same pricing. Gumroad storefront accessible at `gumroad.com/<brand>`.
+**Acceptance criteria:** all 5 products live on Gumroad with same files, same descriptions, same pricing. Gumroad storefront accessible at `gumroad.com/the-str-ledger`.
 
 - [ ] **Step 1: Create Gumroad account**
 
-Sign up at gumroad.com with `hello@<domain>`. Username = brand name (lowercase, hyphenated).
+Sign up at gumroad.com with `hello@thestrledger.com`. Username = brand name (lowercase, hyphenated).
 
 - [ ] **Step 2: Add each of 5 products**
 
@@ -712,7 +712,7 @@ mkdir -p infrastructure/gumroad
 cat > infrastructure/gumroad/setup.md <<'EOF'
 # Gumroad setup
 
-- URL: gumroad.com/<brand>
+- URL: gumroad.com/the-str-ledger
 - Account: <email>
 - 2FA: enabled
 - Bank info submitted
@@ -850,7 +850,7 @@ Expected: new row appears in Airtable. Then ask Claude to delete it.
 
 **Files:** `infrastructure/n8n/install.md`
 
-**Acceptance criteria:** n8n is reachable at `n8n.<domain>` via Cloudflare Tunnel (not public IP), logged in with admin credentials stored in password manager.
+**Acceptance criteria:** n8n is reachable at `n8n.thestrledger.com` via Cloudflare Tunnel (not public IP), logged in with admin credentials stored in password manager.
 
 - [ ] **Step 1: Provision a VPS**
 
@@ -908,9 +908,9 @@ services:
     image: n8nio/n8n:latest
     restart: always
     environment:
-      - N8N_HOST=n8n.<domain>
+      - N8N_HOST=n8n.thestrledger.com
       - N8N_PROTOCOL=https
-      - WEBHOOK_URL=https://n8n.<domain>
+      - WEBHOOK_URL=https://n8n.thestrledger.com
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=<user>
       - N8N_BASIC_AUTH_PASSWORD=<strong password from PM>
@@ -929,13 +929,13 @@ docker compose logs -f  # watch for successful startup
 
 - [ ] **Step 5: Configure Cloudflare Tunnel**
 
-On Cloudflare dashboard → Zero Trust → Tunnels → create tunnel "n8n-host". Install the connector on the VPS per Cloudflare instructions. Route `n8n.<domain>` → `http://localhost:5678`.
+On Cloudflare dashboard → Zero Trust → Tunnels → create tunnel "n8n-host". Install the connector on the VPS per Cloudflare instructions. Route `n8n.thestrledger.com` → `http://localhost:5678`.
 
 No public IP exposure. Good.
 
 - [ ] **Step 6: Verify and commit**
 
-Browse to `https://n8n.<domain>` → log in → confirm n8n UI loads.
+Browse to `https://n8n.thestrledger.com` → log in → confirm n8n UI loads.
 
 ```bash
 cd "C:/Users/Kebron/Desktop/Claude OS/Excell-Templates"
@@ -945,7 +945,7 @@ cat > infrastructure/n8n/install.md <<'EOF'
 
 - Host: <Hetzner CX22 / DO Basic>, Ubuntu 24.04
 - Access: SSH keys only (fail2ban active, UFW restricts to port 22)
-- Tunnel: Cloudflare Tunnel, `n8n.<domain>` → localhost:5678
+- Tunnel: Cloudflare Tunnel, `n8n.thestrledger.com` → localhost:5678
 - Auth: basic auth, credentials in password manager
 - Data volume: /home/daniel/n8n/data (host-mapped)
 - Encryption key: stored in password manager (critical — needed for restore)
@@ -977,7 +977,7 @@ Follow IS's getting-started flow. Brand name from A1, primary color from A1.
 
 - [ ] **Step 2: Connect domain**
 
-In IS → Settings → Domain → add `<domain>` (main site) and `app.<domain>` or similar per IS's conventions. Follow their CNAME instructions, add the records in Cloudflare DNS.
+In IS → Settings → Domain → add `thestrledger.com` (main site) and `app.thestrledger.com` or similar per IS's conventions. Follow their CNAME instructions, add the records in Cloudflare DNS.
 
 - [ ] **Step 3: Connect Stripe**
 
@@ -985,7 +985,7 @@ In IS → Integrations → Stripe → connect. Verify test-mode transactions wor
 
 - [ ] **Step 4: Configure email sending**
 
-In IS → Email → sender identity. Add `hello@<domain>` and verify DNS (SPF, DKIM, DMARC records) in Cloudflare. Critical for deliverability.
+In IS → Email → sender identity. Add `hello@thestrledger.com` and verify DNS (SPF, DKIM, DMARC records) in Cloudflare. Critical for deliverability.
 
 - [ ] **Step 5: Survey IS's API / integration options**
 
@@ -1002,11 +1002,11 @@ cat > infrastructure/influencersoft/config.md <<'EOF'
 ## Account
 - Login: <email>
 - License tier: <LTD plan name>
-- Custom domain: <domain>
+- Custom domain: thestrledger.com
 - 2FA: enabled
 
 ## Email sender
-- Address: hello@<domain>
+- Address: hello@thestrledger.com
 - SPF, DKIM, DMARC: verified in Cloudflare DNS
 
 ## Stripe
@@ -1055,11 +1055,11 @@ Update `config.md` with Stripe Tax confirmation and commit.
 
 ---
 
-### Task B5: Install Ghost blog on `blog.<domain>`
+### Task B5: Install Ghost blog on `blog.thestrledger.com`
 
 **Files:** `infrastructure/ghost/install.md`
 
-**Acceptance criteria:** `https://blog.<domain>` loads a working Ghost install, admin login works, default theme customized to brand.
+**Acceptance criteria:** `https://blog.thestrledger.com` loads a working Ghost install, admin login works, default theme customized to brand.
 
 **Two options — pick one:**
 
@@ -1073,7 +1073,7 @@ For this plan, default to **Option A (Ghost Pro $9/mo)** — simpler, let Ghost 
 
 - [ ] **Step 2: Set up Ghost Pro**
 
-Go to ghost.org → Start a trial. Use `hello@<domain>`. Custom domain = `blog.<domain>`. Follow DNS instructions (CNAME in Cloudflare).
+Go to ghost.org → Start a trial. Use `hello@thestrledger.com`. Custom domain = `blog.thestrledger.com`. Follow DNS instructions (CNAME in Cloudflare).
 
 - [ ] **Step 3: Choose and customize theme**
 
@@ -1098,14 +1098,14 @@ cat > infrastructure/ghost/install.md <<'EOF'
 # Ghost install
 
 - Hosting: Ghost(Pro), $9/mo
-- Domain: blog.<domain>
+- Domain: blog.thestrledger.com
 - Theme: <chosen theme>
 - Admin: <email> (2FA enabled)
 - Email sender: Ghost native or Mailgun
 - Analytics: <Google Analytics / Plausible>
 EOF
 git add infrastructure/ghost/install.md
-git commit -m "infra: ghost blog live on blog.<domain>"
+git commit -m "infra: ghost blog live on blog.thestrledger.com"
 ```
 
 ---
@@ -1116,7 +1116,7 @@ git commit -m "infra: ghost blog live on blog.<domain>"
 
 **Inputs needed from you:** the brief for what those "47 deductions" actually are.
 
-**Acceptance criteria:** `<domain>/47` renders a landing page, email signup works, lead magnet file delivers to inbox, new subscriber appears in IS tagged `source:hero-magnet`.
+**Acceptance criteria:** `thestrledger.com/47` renders a landing page, email signup works, lead magnet file delivers to inbox, new subscriber appears in IS tagged `source:hero-magnet`.
 
 - [ ] **Step 1: You supply the list**
 
@@ -1128,7 +1128,7 @@ Excel workbook: tab 1 = cover/branding, tab 2 = deduction checklist with checkbo
 
 - [ ] **Step 3: Build landing page in IS**
 
-URL: `<domain>/47`. Elements:
+URL: `thestrledger.com/47`. Elements:
 - H1: "47 Airbnb Tax Deductions Most Hosts Miss"
 - Sub: "Your CPA won't ask about them. Your portfolio might be leaving $5,000+ on the table every year."
 - Form: email only (single field = highest conversion)
@@ -1269,7 +1269,7 @@ Nodes:
 
 - [ ] **Step 2: Configure Stripe webhook**
 
-Stripe dashboard → Developers → Webhooks → add endpoint `https://n8n.<domain>/webhook/order-ingestion`. Select events: `charge.succeeded`, `payment_intent.succeeded`, `charge.refunded`.
+Stripe dashboard → Developers → Webhooks → add endpoint `https://n8n.thestrledger.com/webhook/order-ingestion`. Select events: `charge.succeeded`, `payment_intent.succeeded`, `charge.refunded`.
 
 - [ ] **Step 3: Test with a real $1 purchase**
 
@@ -1433,7 +1433,7 @@ cat > docs/runbooks/disaster-recovery.md <<'EOF'
 
 ## Scenario 1: IS platform down / data loss
 1. Spin up Payhip mirror (takes ~4 hrs from existing product files in Google Drive)
-2. Point <domain> DNS to Payhip storefront
+2. Point thestrledger.com DNS to Payhip storefront
 3. Import subscriber list from latest weekly backup into Kit as backup ESP
 4. Communicate delay via Pinterest + FB Group
 
@@ -1518,7 +1518,7 @@ git commit -m "content: first 10 blog posts planned"
 
 - [ ] **Step 1: Create Pinterest business account**
 
-pinterest.com/business. Sign up with `hello@<domain>`. Enable 2FA. Claim your domain (add DNS TXT record in Cloudflare).
+pinterest.com/business. Sign up with `hello@thestrledger.com`. Enable 2FA. Claim your domain (add DNS TXT record in Cloudflare).
 
 - [ ] **Step 2: Create 5 boards**
 
@@ -1584,7 +1584,7 @@ Update `ops/credentials-inventory.md` with Pinterest + Tailwind rows.
 
 - [ ] **Step 1: Create the group**
 
-On Facebook → Create → Group → Private (Visible). Name: `<brand>` Inner Circle, or `STR Systems Society`, or similar. Description: 3–5 sentences, business-grade.
+On Facebook → Create → Group → Private (Visible). Name: `The STR Ledger` Inner Circle, or `STR Systems Society`, or similar. Description: 3–5 sentences, business-grade.
 
 - [ ] **Step 2: Three rules**
 
@@ -1624,7 +1624,7 @@ cat > copy/fb-group/launch-plan.md <<'EOF'
 # FB Group — Soft Launch Plan
 
 ## Setup
-- Name: <brand> Inner Circle (or equivalent)
+- Name: The STR Ledger Inner Circle (or equivalent)
 - Type: Private, Visible
 - URL: facebook.com/groups/<slug>
 
@@ -1710,9 +1710,9 @@ Complete on the last day of Week 8. Any unticked item = a follow-up task.
 
 ## Lane B — Hub Infrastructure
 - [ ] Domain registered and pointed to Cloudflare
-- [ ] Influencersoft hub configured on <domain>
+- [ ] Influencersoft hub configured on thestrledger.com
 - [ ] Stripe Tax enabled and tested
-- [ ] Ghost blog live at blog.<domain>
+- [ ] Ghost blog live at blog.thestrledger.com
 - [ ] Airtable base with 5 tables live, Claude MCP connected
 - [ ] n8n running on hardened VPS via Cloudflare Tunnel
 - [ ] n8n Order Ingestion workflow (P0) — tested with real purchase
