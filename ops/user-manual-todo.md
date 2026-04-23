@@ -80,7 +80,7 @@ Depends on 0.1.
 6. Enter tax ID — SSN for sole prop, EIN for LLC
 7. Enable 2FA — Settings → Privacy & Security → Two-factor auth → authenticator app (not SMS)
 8. Upload shop banner + icon from Canva (see 0.5)
-9. Paste shop About + Policies from `copy/etsy-listings/shop-about.md` and `copy/etsy-listings/shop-policies.md` (replace `The STR Ledger` and `thestrledger.com` tokens before pasting)
+9. Paste shop About + Policies from `copy/etsy-listings/shop-about.md` and `copy/etsy-listings/shop-policies.md` (verify the brand name and domain are correct before pasting)
 10. Save shop as **"On vacation"** until you have products ready to list (keeps your listings fresh when it launches publicly)
 11. Update `ops/credentials-inventory.md`
 

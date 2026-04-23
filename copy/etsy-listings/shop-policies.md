@@ -1,7 +1,5 @@
 # Shop Policies — `The STR Ledger`
 
-> Fill in `The STR Ledger` and `thestrledger.com` after Task A1 completes.
-
 ## Delivery
 
 All products are instant digital downloads. Your files appear immediately after payment in your Etsy account under "Purchases & reviews" and as a download link in your confirmation email.

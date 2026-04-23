@@ -286,7 +286,7 @@ If you'd like to receive ongoing Airbnb tax systems, property-by-property P&L gu
 
 ---
 
-**About the author:** [Brand] is run by hosts who built these systems for ourselves before turning them into products. All content is produced from real operating experience across multiple STR properties — not theoretical tax advice. For legal/tax advice specific to your situation, consult a licensed CPA or attorney.
+**About the author:** The STR Ledger is run by hosts who built these systems for ourselves before turning them into products. All content is produced from real operating experience across multiple STR properties — not theoretical tax advice. For legal/tax advice specific to your situation, consult a licensed CPA or attorney.
 
 ---
 

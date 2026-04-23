@@ -1,7 +1,5 @@
 # Shop About — `The STR Ledger`
 
-> Fill in `The STR Ledger` and `thestrledger.com` after Task A1 completes.
-
 ## The story (1–3 paragraphs for Etsy About section)
 
 `The STR Ledger` builds Excel systems for short-term rental hosts who treat their property portfolio like a real business — not a side hustle, not a lifestyle experiment, but a serious operation that happens to be on Airbnb and VRBO.
