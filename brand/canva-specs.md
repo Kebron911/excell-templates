@@ -132,6 +132,7 @@ Element 3 — Terminal period "."
 - Color: Muted Gold `#C9A24B`
 - Font: Cormorant Garamond, 500 Medium, 120pt (same baseline as Element 2)
 - Tip: type "STR Ledger" + "." as two separate text boxes so the period can be colored independently
+- Terminal period positioned immediately after the 'r' baseline, 2–3px gap from 'r'. Period font size equals 'Ledger' cap-height (120pt in logo square). Color `#C9A24B` (Muted Gold).
 
 **GOLD RULE + TAGLINE ZONE (y: 700–820)**
 
@@ -192,19 +193,19 @@ Element 1 — "The" text
 - Font: Cormorant Garamond, 400 Italic
 - Size: 24pt
 - Color: Harbor Navy `#12304E` (on parchment bg) / Parchment `#F6EFE2` (on navy bg)
-- Position: x: 80, y: ~175 (sits directly above main wordmark line)
+- Position: x: 80, y: 175–200 (top of text box), cap-height baseline at y: 195
 
 Element 2 — "STR Ledger" text
 - Font: Cormorant Garamond, 500 Medium
 - Size: 80pt
 - Color: Harbor Navy `#12304E` (parchment bg) / Parchment `#F6EFE2` (navy bg)
-- Position: x: 80, y: ~200
+- Position: x: 80, y: 200 (top of text box), cap-height baseline at y: 280
 - Letter-spacing: -0.01em
 
 Element 3 — Terminal period "."
 - Color: Muted Gold `#C9A24B` (both bg variants)
 - Font: Cormorant Garamond, 500 Medium, 80pt (same as Element 2)
-- Separate text box; align baseline to Element 2
+- Separate text box; align baseline to Element 2's cap-height baseline (y: 280), 3px gap after the 'r' in 'Ledger'
 
 **VERTICAL GOLD RULE (x: ~1020, centered vertically)**
 
@@ -343,8 +344,9 @@ Element 7 — Domain label
 **Background:** Parchment `#F6EFE2`, full width 2000px
 
 **Element 3.1 — Mockup placeholder**
-- In Vista Create: Elements → search `laptop spreadsheet mockup` or `iPad landscape mockup`
-- Preferred: a clean device mockup showing a spreadsheet/Excel screen
+- **Preferred:** Vista Create → Elements → search `minimal laptop mockup` — pick the first result tagged 'clean white device' (no distractions, neutral angle, solid white bezel).
+- **Alternative:** `iPad landscape mockup` with the same tag — use only if the laptop mockup's aspect ratio conflicts with the 1200×900 slot.
+- Export the chosen mockup as a saved template in your Vista Create project so per-product thumbnails can reuse the exact same mockup.
 - Size: 1200px wide × 900px tall
 - Position: horizontally centered at x: 400 (left edge) to x: 1600 (right edge); vertically centered at y: 490 (top) to y: 1390 (bottom)
 - Do NOT apply filters — keep mockup clean and neutral
@@ -389,6 +391,8 @@ Element 7 — Domain label
 - Color: Harbor Navy `#12304E`
 - Letter-spacing: 0.08em
 - Position: centered inside pill
+
+**Per-product swap rule:** if the product's format label exceeds the 280×56px pill, reduce font to 12pt or abbreviate (e.g., 'EXCEL TEMPLATE' → 'EXCEL'). Test label length before cloning master to per-product thumbs. Do not exceed 300×60px — breaks visual rhythm.
 
 **Element 5.2 — Second badge (optional, for multi-format products)**
 - Shape: Rounded rectangle pill, corner radius: 40px
@@ -466,14 +470,16 @@ Element 1 — "The" text
 - Font: Cormorant Garamond, 400 Italic
 - Size: 16pt
 - Color: Parchment `#F6EFE2`
-- Position: x: 64, y: ~62
+- Position: x: 64, y: 62, width: 120px (prevents Element 2 wrap)
+- Baseline of Element 1 at y: 82
 
 Element 2 — "STR Ledger" text
 - Font: Cormorant Garamond, 500 Medium
 - Size: 52pt
 - Color: Parchment `#F6EFE2`
-- Position: x: 64, y: ~72
+- Position: x: 64, y: 72, max-width: 540px. Scale font size down if text wraps — target 42pt, accept 36pt min.
 - Letter-spacing: -0.01em
+- Baseline of Element 2 at y: 130 (48px line-gap from Element 1 baseline at y: 82)
 
 Element 3 — Terminal period "."
 - Color: Muted Gold `#C9A24B`
@@ -572,14 +578,14 @@ Element 2 — "S" letter
 - Font: Cormorant Garamond, 500 Medium
 - Size: 120pt
 - Color: Parchment `#F6EFE2`
-- Position: centered horizontally at ~x: 200, vertically centered at ~y: 145
+- Position: x: 180 (top-left), vertically centered at ~y: 145
 
 Element 3 — "L" letter
 - Font: Cormorant Garamond, 500 Medium
 - Size: 120pt
 - Color: Muted Gold `#C9A24B`
-- Position: centered horizontally at ~x: 282, same baseline as "S"
-- Note: "S" and "L" are two separate text boxes so they can be colored independently. Overlap them slightly (~10px) for a tight monogram feel.
+- Position: x: 260 (top-left), same baseline as "S"
+- Note: "S" and "L" are two separate text boxes so they can be colored independently. S and L overlap approximately 5px at baseline — visually stacked but readable. If they touch or over-overlap after font rendering, nudge L to x: 265.
 
 Element 4 — Thin gold ring (optional but recommended)
 - Shape: Circle (outline only)
