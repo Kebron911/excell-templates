@@ -19,7 +19,7 @@
 > 1. Verify every tax claim in this draft against current IRS publications (Pub 527, Pub 463, Pub 946). This draft uses 2026 knowledge but tax rules change annually.
 > 2. Replace the general "Amanda" examples with your own real experience if available (makes copy un-AI-sounding).
 > 3. Add the required disclaimer at the top (done below, verify wording with your CPA/attorney).
-> 4. Replace `<brand>` and `<domain>` tokens after Task A1 lock.
+> 4. Replace `The STR Ledger` and `thestrledger.com` tokens after Task A1 lock.
 
 ---
 
@@ -35,7 +35,7 @@ I learned this the hard way. After four years of hosting and three years of what
 
 So I put together this guide — **47 specific deductions most Airbnb/VRBO hosts miss** — sorted from most-commonly-missed to least. Work through it before your next tax meeting. If even three of them apply to you and you're not currently claiming them, you'll make back the cost of the guide's companion workbook ten times over.
 
-**[Grab the free printable checklist + Excel version →](<domain>/47)** — same content as this post, in a format you can check off as you go through your receipts.
+**[Grab the free printable checklist + Excel version →](thestrledger.com/47)** — same content as this post, in a format you can check off as you go through your receipts.
 
 ---
 
@@ -276,13 +276,13 @@ This list in your head isn't worth much. **This list on paper, next to your rece
 
 Three options for what to do next:
 
-1. **Free option:** Download the [47 Deductions printable checklist + Excel version](<domain>/47). Work through it line by line when you're organizing receipts.
+1. **Free option:** Download the [47 Deductions printable checklist + Excel version](thestrledger.com/47). Work through it line by line when you're organizing receipts.
 
-2. **$17 option:** Grab the [STR Mileage Log](<domain>/products/mileage-log). Just deduction #26 — done right — typically produces $2K+ in deductions per year for active hosts. It pays for itself on the first trip.
+2. **$17 option:** Grab the [STR Mileage Log](thestrledger.com/products/mileage-log). Just deduction #26 — done right — typically produces $2K+ in deductions per year for active hosts. It pays for itself on the first trip.
 
-3. **Full-system option:** The [Schedule E Workbook](<domain>/products/schedule-e) includes structured per-property expense tracking, depreciation schedules, 1099 tracking, and an auto-rolled-up Schedule E output. Built for hosts with 1–10 properties who want clean books without QuickBooks pain.
+3. **Full-system option:** The [Schedule E Workbook](thestrledger.com/products/schedule-e) includes structured per-property expense tracking, depreciation schedules, 1099 tracking, and an auto-rolled-up Schedule E output. Built for hosts with 1–10 properties who want clean books without QuickBooks pain.
 
-If you'd like to receive ongoing Airbnb tax systems, property-by-property P&L guidance, and our weekly operations tips — **[subscribe at the top of any post](<domain>/subscribe)**. No spam, unsubscribe any time.
+If you'd like to receive ongoing Airbnb tax systems, property-by-property P&L guidance, and our weekly operations tips — **[subscribe at the top of any post](thestrledger.com/subscribe)**. No spam, unsubscribe any time.
 
 ---
 
@@ -311,7 +311,7 @@ If you'd like to receive ongoing Airbnb tax systems, property-by-property P&L gu
 
 - [ ] Every tax figure verified against 2026 IRS publications
 - [ ] Disclaimer at top matches CPA's preferred language
-- [ ] All `<brand>` and `<domain>` tokens replaced
+- [ ] All `The STR Ledger` and `thestrledger.com` tokens replaced
 - [ ] Featured image uploaded
 - [ ] SEO title + meta description set
 - [ ] Internal links verified (404 check)
