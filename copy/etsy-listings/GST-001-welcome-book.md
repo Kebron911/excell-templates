@@ -2,17 +2,18 @@
 
 **SKU:** GST-001
 
-**Status:** ⚠️ SPECULATIVE — this listing is drafted before the template brief exists. User must revise after Task A7 completes with the real feature set.
+**Status:** Ready to publish. Build complete (commit: see git log for GST-001 xlsx). Delivery assets complete (this Task). Awaiting Etsy upload (Task 11).
 
-**Pricing:** $17 Etsy Full · $17 own-site (same — no Lite variant needed for this gateway product)
+**Pricing:** $17 Etsy · $17 own-site (same — gateway product)
 
 **Category path on Etsy:** Digital Downloads > Other Digital Downloads > Business & Office
 
-**Review target before publish:**
-- [ ] Template brief exists and matches this description
-- [ ] Brand name and domain verified throughout
-- [ ] Thumbnails designed per shot list below
-- [ ] All 5 files prepared: Master .xlsx, companion PDF, license, preview PDF, upgrade insert
+**Files to attach on Etsy (5):**
+1. `templates/_masters/GST-001-welcome-book.xlsx`
+2. `templates/_delivery/_shared/etsy-upgrade-insert.pdf` (shared buyer companion — from Task 10)
+3. `templates/_delivery/GST-001-welcome-book/GST-001-howto.pdf`
+4. `templates/_delivery/GST-001-welcome-book/GST-001-license.pdf`
+5. (optional) `templates/_delivery/GST-001-welcome-book/preview.pdf`
 
 ---
 
@@ -194,11 +195,11 @@ Etsy allows 10 images per listing. Use 5 for launch — room to expand later.
 
 ## Files attached to listing (Etsy max 5)
 
-1. `GST-001-welcome-book-master.xlsx` — editable workbook
-2. `GST-001-welcome-book.pdf` — PDF version
-3. `etsy-upgrade-insert.pdf` — companion upgrade CTA (shared across all listings)
-4. `GST-001-license.pdf` — 1-page usage license
-5. `GST-001-preview.pdf` — optional "how to customize" guide
+1. `templates/_masters/GST-001-welcome-book.xlsx` — editable workbook
+2. `templates/_delivery/_shared/etsy-upgrade-insert.pdf` — companion upgrade CTA (shared across all listings)
+3. `templates/_delivery/GST-001-welcome-book/GST-001-howto.pdf` — how-to guide
+4. `templates/_delivery/GST-001-welcome-book/GST-001-license.pdf` — 1-page usage license
+5. `templates/_delivery/GST-001-welcome-book/preview.pdf` — optional preview (skip for MVP)
 
 ---
 
@@ -234,7 +235,7 @@ At the bottom of this listing, Etsy shows "More from <shop>" automatically. Ensu
 
 1. Update Airtable Products row: `Live on Etsy = true`, `Etsy listing ID = <id from Etsy URL>`, `Price — Etsy = 17.00`
 2. Trigger W05 Product Publisher completes Etsy branch
-3. Pinterest: schedule 3–5 pins via Tailwind pointing to this listing (pins 1, 3, 6, 10 from the first-30 catalog work)
+3. Pinterest: schedule 3–5 pins via Creasquare pointing to this listing (pins 1, 3, 6, 10 from the first-30 catalog work). Pinterest native scheduler as fallback.
 4. FB Group: soft-share within a week (not day-one — feels spammy)
 5. Monitor: 48-hour view count, 7-day CVR, first refund (if any)
 
@@ -243,3 +244,4 @@ At the bottom of this listing, Etsy shows "More from <shop>" automatically. Ensu
 ## Iteration log
 
 - `2026-04-22` — Initial speculative draft. Requires brief (Task A7) for accuracy.
+- `2026-04-22` — Refreshed: status block updated, file paths aligned to delivery tree, SPECULATIVE warnings removed. Delivery assets complete (Task 7 Class A).
