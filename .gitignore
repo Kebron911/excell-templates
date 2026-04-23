@@ -42,6 +42,9 @@ build/
 *.log
 logs/
 
+# Brainstorming companion artifacts
+.superpowers/
+
 # Python (for future tooling)
 __pycache__/
 *.pyc
