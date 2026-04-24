@@ -5,6 +5,7 @@ Single source of truth — if brand palette changes, update here only.
 """
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, NamedStyle
 from openpyxl.utils import get_column_letter
+from openpyxl.utils.cell import coordinate_from_string, column_index_from_string
 
 # --- Brand palette (authoritative: brand/brand-decisions.md §4.1) ---
 BRAND_NAME = "The STR Ledger"
@@ -152,7 +153,9 @@ def pseudo_button(ws, top_left, bottom_right, text, hyperlink_target,
 
     # Top-left cell holds the hyperlink
     cell = ws[top_left]
-    cell.value = f'=HYPERLINK("#{hyperlink_target}", "{text}")'
+    # Escape any double quotes in text (Excel uses "" to represent a literal " inside a quoted string)
+    escaped_text = text.replace('"', '""')
+    cell.value = f'=HYPERLINK("#{hyperlink_target}", "{escaped_text}")'
     cell.font = Font(name=FONT_HEAD, size=13, bold=True, color=p["font_color"])
     cell.fill = PatternFill("solid", fgColor=p["fill"])
     cell.alignment = Alignment(horizontal="center", vertical="center",
@@ -164,7 +167,6 @@ def pseudo_button(ws, top_left, bottom_right, text, hyperlink_target,
     border = Border(left=side, right=side, top=side, bottom=side)
 
     # Parse top_left + bottom_right to iterate cells
-    from openpyxl.utils.cell import coordinate_from_string, column_index_from_string
     tl_col_letter, tl_row = coordinate_from_string(top_left)
     br_col_letter, br_row = coordinate_from_string(bottom_right)
     tl_col = column_index_from_string(tl_col_letter)
@@ -206,7 +208,6 @@ def card_body_fill(ws, row_start, row_end, col_range, border=True):
         col_range: (first_col_letter, last_col_letter)
         border: if True, draw thin gold border around the whole range
     """
-    from openpyxl.utils.cell import column_index_from_string
     first, last = col_range
     first_col = column_index_from_string(first)
     last_col = column_index_from_string(last)
@@ -214,9 +215,14 @@ def card_body_fill(ws, row_start, row_end, col_range, border=True):
     for r in range(row_start, row_end + 1):
         for c in range(first_col, last_col + 1):
             cell = ws.cell(row=r, column=c)
-            # Only apply fill if cell doesn't already have a fill (avoid
-            # overwriting input-cell yellow fills)
-            if cell.fill.fgColor and cell.fill.fgColor.rgb in (None, "00000000"):
+            # Skip cells that already have a meaningful fill (input-cell yellow, or any
+            # explicit color that isn't the default empty). Explicit rgb check is more
+            # robust than the default-value check alone.
+            existing_rgb = None
+            if cell.fill.fgColor:
+                existing_rgb = str(cell.fill.fgColor.rgb) if cell.fill.fgColor.rgb else None
+            # Apply parchment only if cell has no meaningful fill yet
+            if existing_rgb in (None, "00000000", "None"):
                 cell.fill = parchment_fill
     if border:
         side = Side(style="thin", color=COLOR_ACCENT)
