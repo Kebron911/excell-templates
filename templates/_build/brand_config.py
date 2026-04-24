@@ -109,7 +109,7 @@ def add_upgrade_banner(ws, row):
 # --- Wizard/tool helpers (v2 additions) ---
 
 def pseudo_button(ws, top_left, bottom_right, text, hyperlink_target,
-                  variant="primary"):
+                  variant="primary", external_link=None):
     """Render a merged-cells block that looks and acts like a button.
 
     Args:
@@ -117,10 +117,16 @@ def pseudo_button(ws, top_left, bottom_right, text, hyperlink_target,
         top_left: cell reference string, e.g. "A10"
         bottom_right: cell reference string, e.g. "L13"
         text: button label
-        hyperlink_target: in-workbook reference, e.g. "'Property'!A5"
+        hyperlink_target: in-workbook reference, e.g. "'Property'!A5".
+            Ignored when external_link is set.
         variant: "primary" (navy fill, parchment text) /
                  "secondary" (parchment fill, navy text, gold border) /
                  "accent" (gold fill, navy text)
+        external_link: optional external path/URL (e.g.
+            "welcome-book-renderer.html"). When truthy, the HYPERLINK
+            formula uses this value directly (no "#" prefix) and
+            hyperlink_target is ignored. When None (default), falls
+            back to the in-workbook "#{hyperlink_target}" behavior.
 
     The top-left cell holds the formula-driven hyperlink; the merge
     spans to bottom-right; border + fill applied to the merged range.
@@ -155,7 +161,10 @@ def pseudo_button(ws, top_left, bottom_right, text, hyperlink_target,
     cell = ws[top_left]
     # Escape any double quotes in text (Excel uses "" to represent a literal " inside a quoted string)
     escaped_text = text.replace('"', '""')
-    cell.value = f'=HYPERLINK("#{hyperlink_target}", "{escaped_text}")'
+    if external_link:
+        cell.value = f'=HYPERLINK("{external_link}", "{escaped_text}")'
+    else:
+        cell.value = f'=HYPERLINK("#{hyperlink_target}", "{escaped_text}")'
     cell.font = Font(name=FONT_HEAD, size=13, bold=True, color=p["font_color"])
     cell.fill = PatternFill("solid", fgColor=p["fill"])
     cell.alignment = Alignment(horizontal="center", vertical="center",
@@ -306,8 +315,8 @@ def section_header_band(ws, section_num, total_sections, title, subtitle,
         pseudo_button(ws, "J2", "L2", "NEXT →",
                       f"'{next_tab}'!A5", variant="accent")
     else:
-        pseudo_button(ws, "J2", "L2", "REVIEW →",
-                      "'Review & Print'!A1", variant="accent")
+        pseudo_button(ws, "J2", "L2", "LAUNCH →",
+                      "'Launch'!A1", variant="accent")
 
     # Row 4 title
     ws.merge_cells("A4:L4")

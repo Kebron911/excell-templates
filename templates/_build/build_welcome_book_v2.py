@@ -17,7 +17,7 @@ Implements the design at:
   6  Trash            — pickup + maintenance (7 fields)
   7  Departure        — checkout checklist (6 fields + formula)
   8  Emergency        — 911 block + contacts (9 fields + 1 hardcoded + 1 formula)
-  9  Review & Print   — readiness dashboard + pseudo-button + 3-page live preview
+  9  Launch           — readiness dashboard + OPEN renderer pseudo-button
   10 Bonus            — pre-written Airbnb listing copy (200 words)
   11 × Host Notes     — private host-only, quarantined with red warning
 
@@ -30,7 +30,6 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.page import PageMargins
-from openpyxl.worksheet.pagebreak import Break
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
@@ -64,7 +63,7 @@ TAB_NAMES = [
     "Trash",              # 6
     "Departure",          # 7
     "Emergency",          # 8
-    "Review & Print",     # 9
+    "Launch",             # 9
     "Bonus",              # 10
     "× Host Notes",       # 11
 ]
@@ -1095,23 +1094,30 @@ def build_emergency_tab(wb, variant):
     ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
-def build_review_print_tab(wb, variant):
-    """Tab 9 — Review & Print. The payoff tab with live 3-page preview."""
+def build_launch_tab(wb, variant):
+    """Tab 9 — Launch. Readiness dashboard + OPEN-renderer pseudo-button.
+
+    v2.1 replaces the old 3-page live preview (rows 24-80) with a single
+    big button that opens welcome-book-renderer.html (bundled alongside
+    the xlsx). Users drag the xlsx onto the renderer page to produce the
+    printable PDF.
+    """
     ws = wb.create_sheet(TAB_NAMES[9])
     ws.sheet_properties.tabColor = COLOR_ACCENT
     set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
 
-    # --- ZONE 1: Review header (rows 1-6, navy) ---
+    # --- ZONE 1: Launch header (rows 1-6, navy) ---
     navy_fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     for r in range(1, 7):
         for c in range(1, 13):
             ws.cell(row=r, column=c).fill = navy_fill
 
     # Row 2: back + label
-    pseudo_button(ws, "A2", "C2", "← BACK", "'Emergency'!A5", variant="primary")
+    pseudo_button(ws, "A2", "C2", "← BACK: Emergency",
+                   "'Emergency'!A5", variant="primary")
     ws.merge_cells("D2:L2")
     c = ws["D2"]
-    c.value = "REVIEW & PRINT"
+    c.value = "LAUNCH"
     c.font = Font(name=FONT_MONO, size=10, bold=True, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="right", vertical="center", indent=2)
     ws.row_dimensions[2].height = 28
@@ -1127,7 +1133,7 @@ def build_review_print_tab(wb, variant):
     # Row 5: subtitle
     ws.merge_cells("A5:L5")
     c = ws["A5"]
-    c.value = "Preview below. Hit Print when happy."
+    c.value = "Open it in the renderer, then save as PDF."
     c.font = Font(name=FONT_HEAD, size=12, italic=True, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[5].height = 20
@@ -1222,154 +1228,31 @@ def build_review_print_tab(wb, variant):
                 )
                 ws.cell(row=r, column=col).border = new_border
 
-    # --- ZONE 3: Generate PDF pseudo-button (rows 16-21) ---
+    # --- ZONE 3: OPEN renderer pseudo-button (rows 16-21) ---
     pseudo_button(ws, "A16", "L21",
-                   "📄  GENERATE YOUR PDF\nPress Ctrl+P → choose 'Save as PDF'",
-                   "'Review & Print'!A24",  # no-op scroll anchor
-                   variant="primary")
+                   "📘  OPEN YOUR WELCOME BOOK →",
+                   None,
+                   variant="primary",
+                   external_link="welcome-book-renderer.html")
     for r in range(16, 22):
         ws.row_dimensions[r].height = 28
 
-    # Row 22: fine print
+    # Row 22: caption beneath the OPEN button
     ws.merge_cells("A22:L22")
     c = ws["A22"]
-    c.value = "Print area is pre-set to letter portrait. × Host Notes tab excluded."
+    c.value = ("Drag this xlsx onto the page that opens. "
+               "Pick your theme, palette, and logo. Ctrl+P to save as PDF.")
     c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_MUTED)
     c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[22].height = 18
 
-    # --- ZONE 4: Live preview (rows 24-80, 3 pages) ---
-    # PAGE 1 — rows 24-45: hero + property + arrival + WiFi
-    # Hero band
-    for r in (24, 25):
-        for c in range(1, 13):
-            ws.cell(row=r, column=c).fill = navy_fill
-    ws.merge_cells("A24:L25")
-    c = ws["A24"]
-    c.value = '=CONCATENATE("Welcome to ", Property!B8)'
-    c.font = Font(name=FONT_HEAD, size=28, bold=True, color="F6EFE2")
-    c.alignment = Alignment(horizontal="center", vertical="center")
-    ws.row_dimensions[24].height = 30
-    ws.row_dimensions[25].height = 30
-
-    # Property info block (rows 27-35)
-    def _preview_row(row, label, source_formula, bold=False, size=11):
-        ws.merge_cells(f"A{row}:D{row}")
-        lc = ws[f"A{row}"]
-        lc.value = label
-        lc.font = Font(name=FONT_BODY, size=size, bold=True, color=COLOR_PRIMARY)
-        lc.alignment = Alignment(horizontal="right", indent=1)
-        ws.merge_cells(f"E{row}:L{row}")
-        vc = ws[f"E{row}"]
-        # Wrap source cell to render "(not set)" if empty
-        vc.value = f'=IF({source_formula}="","(not set)",{source_formula})'
-        vc.font = Font(name=FONT_BODY, size=size,
-                       bold=bold, color=COLOR_TEXT)
-        vc.alignment = Alignment(horizontal="left", vertical="center",
-                                  wrap_text=True, indent=1)
-
-    _preview_row(27, "Host:",            "Property!B9")
-    _preview_row(28, "Host phone:",      "Property!B10")
-    _preview_row(29, "Check-in:",        "Property!B11")
-    _preview_row(30, "Check-out:",       "Property!B12")
-    _preview_row(32, "Address:",         "Arrival!B8")
-    _preview_row(33, "Entry method:",    "Arrival!B9")
-    _preview_row(34, "Door/lock code:",  "Arrival!B10")
-    _preview_row(35, "Parking:",         "Arrival!B11", size=10)
-
-    # WiFi — rows 37-40 with BIG text for credentials
-    _preview_row(37, "",                 '""', size=12)  # section header spacer
-    ws.merge_cells("A38:L38")
-    c = ws["A38"]
-    c.value = "WiFi"
-    c.font = Font(name=FONT_HEAD, size=16, bold=True, color=COLOR_PRIMARY)
-    c.alignment = Alignment(horizontal="center")
-    _preview_row(39, "Network:", "'WiFi + Tech'!B8", bold=True, size=16)
-    _preview_row(40, "Password:", "'WiFi + Tech'!B9", bold=True, size=16)
-
-    # Page break at row 46
-    ws.row_breaks.append(Break(id=46))
-
-    # PAGE 2 — rows 47-65: rules + local guide top 10
-    ws.merge_cells("A48:L48")
-    c = ws["A48"]
-    c.value = "House Rules"
-    c.font = Font(name=FONT_HEAD, size=20, bold=True, color=COLOR_PRIMARY)
-    c.alignment = Alignment(horizontal="center")
-    ws.row_dimensions[48].height = 28
-    _preview_row(49, "Quiet hours:",      "'House Rules'!B8")
-    _preview_row(50, "Max guests:",       "'House Rules'!B9")
-    _preview_row(51, "Smoking:",          "'House Rules'!B10")
-    _preview_row(52, "Pets:",             "'House Rules'!B11")
-    _preview_row(53, "Events:",           "'House Rules'!B12")
-    _preview_row(54, "Shoes:",            "'House Rules'!B13")
-
-    # Local Guide top 10 — rows 56-65
-    ws.merge_cells("A56:L56")
-    c = ws["A56"]
-    c.value = "Local Guide — Our Top 10"
-    c.font = Font(name=FONT_HEAD, size=20, bold=True, color=COLOR_PRIMARY)
-    c.alignment = Alignment(horizontal="center")
-    ws.row_dimensions[56].height = 28
-    for i in range(10):
-        r = 57 + i
-        src_row = 10 + i
-        # Category
-        ws.merge_cells(f"A{r}:B{r}")
-        ws[f"A{r}"].value = f"='Local Guide'!A{src_row}"
-        ws[f"A{r}"].font = Font(name=FONT_BODY, size=10, bold=True,
-                                  color=COLOR_PRIMARY)
-        # Name
-        ws.merge_cells(f"C{r}:F{r}")
-        ws[f"C{r}"].value = f"=IF('Local Guide'!B{src_row}=\"\",\"\",'Local Guide'!B{src_row})"
-        ws[f"C{r}"].font = Font(name=FONT_BODY, size=10, color=COLOR_TEXT)
-        # Distance + phone
-        ws.merge_cells(f"G{r}:H{r}")
-        ws[f"G{r}"].value = f"=IF('Local Guide'!C{src_row}=\"\",\"\",'Local Guide'!C{src_row})"
-        ws[f"G{r}"].font = Font(name=FONT_BODY, size=10, color=COLOR_MUTED)
-        # Notes
-        ws.merge_cells(f"I{r}:L{r}")
-        ws[f"I{r}"].value = f"=IF('Local Guide'!E{src_row}=\"\",\"\",'Local Guide'!E{src_row})"
-        ws[f"I{r}"].font = Font(name=FONT_BODY, size=9, italic=True, color=COLOR_MUTED)
-
-    # Page break at row 66
-    ws.row_breaks.append(Break(id=66))
-
-    # PAGE 3 — rows 67-80: trash + departure + emergency
-    ws.merge_cells("A68:L68")
-    c = ws["A68"]
-    c.value = "Trash & Maintenance"
-    c.font = Font(name=FONT_HEAD, size=18, bold=True, color=COLOR_PRIMARY)
-    c.alignment = Alignment(horizontal="center")
-    _preview_row(69, "Pickup day:",       "'Trash'!B8")
-    _preview_row(70, "Bin location:",     "'Trash'!B9")
-
-    ws.merge_cells("A72:L72")
-    c = ws["A72"]
-    c.value = "Checkout"
-    c.font = Font(name=FONT_HEAD, size=18, bold=True, color=COLOR_PRIMARY)
-    c.alignment = Alignment(horizontal="center")
-    _preview_row(73, "Time:",             "Departure!B8")
-    _preview_row(74, "Linens:",           "Departure!B10")
-    _preview_row(75, "Key return:",       "Departure!B13")
-
-    # Emergency — red-bordered block rows 77-80
-    ws.merge_cells("A77:L77")
-    c = ws["A77"]
-    c.value = "Emergency — Call 911 First"
-    c.font = Font(name=FONT_HEAD, size=18, bold=True, color=COLOR_ERROR)
-    c.fill = PatternFill("solid", fgColor="FFE8E8")
-    c.alignment = Alignment(horizontal="center")
-    _preview_row(78, "Hospital:",         "Emergency!B8")
-    _preview_row(79, "Hospital phone:",   "Emergency!B9")
-    _preview_row(80, "Host phone:",       "Property!B10", bold=True, size=14)
-
-    # Print area: A24:L80 (3 pages)
-    ws.print_area = "A24:L80"
+    # Print area: readiness dashboard + OPEN button (rows 1-22 only)
+    ws.print_area = "A1:L22"
     ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
     ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
     ws.page_setup.fitToPage = True
     ws.sheet_properties.pageSetUpPr.fitToPage = True
-    ws.page_setup.fitToHeight = 3
+    ws.page_setup.fitToHeight = 1
     ws.page_setup.fitToWidth = 1
     ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
@@ -1390,7 +1273,7 @@ def build_bonus_tab(wb, variant):
         for c in range(1, 13):
             ws.cell(row=r, column=c).fill = gold_soft_fill
 
-    pseudo_button(ws, "A2", "C2", "\u2190 BACK", "'Review & Print'!A1",
+    pseudo_button(ws, "A2", "C2", "\u2190 BACK", "'Launch'!A1",
                    variant="secondary")
     ws.merge_cells("D2:L2")
     c = ws["D2"]
@@ -1513,7 +1396,7 @@ def build_bonus_tab(wb, variant):
         ws.cell(row=footer_row, column=c).border = Border(top=gold_side)
         ws.cell(row=footer_row, column=c).fill = parchment
     pseudo_button(ws, f"A{footer_row}", f"F{footer_row + 1}",
-                   "\u2190 Back: Review & Print", "'Review & Print'!A1",
+                   "\u2190 Back: Launch", "'Launch'!A1",
                    variant="secondary")
     pseudo_button(ws, f"G{footer_row}", f"L{footer_row + 1}",
                    "Host Notes (private) \u2192", "'\u00d7 Host Notes'!A1",
@@ -1654,7 +1537,7 @@ def build_workbook(out_path, variant):
     build_trash_tab(wb, variant)
     build_departure_tab(wb, variant)
     build_emergency_tab(wb, variant)
-    build_review_print_tab(wb, variant)
+    build_launch_tab(wb, variant)
     build_bonus_tab(wb, variant)
     build_host_notes_tab(wb, variant)
 
