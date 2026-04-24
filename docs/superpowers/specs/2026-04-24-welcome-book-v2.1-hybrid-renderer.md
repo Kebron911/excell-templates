@@ -26,7 +26,7 @@ Ship v2.1 as a **hybrid pipeline**: the buyer fills the xlsx as they do today, t
 
 **Four things land in v2.1:**
 
-- **Excel bug fix (Option B):** reflow all 8 input tabs so inputs land at `B5:Bn` sequentially, unblocking the Start-tab progress dashboard and any future in-Excel references.
+- **Excel bug fix (Option B):** reflow all 8 input tabs so inputs land at `B8:Bn` sequentially, unblocking the Start-tab progress dashboard and any future in-Excel references.
 - **Launch tab:** Review & Print tab is renamed **Launch**; the 3-page preview is removed; a single big pseudo-button opens `welcome-book-renderer.html` in the buyer's browser.
 - **HTML renderer:** single-file app bundled in the zip. 3 themes × 4 palettes × optional logo = 12 branded variants, all produced at Ctrl+P.
 - **Tap-to-action QR codes:** WiFi (auto-join), host phone (tap-to-call), address (open in Maps). Three independent toggles in the sidebar, defaulted on. No hosting required — standard QR payload formats that every modern phone camera reads natively.
@@ -55,7 +55,7 @@ Ship v2.1 as a **hybrid pipeline**: the buyer fills the xlsx as they do today, t
 
 **Data flow:** entirely client-side. The xlsx never leaves the buyer's machine. SheetJS (xlsx.full.min.js, ~600KB minified) parses the file in-browser; the renderer reads known cell addresses (per §5 data contract) and writes them into the theme's HTML template.
 
-**State persistence:** theme/palette/logo choices persist in `localStorage` keyed by a stable property-ID (the value at `Property!B5`). Next time the buyer drops the same xlsx, their customizations return. Clearing browser data resets — acceptable.
+**State persistence:** theme/palette/logo choices persist in `localStorage` keyed by a stable property-ID (the value at `Property!B8`). Next time the buyer drops the same xlsx, their customizations return. Clearing browser data resets — acceptable.
 
 **Offline:** the HTML file has no network dependencies. Inlined CSS, inlined SheetJS, inlined any stock SVG icons, inlined Google Fonts via `@font-face` with base64-encoded woff2 for Cormorant Garamond + Inter + JetBrains Mono (display/body/mono per brand lock §5). Target file size: <1MB.
 
@@ -65,20 +65,20 @@ Ship v2.1 as a **hybrid pipeline**: the buyer fills the xlsx as they do today, t
 
 ### 2.1 — Bug fix (Option B): reflow inputs to column B
 
-**Problem (from v2 v1 build):** `build_input_tab` places inputs at columns `D-L` merged, starting at row 10 (after a card header on row 9). But every cross-sheet formula on Start (progress dashboard, lines 510-518) and v2 Review & Print (preview formulas, lines 1211-1304) references column B, rows 5-12. Result: all non-Local-Guide data returns `(not set)` even in the filled DEMO file.
+**Problem (from v2 v1 build):** `build_input_tab` places inputs at columns `D-L` merged, starting at row 10 (after a card header on row 9). But every cross-sheet formula on Start (progress dashboard, lines 510-518) and v2 Review & Print (preview formulas, lines 1211-1304) references column B. Result: all non-Local-Guide data returns `(not set)` even in the filled DEMO file.
 
-**Fix:** refactor `build_input_tab` so inputs land at `B5, B6, B7, ..., Bn` sequentially — matching the references. Card headers become wide labels above each group; label columns shrink to A only; input merges from B-L. Row numbers become stable and predictable per tab:
+**Fix:** refactor `build_input_tab` so inputs land at `B8, B9, B10, ..., Bn` sequentially — matching the references. The flattened v2.1 layout reserves rows 1-5 for the section_header_band, row 6 for the instruction strip, and row 7 for the section banner, so the first input cell is row 8 (not row 5). Card headers become wide labels above each group; label columns shrink to A only; input merges from B-L. Row numbers become stable and predictable per tab:
 
 | Tab | Input cells | Count |
 |---|---|---|
-| Property | `B5:B12` | 8 |
-| Arrival | `B5:B11` | 7 |
-| WiFi + Tech | `B5:B12` | 8 |
-| House Rules | `B5:B11` | 7 |
+| Property | `B8:B15` | 8 |
+| Arrival | `B8:B14` | 7 |
+| WiFi + Tech | `B8:B15` | 8 |
+| House Rules | `B8:B14` | 7 |
 | Local Guide | `B10:E29` (table; unchanged from v2) | 80 |
-| Trash | `B5:B11` | 7 |
-| Departure | `B5:B10` | 6 |
-| Emergency | `B5:B13` | 9 |
+| Trash | `B8:B14` | 7 |
+| Departure | `B8:B13` | 6 |
+| Emergency | `B8:B16` | 9 |
 
 The card-grouped visual stays. Card headers remain a row-spanning band above each input group; only the input cells shift to col B so formulas match.
 
@@ -94,7 +94,7 @@ Renamed: `Review & Print` → `Launch`. Tab color stays Muted Gold `#C9A24B`.
 
 **Removed:**
 - 3-page live preview (rows 24-80). The preview moves to HTML.
-- All cross-sheet preview formulas (`=CONCATENATE("Welcome to ", Property!B5)`, `=IF(source="","(not set)",source)`, etc.).
+- All cross-sheet preview formulas (`=CONCATENATE("Welcome to ", Property!B8)`, `=IF(source="","(not set)",source)`, etc.).
 - Print area `A24:L80` is removed; new print area is `A1:L22` (just the dashboard, if a buyer insists on printing Excel).
 
 **Added:**
@@ -236,7 +236,7 @@ Rationale for independence: privacy (some hosts don't want their cell phone QR-s
 
 **Implementation:** `qrcode.js` (MIT, ~20KB minified) inlined in the renderer bundle. Rendered as `<canvas>` at render time, converted to vector SVG for print sharpness. Each QR prints at ~0.8in square — tested to be scannable from 18in with a standard phone camera at 300dpi print.
 
-**If the underlying input is empty** (e.g., buyer hasn't filled `'WiFi + Tech'!B5`), the corresponding toggle is greyed-out and the QR is not rendered even if toggled on.
+**If the underlying input is empty** (e.g., buyer hasn't filled `'WiFi + Tech'!B8`), the corresponding toggle is greyed-out and the QR is not rendered even if toggled on.
 
 **Logo vs QR conflict:** logo lives in header; QR lives inline with data blocks. No layout conflict.
 
@@ -249,48 +249,48 @@ The renderer reads these cells. Addresses stable per §2.1.
 ### 5.1 — Property
 | Field | Cell |
 |---|---|
-| Property name | `Property!B5` |
-| Host first name | `Property!B6` |
-| Host phone | `Property!B7` |
-| Check-in date | `Property!B8` |
-| Check-out date | `Property!B9` |
-| Property type | `Property!B10` |
-| Max guests | `Property!B11` |
-| Address | `Property!B12` |
+| Property name | `Property!B8` |
+| Host first name | `Property!B9` |
+| Host phone | `Property!B10` |
+| Check-in date | `Property!B11` |
+| Check-out date | `Property!B12` |
+| Property type | `Property!B13` |
+| Max guests | `Property!B14` |
+| Address | `Property!B15` |
 
 ### 5.2 — Arrival
 | Field | Cell |
 |---|---|
-| Full address | `Arrival!B5` |
-| Entry method | `Arrival!B6` |
-| Door code | `Arrival!B7` |
-| Parking | `Arrival!B8` |
-| Route | `Arrival!B9` |
-| Arrival window | `Arrival!B10` |
-| If-early option | `Arrival!B11` |
+| Full address | `Arrival!B8` |
+| Entry method | `Arrival!B9` |
+| Door code | `Arrival!B10` |
+| Parking | `Arrival!B11` |
+| Route | `Arrival!B12` |
+| Arrival window | `Arrival!B13` |
+| If-early option | `Arrival!B14` |
 
 ### 5.3 — WiFi + Tech
 | Field | Cell |
 |---|---|
-| SSID | `'WiFi + Tech'!B5` |
-| Password | `'WiFi + Tech'!B6` |
-| Backup SSID | `'WiFi + Tech'!B7` |
-| TV streaming | `'WiFi + Tech'!B8` |
-| Smart-lock note | `'WiFi + Tech'!B9` |
-| Thermostat | `'WiFi + Tech'!B10` |
-| TV controls | `'WiFi + Tech'!B11` |
-| WiFi support | `'WiFi + Tech'!B12` |
+| SSID | `'WiFi + Tech'!B8` |
+| Password | `'WiFi + Tech'!B9` |
+| Backup SSID | `'WiFi + Tech'!B10` |
+| TV streaming | `'WiFi + Tech'!B11` |
+| Smart-lock note | `'WiFi + Tech'!B12` |
+| Thermostat | `'WiFi + Tech'!B13` |
+| TV controls | `'WiFi + Tech'!B14` |
+| WiFi support | `'WiFi + Tech'!B15` |
 
 ### 5.4 — House Rules
 | Field | Cell |
 |---|---|
-| Quiet hours | `'House Rules'!B5` |
-| Max guests | `'House Rules'!B6` |
-| Smoking | `'House Rules'!B7` |
-| Pets | `'House Rules'!B8` |
-| Events | `'House Rules'!B9` |
-| Shoes | `'House Rules'!B10` |
-| Custom rules | `'House Rules'!B11` |
+| Quiet hours | `'House Rules'!B8` |
+| Max guests | `'House Rules'!B9` |
+| Smoking | `'House Rules'!B10` |
+| Pets | `'House Rules'!B11` |
+| Events | `'House Rules'!B12` |
+| Shoes | `'House Rules'!B13` |
+| Custom rules | `'House Rules'!B14` |
 
 ### 5.5 — Local Guide (table; unchanged from v2)
 
@@ -304,13 +304,13 @@ Rows `10..29`, columns `A..E`:
 Renderer shows top 10 non-empty rows on page 2.
 
 ### 5.6 — Trash
-Cells `Trash!B5:B11` — 7 inputs (pickup_day, bin_location, recycling_accepted, sorting_rules, pickup_location, thermostat_range, power_outage).
+Cells `Trash!B8:B14` — 7 inputs (pickup_day, bin_location, recycling_accepted, sorting_rules, pickup_location, thermostat_range, power_outage).
 
 ### 5.7 — Departure
-Cells `Departure!B5:B10` — 6 inputs (checkout_time, linen_location, trash_spot, thermostat_setting, key_return, custom_tasks).
+Cells `Departure!B8:B13` — 6 inputs (checkout_time, linen_location, trash_spot, thermostat_setting, key_return, custom_tasks).
 
 ### 5.8 — Emergency
-User inputs: `Emergency!B5:B13` — 9 inputs (hospital_name, hospital_phone, hospital_address, urgent_care_name, urgent_care_phone, police_non_emergency, vet, utility, additional notes). Plus: poison control is hardcoded in Excel (always `1-800-222-1222`); host phone is shown by referencing `Property!B7` directly at render time (no separate Emergency cell).
+User inputs: `Emergency!B8:B16` — 9 inputs (hospital_name, hospital_phone, hospital_address, urgent_care_name, urgent_care_phone, police_non_emergency, vet, utility, additional notes). Plus: poison control is hardcoded in Excel (always `1-800-222-1222`) at cell `Emergency!B14`; host phone is shown by referencing `Property!B10` directly at render time (no separate Emergency cell).
 
 ### 5.9 — Missing / empty handling
 
