@@ -1,8 +1,10 @@
 # Brand Decisions — The STR Ledger
 
-**Status:** Locked v1 — 2026-04-22
+**Status:** Locked v1.1 — 2026-04-24
 **Owner:** Daniel Harrison
 **Source:** produced via `superpowers:brainstorming`; supersedes every `<brand name>` / `<domain>` placeholder across the repo.
+
+**v1.1 change:** added §6.4 — Pinterest voice A/B test (control = §6.1 warning/solution, challenger = upbeat/inspiring, decision 2026-06-23). Cross-ref added to §2.
 
 This file is the single source of truth for every brand value. When any draft references brand, domain, palette, typography, tagline, or voice, it draws from here. Update this file first, then propagate.
 
@@ -46,6 +48,8 @@ This file is the single source of truth for every brand value. When any draft re
 | Guest experience | *Welcome books that earn 5-stars.* | Welcome Book, House Rules, Local Recs, Check-in/out listings |
 
 Additional campaign taglines may be written per launch; they must (1) match the voice rules in §6, (2) be under 10 words, (3) reference an outcome or tension, never a feature.
+
+> **Pinterest note:** A Pinterest voice A/B test is active through 2026-06-23 — see §6.4. On Pinterest, each campaign runs a **control** (the tagline above, §6.1 warning voice) paired with an **upbeat challenger**. Non-Pinterest surfaces continue to use the control tagline exclusively until the test resolves.
 
 ---
 
@@ -232,6 +236,40 @@ Excel lacks Cormorant Garamond by default. In spreadsheets:
 | "Hey host babe, ready to crush tax season?" | "Close your year before April does." |
 | "Our easy-to-use spreadsheet helps you track stuff." | "Schedule E-ready workbook. Formula-tight. Built for 3–10 properties." |
 | "You got this!! ✨" | "The books every real portfolio needs." |
+
+### 6.4 — Pinterest voice A/B test (active 2026-04-24 → 2026-06-23)
+
+**Status:** Running. The §6.1 warning/solution voice remains the default for new Pinterest pins until this test resolves. Upbeat/inspiring is the challenger, not the default.
+
+**Hypothesis.** Pinterest is a discovery/planning surface — Sarah is scrolling for ideas and wins, not self-identified pain. An upbeat, outcome-first voice may outperform the proven warning/solution baseline on outbound CTR.
+
+**Test design**
+
+- **Matched pairs** — same pin design, topic, product link, and publish window. Only headline + first line of description change.
+- **Control voice (§6.1 baseline):** names the failure/risk first, then the resolution. Example: *"The $8,427 deduction most STR hosts miss."*
+- **Challenger voice (upbeat):** leads with the clean outcome, number, or confident next step. Warm, capable, encouraging — "here's the smart move." Keeps §6.1 requirements for specific dollar figures, calm authority, and "host" / "portfolio" language. Example: *"The $8,427 deduction worth finding before April."*
+- **Primary metric:** outbound CTR (outbound clicks ÷ impressions). Saves and impressions are logged but not decisive.
+- **Minimum window:** 60 days AND ≥1,000 impressions per variant before calling. Whichever is later.
+- **Decision rule (pre-committed):**
+  - Challenger beats control by **≥15% on outbound CTR** → challenger becomes Pinterest default; §6.1 is amended to carve Pinterest out.
+  - **<15% either direction** → warning/solution baseline stays the Pinterest default; challenger retires.
+  - Control beats challenger by ≥15% → same outcome as <15% (baseline holds), but record the margin in the ADR so we don't re-run this test casually.
+
+**Decision date:** 2026-06-23 (60 days from start; may extend if impression threshold isn't met).
+
+**Matched-pair tagline inventory**
+
+| Campaign | Control (warning) | Challenger (upbeat) |
+|---|---|---|
+| Tax season | Close your year before April does. | Your cleanest tax season yet — built in a weekend. |
+| Operations | Turnover chaos has a spreadsheet. | Calm turnovers, every time. |
+| Guest experience | The welcome-book gap that costs 5-star reviews. | Welcome books that earn 5-stars. |
+
+Note: for Guest experience the existing §2 canonical tagline is already the upbeat side — the warning variant above is newly drafted to complete the pair.
+
+**Tracking.** Log pin-level performance weekly in `ops/pinterest-ab-test.md` (to be created): pin ID, variant (control/challenger), campaign, impressions, outbound clicks, saves, outbound CTR, notes. Do not edit pin copy mid-test.
+
+**On conclusion.** Record outcome as an ADR in `docs/superpowers/specs/`, amend §6.1 if challenger wins, and delete this §6.4 block.
 
 ---
 
