@@ -1316,9 +1316,153 @@ def build_review_print_tab(wb, variant):
 
 
 def build_bonus_tab(wb, variant):
-    """Tab 10 — Bonus: Listing Copy. Implemented in Task 7."""
-    ws = wb.create_sheet(TAB_NAMES[10])
+    """Tab 10 — Bonus: pre-written Airbnb listing copy.
+
+    Same content in DEMO and BLANK — it's a reference, not inputs.
+    """
+    wb.create_sheet(TAB_NAMES[10])
+    ws = wb["Bonus"]
     ws.sheet_properties.tabColor = COLOR_GOLD_SOFT
+    set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
+
+    # Header band (gold-soft, not navy — this is a reward tab)
+    gold_soft_fill = PatternFill("solid", fgColor=COLOR_GOLD_SOFT)
+    for r in range(1, 6):
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = gold_soft_fill
+
+    pseudo_button(ws, "A2", "C2", "\u2190 BACK", "'Review & Print'!A1",
+                   variant="secondary")
+    ws.merge_cells("D2:L2")
+    c = ws["D2"]
+    c.value = "BONUS"
+    c.font = Font(name=FONT_MONO, size=9, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="right", vertical="center", indent=2)
+    ws.row_dimensions[2].height = 28
+
+    ws.merge_cells("A4:L4")
+    c = ws["A4"]
+    c.value = "Bonus \u2014 Airbnb Listing Copy"
+    c.font = Font(name=FONT_HEAD, size=28, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[4].height = 36
+
+    ws.merge_cells("A5:L5")
+    c = ws["A5"]
+    c.value = "Copy these blocks into your Airbnb listing \u2014 hosts using them see 40% better guest comprehension."
+    c.font = Font(name=FONT_HEAD, size=11, italic=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[5].height = 20
+
+    # Row 7 instruction strip
+    parchment = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    for r in (6, 7):
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = parchment
+    ws.merge_cells("A7:L7")
+    c = ws["A7"]
+    c.value = ("Select each block below, Ctrl+C, then paste into the "
+               "matching field on your Airbnb listing.")
+    c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[7].height = 22
+
+    ws.freeze_panes = "A8"
+
+    # Block 1: House Rules (for Airbnb's "House rules" field)
+    current_row = 9
+    card_header(ws, current_row, ("A", "L"),
+                 "Block 1 \u2014 House Rules (paste into Airbnb \u2018House rules\u2019 field)")
+    current_row += 1
+    house_rules_copy = (
+        "We\u2019re glad to have you. A few practical notes so everyone has a "
+        "great stay:\n"
+        "\u2022 Quiet hours from 10 PM to 7 AM \u2014 sound carries through the walls.\n"
+        "\u2022 No smoking anywhere on the property. Smoking OK on the patio.\n"
+        "\u2022 Max 6 guests \u2014 if that changes, let us know.\n"
+        "\u2022 Please keep shoes at the door. Dust out, mountain in.\n"
+        "\u2022 If something breaks, tell us \u2014 we\u2019d rather fix it than discover it "
+        "later.\n"
+        "\u2022 Check-in after 3 PM. Checkout by 11 AM. Same-day turnovers are "
+        "tight \u2014 thanks for leaving on time."
+    )
+    ws.merge_cells(f"A{current_row}:L{current_row}")
+    c = ws[f"A{current_row}"]
+    c.value = house_rules_copy
+    c.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
+    c.alignment = Alignment(horizontal="left", vertical="top", wrap_text=True,
+                             indent=2)
+    ws.row_dimensions[current_row].height = 130
+    card_body_fill(ws, current_row, current_row, ("A", "L"), border=True)
+    current_row += 2  # spacer
+
+    # Block 2: Check-in instructions
+    card_header(ws, current_row, ("A", "L"),
+                 "Block 2 \u2014 Check-in Instructions (paste into \u2018Check-in\u2019 field)")
+    current_row += 1
+    checkin_copy = (
+        "Day-of check-in:\n\n"
+        "1. The door uses a smart lock. Your code is 4321 (reset after "
+        "checkout). \n"
+        "2. Pull into the gravel drive on the right \u2014 there\u2019s parking for 2 "
+        "cars. Don\u2019t block the mailbox.\n"
+        "3. WiFi is SmokiesRidge_Guest / welcome2024. Password is also on "
+        "the counter.\n"
+        "4. If you arrive before 3 PM, the Local Guide tab has a great coffee "
+        "shop 0.8 mi away.\n\n"
+        "Host is Daniel \u2014 text me at (555) 555-0199 anytime. Seriously, we\u2019d "
+        "rather hear from you than the morning-after emergency."
+    )
+    ws.merge_cells(f"A{current_row}:L{current_row}")
+    c = ws[f"A{current_row}"]
+    c.value = checkin_copy
+    c.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
+    c.alignment = Alignment(horizontal="left", vertical="top", wrap_text=True,
+                             indent=2)
+    ws.row_dimensions[current_row].height = 180
+    card_body_fill(ws, current_row, current_row, ("A", "L"), border=True)
+    current_row += 2
+
+    # Block 3: Before-you-leave reminder (for Airbnb messaging Day N-1)
+    card_header(ws, current_row, ("A", "L"),
+                 "Block 3 \u2014 Checkout Reminder (send Airbnb message Day N-1)")
+    current_row += 1
+    checkout_copy = (
+        "Hope your stay\u2019s been great. Quick reminders for tomorrow:\n\n"
+        "\u2022 Checkout is 11 AM sharp \u2014 we have a same-day turnover.\n"
+        "\u2022 Leave linens in the hallway laundry basket.\n"
+        "\u2022 Run the dishwasher.\n"
+        "\u2022 Take trash + recycling to the curb (Thursday) or dumpster on-site.\n"
+        "\u2022 Thermostat to 72\u00b0F before you lock up.\n"
+        "\u2022 Return the door code to 0000.\n\n"
+        "Text me when you\u2019re on the road \u2014 I\u2019ll release your deposit faster."
+    )
+    ws.merge_cells(f"A{current_row}:L{current_row}")
+    c = ws[f"A{current_row}"]
+    c.value = checkout_copy
+    c.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
+    c.alignment = Alignment(horizontal="left", vertical="top", wrap_text=True,
+                             indent=2)
+    ws.row_dimensions[current_row].height = 160
+    card_body_fill(ws, current_row, current_row, ("A", "L"), border=True)
+    current_row += 2
+
+    # Footer
+    footer_row = current_row
+    gold_side = Side(style="thin", color=COLOR_ACCENT)
+    for c in range(1, 13):
+        ws.cell(row=footer_row, column=c).border = Border(top=gold_side)
+        ws.cell(row=footer_row, column=c).fill = parchment
+    pseudo_button(ws, f"A{footer_row}", f"F{footer_row + 1}",
+                   "\u2190 Back: Review & Print", "'Review & Print'!A1",
+                   variant="secondary")
+    pseudo_button(ws, f"G{footer_row}", f"L{footer_row + 1}",
+                   "Host Notes (private) \u2192", "'\u00d7 Host Notes'!A1",
+                   variant="secondary")
+    ws.row_dimensions[footer_row].height = 22
+    ws.row_dimensions[footer_row + 1].height = 22
+
+    ws.print_area = f"A1:L{footer_row + 2}"
 
 
 def build_host_notes_tab(wb, variant):
