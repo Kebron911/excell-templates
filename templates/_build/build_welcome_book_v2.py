@@ -32,6 +32,7 @@ from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.page import PageMargins
 from openpyxl.worksheet.pagebreak import Break
 from openpyxl.utils import get_column_letter
+from openpyxl.utils.cell import column_index_from_string
 
 from brand_config import (
     # Constants
@@ -1037,9 +1038,281 @@ def build_emergency_tab(wb, variant):
 
 
 def build_review_print_tab(wb, variant):
-    """Tab 9 — Review & Print. Implemented in Task 6."""
+    """Tab 9 — Review & Print. The payoff tab with live 3-page preview."""
     ws = wb.create_sheet(TAB_NAMES[9])
     ws.sheet_properties.tabColor = COLOR_ACCENT
+    set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
+
+    # --- ZONE 1: Review header (rows 1-6, navy) ---
+    navy_fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
+    for r in range(1, 7):
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = navy_fill
+
+    # Row 2: back + label
+    pseudo_button(ws, "A2", "C2", "← BACK", "'Emergency'!A5", variant="primary")
+    ws.merge_cells("D2:L2")
+    c = ws["D2"]
+    c.value = "REVIEW & PRINT"
+    c.font = Font(name=FONT_MONO, size=10, bold=True, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="right", vertical="center", indent=2)
+    ws.row_dimensions[2].height = 28
+
+    # Row 4: title
+    ws.merge_cells("A4:L4")
+    c = ws["A4"]
+    c.value = "Your welcome book is ready"
+    c.font = Font(name=FONT_HEAD, size=32, bold=True, color="F6EFE2")
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[4].height = 42
+
+    # Row 5: subtitle
+    ws.merge_cells("A5:L5")
+    c = ws["A5"]
+    c.value = "Preview below. Hit Print when happy."
+    c.font = Font(name=FONT_HEAD, size=12, italic=True, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[5].height = 20
+
+    # --- ZONE 2: Readiness dashboard (rows 8-14, parchment) ---
+    parchment = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    for r in range(8, 15):
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = parchment
+
+    # 3 cards: A-D (Completion), E-H (Red Flags), I-L (Status)
+    # Card 1: Completion %
+    ws.merge_cells("A9:D9")
+    c = ws["A9"]
+    c.value = "COMPLETION"
+    c.font = Font(name=FONT_MONO, size=9, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center")
+    ws.merge_cells("A10:D11")
+    c = ws["A10"]
+    ranges = [
+        "'Property'!B5:B12", "'Arrival'!B5:B11", "'WiFi + Tech'!B5:B12",
+        "'House Rules'!B5:B11", "'Local Guide'!B10:E29", "'Trash'!B5:B11",
+        "'Departure'!B5:B10", "'Emergency'!B5:B13",
+    ]
+    counta_sum = " + ".join(f"COUNTA({r})" for r in ranges)
+    c.value = f"=TEXT(({counta_sum})/{TOTAL_INPUTS}, \"0%\")"
+    c.font = Font(name=FONT_HEAD, size=32, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.merge_cells("A12:D12")
+    c = ws["A12"]
+    c.value = f"of {TOTAL_INPUTS} fields filled"
+    c.font = Font(name=FONT_BODY, size=9, color=COLOR_MUTED)
+    c.alignment = Alignment(horizontal="center")
+
+    # Card 2: Red flags (required fields missing)
+    # Define required fields: Property!B5, B6, B7 + WiFi!B5, B6 + Trash!B5 +
+    # Departure!B5 + Emergency!B7, B8, B10. 10 required fields.
+    required = [
+        "'Property'!B5", "'Property'!B6", "'Property'!B7",
+        "'WiFi + Tech'!B5", "'WiFi + Tech'!B6",
+        "'Trash'!B5",
+        "'Departure'!B5",
+        "'Emergency'!B7", "'Emergency'!B8", "'Emergency'!B10",
+    ]
+    countblank_req = " + ".join(f'IF({r}="",1,0)' for r in required)
+    ws.merge_cells("E9:H9")
+    c = ws["E9"]
+    c.value = "RED FLAGS"
+    c.font = Font(name=FONT_MONO, size=9, bold=True, color=COLOR_ERROR)
+    c.alignment = Alignment(horizontal="center")
+    ws.merge_cells("E10:H11")
+    c = ws["E10"]
+    c.value = f"={countblank_req}"
+    c.font = Font(name=FONT_HEAD, size=32, bold=True, color=COLOR_ERROR)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.merge_cells("E12:H12")
+    c = ws["E12"]
+    c.value = "required fields empty"
+    c.font = Font(name=FONT_BODY, size=9, color=COLOR_MUTED)
+    c.alignment = Alignment(horizontal="center")
+
+    # Card 3: Status (READY / MINOR / NEEDS WORK)
+    ws.merge_cells("I9:L9")
+    c = ws["I9"]
+    c.value = "STATUS"
+    c.font = Font(name=FONT_MONO, size=9, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center")
+    ws.merge_cells("I10:L11")
+    c = ws["I10"]
+    c.value = f'=IF(({countblank_req})=0,"READY",IF(({countblank_req})<=2,"MINOR","NEEDS WORK"))'
+    c.font = Font(name=FONT_HEAD, size=22, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.merge_cells("I12:L12")
+    c = ws["I12"]
+    c.value = "0 = green · 1-2 = yellow · 3+ = red"
+    c.font = Font(name=FONT_BODY, size=9, color=COLOR_MUTED)
+    c.alignment = Alignment(horizontal="center")
+
+    # Card borders (all 3 cards)
+    gold_side = Side(style="thin", color=COLOR_ACCENT)
+    for first, last in [("A", "D"), ("E", "H"), ("I", "L")]:
+        fc, lc_ = column_index_from_string(first), column_index_from_string(last)
+        for r in range(9, 13):
+            for col in range(fc, lc_ + 1):
+                existing = ws.cell(row=r, column=col).border
+                new_border = Border(
+                    top=gold_side if r == 9 else existing.top,
+                    bottom=gold_side if r == 12 else existing.bottom,
+                    left=gold_side if col == fc else existing.left,
+                    right=gold_side if col == lc_ else existing.right,
+                )
+                ws.cell(row=r, column=col).border = new_border
+
+    # --- ZONE 3: Generate PDF pseudo-button (rows 16-21) ---
+    pseudo_button(ws, "A16", "L21",
+                   "📄  GENERATE YOUR PDF\nPress Ctrl+P → choose 'Save as PDF'",
+                   "'Review & Print'!A24",  # no-op scroll anchor
+                   variant="primary")
+    for r in range(16, 22):
+        ws.row_dimensions[r].height = 28
+
+    # Row 22: fine print
+    ws.merge_cells("A22:L22")
+    c = ws["A22"]
+    c.value = "Print area is pre-set to letter portrait. × Host Notes tab excluded."
+    c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_MUTED)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+
+    # --- ZONE 4: Live preview (rows 24-80, 3 pages) ---
+    # PAGE 1 — rows 24-45: hero + property + arrival + WiFi
+    # Hero band
+    for r in (24, 25):
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = navy_fill
+    ws.merge_cells("A24:L25")
+    c = ws["A24"]
+    c.value = '=CONCATENATE("Welcome to ", Property!B5)'
+    c.font = Font(name=FONT_HEAD, size=28, bold=True, color="F6EFE2")
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[24].height = 30
+    ws.row_dimensions[25].height = 30
+
+    # Property info block (rows 27-35)
+    def _preview_row(row, label, source_formula, bold=False, size=11):
+        ws.merge_cells(f"A{row}:D{row}")
+        lc = ws[f"A{row}"]
+        lc.value = label
+        lc.font = Font(name=FONT_BODY, size=size, bold=True, color=COLOR_PRIMARY)
+        lc.alignment = Alignment(horizontal="right", indent=1)
+        ws.merge_cells(f"E{row}:L{row}")
+        vc = ws[f"E{row}"]
+        # Wrap source cell to render "(not set)" if empty
+        vc.value = f'=IF({source_formula}="","(not set)",{source_formula})'
+        vc.font = Font(name=FONT_BODY, size=size,
+                       bold=bold, color=COLOR_TEXT)
+        vc.alignment = Alignment(horizontal="left", vertical="center",
+                                  wrap_text=True, indent=1)
+
+    _preview_row(27, "Host:",            "Property!B6")
+    _preview_row(28, "Host phone:",      "Property!B7")
+    _preview_row(29, "Check-in:",        "Property!B8")
+    _preview_row(30, "Check-out:",       "Property!B9")
+    _preview_row(32, "Address:",         "Arrival!B5")
+    _preview_row(33, "Entry method:",    "Arrival!B6")
+    _preview_row(34, "Door/lock code:",  "Arrival!B7")
+    _preview_row(35, "Parking:",         "Arrival!B8", size=10)
+
+    # WiFi — rows 37-40 with BIG text for credentials
+    _preview_row(37, "",                 '""', size=12)  # section header spacer
+    ws.merge_cells("A38:L38")
+    c = ws["A38"]
+    c.value = "WiFi"
+    c.font = Font(name=FONT_HEAD, size=16, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center")
+    _preview_row(39, "Network:", "'WiFi + Tech'!B5", bold=True, size=16)
+    _preview_row(40, "Password:", "'WiFi + Tech'!B6", bold=True, size=16)
+
+    # Page break at row 46
+    ws.row_breaks.append(Break(id=46))
+
+    # PAGE 2 — rows 47-65: rules + local guide top 10
+    ws.merge_cells("A48:L48")
+    c = ws["A48"]
+    c.value = "House Rules"
+    c.font = Font(name=FONT_HEAD, size=20, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center")
+    ws.row_dimensions[48].height = 28
+    _preview_row(49, "Quiet hours:",      "'House Rules'!B5")
+    _preview_row(50, "Max guests:",       "'House Rules'!B6")
+    _preview_row(51, "Smoking:",          "'House Rules'!B7")
+    _preview_row(52, "Pets:",             "'House Rules'!B8")
+    _preview_row(53, "Events:",           "'House Rules'!B9")
+    _preview_row(54, "Shoes:",            "'House Rules'!B10")
+
+    # Local Guide top 10 — rows 56-65
+    ws.merge_cells("A56:L56")
+    c = ws["A56"]
+    c.value = "Local Guide — Our Top 10"
+    c.font = Font(name=FONT_HEAD, size=20, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center")
+    ws.row_dimensions[56].height = 28
+    for i in range(10):
+        r = 57 + i
+        src_row = 10 + i
+        # Category
+        ws.merge_cells(f"A{r}:B{r}")
+        ws[f"A{r}"].value = f"='Local Guide'!A{src_row}"
+        ws[f"A{r}"].font = Font(name=FONT_BODY, size=10, bold=True,
+                                  color=COLOR_PRIMARY)
+        # Name
+        ws.merge_cells(f"C{r}:F{r}")
+        ws[f"C{r}"].value = f"=IF('Local Guide'!B{src_row}=\"\",\"\",'Local Guide'!B{src_row})"
+        ws[f"C{r}"].font = Font(name=FONT_BODY, size=10, color=COLOR_TEXT)
+        # Distance + phone
+        ws.merge_cells(f"G{r}:H{r}")
+        ws[f"G{r}"].value = f"=IF('Local Guide'!C{src_row}=\"\",\"\",'Local Guide'!C{src_row})"
+        ws[f"G{r}"].font = Font(name=FONT_BODY, size=10, color=COLOR_MUTED)
+        # Notes
+        ws.merge_cells(f"I{r}:L{r}")
+        ws[f"I{r}"].value = f"=IF('Local Guide'!E{src_row}=\"\",\"\",'Local Guide'!E{src_row})"
+        ws[f"I{r}"].font = Font(name=FONT_BODY, size=9, italic=True, color=COLOR_MUTED)
+
+    # Page break at row 66
+    ws.row_breaks.append(Break(id=66))
+
+    # PAGE 3 — rows 67-80: trash + departure + emergency
+    ws.merge_cells("A68:L68")
+    c = ws["A68"]
+    c.value = "Trash & Maintenance"
+    c.font = Font(name=FONT_HEAD, size=18, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center")
+    _preview_row(69, "Pickup day:",       "'Trash'!B5")
+    _preview_row(70, "Bin location:",     "'Trash'!B6")
+
+    ws.merge_cells("A72:L72")
+    c = ws["A72"]
+    c.value = "Checkout"
+    c.font = Font(name=FONT_HEAD, size=18, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center")
+    _preview_row(73, "Time:",             "Departure!B5")
+    _preview_row(74, "Linens:",           "Departure!B7")
+    _preview_row(75, "Key return:",       "Departure!B10")
+
+    # Emergency — red-bordered block rows 77-80
+    ws.merge_cells("A77:L77")
+    c = ws["A77"]
+    c.value = "Emergency — Call 911 First"
+    c.font = Font(name=FONT_HEAD, size=18, bold=True, color=COLOR_ERROR)
+    c.fill = PatternFill("solid", fgColor="FFE8E8")
+    c.alignment = Alignment(horizontal="center")
+    _preview_row(78, "Hospital:",         "Emergency!B7")
+    _preview_row(79, "Hospital phone:",   "Emergency!B8")
+    _preview_row(80, "Host phone:",       "Property!B7", bold=True, size=14)
+
+    # Print area: A24:L80 (3 pages)
+    ws.print_area = "A24:L80"
+    ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
+    ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
+    ws.page_setup.fitToPage = True
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToHeight = 3
+    ws.page_setup.fitToWidth = 1
+    ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
 def build_bonus_tab(wb, variant):
