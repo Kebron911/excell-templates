@@ -18,9 +18,9 @@ Airbnb Cleaner Turnover Checklist & Scorecard | Excel + Printable PDF | STR Host
 ## Description
 
 ```
-✨ TWO TOOLS IN ONE: CLEANER CHECKLIST + HOST SCORECARD ✨
+Turnover chaos has a spreadsheet. Printable cleaner turnover checklist + rolling scorecard for Airbnb and STR hosts. 40 items across 8 zones. Excel + PDF.
 
-Turnover chaos has a spreadsheet. Stop texting your cleaner at 11pm.
+Stop texting your cleaner at 11pm.
 This is the checklist we built for our own properties after watching
 guests arrive to empty coffee pods, streaky mirrors, and hot tubs with
 cloudy water.
@@ -170,3 +170,4 @@ At the bottom of this listing, Etsy shows "More from The STR Ledger" automatical
 ## Iteration log
 
 - `2026-04-22` — Initial draft (Task 8 Class A). Delivery assets done. xlsx build pending Task 8 Class A part B.
+- `2026-04-22` — Final SEO pass (Task 14 Class A): description opening replaced with 160-char keyword-dense opener per seo-research.md.

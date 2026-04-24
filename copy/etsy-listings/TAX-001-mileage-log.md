@@ -30,9 +30,7 @@ Airbnb Mileage Log Spreadsheet | IRS Compliant STR Mileage Tracker | Excel + Goo
 ## Description
 
 ```
-IRS-compliant mileage log for Airbnb and STR hosts. Auto-calculates deduction at 2026 IRS rate ($0.70/mi). Editable Excel.
-
-Close your year before April does.
+Close your year before April does. IRS-compliant mileage log for Airbnb and STR hosts. Auto-calculates deduction at 2026 IRS rate ($0.70/mi). Editable Excel.
 
 The IRS requires four things per business-mile entry: date, destination, business purpose, and miles. Most STR hosts have none of it at tax time. Active hosts miss $2,000–$8,000 per year in mileage deductions — not because they didn't drive, but because they didn't document.
 
@@ -174,3 +172,4 @@ See `templates/_delivery/TAX-001-mileage-log/thumbnails.md` for full Vista Creat
 
 - `2026-04-22` — Initial speculative draft.
 - `2026-04-22` — Refreshed: brief + spec committed. Status updated, tokens substituted, description rewritten to OPS-001 pattern, tags updated, thumbnails moved to delivery folder.
+- `2026-04-22` — Final SEO pass (Task 14 Class A): description opening reordered to match seo-research.md (keyword-dense opener first 160 chars).

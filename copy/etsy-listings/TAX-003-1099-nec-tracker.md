@@ -30,7 +30,7 @@
 ## Description
 
 ```
-Close your year before April does.
+Close your year before April does. 1099-NEC tracker for Airbnb and STR hosts. Auto-flags the $600 IRS threshold per contractor. Editable Excel.
 
 Pay your cleaner $600 or more in a year? She needs a 1099-NEC from you by January 31.
 Pay your handyman across 6 visits — did you hit $600 total? Your landscaper? Your
@@ -168,3 +168,4 @@ See `templates/_delivery/TAX-003-1099-nec-tracker/thumbnails.md` for full Vista 
 
 - `2026-04-22` — Initial speculative draft.
 - `2026-04-22` — Refreshed: status updated, title upgraded, description rewritten (WHAT'S INCLUDED / WHY / WHO / HOW / FILE COMPATIBILITY / REFUNDS structure), 13 tags replaced, files list updated, thumbnails linked to delivery spec.
+- `2026-04-22` — Final SEO pass (Task 14 Class A): description opening updated to 160-char keyword-dense opener per seo-research.md.

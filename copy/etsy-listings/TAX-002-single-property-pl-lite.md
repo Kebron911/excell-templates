@@ -30,10 +30,7 @@ Airbnb Schedule E P&L Template | Single-Property Rental Income Tracker | Excel T
 ## Description
 
 ```
-Close your year before April does.
-
-Single-property P&L tracker for Airbnb and VRBO hosts, pre-mapped to IRS Schedule E.
-Monthly + YTD rollups. Editable Excel.
+Close your year before April does. Single-property P&L tracker for Airbnb and VRBO hosts, pre-mapped to IRS Schedule E. Monthly + YTD rollups. Editable Excel.
 
 Your CPA gave you the look last April — the one that says "these categories don't map
 to Schedule E, I had to rebuild the whole thing." This template fixes that permanently.
@@ -192,3 +189,4 @@ See `templates/_delivery/TAX-002-pl-single-property/thumbnails.md` for full Vist
 
 - `2026-04-22` — Initial speculative draft.
 - `2026-04-22` — Refreshed: status updated (brief + spec committed), pricing corrected ($47 Full / $97 Multi-Property Master Phase 2+), title upgraded to keyword-front-loaded 118-char version, description rewritten per TAX-003 pattern (WHAT'S INCLUDED / WHY THIS / WHO / HOW / FILE COMPATIBILITY / REFUNDS), 13 tags replaced with Schedule E-specific set, files list updated to match delivery folder, thumbnails linked to delivery spec. All brand tokens substituted.
+- `2026-04-22` — Final SEO pass (Task 14 Class A): description opening condensed to single 160-char keyword-dense paragraph per seo-research.md.

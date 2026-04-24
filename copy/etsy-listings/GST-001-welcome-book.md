@@ -35,7 +35,7 @@ Airbnb Welcome Book Template | Editable Excel + PDF | STR Host Guest Guide | Vac
 ## Description (Etsy body)
 
 ```
-✨ BUSINESS-GRADE WELCOME BOOK FOR SERIOUS AIRBNB & VRBO HOSTS ✨
+Business-grade Airbnb welcome book template for VRBO and short-term rental hosts. Editable Excel + PDF with 9 pre-formatted sections. Instant download.
 
 Every great stay starts with a great welcome. This isn't another cutesy template —
 it's the welcome book we built for our own short-term rentals after years of
@@ -245,3 +245,4 @@ At the bottom of this listing, Etsy shows "More from <shop>" automatically. Ensu
 
 - `2026-04-22` — Initial speculative draft. Requires brief (Task A7) for accuracy.
 - `2026-04-22` — Refreshed: status block updated, file paths aligned to delivery tree, SPECULATIVE warnings removed. Delivery assets complete (Task 7 Class A).
+- `2026-04-22` — Final SEO pass (Task 14 Class A): description opening replaced with 160-char keyword-dense opener per seo-research.md.
