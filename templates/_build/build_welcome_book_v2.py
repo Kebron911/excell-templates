@@ -203,6 +203,165 @@ def _sample_or_blank(variant, value):
     return value if variant == "demo" else ""
 
 
+from dataclasses import dataclass, field
+
+
+@dataclass
+class Card:
+    """One input card inside an input tab."""
+    header: str                                   # e.g., "ENTRY & PARKING"
+    # Each row: (label, value_or_empty, options). If options is a list,
+    # a dropdown is attached. value can be a Python str/int/date or a
+    # formula string starting with "=".
+    rows: list = field(default_factory=list)
+    # Static content rows (not inputs) — rendered as plain text full-width
+    static: list = field(default_factory=list)
+    # Height per input row (default 24; use 48 for wrap-text multiline)
+    row_height: int = 24
+
+
+def build_input_tab(wb, section_num, tab_name, title, subtitle, cards,
+                    input_count, prev_tab, next_tab):
+    """Render an input tab using the card-grouped layout.
+
+    Args:
+        wb: workbook
+        section_num: 1-based section index (used in "SECTION N OF 8")
+        tab_name: name of this tab
+        title: big title shown in the step header band
+        subtitle: italic subtitle shown below title
+        cards: list of Card objects
+        input_count: for print_area height calculation
+        prev_tab: name of tab to go back to (or "" for Start)
+        next_tab: name of tab to go next to (or "" for Review & Print)
+    """
+    ws = wb[tab_name]
+    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
+    set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
+
+    # Row 1-5: step header band
+    section_header_band(ws, section_num, 8, title, subtitle, prev_tab, next_tab)
+
+    # Row 6: blank spacer (parchment)
+    parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    ws.row_dimensions[6].height = 6
+    for c in range(1, 13):
+        ws.cell(row=6, column=c).fill = parchment_fill
+
+    # Row 7: instruction strip
+    ws.merge_cells("A7:L7")
+    c = ws["A7"]
+    c.value = ("Fill the highlighted fields below. The 'Review & Print' tab "
+               "(last) shows what your guest will see.")
+    c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+    c.fill = parchment_fill
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[7].height = 22
+
+    # Freeze panes: rows 1-7 stay visible
+    ws.freeze_panes = "A8"
+
+    # Render cards starting at row 9
+    current_row = 9
+    for card in cards:
+        # Card header (1 row)
+        card_header(ws, current_row, ("A", "L"), card.header)
+        header_row = current_row
+        current_row += 1
+
+        # Input rows
+        body_start = current_row
+        for row_spec in card.rows:
+            if len(row_spec) == 2:
+                label, value = row_spec
+                options = None
+            elif len(row_spec) == 3:
+                label, value, options = row_spec
+            else:
+                raise ValueError(f"Card row must be 2 or 3 tuple, got {row_spec}")
+
+            # Label (cols A-C, merged)
+            ws.merge_cells(f"A{current_row}:C{current_row}")
+            lc = ws[f"A{current_row}"]
+            lc.value = label
+            lc.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
+            lc.alignment = Alignment(horizontal="right", vertical="center",
+                                      indent=1)
+            # Input (cols D-L, merged)
+            ws.merge_cells(f"D{current_row}:L{current_row}")
+            ic = ws[f"D{current_row}"]
+            if value != "" and value is not None:
+                if isinstance(value, str) and value.startswith("="):
+                    ic.value = value
+                    apply_style(ic, formula_cell_style())
+                else:
+                    ic.value = value
+                    apply_style(ic, input_cell_style())
+                    ic.alignment = Alignment(horizontal="left",
+                                              vertical="center",
+                                              wrap_text=True, indent=1)
+            else:
+                apply_style(ic, input_cell_style())
+
+            # Dropdown
+            if options:
+                add_dropdown(ws, f"D{current_row}", options)
+
+            ws.row_dimensions[current_row].height = card.row_height
+            current_row += 1
+
+        # Static content rows (after inputs)
+        for static_text in card.static:
+            ws.merge_cells(f"A{current_row}:L{current_row}")
+            sc = ws[f"A{current_row}"]
+            sc.value = static_text
+            sc.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+            sc.alignment = Alignment(horizontal="left", vertical="center",
+                                      wrap_text=True, indent=2)
+            sc.fill = parchment_fill
+            ws.row_dimensions[current_row].height = 24
+            current_row += 1
+
+        body_end = current_row - 1
+        # Apply card body border + fill
+        card_body_fill(ws, body_start, body_end, ("A", "L"), border=True)
+
+        # 1-row spacer between cards (parchment)
+        for c in range(1, 13):
+            ws.cell(row=current_row, column=c).fill = parchment_fill
+        ws.row_dimensions[current_row].height = 12
+        current_row += 1
+
+    # Section footer
+    footer_row = current_row + 1
+    # Gold thin-rule divider
+    gold_side = Side(style="thin", color=COLOR_ACCENT)
+    for c in range(1, 13):
+        ws.cell(row=current_row, column=c).border = Border(top=gold_side)
+        ws.cell(row=current_row, column=c).fill = parchment_fill
+
+    # Back/Next pseudo-buttons (secondary variant)
+    if prev_tab:
+        prev_label = f"← Back: {prev_tab}"
+        prev_target = f"'{prev_tab}'!A5"
+    else:
+        prev_label = "← Back: Start"
+        prev_target = "'Start'!A1"
+    if next_tab:
+        next_label = f"Next: {next_tab} →"
+        next_target = f"'{next_tab}'!A5"
+    else:
+        next_label = "Next: Review & Print →"
+        next_target = "'Review & Print'!A1"
+
+    pseudo_button(ws, f"A{footer_row}", f"F{footer_row + 1}",
+                   prev_label, prev_target, variant="secondary")
+    pseudo_button(ws, f"G{footer_row}", f"L{footer_row + 1}",
+                   next_label, next_target, variant="secondary")
+    ws.row_dimensions[footer_row].height = 22
+    ws.row_dimensions[footer_row + 1].height = 22
+
+
 # --- Per-tab builders (stubs; filled in Tasks 3-8) ---
 
 def build_start_tab(wb, variant):
