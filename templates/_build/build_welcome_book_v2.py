@@ -534,7 +534,9 @@ def build_start_tab(wb, variant):
         "'House Rules'!B8:B14", # 7 fields
         "'Local Guide'!B10:E29", # 80 cells (20 rows × 4 cols)
         "'Trash'!B8:B14",       # 7 fields
-        "'Departure'!B8:B13",   # 6 fields
+        # Departure: B9 is a formula (always-filled) and custom_tasks lives
+        # at B16, so count only the 6 user-input cells explicitly.
+        "'Departure'!B8,'Departure'!B10:B13,'Departure'!B16",
         "'Emergency'!B8:B16",   # 9 fields
     ]
     counta_sum = " + ".join(f"COUNTA({r})" for r in ranges)
@@ -542,18 +544,26 @@ def build_start_tab(wb, variant):
     c.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="right", vertical="center", indent=1)
 
-    # Per-section status rows 38-45 (v2.1 flattened layout)
+    # Per-section status rows 38-45 (v2.1 flattened layout).
+    # Optional 5th tuple element = custom COUNTA expression. Used for
+    # Departure because its B9 is a formula (always-filled checkout-day
+    # derived from Property!B11) and custom_tasks lives at B16 — so the
+    # contiguous B8:B13 range both over-counts (B9 formula) AND under-counts
+    # (misses B16). Explicit multi-ref COUNTA fixes both.
+    DEPARTURE_COUNTA = (
+        "COUNTA('Departure'!B8,'Departure'!B10:B13,'Departure'!B16)"
+    )
     section_rows = [
-        ("① Property Info",   "Property",    "B8:B15",   8),
-        ("② Arrival",          "Arrival",     "B8:B14",   7),
-        ("③ WiFi + Tech",      "WiFi + Tech", "B8:B15",   8),
-        ("④ House Rules",      "House Rules", "B8:B14",   7),
-        ("⑤ Local Guide",      "Local Guide", "B10:E29", 80),
-        ("⑥ Trash",            "Trash",       "B8:B14",   7),
-        ("⑦ Departure",        "Departure",   "B8:B13",   6),
-        ("⑧ Emergency",        "Emergency",   "B8:B16",   9),
+        ("① Property Info",   "Property",    "B8:B15",   8, None),
+        ("② Arrival",          "Arrival",     "B8:B14",   7, None),
+        ("③ WiFi + Tech",      "WiFi + Tech", "B8:B15",   8, None),
+        ("④ House Rules",      "House Rules", "B8:B14",   7, None),
+        ("⑤ Local Guide",      "Local Guide", "B10:E29", 80, None),
+        ("⑥ Trash",            "Trash",       "B8:B14",   7, None),
+        ("⑦ Departure",        "Departure",   "B8:B13",   6, DEPARTURE_COUNTA),
+        ("⑧ Emergency",        "Emergency",   "B8:B16",   9, None),
     ]
-    for i, (label, tab, range_, total) in enumerate(section_rows):
+    for i, (label, tab, range_, total, counta_expr) in enumerate(section_rows):
         r = 38 + i
         ws.row_dimensions[r].height = 18
         # Label (cols A-F)
@@ -564,11 +574,12 @@ def build_start_tab(wb, variant):
         c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
         # Status (cols G-J) — formula
         ws.merge_cells(f"G{r}:J{r}")
+        ca = counta_expr or f"COUNTA('{tab}'!{range_})"
         c = ws[f"G{r}"]
         c.value = (
-            f'=IF(COUNTA(\'{tab}\'!{range_})={total},"✅ Done",'
-            f'IF(COUNTA(\'{tab}\'!{range_})=0,"⏳ Empty",'
-            f'"⏳ "&COUNTA(\'{tab}\'!{range_})&" of {total}"))'
+            f'=IF({ca}={total},"✅ Done",'
+            f'IF({ca}=0,"⏳ Empty",'
+            f'"⏳ "&{ca}&" of {total}"))'
         )
         c.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
         c.alignment = Alignment(horizontal="left", vertical="center")
