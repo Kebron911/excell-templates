@@ -590,51 +590,450 @@ def build_start_tab(wb, variant):
 
 
 def build_property_tab(wb, variant):
-    """Tab 1 — Property. Implemented in Task 5."""
-    ws = wb.create_sheet(TAB_NAMES[1])
-    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
+    """Tab 1 — Property. Identity + stay dates."""
+    wb.create_sheet(TAB_NAMES[1])
+    s = SAMPLE["Property"] if variant == "demo" else {}
+    cards = [
+        Card(
+            header="Identity",
+            rows=[
+                ("Property name:", s.get("name", "")),
+                ("Host first name:", s.get("host", "")),
+            ],
+        ),
+        Card(
+            header="Guest Details",
+            rows=[
+                ("Host phone (text preferred):", s.get("host_phone", "")),
+                ("Check-in date:", s.get("check_in", "")),
+                ("Check-out date:", s.get("check_out", "")),
+                ("Property type:", s.get("property_type", ""),
+                 ["Single-family", "Cabin", "Condo", "Apartment",
+                  "Multi-family", "Glamping", "Other"]),
+                ("Max guests:", s.get("max_guests", "")),
+            ],
+        ),
+        Card(
+            header="Setup",
+            rows=[
+                ("Full address:", s.get("address", "")),
+            ],
+            static=[
+                "First time? Go to Start \u2192 Quick Start for the 5-minute path.",
+            ],
+        ),
+    ]
+    build_input_tab(
+        wb=wb, section_num=1, tab_name="Property",
+        title="Property Info",
+        subtitle="Who you are and where they're staying.",
+        cards=cards, input_count=8,
+        prev_tab="", next_tab="Arrival",
+    )
 
 
 def build_arrival_tab(wb, variant):
-    """Tab 2 — Arrival. Implemented in Task 5."""
-    ws = wb.create_sheet(TAB_NAMES[2])
-    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
+    """Tab 2 — Arrival."""
+    wb.create_sheet(TAB_NAMES[2])
+    s = SAMPLE["Arrival"] if variant == "demo" else {}
+    cards = [
+        Card(
+            header="Entry & Parking",
+            rows=[
+                ("Full address:", s.get("address", "")),
+                ("Entry method:", s.get("entry_method", ""),
+                 ["Smart lock", "Key lockbox", "In-person", "Other"]),
+                ("Door/lock code:", s.get("door_code", "")),
+                ("Parking instructions:", s.get("parking", "")),
+            ],
+            row_height=36,
+        ),
+        Card(
+            header="Route & Timing",
+            rows=[
+                ("Best route (if tricky):", s.get("route", "")),
+                ("Arrival time window:", s.get("arrival_window", "")),
+                ("If you arrive early:", s.get("early_option", "")),
+            ],
+            row_height=36,
+        ),
+        Card(
+            header="First 5 Minutes Inside",
+            rows=[],
+            static=[
+                "1. Crank the thermostat to your comfort \u2014 WiFi tab has controls.",
+                "2. Connect to WiFi \u2014 network + password on the WiFi tab.",
+                "3. Check the fridge for welcome items.",
+                "4. If anything's broken, text the host immediately.",
+            ],
+        ),
+    ]
+    build_input_tab(
+        wb=wb, section_num=2, tab_name="Arrival",
+        title="Arrival & Check-in",
+        subtitle="Everything your guest needs on day one.",
+        cards=cards, input_count=7,
+        prev_tab="Property", next_tab="WiFi + Tech",
+    )
 
 
 def build_wifi_tab(wb, variant):
-    """Tab 3 — WiFi. Implemented in Task 5."""
-    ws = wb.create_sheet(TAB_NAMES[3])
-    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
+    """Tab 3 — WiFi + Tech."""
+    wb.create_sheet(TAB_NAMES[3])
+    s = SAMPLE["WiFi"] if variant == "demo" else {}
+    cards = [
+        Card(
+            header="Network",
+            rows=[
+                ("WiFi network name:", s.get("ssid", "")),
+                ("WiFi password:", s.get("password", "")),
+                ("Backup network (if any):", s.get("backup_ssid", "")),
+            ],
+        ),
+        Card(
+            header="Entertainment",
+            rows=[
+                ("TV streaming \u2014 service + login:", s.get("tv_streaming", "")),
+                ("How to adjust TV volume/inputs:", s.get("tv_controls", "")),
+            ],
+            row_height=36,
+        ),
+        Card(
+            header="Smart Devices",
+            rows=[
+                ("Smart lock code (if different):", s.get("smart_lock_note", "")),
+                ("Smart thermostat notes:", s.get("thermostat", "")),
+                ("Who to call if WiFi fails:", s.get("wifi_support", "")),
+            ],
+            row_height=36,
+        ),
+    ]
+    build_input_tab(
+        wb=wb, section_num=3, tab_name="WiFi + Tech",
+        title="WiFi & Technology",
+        subtitle="So nobody has to text you about the wifi password.",
+        cards=cards, input_count=8,
+        prev_tab="Arrival", next_tab="House Rules",
+    )
 
 
 def build_rules_tab(wb, variant):
-    """Tab 4 — House Rules. Implemented in Task 5."""
-    ws = wb.create_sheet(TAB_NAMES[4])
-    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
+    """Tab 4 — House Rules."""
+    wb.create_sheet(TAB_NAMES[4])
+    s = SAMPLE["Rules"] if variant == "demo" else {}
+    cards = [
+        Card(
+            header="The Basics",
+            rows=[
+                ("Quiet hours:", s.get("quiet_hours", "")),
+                ("Maximum guests:", s.get("max_guests", "")),
+            ],
+        ),
+        Card(
+            header="Policies",
+            rows=[
+                ("Smoking:", s.get("smoking", ""),
+                 ["No smoking", "No smoking inside", "Smoking OK in designated area"]),
+                ("Pets:", s.get("pets", ""),
+                 ["No pets", "Pets OK with deposit", "Pets OK no deposit"]),
+                ("Events/parties:", s.get("events", ""),
+                 ["No events", "Small gatherings OK with notice", "OK"]),
+                ("Shoes inside:", s.get("shoes", ""),
+                 ["Remove at door", "OK", "Preferred removed"]),
+            ],
+        ),
+        Card(
+            header="Custom Rules",
+            rows=[
+                ("Your rules (one per line):", s.get("custom_rules", "")),
+            ],
+            row_height=90,
+        ),
+    ]
+    build_input_tab(
+        wb=wb, section_num=4, tab_name="House Rules",
+        title="House Rules",
+        subtitle="Short, clear, and why each one exists.",
+        cards=cards, input_count=7,
+        prev_tab="WiFi + Tech", next_tab="Local Guide",
+    )
 
 
 def build_local_tab(wb, variant):
-    """Tab 5 — Local Guide. Implemented in Task 5."""
-    ws = wb.create_sheet(TAB_NAMES[5])
+    """Tab 5 — Local Guide. 20 category rows x 4 input cols = 80 inputs.
+
+    Uses a custom layout (not the generic card template) because Local
+    Guide is a wide table, not a label/input pair structure.
+    """
+    wb.create_sheet(TAB_NAMES[5])
+    ws = wb["Local Guide"]
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
+    set_col_widths(ws, [
+        ("A", 22), ("B", 28), ("C", 10), ("D", 16), ("E", 45),
+    ] + [(get_column_letter(c), 2) for c in range(6, 13)])
+
+    # Step header band
+    section_header_band(ws, 5, 8, "Local Guide",
+                         "What we'd tell a friend visiting.",
+                         "House Rules", "Trash")
+
+    # Row 6 spacer + Row 7 instruction
+    parchment = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    for r in (6, 7):
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = parchment
+    ws.merge_cells("A7:L7")
+    c = ws["A7"]
+    c.value = "Fill the rows you want to share. Skip any you don't."
+    c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[7].height = 22
+    ws.freeze_panes = "A8"
+
+    # Row 8: blank
+    # Row 9: column headers
+    headers = ["Category", "Name", "Distance", "Phone", "Why we love it"]
+    for i, h in enumerate(headers, start=1):
+        c = ws.cell(row=9, column=i, value=h)
+        apply_style(c, header_row_style())
+
+    # Rows 10-29: 20 category rows (hardcoded category column, input B-E)
+    local_data = SAMPLE["Local"] if variant == "demo" else [
+        (cat, "", "", "", "") for cat, *_ in SAMPLE["Local"]
+    ]
+    for i, (cat, name, dist, phone, notes) in enumerate(local_data):
+        r = 10 + i
+        ws.cell(row=r, column=1, value=cat).font = Font(
+            name=FONT_BODY, size=11, bold=True, color=COLOR_PRIMARY)
+        ws.cell(row=r, column=1).alignment = Alignment(
+            horizontal="left", vertical="center", indent=1)
+        for col, val in enumerate([name, dist, phone, notes], start=2):
+            c = ws.cell(row=r, column=col, value=val)
+            apply_style(c, input_cell_style())
+            c.alignment = Alignment(horizontal="left", vertical="center",
+                                     wrap_text=True, indent=1)
+        ws.row_dimensions[r].height = 28
+
+    # Footer
+    footer_row = 31
+    gold_side = Side(style="thin", color=COLOR_ACCENT)
+    for c in range(1, 13):
+        ws.cell(row=footer_row, column=c).border = Border(top=gold_side)
+        ws.cell(row=footer_row, column=c).fill = parchment
+    pseudo_button(ws, f"A{footer_row}", f"F{footer_row + 1}",
+                   "\u2190 Back: House Rules", "'House Rules'!A5",
+                   variant="secondary")
+    pseudo_button(ws, f"G{footer_row}", f"L{footer_row + 1}",
+                   "Next: Trash \u2192", "'Trash'!A5", variant="secondary")
+    ws.row_dimensions[footer_row].height = 22
+    ws.row_dimensions[footer_row + 1].height = 22
+
+    # Print area: landscape, 2 pages
+    ws.print_area = f"A1:E{footer_row + 2}"
+    ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+    ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
+    ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
 def build_trash_tab(wb, variant):
-    """Tab 6 — Trash. Implemented in Task 5."""
-    ws = wb.create_sheet(TAB_NAMES[6])
-    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
+    """Tab 6 — Trash + Maintenance."""
+    wb.create_sheet(TAB_NAMES[6])
+    s = SAMPLE["Trash"] if variant == "demo" else {}
+    cards = [
+        Card(
+            header="Pickup & Bins",
+            rows=[
+                ("Trash pickup day:", s.get("pickup_day", ""),
+                 ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+                  "Saturday", "Sunday", "No pickup \u2014 dumpster on-site"]),
+                ("Bin location:", s.get("bin_location", "")),
+                ("Recycling accepted:", s.get("recycling_accepted", "")),
+                ("What goes in which bin:", s.get("sorting_rules", "")),
+            ],
+            row_height=30,
+        ),
+        Card(
+            header="Operational",
+            rows=[
+                ("Where to put bins on pickup morning:", s.get("pickup_location", "")),
+                ("HVAC/thermostat range to leave:", s.get("thermostat_range", "")),
+                ("If the power goes out:", s.get("power_outage", "")),
+            ],
+            row_height=36,
+        ),
+    ]
+    build_input_tab(
+        wb=wb, section_num=6, tab_name="Trash",
+        title="Trash, Recycling & Maintenance",
+        subtitle="The stuff nobody likes to ask about.",
+        cards=cards, input_count=7,
+        prev_tab="Local Guide", next_tab="Departure",
+    )
 
 
 def build_departure_tab(wb, variant):
-    """Tab 7 — Departure. Implemented in Task 5."""
-    ws = wb.create_sheet(TAB_NAMES[7])
-    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
+    """Tab 7 — Departure."""
+    wb.create_sheet(TAB_NAMES[7])
+    s = SAMPLE["Departure"] if variant == "demo" else {}
+    cards = [
+        Card(
+            header="When",
+            rows=[
+                ("Checkout time:", s.get("checkout_time", "")),
+                ("Checkout day:",
+                 '=IF(Property!B8<>"", TEXT(Property!B8,"dddd, mmmm d"), "See Property tab")'),
+            ],
+        ),
+        Card(
+            header="Before You Leave Checklist",
+            rows=[
+                ("\u2610 Strip bed linens and leave in:", s.get("linen_location", "")),
+                ("\u2610 Take trash + recycling to:", s.get("trash_spot", "")),
+                ("\u2610 Turn thermostat to:", s.get("thermostat_setting", "")),
+                ("\u2610 Leave key:", s.get("key_return", "")),
+            ],
+            static=[
+                "\u2610 Run the dishwasher",
+                "\u2610 Lock all doors + windows",
+            ],
+        ),
+        Card(
+            header="Custom Checkout Tasks",
+            rows=[
+                ("Your tasks (one per line):", s.get("custom_tasks", "")),
+            ],
+            row_height=60,
+        ),
+    ]
+    build_input_tab(
+        wb=wb, section_num=7, tab_name="Departure",
+        title="Checkout",
+        subtitle="What to do before you drive away.",
+        cards=cards, input_count=6,
+        prev_tab="Trash", next_tab="Emergency",
+    )
 
 
 def build_emergency_tab(wb, variant):
-    """Tab 8 — Emergency. Implemented in Task 5."""
-    ws = wb.create_sheet(TAB_NAMES[8])
+    """Tab 8 — Emergency. 911 block + contacts."""
+    wb.create_sheet(TAB_NAMES[8])
+    s = SAMPLE["Emergency"] if variant == "demo" else {}
+    ws = wb["Emergency"]
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
+    set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
+
+    # Header band
+    section_header_band(ws, 8, 8, "Emergency Contacts",
+                         "Keep this one nearby.",
+                         "Departure", "")
+
+    # Row 6 spacer
+    parchment = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    for c in range(1, 13):
+        ws.cell(row=6, column=c).fill = parchment
+    ws.row_dimensions[6].height = 6
+
+    # Row 7: big red 911 block (merged A:L, red tint fill, Georgia 22pt bold red)
+    ws.merge_cells("A7:L8")
+    c = ws["A7"]
+    c.value = "IN AN EMERGENCY \u2014 CALL 911"
+    c.font = Font(name=FONT_HEAD, size=22, bold=True, color=COLOR_ERROR)
+    c.fill = PatternFill("solid", fgColor="FFE8E8")
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    c.border = Border(
+        top=Side(style="medium", color=COLOR_ERROR),
+        bottom=Side(style="medium", color=COLOR_ERROR),
+        left=Side(style="medium", color=COLOR_ERROR),
+        right=Side(style="medium", color=COLOR_ERROR),
+    )
+    ws.row_dimensions[7].height = 30
+    ws.row_dimensions[8].height = 30
+
+    # Freeze panes (rows 1-8 stay visible)
+    ws.freeze_panes = "A9"
+
+    # Row 9: instruction strip
+    ws.merge_cells("A9:L9")
+    c = ws["A9"]
+    c.value = "911 first. Then the contacts below."
+    c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+    c.fill = parchment
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[9].height = 22
+
+    # Cards starting row 11
+    current_row = 11
+    for hdr, rows in [
+        ("Hospital", [
+            ("Nearest hospital:", s.get("hospital_name", "")),
+            ("Hospital phone:", s.get("hospital_phone", "")),
+            ("Hospital address:", s.get("hospital_address", "")),
+        ]),
+        ("Urgent Care & Police", [
+            ("Urgent care:", s.get("urgent_care_name", "")),
+            ("Urgent care phone:", s.get("urgent_care_phone", "")),
+            ("Non-emergency police:", s.get("police_non_emergency", "")),
+        ]),
+        ("Other", [
+            ("Poison control:", "1-800-222-1222"),  # hardcoded
+            ("24-hr vet (if pets):", s.get("vet", "")),
+            ("Utility outage reporting:", s.get("utility", "")),
+            ("Host phone (call/text):", "=Property!B7"),  # formula
+        ]),
+    ]:
+        card_header(ws, current_row, ("A", "L"), hdr)
+        current_row += 1
+        body_start = current_row
+        for label, value in rows:
+            ws.merge_cells(f"A{current_row}:C{current_row}")
+            lc = ws[f"A{current_row}"]
+            lc.value = label
+            lc.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
+            lc.alignment = Alignment(horizontal="right", vertical="center", indent=1)
+            ws.merge_cells(f"D{current_row}:L{current_row}")
+            ic = ws[f"D{current_row}"]
+            if isinstance(value, str) and value.startswith("="):
+                ic.value = value
+                apply_style(ic, formula_cell_style())
+            elif value == "1-800-222-1222":
+                # hardcoded — not an input
+                ic.value = value
+                ic.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
+                ic.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+                ic.fill = parchment
+            else:
+                ic.value = value
+                apply_style(ic, input_cell_style())
+                ic.alignment = Alignment(horizontal="left", vertical="center",
+                                          wrap_text=True, indent=1)
+            ws.row_dimensions[current_row].height = 24
+            current_row += 1
+        body_end = current_row - 1
+        card_body_fill(ws, body_start, body_end, ("A", "L"), border=True)
+        # Spacer
+        for c in range(1, 13):
+            ws.cell(row=current_row, column=c).fill = parchment
+        ws.row_dimensions[current_row].height = 12
+        current_row += 1
+
+    # Footer
+    footer_row = current_row + 1
+    gold_side = Side(style="thin", color=COLOR_ACCENT)
+    for c in range(1, 13):
+        ws.cell(row=footer_row, column=c).border = Border(top=gold_side)
+        ws.cell(row=footer_row, column=c).fill = parchment
+    pseudo_button(ws, f"A{footer_row}", f"F{footer_row + 1}",
+                   "\u2190 Back: Departure", "'Departure'!A5", variant="secondary")
+    pseudo_button(ws, f"G{footer_row}", f"L{footer_row + 1}",
+                   "Review & Print \u2192", "'Review & Print'!A1",
+                   variant="accent")
+    ws.row_dimensions[footer_row].height = 22
+    ws.row_dimensions[footer_row + 1].height = 22
+
+    ws.print_area = f"A1:L{footer_row + 2}"
+    ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
+    ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
+    ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
 def build_review_print_tab(wb, variant):
