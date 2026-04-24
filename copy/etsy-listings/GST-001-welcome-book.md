@@ -2,7 +2,7 @@
 
 **SKU:** GST-001
 
-**Status:** Ready to publish. Build complete (commit: see git log for GST-001 xlsx). Delivery assets complete (this Task). Awaiting Etsy upload (Task 11).
+**Status:** Ready to publish — v2.0 tool redesign. Bundle: DEMO + BLANK xlsx + sample-output PDF. Awaiting Etsy upload (Task 11 of first-5-launch plan).
 
 **Pricing:** $17 Etsy · $17 own-site (same — gateway product)
 
@@ -45,6 +45,16 @@ watching guests miss the wifi password, wreck the hot tub, and call us at
 ═══════════════════════════════════════════
 WHAT'S INCLUDED
 ═══════════════════════════════════════════
+
+✨ TWO XLSX FILES IN THE SAME DOWNLOAD:
+   • DEMO — fully filled sample property to explore the tool
+   • BLANK — cleared starter for your actual property
+✨ LIVE 3-PAGE PREVIEW inside the file — watch your welcome book
+   build itself as you fill fields. No "export to see it" friction.
+✨ BONUS: Pre-written Airbnb listing copy (House Rules, Check-in,
+   Checkout reminder) — paste into your Airbnb listing, copy-ready.
+✨ SAMPLE OUTPUT PDF shipped in the download so you know exactly
+   what you're buying before opening Excel.
 
 📘 Fully editable Excel workbook + matching PDF
 📘 Multi-section guest guide covering:
@@ -193,13 +203,13 @@ Etsy allows 10 images per listing. Use 5 for launch — room to expand later.
 
 ---
 
-## Files attached to listing (Etsy max 5)
+## Files attached to Etsy listing (up to 5)
 
-1. `templates/_masters/GST-001-welcome-book.xlsx` — editable workbook
-2. `templates/_delivery/_shared/etsy-upgrade-insert.pdf` — companion upgrade CTA (shared across all listings)
-3. `templates/_delivery/GST-001-welcome-book/GST-001-howto.pdf` — how-to guide
-4. `templates/_delivery/GST-001-welcome-book/GST-001-license.pdf` — 1-page usage license
-5. `templates/_delivery/GST-001-welcome-book/preview.pdf` — optional preview (skip for MVP)
+1. `templates/_masters/GST-001-welcome-book-DEMO.xlsx` — filled sample
+2. `templates/_masters/GST-001-welcome-book-BLANK.xlsx` — clean starter
+3. `templates/_delivery/GST-001-welcome-book/GST-001-sample-output.pdf` — 3-page preview PDF (built from DEMO)
+4. `templates/_delivery/_shared/etsy-upgrade-insert.pdf` — buyer companion (from Task 10 of first-5-launch)
+5. `templates/_delivery/GST-001-welcome-book/GST-001-license.pdf` — 1-page license
 
 ---
 
@@ -246,3 +256,4 @@ At the bottom of this listing, Etsy shows "More from <shop>" automatically. Ensu
 - `2026-04-22` — Initial speculative draft. Requires brief (Task A7) for accuracy.
 - `2026-04-22` — Refreshed: status block updated, file paths aligned to delivery tree, SPECULATIVE warnings removed. Delivery assets complete (Task 7 Class A).
 - `2026-04-22` — Final SEO pass (Task 14 Class A): description opening replaced with 160-char keyword-dense opener per seo-research.md.
+- `2026-04-23` — v2 tool redesign: wizard structure, 12 tabs, 2-file bundle (DEMO + BLANK), live 3-page preview, bonus listing copy. Supersedes v1 flat-form xlsx. Title + tags unchanged.
