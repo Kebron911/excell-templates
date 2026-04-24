@@ -1466,9 +1466,114 @@ def build_bonus_tab(wb, variant):
 
 
 def build_host_notes_tab(wb, variant):
-    """Tab 11 — × Host Notes. Implemented in Task 8."""
-    ws = wb.create_sheet(TAB_NAMES[11])
-    ws.sheet_properties.tabColor = COLOR_SECONDARY
+    """Tab 11 — × Host Notes. Private host-only, quarantined."""
+    s = SAMPLE["Host"] if variant == "demo" else {}
+    wb.create_sheet(TAB_NAMES[11])
+    ws = wb["× Host Notes"]
+    ws.sheet_properties.tabColor = COLOR_SECONDARY  # Clay Rose
+    set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
+
+    # Rows 1-5: big red warning block
+    red_tint_fill = PatternFill("solid", fgColor="FFE8E8")
+    for r in range(1, 6):
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = red_tint_fill
+
+    ws.merge_cells("A1:L2")
+    c = ws["A1"]
+    c.value = "⚠  PRIVATE — HIDE BEFORE SHARING"
+    c.font = Font(name=FONT_HEAD, size=22, bold=True, color=COLOR_ERROR)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    c.border = Border(
+        top=Side(style="medium", color=COLOR_ERROR),
+        bottom=Side(style="medium", color=COLOR_ERROR),
+        left=Side(style="medium", color=COLOR_ERROR),
+        right=Side(style="medium", color=COLOR_ERROR),
+    )
+    ws.row_dimensions[1].height = 30
+    ws.row_dimensions[2].height = 30
+
+    ws.merge_cells("A3:L3")
+    c = ws["A3"]
+    c.value = ("Right-click this tab → 'Hide' before saving the workbook as "
+               "a PDF or sharing with guests.")
+    c.font = Font(name=FONT_BODY, size=11, italic=True, color=COLOR_ERROR)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[3].height = 22
+
+    ws.merge_cells("A4:L4")
+    c = ws["A4"]
+    c.value = ("This tab's Print Area is deliberately set to A1:A1 so if you "
+               "accidentally print it, you get a near-empty page, not your "
+               "private notes.")
+    c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_MUTED)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[4].height = 18
+
+    ws.freeze_panes = "A6"
+
+    # Cards
+    parchment = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    current_row = 7
+    for hdr, rows in [
+        ("Cleaners & Handyman", [
+            ("Cleaner name:", s.get("cleaner_name", "")),
+            ("Cleaner phone:", s.get("cleaner_phone", "")),
+            ("Handyman:", s.get("handyman", "")),
+            ("Plumber:", s.get("plumber", "")),
+        ]),
+        ("Property Systems", [
+            ("Pool/hot tub service:", s.get("pool_service", "")),
+            ("Insurance policy #:", s.get("insurance", "")),
+            ("WiFi admin password (router):", s.get("wifi_admin", "")),
+            ("Smart lock master code:", s.get("smart_lock_master", "")),
+            ("Passcodes for safes/boxes:", s.get("safe_codes", "")),
+        ]),
+        ("Private Notes (never share)", [
+            ("Things to NOT tell the guest:", s.get("private_notes", "")),
+        ]),
+    ]:
+        card_header(ws, current_row, ("A", "L"), hdr)
+        current_row += 1
+        body_start = current_row
+        for label, value in rows:
+            ws.merge_cells(f"A{current_row}:C{current_row}")
+            lc = ws[f"A{current_row}"]
+            lc.value = label
+            lc.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
+            lc.alignment = Alignment(horizontal="right", vertical="center", indent=1)
+            ws.merge_cells(f"D{current_row}:L{current_row}")
+            ic = ws[f"D{current_row}"]
+            ic.value = value
+            apply_style(ic, input_cell_style())
+            ic.alignment = Alignment(horizontal="left", vertical="center",
+                                      wrap_text=True, indent=1)
+            ws.row_dimensions[current_row].height = (36 if label.endswith(":")
+                and len(str(value)) > 40 else 24)
+            current_row += 1
+        body_end = current_row - 1
+        card_body_fill(ws, body_start, body_end, ("A", "L"), border=True)
+        for c in range(1, 13):
+            ws.cell(row=current_row, column=c).fill = parchment
+        ws.row_dimensions[current_row].height = 12
+        current_row += 1
+
+    # Final reminder row
+    ws.merge_cells(f"A{current_row + 1}:L{current_row + 2}")
+    c = ws[f"A{current_row + 1}"]
+    c.value = ("Right-click this tab → Hide before saving or sharing. "
+               "Excel: RIGHT-click tab → Hide. Google Sheets: right-click → Hide sheet.")
+    c.font = Font(name=FONT_HEAD, size=12, bold=True, italic=True, color=COLOR_ERROR)
+    c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    c.fill = red_tint_fill
+    ws.row_dimensions[current_row + 1].height = 20
+    ws.row_dimensions[current_row + 2].height = 20
+
+    # Print area: A1:A1 ONLY. Protects against accidental print.
+    ws.print_area = "A1:A1"
+    ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
+    ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
+
 
 
 def build_workbook(out_path, variant):
