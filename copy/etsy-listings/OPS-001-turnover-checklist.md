@@ -1,108 +1,80 @@
 # Etsy Listing: Cleaner Turnover Checklist + Scorecard
 
 **SKU:** OPS-001
+**Status:** Ready to publish. Brief + spec committed. Excel build pending (Task 8 part B). Delivery assets complete. Awaiting Etsy upload (Task 11).
+**Pricing:** $12 Etsy · $17 own-site
+**Category path:** Digital Downloads > Other Digital Downloads > Business & Office
 
-**Status:** ⚠️ SPECULATIVE — review after brief complete.
-
-**Pricing:** $12 Etsy · $12 own-site · Gumroad $12 (lowest-price gateway product — drives Etsy discovery volume)
-
----
-
-## Title
+## Title (≤140 chars — keyword-front-loaded)
 
 ```
-Airbnb Turnover Checklist | Cleaning Scorecard | STR Host Cleaner Template | VRBO Housekeeping Guide | Editable Excel + PDF | Instant
+Airbnb Cleaner Turnover Checklist & Scorecard | Excel + Printable PDF | STR Host Cleaning Tracker | Vacation Rental Cleaning
 ```
 
-**Character count: 138/140** ✅
+**Character count: 139/140** ✅
 
 ---
 
 ## Description
 
 ```
-✨ TURNOVER CHECKLIST + CLEANER SCORECARD FOR STR HOSTS ✨
+Turnover chaos has a spreadsheet. Printable cleaner turnover checklist + rolling scorecard for Airbnb and STR hosts. 40 items across 8 zones. Excel + PDF.
 
-Every turnover is a moment of truth. Guest leaves → cleaner comes in →
-you hope everything is reset before the next guest arrives. If anything
-is missed, you hear about it at 4pm from an angry new guest.
-
-This checklist is the one we built for our cleaners after too many
-"wait, did they replace the shower curtain?" moments. It's specific,
-it's trackable, and it scores the cleaner on consistency so you can
-reward the ones who do it right.
+Stop texting your cleaner at 11pm.
+This is the checklist we built for our own properties after watching
+guests arrive to empty coffee pods, streaky mirrors, and hot tubs with
+cloudy water.
 
 ═══════════════════════════════════════════
 WHAT'S INCLUDED
 ═══════════════════════════════════════════
 
-🧹 Master turnover checklist (editable Excel + PDF)
-   • Room-by-room checklist: living room, kitchen, bedrooms, bathrooms,
-     exterior, laundry, utility
-   • ~80 items total, customizable to your property
-   • Print-ready format for cleaners (hang it on the back of a door)
+📋 1-PAGE PRINTABLE CHECKLIST — 40 items across 8 zones:
+   • Bedroom (6) · Bathroom (7) · Kitchen (8) · Living (5)
+   • Outdoor (4) · Supplies (4) · Safety (3) · Final Walk (3)
+   Cleaner checks each item, initials, signs, dates. You get the paper back.
 
-🧹 Restock inventory section
-   • Consumables: toilet paper, paper towels, soap, laundry detergent
-   • Amenities: coffee, tea, water, welcome basket items
-   • Linens: fresh set count per bed
-   • Auto-flags when stocks run low
+📊 ROLLING SCORECARD DASHBOARD — the host-facing payoff:
+   • Avg score per cleaner across every turnover
+   • Issue rate % (how often guest complaints follow their turnovers)
+   • Automatic ranking — who's your #1 cleaner?
+   • Conditional formatting flags anyone below 33/40
 
-🧹 Cleaner scorecard tab
-   • Per-turnover score (cleaner self-rates or host spot-checks)
-   • Track per cleaner over time
-   • Identify who's consistent vs who needs more training
-   • Useful for paying bonuses fairly
-
-🧹 Incident log
-   • Damage, missing items, guest complaints
-   • Date + cleaner + property + issue
-   • Resolution tracking
-
-🧹 Companion PDF: "How to Train a Cleaner Using This Checklist"
-   • 1-page guide for onboarding new cleaners
-   • Scripts for the first walkthrough conversation
+📝 TURNOVER LOG — 500-row capacity, dropdowns for property + cleaner
+📇 CLEANER ROSTER — contact info + pay rate + start date for every cleaner
+📦 SUPPLY PAR LEVELS — bonus: per-property stock targets so nothing runs out
 
 ═══════════════════════════════════════════
-WHY THIS INSTEAD OF A GOOGLE DOC CHECKLIST
+WHY THIS INSTEAD OF A STICKY NOTE
 ═══════════════════════════════════════════
 
-Most checklist templates are just bullet-point lists. This one:
-   ✅ Scores cleaners over time (data you can act on)
-   ✅ Tracks inventory so you don't run out of TP on day one of a 7-night stay
-   ✅ Logs incidents so you have patterns, not memories
-   ✅ Exports as PDF for the cleaner (they don't need Excel)
-   ✅ Works for 1 property or 10 — each gets its own tab
+Most hosts track cleaners by vibes. This tool gives you actual data:
+   ✅ Who's your best cleaner? (Rank column tells you)
+   ✅ Who has the highest complaint rate? (Issue % tells you)
+   ✅ Which cleaner takes longest per turnover? (Minutes column tells you)
+   ✅ Which property is hardest to turn? (Sort log by minutes — you'll see)
+
+The conversation with a struggling cleaner is easier when you have 10 data
+points, not a "vibe."
 
 ═══════════════════════════════════════════
 WHO THIS IS FOR
 ═══════════════════════════════════════════
 
-🏠 Hosts who use cleaning contractors
-🏠 Hosts with 1+ properties (scalable to unlimited)
-🏠 Hosts frustrated with guest complaints about overlooked details
-🏠 Property managers standardizing turnover quality across portfolios
-🏠 Anyone who's ever said "I'll just check it myself this time"
-
-═══════════════════════════════════════════
-WHAT THIS DOESN'T DO
-═══════════════════════════════════════════
-
-❌ Schedule turnovers — use Turno, Breezeway, or TurnoverBnB for scheduling
-❌ Pay cleaners — use your bookkeeping / 1099 tracker for payment records
-❌ Guest communication — use Hospitable, Breezeway, or your PMS
-
-This is the quality-control layer, not the scheduling or payment layer.
+🏡 Airbnb hosts with 1+ properties who use outside cleaners
+🏡 Semi-pro operators juggling 3-10 properties
+🏡 Property managers tracking a cleaner roster
+🏡 Anyone whose current system is "text the cleaner and hope"
 
 ═══════════════════════════════════════════
 HOW IT WORKS
 ═══════════════════════════════════════════
 
-1️⃣ Purchase → download Excel + printable PDF
-2️⃣ Customize room-by-room items to match your property
-3️⃣ Print for your cleaner OR share via phone (PDF)
-4️⃣ After each turnover, fill the scorecard (cleaner or you)
-5️⃣ Monthly review: see who's consistent, who needs feedback
+1️⃣ Purchase → instant download
+2️⃣ 5-minute setup: replace sample cleaners + properties with yours
+3️⃣ Print the checklist for every turnover — hand to cleaner
+4️⃣ After each turnover, log it (takes 60 seconds)
+5️⃣ Scorecard updates automatically
 
 ═══════════════════════════════════════════
 FILE COMPATIBILITY
@@ -110,100 +82,92 @@ FILE COMPATIBILITY
 
 ✅ Microsoft Excel 2016+ (Windows and Mac)
 ✅ Microsoft Excel 365
-✅ Google Sheets
-✅ PDF (for printing — cleaners don't need Excel)
+✅ Google Sheets (File → Import)
+❌ Apple Numbers — message first if this is your only option
 
 ═══════════════════════════════════════════
 REFUNDS + SUPPORT
 ═══════════════════════════════════════════
 
-14-day refund, no questions asked.
-
-═══════════════════════════════════════════
-ABOUT The STR Ledger
-═══════════════════════════════════════════
-
-Business-grade Excel systems for hosts who run their STR like a business.
-Full operations + tax library at thestrledger.com.
+14-day refund, no questions asked. hello@thestrledger.com — real humans,
+fast replies.
 
 ═══════════════════════════════════════════
 
-⚠️ Digital product. No physical item shipped.
+⚠️ Digital product. No physical shipment. Files delivered to your Etsy
+account and email.
+
+⚠️ Single-business license. Use across unlimited properties YOU manage.
+No redistribution or resale.
 ```
+
+**Description character count: ~2,300 (Etsy max 5,000)**
 
 ---
 
-## Tags (13)
+## Tags (13, each ≤20 chars)
 
-1. `airbnb checklist`
-2. `turnover checklist`
-3. `str cleaning`
-4. `vrbo housekeeping`
-5. `cleaner scorecard`
-6. `airbnb cleaning`
-7. `short term rental`
-8. `airbnb host`
-9. `cleaning template`
-10. `vacation rental`
-11. `property management`
-12. `turnover template`
+1. `airbnb cleaning`
+2. `str cleaner tracker`
+3. `vacation rental`
+4. `turnover checklist`
+5. `airbnb template`
+6. `cleaner scorecard`
+7. `vrbo cleaning`
+8. `str template`
+9. `airbnb host tool`
+10. `cleaning tracker`
+11. `cleaning schedule`
+12. `housekeeping`
 13. `airbnb printable`
 
 ---
 
-## Etsy attributes
+## Materials / Category fields
 
-- Type: Digital Download
-- Who made it: I did
-- When was it made: Made to order
-- Category: Digital Downloads → Business & Office → Templates
-
----
-
-## Thumbnails shot list (5)
-
-**Image 1 — Hero**
-- Printed checklist hanging inside a cleaning supply closet
-- Headline: "Every Turnover. Every Detail. Every Time."
-- Sub: "$12 · Excel + PDF · Scorecard Built In"
-
-**Image 2 — Room-by-room**
-- Grid: kitchen / bath / bedroom / living room mini-sections
-- Caption: "80+ items, room by room, property by property"
-
-**Image 3 — Scorecard visual**
-- Chart showing cleaner quality over time
-- Caption: "Know which cleaner is worth the bonus"
-
-**Image 4 — Inventory alert**
-- Screenshot of restock flags
-- Caption: "Flags when stocks run low — no more midnight supply runs"
-
-**Image 5 — Before/after**
-- Left: chaotic group text with cleaner
-- Right: structured scorecard
-- Caption: "Stop texting your cleaner screenshots."
+- **Type:** Digital Download
+- **Who made it:** I did
+- **When was it made:** Made to order
+- **Category:** Digital Downloads → Other Digital Downloads → Business & Office
+- **Style:** Modern, Minimalist
 
 ---
 
-## Files attached (5)
+## Thumbnails
 
-1. `OPS-001-turnover-checklist.xlsx`
-2. `OPS-001-printable.pdf` (the cleaner-friendly printable)
-3. `OPS-001-cleaner-training-guide.pdf`
-4. `etsy-upgrade-insert.pdf`
-5. `OPS-001-license.pdf`
+See `templates/_delivery/OPS-001-turnover-checklist/thumbnails.md` for the 5-image Vista Create spec.
 
 ---
 
-## Strategic notes
+## Files to attach on Etsy (up to 5)
 
-This is the **cheapest** launch product at $12. Purposefully priced as a gateway — high volume, low friction, opens the door to the tax/finance templates via the upgrade CTA.
+1. `templates/_masters/OPS-001-turnover-checklist.xlsx` — master editable file (pending Task 8 part B)
+2. `templates/_delivery/_shared/etsy-upgrade-insert.pdf` — shared buyer companion PDF (from Task 10)
+3. `templates/_delivery/OPS-001-turnover-checklist/OPS-001-howto.pdf` — how-to guide (Daniel builds in Vista Create)
+4. `templates/_delivery/OPS-001-turnover-checklist/OPS-001-license.pdf` — 1-page license (Daniel builds in Vista Create)
+5. `templates/_delivery/OPS-001-turnover-checklist/printable-checklist.pdf` — export of the Printable Checklist tab as standalone PDF (5-min task; Daniel exports from xlsx)
 
-Target: 15+ sales/mo within Month 2 → drives Etsy algorithm signal for the whole shop.
+---
+
+## SEO notes
+
+- Primary keyword: `airbnb cleaning checklist` (front-loaded in title)
+- Renew listing every 4 months (freshness signal)
+- Monitor CTR/CVR at Day 30 — if CTR < 1%, rewrite thumbnails first
+
+---
+
+## Cross-selling setup
+
+At the bottom of this listing, Etsy shows "More from The STR Ledger" automatically. Ensure launch-day shop has:
+- Welcome Book ($17)
+- Mileage Log ($17)
+- 1099-NEC Tracker ($17)
+- Single-Property P&L Lite ($27)
 
 ---
 
 ## Iteration log
 
-- `2026-04-22` — Initial speculative draft.
+- `2026-04-22` — Initial draft (Task 8 Class A). Delivery assets done. xlsx build pending Task 8 Class A part B.
+- `2026-04-22` — Final SEO pass (Task 14 Class A): description opening replaced with 160-char keyword-dense opener per seo-research.md.
