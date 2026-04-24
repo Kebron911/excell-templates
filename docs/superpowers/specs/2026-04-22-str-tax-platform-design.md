@@ -361,7 +361,7 @@ Every purchase on every platform → webhook → n8n → Airtable CRM row + IS e
 
 ### 6.1 — Phase 1 channels (Month 0–3): 6 focused channels
 
-1. **Pinterest (organic)** — TOFU, Sarah's planning mode, 10–15 pins/day via Tailwind
+1. **Pinterest (organic)** — TOFU, Sarah's planning mode, 10–15 pins/day via Creasquare (Pinterest native scheduler as fallback); re-evaluate Tailwind at Month 3 for SmartLoop + Tribes if Pinterest is converting and Creasquare's Pinterest features feel thin
 2. **Etsy (as discovery)** — TOFU → BOFU, 1–2 listings/week
 3. **Blog / SEO** (Ghost subdomain) — TOFU → MOFU, 2 posts/week, AI-assisted
 4. **Your FB Group** — MOFU, daily presence, weekly live
@@ -518,13 +518,16 @@ Claude (MCP) → Airtable (SSOT) → n8n (spine) → IS + Etsy + Gumroad + Payhi
 |---|---|
 | Airtable Team | $20 |
 | n8n self-hosted VPS | $6–10 |
+| Vaultwarden (self-hosted — co-tenant on n8n VPS or separate) | $0 (self-hosted, open source) |
 | Influencersoft | $0 (owned) |
+| emaillistvalidation.com | $0 (lifetime deal owned) — list hygiene for every email-capture, order-sync, and cold-outreach feed |
 | Stripe + Stripe Tax | 2.9% + 30¢ + 0.5% tax |
 | Ghost | $0–9 |
 | Google Workspace | $6 |
-| Canva Pro | $15 |
-| Tailwind | $15 |
-| Buffer/Metricool | $15 |
+| Vista Create Pro | $0 (lifetime deal owned) |
+| Creasquare (multi-platform scheduler: IG, LinkedIn, YouTube, TikTok, FB, **and Pinterest**) | $0 (lifetime deal owned) |
+| Pinterest native scheduler (fallback only if Creasquare's Pinterest integration feels thin) | $0 |
+| Tailwind (deferred — Month 3 re-eval) | $0 now / $15 if reactivated |
 | Claude API | $50–150 |
 | Domain + Cloudflare | $2 |
 | **Phase 1 total** | **~$135–250** |
@@ -550,7 +553,7 @@ Claude (MCP) → Airtable (SSOT) → n8n (spine) → IS + Etsy + Gumroad + Payhi
 - Airtable API key scoped to single base
 - Google Drive OAuth, not service-account
 - 2FA everywhere
-- Password manager centralizes all credentials
+- Vaultwarden centralizes all credentials
 - Monthly VA access audit
 - n8n VPS hardened: SSH keys only, fail2ban, Cloudflare Tunnel
 
@@ -693,7 +696,7 @@ Three parallel lanes running simultaneously from Week 1:
 
 **Week 8 hard milestone:** own site + email list + lead magnet live regardless of Etsy's performance. Etsy is a channel, not a business.
 
-**Minimum Week 1 spend to first sale:** ~$40 (Etsy listing fees, Canva, domain).
+**Minimum Week 1 spend to first sale:** ~$25 (Etsy listing fees + domain; Vista Create Pro is already owned via lifetime deal).
 
 ---
 

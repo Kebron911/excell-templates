@@ -85,7 +85,7 @@ Use on: Etsy shop icon (500×500), favicon (16/32/180px), Instagram profile phot
 - Clear space: equal to the cap-height of "S" in "STR" on all sides
 - Never: stretch, rotate, add drop shadows, place on busy photography, or pair with other decorative typefaces
 
-### 3.4 — Canva build spec (Task 0.5 dependency)
+### 3.4 — Vista Create build spec (Task 0.5 dependency)
 
 Export each in PNG + SVG to `brand/assets/`:
 
@@ -302,7 +302,7 @@ Daniel owns every value in this document. Claude may propose revisions but never
 
 1. Propose change via a dated commit prefixed `brand:` (e.g., `brand: swap Clay Rose hex from B5725E to A76850`)
 2. Update §1 header to bump version (v1 → v1.1) + date
-3. Propagate downstream: Canva Brand Kit → drafted docs → live storefronts in that order
+3. Propagate downstream: Vista Create Brand Kit → drafted docs → live storefronts in that order
 
 ### 10.3 — Expansion policy
 
@@ -319,7 +319,7 @@ No expansion work required before Q4 2026.
 
 - [ ] Confirm Instagram handle `@thestrledger` available (Task 3.1 dependency)
 - [ ] USPTO TM quick-search for "The STR Ledger" + "STR Ledger" standing (10 min)
-- [ ] Canva Brand Kit populated with all hex codes, fonts, logo exports (Task 0.5)
+- [ ] Vista Create Brand Kit populated with all hex codes, fonts, logo exports (Task 0.5)
 - [ ] Google Fonts CSS stack wired into Ghost blog and Influencersoft hub theme (Task 1.4, 1.6)
 - [ ] Brand asset exports checked into `brand/assets/` (Task 0.5)
 - [ ] Brand-decisions → token substitution pass across drafted docs (next writing-plans step)

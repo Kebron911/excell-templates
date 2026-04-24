@@ -11,7 +11,7 @@ Business-grade Excel financial and operational systems for short-term rental (Ai
 ```
 brand/
   brand-decisions.md       ← locked brand identity (name, palette, type, voice)
-  assets/                  ← logo exports + Canva outputs (produced per Task 0.5)
+  assets/                  ← logo exports + Vista Create outputs (produced per Task 0.5)
 copy/                      ← user-facing drafts (Etsy, email, blog, Pinterest, FB)
 docs/
   runbooks/                ← ops procedures

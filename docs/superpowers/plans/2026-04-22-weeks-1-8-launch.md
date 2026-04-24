@@ -6,7 +6,11 @@
 
 **Architecture:** Influencersoft is the hub. Airtable is the single source of truth. n8n (self-hosted on a VPS) is the automation spine. Ghost serves the SEO blog on a subdomain. Etsy and Gumroad are discovery storefronts. Stripe Tax handles compliance. Claude connects via MCP to Airtable so operations are agent-driven.
 
-**Tech Stack:** Influencersoft, Stripe + Stripe Tax, Ghost, Airtable, n8n (self-hosted), Google Workspace, Canva Pro, Tailwind, Buffer, Cloudflare, Hetzner/DigitalOcean VPS, Claude Code MCP. Excel (.xlsx) is the product substrate.
+**Tech Stack:** Influencersoft, Stripe + Stripe Tax, Ghost, Airtable, n8n (self-hosted), Google Workspace, Vista Create Pro (lifetime), Creasquare (lifetime — multi-platform scheduler covering IG, LinkedIn, YouTube, TikTok, FB, and Pinterest), Cloudflare, Hetzner/DigitalOcean VPS, Vaultwarden (self-hosted, master credential vault), Claude Code MCP. Excel (.xlsx) is the product substrate.
+
+**Pinterest scheduling note:** Creasquare's Pinterest integration is the primary tool for Months 1–3. Pinterest native scheduler is the documented fallback if Creasquare's Pinterest features feel shallow. Tailwind (deferred) is the Month-3-re-eval upgrade if Pinterest becomes a proven channel and needs SmartLoop/Tribes.
+
+**Tools explicitly deferred:** Tailwind — re-evaluate at Month 3. Buffer — replaced by Creasquare.
 
 **Spec reference:** [docs/superpowers/specs/2026-04-22-str-tax-platform-design.md](../specs/2026-04-22-str-tax-platform-design.md)
 
@@ -57,7 +61,7 @@ Excell-Templates/
 │       └── disaster-recovery.md
 ├── brand/                                           (new — brand assets)
 │   ├── brand-decisions.md                           (name, colors, fonts, voice)
-│   ├── canva-links.md                               (pointers to live Canva templates)
+│   ├── design-links.md                               (pointers to live Vista Create templates)
 │   └── assets/                                      (exported logos, banners)
 ├── templates/                                       (new — Excel source files)
 │   ├── _briefs/                                     (user-supplied template specs)
@@ -158,20 +162,21 @@ cat > ops/credentials-inventory.md <<'EOF'
 
 | Tool | URL | Account / Owner | 2FA | Secret storage | Notes |
 |---|---|---|---|---|---|
-| GitHub | github.com/Kebron911 | Kebron911 | ✅ | Password manager | gh CLI authenticated |
-| Airtable | airtable.com | (pending) | pending | Password manager + MCP env | Pat created for MCP |
-| Influencersoft | (pending) | (pending) | pending | Password manager | LTD license owned |
-| Stripe | dashboard.stripe.com | (pending) | pending | Password manager + IS | Stripe Tax enabled |
-| Ghost | (pending host) | (pending) | pending | Password manager | Subdomain blog.thestrledger.com |
-| Google Workspace | admin.google.com | (pending) | pending | Password manager | Used for backups |
-| Cloudflare | dash.cloudflare.com | (pending) | pending | Password manager | DNS + tunnel |
-| Hetzner/DO VPS | (pending host) | (pending) | pending | SSH keys + PM | n8n host |
-| Canva Pro | canva.com | (pending) | pending | Password manager | Brand kit lives here |
-| Tailwind | tailwindapp.com | (pending) | pending | Password manager | Pinterest scheduler |
-| Buffer | buffer.com | (pending) | pending | Password manager | Secondary social scheduler |
-| Etsy | etsy.com | (pending) | pending | Password manager + 2FA app | Seller account |
-| Gumroad | gumroad.com | (pending) | pending | Password manager | Mirror storefront |
-| Domain registrar | (pending) | (pending) | ✅ | Password manager | See Task B1 |
+| **Vaultwarden** (self-hosted) | (fill in your instance URL) | Daniel | ✅ required | Self-hosted server + monthly encrypted export to Google Drive `backups/vaultwarden/` | Master vault. If this dies, every other credential is inaccessible. DR plan: `docs/runbooks/disaster-recovery.md` §Scenario 6. |
+| GitHub | github.com/Kebron911 | Kebron911 | ✅ | Vaultwarden | gh CLI authenticated |
+| Airtable | airtable.com | (pending) | pending | Vaultwarden + MCP env | Pat created for MCP |
+| Influencersoft | (pending) | (pending) | pending | Vaultwarden | LTD license owned |
+| emaillistvalidation.com | emaillistvalidation.com | (pending) | pending | Vaultwarden + n8n credential | LTD license owned — API key used by Task B8 order-ingestion workflow |
+| Stripe | dashboard.stripe.com | (pending) | pending | Vaultwarden + IS | Stripe Tax enabled |
+| Ghost | (pending host) | (pending) | pending | Vaultwarden | Subdomain blog.thestrledger.com |
+| Google Workspace | admin.google.com | (pending) | pending | Vaultwarden | Used for backups |
+| Cloudflare | dash.cloudflare.com | (pending) | pending | Vaultwarden | DNS + tunnel |
+| Hetzner/DO VPS | (pending host) | (pending) | pending | SSH keys + Vaultwarden | n8n host |
+| Vista Create Pro | create.vista.com | (pending) | pending | Vaultwarden | Brand kit lives here |
+| Creasquare | app.creasquare.io | (pending) | pending | Vaultwarden | Multi-platform scheduler: IG, LinkedIn, YouTube, TikTok, FB, **and Pinterest**. Lifetime deal owned. Pinterest native scheduler is fallback if Creasquare's Pinterest features feel shallow. |
+| Etsy | etsy.com | (pending) | pending | Vaultwarden + 2FA app | Seller account |
+| Gumroad | gumroad.com | (pending) | pending | Vaultwarden | Mirror storefront |
+| Domain registrar | (pending) | (pending) | ✅ | Vaultwarden | See Task B1 |
 
 ## Review cadence
 Monthly — verify 2FA active, rotate any unrotated keys, audit VA access.
@@ -324,7 +329,7 @@ cat > infrastructure/etsy/shop-setup.md <<'EOF'
 
 - Shop URL: etsy.com/shop/<shop-name>
 - Account: <email>
-- Bank: <bank name> (account info in password manager)
+- Bank: <bank name> (account info in Vaultwarden)
 - Tax entity: <sole prop / LLC / S-corp>
 - 2FA: enabled, authenticator app
 - Listing fee: $0.20 per listing, 6.5% transaction, 3% + $0.25 payment processing
@@ -337,15 +342,15 @@ Update `ops/credentials-inventory.md` with Etsy row.
 
 ---
 
-### Task A4: Brand asset pack in Canva
+### Task A4: Brand asset pack in Vista Create
 
-**Files:** `brand/canva-links.md`, `brand/assets/` (exported PNGs/SVGs)
+**Files:** `brand/design-links.md`, `brand/assets/` (exported PNGs/SVGs)
 
-**Acceptance criteria:** logo, Etsy shop banner (1600×213), Etsy shop icon (500×500), thumbnail template (2000×2000 square), cover page template (Excel-embedded 1000×400) all exist in Canva and exported to `brand/assets/`.
+**Acceptance criteria:** logo, Etsy shop banner (1600×213), Etsy shop icon (500×500), thumbnail template (2000×2000 square), cover page template (Excel-embedded 1000×400) all exist in Vista Create and exported to `brand/assets/`.
 
-- [ ] **Step 1: Create Canva brand kit**
+- [ ] **Step 1: Create Vista Create brand kit**
 
-In Canva Pro → Brand kit → add primary + secondary colors (from A1), fonts, upload logo if you have one, create if not.
+In Vista Create Pro → Brand kit → add primary + secondary colors (from A1), fonts, upload logo if you have one, create if not.
 
 - [ ] **Step 2: Create 5 asset templates**
 
@@ -364,20 +369,20 @@ Export each as PNG + SVG where applicable. Save to `brand/assets/`.
 cd "C:/Users/Kebron/Desktop/Claude OS/Excell-Templates"
 mkdir -p brand/assets
 # (Save exports to brand/assets/)
-cat > brand/canva-links.md <<'EOF'
-# Canva template links
+cat > brand/design-links.md <<'EOF'
+# Vista Create template links
 
-| Asset | Canva URL | Dimensions |
+| Asset | Vista Create URL | Dimensions |
 |---|---|---|
-| Logo (square) | <paste canva link> | 1000×1000 |
-| Logo (horizontal) | <paste canva link> | 2000×500 |
-| Etsy shop banner | <paste canva link> | 1600×213 |
-| Etsy shop icon | <paste canva link> | 500×500 |
-| Product thumbnail master | <paste canva link> | 2000×2000 |
-| Excel cover page | <paste canva link> | 1000×400 |
+| Logo (square) | <paste vista create link> | 1000×1000 |
+| Logo (horizontal) | <paste vista create link> | 2000×500 |
+| Etsy shop banner | <paste vista create link> | 1600×213 |
+| Etsy shop icon | <paste vista create link> | 500×500 |
+| Product thumbnail master | <paste vista create link> | 2000×2000 |
+| Excel cover page | <paste vista create link> | 1000×400 |
 EOF
-git add brand/canva-links.md brand/assets/
-git commit -m "brand: canva asset pack + exports"
+git add brand/design-links.md brand/assets/
+git commit -m "brand: vista create asset pack + exports"
 ```
 
 ---
@@ -493,7 +498,7 @@ Build the `.xlsx` file in `templates/_masters/<SKU>.xlsx`:
 
 ## 6. Delivery assets
 Create in `templates/_delivery/<SKU>/`:
-- Thumbnail (2000×2000 PNG from Canva master in A4)
+- Thumbnail (2000×2000 PNG from Vista Create master in A4)
 - 3–5 preview images (screenshots + marketing angle overlays)
 - Companion PDF with how-to and upgrade CTA
 - Description copy drafted to `copy/etsy-listings/<SKU>.md`
@@ -641,7 +646,7 @@ mkdir -p copy/lead-magnets
 cat > copy/lead-magnets/etsy-buyer-pdf.md <<'EOF'
 # Etsy Companion PDF — Content
 
-## Page 1 (single page, designed in Canva)
+## Page 1 (single page, designed in Vista Create)
 
 ### Headline
 Thanks for grabbing <template name>.
@@ -664,9 +669,9 @@ git add copy/lead-magnets/etsy-buyer-pdf.md
 git commit -m "copy: etsy buyer upgrade/lead PDF content"
 ```
 
-- [ ] **Step 2: Design in Canva, export as PDF**
+- [ ] **Step 2: Design in Vista Create, export as PDF**
 
-Build a 1-page Canva design. Export as PDF. Save to `templates/_delivery/_shared/etsy-upgrade-insert.pdf`.
+Build a 1-page Vista Create design. Export as PDF. Save to `templates/_delivery/_shared/etsy-upgrade-insert.pdf`.
 
 - [ ] **Step 3: Bundle into each Etsy listing's download**
 
@@ -850,7 +855,7 @@ Expected: new row appears in Airtable. Then ask Claude to delete it.
 
 **Files:** `infrastructure/n8n/install.md`
 
-**Acceptance criteria:** n8n is reachable at `n8n.thestrledger.com` via Cloudflare Tunnel (not public IP), logged in with admin credentials stored in password manager.
+**Acceptance criteria:** n8n is reachable at `n8n.thestrledger.com` via Cloudflare Tunnel (not public IP), logged in with admin credentials stored in Vaultwarden.
 
 - [ ] **Step 1: Provision a VPS**
 
@@ -913,10 +918,10 @@ services:
       - WEBHOOK_URL=https://n8n.thestrledger.com
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=<user>
-      - N8N_BASIC_AUTH_PASSWORD=<strong password from PM>
+      - N8N_BASIC_AUTH_PASSWORD=<strong password from Vaultwarden>
       - GENERIC_TIMEZONE=America/New_York
       - TZ=America/New_York
-      - N8N_ENCRYPTION_KEY=<random 32+ chars from PM>
+      - N8N_ENCRYPTION_KEY=<random 32+ chars from Vaultwarden (also printed offline — losing this key is unrecoverable)>
     volumes:
       - ./data:/home/node/.n8n
 ```
@@ -946,9 +951,9 @@ cat > infrastructure/n8n/install.md <<'EOF'
 - Host: <Hetzner CX22 / DO Basic>, Ubuntu 24.04
 - Access: SSH keys only (fail2ban active, UFW restricts to port 22)
 - Tunnel: Cloudflare Tunnel, `n8n.thestrledger.com` → localhost:5678
-- Auth: basic auth, credentials in password manager
+- Auth: basic auth, credentials in Vaultwarden
 - Data volume: /home/daniel/n8n/data (host-mapped)
-- Encryption key: stored in password manager (critical — needed for restore)
+- Encryption key: stored in Vaultwarden (critical — needed for restore)
 - Backups: n8n data volume rsync'd nightly to Google Drive via cron (see Task B15)
 
 ## docker-compose location
@@ -1254,7 +1259,7 @@ git commit -m "automation: 9-email nurture sequence built in IS"
 
 **Files:** `infrastructure/n8n/workflows/order-ingestion.json` (exported workflow)
 
-**Acceptance criteria:** a test Stripe webhook → creates Customer + Order row in Airtable → tags contact in IS with matching `product:<sku>` + `persona:<inferred>`.
+**Acceptance criteria:** a test Stripe webhook → email validated against emaillistvalidation.com → valid addresses create Customer + Order rows in Airtable and tag contact in IS with `product:<sku>` + `persona:<inferred>`; invalid/risky addresses land in an `Email Quarantine` table and skip IS tagging.
 
 - [ ] **Step 1: In n8n, create workflow "Order Ingestion"**
 
@@ -1262,10 +1267,16 @@ Nodes:
 1. Webhook (POST `/order-ingestion`)
 2. Switch (route by payload `source`: stripe / is / etsy / gumroad)
 3. Per-platform Function node — normalize the payload to { email, name, sku, amount, platform, timestamp }
-4. Airtable — Find or Create Customer (match on email)
-5. Airtable — Create Order (link to Customer + Product)
-6. IS API or Zapier webhook — tag contact with `product:<sku>` + `persona:<inferred>`
-7. Slack/Discord — optional first-100-sales notification
+4. HTTP Request — call emaillistvalidation.com single-verify API with `email`; set `validation_status` on the payload (`valid` / `unknown` / `risky` / `invalid`)
+5. IF node — branch on `validation_status`:
+   - `valid` or `unknown` → continue to Customer/Order/IS-tag path
+   - `risky` or `invalid` → Airtable Create in `Email Quarantine` table (fields: email, sku, amount, platform, reason, timestamp) + Slack alert; do NOT tag in IS, do NOT create Customer/Order rows
+6. Airtable — Find or Create Customer (match on email)
+7. Airtable — Create Order (link to Customer + Product)
+8. IS API or Zapier webhook — tag contact with `product:<sku>` + `persona:<inferred>`
+9. Slack/Discord — optional first-100-sales notification
+
+> Quarantine is intentional: paid orders from typo'd/disposable emails still need the product delivered manually, but letting them into IS risks bounce-rate damage to Sarah-tier deliverability. Review the Quarantine table weekly during Task B11's backup cadence.
 
 - [ ] **Step 2: Configure Stripe webhook**
 
@@ -1514,7 +1525,7 @@ git commit -m "content: first 10 blog posts planned"
 
 **Files:** `copy/pinterest/pin-calendar.md`, `brand/assets/pinterest/` (exported pins)
 
-**Acceptance criteria:** Pinterest business account live, 5 boards set up, 30 pins scheduled via Tailwind over the first 30 days.
+**Acceptance criteria:** Pinterest business account live, 5 boards set up, Pinterest connected to Creasquare, 30 pins scheduled via Creasquare (or Pinterest native scheduler as fallback) over the first 30 days. (Tailwind deferred to Month 3 re-eval.)
 
 - [ ] **Step 1: Create Pinterest business account**
 
@@ -1530,7 +1541,7 @@ pinterest.com/business. Sign up with `hello@thestrledger.com`. Enable 2FA. Claim
 
 Each board: 5-sentence description with keywords, branded cover pin.
 
-- [ ] **Step 3: Canva: create Pinterest pin master templates**
+- [ ] **Step 3: Vista Create: create Pinterest pin master templates**
 
 Create 3 pin style variants (1000×1500 vertical):
 - "Tip-list" style (bullets + headline)
@@ -1545,9 +1556,25 @@ For blog posts 1–3 (from C1), generate 10 pins each using the 3 style variants
 
 Export all 30 as PNG to `brand/assets/pinterest/`.
 
-- [ ] **Step 5: Schedule via Tailwind**
+- [ ] **Step 5: Schedule via Creasquare (primary) — Pinterest native as fallback**
 
-Connect Pinterest to Tailwind (tailwindapp.com, $15/mo). Upload 30 pins. Schedule 1/day over 30 days via Tailwind's SmartSchedule.
+**Primary path — Creasquare:**
+
+1. In Creasquare → Connections → connect Pinterest Business (OAuth flow).
+2. Upload the 30 PNGs to Creasquare's media library.
+3. For each pin: create a scheduled Pinterest post → set title, description, destination URL, target board → pick a publish time.
+4. Distribute 1 pin/day across 30 days, clustered in Sarah's active hours (US evenings 7–10pm local + weekend mornings).
+5. Review Creasquare's color-coded calendar view — confirm all 30 slots are filled before moving on.
+
+**Fallback — Pinterest native scheduler** (use only if Creasquare's Pinterest integration is missing a feature you need, e.g., specific board targeting, alt text, rich pin format):
+
+- Pinterest's free built-in scheduler queues ≤100 pins at a time, 14 days out per pin.
+- For 30 pins / 30 days, queue in two waves: Day 1 queue pins 1–14, Day 13 queue pins 15–28, Day 27 queue pins 29–30.
+- Calendar reminder every other Monday to re-queue the next wave.
+
+**Why not Tailwind:** Tailwind's unique value is SmartLoop (auto-recycle top pins) + Tribes (human repin network) + best-time analytics. Those pay off once Pinterest is a confirmed converting channel, not at Month 1 discovery. At Month 3, if Pinterest is driving ≥100 outbound clicks/mo OR ≥5 email signups/mo AND Creasquare's Pinterest features feel limiting, activate Tailwind ($15/mo) and migrate scheduling.
+
+**n8n's role:** optional — a workflow can POST new pins to the Pinterest API or to Creasquare's API (if exposed), then log to Airtable `Content` table. Build only if manual upload becomes a bottleneck.
 
 - [ ] **Step 6: Commit**
 
@@ -1561,7 +1588,7 @@ Account: pinterest.com/<handle>
 Domain claimed: ✅
 Boards: STR Tax Tips, Airbnb Host Resources, Short-Term Rental Business, STR Templates & Tools, Hosting Like a Business
 
-## Pins queued (scheduled via Tailwind, 1/day × 30 days)
+## Pins queued (scheduled via Creasquare, 1/day × 30 days — Pinterest native scheduler as fallback)
 | # | Pin title | Style | Linked URL | Board |
 |---|---|---|---|---|
 | 1 | "47 Airbnb Tax Deductions You Might Be Missing" | Tip-list | /47 | STR Tax Tips |
@@ -1572,7 +1599,7 @@ git add copy/pinterest/ brand/assets/pinterest/
 git commit -m "content: pinterest account + first 30 pins scheduled"
 ```
 
-Update `ops/credentials-inventory.md` with Pinterest + Tailwind rows.
+Update `ops/credentials-inventory.md` with Pinterest row (no Tailwind row — deferred). Also update the Creasquare row once activated.
 
 ---
 
@@ -1666,7 +1693,7 @@ You read, edit, approve. Don't skip this.
 
 - [ ] **Step 3: Publish to Ghost**
 
-Upload to Ghost, add featured image (Canva), set SEO title + meta description, publish.
+Upload to Ghost, add featured image (Vista Create), set SEO title + meta description, publish.
 
 - [ ] **Step 4: Schedule associated Pinterest pins**
 
@@ -1725,13 +1752,13 @@ Complete on the last day of Week 8. Any unticked item = a follow-up task.
 
 ## Lane C — Content
 - [ ] Blog posts 1-3 published to Ghost
-- [ ] 30 Pinterest pins scheduled via Tailwind
+- [ ] 30 Pinterest pins scheduled via Creasquare (or Pinterest native scheduler as fallback). Tailwind deferred to Month 3 re-eval.
 - [ ] FB Group created with rules + welcome post + 5 seed members
 - [ ] Content plan for posts 4-10 committed
 
 ## Cross-lane
 - [ ] Credentials inventory up to date
-- [ ] All secrets in password manager, 2FA on every account
+- [ ] All secrets in Vaultwarden, 2FA on every account
 - [ ] Google Drive has at least one weekly backup snapshot
 
 ## Pass criteria

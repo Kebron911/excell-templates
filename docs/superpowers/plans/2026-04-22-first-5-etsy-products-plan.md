@@ -4,11 +4,11 @@
 
 **Goal:** Build and launch 5 Etsy listings (Welcome Book, Turnover Checklist, Mileage Log, 1099-NEC Tracker, P&L Lite) on Etsy + Gumroad in 14 days, meeting master spec §12 milestone "Week 2: Etsy revenue > $0".
 
-**Architecture:** Claude drafts every artifact (briefs, sheet specs, Excel `.xlsx` files via Python/openpyxl, thumbnail design specs, companion + license PDFs, listing copy, upload checklists). Daniel reviews at gates, executes Etsy/Gumroad UI actions, and builds final PNGs/PDFs in Canva from Claude's specs. Two-wave rollout: Wave 1 (3 content-type SKUs) live Day 7; Wave 2 (2 formula-type SKUs) live Day 14.
+**Architecture:** Claude drafts every artifact (briefs, sheet specs, Excel `.xlsx` files via Python/openpyxl, thumbnail design specs, companion + license PDFs, listing copy, upload checklists). Daniel reviews at gates, executes Etsy/Gumroad UI actions, and builds final PNGs/PDFs in Vista Create from Claude's specs. Two-wave rollout: Wave 1 (3 content-type SKUs) live Day 7; Wave 2 (2 formula-type SKUs) live Day 14.
 
 **Tech Stack:**
 - Python 3.10+ with `openpyxl` for Excel file generation
-- Canva Pro for brand assets + thumbnails + branded PDFs
+- Vista Create Pro for brand assets + thumbnails + branded PDFs
 - Etsy seller UI for listings (no API at MVP stage)
 - Gumroad UI for mirror
 - Cloudflare Registrar + Google Workspace for domain + email
@@ -36,9 +36,9 @@
 
 | Gate | Day | Pass condition |
 |---|---|---|
-| G1 | 2 | Prereqs done: domain + Etsy account + Canva specs |
+| G1 | 2 | Prereqs done: domain + Etsy account + Vista Create specs |
 | G2 | 4 | Wave 1 briefs approved; 3 Excel masters built; initial QA pass |
-| G3 | 6 | Wave 1 listings copy finalized; 3 thumb sets built in Canva; test purchase succeeded |
+| G3 | 6 | Wave 1 listings copy finalized; 3 thumb sets built in Vista Create; test purchase succeeded |
 | **G4** | **7** | **Wave 1 live on Etsy (first sale possible)** |
 | G5 | 11 | Wave 2 briefs approved; 2 Excel masters built; P&L Lite variant built; formulas QA'd cell-for-cell |
 | G6 | 13 | Wave 2 listing copy finalized; 2 thumb sets built; A12 SEO pass complete on all 5 |
@@ -51,13 +51,13 @@
 ### Created
 ```
 brand/
-  assets/                                # PNG + SVG exports from Canva (Daniel)
+  assets/                                # PNG + SVG exports from Vista Create (Daniel)
     logo-square.png, logo-horizontal.png
     etsy-banner.png (1600×213)
     etsy-icon.png (500×500)
     thumbnail-master.png (2000×2000 base)
     excel-cover-1000x400.png
-  canva-links.md                         # Canva template URLs
+  design-links.md                         # Vista Create template URLs
 
 infrastructure/
   etsy/
@@ -89,11 +89,11 @@ templates/
   _delivery/
     _shared/
       etsy-upgrade-insert.md             # Source markdown for A13 PDF
-      etsy-upgrade-insert.pdf            # Canva-built (Daniel)
+      etsy-upgrade-insert.pdf            # Vista Create-built (Daniel)
       license-template.md                # Shared license source
     GST-001-welcome-book/
       thumbnails.md                      # 5-image spec + preview specs
-      GST-001-howto.pdf                  # Canva-built from claude source
+      GST-001-howto.pdf                  # Vista Create-built from claude source
       GST-001-license.pdf
     OPS-001-turnover-checklist/ ...
     TAX-001-mileage-log/ ...
@@ -337,13 +337,13 @@ If `ops/credentials-inventory.md` does not exist, create it:
 ```markdown
 # Credentials Inventory
 
-All credentials stored in password manager (1Password / Bitwarden). This file tracks *what exists*, not the credentials themselves.
+All credentials stored in Vaultwarden (self-hosted, Bitwarden-compatible). This file tracks *what exists*, not the credentials themselves.
 
 ## Accounts
 
 | System | Owner-of-record | Account identifier | 2FA | Notes |
 |---|---|---|---|---|
-| Cloudflare | Daniel | (email in password manager) | Yes | Registrar + DNS |
+| Cloudflare | Daniel | (email in Vaultwarden) | Yes | Registrar + DNS |
 | Google Workspace | Daniel | hello@thestrledger.com | Yes | $6/user/mo |
 ```
 
@@ -385,7 +385,7 @@ git commit -m "infra: register thestrledger.com, provision Workspace email"
 
 Go to https://www.etsy.com/sell. Click "Get started".
 
-Use email `hello@thestrledger.com`. Create Etsy account password (save to password manager).
+Use email `hello@thestrledger.com`. Create Etsy account password (save to Vaultwarden).
 
 Skip any "Would you like to buy on Etsy?" prompts — go straight to seller setup.
 
@@ -419,7 +419,7 @@ Etsy issues a 1099-K annually; expect one in January if gross sales > $600 (2026
 
 Account → Security → Two-factor authentication → Authenticator app (NOT SMS — SMS is vulnerable to SIM-swap).
 
-Use the same authenticator app you use for Cloudflare/Workspace (e.g., 1Password, Authy, Google Authenticator). Scan QR, enter 6-digit code, save backup codes to password manager.
+Use the same authenticator app you use for Cloudflare/Workspace (e.g., Bitwarden mobile/desktop — which syncs with your Vaultwarden — Authy, or Google Authenticator). Scan QR, enter 6-digit code, save backup codes to Vaultwarden AND print a copy offline.
 
 - [ ] **Step 6: Create shop-setup.md**
 
@@ -433,7 +433,7 @@ Write `infrastructure/etsy/shop-setup.md`:
 **Account email:** hello@thestrledger.com
 **Business type:** Sole proprietor (may convert to LLC later without penalty)
 **Tax ID:** SSN (or EIN if already formed LLC)
-**Bank:** (details in password manager)
+**Bank:** (details in Vaultwarden)
 **2FA:** Enabled — authenticator app
 **Payment processing:** Etsy Payments (built-in; 3% + $0.25 per transaction on top of 6.5% transaction fee)
 
@@ -476,27 +476,27 @@ git commit -m "infra: open Etsy seller account, configure bank + 2FA"
 
 ---
 
-### Task 3: A4 — Canva brand asset pack specs
+### Task 3: A4 — Vista Create brand asset pack specs
 
 **Files:**
-- Create: `brand/canva-specs.md`
-- Create: `brand/canva-links.md`
-- Create (by Daniel via Canva): `brand/assets/` (5 PNG/SVG files)
+- Create: `brand/design-specs.md`
+- Create: `brand/design-links.md`
+- Create (by Daniel via Vista Create): `brand/assets/` (5 PNG/SVG files)
 
-**Owner:** Claude writes exact specs. Daniel builds in Canva Pro (5 assets × ~30 min each = ~2.5 hrs).
+**Owner:** Claude writes exact specs. Daniel builds in Vista Create Pro (5 assets × ~30 min each = ~2.5 hrs).
 
-**Acceptance criteria:** All 5 assets exist in `brand/assets/` as PNG (and SVG where applicable). Canva URLs recorded. All assets match brand palette from `brand/brand-decisions.md`.
+**Acceptance criteria:** All 5 assets exist in `brand/assets/` as PNG (and SVG where applicable). Vista Create URLs recorded. All assets match brand palette from `brand/brand-decisions.md`.
 
-- [ ] **Step 1: Claude writes the Canva spec sheet**
+- [ ] **Step 1: Claude writes the Vista Create spec sheet**
 
-Write `brand/canva-specs.md`:
+Write `brand/design-specs.md`:
 ```markdown
-# Canva Asset Pack — Exact Build Specs
+# Vista Create Asset Pack — Exact Build Specs
 
 **Build order:** Logo first (needed by all others) → thumbnail master → Etsy banner → Etsy icon → Excel cover.
 
-**Brand kit setup in Canva Pro (do once):**
-1. Canva → Brand Hub → Brand Kits → New brand kit → name "The STR Ledger"
+**Brand kit setup in Vista Create Pro (do once):**
+1. Vista Create → Brand Hub → Brand Kits → New brand kit → name "The STR Ledger"
 2. Add colors:
    - Primary: #0E2A47 (navy)
    - Secondary: #C9A875 (warm tan)
@@ -505,9 +505,9 @@ Write `brand/canva-specs.md`:
    - Muted: #6B7280
    - Bg light: #F7F4EE
 3. Add fonts:
-   - Heading: Playfair Display (bold) — Canva built-in
-   - Body: Inter (regular + semibold) — Canva built-in
-   - Mono: JetBrains Mono (if not available, Courier Prime)
+   - Heading: Playfair Display (bold) — verify in Vista Create's font library; if missing, upload `.ttf` (Google Fonts, free)
+   - Body: Inter (regular + semibold) — verify in Vista Create's font library; if missing, upload `.ttf` (Google Fonts, free)
+   - Mono: JetBrains Mono (if not available in Vista Create, upload .ttf or fall back to Courier Prime)
 4. Upload logo files here once Asset 1 is done.
 
 ---
@@ -556,7 +556,7 @@ This is the single most important asset. Each of 25 product thumbnails inherits 
 - Bottom strip: 200px tall, tan (#C9A875), full width
   - Centered: "Instant Download · 14-Day Refund · Lifetime Updates" — Inter Semibold 22pt, navy text
 
-**Export master as Canva template** (not final PNG — product thumbnails will clone this).
+**Export master as Vista Create template** (not final PNG — product thumbnails will clone this).
 
 ---
 
@@ -595,11 +595,11 @@ Embedded as an image on the "Welcome" / "How to Use" tab of every product Excel.
   - Line 2: "The STR Ledger · thestrledger.com" — Inter Regular 12pt, muted
   - Line 3 (small): "You've got the file. Let's put it to work." — Inter Italic 11pt, muted
 
-**Export:** `brand/assets/excel-cover-1000x400.png` (this is the generic; per-product override uses Canva dupes — but MVP uses the same cover for all 5)
+**Export:** `brand/assets/excel-cover-1000x400.png` (this is the generic; per-product override uses Vista Create dupes — but MVP uses the same cover for all 5)
 
 ---
 
-## Canva production checklist (Daniel)
+## Vista Create production checklist (Daniel)
 
 - [ ] Brand kit created with colors + fonts
 - [ ] Logo designed (square + horizontal)
@@ -608,22 +608,22 @@ Embedded as an image on the "Welcome" / "How to Use" tab of every product Excel.
 - [ ] Etsy icon exported
 - [ ] Excel cover exported
 - [ ] All 5 files live in `brand/assets/`
-- [ ] Canva URLs captured in `brand/canva-links.md`
+- [ ] Vista Create URLs captured in `brand/design-links.md`
 ```
 
-- [ ] **Step 2: Claude writes the Canva links template**
+- [ ] **Step 2: Claude writes the Vista Create links template**
 
-Write `brand/canva-links.md`:
+Write `brand/design-links.md`:
 ```markdown
-# Canva Template URLs
+# Vista Create Template URLs
 
-> Daniel: paste Canva edit URLs here after each asset is built. These URLs let future updates reuse the same template.
+> Daniel: paste Vista Create edit URLs here after each asset is built. These URLs let future updates reuse the same template.
 
-| Asset | Canva URL | Dimensions | Exported to |
+| Asset | Vista Create URL | Dimensions | Exported to |
 |---|---|---|---|
 | Logo (square) | (paste after build) | 1000×1000 | `brand/assets/logo-square.png` |
 | Logo (horizontal) | (paste after build) | 2000×500 | `brand/assets/logo-horizontal.png` |
-| Thumbnail master | (paste after build) | 2000×2000 | (Canva-only; per-product thumbs clone this) |
+| Thumbnail master | (paste after build) | 2000×2000 | (Vista Create-only; per-product thumbs clone this) |
 | Etsy shop banner | (paste after build) | 1600×213 | `brand/assets/etsy-banner.png` |
 | Etsy shop icon | (paste after build) | 500×500 | `brand/assets/etsy-icon.png` |
 | Excel cover (generic) | (paste after build) | 1000×400 | `brand/assets/excel-cover-1000x400.png` |
@@ -633,31 +633,31 @@ Write `brand/canva-links.md`:
 
 ```bash
 cd "C:/Users/Kebron/Desktop/Claude OS/Excell-Templates"
-git add brand/canva-specs.md brand/canva-links.md
-git commit -m "brand: Canva asset pack specs + link tracker"
+git add brand/design-specs.md brand/design-links.md
+git commit -m "brand: Vista Create asset pack specs + link tracker"
 ```
 
-- [ ] **Step 4: Daniel builds 5 assets in Canva Pro**
+- [ ] **Step 4: Daniel builds 5 assets in Vista Create Pro**
 
-Daniel opens Canva Pro, follows `brand/canva-specs.md` step by step. Build order: logo → thumbnail master → banner → icon → Excel cover.
+Daniel opens Vista Create Pro, follows `brand/design-specs.md` step by step. Build order: logo → thumbnail master → banner → icon → Excel cover.
 
 Time budget: ~30 min each = ~2.5 hrs total. Can be split across Days 2–3.
 
 - [ ] **Step 5: Daniel exports to `brand/assets/`**
 
 For each asset:
-- Canva → Share → Download → PNG (transparent where applicable)
-- For SVG: Share → Download → SVG (Canva Pro only)
+- Vista Create → Share → Download → PNG (transparent where applicable)
+- For SVG: Share → Download → SVG (Vista Create Pro only)
 - Save to `brand/assets/<filename>.png` per specs.
 
-- [ ] **Step 6: Daniel updates canva-links.md with real URLs + commit**
+- [ ] **Step 6: Daniel updates design-links.md with real URLs + commit**
 
-Daniel edits `brand/canva-links.md` replacing `(paste after build)` with actual Canva URLs. Then:
+Daniel edits `brand/design-links.md` replacing `(paste after build)` with actual Vista Create URLs. Then:
 
 ```bash
 cd "C:/Users/Kebron/Desktop/Claude OS/Excell-Templates"
-git add brand/canva-links.md brand/assets/
-git commit -m "brand: Canva asset pack built and exported"
+git add brand/design-links.md brand/assets/
+git commit -m "brand: Vista Create asset pack built and exported"
 ```
 
 ---
@@ -740,12 +740,12 @@ git commit -m "etsy: paste shop about + policies; upload banner + icon"
 
 ## ✅ Gate G1 (Day 2)
 
-**Pass condition:** A2 domain resolves + MX live; A3 Etsy account approved; A4 Canva specs delivered (Daniel may still be exporting PNGs — that continues into Day 3).
+**Pass condition:** A2 domain resolves + MX live; A3 Etsy account approved; A4 Vista Create specs delivered (Daniel may still be exporting PNGs — that continues into Day 3).
 
 **Check:** run these three verifications before proceeding to Wave 1 production:
 1. `dig thestrledger.com MX` returns Google MX records
 2. Etsy shop URL loads: `https://etsy.com/shop/thestrledger`
-3. `ls brand/canva-specs.md brand/canva-links.md` both exist
+3. `ls brand/design-specs.md brand/design-links.md` both exist
 
 If any fail: fix before starting Task 5.
 
@@ -765,7 +765,7 @@ Wave 1 ships Welcome Book, Turnover Checklist, and Mileage Log. For each product
 7. Claude writes how-to PDF source
 8. Claude writes license PDF source (uses shared template after first use)
 9. Claude finalizes listing copy (refresh 4 existing; write 1 fresh)
-10. Daniel builds thumbnail PNGs + how-to PDF in Canva
+10. Daniel builds thumbnail PNGs + how-to PDF in Vista Create
 11. Wave-level publish happens at G4 (Day 7) or G7 (Day 14)
 
 Tasks 5–7 apply this pattern to GST-001 Welcome Book in full detail. Tasks 8–13 apply the same pattern to the other Wave 1 products (Turnover Checklist, Mileage Log) — references to the Welcome Book pattern are explicit, but full content for each product is inline so the executing agent does not need to read tasks out of order.
@@ -1648,16 +1648,16 @@ Write `templates/_delivery/GST-001-welcome-book/thumbnails.md`:
 ```markdown
 # Thumbnail Specs — GST-001 Welcome Book
 
-All 5 inherit the A4 thumbnail master. Daniel duplicates the master in Canva and swaps copy/mockup per image. Exports as 2000×2000 PNG.
+All 5 inherit the A4 thumbnail master. Daniel duplicates the master in Vista Create and swaps copy/mockup per image. Exports as 2000×2000 PNG.
 
 ---
 
 ## Thumbnail 1 — Hero
 
-**Canva steps:** Duplicate `thumbnail-master` → rename "GST-001-thumb-1-hero".
+**Vista Create steps:** Duplicate `thumbnail-master` → rename "GST-001-thumb-1-hero".
 
 **Content swaps:**
-- Mockup slot: iPad-in-landscape mockup (Canva → Elements → search "iPad landscape mockup"). Layer onto the slot a screenshot of the Welcome Book PDF Sheet 1 (Daniel exports the Welcome sheet as PDF first, captures as PNG, layers into mockup).
+- Mockup slot: iPad-in-landscape mockup (Vista Create → Elements → search "iPad landscape mockup"). Layer onto the slot a screenshot of the Welcome Book PDF Sheet 1 (Daniel exports the Welcome sheet as PDF first, captures as PNG, layers into mockup).
 - Headline: `Welcome Book for Serious Airbnb Hosts` (2 lines, Playfair Display Bold 72pt, navy)
 - Sub-headline: `Editable Excel + PDF · Instant Download` (Inter Semibold 28pt, muted)
 - Bottom strip: Keep default "Instant Download · 14-Day Refund · Lifetime Updates"
@@ -1668,7 +1668,7 @@ All 5 inherit the A4 thumbnail master. Daniel duplicates the master in Canva and
 
 ## Thumbnail 2 — What's inside (tab grid)
 
-**Canva steps:** Duplicate master → rename "GST-001-thumb-2-tabs".
+**Vista Create steps:** Duplicate master → rename "GST-001-thumb-2-tabs".
 
 **Content swaps:**
 - Mockup slot: 4-up grid (2×2) of 4 mini-screenshots — export these from the real Welcome Book xlsx:
@@ -1686,7 +1686,7 @@ All 5 inherit the A4 thumbnail master. Daniel duplicates the master in Canva and
 
 ## Thumbnail 3 — Before / After
 
-**Canva steps:** Duplicate master → rename "GST-001-thumb-3-before-after".
+**Vista Create steps:** Duplicate master → rename "GST-001-thumb-3-before-after".
 
 **Content swaps:**
 - Mockup slot: split vertically 50/50
@@ -1701,12 +1701,12 @@ All 5 inherit the A4 thumbnail master. Daniel duplicates the master in Canva and
 
 ## Thumbnail 4 — Print or digital
 
-**Canva steps:** Duplicate master → rename "GST-001-thumb-4-print-digital".
+**Vista Create steps:** Duplicate master → rename "GST-001-thumb-4-print-digital".
 
 **Content swaps:**
 - Mockup slot: split vertically 50/50
-  - Left: Canva "printed book" mockup (search Canva Elements "printed spiral book mockup") — layer Welcome Book Sheet 1 onto it
-  - Right: iPhone mockup showing a QR code landing page preview (Canva Elements "iphone mockup"). Layer a QR code image (Canva → Elements → QR code) on the phone screen.
+  - Left: Vista Create "printed book" mockup (search Vista Create Elements "printed spiral book mockup") — layer Welcome Book Sheet 1 onto it
+  - Right: iPhone mockup showing a QR code landing page preview (Vista Create Elements "iphone mockup"). Layer a QR code image (Vista Create → Elements → QR code) on the phone screen.
 - Headline: `Print It. Frame It. QR It.` (Playfair Display Bold 72pt, navy)
 - Sub-headline: `Use it how you want — it's your file.` (Inter Regular 26pt, muted)
 
@@ -1716,7 +1716,7 @@ All 5 inherit the A4 thumbnail master. Daniel duplicates the master in Canva and
 
 ## Thumbnail 5 — What's included list
 
-**Canva steps:** Duplicate master → rename "GST-001-thumb-5-included".
+**Vista Create steps:** Duplicate master → rename "GST-001-thumb-5-included".
 
 **Content swaps:**
 - Mockup slot: REPLACE with a bullet list instead of a mockup. Use a tan (#C9A875) rounded-rect card in the center holding:
@@ -1739,7 +1739,7 @@ All 5 inherit the A4 thumbnail master. Daniel duplicates the master in Canva and
 
 ## Preview image ("Preview in tab" — appears hovering over thumbnail)
 
-Same as thumb-1 but wider — 2000×1500 (Etsy's preview aspect). Same content, re-exported from the same Canva design resized.
+Same as thumb-1 but wider — 2000×1500 (Etsy's preview aspect). Same content, re-exported from the same Vista Create design resized.
 
 **Export:** `preview.png` (optional for MVP; can be added post-launch)
 
@@ -1748,7 +1748,7 @@ Same as thumb-1 but wider — 2000×1500 (Etsy's preview aspect). Same content, 
 ## Daniel checklist
 
 - [ ] Export Welcome Book PDF from the .xlsx first (File → Save As → PDF). Capture each sheet as PNG (screenshot or PDF → image).
-- [ ] Duplicate A4 thumbnail master in Canva Pro 5 times.
+- [ ] Duplicate A4 thumbnail master in Vista Create Pro 5 times.
 - [ ] Build thumbs 1–5 per specs above (~12 min each).
 - [ ] Export all 5 PNGs to `templates/_delivery/GST-001-welcome-book/`.
 - [ ] Commit.
@@ -1937,9 +1937,9 @@ Email **hello@thestrledger.com**. Real humans, fast replies.
 **The STR Ledger · thestrledger.com · © 2026**
 ```
 
-- [ ] **Step 4: Daniel builds the PDFs in Canva**
+- [ ] **Step 4: Daniel builds the PDFs in Vista Create**
 
-For each PDF, Daniel uses Canva Pro (A4 letter portrait):
+For each PDF, Daniel uses Vista Create Pro (A4 letter portrait):
 - How-to PDF: paste markdown content, apply brand fonts + colors, export as PDF. Save to `templates/_delivery/GST-001-welcome-book/GST-001-howto.pdf`.
 - License PDF: same process. Save to `templates/_delivery/GST-001-welcome-book/GST-001-license.pdf`.
 
@@ -1979,7 +1979,7 @@ git add templates/_delivery/GST-001-welcome-book/ templates/_delivery/_shared/li
 git commit -m "deliver: GST-001 Welcome Book — thumb specs, howto PDF source, license, listing refresh"
 ```
 
-- [ ] **Step 7: Daniel builds 5 thumbnails in Canva**
+- [ ] **Step 7: Daniel builds 5 thumbnails in Vista Create**
 
 Per `thumbnails.md`. ~12 min each = ~1 hr total.
 
@@ -1995,7 +1995,7 @@ Export to:
 ```bash
 cd "C:/Users/Kebron/Desktop/Claude OS/Excell-Templates"
 git add templates/_delivery/GST-001-welcome-book/
-git commit -m "deliver: GST-001 thumbnails + branded PDFs exported from Canva"
+git commit -m "deliver: GST-001 thumbnails + branded PDFs exported from Vista Create"
 ```
 
 ---
@@ -2633,7 +2633,7 @@ Write `templates/_delivery/OPS-001-turnover-checklist/thumbnails.md`:
 # Thumbnail Specs — OPS-001 Turnover Checklist
 
 ## Thumbnail 1 — Hero
-- Mockup: printed paper on clipboard on clean countertop (Canva → "clipboard mockup") with the Printable Checklist rendered on the paper
+- Mockup: printed paper on clipboard on clean countertop (Vista Create → "clipboard mockup") with the Printable Checklist rendered on the paper
 - Headline: `Cleaner Turnover Checklist — Done Right.`
 - Sub: `40 items. 8 zones. 1 page. Print-and-go.`
 - Export: `thumb-1.png`
@@ -2882,7 +2882,7 @@ git add templates/_delivery/OPS-001-turnover-checklist/ copy/etsy-listings/OPS-0
 git commit -m "deliver: OPS-001 Turnover Checklist — thumbnails spec, howto, license, fresh listing"
 ```
 
-- [ ] **Step 13: Daniel builds thumbnails + PDFs in Canva**
+- [ ] **Step 13: Daniel builds thumbnails + PDFs in Vista Create**
 
 Per `thumbnails.md` (5 × ~12 min) + 2 PDFs (~15 min each). Export to the OPS-001 folder. Commit.
 
@@ -3481,7 +3481,7 @@ git add templates/_delivery/TAX-001-mileage-log/ copy/etsy-listings/TAX-001-mile
 git commit -m "deliver: TAX-001 Mileage Log — thumbnails spec, howto, license, listing refresh"
 ```
 
-- [ ] **Step 10: Daniel builds thumbnails + PDFs in Canva**
+- [ ] **Step 10: Daniel builds thumbnails + PDFs in Vista Create**
 
 Per `thumbnails.md`. Export + commit:
 
@@ -3496,7 +3496,7 @@ git commit -m "deliver: TAX-001 thumbnails + branded PDFs exported"
 
 **Files:**
 - Create: `templates/_delivery/_shared/etsy-upgrade-insert.md` (Claude source)
-- Create (by Daniel): `templates/_delivery/_shared/etsy-upgrade-insert.pdf` (Canva)
+- Create (by Daniel): `templates/_delivery/_shared/etsy-upgrade-insert.pdf` (Vista Create)
 
 **Acceptance:** 1-page branded PDF ready to attach as file #2 on every Etsy listing.
 
@@ -3556,15 +3556,15 @@ git add templates/_delivery/_shared/etsy-upgrade-insert.md
 git commit -m "deliver: shared Etsy buyer upgrade/lead insert PDF source"
 ```
 
-- [ ] **Step 3: Daniel builds branded PDF in Canva**
+- [ ] **Step 3: Daniel builds branded PDF in Vista Create**
 
-- Open Canva Pro → new 8.5×11 portrait document
+- Open Vista Create Pro → new 8.5×11 portrait document
 - Apply brand kit (navy + tan palette, Playfair Display + Inter fonts)
 - Paste content from the markdown above; style with:
   - Large headline at top ("Thanks for grabbing this template") — Playfair 36pt navy
   - Body — Inter 11pt, 1.4 line-height
   - Pull-quote boxes for the "Free — right now" section (tan background card)
-  - QR code → Canva Elements → search "QR code", set URL to `thestrledger.com/47`
+  - QR code → Vista Create Elements → search "QR code", set URL to `thestrledger.com/47`
   - Brand header bar (navy strip with logo) across top
   - Brand footer (tan strip) across bottom
 - Export as PDF → save to `templates/_delivery/_shared/etsy-upgrade-insert.pdf`
@@ -3573,7 +3573,7 @@ git commit -m "deliver: shared Etsy buyer upgrade/lead insert PDF source"
 
 ```bash
 git add templates/_delivery/_shared/etsy-upgrade-insert.pdf
-git commit -m "deliver: shared Etsy buyer insert PDF — built in Canva"
+git commit -m "deliver: shared Etsy buyer insert PDF — built in Vista Create"
 ```
 
 ---
@@ -5367,7 +5367,7 @@ git commit -m "launch: Wave 2 live on Etsy — TAX-003, TAX-002 Lite — all 5 p
 
 Go to gumroad.com → Start selling.
 - Email: hello@thestrledger.com
-- Password: save to password manager
+- Password: save to Vaultwarden
 - Username: `thestrledger` (or `strledger` if taken)
 - Enable 2FA (authenticator app)
 - Submit bank info for payouts
@@ -5407,7 +5407,7 @@ Write `infrastructure/gumroad/setup.md`:
 **Account:** hello@thestrledger.com
 **Username:** thestrledger
 **2FA:** enabled
-**Bank info:** submitted (details in password manager)
+**Bank info:** submitted (details in Vaultwarden)
 
 ## Products live
 
@@ -5630,6 +5630,331 @@ git commit -m "ops: post-launch tracking routine + alert thresholds + retrospect
 
 ---
 
+## Phase 7 — CheatLayer automation layer (Day 15+, post-launch addendum)
+
+**Added:** 2026-04-23
+**Trigger:** Daniel has a CheatLayer lifetime deal (https://docs.cheatlayer.com/introduction).
+**Scope decision:** this Phase is **not** part of the 14-day DoD (G7). It's a post-launch efficiency layer. Reason: the first 5 manual Etsy uploads are a learning exercise — automating before running the process once hides what the automation actually needs to handle. Phase 7 starts **after G7 passes**.
+
+**Design principle for this Phase:** CheatLayer is a point tool for **no-API surfaces only** (Etsy seller dashboard, Etsy public search pages, Gumroad seller dashboard). n8n remains the automation spine for anything with a real API. CheatLayer agents emit webhooks to n8n; n8n writes to Airtable.
+
+**In scope (3 agents):**
+- Task 19 — Etsy listing uploader (replay the upload checklist)
+- Task 20 — Etsy review + Q&A monitor (post-launch monitoring automation)
+- Task 21 — Competitor SEO scraper (feeds A12 re-passes)
+
+**Out of scope (explicitly):**
+- Any CheatLayer agent that hits Lane B surfaces with APIs (Stripe, Airtable, Mailgun, Ghost) — those stay in n8n.
+- Scraping competitor shops at volume — low-rate, targeted scrapes only (Etsy ToS risk).
+- Replacing the SEO research doc with scraped data — scraper *informs* Claude's research, doesn't replace it.
+
+**Known risks (read before building):**
+- **Etsy ToS:** Etsy's ToS prohibit automated scraping at scale. Rate-limit scraping of *public* Etsy pages to humane levels (≥3s between requests, ≤50 pages/run). Don't scrape logged-in seller pages of *other* shops. Scraping your *own* Shop Manager is low-risk.
+- **Selector drift:** Etsy's DOM changes. Use CheatLayer's *semantic targeting* ("click the button labeled 'Publish'"), not brittle CSS selectors, so agents survive UI changes.
+- **2FA:** if Etsy 2FA is on, agents need a session-cookie export path or manual login step. Budget time for this.
+
+---
+
+### Task 19: CheatLayer agent — Etsy listing uploader
+
+**Files:**
+- Create: `infrastructure/cheatlayer/agents/etsy-listing-uploader.md` (agent spec + CheatLayer node notes)
+- Create: `infrastructure/cheatlayer/README.md` (folder purpose + agent index)
+
+**Owner:** Daniel builds the agent in CheatLayer desktop app; Claude drafts the agent spec + the input schema.
+
+**Acceptance:** Given a completed `copy/etsy-listings/<sku>.md` upload checklist, the agent fills the Etsy "Create listing" form end-to-end and stops at the "Preview / Publish" step for Daniel to eyeball before publishing. Tested on one new listing (Wave 3 product or a duplicate of an existing SKU in Draft status). Saves ≥20 min per listing vs. manual.
+
+- [ ] **Step 1: Claude drafts the agent spec**
+
+Write `infrastructure/cheatlayer/agents/etsy-listing-uploader.md`:
+```markdown
+# Agent — Etsy Listing Uploader
+
+## Purpose
+Replay the Etsy listing upload checklist from a markdown source of truth.
+
+## Input schema
+A `copy/etsy-listings/<sku>.md` file with the following sections parsed out:
+- Title (≤140 chars)
+- Description (full body, with newlines preserved)
+- Tags (13 items, ≤20 chars each)
+- Materials / Attributes (key-value pairs)
+- Price (numeric, USD)
+- Category path (breadcrumbs, e.g. "Paper & Party Supplies > Paper > Stationery")
+- Files to attach (list of paths in `templates/_delivery/<sku>/`)
+- Thumbnail image paths (5 images, ordered)
+- Preview image path (1 image)
+- Shipping profile name (always "Digital — instant download")
+- Return policy name (always "Digital goods — no returns")
+
+## Input parser
+CheatLayer Python node parses the markdown via headers. Returns a JSON blob.
+(Claude to write the parser script in Step 2.)
+
+## Agent flow
+1. Authenticate to Etsy Shop Manager (session cookie or manual login guard).
+2. Navigate to Shop Manager → Listings → Add a listing.
+3. Upload the 5 thumbnails + 1 preview image in order (semantic target: the file-drop zone).
+4. Semantic-fill title, description, category, price, tags, materials, attributes.
+5. Attach the digital file(s) under "Digital files."
+6. Select "Digital — instant download" shipping profile.
+7. Select "Digital goods — no returns" return policy.
+8. STOP at "Preview your listing." Do NOT publish. Screenshot + alert Daniel.
+
+## Output
+- Writes a status JSON to `ops/cheatlayer-runs/<sku>-<timestamp>.json` with: success, duration, any fields flagged as "needed manual intervention," screenshot path.
+- Posts a webhook to n8n endpoint `/cheatlayer/listing-uploaded` → n8n logs to Airtable `Listing Runs` table (schema TBD in Lane B).
+
+## Error handling
+- If any field can't be filled (e.g., Etsy added a new required field): STOP, screenshot, notify Daniel. Do NOT guess.
+- If thumbnail upload fails (image format, size): STOP, log the error with the file path.
+- If session expired mid-run: stop and prompt re-auth.
+
+## Rate-limit posture
+One listing per run. No parallel instances. Manual kick-off only (not scheduled).
+```
+
+- [ ] **Step 2: Claude drafts the markdown → JSON parser**
+
+Write `infrastructure/cheatlayer/agents/etsy-listing-parser.py` (runs inside CheatLayer's Python node or as a pre-step in n8n):
+
+```python
+# Parses a copy/etsy-listings/<sku>.md file into the input JSON
+# expected by the Etsy listing uploader agent.
+# Headers used: ## Title, ## Description, ## Tags (13), ## Materials / Attributes,
+#               ## Thumbnails (5), ## Files attached to Etsy (5), ## SEO
+# Price + category come from a YAML frontmatter block at the top.
+# (Daniel to add frontmatter to each listing .md as part of this task.)
+import sys, re, json, yaml
+from pathlib import Path
+
+def parse_listing(path: Path) -> dict:
+    text = path.read_text(encoding="utf-8")
+    fm_match = re.match(r"^---\n(.*?)\n---\n(.*)", text, re.DOTALL)
+    if not fm_match:
+        raise ValueError(f"{path}: missing frontmatter")
+    frontmatter = yaml.safe_load(fm_match.group(1))
+    body = fm_match.group(2)
+    sections = re.split(r"\n## ", body)
+    sec = {}
+    for s in sections:
+        if not s.strip():
+            continue
+        head, *rest = s.split("\n", 1)
+        sec[head.strip().lower()] = (rest[0] if rest else "").strip()
+    tags = [t.strip("- ").strip() for t in sec.get("tags (13)", "").splitlines() if t.strip()]
+    thumbs = [t.strip("- ").strip() for t in sec.get("thumbnails (5)", "").splitlines() if t.strip()]
+    files = [f.strip("- ").strip() for f in sec.get("files attached to etsy (5)", "").splitlines() if f.strip()]
+    return {
+        "sku": frontmatter["sku"],
+        "title": sec.get("title (≤140 chars)", "").strip(),
+        "description": sec.get("description", "").strip(),
+        "tags": tags,
+        "materials_attributes": sec.get("materials / attributes", "").strip(),
+        "price_usd": frontmatter["price_usd"],
+        "category_path": frontmatter["category_path"],
+        "thumbnails": thumbs,
+        "files": files,
+        "shipping_profile": "Digital — instant download",
+        "return_policy": "Digital goods — no returns",
+    }
+
+if __name__ == "__main__":
+    p = Path(sys.argv[1])
+    print(json.dumps(parse_listing(p), indent=2))
+```
+
+**Frontmatter Daniel adds to each `copy/etsy-listings/<sku>.md`:**
+```yaml
+---
+sku: GST-001
+price_usd: 17
+category_path: "Paper & Party Supplies > Paper > Stationery > Templates"
+---
+```
+
+- [ ] **Step 3: Daniel builds the agent in CheatLayer desktop**
+
+Follow https://docs.cheatlayer.com/introduction for the node editor. Build:
+1. Trigger node: manual (file input — the sku.md path).
+2. Python node: run the parser from Step 2 → returns JSON.
+3. Browser nav node: Etsy Shop Manager → Add a listing.
+4. Semantic-target fill nodes for each field.
+5. Loop node for 5 thumbnails.
+6. Screenshot + webhook node at the end.
+
+- [ ] **Step 4: Test on a throwaway draft listing**
+
+Duplicate GST-001 in Etsy, delete its fields, then run the agent against the same `copy/etsy-listings/GST-001.md` file. Compare result to the original listing. All 13 tags, correct title, all 5 thumbnails, price $17. If any field wrong — fix the agent, not the markdown.
+
+- [ ] **Step 5: Commit**
+
+```bash
+cd "C:/Users/Kebron/Desktop/Claude OS/Excell-Templates"
+git add infrastructure/cheatlayer/
+git commit -m "cheatlayer: etsy listing uploader agent + markdown parser"
+```
+
+---
+
+### Task 20: CheatLayer agent — Etsy review + Q&A monitor
+
+**Files:**
+- Create: `infrastructure/cheatlayer/agents/etsy-review-monitor.md`
+- Modify: `ops/post-launch-tracking.md` (add automation reference)
+
+**Owner:** Daniel builds the agent; Claude drafts the spec + the digest template.
+
+**Acceptance:** Agent runs daily at 8am local, scrapes Daniel's Shop Manager "Reviews" + "Messages" tabs, and emails a digest to Daniel only if there's something new (new review, new unanswered message, new Q&A). No digest on zero-event days (don't spam Daniel). Replaces the "Messages tab check" step in Task 18 daily-check routine.
+
+- [ ] **Step 1: Claude drafts the agent spec**
+
+Write `infrastructure/cheatlayer/agents/etsy-review-monitor.md`:
+```markdown
+# Agent — Etsy Review + Q&A Monitor
+
+## Purpose
+Replace the manual morning "check messages + reviews" routine from Task 18.
+Only send a digest when there's something new.
+
+## Schedule
+Daily, 08:00 local. CheatLayer visual cron.
+
+## Agent flow
+1. Authenticate to Shop Manager.
+2. Navigate: Reviews tab → count new reviews since `last_run_timestamp`.
+3. Navigate: Messages tab → count new unread messages.
+4. Navigate: each live listing → "Item questions" section → count new unanswered Qs.
+5. If total new events == 0: write last_run_timestamp, exit silently.
+6. If total new events > 0: format digest (see below) → webhook to n8n → n8n sends email.
+
+## State storage
+`ops/cheatlayer-runs/review-monitor-state.json` — last run timestamp + seen review/message IDs.
+
+## Digest format (emailed to Daniel)
+Subject: "STR Ledger — N new events"
+Body:
+  - New reviews (K):
+    - GST-001, 5★, "Loved this template..."
+    - TAX-001, 3★, "Formula was wrong on row 7..." ← FLAGGED ≤4★
+  - New messages (K): [list with SKU + first 80 chars + direct link]
+  - New Q&A (K): [list with SKU + question text + direct link]
+  Action for each ≤4★ review: open, read in full, decide if refund/response needed within 24h.
+
+## Flags that escalate beyond email
+- Any ≤3★ review → also SMS Daniel (via n8n Twilio node)
+- Any message containing "refund", "broken", "doesn't work", "wrong" → also SMS
+- 0 successful runs in 48hrs (agent broke) → SMS
+
+## Rate-limit posture
+5 page fetches per run, once per day. Fine.
+```
+
+- [ ] **Step 2: Daniel builds the agent + wires webhook to n8n**
+
+Precondition: n8n webhook endpoint `/cheatlayer/review-digest` exists (deferred to Lane B — if Lane B isn't stood up yet, use a direct Mailgun node in CheatLayer as a stopgap).
+
+- [ ] **Step 3: Modify post-launch tracking doc**
+
+Edit `ops/post-launch-tracking.md` — under "Daily check (Days 1-14)," append:
+```
+**Automation:** Once CheatLayer review-monitor agent (infrastructure/cheatlayer/agents/etsy-review-monitor.md) is deployed, steps 3 (Messages tab) and the review-check portion of step 4 are handled by the daily digest email. Continue manual views/favorites scan in step 1 — CheatLayer can scrape those too but Etsy's analytics UI is fragile and the manual 2-minute check is cheaper than an agent that breaks on UI changes.
+```
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add infrastructure/cheatlayer/agents/etsy-review-monitor.md ops/post-launch-tracking.md
+git commit -m "cheatlayer: etsy review + Q&A monitor agent + post-launch routine update"
+```
+
+---
+
+### Task 21: CheatLayer agent — Competitor SEO scraper
+
+**Files:**
+- Create: `infrastructure/cheatlayer/agents/etsy-seo-scraper.md`
+
+**Owner:** Daniel builds the agent; Claude drafts the spec + the output schema.
+
+**Acceptance:** Given a list of Etsy search queries (from `copy/etsy-listings/seo-research.md`), the agent returns the top 20 listings per query with: title, tag list (if visible), favorite count, review count, price, shop name, thumbnail URL. Output is a CSV in `ops/seo-snapshots/<YYYY-MM-DD>.csv`. Runs quarterly (manual kick-off) to feed A12 SEO re-passes.
+
+- [ ] **Step 1: Claude drafts the agent spec**
+
+Write `infrastructure/cheatlayer/agents/etsy-seo-scraper.md`:
+```markdown
+# Agent — Etsy SEO Scraper
+
+## Purpose
+Snapshot the Etsy search results page for each of our primary keywords, quarterly. Feeds Claude's A12 SEO re-pass so tag/title adjustments are grounded in current-market data, not stale research.
+
+## Input
+A list of search queries, one per line:
+  airbnb welcome book
+  vrbo welcome guide
+  airbnb cleaning checklist
+  airbnb mileage log
+  1099 nec tracker
+  str pnl template
+  (etc — pull from seo-research.md)
+
+## Agent flow
+For each query:
+1. Navigate to https://www.etsy.com/search?q=<URL-encoded query>
+2. Wait 3s (rate limit posture).
+3. Scrape top 20 visible listings. Per listing, capture:
+   - title (link text)
+   - price (span.currency-value)
+   - favorite count (if shown)
+   - review count (visible badge)
+   - shop name (link)
+   - thumbnail URL
+   - listing URL
+4. Append rows to output CSV.
+5. Continue to next query.
+
+## Rate-limit posture
+3s between queries, 20 queries max per run, 1 run per quarter. Total: ~60s/run. Humane.
+
+## Output
+`ops/seo-snapshots/2026-QX.csv` with columns:
+  query, rank, title, price, favorites, reviews, shop, thumbnail_url, listing_url, scraped_at
+
+## Downstream use
+Claude runs an analysis pass: which titles from the top 10 use keywords we're missing? Which price points cluster? Which shops dominate each query (competitor map)? Writes findings into the next `seo-research.md` revision.
+
+## What this agent does NOT do
+- Does not scrape tag data from competitors (Etsy hides tags from non-owners — don't spoof)
+- Does not scrape review text (volume only)
+- Does not run more than quarterly
+```
+
+- [ ] **Step 2: Daniel builds the agent + runs baseline snapshot**
+
+First run: immediately after G7 (Day 14+). Establishes Q2 2026 baseline. Future runs quarterly.
+
+- [ ] **Step 3: Commit the agent spec + baseline snapshot**
+
+```bash
+git add infrastructure/cheatlayer/agents/etsy-seo-scraper.md ops/seo-snapshots/
+git commit -m "cheatlayer: etsy SEO scraper agent + Q2 2026 baseline snapshot"
+```
+
+---
+
+## ✅ Phase 7 acceptance (no formal gate)
+
+Not part of the 14-day DoD. Phase 7 is "done" when all 3 agents are built, tested once, and committed. No calendar deadline — pick them up after G7 based on ROI priority:
+
+1. **Task 20 first** (review monitor) — saves daily time from Day 15 onward.
+2. **Task 19 second** (listing uploader) — pays off at listing #6 and beyond.
+3. **Task 21 third** (SEO scraper) — first run is quarterly anyway; no rush.
+
+**Time budget for Daniel:** ~2–3 hrs per agent in CheatLayer, mostly in semantic-target tuning. Amortizes well if the shop expands past 5 listings.
+
+---
+
 ## Self-review notes
 
 This plan's author ran a self-review against the design doc:
@@ -5663,9 +5988,11 @@ This plan's author ran a self-review against the design doc:
 
 **Risk items surfaced during planning:**
 - Etsy account approval could delay G4 by 1-2 days (mitigated in Task 2 by starting Day 1)
-- Daniel's Canva work is the bottleneck — 25 product thumbnails + 5 brand assets + 5 branded PDFs ≈ 9-10 hrs over 2 weeks
+- Daniel's Vista Create work is the bottleneck — 25 product thumbnails + 5 brand assets + 5 branded PDFs ≈ 9-10 hrs over 2 weeks
 - Wave 2 formula QA is the highest-risk gate (G5) — budget extra time
 
 ---
 
 **Plan complete. 18 tasks across 14 days + ongoing monitoring.**
+
+**Phase 7 addendum (2026-04-23):** +3 optional CheatLayer automation tasks (Tasks 19–21) appended. Not part of the 14-day DoD — executes post-G7 based on ROI priority. Self-review above remains valid for the original 18-task plan; Phase 7 is explicitly scoped as a post-launch efficiency layer, not a redesign.

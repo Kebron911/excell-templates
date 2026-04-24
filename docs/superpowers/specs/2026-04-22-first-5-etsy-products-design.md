@@ -24,7 +24,7 @@ End-to-end design for building and launching the first five Etsy products for Th
 
 **Targets:** Wave 1 live Day 7. Wave 2 live Day 14. All 5 on Gumroad Day 14. First Etsy sale possible Day 7 (meets master spec §12 hard milestone "Week 2: Etsy revenue > $0").
 
-**Role model:** Claude drafts every artifact (briefs, Excel files, thumbnail specs, PDFs, listing copy, upload checklists). Daniel reviews at gates, executes Etsy/Gumroad UI actions, does hands-on QA in Excel, and builds final PNGs/PDFs in Canva from specs. Daniel total hands-on: **~15–18 hrs over 2 weeks** (~1.5 hrs/day average).
+**Role model:** Claude drafts every artifact (briefs, Excel files, thumbnail specs, PDFs, listing copy, upload checklists). Daniel reviews at gates, executes Etsy/Gumroad UI actions, does hands-on QA in Excel, and builds final PNGs/PDFs in Vista Create from specs. Daniel total hands-on: **~15–18 hrs over 2 weeks** (~1.5 hrs/day average).
 
 ---
 
@@ -47,7 +47,7 @@ End-to-end design for building and launching the first five Etsy products for Th
 **Shop-level one-time:**
 - A2: domain + email setup checklist
 - A3: Etsy seller account setup checklist
-- A4: Canva asset pack specs (logo ×2, banner, icon, thumbnail master, Excel cover)
+- A4: Vista Create asset pack specs (logo ×2, banner, icon, thumbnail master, Excel cover)
 - A5: paste existing shop-about + shop-policies into Etsy
 - A13: Etsy buyer companion PDF (shared, bundled into all 5 listings)
 - A14: Gumroad mirror for all 5
@@ -80,7 +80,7 @@ End-to-end design for building and launching the first five Etsy products for Th
 
 | Phase | Days | Work |
 |---|---|---|
-| Prereqs | 1–2 | A2 domain + email, A3 Etsy seller account, A4 Canva asset pack. Parallel to Wave 1 briefs. |
+| Prereqs | 1–2 | A2 domain + email, A3 Etsy seller account, A4 Vista Create asset pack. Parallel to Wave 1 briefs. |
 | **Wave 1** | 3–7 | 3 simple T1s built, listings finalized, thumbnails built, published Day 7. |
 | **Wave 2** | 8–14 | 2 formula-heavier SKUs built, QA'd, published Day 14. |
 | Closeout | 14 | A12 SEO pass, A13 PDF bundled into all 5, A14 Gumroad mirror live. |
@@ -121,8 +121,8 @@ Every product produces 10 deliverables. Claude drafts all; Daniel reviews + exec
 | 2 | Sheet-by-sheet spec | `templates/_briefs/<sku>-spec.md` | Claude → Daniel approves |
 | 3 | Excel master | `templates/_masters/<sku>.xlsx` | Claude (openpyxl) → Daniel QA in Excel |
 | 4 | Lite variant | `templates/_lite/<sku>-lite.xlsx` | Claude (P&L only) → Daniel QA |
-| 5 | Thumbnail specs (5 images) | `templates/_delivery/<sku>/thumbnails.md` | Claude spec → Daniel builds in Canva |
-| 6 | Preview image specs | inline in thumbnails.md | Claude spec → Daniel builds in Canva |
+| 5 | Thumbnail specs (5 images) | `templates/_delivery/<sku>/thumbnails.md` | Claude spec → Daniel builds in Vista Create |
+| 6 | Preview image specs | inline in thumbnails.md | Claude spec → Daniel builds in Vista Create |
 | 7 | Companion how-to PDF | `templates/_delivery/<sku>/<sku>-howto.pdf` | Claude (markdown → PDF) → Daniel approves |
 | 8 | License PDF | `templates/_delivery/<sku>/<sku>-license.pdf` | Claude (shared template) → auto |
 | 9 | Listing copy | `copy/etsy-listings/<sku>.md` | Claude drafts/refreshes → Daniel approves |
@@ -132,14 +132,16 @@ Every product produces 10 deliverables. Claude drafts all; Daniel reviews + exec
 
 | Product type | Claude work | Daniel hands-on per product |
 |---|---|---|
-| Content (Welcome Book, Turnover Checklist) | ~3 hrs | ~2 hrs (brief review, Excel QA, 5 Canva thumbnails, Etsy upload) |
+| Content (Welcome Book, Turnover Checklist) | ~3 hrs | ~2 hrs (brief review, Excel QA, 5 Vista Create thumbnails, Etsy upload) |
 | Formula (Mileage, 1099-NEC, P&L Lite) | ~5 hrs | ~2.75 hrs (adds extra QA cycle for formulas) |
 | **5-product subtotal** | **~21 hrs** | **~12.25 hrs** |
 | Shop-level (A2/A3/A4/A5/A13/A14) | included in plan | **~5.5 hrs** (A4 brand assets ~2.5 hrs dominates) |
 | Test purchase + launch monitoring | — | **~0.5 hr** |
 | **Daniel total** | — | **~15–18 hrs** |
 
-Thumbnail math (key input to estimate): 25 product thumbnails × ~12 min each = ~5 hrs (the A4 master is reusable, so per-product thumbs are text/mockup swaps, not fresh designs).
+Thumbnail math (key input to estimate): 25 product thumbnails × ~12 min each = ~5 hrs steady-state (the A4 master is reusable, so per-product thumbs are text/mockup swaps, not fresh designs).
+
+**Tool note:** Brand asset pack + all thumbnails build in **Vista Create Pro** (lifetime deal owned). If Daniel hasn't used Vista Create before, budget ~20–30 min extra on Day 1 for first-run familiarization (brand kit setup, font library check, template navigation). Re-evaluate thumbnail throughput after Wave 1 Day 7 closes — if still slow, the ~12 min target may drift up ~2–3 min/each (total slip: ~50 min across all 25).
 
 ### 3.2 — Lite variant rule (master spec §4.2)
 
@@ -155,9 +157,9 @@ The P&L Lite is single-property only; the Full version (multi-property, deprecia
 |---|---|---|---|---|
 | A2 | Domain + email | 1 | DNS record values; Cloudflare Registrar purchase checklist; Google Workspace setup steps; test-email verification checklist | Buy thestrledger.com at Cloudflare; add A + MX records; sign up for Workspace ($6/mo); verify `hello@thestrledger.com` |
 | A3 | Etsy seller account | 1–2 | Pre-filled preferences; tax-entity note (sole prop OK for MVP); bank/tax submission checklist; 2FA steps | Create Etsy account with business email; submit bank + SSN/EIN; enable 2FA authenticator; record shop URL + listing ID format |
-| A4 | Canva asset pack | 2–4 | Precise Canva specs: logo sq + horiz, banner (1600×213), icon (500×500), thumbnail master (2000×2000), Excel cover (1000×400) — exact hex, fonts, headline copy, layout, negative space | Build 5 assets in Canva Pro; export PNG + SVG where applicable to `brand/assets/`; commit |
+| A4 | Vista Create asset pack | 2–4 | Precise Vista Create specs: logo sq + horiz, banner (1600×213), icon (500×500), thumbnail master (2000×2000), Excel cover (1000×400) — exact hex, fonts, headline copy, layout, negative space | Build 5 assets in Vista Create Pro; export PNG + SVG where applicable to `brand/assets/`; commit |
 | A5 | Shop copy live | 5 | (No new Claude work — copy already drafted) | Paste `shop-about.md` into Etsy → About; paste `shop-policies.md` into Etsy → Policies; paste announcement banner text |
-| A13 | Buyer companion PDF | 6 | Final 1-page copy with brand tokens resolved; Canva layout spec; generated reference PDF | Build branded Canva version; export PDF; save to `templates/_delivery/_shared/etsy-upgrade-insert.pdf`; attach as file #2 on all 5 listings |
+| A13 | Buyer companion PDF | 6 | Final 1-page copy with brand tokens resolved; Vista Create layout spec; generated reference PDF | Build branded Vista Create version; export PDF; save to `templates/_delivery/_shared/etsy-upgrade-insert.pdf`; attach as file #2 on all 5 listings |
 | A14 | Gumroad mirror | 14 | Per-product Gumroad upload checklist; full-version pricing map; description transposition | Create Gumroad account with `hello@thestrledger.com`; upload 5 products (Full versions, not Lite); 2FA + bank; publish |
 
 ---
@@ -170,8 +172,8 @@ The P&L Lite is single-property only; the Full version (multi-property, deprecia
 - Every sheet-by-sheet Excel spec
 - Every `.xlsx` build via Python/openpyxl
 - Every Lite variant (P&L only)
-- Every thumbnail design spec + preview image spec (text specs — Daniel builds PNGs in Canva)
-- Every companion PDF + license PDF (markdown source + rendered reference; Daniel builds branded final in Canva for PDFs that need brand identity; Claude's rendered PDF is acceptable for utility docs)
+- Every thumbnail design spec + preview image spec (text specs — Daniel builds PNGs in Vista Create)
+- Every companion PDF + license PDF (markdown source + rendered reference; Daniel builds branded final in Vista Create for PDFs that need brand identity; Claude's rendered PDF is acceptable for utility docs)
 - Every listing copy finalization + 13-tag set + SEO keyword research
 - Every Etsy/Gumroad upload checklist with exact form-field values
 - Git commits for all code/content artifacts (Daniel reviews diffs)
@@ -182,7 +184,7 @@ The P&L Lite is single-property only; the Full version (multi-property, deprecia
 - Review gate on every Excel file — actual Excel 2016+ hands-on QA on Windows (Claude cannot reliably validate xlsx across versions)
 - Domain purchase (manual, payment)
 - Etsy seller account creation + bank/tax/2FA (requires SSN/EIN)
-- Canva asset builds from Claude specs (5 brand assets + 25 product thumbnails over 2 weeks)
+- Vista Create asset builds from Claude specs (5 brand assets + 25 product thumbnails over 2 weeks)
 - Etsy listing uploads (Etsy UI, one at a time; can't be scripted for new shops)
 - ≥1 test purchase from secondary Etsy account on Welcome Book before Wave 1 publishes
 - Gumroad account creation + uploads
@@ -200,9 +202,9 @@ The P&L Lite is single-property only; the Full version (multi-property, deprecia
 
 | Gate | Day | Pass condition | Failure response |
 |---|---|---|---|
-| G1 | 2 | A2 domain resolves, MX live; A3 Etsy account approved; A4 Canva specs delivered (Daniel still exporting is fine) | Slip Wave 1 by # days domain/account took to unblock |
+| G1 | 2 | A2 domain resolves, MX live; A3 Etsy account approved; A4 Vista Create specs delivered (Daniel still exporting is fine) | Slip Wave 1 by # days domain/account took to unblock |
 | G2 | 4 | Wave 1 briefs approved; 3 Excel masters built; initial Windows QA pass | Stop-the-line — no thumbnail/listing work until build is clean |
-| G3 | 6 | Wave 1 listing copy finalized post-brief; 3 thumbnail sets in Canva; companion + license PDFs placed; test purchase succeeded on Welcome Book | Fix + retest before publish |
+| G3 | 6 | Wave 1 listing copy finalized post-brief; 3 thumbnail sets in Vista Create; companion + license PDFs placed; test purchase succeeded on Welcome Book | Fix + retest before publish |
 | **G4** | **7** | **Wave 1 goes live on Etsy** — 3 listings with 5+ thumbnails, 13 tags, 5 attached files | Slip = missed master spec §12 milestone |
 | G5 | 11 | Wave 2 briefs approved; 2 Excel masters built; P&L Lite built; sample-data outputs match brief expectations cell-for-cell | Stop-the-line; schedule focused QA session |
 | G6 | 13 | Wave 2 listing copy finalized; 2 thumbnail sets built; A12 SEO pass complete on all 5; Airtable Products rows stubbed (if schema exists — else deferred to Lane B) | Delay publish 24 hrs rather than ship weak SEO |
@@ -239,7 +241,7 @@ The P&L Lite is single-property only; the Full version (multi-property, deprecia
 | Thumbnail CTR <1% post-launch | High | Medium | Rewrite trigger at Day 30 (already in Welcome Book listing draft line 214); thumbnail is biggest conversion lever per master spec |
 | Domain purchase friction (card decline, region mismatch) | Low | Medium | Cloudflare Registrar known-fast; fallback: Porkbun or Namecheap |
 | Daniel review bottleneck on briefs | Medium | Medium | Budget 15 min/brief; Claude queues briefs one at a time; Daniel reviews same-day |
-| Canva thumbnail build slower than estimated | Medium | Low | Thumbnail master from A4 is reusable; each product thumb is text-swap only |
+| Vista Create thumbnail build slower than estimated | Medium | Low | Thumbnail master from A4 is reusable; each product thumb is text-swap only |
 | P&L Lite formula bug discovered post-launch | Medium | Medium | Hardest SKU gets longest QA window (Days 8–13); test purchase from secondary account before G7 |
 | Etsy listing rejected for policy violation | Low | Medium | Digital-download format is well-trodden; shop-policies drafted conservative; keep brand tone business-grade not cutesy |
 
@@ -259,13 +261,13 @@ The P&L Lite is single-property only; the Full version (multi-property, deprecia
 
 - A2/A3/A4 run parallel to Wave 1 briefs
 - Wave 1 briefs, specs, Excel builds, thumbnail specs — Claude produces in batch
-- Daniel's Canva thumbnail builds run parallel to Claude's Wave 2 briefs
+- Daniel's Vista Create thumbnail builds run parallel to Claude's Wave 2 briefs
 
 ### 8.3 — External (human-only, can't be parallelized away)
 
 - Domain registration
 - Etsy bank/tax submission + 2FA
-- Canva Pro asset builds
+- Vista Create Pro asset builds
 - Etsy listing UI uploads
 - Test purchase from secondary account
 

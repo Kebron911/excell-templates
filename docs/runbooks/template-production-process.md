@@ -110,7 +110,7 @@ Build the `.xlsx` file at `templates/_masters/<SKU>.xlsx`:
 
 Create in `templates/_delivery/<SKU>/`:
 
-- `thumbnail.png` (2000×2000 PNG from Canva master in Task A4)
+- `thumbnail.png` (2000×2000 PNG from Vista Create master in Task A4)
 - `preview-1.png` through `preview-5.png` — screenshots with marketing-angle overlays ("Save 4 hours/quarter", "Every deduction in one place")
 - `companion.pdf` — 1-page how-to with upgrade CTA
 - Description copy drafted to `copy/etsy-listings/<SKU>.md`
@@ -120,7 +120,7 @@ Create in `templates/_delivery/<SKU>/`:
 - Create Etsy listing with tags, title, description, thumbnails
 - Mirror to Gumroad (same files, same description — Gumroad gets the Master, not the Lite)
 - Add product row to Airtable Products table (populated via n8n Task B9 once that workflow is live)
-- Schedule Pinterest pin announcement (via Tailwind — 3 pins per launch)
+- Schedule Pinterest pin announcement (via Creasquare — 3 pins per launch; Pinterest native as fallback)
 
 ## 8. Monitor
 

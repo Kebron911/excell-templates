@@ -37,7 +37,7 @@ Every post:
 - **Structure:** H1 → 3–5 H2 sections → H3 subheadings within H2s
 - **Internal links:** minimum 3 (to other blog posts, lead magnet page, and a product page)
 - **External links:** 1–2 to authoritative sources (IRS.gov, Airbnb help docs, relevant court cases)
-- **Featured image:** 1200×630 Canva design, brand-colors, clean
+- **Featured image:** 1200×630 Vista Create design, brand-colors, clean
 - **SEO title:** keyword front-loaded, under 60 chars
 - **Meta description:** 155 chars max, answers "what will I get by reading this?"
 - **Call-to-action:** embedded twice (mid-post + end)
@@ -53,7 +53,7 @@ For each published post, create **3–5 Pinterest pins** with different angles:
 - Pin D: "question" style ("Are You Filing Schedule E or Schedule C for Your Airbnb?")
 - Pin E: "before/after" style (shows spreadsheet preview)
 
-All pins link back to the blog post. Schedule via Tailwind (see Task C2).
+All pins link back to the blog post. Schedule via Creasquare (see Task C2); Pinterest native scheduler as fallback. Re-evaluate Tailwind at Month 3 if Pinterest is converting.
 
 ## Publication cadence
 

@@ -50,8 +50,8 @@
    │     AIRTABLE (SSOT)       │       │  EXTERNAL SERVICES   │
    │  • Products               │◄──────│  • Claude API        │
    │  • Customers              │       │  • Google Drive      │
-   │  • Orders                 │       │  • Canva API         │
-   │  • Content                │       │  • Tailwind          │
+   │  • Orders                 │       │  • Vista Create API  │
+   │  • Content                │       │  • Creasquare        │
    │  • Metrics                │       │  • Slack             │
    │  • Errors                 │       │  • Instantly (Ph. 2) │
    │  • Partners (affiliates)  │       │                      │
@@ -197,7 +197,7 @@
   └────┬─────┘
        │
        ▼
-  Generated pins ──► Tailwind
+  Generated pins ──► Creasquare (primary) / Pinterest native (fallback) — manual upload by Daniel until API automation built
   Email draft ──────► Daniel review queue
 
 
@@ -671,7 +671,7 @@ If something didn't work, hit reply. I'll fix it.
 3. Claude API — generate 5 Pinterest pin variants:
    - Tip-list, Quote-card, Infographic, Question, Before/after
    - Each with pin title, description, hashtags
-4. Canva API — generate 5 pin images from templates (if Canva API available; else push to Daniel's review queue with text-only)
+4. Vista Create API — generate 5 pin images from templates (if Vista Create API available; else push to Daniel's review queue with text-only)
 5. Airtable — create 5 new Content rows of Type=`pinterest-pin`, Status=`Draft`, linked to blog post
 6. Email draft: Claude writes an email broadcast announcing the blog post → queued in Airtable Content as Type=`email-broadcast`, Status=`Draft`
 7. Slack notification to Daniel: "Blog post '<title>' published. 5 pin drafts + 1 email draft ready for review."
@@ -1063,7 +1063,7 @@ To prevent scope creep, these do NOT belong in n8n:
 - **Affiliate link generation** — IS native affiliate module
 - **Membership content gating** — IS native
 - **Website A/B testing** — Ghost + IS native
-- **Social post scheduling** — Tailwind + Buffer natively
+- **Social post scheduling** — Creasquare (multi-platform: IG, LinkedIn, YouTube, TikTok, FB) + Pinterest native scheduler
 - **Excel template file edits** — manual human work in Excel
 
 n8n glues the world together. It is not a replacement for any of these tools' native capabilities.

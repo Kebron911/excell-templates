@@ -6,7 +6,8 @@ When things break. Read top to bottom before an incident, not during.
 
 - [ ] Weekly backup automation (Task B11) verified running
 - [ ] `ops/credentials-inventory.md` accurate
-- [ ] Password manager backed up (export vault to encrypted file in Google Drive monthly)
+- [ ] Vaultwarden vault exported to encrypted file in Google Drive monthly (critical — Vaultwarden is self-hosted, so if the host dies and no export exists, every other credential is unrecoverable)
+- [ ] Vaultwarden server data directory snapshotted weekly (restic/borg to off-host storage)
 - [ ] n8n encryption key stored in multiple safe places
 - [ ] Domain set to auto-renew
 - [ ] SSL certs auto-renew (Cloudflare handles)
@@ -26,7 +27,7 @@ When things break. Read top to bottom before an incident, not during.
    - Pause any active paid ads
 
 2. **Stand up Payhip mirror (4 hours):**
-   - Log into Payhip (credentials in PM)
+   - Log into Payhip (credentials in Vaultwarden)
    - Upload every product from Google Drive `backups/str-platform/latest/products/`
    - Use descriptions from `copy/etsy-listings/` committed in this repo
    - Set prices per `infrastructure/airtable/schema.md` (Price — Payhip column)
@@ -34,7 +35,7 @@ When things break. Read top to bottom before an incident, not during.
 3. **Redirect traffic (2 hours):**
    - Cloudflare DNS: point `thestrledger.com` A record to Payhip's custom-domain instructions
    - Update Etsy listing Lite upgrade CTA to Payhip URL temporarily
-   - Update Pinterest pin destinations via Tailwind bulk edit
+   - Update Pinterest pin destinations via Creasquare bulk-edit if available, else manually via Pinterest UI (Pinterest native scheduler has no bulk-edit — if pin volume >30 and Creasquare's bulk tools are insufficient, queue an n8n workflow against the Pinterest API)
 
 4. **Restore email (2 hours):**
    - Import latest subscriber CSV from `backups/str-platform/latest/is-subscribers.csv` into Kit (or ConvertKit)
@@ -134,6 +135,44 @@ When things break. Read top to bottom before an incident, not during.
 5. **Communicate to buyers** if any purchases are in limbo — offer direct refund via alternative method
 
 **Why this happens:** digital products + growing sales can trigger automated risk reviews. Usually resolved with ID + bank verification. Avoid by keeping business info up to date, maintaining <1% dispute rate.
+
+## Scenario 6: Vaultwarden host outage or vault corruption
+
+**Why this scenario matters:** Vaultwarden centralizes every other credential. If it goes down before you log into Cloudflare, Stripe, the VPS, or Etsy, the entire stack is frozen until it's back. This is the highest-leverage DR scenario — drill it annually before any of the others.
+
+**Recognition signals:**
+- Can't reach the Vaultwarden URL
+- Bitwarden client (desktop/mobile/browser extension) shows "server unreachable"
+- Vault decrypts but entries are missing or corrupt
+- Host VPS shows signs of compromise (see Scenario 3)
+
+**Response:**
+
+1. **First 15 minutes — preserve the cache.** Bitwarden clients cache the vault locally. Do NOT log out of any logged-in client until you've recovered access elsewhere — the cache is your working copy until the server is back.
+
+2. **Export from cache (30 min):** from an already-logged-in Bitwarden client, Tools → Export Vault → encrypted JSON → save somewhere that is NOT the dying Vaultwarden host.
+
+3. **Restore from monthly export** (if no logged-in cache exists):
+   - Decrypt the latest encrypted vault export from Google Drive `backups/vaultwarden/` using the offline-stored export password
+   - Spin up a fresh Vaultwarden instance (docker-compose on a clean VPS, ~20 min from scratch)
+   - Import the decrypted vault
+   - Update `ops/credentials-inventory.md` with the new Vaultwarden URL and the date
+
+4. **If both cache and export are gone (worst case):** walk every row in `ops/credentials-inventory.md` and run each provider's account-recovery flow (email + 2FA backup codes + photo ID where required). Rebuild the vault entry-by-entry. This is why 2FA backup codes MUST exist in a second offline location — printed, safe deposit, or offline-encrypted USB.
+
+5. **Investigate root cause:**
+   - If host was compromised: assume all credentials that were ever in the vault are exposed. Rotate every high-value key (Stripe restricted keys, Airtable PAT, IS API key, n8n encryption key, domain registrar access).
+   - If hardware/disk failure: verify backup frequency and off-host rotation before restoring.
+
+**Recovery time objective:** 2 hours (cache available) → 24 hours (total loss, restored from monthly export) → 1+ week (worst case, account-recovery flow on every provider).
+
+**Prevention:**
+- Monthly encrypted vault export to Google Drive (see Prevention checklist above)
+- Weekly rsync / restic / borg snapshot of the Vaultwarden data directory to separate host
+- 2FA backup codes printed and stored offline for at minimum: Cloudflare, Stripe, Google Workspace, domain registrar, the Vaultwarden host provider itself
+- Consider hosting Vaultwarden on a different VPS than n8n so a single-host failure doesn't take both down — correlated-failure risk is real if they share hardware
+
+---
 
 ## Annual disaster recovery drill
 

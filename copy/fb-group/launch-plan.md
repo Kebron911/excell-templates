@@ -5,7 +5,7 @@
 - **Name:** `The STR Ledger` Inner Circle (default — can change after A1 brand lock). Alternatives: "STR Systems Society", "Hosts Who Host Like a Business"
 - **Type:** Private + Visible (so people can find it in search, but content is members-only — builds scarcity)
 - **URL slug:** facebook.com/groups/`<slug>` (use a clean slug without numbers — more memorable)
-- **Cover photo:** Canva 820×312px, brand colors, one clear value prop line
+- **Cover photo:** Vista Create 820×312px, brand colors, one clear value prop line
 
 ## Rules (set in group settings)
 

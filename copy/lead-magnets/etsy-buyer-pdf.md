@@ -1,6 +1,6 @@
 # Etsy Companion PDF — Content
 
-Single-page design in Canva, delivered as a second file with every Etsy digital download.
+Single-page design in Vista Create, delivered as a second file with every Etsy digital download.
 
 > Fill in `<template name>`, `The STR Ledger`, and `thestrledger.com` after Task A1 completes.
 
@@ -29,13 +29,13 @@ Or grab our free **"47 Airbnb Tax Deductions Most Hosts Miss"** guide — the PD
 
 ---
 
-## Canva design notes
+## Vista Create design notes
 
 - Use the 1:1.414 ISO A4 page ratio (works for print + digital)
 - Primary brand color on headline and CTA block
 - Secondary color for QR background
 - Generous whitespace — this is a "thanks + CTA" not a dense sales page
-- QR code: use free Canva QR element, point to `https://thestrledger.com/47`
+- QR code: use free Vista Create QR element, point to `https://thestrledger.com/47`
 - Export as **PDF (Print) — high quality** so the QR code scans reliably
 
 ## Save location

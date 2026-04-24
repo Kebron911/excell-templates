@@ -294,7 +294,7 @@ If you'd like to receive ongoing Airbnb tax systems, property-by-property P&L gu
 
 - **SEO title:** 47 Airbnb Tax Deductions Most Hosts Miss (2026 Guide)
 - **Meta description:** The complete list of 47 Airbnb and VRBO tax deductions — from mortgage interest to cost segregation. Most hosts miss $3K-$15K per year. Free printable checklist.
-- **Featured image:** Canva 1200×630, brand colors, headline "47 Tax Deductions Most Hosts Miss"
+- **Featured image:** Vista Create 1200×630, brand colors, headline "47 Tax Deductions Most Hosts Miss"
 - **Slug:** `airbnb-tax-deductions`
 - **Tags:** airbnb, vrbo, short-term-rental, tax-deductions, schedule-e, depreciation, str-tax
 - **Internal links used:** /47, /products/mileage-log, /products/schedule-e, /subscribe (plus cross-post links to blog posts 2 and 3 when they go live)

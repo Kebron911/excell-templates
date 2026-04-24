@@ -1,6 +1,6 @@
 # Pinterest — First 30 Pins Catalog
 
-**Purpose:** 30 pins seeded from blog posts 1–3 and the `/47` lead magnet page. Scheduled via Tailwind, 1 pin/day for 30 days.
+**Purpose:** 30 pins seeded from blog posts 1–3 and the `/47` lead magnet page. Scheduled via Creasquare (Pinterest native scheduler as fallback), 1 pin/day for 30 days. (Tailwind deferred to Month 3 re-eval.)
 
 **Design spec:**
 - Dimensions: 1000 × 1500 (Pinterest standard vertical)
@@ -17,7 +17,7 @@
 - **Question:** provocative question headline
 - **Before/after:** spreadsheet preview with overlay
 
-**Canvas for each pin:** Canva template from Task A4 (the Pinterest pin master). Duplicate 30×, customize each.
+**Canvas for each pin:** Vista Create template from Task A4 (the Pinterest pin master). Duplicate 30×, customize each.
 
 ---
 
@@ -226,16 +226,22 @@ For hosts who want to move past the "side hustle" mindset. Systems, SOPs, financ
 
 ## Scheduling notes
 
-**Tailwind setup:**
-- Connect Pinterest Business account
-- Upload all 30 pins
-- Set "SmartSchedule" — Tailwind picks optimal times per your audience's activity patterns
-- 1 pin/day for 30 days (don't batch more than that — looks spammy)
+**Primary — Creasquare setup (Months 1–3):**
+- Pinterest Business is connected to Creasquare (see Task 3.2 in `ops/user-manual-todo.md`)
+- Upload all 30 PNGs to Creasquare's media library
+- Schedule each pin: title, description, destination URL, target board, publish time
+- Distribute 1 pin/day across 30 days, clustered in Sarah's active hours (US evenings 7–10pm local + weekend mornings)
+- Review weekly in Pinterest Business analytics dashboard (impressions, saves, outbound clicks) — Creasquare's analytics are secondary; Pinterest's own analytics are authoritative
+
+**Fallback — Pinterest native scheduler** (use only if Creasquare's Pinterest integration is missing a feature):
+- Pinterest's free built-in scheduler queues ≤100 pins at a time, 14 days out per pin
+- For 30 pins: queue in two waves (14 on Day 1 for days 2–14, re-queue 14 on Day 13 for days 15–27, queue last 2 on Day 27)
+- Calendar reminder every other Monday to re-queue the next wave
 
 **Repinning strategy (Phase 2):**
 - Best-performing pins (top 10% by saves) → duplicate with 3 new headline variants
 - Worst-performing pins (bottom 10% by impressions) → archive, don't re-use
-- Review weekly in Tailwind dashboard
+- **Tailwind re-eval at Month 3:** if Pinterest is driving ≥100 outbound clicks/mo OR ≥5 email signups/mo AND Creasquare's Pinterest features feel thin (missing board targeting, rich pins, SmartLoop-style recycling), activate Tailwind ($15/mo) for SmartLoop + Tribes + best-time analytics. If Pinterest is flat OR Creasquare covers the needs, stay on current stack.
 
 **Measurement targets:**
 - Impressions: ≥ 10K per pin over first 90 days
