@@ -24,11 +24,12 @@ Ship v2.1 as a **hybrid pipeline**: the buyer fills the xlsx as they do today, t
 2. The v2 cross-sheet preview formulas on Review & Print reference cells that don't exist in the input tabs — a latent bug that only Local Guide escaped because of its flat table layout. v2.1 replaces the whole preview layer rather than patching it.
 3. Customization (logos, themes, palettes) is structurally impossible inside Excel but trivial in HTML/CSS.
 
-**Three things land in v2.1:**
+**Four things land in v2.1:**
 
 - **Excel bug fix (Option B):** reflow all 8 input tabs so inputs land at `B5:Bn` sequentially, unblocking the Start-tab progress dashboard and any future in-Excel references.
-- **Launch tab:** Review & Print tab is renamed **Launch**; the 3-page preview is removed; a single big pseudo-button opens `./welcome-book-renderer.html` in the buyer's browser.
+- **Launch tab:** Review & Print tab is renamed **Launch**; the 3-page preview is removed; a single big pseudo-button opens `welcome-book-renderer.html` in the buyer's browser.
 - **HTML renderer:** single-file app bundled in the zip. 3 themes × 4 palettes × optional logo = 12 branded variants, all produced at Ctrl+P.
+- **Tap-to-action QR codes:** WiFi (auto-join), host phone (tap-to-call), address (open in Maps). Three independent toggles in the sidebar, defaulted on. No hosting required — standard QR payload formats that every modern phone camera reads natively.
 
 **Positioning:** v2 sold "a spreadsheet that prints to PDF." v2.1 sells "a spreadsheet that renders a branded guest book." Same inputs, same delivery format (zip download, offline use), dramatically higher perceived value.
 
@@ -130,7 +131,8 @@ One self-contained file. No external fetches at runtime. Ships in the Etsy zip a
 <body>
   <div id="app"></div>
   <script>/* ~600KB: SheetJS xlsx.full.min.js inlined */</script>
-  <script>/* ~30KB: renderer app — parse, theme, preview, print */</script>
+  <script>/* ~20KB: qrcode.js inlined (MIT, for §4.4 tap-to-action QRs) */</script>
+  <script>/* ~30KB: renderer app — parse, theme, preview, QRs, print */</script>
 </body>
 </html>
 ```
@@ -164,7 +166,7 @@ Dropping a file or clicking the demo button advances to the Preview state.
 
 Two-column layout:
 
-- **Left sidebar (280px):** customization panel — theme picker (3 tier thumbnails), palette picker (4 colored swatches), logo drop-zone, property-name confirmation, print button.
+- **Left sidebar (280px):** customization panel — theme picker (3 tier thumbnails), palette picker (4 colored swatches), logo drop-zone, QR toggles (WiFi · phone · address), property-name confirmation, print button.
 - **Right canvas (rest):** the 3-page PDF preview at 1:1 scale, scrollable. Live-updates as the buyer changes customizations.
 
 Print media query hides the sidebar entirely; only the right canvas pages print.
@@ -210,6 +212,33 @@ Palette picker: 4 colored dots in sidebar. Clicking swaps all tokens. Contrast r
 Sidebar drop-zone for PNG/SVG. Sits in the top-left of every page's hero/header. Max height 60px printed; auto-width. Removable via an × button. Without a logo, the header shows a text-only property-name lockup.
 
 **SVG allowlist:** parse and sanitize uploaded SVG — strip `<script>`, event handlers, external references. Done client-side.
+
+### 4.4 — Tap-to-action QR codes (Lean tier)
+
+The renderer generates up to three small QR codes from xlsx data and prints them inline at the relevant spots:
+
+| QR | Payload format | Location in PDF |
+|---|---|---|
+| **WiFi** | `WIFI:T:WPA;S:{ssid};P:{password};;` | Page 1, beside the WiFi block. Guest scans → phone offers to join. |
+| **Host phone** | `tel:{host_phone}` | Page 3, beside the Emergency block. Guest scans → dialer opens. |
+| **Address** | `geo:0,0?q={url_encoded_address}` | Page 1, beside the Address block. Guest scans → Maps opens. |
+
+**Three independent toggles** in the sidebar, all defaulted on:
+
+```
+QR codes:
+  [✓] WiFi  — "scan to connect"
+  [✓] Host phone — "tap to call"
+  [✓] Address — "open in Maps"
+```
+
+Rationale for independence: privacy (some hosts don't want their cell phone QR-scannable), address-quality (rural cabins), and hosts should be able to turn these off without losing the others.
+
+**Implementation:** `qrcode.js` (MIT, ~20KB minified) inlined in the renderer bundle. Rendered as `<canvas>` at render time, converted to vector SVG for print sharpness. Each QR prints at ~0.8in square — tested to be scannable from 18in with a standard phone camera at 300dpi print.
+
+**If the underlying input is empty** (e.g., buyer hasn't filled `'WiFi + Tech'!B5`), the corresponding toggle is greyed-out and the QR is not rendered even if toggled on.
+
+**Logo vs QR conflict:** logo lives in header; QR lives inline with data blocks. No layout conflict.
 
 ---
 
@@ -357,7 +386,8 @@ Scope discipline: v2.1 ships GST-001 only. The core/framework shape is chosen wi
 - [ ] Theme picker cycles Magazine → Editorial → Hotel; preview updates live
 - [ ] Palette picker cycles Harbor → Cabin → Terracotta → Charcoal; preview updates live
 - [ ] Logo drop-zone accepts PNG + SVG; uploaded logo appears in page header; × removes it; SVG sanitizer strips scripts/event handlers
-- [ ] Ctrl+P produces a 3-page letter-portrait PDF with sidebar/UI hidden, fonts embedded, images preserved
+- [ ] QR toggles (WiFi · phone · address) default on; each renders a scannable QR at ~0.8in square using the correct standard format; toggling off removes it; if the input cell is empty the toggle is greyed out and the QR is suppressed
+- [ ] Ctrl+P produces a 3-page letter-portrait PDF with sidebar/UI hidden, fonts embedded, images preserved, QRs print sharp
 - [ ] `Excel Launch tab → Open Your Welcome Book` button opens `welcome-book-renderer.html` in the default browser (tested on Windows + macOS with the zip extracted)
 - [ ] `GST-001-sample-output.pdf` regenerated from the renderer (Tier 2 + Harbor + no logo)
 - [ ] `GST-001-how-to.pdf` updated with the new 2-step flow + screenshots
@@ -369,7 +399,8 @@ Scope discipline: v2.1 ships GST-001 only. The core/framework shape is chosen wi
 
 - Cover photo upload or preset picker — phase 2
 - Custom accent color picker — cut (preset palettes cover 90% of cases)
-- Hosted version at `thestrledger.com/welcome-book` — add later if lead-magnet value is wanted
+- Full web mirror behind a QR code (hosted welcome-book page at `thestrledger.com/p/{slug}`) — v3 if traffic justifies infra; v2.1 uses the Lean tap-to-action QRs only (§4.4)
+- Hosted version of the renderer itself at `thestrledger.com/welcome-book` — add later if lead-magnet value is wanted
 - Themed renderers for OPS-001 / TAX-001 / TAX-002 / TAX-003 — separate project once v2.1 proves the pattern
 - Internationalization / non-letter paper sizes — not needed for US Etsy market
 
