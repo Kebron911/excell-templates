@@ -206,10 +206,228 @@ def _sample_or_blank(variant, value):
 # --- Per-tab builders (stubs; filled in Tasks 3-8) ---
 
 def build_start_tab(wb, variant):
-    """Tab 0 — Start (hero + progress). Implemented in Task 3."""
+    """Tab 0 — Start.
+
+    Zones:
+      1. Hero band (rows 1-8, navy)
+      2. What you'll build — 3-card grid (rows 10-20)
+      3. Quick Start card (rows 22-28, parchment-alt)
+      4. Get Started full-width button (rows 30-33)
+      5. Progress dashboard (rows 35-46)
+      6. Footer (rows 48-52)
+    """
     ws = wb.active
     ws.title = TAB_NAMES[0]
     ws.sheet_properties.tabColor = COLOR_PRIMARY
+
+    # Columns A:L = 8 units each
+    set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
+
+    # --- ZONE 1: HERO BAND (rows 1-8, navy) ---
+    navy_fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
+    for r in range(1, 9):
+        ws.row_dimensions[r].height = 22
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = navy_fill
+
+    # Row 2: small brand name top-left
+    ws.merge_cells("A2:F2")
+    c = ws["A2"]
+    c.value = f"{BRAND_NAME}"
+    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
+
+    # Row 4: big title
+    ws.merge_cells("A4:L4")
+    c = ws["A4"]
+    c.value = "Welcome Book"
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[4].height = 48
+
+    # Row 5: subtitle (campaign tagline for guest-experience SKUs)
+    ws.merge_cells("A5:L5")
+    c = ws["A5"]
+    c.value = "Welcome books that earn 5-stars."
+    c.font = Font(name=FONT_HEAD, size=14, italic=True, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+
+    # Row 7: tiny SKU tag
+    ws.merge_cells("A7:L7")
+    c = ws["A7"]
+    c.value = "GST-001 · v2.0"
+    c.font = Font(name=FONT_MONO, size=9, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+
+    # --- ZONE 2: WHAT YOU'LL BUILD (rows 10-20, parchment) ---
+    parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    for r in range(10, 21):
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = parchment_fill
+
+    # Row 11: section heading
+    ws.merge_cells("A11:L11")
+    c = ws["A11"]
+    c.value = "What you'll build in the next 15 minutes"
+    c.font = Font(name=FONT_HEAD, size=16, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[11].height = 28
+
+    # Rows 13-18: 3 cards, cols A-D / E-H / I-L
+    cards = [
+        ("📖 PRINT", "Spiral-bound binder for the kitchen counter."),
+        ("📱 QR CODE", "Scan on arrival — view on the guest's phone."),
+        ("✉ EMAIL PDF", "Send ahead of check-in. One page, every tab."),
+    ]
+    col_groups = [("A", "D"), ("E", "H"), ("I", "L")]
+    for idx, (title, desc) in enumerate(cards):
+        first, last = col_groups[idx]
+        # Card header (row 13)
+        ws.merge_cells(f"{first}13:{last}13")
+        c = ws[f"{first}13"]
+        c.value = title
+        c.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_PRIMARY)
+        c.alignment = Alignment(horizontal="center", vertical="center")
+        c.border = Border(top=Side(style="medium", color=COLOR_ACCENT))
+        # Card body (rows 14-18)
+        ws.merge_cells(f"{first}14:{last}18")
+        c = ws[f"{first}14"]
+        c.value = desc
+        c.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
+        c.alignment = Alignment(horizontal="center", vertical="center",
+                                 wrap_text=True)
+    for r in range(13, 19):
+        ws.row_dimensions[r].height = 22
+
+    # --- ZONE 3: QUICK START CARD (rows 22-28) ---
+    qs_fill = PatternFill("solid", fgColor=COLOR_PARCHMENT_ALT)
+    for r in range(22, 29):
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = qs_fill
+
+    ws.merge_cells("A23:L23")
+    c = ws["A23"]
+    c.value = "Quick Start — be done in 5 minutes"
+    c.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[23].height = 24
+
+    quickstart_items = [
+        "① Property name + host phone",
+        "② WiFi network + password",
+        "③ Trash pickup day",
+        "④ Checkout time",
+        "⑤ Hospital + 911 note",
+    ]
+    for i, item in enumerate(quickstart_items):
+        row = 24 + i if i < 3 else 24 + (i - 3)  # 2 cols of items
+        col = "B" if i < 3 else "H"
+        col_end = "F" if i < 3 else "L"
+        ws.merge_cells(f"{col}{row}:{col_end}{row}")
+        c = ws[f"{col}{row}"]
+        c.value = item
+        c.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
+        c.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+
+    # --- ZONE 4: GET STARTED BUTTON (rows 30-33) ---
+    pseudo_button(ws, "A30", "L33",
+                   "GET STARTED — FILL YOUR PROPERTY INFO  →",
+                   "'Property'!A5", variant="primary")
+    for r in range(30, 34):
+        ws.row_dimensions[r].height = 22
+
+    # --- ZONE 5: PROGRESS DASHBOARD (rows 35-46) ---
+    ws.merge_cells("A36:F36")
+    c = ws["A36"]
+    c.value = "Progress:"
+    c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+
+    # Overall completion % formula
+    ws.merge_cells("G36:L36")
+    c = ws["G36"]
+    # Build COUNTA sum over all 8 input-tab ranges
+    ranges = [
+        "'Property'!B5:B12",    # 8 fields
+        "'Arrival'!B5:B11",     # 7 fields
+        "'WiFi + Tech'!B5:B12", # 8 fields
+        "'House Rules'!B5:B11", # 7 fields
+        "'Local Guide'!B6:E25", # 80 cells (20 rows × 4 cols)
+        "'Trash'!B5:B11",       # 7 fields
+        "'Departure'!B5:B10",   # 6 fields
+        "'Emergency'!B5:B13",   # 9 fields
+    ]
+    counta_sum = " + ".join(f"COUNTA({r})" for r in ranges)
+    c.value = f"=TEXT(({counta_sum})/{TOTAL_INPUTS}, \"0%\") & \" complete\""
+    c.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="right", vertical="center", indent=1)
+
+    # Per-section status rows 38-45
+    section_rows = [
+        ("① Property Info",   "Property",    "B5:B12",   8),
+        ("② Arrival",          "Arrival",     "B5:B11",   7),
+        ("③ WiFi + Tech",      "WiFi + Tech", "B5:B12",   8),
+        ("④ House Rules",      "House Rules", "B5:B11",   7),
+        ("⑤ Local Guide",      "Local Guide", "B6:E25",  80),
+        ("⑥ Trash",            "Trash",       "B5:B11",   7),
+        ("⑦ Departure",        "Departure",   "B5:B10",   6),
+        ("⑧ Emergency",        "Emergency",   "B5:B13",   9),
+    ]
+    for i, (label, tab, range_, total) in enumerate(section_rows):
+        r = 38 + i
+        ws.row_dimensions[r].height = 18
+        # Label (cols A-F)
+        ws.merge_cells(f"A{r}:F{r}")
+        c = ws[f"A{r}"]
+        c.value = label
+        c.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
+        c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
+        # Status (cols G-J) — formula
+        ws.merge_cells(f"G{r}:J{r}")
+        c = ws[f"G{r}"]
+        c.value = (
+            f'=IF(COUNTA(\'{tab}\'!{range_})={total},"✅ Done",'
+            f'IF(COUNTA(\'{tab}\'!{range_})=0,"⏳ Empty",'
+            f'"⏳ "&COUNTA(\'{tab}\'!{range_})&" of {total}"))'
+        )
+        c.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
+        c.alignment = Alignment(horizontal="left", vertical="center")
+        # Arrow hyperlink (cols K-L)
+        ws.merge_cells(f"K{r}:L{r}")
+        c = ws[f"K{r}"]
+        c.value = f'=HYPERLINK("#\'{tab}\'!A5","→ go")'
+        c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_ACCENT)
+        c.alignment = Alignment(horizontal="right", vertical="center", indent=1)
+
+    # --- ZONE 6: FOOTER (rows 48-52) ---
+    # Row 49: gold thin-rule divider
+    gold_side = Side(style="thin", color=COLOR_ACCENT)
+    for c in range(1, 13):
+        ws.cell(row=49, column=c).border = Border(top=gold_side)
+
+    # Row 50: contact
+    ws.merge_cells("A50:L50")
+    c = ws["A50"]
+    c.value = f"Questions? {BRAND_EMAIL}"
+    c.font = Font(name=FONT_BODY, size=10, color=COLOR_MUTED)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+
+    # Row 51: version + updates promise
+    ws.merge_cells("A51:L51")
+    c = ws["A51"]
+    c.value = "Free updates forever · v2.0 · Released 2026-05"
+    c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+
+    # Print area: Start tab can be printed as cover sheet
+    ws.print_area = "A1:L52"
+    ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
+    ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
+    ws.page_setup.fitToPage = True
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToHeight = 1
+    ws.page_setup.fitToWidth = 1
+    ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
 def build_property_tab(wb, variant):
