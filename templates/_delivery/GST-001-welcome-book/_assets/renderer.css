@@ -134,3 +134,32 @@ pre#debug-dump {
 .palette-dot[data-palette="cabin"]      { background: #2D5A3D; }
 .palette-dot[data-palette="terracotta"] { background: #7A3B2E; }
 .palette-dot[data-palette="charcoal"]   { background: #2A2A2A; }
+
+/* Theme picker UI */
+.theme-picker { display: flex; gap: 6px; }
+.theme-card {
+  flex: 1; cursor: pointer; text-align: center;
+  border: 2px solid transparent; border-radius: 4px;
+  padding: 4px; background: #fafafa;
+}
+.theme-card.selected { border-color: var(--accent); }
+.theme-thumb {
+  width: 100%; height: 60px; background: #eee;
+  margin-bottom: 4px; border-radius: 2px;
+}
+.theme-thumb-magazine {
+  background: linear-gradient(to bottom,
+    var(--primary) 40%, var(--bg) 40%);
+}
+.theme-thumb-editorial {
+  background: var(--bg);
+  border: 1px solid var(--accent);
+}
+.theme-thumb-hotel {
+  background: linear-gradient(to bottom,
+    var(--primary) 70%, var(--bg) 70%);
+}
+.theme-label {
+  font-size: 10px; font-family: "Inter", sans-serif;
+  color: var(--primary); font-weight: 500;
+}

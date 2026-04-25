@@ -1,0 +1,106 @@
+/* Tier 3 — Hotel Welcome Packet. Engraved, ornamental, full-bleed. */
+
+.theme-hotel .page {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  color: var(--ink); background: var(--bg); padding: 0;
+  position: relative;
+}
+
+.theme-hotel .cover {
+  height: 3in; position: relative; overflow: hidden;
+  background: linear-gradient(180deg, var(--primary), color-mix(in oklab, var(--primary), black 30%));
+  color: var(--bg);
+}
+.theme-hotel .cover::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 70% 30%,
+    color-mix(in oklab, var(--accent), transparent 75%), transparent 60%);
+}
+.theme-hotel .cover-mark {
+  position: absolute; top: 0.35in; left: 0; right: 0; text-align: center;
+  font-family: "JetBrains Mono", monospace; font-size: 8px;
+  letter-spacing: 0.4em; color: var(--accent);
+}
+.theme-hotel .cover-mark::before { content: "◆ "; }
+.theme-hotel .cover-mark::after { content: " ◆"; }
+.theme-hotel .cover-body {
+  position: absolute; top: 50%; left: 0; right: 0;
+  transform: translateY(-50%); text-align: center;
+}
+.theme-hotel .cover-pre {
+  font-style: italic; font-size: 12px; color: var(--accent);
+}
+.theme-hotel .cover-name {
+  font-size: 44px; font-weight: 500; color: var(--bg);
+  margin: 6px 0; line-height: 1;
+}
+.theme-hotel .cover-rule {
+  height: 1px; background: var(--accent); width: 60px; margin: 10px auto;
+}
+.theme-hotel .cover-tag {
+  font-family: "JetBrains Mono", monospace; font-size: 9px;
+  letter-spacing: 0.3em; color: var(--accent);
+}
+.theme-hotel .cover-logo {
+  position: absolute; bottom: 0.2in; left: 0; right: 0; text-align: center;
+}
+.theme-hotel .cover-logo img { height: 28px; filter: brightness(0) invert(1); }
+
+.theme-hotel .page-inner { padding: 0.4in 0.6in; }
+
+.theme-hotel h3.section {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500; font-size: 22px; color: var(--primary);
+  text-align: center; letter-spacing: 0.02em;
+  margin: 0.2in 0 0.05in 0; position: relative;
+}
+.theme-hotel h3.section::before,
+.theme-hotel h3.section::after {
+  content: "·"; color: var(--accent); margin: 0 0.15in;
+  font-size: 22px; vertical-align: middle;
+}
+.theme-hotel .subhead {
+  text-align: center; font-size: 8px; letter-spacing: 0.3em;
+  font-family: "JetBrains Mono", monospace; color: var(--accent);
+  margin-bottom: 0.1in;
+}
+
+.theme-hotel dl.facts { margin: 0.1in 0; font-size: 11px;
+                         line-height: 1.7; text-align: center; }
+.theme-hotel dl.facts dt {
+  font-size: 8px; letter-spacing: 0.2em; color: var(--accent);
+  font-family: "JetBrains Mono", monospace; margin-top: 6px;
+}
+.theme-hotel dl.facts dd { margin: 2px 0 6px 0; font-size: 13px; }
+
+.theme-hotel .wifi-engraved {
+  border: 1px solid var(--accent); border-width: 1px 0;
+  padding: 0.15in 0; margin: 0.15in 0; text-align: center;
+}
+.theme-hotel .wifi-engraved .pre {
+  font-family: "JetBrains Mono", monospace; font-size: 8px;
+  letter-spacing: 0.3em; color: var(--accent);
+}
+.theme-hotel .wifi-engraved .val {
+  font-size: 18px; font-weight: 500; color: var(--primary);
+  margin-top: 4px;
+}
+
+.theme-hotel table.local {
+  width: 100%; border-collapse: collapse; font-size: 10.5px;
+}
+.theme-hotel table.local td {
+  padding: 6px 4px; border-bottom: 1px dotted var(--accent); vertical-align: top;
+}
+.theme-hotel table.local td.cat {
+  font-weight: 500; color: var(--primary); width: 22%;
+}
+
+.theme-hotel .emergency {
+  border: 2px solid #a33; padding: 0.15in; margin-top: 0.15in;
+  text-align: center; font-size: 11.5px;
+}
+.theme-hotel .emergency h4 {
+  margin: 0 0 6px 0; color: #a33; font-size: 18px;
+  letter-spacing: 0.05em;
+}

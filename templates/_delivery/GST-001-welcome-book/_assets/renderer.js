@@ -188,9 +188,31 @@ function renderWorkspace() {
       setState({ data: null, dataSource: null })
     );
     wirePalettePicker(el.querySelector("#palette-picker"));
+    wireThemePicker(el.querySelector("#theme-picker"));
     renderPages();
   }, 0);
   return el;
+}
+
+function wireThemePicker(el) {
+  const themes = [
+    { id: "magazine", label: "Magazine", hint: "Navy hero + cards" },
+    { id: "editorial", label: "Editorial", hint: "Typography only" },
+    { id: "hotel",     label: "Hotel", hint: "Foil-stamp hero" },
+  ];
+  el.className = "picker theme-picker";
+  el.innerHTML = themes.map(t =>
+    `<div class="theme-card${appState.theme===t.id?' selected':''}"
+          data-theme="${t.id}">
+       <div class="theme-thumb theme-thumb-${t.id}"></div>
+       <div class="theme-label">${t.label}</div>
+     </div>`
+  ).join("");
+  el.querySelectorAll(".theme-card").forEach(card =>
+    card.addEventListener("click", () =>
+      setState({ theme: card.dataset.theme })
+    )
+  );
 }
 
 function wirePalettePicker(el) {
@@ -221,16 +243,175 @@ function renderPages() {
   fn(appState.data, root);
 }
 
-// Theme stubs — replaced in Task 9
 function renderEditorialTheme(d, root) {
-  root.innerHTML = `<section class="page"><div class="page-placeholder">
-    Editorial theme — Task 9
-  </div></section>`;
+  const P = d.Property || {};
+  const A = d.Arrival || {};
+  const W = d["WiFi + Tech"] || {};
+  const R = d["House Rules"] || {};
+  const T = d.Trash || {};
+  const D = d.Departure || {};
+  const E = d.Emergency || {};
+  const L = (d["Local Guide"] || []).filter(r => r.name && String(r.name).trim()).slice(0, 10);
+
+  root.innerHTML = `
+  <section class="page" data-page="1">
+    <div class="masthead">
+      <div class="sku">THE STR LEDGER · GST-001 · GUEST EDITION</div>
+      <div class="title">Welcome to ${orDash(P.B8)}.</div>
+      <div class="sub">A few notes to make your stay effortless.</div>
+    </div>
+
+    <h3 class="section">Host &amp; Stay</h3>
+    <dl class="facts">
+      <dt>Host:</dt><dd>${orDash(P.B9)} · ${orDash(P.B10)}</dd>
+      <dt>Check-in:</dt><dd>${orDash(A.B13)}</dd>
+      <dt>Check-out:</dt><dd>${orDash(D.B8)}</dd>
+    </dl>
+
+    <h3 class="section">Arrival</h3>
+    <dl class="facts">
+      <dt>Address:</dt><dd>${orDash(A.B8)}</dd>
+      <dt>Entry:</dt><dd>${orDash(A.B9)}</dd>
+      <dt>Door / lock code:</dt><dd>${orDash(A.B10)}</dd>
+      <dt>Parking:</dt><dd>${orDash(A.B11)}</dd>
+    </dl>
+
+    <div class="wifi-callout">
+      <div><span class="big">WiFi:</span> ${orDash(W.B8)}</div>
+      <div><span class="big">Password:</span> ${orDash(W.B9)}</div>
+    </div>
+  </section>
+
+  <section class="page" data-page="2">
+    <h3 class="section">House Rules</h3>
+    <dl class="facts">
+      <dt>Quiet hours:</dt><dd>${orDash(R.B8)}</dd>
+      <dt>Max guests:</dt><dd>${orDash(R.B9)}</dd>
+      <dt>Smoking:</dt><dd>${orDash(R.B10)}</dd>
+      <dt>Pets:</dt><dd>${orDash(R.B11)}</dd>
+      <dt>Events:</dt><dd>${orDash(R.B12)}</dd>
+      <dt>Shoes:</dt><dd>${orDash(R.B13)}</dd>
+    </dl>
+
+    <h3 class="section">Local Guide — Top 10</h3>
+    <table class="local">
+      ${L.map(r => `<tr>
+        <td class="cat">${esc(r.cat)}</td>
+        <td>${esc(r.name)}</td>
+        <td>${orDash(r.dist)}</td>
+        <td>${orDash(r.phone)}</td>
+      </tr>`).join("")}
+    </table>
+  </section>
+
+  <section class="page" data-page="3">
+    <h3 class="section">Trash &amp; Maintenance</h3>
+    <dl class="facts">
+      <dt>Pickup day:</dt><dd>${orDash(T.B8)}</dd>
+      <dt>Bin location:</dt><dd>${orDash(T.B9)}</dd>
+      <dt>Sorting:</dt><dd>${orDash(T.B11)}</dd>
+    </dl>
+
+    <h3 class="section">Checkout</h3>
+    <dl class="facts">
+      <dt>Time:</dt><dd>${orDash(D.B8)}</dd>
+      <dt>Linens:</dt><dd>${orDash(D.B10)}</dd>
+      <dt>Key return:</dt><dd>${orDash(D.B13)}</dd>
+    </dl>
+
+    <div class="emergency">
+      <h4>Emergency — 911 first</h4>
+      <p>Hospital: ${orDash(E.B8)} · ${orDash(E.B9)}</p>
+      <p>Urgent care: ${orDash(E.B11)} · ${orDash(E.B12)}</p>
+      <p>Host phone: ${orDash(P.B10)}</p>
+      <p>Poison: ${orDash(E.B14)}</p>
+    </div>
+  </section>
+  `;
 }
+
 function renderHotelTheme(d, root) {
-  root.innerHTML = `<section class="page"><div class="page-placeholder">
-    Hotel theme — Task 9
-  </div></section>`;
+  const P = d.Property || {};
+  const A = d.Arrival || {};
+  const W = d["WiFi + Tech"] || {};
+  const R = d["House Rules"] || {};
+  const T = d.Trash || {};
+  const D = d.Departure || {};
+  const E = d.Emergency || {};
+  const L = (d["Local Guide"] || []).filter(r => r.name && String(r.name).trim()).slice(0, 10);
+
+  root.innerHTML = `
+  <section class="page" data-page="1">
+    <div class="cover">
+      <div class="cover-mark">THE STR LEDGER</div>
+      <div class="cover-body">
+        <div class="cover-pre">The house at</div>
+        <div class="cover-name">${orDash(P.B8)}</div>
+        <div class="cover-rule"></div>
+        <div class="cover-tag">GUEST EDITION · 2026</div>
+      </div>
+    </div>
+    <div class="page-inner">
+      <div class="subhead">WELCOME</div>
+      <h3 class="section">A few notes</h3>
+      <dl class="facts">
+        <dt>Host</dt><dd>${orDash(P.B9)} · ${orDash(P.B10)}</dd>
+        <dt>Arrival</dt><dd>${orDash(A.B8)}</dd>
+        <dt>Check-in / Check-out</dt><dd>${orDash(A.B13)} → ${orDash(D.B8)}</dd>
+        <dt>Parking</dt><dd>${orDash(A.B11)}</dd>
+      </dl>
+      <div class="wifi-engraved">
+        <div class="pre">WIFI</div>
+        <div class="val">${orDash(W.B8)} &nbsp; · &nbsp; ${orDash(W.B9)}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" data-page="2">
+    <div class="page-inner">
+      <div class="subhead">HOUSE</div>
+      <h3 class="section">Rules of the Home</h3>
+      <dl class="facts">
+        <dt>Quiet Hours</dt><dd>${orDash(R.B8)}</dd>
+        <dt>Max Guests</dt><dd>${orDash(R.B9)}</dd>
+        <dt>Smoking</dt><dd>${orDash(R.B10)}</dd>
+        <dt>Pets</dt><dd>${orDash(R.B11)}</dd>
+        <dt>Events</dt><dd>${orDash(R.B12)}</dd>
+      </dl>
+      <div class="subhead">NEARBY</div>
+      <h3 class="section">Local Favorites</h3>
+      <table class="local">
+        ${L.map(r => `<tr>
+          <td class="cat">${esc(r.cat)}</td>
+          <td><strong>${esc(r.name)}</strong></td>
+          <td>${orDash(r.dist)}</td>
+          <td>${orDash(r.notes)}</td>
+        </tr>`).join("")}
+      </table>
+    </div>
+  </section>
+
+  <section class="page" data-page="3">
+    <div class="page-inner">
+      <div class="subhead">DEPARTURE</div>
+      <h3 class="section">On your way out</h3>
+      <dl class="facts">
+        <dt>Checkout Time</dt><dd>${orDash(D.B8)}</dd>
+        <dt>Linens</dt><dd>${orDash(D.B10)}</dd>
+        <dt>Key Return</dt><dd>${orDash(D.B13)}</dd>
+        <dt>Trash</dt><dd>${orDash(T.B8)} — ${orDash(T.B9)}</dd>
+      </dl>
+
+      <div class="emergency">
+        <h4>Emergency — Call 911 first</h4>
+        <p>Hospital · ${orDash(E.B8)} · ${orDash(E.B9)}</p>
+        <p>Urgent care · ${orDash(E.B11)} · ${orDash(E.B12)}</p>
+        <p>Host · ${orDash(P.B10)}</p>
+        <p>Poison Control · ${orDash(E.B14)}</p>
+      </div>
+    </div>
+  </section>
+  `;
 }
 
 // Helpers

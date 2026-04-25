@@ -1,0 +1,66 @@
+/* Tier 1 — Clean Editorial. Typography-only. Prints anywhere clean. */
+
+.theme-editorial .page {
+  font-family: Georgia, serif; color: var(--ink);
+  background: var(--bg); padding: 0.6in 0.6in; position: relative;
+}
+
+.theme-editorial .masthead {
+  border-bottom: 3px double var(--accent);
+  padding-bottom: 0.15in; margin-bottom: 0.2in;
+}
+.theme-editorial .masthead .sku {
+  font-family: "JetBrains Mono", monospace; font-size: 9px;
+  letter-spacing: 0.2em; color: var(--accent);
+}
+.theme-editorial .masthead .title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500; font-size: 34px; color: var(--primary);
+  margin: 6px 0 4px 0;
+}
+.theme-editorial .masthead .sub {
+  font-style: italic; color: var(--accent); font-size: 13px;
+}
+.theme-editorial .masthead .logo {
+  height: 40px; float: right; margin-top: -8px;
+}
+
+.theme-editorial h3.section {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500; font-size: 20px; color: var(--primary);
+  margin: 0.2in 0 0.05in 0;
+  display: flex; align-items: center; gap: 8px;
+}
+.theme-editorial h3.section::before {
+  content: ""; display: inline-block; width: 32px; height: 1px;
+  background: var(--accent);
+}
+
+.theme-editorial dl.facts { margin: 0; font-size: 12px; line-height: 1.7; }
+.theme-editorial dl.facts dt {
+  float: left; clear: left; width: 30%;
+  font-weight: bold; color: var(--primary);
+}
+.theme-editorial dl.facts dd { margin-left: 32%; }
+
+.theme-editorial .wifi-callout {
+  border: 1px solid var(--accent); padding: 0.12in;
+  margin: 0.15in 0; font-size: 14px;
+}
+.theme-editorial .wifi-callout .big { font-weight: bold; font-size: 16px; }
+
+.theme-editorial table.local { width: 100%; border-collapse: collapse;
+                                font-size: 10.5px; margin-top: 0.1in; }
+.theme-editorial table.local td {
+  padding: 5px 4px; border-bottom: 1px solid #ddd; vertical-align: top;
+}
+.theme-editorial table.local td.cat {
+  font-weight: bold; color: var(--primary); width: 22%;
+}
+
+.theme-editorial .emergency {
+  border: 1px solid #a33; padding: 0.12in; margin: 0.15in 0;
+  font-size: 12px;
+}
+.theme-editorial .emergency h4 { margin: 0 0 4px 0; color: #a33;
+                                  font-size: 15px; }
