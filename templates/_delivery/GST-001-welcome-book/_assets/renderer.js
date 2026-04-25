@@ -189,6 +189,7 @@ function renderWorkspace() {
     );
     wirePalettePicker(el.querySelector("#palette-picker"));
     wireThemePicker(el.querySelector("#theme-picker"));
+    wireLogoSlot(el.querySelector("#logo-slot"));
     renderPages();
   }, 0);
   return el;
@@ -241,6 +242,7 @@ function renderPages() {
   const fn = pages[appState.theme] || renderMagazineTheme;
   root.innerHTML = "";
   fn(appState.data, root);
+  injectLogo(root);
 }
 
 function renderEditorialTheme(d, root) {
@@ -535,6 +537,141 @@ function renderMagazineTheme(d, root) {
     </div>
   </section>
   `;
+}
+
+function wireLogoSlot(el) {
+  el.innerHTML = appState.logo
+    ? `<div class="logo-preview">
+         <img src="${appState.logo}" alt="">
+         <button class="logo-remove" title="Remove logo">×</button>
+       </div>`
+    : `<div class="logo-drop" id="logo-drop">
+         <span>Drop PNG or SVG</span>
+       </div>`;
+
+  if (appState.logo) {
+    el.querySelector(".logo-remove").addEventListener("click", () =>
+      setState({ logo: null })
+    );
+    return;
+  }
+
+  const drop = el.querySelector("#logo-drop");
+  const prevent = (e) => { e.preventDefault(); e.stopPropagation(); };
+  ["dragenter","dragover","dragleave","drop"].forEach(ev =>
+    drop.addEventListener(ev, prevent));
+  drop.addEventListener("dragover",  () => drop.classList.add("drag-over"));
+  drop.addEventListener("dragleave", () => drop.classList.remove("drag-over"));
+  drop.addEventListener("drop", async (e) => {
+    drop.classList.remove("drag-over");
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    const isSVG = /\.svg$/i.test(file.name) || file.type.includes("svg");
+    const isPNG = /\.png$/i.test(file.name) || file.type === "image/png";
+    if (!isSVG && !isPNG) {
+      alert("Logo must be PNG or SVG. Got: " + file.name);
+      return;
+    }
+    if (isSVG) {
+      const text = await file.text();
+      const sanitized = sanitizeSVG(text);
+      if (!sanitized) { alert("SVG rejected by sanitizer."); return; }
+      const b64 = btoa(unescape(encodeURIComponent(sanitized)));
+      setState({ logo: `data:image/svg+xml;base64,${b64}` });
+    } else {
+      // PNG: downscale to max 400px wide
+      const url = await downscalePNG(file, 400);
+      setState({ logo: url });
+    }
+  });
+}
+
+function sanitizeSVG(svgText) {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgText, "image/svg+xml");
+    const root = doc.documentElement;
+    if (root.nodeName !== "svg") return null;
+
+    // Strip <script>, <foreignObject>, and on* attributes recursively
+    const forbidden = new Set(["script", "foreignObject", "link", "iframe"]);
+    const walk = (node) => {
+      if (node.nodeType !== 1) return;
+      // Kill forbidden elements
+      if (forbidden.has(node.nodeName)) {
+        node.remove();
+        return;
+      }
+      // Strip on* attributes and href="javascript:..."
+      for (const attr of Array.from(node.attributes)) {
+        const n = attr.name.toLowerCase();
+        if (n.startsWith("on")) node.removeAttribute(attr.name);
+        if ((n === "href" || n === "xlink:href") &&
+            /^\s*javascript:/i.test(attr.value)) {
+          node.removeAttribute(attr.name);
+        }
+      }
+      // External image/href with http(s) — strip (keep only data:)
+      if (node.hasAttribute("href") &&
+          /^https?:/i.test(node.getAttribute("href"))) {
+        node.removeAttribute("href");
+      }
+      // Recurse
+      for (const child of Array.from(node.childNodes)) walk(child);
+    };
+    walk(root);
+    return new XMLSerializer().serializeToString(doc);
+  } catch (err) {
+    console.error("SVG sanitize failed", err);
+    return null;
+  }
+}
+
+function downscalePNG(file, maxWidth) {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const ratio = img.width > maxWidth ? maxWidth / img.width : 1;
+      const w = Math.round(img.width * ratio);
+      const h = Math.round(img.height * ratio);
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.src = url;
+  });
+}
+
+function injectLogo(root) {
+  if (!appState.logo) return;
+  const theme = appState.theme;
+  if (theme === "magazine") {
+    // Logo goes in .hero (page 1 top-right)
+    const hero = root.querySelector(".page[data-page='1'] .hero");
+    if (hero) {
+      const img = document.createElement("img");
+      img.className = "hero-logo"; img.src = appState.logo;
+      hero.appendChild(img);
+    }
+  } else if (theme === "editorial") {
+    const masthead = root.querySelector(".masthead");
+    if (masthead) {
+      const img = document.createElement("img");
+      img.className = "logo"; img.src = appState.logo;
+      masthead.insertBefore(img, masthead.firstChild);
+    }
+  } else if (theme === "hotel") {
+    const cover = root.querySelector(".cover");
+    if (cover) {
+      const wrap = document.createElement("div");
+      wrap.className = "cover-logo";
+      wrap.innerHTML = `<img src="${appState.logo}">`;
+      cover.appendChild(wrap);
+    }
+  }
 }
 
 // Boot --------------------------------------------------------
