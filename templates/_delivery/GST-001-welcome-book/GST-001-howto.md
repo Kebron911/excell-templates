@@ -1,78 +1,61 @@
-# How to Use Your Welcome Book
+# GST-001 Welcome Book — How to Use (v2.1)
 
-**The STR Ledger · thestrledger.com**
+You got three files:
 
-Thanks for grabbing the Airbnb Welcome Book. Here's how to get it up and running in 15 minutes.
+1. `GST-001-welcome-book-DEMO.xlsx` — a fully-filled example you can look at to see what "done" looks like.
+2. `GST-001-welcome-book-BLANK.xlsx` — what you'll fill in for your own property.
+3. `welcome-book-renderer.html` — opens in your browser and turns the xlsx into a beautiful printable PDF.
 
----
-
-## Step 1 — Open the file
-
-The file is `GST-001-welcome-book.xlsx`. It opens in:
-- Microsoft Excel 2016 or later (Windows + Mac)
-- Excel 365
-- Google Sheets (File → Import → Upload)
-
-If you only have Apple Numbers, message us before buying — it may work, but we haven't tested it.
+**Keep all three files in the same folder** — the renderer looks for the xlsx in the same folder as itself.
 
 ---
 
-## Step 2 — Fill in the yellow cells
+## Step 1 — Fill the BLANK xlsx
 
-Yellow-tinted cells are inputs. Gray cells are calculated — leave them alone.
+Open `GST-001-welcome-book-BLANK.xlsx` in Excel (or Google Sheets).
 
-Go tab-by-tab:
+- Start on the **Start** tab. Read the overview. Click `GET STARTED →` to jump to the first input tab.
+- Fill the 8 input sections — Property, Arrival, WiFi + Tech, House Rules, Local Guide, Trash, Departure, Emergency. The Start tab tracks your progress live.
+- When you're done, click the `Launch` tab.
+- Check the **Readiness Dashboard** — three cards showing Completion %, any empty required fields (Red Flags), and a READY / MINOR / NEEDS WORK status.
 
-1. **Welcome** — property name, host name, dates
-2. **Arrival** — address, entry method, parking
-3. **WiFi + Tech** — wifi name, password, streaming logins
-4. **House Rules** — quiet hours, pets, smoking
-5. **Local Guide** — your 20 favorite local spots
-6. **Trash + Recycling** — pickup day, bin location
-7. **Departure** — checkout time, checklist
-8. **Emergency** — hospital, non-emergency police, vet
+When you're at READY (or at least MINOR), move to step 2.
+
+**Save the file** before step 2.
 
 ---
 
-## Step 3 — HIDE the "Host Reference" tab before sharing
+## Step 2 — Render the PDF
 
-Tab 9 ("Host Reference (HIDE)") is YOUR private information — cleaner contacts, passwords, things not to tell the guest.
+Double-click `welcome-book-renderer.html`. It opens in your default browser.
 
-**Before exporting or sharing the workbook:**
-- Right-click the "Host Reference (HIDE)" tab → Hide
+- **Drag `GST-001-welcome-book-BLANK.xlsx` onto the drop zone.** (Or click "Try with demo data" first to see what it looks like.)
+- Use the sidebar to pick:
+  - A **Theme** — Magazine (default), Editorial, or Hotel.
+  - A **Palette** — Harbor Navy, Cabin Green, Terracotta Sunset, or Modern Charcoal.
+  - Your **Logo** — drop a PNG or SVG onto the logo panel (optional).
+  - **QR codes** — toggle any of WiFi / Host phone / Address on or off. Guests scan these to auto-join WiFi, tap-to-call, or open directions.
+- Review the live 3-page preview on the right.
+- Hit **Ctrl+P** (or Cmd+P on Mac) → choose "Save as PDF".
 
-Your guest should never see it.
-
----
-
-## Step 4 — Export to PDF (for guests)
-
-**Excel:** File → Save As → PDF (choose "Entire Workbook" to include all *visible* tabs).
-
-**Google Sheets:** File → Download → PDF Document. Make sure the host-only tab is hidden first.
+That's it. You have a branded 3-page welcome book PDF.
 
 ---
 
-## Step 5 — Print OR digital
+## FAQ
 
-**Print:** Take the PDF to any print shop (Staples, FedEx, local). Have it spiral-bound or stapled. Leave it on the counter.
+**Does it work on Mac?** Yes. Tested on Chrome + Safari + Edge.
 
-**Digital:** Upload the PDF to any free hosting (Google Drive shared link, Dropbox) → make a QR code at qr-code-generator.com → print the QR on a small card → leave the card on the counter.
+**Do I need internet?** No. The renderer is self-contained and works fully offline.
 
-**Hybrid:** Print a single-page emergency sheet (Tab 8), leave on fridge; put everything else behind a QR code.
+**Does my property data leave my computer?** No. The renderer reads the xlsx file locally in your browser. Nothing is uploaded anywhere.
 
----
+**Can I print from Excel instead?** The Excel `Launch` tab prints a 1-page readiness dashboard — not the welcome book. The full 3-page welcome book only comes from the renderer.
 
-## Questions?
+**I moved the files apart / the OPEN button doesn't work.** Put both files in the same folder again and re-open the xlsx. Or just open `welcome-book-renderer.html` directly.
 
-Email us at **hello@thestrledger.com**. We reply within 1 business day (usually same day).
-
----
-
-## Upgrade path
-
-When you're running 3+ properties, the Multi-Property Welcome Book Bundle (coming soon at thestrledger.com/bundle) lets you manage welcome books for every property in one workbook, plus includes a printable guest-QR-code pack. Get on the list at **thestrledger.com/47** — you'll also get our free "47 Airbnb Tax Deductions Most Hosts Miss" guide.
+**Can I re-render after editing the xlsx?** Yes — just re-drop the file onto the renderer. Your theme/palette/logo choices are remembered.
 
 ---
 
-© 2026 The STR Ledger · For use by one business · See license for full terms
+_Questions? hello@thestrledger.com_
