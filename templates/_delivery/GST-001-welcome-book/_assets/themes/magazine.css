@@ -1,0 +1,128 @@
+/* Tier 2 — Magazine Spread. Default theme.
+   Uses --primary, --accent, --bg, --ink tokens (palette set in Task 8).
+*/
+
+.theme-magazine .page {
+  font-family: Georgia, "Cormorant Garamond", serif;
+  color: var(--ink);
+  background: var(--bg);
+  padding: 0;
+  position: relative;
+}
+.theme-magazine .page-inner { padding: 0.5in 0.6in; }
+
+/* Hero band — page 1 top */
+.theme-magazine .hero {
+  height: 2.1in;
+  background: linear-gradient(135deg,
+    var(--primary),
+    color-mix(in oklab, var(--primary), white 15%));
+  color: var(--bg);
+  padding: 0.4in 0.6in;
+  position: relative;
+  box-sizing: border-box;
+}
+.theme-magazine .hero-mono {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  color: var(--accent);
+  letter-spacing: 0.3em;
+}
+.theme-magazine .hero-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500; font-size: 40px; line-height: 1.05;
+  margin-top: 0.6in;
+  color: var(--bg);
+}
+.theme-magazine .hero-sub {
+  font-style: italic; font-size: 13px; color: var(--accent);
+  margin-top: 0.08in;
+}
+.theme-magazine .hero-pagenum {
+  position: absolute; bottom: -10px; right: 0.6in;
+  background: var(--accent); color: var(--primary);
+  font-family: "JetBrains Mono", monospace; font-size: 7px;
+  padding: 4px 8px; letter-spacing: 0.2em; font-weight: bold;
+}
+
+/* Info-card strip */
+.theme-magazine .info-strip { display: flex; gap: 10px; margin-top: 0.25in; }
+.theme-magazine .info-card {
+  flex: 1; border: 1px solid var(--accent);
+  padding: 10px; text-align: center;
+}
+.theme-magazine .info-card .label {
+  font-family: "JetBrains Mono", monospace; font-size: 7px;
+  color: var(--accent); letter-spacing: 0.2em; font-weight: bold;
+}
+.theme-magazine .info-card .value { font-size: 12px; margin-top: 4px; }
+
+/* Pull quote */
+.theme-magazine .pull-quote {
+  font-style: italic; font-size: 12px; line-height: 1.6;
+  color: var(--primary); border-left: 2px solid var(--accent);
+  padding-left: 10px; margin: 0.2in 0;
+}
+
+/* Section headings */
+.theme-magazine h3.section {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500; font-size: 22px;
+  color: var(--primary);
+  margin: 0.2in 0 0.1in 0; padding: 0 0 6px 0;
+  border-bottom: 1px solid var(--accent);
+}
+
+/* Definition-style rows */
+.theme-magazine dl.facts { margin: 0.1in 0; font-size: 11px; }
+.theme-magazine dl.facts dt {
+  font-family: "JetBrains Mono", monospace; font-size: 8px;
+  letter-spacing: 0.15em; color: var(--accent);
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+.theme-magazine dl.facts dd { margin: 2px 0 0 0; font-size: 12px; }
+
+/* Highlighted WiFi block */
+.theme-magazine .wifi-big {
+  background: var(--primary); color: var(--bg);
+  padding: 0.15in 0.2in; margin: 0.15in 0;
+  font-size: 16px; font-weight: bold;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 0.1in;
+}
+.theme-magazine .wifi-big .label {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 8px; color: var(--accent); letter-spacing: 0.2em;
+  font-weight: normal; display: block;
+}
+
+/* Local Guide table */
+.theme-magazine table.local {
+  width: 100%; border-collapse: collapse; font-size: 10px;
+}
+.theme-magazine table.local th {
+  font-family: "JetBrains Mono", monospace; font-size: 8px;
+  text-align: left; letter-spacing: 0.15em; padding: 4px 6px;
+  color: var(--accent); border-bottom: 1px solid var(--accent);
+}
+.theme-magazine table.local td {
+  padding: 6px; vertical-align: top;
+  border-bottom: 1px dotted color-mix(in oklab,
+    var(--accent), transparent 50%);
+}
+.theme-magazine table.local td.cat {
+  font-weight: bold; color: var(--primary); width: 22%;
+}
+
+/* Emergency block — red emphasis */
+.theme-magazine .emergency {
+  border: 2px solid #a33; padding: 0.15in;
+  margin-top: 0.15in;
+}
+.theme-magazine .emergency h4 {
+  margin: 0 0 6px 0; color: #a33;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 18px;
+}
+.theme-magazine .emergency p { margin: 3px 0; font-size: 11px; }
