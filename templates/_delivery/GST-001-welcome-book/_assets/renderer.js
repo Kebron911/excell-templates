@@ -89,6 +89,49 @@ async function loadDemoData(url, onDataReady) {
 
 // App state --------------------------------------------------
 
+const STORAGE_PREFIX = "welcome-book-v2.1:";
+
+function propertyKey(data) {
+  const name = (data?.Property?.B8 || "").trim().toLowerCase().replace(/\s+/g, "-");
+  return STORAGE_PREFIX + (name || "default");
+}
+
+function saveState() {
+  if (!appState.data) return;
+  const key = propertyKey(appState.data);
+  const slim = {
+    theme: appState.theme,
+    palette: appState.palette,
+    logo: appState.logo,
+    qr: appState.qr,
+  };
+  try {
+    localStorage.setItem(key, JSON.stringify(slim));
+  } catch (err) {
+    console.warn("localStorage save failed; dropping logo", err);
+    try {
+      localStorage.setItem(key, JSON.stringify({ ...slim, logo: null }));
+    } catch {}
+  }
+}
+
+function restoreState(data) {
+  try {
+    const key = propertyKey(data);
+    const raw = localStorage.getItem(key);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return {
+      theme: parsed.theme || "magazine",
+      palette: parsed.palette || "harbor",
+      logo: parsed.logo || null,
+      qr: parsed.qr || { wifi: true, phone: true, address: true },
+    };
+  } catch {
+    return {};
+  }
+}
+
 const defaultState = {
   data: null,        // parsed workbook
   dataSource: null,  // filename
@@ -102,6 +145,7 @@ let appState = { ...defaultState };
 
 function setState(partial) {
   appState = { ...appState, ...partial };
+  saveState();
   render();
 }
 
@@ -128,10 +172,14 @@ function renderLanding() {
     </div>
   `;
   setTimeout(() => {
-    const onReady = (data, src) => setState({ data, dataSource: src });
-    setupDropZone(el.querySelector("#drop-zone"), onReady);
+    const onDataReady = (data, src) => {
+      const restored = restoreState(data);
+      appState = { ...defaultState, ...restored, data, dataSource: src };
+      render();
+    };
+    setupDropZone(el.querySelector("#drop-zone"), onDataReady);
     el.querySelector("#demo-btn").addEventListener("click", () =>
-      loadDemoData("demo-data.json", onReady)
+      loadDemoData("demo-data.json", onDataReady)
     );
   }, 0);
   return el;
