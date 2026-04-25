@@ -202,3 +202,28 @@ pre#debug-dump {
 .qr-row .qr-label { font-weight: 500; }
 .qr-row .qr-hint { color: #888; font-size: 10px; margin-left: auto; }
 .qr-row.disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Print rules ------------------------------------------------- */
+
+@page {
+  size: Letter portrait;
+  margin: 0.5in;
+}
+
+@media print {
+  body { background: white; }
+  .sidebar, .canvas, .drop-zone { background: white; }
+  .sidebar, .panel, .workspace .sidebar { display: none !important; }
+  .canvas { padding: 0; background: white; overflow: visible; }
+  .canvas-inner { gap: 0; }
+  .page {
+    width: auto; height: auto; box-shadow: none;
+    page-break-after: always; break-after: page;
+    padding: 0; margin: 0; border: 0;
+  }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  /* Keep QR crisp */
+  .qr svg { width: 0.8in; height: 0.8in; }
+  /* Suppress any dev-only elements */
+  .hint { display: none; }
+}
