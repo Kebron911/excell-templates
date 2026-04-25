@@ -406,6 +406,24 @@ pre#debug-dump {
 .theme-magazine .wifi-big .qr { margin-left: auto; }
 .theme-magazine .qr-address { float: right; margin: 0.1in; }
 
+/* Safety & Disclosures (v2.2) — tinted card with accent treatment on the
+   recording-devices row (always rendered first when present). Page-break-
+   inside avoid is the §4.4 fallback for hosts with maximum-length fields. */
+.theme-magazine .safety-block {
+  background: color-mix(in oklab, var(--accent), transparent 88%);
+  border-left: 2px solid var(--accent);
+  padding: 0.1in 0.18in 0.05in 0.18in;
+  margin-top: 0.18in;
+  page-break-inside: avoid;
+}
+.theme-magazine .safety-block h3.section { margin-top: 0.05in; border-bottom: none; }
+.theme-magazine .safety-block dl.facts dt:first-of-type::before {
+  content: "👁  "; font-size: 10px; vertical-align: middle;
+}
+.theme-magazine .safety-block dl.facts dt:first-of-type {
+  border-bottom: 1px solid var(--accent); padding-bottom: 2px;
+}
+
 
 /* Tier 1 — Clean Editorial. Typography-only. Prints anywhere clean. */
 
@@ -477,6 +495,15 @@ pre#debug-dump {
 .theme-editorial .wifi-callout .qr { float: right; margin: 0 0 6px 6px; }
 .theme-editorial .qr-address { float: right; margin-left: 10px; }
 .theme-editorial .emergency .qr { display: block; margin: 6px auto; }
+
+/* Safety & Disclosures (v2.2) — typography-only, separated by a 1px rule. */
+.theme-editorial .safety-block {
+  border-top: 1px solid var(--accent);
+  padding-top: 0.1in;
+  margin-top: 0.18in;
+  page-break-inside: avoid;
+}
+.theme-editorial .safety-block h3.section { margin-top: 0.05in; }
 
 
 /* Tier 3 — Hotel Welcome Packet. Engraved, ornamental, full-bleed. */
@@ -589,6 +616,24 @@ pre#debug-dump {
 .theme-hotel .wifi-engraved { position: relative; }
 .theme-hotel .wifi-engraved .qr { position: absolute; right: 0.2in; top: 0.1in; }
 .theme-hotel .qr-address { display: block; margin: 0.1in auto; }
+
+/* Safety & Disclosures (v2.2) — centered, paired with a "DISCLOSURES" subhead
+   band emitted by the renderer. Tightened subhead margin (per spec §4.4)
+   recovers ~6mm to keep page 3 from spilling to page 4. */
+.theme-hotel .safety-block {
+  border-top: 1px solid var(--accent);
+  padding-top: 0.1in;
+  margin-top: 0.15in;
+  text-align: center;
+  page-break-inside: avoid;
+}
+.theme-hotel .safety-block + .emergency,
+.theme-hotel .safety-block h3.section { margin-top: 0.05in; }
+.theme-hotel .safety-block dl.facts { margin: 0.05in 0; }
+.theme-hotel .page-inner > .subhead + .safety-block { margin-top: 0; }
+.theme-hotel .page-inner > .subhead {
+  margin-top: 0.1in;
+}
 
 </style>
 </head>
@@ -794,6 +839,14 @@ pre#debug-dump {
     "B13": "in lockbox, reset to 0000",
     "B16": "• Throw any leftover food\n• Text the host when on the road — we'll release your deposit faster"
   },
+  "Safety & Disclosures": {
+    "B8": "Doorbell camera at front entry (records 30s clips on motion). Driveway floodlight cam covers the gravel lot. No cameras inside the cabin.",
+    "B9": "Smoke alarms in each bedroom + the upstairs hallway. Combo smoke/CO alarm in the living room.",
+    "B10": "Kitchen — under the sink. ABC-class, 2.5lb.",
+    "B11": "Two ways out of every bedroom: the door and the window. Front door is the primary route; back porch slider is secondary. Meet at the gravel turnaround at the end of the driveway.",
+    "B12": "Loft stairs are steep — keep small kids off without a parent. Wood-burning stove is OFF for guest stays; do not use. Hot tub: 104°F max, no diving, kids must be supervised.",
+    "B13": "Co-host: Sam Patel · 555-555-0144"
+  },
   "Emergency": {
     "B8": "LeConte Medical Center",
     "B9": "(865) 446-7000",
@@ -845,17 +898,20 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 //# sourceMappingURL=/sm/26b4b0d0b1e283d6b3ec9857ac597d7a60c76ac17be1ef4c965f03086de426bb.map
 </script>
 <script>
-// Renderer app core — parses an xlsx via SheetJS into the v2.1 data contract.
+// Renderer app core — parses an xlsx via SheetJS into the v2.2 data contract.
 // See spec §5 for cell addresses. v2.1 layout: first input at B8 per tab.
+// v2.2 adds the "Safety & Disclosures" tab (B8:B13) between Departure and
+// Emergency.
 
 const DATA_CONTRACT = {
-  "Property":     ["B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15"],
-  "Arrival":      ["B8", "B9", "B10", "B11", "B12", "B13", "B14"],
-  "WiFi + Tech":  ["B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15"],
-  "House Rules":  ["B8", "B9", "B10", "B11", "B12", "B13", "B14"],
-  "Trash":        ["B8", "B9", "B10", "B11", "B12", "B13", "B14"],
-  "Departure":    ["B8", "B9", "B10", "B11", "B12", "B13", "B16"],
-  "Emergency":    ["B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16"],
+  "Property":              ["B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15"],
+  "Arrival":               ["B8", "B9", "B10", "B11", "B12", "B13", "B14"],
+  "WiFi + Tech":           ["B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15"],
+  "House Rules":           ["B8", "B9", "B10", "B11", "B12", "B13", "B14"],
+  "Trash":                 ["B8", "B9", "B10", "B11", "B12", "B13", "B14"],
+  "Departure":             ["B8", "B9", "B10", "B11", "B12", "B13", "B16"],
+  "Safety & Disclosures":  ["B8", "B9", "B10", "B11", "B12", "B13"],
+  "Emergency":             ["B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16"],
 };
 
 // Local Guide — table layout, rows 10..29, cols A..E.
@@ -1222,6 +1278,8 @@ function renderEditorialTheme(d, root) {
       <dt>Key return:</dt><dd>${orDash(D.B13)}</dd>
     </dl>
 
+    ${renderSafetyBlock(d)}
+
     <div class="emergency">
       <h4>Emergency — 911 first</h4>
       <p>Hospital: ${orDash(E.B8)} · ${orDash(E.B9)}</p>
@@ -1305,6 +1363,8 @@ function renderHotelTheme(d, root) {
         <dt>Trash</dt><dd>${orDash(T.B8)} — ${orDash(T.B9)}</dd>
       </dl>
 
+      ${renderSafetyBlock(d) ? `<div class="subhead">DISCLOSURES</div>${renderSafetyBlock(d)}` : ""}
+
       <div class="emergency">
         <h4>Emergency — Call 911 first</h4>
         <p>Hospital · ${orDash(E.B8)} · ${orDash(E.B9)}</p>
@@ -1325,6 +1385,39 @@ function esc(x) {
 }
 function orDash(x) {
   return x && String(x).trim() ? esc(x) : "—";
+}
+
+// v2.2 — Safety & House Disclosures block (page 3, above Emergency).
+// Empty fields suppress their row entirely. If all 6 are empty, the whole
+// block (including heading) is suppressed — no orphan heading.
+const SAFETY_TRUNCATE_LEN = 240;
+function renderSafetyBlock(data) {
+  const S = data["Safety & Disclosures"] || {};
+  const fields = [
+    ["B8",  "Recording devices on the property"],
+    ["B9",  "Smoke + CO alarms"],
+    ["B10", "Fire extinguisher"],
+    ["B11", "If you need to evacuate"],
+    ["B12", "Things to know"],
+    ["B13", "Backup host contact"],
+  ];
+  const rows = fields
+    .map(([key, label]) => {
+      const raw = S[key];
+      if (!raw || !String(raw).trim()) return "";
+      let val = String(raw).trim();
+      if (val.length > SAFETY_TRUNCATE_LEN) {
+        val = val.slice(0, SAFETY_TRUNCATE_LEN).trimEnd() + "… see posted notice";
+      }
+      return `<dt>${esc(label)}:</dt><dd>${esc(val)}</dd>`;
+    })
+    .join("");
+  if (!rows) return "";
+  return `
+    <div class="safety-block">
+      <h3 class="section">Safety &amp; House Disclosures</h3>
+      <dl class="facts">${rows}</dl>
+    </div>`;
 }
 
 // --- Tier 2 Magazine theme ----------------------------------
@@ -1427,6 +1520,8 @@ function renderMagazineTheme(d, root) {
         <dt>Key return</dt><dd>${orDash(D.B13)}</dd>
         ${D.B16 ? `<dt>Custom</dt><dd>${esc(D.B16)}</dd>` : ""}
       </dl>
+
+      ${renderSafetyBlock(d)}
 
       <div class="emergency">
         <h4>Emergency — Call 911 first</h4>

@@ -1,4 +1,4 @@
-# GST-001 Welcome Book — How to Use (v2.1)
+# GST-001 Welcome Book — How to Use (v2.2)
 
 You got three files:
 
@@ -15,7 +15,8 @@ You got three files:
 Open `GST-001-welcome-book-BLANK.xlsx` in Excel (or Google Sheets).
 
 - Start on the **Start** tab. Read the overview. Click `GET STARTED →` to jump to the first input tab.
-- Fill the 8 input sections — Property, Arrival, WiFi + Tech, House Rules, Local Guide, Trash, Departure, Emergency. The Start tab tracks your progress live.
+- Fill the 9 input sections — Property, Arrival, WiFi + Tech, House Rules, Local Guide, Trash, Departure, Safety & Disclosures, Emergency. The Start tab tracks your progress live.
+- The **Safety & Disclosures** tab covers recording devices (required by Airbnb's Host Standards), smoke + CO alarm locations, fire extinguisher, evacuation notes, hazards, and a backup host contact. Only the recording-devices field is required — the rest are optional and skipped in the rendered PDF if you leave them blank.
 - When you're done, click the `Launch` tab.
 - Check the **Readiness Dashboard** — three cards showing Completion %, any empty required fields (Red Flags), and a READY / MINOR / NEEDS WORK status.
 

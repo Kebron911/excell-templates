@@ -7,19 +7,20 @@ Ships two files in the same Etsy download:
 Implements the design at:
   docs/superpowers/specs/2026-04-23-welcome-book-v2-tool-redesign.md
 
-12 tabs:
-  0  Start            — hero + 3-card + quickstart + Get Started + progress
-  1  Property         — identity inputs (8 fields)
-  2  Arrival          — address, entry, parking (7 fields + 4 static bullets)
-  3  WiFi + Tech      — network, streaming, smart devices (8 fields)
-  4  House Rules      — policies with 4 dropdowns (7 fields)
-  5  Local Guide      — 20-row table x 4 input cols (80 fields)
-  6  Trash            — pickup + maintenance (7 fields)
-  7  Departure        — checkout checklist (6 fields + formula)
-  8  Emergency        — 911 block + contacts (9 fields + 1 hardcoded + 1 formula)
-  9  Launch           — readiness dashboard + OPEN renderer pseudo-button
-  10 Bonus            — pre-written Airbnb listing copy (200 words)
-  11 × Host Notes     — private host-only, quarantined with red warning
+13 tabs (v2.2 — adds Safety & Disclosures between Departure and Emergency):
+  0  Start                — hero + 3-card + quickstart + Get Started + progress
+  1  Property             — identity inputs (8 fields)
+  2  Arrival              — address, entry, parking (7 fields + 4 static bullets)
+  3  WiFi + Tech          — network, streaming, smart devices (8 fields)
+  4  House Rules          — policies with 4 dropdowns (7 fields)
+  5  Local Guide          — 20-row table x 4 input cols (80 fields)
+  6  Trash                — pickup + maintenance (7 fields)
+  7  Departure            — checkout checklist (6 fields + formula)
+  8  Safety & Disclosures — recording-device disclosure + safety notes (6 fields, v2.2)
+  9  Emergency            — 911 block + contacts (9 fields + 1 hardcoded + 1 formula)
+  10 Launch               — readiness dashboard + OPEN renderer pseudo-button
+  11 Bonus                — pre-written Airbnb listing copy (200 words)
+  12 × Host Notes         — private host-only, quarantined with red warning
 
 Usage:
     python build_welcome_book_v2.py
@@ -57,18 +58,19 @@ DEMO_JSON_OUT = (BASE / "_delivery" / "GST-001-welcome-book"
 # --- Tab names (used for navigation + tabColor) ---
 
 TAB_NAMES = [
-    "Start",              # 0
-    "Property",           # 1
-    "Arrival",            # 2
-    "WiFi + Tech",        # 3
-    "House Rules",        # 4
-    "Local Guide",        # 5
-    "Trash",              # 6
-    "Departure",          # 7
-    "Emergency",          # 8
-    "Launch",             # 9
-    "Bonus",              # 10
-    "× Host Notes",       # 11
+    "Start",                  # 0
+    "Property",               # 1
+    "Arrival",                # 2
+    "WiFi + Tech",            # 3
+    "House Rules",            # 4
+    "Local Guide",            # 5
+    "Trash",                  # 6
+    "Departure",              # 7
+    "Safety & Disclosures",   # 8  (v2.2 — new)
+    "Emergency",              # 9
+    "Launch",                 # 10
+    "Bonus",                  # 11
+    "× Host Notes",           # 12
 ]
 
 # Input counts per section (for progress formula)
@@ -80,9 +82,10 @@ SECTION_INPUT_COUNTS = {
     "Local Guide": 80,   # 20 rows × 4 cols
     "Trash": 7,
     "Departure": 6,
+    "Safety & Disclosures": 6,   # v2.2 — B8:B13
     "Emergency": 9,
 }
-TOTAL_INPUTS = sum(SECTION_INPUT_COUNTS.values())  # 132
+TOTAL_INPUTS = sum(SECTION_INPUT_COUNTS.values())  # 138
 
 # --- Sample data (DEMO variant) ---
 
@@ -164,6 +167,29 @@ SAMPLE = {
         "thermostat_setting": "72°F",
         "key_return": "in lockbox, reset to 0000",
         "custom_tasks": "• Throw any leftover food\n• Text the host when on the road — we'll release your deposit faster",
+    },
+    "Safety": {
+        "recording_devices": (
+            "Doorbell camera at front entry (records 30s clips on motion). "
+            "Driveway floodlight cam covers the gravel lot. "
+            "No cameras inside the cabin."
+        ),
+        "alarm_locations": (
+            "Smoke alarms in each bedroom + the upstairs hallway. "
+            "Combo smoke/CO alarm in the living room."
+        ),
+        "extinguisher_location": "Kitchen — under the sink. ABC-class, 2.5lb.",
+        "evacuation_notes": (
+            "Two ways out of every bedroom: the door and the window. "
+            "Front door is the primary route; back porch slider is secondary. "
+            "Meet at the gravel turnaround at the end of the driveway."
+        ),
+        "hazards": (
+            "Loft stairs are steep — keep small kids off without a parent. "
+            "Wood-burning stove is OFF for guest stays; do not use. "
+            "Hot tub: 104°F max, no diving, kids must be supervised."
+        ),
+        "backup_contact": "Co-host: Sam Patel · 555-555-0144",
     },
     "Emergency": {
         "hospital_name": "LeConte Medical Center",
@@ -256,7 +282,7 @@ def build_input_tab(wb, section_num, tab_name, title, subtitle, cards,
     set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
 
     # Rows 1-5: section header band (title, subtitle, back/next)
-    section_header_band(ws, section_num, 8, title, subtitle, prev_tab, next_tab)
+    section_header_band(ws, section_num, 9, title, subtitle, prev_tab, next_tab)
 
     parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
 
@@ -527,8 +553,10 @@ def build_start_tab(wb, variant):
     # Overall completion % formula
     ws.merge_cells("G36:L36")
     c = ws["G36"]
-    # Build COUNTA sum over all 8 input-tab ranges (v2.1 flattened layout:
-    # inputs now live in col B starting at row 8; Local Guide unchanged).
+    # Build COUNTA sum over all 9 input-tab ranges (v2.2 inserts Safety
+    # & Disclosures between Departure and Emergency; v2.1 flattened layout
+    # otherwise: inputs live in col B starting at row 8; Local Guide
+    # unchanged).
     ranges = [
         "'Property'!B8:B15",    # 8 fields
         "'Arrival'!B8:B14",     # 7 fields
@@ -539,6 +567,7 @@ def build_start_tab(wb, variant):
         # Departure: B9 is a formula (always-filled) and custom_tasks lives
         # at B16, so count only the 6 user-input cells explicitly.
         "'Departure'!B8,'Departure'!B10:B13,'Departure'!B16",
+        "'Safety & Disclosures'!B8:B13",   # 6 fields (v2.2)
         "'Emergency'!B8:B16",   # 9 fields
     ]
     counta_sum = " + ".join(f"COUNTA({r})" for r in ranges)
@@ -556,14 +585,15 @@ def build_start_tab(wb, variant):
         "COUNTA('Departure'!B8,'Departure'!B10:B13,'Departure'!B16)"
     )
     section_rows = [
-        ("① Property Info",   "Property",    "B8:B15",   8, None),
-        ("② Arrival",          "Arrival",     "B8:B14",   7, None),
-        ("③ WiFi + Tech",      "WiFi + Tech", "B8:B15",   8, None),
-        ("④ House Rules",      "House Rules", "B8:B14",   7, None),
-        ("⑤ Local Guide",      "Local Guide", "B10:E29", 80, None),
-        ("⑥ Trash",            "Trash",       "B8:B14",   7, None),
-        ("⑦ Departure",        "Departure",   "B8:B13",   6, DEPARTURE_COUNTA),
-        ("⑧ Emergency",        "Emergency",   "B8:B16",   9, None),
+        ("① Property Info",         "Property",              "B8:B15",   8, None),
+        ("② Arrival",                "Arrival",               "B8:B14",   7, None),
+        ("③ WiFi + Tech",            "WiFi + Tech",           "B8:B15",   8, None),
+        ("④ House Rules",            "House Rules",           "B8:B14",   7, None),
+        ("⑤ Local Guide",            "Local Guide",           "B10:E29", 80, None),
+        ("⑥ Trash",                  "Trash",                 "B8:B14",   7, None),
+        ("⑦ Departure",              "Departure",             "B8:B13",   6, DEPARTURE_COUNTA),
+        ("⑧ Safety & Disclosures",  "Safety & Disclosures",  "B8:B13",   6, None),
+        ("⑨ Emergency",              "Emergency",             "B8:B16",   9, None),
     ]
     for i, (label, tab, range_, total, counta_expr) in enumerate(section_rows):
         r = 38 + i
@@ -807,7 +837,7 @@ def build_local_tab(wb, variant):
     ] + [(get_column_letter(c), 2) for c in range(6, 13)])
 
     # Step header band
-    section_header_band(ws, 5, 8, "Local Guide",
+    section_header_band(ws, 5, 9, "Local Guide",
                          "What we'd tell a friend visiting.",
                          "House Rules", "Trash")
 
@@ -944,12 +974,64 @@ def build_departure_tab(wb, variant):
         title="Checkout",
         subtitle="What to do before you drive away.",
         cards=cards, input_count=6,
-        prev_tab="Trash", next_tab="Emergency",
+        prev_tab="Trash", next_tab="Safety & Disclosures",
+    )
+
+
+def build_safety_disclosures_tab(wb, variant):
+    """Tab 8 — Safety & Disclosures (v2.2). Six fields B8:B13.
+
+    B8 (recording devices) is required — Airbnb Host Standards policy hook.
+    B9-B13 are recommended but optional; empty fields are skipped by the
+    renderer. Pattern mirrors build_rules_tab (flat input list, no formulas).
+    """
+    wb.create_sheet(TAB_NAMES[8])
+    s = SAMPLE["Safety"] if variant == "demo" else {}
+    cards = [
+        Card(
+            header="Disclosure (required)",
+            rows=[
+                ("• Recording devices on property:",
+                 s.get("recording_devices", "")),
+            ],
+            row_height=48,
+        ),
+        Card(
+            header="Fire Safety",
+            rows=[
+                ("Smoke + CO alarm locations:", s.get("alarm_locations", "")),
+                ("Fire extinguisher location:",
+                 s.get("extinguisher_location", "")),
+            ],
+            row_height=36,
+        ),
+        Card(
+            header="Evacuation & Hazards",
+            rows=[
+                ("If you need to evacuate:", s.get("evacuation_notes", "")),
+                ("Known hazards / things to know:", s.get("hazards", "")),
+            ],
+            row_height=48,
+        ),
+        Card(
+            header="Backup Contact",
+            rows=[
+                ("Backup host (if primary unreachable):",
+                 s.get("backup_contact", "")),
+            ],
+        ),
+    ]
+    build_input_tab(
+        wb=wb, section_num=8, tab_name="Safety & Disclosures",
+        title="Safety & Disclosures",
+        subtitle="Disclosure first, then safety locations.",
+        cards=cards, input_count=6,
+        prev_tab="Departure", next_tab="Emergency",
     )
 
 
 def build_emergency_tab(wb, variant):
-    """Tab 8 — Emergency. 911 block + contacts flattened to B8:B16.
+    """Tab 9 — Emergency. 911 block + contacts flattened to B8:B16.
 
     Layout (v2.1 simplified — inputs live in col B starting row 8):
       Rows 1-5 : section header band (navy)
@@ -959,16 +1041,16 @@ def build_emergency_tab(wb, variant):
                  hardcoded; host phone (last row) is a formula pulling
                  Property!B10.
     """
-    wb.create_sheet(TAB_NAMES[8])
+    wb.create_sheet(TAB_NAMES[9])
     s = SAMPLE["Emergency"] if variant == "demo" else {}
     ws = wb["Emergency"]
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
     set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
 
-    # Rows 1-5: header band
-    section_header_band(ws, 8, 8, "Emergency Contacts",
+    # Rows 1-5: header band (v2.2: section 9 of 9; prev = Safety & Disclosures)
+    section_header_band(ws, 9, 9, "Emergency Contacts",
                          "Keep this one nearby.",
-                         "Departure", "")
+                         "Safety & Disclosures", "")
 
     parchment = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
 
@@ -1084,7 +1166,8 @@ def build_emergency_tab(wb, variant):
         ws.cell(row=footer_row, column=c).border = Border(top=gold_side)
         ws.cell(row=footer_row, column=c).fill = parchment
     pseudo_button(ws, f"A{footer_row}", f"F{footer_row + 1}",
-                   "\u2190 Back: Departure", "'Departure'!A5", variant="secondary")
+                   "\u2190 Back: Safety & Disclosures",
+                   "'Safety & Disclosures'!A5", variant="secondary")
     pseudo_button(ws, f"G{footer_row}", f"L{footer_row + 1}",
                    "Launch \u2192", "'Launch'!A1",
                    variant="accent")
@@ -1105,7 +1188,7 @@ def build_launch_tab(wb, variant):
     the xlsx). Users drag the xlsx onto the renderer page to produce the
     printable PDF.
     """
-    ws = wb.create_sheet(TAB_NAMES[9])
+    ws = wb.create_sheet(TAB_NAMES[10])
     ws.sheet_properties.tabColor = COLOR_ACCENT
     set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
 
@@ -1159,7 +1242,8 @@ def build_launch_tab(wb, variant):
     ranges = [
         "'Property'!B8:B15", "'Arrival'!B8:B14", "'WiFi + Tech'!B8:B15",
         "'House Rules'!B8:B14", "'Local Guide'!B10:E29", "'Trash'!B8:B14",
-        "'Departure'!B8:B13", "'Emergency'!B8:B16",
+        "'Departure'!B8:B13", "'Safety & Disclosures'!B8:B13",
+        "'Emergency'!B8:B16",
     ]
     counta_sum = " + ".join(f"COUNTA({r})" for r in ranges)
     c.value = f"=TEXT(({counta_sum})/{TOTAL_INPUTS}, \"0%\")"
@@ -1171,15 +1255,14 @@ def build_launch_tab(wb, variant):
     c.font = Font(name=FONT_BODY, size=9, color=COLOR_MUTED)
     c.alignment = Alignment(horizontal="center")
 
-    # Card 2: Red flags (required fields missing) — v2.1 flattened layout
-    # Property/Arrival/WiFi/Trash/Departure inputs start at B8 (+3 from v2 B5).
-    # Emergency inputs start at B8 (+1 from v2 B7, since 911 block now only
-    # occupies row 7). 10 required fields.
+    # Card 2: Red flags (required fields missing) — v2.2 adds Safety!B8
+    # (recording devices, Airbnb policy compliance). 11 required fields.
     required = [
         "'Property'!B8", "'Property'!B9", "'Property'!B10",   # name, host, host phone
         "'WiFi + Tech'!B8", "'WiFi + Tech'!B9",               # SSID, password
         "'Trash'!B8",                                          # pickup day
         "'Departure'!B8",                                      # checkout time
+        "'Safety & Disclosures'!B8",                           # recording devices (v2.2)
         "'Emergency'!B8", "'Emergency'!B9", "'Emergency'!B11", # hospital, hosp phone, urgent care
     ]
     countblank_req = " + ".join(f'IF({r}="",1,0)' for r in required)
@@ -1261,11 +1344,11 @@ def build_launch_tab(wb, variant):
 
 
 def build_bonus_tab(wb, variant):
-    """Tab 10 — Bonus: pre-written Airbnb listing copy.
+    """Tab 11 — Bonus: pre-written Airbnb listing copy.
 
     Same content in DEMO and BLANK — it's a reference, not inputs.
     """
-    wb.create_sheet(TAB_NAMES[10])
+    wb.create_sheet(TAB_NAMES[11])
     ws = wb["Bonus"]
     ws.sheet_properties.tabColor = COLOR_GOLD_SOFT
     set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
@@ -1411,9 +1494,9 @@ def build_bonus_tab(wb, variant):
 
 
 def build_host_notes_tab(wb, variant):
-    """Tab 11 — × Host Notes. Private host-only, quarantined."""
+    """Tab 12 — × Host Notes. Private host-only, quarantined."""
     s = SAMPLE["Host"] if variant == "demo" else {}
-    wb.create_sheet(TAB_NAMES[11])
+    wb.create_sheet(TAB_NAMES[12])
     ws = wb["× Host Notes"]
     ws.sheet_properties.tabColor = COLOR_SECONDARY  # Clay Rose
     set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
@@ -1539,6 +1622,7 @@ def build_workbook(out_path, variant):
     build_local_tab(wb, variant)
     build_trash_tab(wb, variant)
     build_departure_tab(wb, variant)
+    build_safety_disclosures_tab(wb, variant)
     build_emergency_tab(wb, variant)
     build_launch_tab(wb, variant)
     build_bonus_tab(wb, variant)
@@ -1638,6 +1722,14 @@ def export_demo_json():
             # B14-B15 are static checklist rows ("Run the dishwasher",
             # "Lock all doors + windows") — no input data.
             "B16": SAMPLE["Departure"]["custom_tasks"],
+        },
+        "Safety & Disclosures": {
+            "B8":  SAMPLE["Safety"]["recording_devices"],
+            "B9":  SAMPLE["Safety"]["alarm_locations"],
+            "B10": SAMPLE["Safety"]["extinguisher_location"],
+            "B11": SAMPLE["Safety"]["evacuation_notes"],
+            "B12": SAMPLE["Safety"]["hazards"],
+            "B13": SAMPLE["Safety"]["backup_contact"],
         },
         "Emergency": {
             "B8":  SAMPLE["Emergency"]["hospital_name"],

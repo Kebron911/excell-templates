@@ -68,3 +68,12 @@
 .theme-editorial .wifi-callout .qr { float: right; margin: 0 0 6px 6px; }
 .theme-editorial .qr-address { float: right; margin-left: 10px; }
 .theme-editorial .emergency .qr { display: block; margin: 6px auto; }
+
+/* Safety & Disclosures (v2.2) — typography-only, separated by a 1px rule. */
+.theme-editorial .safety-block {
+  border-top: 1px solid var(--accent);
+  padding-top: 0.1in;
+  margin-top: 0.18in;
+  page-break-inside: avoid;
+}
+.theme-editorial .safety-block h3.section { margin-top: 0.05in; }

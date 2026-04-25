@@ -1,14 +1,17 @@
-// Renderer app core — parses an xlsx via SheetJS into the v2.1 data contract.
+// Renderer app core — parses an xlsx via SheetJS into the v2.2 data contract.
 // See spec §5 for cell addresses. v2.1 layout: first input at B8 per tab.
+// v2.2 adds the "Safety & Disclosures" tab (B8:B13) between Departure and
+// Emergency.
 
 const DATA_CONTRACT = {
-  "Property":     ["B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15"],
-  "Arrival":      ["B8", "B9", "B10", "B11", "B12", "B13", "B14"],
-  "WiFi + Tech":  ["B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15"],
-  "House Rules":  ["B8", "B9", "B10", "B11", "B12", "B13", "B14"],
-  "Trash":        ["B8", "B9", "B10", "B11", "B12", "B13", "B14"],
-  "Departure":    ["B8", "B9", "B10", "B11", "B12", "B13", "B16"],
-  "Emergency":    ["B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16"],
+  "Property":              ["B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15"],
+  "Arrival":               ["B8", "B9", "B10", "B11", "B12", "B13", "B14"],
+  "WiFi + Tech":           ["B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15"],
+  "House Rules":           ["B8", "B9", "B10", "B11", "B12", "B13", "B14"],
+  "Trash":                 ["B8", "B9", "B10", "B11", "B12", "B13", "B14"],
+  "Departure":             ["B8", "B9", "B10", "B11", "B12", "B13", "B16"],
+  "Safety & Disclosures":  ["B8", "B9", "B10", "B11", "B12", "B13"],
+  "Emergency":             ["B8", "B9", "B10", "B11", "B12", "B13", "B14", "B15", "B16"],
 };
 
 // Local Guide — table layout, rows 10..29, cols A..E.
@@ -371,6 +374,8 @@ function renderEditorialTheme(d, root) {
       <dt>Key return:</dt><dd>${orDash(D.B13)}</dd>
     </dl>
 
+    ${renderSafetyBlock(d)}
+
     <div class="emergency">
       <h4>Emergency — 911 first</h4>
       <p>Hospital: ${orDash(E.B8)} · ${orDash(E.B9)}</p>
@@ -454,6 +459,8 @@ function renderHotelTheme(d, root) {
         <dt>Trash</dt><dd>${orDash(T.B8)} — ${orDash(T.B9)}</dd>
       </dl>
 
+      ${renderSafetyBlock(d) ? `<div class="subhead">DISCLOSURES</div>${renderSafetyBlock(d)}` : ""}
+
       <div class="emergency">
         <h4>Emergency — Call 911 first</h4>
         <p>Hospital · ${orDash(E.B8)} · ${orDash(E.B9)}</p>
@@ -474,6 +481,39 @@ function esc(x) {
 }
 function orDash(x) {
   return x && String(x).trim() ? esc(x) : "—";
+}
+
+// v2.2 — Safety & House Disclosures block (page 3, above Emergency).
+// Empty fields suppress their row entirely. If all 6 are empty, the whole
+// block (including heading) is suppressed — no orphan heading.
+const SAFETY_TRUNCATE_LEN = 240;
+function renderSafetyBlock(data) {
+  const S = data["Safety & Disclosures"] || {};
+  const fields = [
+    ["B8",  "Recording devices on the property"],
+    ["B9",  "Smoke + CO alarms"],
+    ["B10", "Fire extinguisher"],
+    ["B11", "If you need to evacuate"],
+    ["B12", "Things to know"],
+    ["B13", "Backup host contact"],
+  ];
+  const rows = fields
+    .map(([key, label]) => {
+      const raw = S[key];
+      if (!raw || !String(raw).trim()) return "";
+      let val = String(raw).trim();
+      if (val.length > SAFETY_TRUNCATE_LEN) {
+        val = val.slice(0, SAFETY_TRUNCATE_LEN).trimEnd() + "… see posted notice";
+      }
+      return `<dt>${esc(label)}:</dt><dd>${esc(val)}</dd>`;
+    })
+    .join("");
+  if (!rows) return "";
+  return `
+    <div class="safety-block">
+      <h3 class="section">Safety &amp; House Disclosures</h3>
+      <dl class="facts">${rows}</dl>
+    </div>`;
 }
 
 // --- Tier 2 Magazine theme ----------------------------------
@@ -576,6 +616,8 @@ function renderMagazineTheme(d, root) {
         <dt>Key return</dt><dd>${orDash(D.B13)}</dd>
         ${D.B16 ? `<dt>Custom</dt><dd>${esc(D.B16)}</dd>` : ""}
       </dl>
+
+      ${renderSafetyBlock(d)}
 
       <div class="emergency">
         <h4>Emergency — Call 911 first</h4>

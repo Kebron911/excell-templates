@@ -108,3 +108,21 @@
 .theme-hotel .wifi-engraved { position: relative; }
 .theme-hotel .wifi-engraved .qr { position: absolute; right: 0.2in; top: 0.1in; }
 .theme-hotel .qr-address { display: block; margin: 0.1in auto; }
+
+/* Safety & Disclosures (v2.2) — centered, paired with a "DISCLOSURES" subhead
+   band emitted by the renderer. Tightened subhead margin (per spec §4.4)
+   recovers ~6mm to keep page 3 from spilling to page 4. */
+.theme-hotel .safety-block {
+  border-top: 1px solid var(--accent);
+  padding-top: 0.1in;
+  margin-top: 0.15in;
+  text-align: center;
+  page-break-inside: avoid;
+}
+.theme-hotel .safety-block + .emergency,
+.theme-hotel .safety-block h3.section { margin-top: 0.05in; }
+.theme-hotel .safety-block dl.facts { margin: 0.05in 0; }
+.theme-hotel .page-inner > .subhead + .safety-block { margin-top: 0; }
+.theme-hotel .page-inner > .subhead {
+  margin-top: 0.1in;
+}

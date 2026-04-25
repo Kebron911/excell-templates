@@ -131,3 +131,21 @@
                               align-items: center; gap: 0.1in; flex-wrap: wrap; }
 .theme-magazine .wifi-big .qr { margin-left: auto; }
 .theme-magazine .qr-address { float: right; margin: 0.1in; }
+
+/* Safety & Disclosures (v2.2) — tinted card with accent treatment on the
+   recording-devices row (always rendered first when present). Page-break-
+   inside avoid is the §4.4 fallback for hosts with maximum-length fields. */
+.theme-magazine .safety-block {
+  background: color-mix(in oklab, var(--accent), transparent 88%);
+  border-left: 2px solid var(--accent);
+  padding: 0.1in 0.18in 0.05in 0.18in;
+  margin-top: 0.18in;
+  page-break-inside: avoid;
+}
+.theme-magazine .safety-block h3.section { margin-top: 0.05in; border-bottom: none; }
+.theme-magazine .safety-block dl.facts dt:first-of-type::before {
+  content: "👁  "; font-size: 10px; vertical-align: middle;
+}
+.theme-magazine .safety-block dl.facts dt:first-of-type {
+  border-bottom: 1px solid var(--accent); padding-bottom: 2px;
+}

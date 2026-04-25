@@ -197,6 +197,14 @@
     "B13": "in lockbox, reset to 0000",
     "B16": "• Throw any leftover food\n• Text the host when on the road — we'll release your deposit faster"
   },
+  "Safety & Disclosures": {
+    "B8": "Doorbell camera at front entry (records 30s clips on motion). Driveway floodlight cam covers the gravel lot. No cameras inside the cabin.",
+    "B9": "Smoke alarms in each bedroom + the upstairs hallway. Combo smoke/CO alarm in the living room.",
+    "B10": "Kitchen — under the sink. ABC-class, 2.5lb.",
+    "B11": "Two ways out of every bedroom: the door and the window. Front door is the primary route; back porch slider is secondary. Meet at the gravel turnaround at the end of the driveway.",
+    "B12": "Loft stairs are steep — keep small kids off without a parent. Wood-burning stove is OFF for guest stays; do not use. Hot tub: 104°F max, no diving, kids must be supervised.",
+    "B13": "Co-host: Sam Patel · 555-555-0144"
+  },
   "Emergency": {
     "B8": "LeConte Medical Center",
     "B9": "(865) 446-7000",

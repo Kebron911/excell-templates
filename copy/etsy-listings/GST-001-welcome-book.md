@@ -49,6 +49,10 @@ WHAT'S INCLUDED
 ✨ TWO XLSX FILES IN THE SAME DOWNLOAD:
    • DEMO — fully filled sample property to explore the tool
    • BLANK — cleared starter for your actual property
+✨ Built-in recording-device disclosure — meets Airbnb's Host Standards
+   out of the box, no separate paperwork.
+✨ Fire safety + evacuation guidance section, because the welcome book
+   is the last thing guests read before something goes wrong.
 ✨ Magazine-quality PDF rendered in your browser — 3 themes (Magazine / Editorial / Hotel) × 4 palettes
 ✨ Logo upload — drop your property's PNG or SVG, it appears on every page
 ✨ Tap-to-action QR codes — guests scan to auto-join WiFi, tap-to-call, or open Maps
@@ -68,6 +72,7 @@ WHAT'S INCLUDED
    • Pet policy (if applicable)
    • Trash + recycling schedule
    • Departure checklist
+   • Safety & disclosures (recording devices, fire safety, evacuation)
    • Emergency contacts
 📘 Pre-formatted so you just swap your info — no Word wrestling
 📘 Print-ready layout or digital delivery (QR code version included)
@@ -259,3 +264,4 @@ At the bottom of this listing, Etsy shows "More from <shop>" automatically. Ensu
 - `2026-04-22` — Refreshed: status block updated, file paths aligned to delivery tree, SPECULATIVE warnings removed. Delivery assets complete (Task 7 Class A).
 - `2026-04-22` — Final SEO pass (Task 14 Class A): description opening replaced with 160-char keyword-dense opener per seo-research.md.
 - `2026-04-23` — v2 tool redesign: wizard structure, 12 tabs, 2-file bundle (DEMO + BLANK), live 3-page preview, bonus listing copy. Supersedes v1 flat-form xlsx. Title + tags unchanged.
+- `2026-04-25` — v2.2: Safety & Disclosures tab added (13 tabs total). New bullets call out the Airbnb recording-device disclosure compliance and the fire-safety/evacuation block. Description body updated to include the new section in the bulleted guide list.
