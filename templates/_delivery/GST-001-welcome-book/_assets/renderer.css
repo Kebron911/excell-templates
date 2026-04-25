@@ -43,3 +43,70 @@ pre#debug-dump {
   background: #fff; font-size: 11px;
   font-family: "JetBrains Mono", monospace; overflow: auto;
 }
+
+/* Workspace layout ------------------------------------------- */
+
+.workspace { display: flex; min-height: 100vh; }
+
+.sidebar {
+  flex: 0 0 280px; background: #fff;
+  border-right: 1px solid #ddd; overflow-y: auto;
+}
+.sidebar-inner { padding: 20px; }
+.logo-bar {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px; color: var(--accent);
+  letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 8px 0 18px 0;
+  border-bottom: 1px solid var(--accent);
+  margin-bottom: 18px;
+}
+.panel { margin-bottom: 22px; }
+.panel h3 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500; color: var(--primary); font-size: 16px;
+  margin: 0 0 10px 0;
+}
+.picker-stub {
+  display: block; padding: 12px;
+  background: #fafafa; border: 1px dashed #ccc;
+  font-style: italic; font-size: 11px; color: #999;
+  text-align: center;
+}
+.primary-btn {
+  width: 100%; padding: 12px 0;
+  background: var(--primary); color: var(--bg);
+  border: none; cursor: pointer;
+  font-family: "Inter", sans-serif; font-size: 13px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.secondary-btn {
+  width: 100%; padding: 10px 0;
+  background: transparent; color: var(--primary);
+  border: 1px solid var(--primary); cursor: pointer;
+  font-family: "Inter", sans-serif; font-size: 12px;
+  letter-spacing: 0.05em;
+}
+.canvas {
+  flex: 1; padding: 30px; background: #ddd;
+  overflow-y: auto;
+}
+.canvas-inner {
+  display: flex; flex-direction: column; gap: 20px;
+  align-items: center;
+}
+.page {
+  width: 7.5in; height: 10in; background: var(--bg);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+  padding: 0; overflow: hidden; position: relative;
+}
+.page-placeholder {
+  padding: 40px;
+  font-family: "JetBrains Mono", monospace;
+  color: #888;
+}
+.hint {
+  margin-top: 28px; font-size: 10px;
+  font-family: "JetBrains Mono", monospace;
+  color: #999; letter-spacing: 0.1em;
+}

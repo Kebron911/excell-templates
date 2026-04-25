@@ -6,29 +6,9 @@
 <link rel="stylesheet" href="renderer.css">
 </head>
 <body>
-
-<div id="app">
-  <div id="drop-zone" class="drop-zone">
-    <h2>Drop your filled xlsx here</h2>
-    <p>Or —</p>
-    <button id="demo-btn">Try with demo data</button>
-  </div>
-  <pre id="debug-dump"></pre>
-</div>
-
-<script src="sheetjs.min.js"></script>
-<script src="qrcode.min.js"></script>
-<script src="renderer.js"></script>
-<script>
-  const dump = document.getElementById("debug-dump");
-  const showData = (data, source) => {
-    dump.textContent = `# source: ${source}\n\n` + JSON.stringify(data, null, 2);
-  };
-  setupDropZone(document.getElementById("drop-zone"), showData);
-  document.getElementById("demo-btn").addEventListener("click", () => {
-    loadDemoData("demo-data.json", showData);
-  });
-</script>
-
+  <div id="app"></div>
+  <script src="sheetjs.min.js"></script>
+  <script src="qrcode.min.js"></script>
+  <script src="renderer.js"></script>
 </body>
 </html>
