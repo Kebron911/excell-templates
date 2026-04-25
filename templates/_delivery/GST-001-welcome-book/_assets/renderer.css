@@ -110,3 +110,27 @@ pre#debug-dump {
   font-family: "JetBrains Mono", monospace;
   color: #999; letter-spacing: 0.1em;
 }
+
+/* Palette — applied on #pages container */
+#pages.palette-harbor    { --primary: #12304E; --accent: #C9A24B;
+                            --bg: #F6EFE2; --ink: #2B2B2B; }
+#pages.palette-cabin     { --primary: #2D5A3D; --accent: #C17B4A;
+                            --bg: #F3EDDE; --ink: #2B2B2B; }
+#pages.palette-terracotta{ --primary: #7A3B2E; --accent: #D9A04A;
+                            --bg: #F6EFE2; --ink: #2B2B2B; }
+#pages.palette-charcoal  { --primary: #2A2A2A; --accent: #8BA98E;
+                            --bg: #F4F0EB; --ink: #2B2B2B; }
+
+/* Palette picker UI */
+.picker.palette-picker { display: flex; gap: 8px; }
+.palette-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid transparent; cursor: pointer;
+  transition: transform 100ms;
+}
+.palette-dot:hover { transform: scale(1.1); }
+.palette-dot.selected { border-color: var(--primary); }
+.palette-dot[data-palette="harbor"]     { background: #12304E; }
+.palette-dot[data-palette="cabin"]      { background: #2D5A3D; }
+.palette-dot[data-palette="terracotta"] { background: #7A3B2E; }
+.palette-dot[data-palette="charcoal"]   { background: #2A2A2A; }

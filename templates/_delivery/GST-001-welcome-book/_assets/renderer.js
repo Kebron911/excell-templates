@@ -187,9 +187,24 @@ function renderWorkspace() {
     el.querySelector("#reset-btn").addEventListener("click", () =>
       setState({ data: null, dataSource: null })
     );
+    wirePalettePicker(el.querySelector("#palette-picker"));
     renderPages();
   }, 0);
   return el;
+}
+
+function wirePalettePicker(el) {
+  const palettes = ["harbor", "cabin", "terracotta", "charcoal"];
+  el.className = "picker palette-picker";
+  el.innerHTML = palettes.map(p =>
+    `<div class="palette-dot${appState.palette===p?' selected':''}"
+          data-palette="${p}" title="${p.charAt(0).toUpperCase()+p.slice(1)}"></div>`
+  ).join("");
+  el.querySelectorAll(".palette-dot").forEach(dot => {
+    dot.addEventListener("click", () =>
+      setState({ palette: dot.dataset.palette })
+    );
+  });
 }
 
 function renderPages() {
