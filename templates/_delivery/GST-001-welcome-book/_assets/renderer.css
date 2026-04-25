@@ -1,0 +1,45 @@
+:root {
+  --bg: #F6EFE2;
+  --primary: #12304E;
+  --accent: #C9A24B;
+  --ink: #2B2B2B;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Inter", system-ui, sans-serif;
+}
+.drop-zone {
+  max-width: 520px;
+  margin: 80px auto;
+  padding: 60px 40px;
+  background: white;
+  border: 3px dashed var(--accent);
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 150ms;
+}
+.drop-zone.drag-over {
+  background: var(--bg);
+  transform: scale(1.01);
+}
+.drop-zone h2 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500; font-size: 28px; color: var(--primary);
+  margin: 0 0 12px 0;
+}
+.drop-zone p { margin: 8px 0; color: #666; }
+.drop-zone button {
+  margin-top: 18px; padding: 10px 20px;
+  background: var(--primary); color: var(--bg);
+  border: none; font-family: inherit; font-size: 14px;
+  cursor: pointer; letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+pre#debug-dump {
+  max-width: 900px; margin: 40px auto; padding: 20px;
+  background: #fff; font-size: 11px;
+  font-family: "JetBrains Mono", monospace; overflow: auto;
+}
