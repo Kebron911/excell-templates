@@ -25,6 +25,7 @@ Usage:
     python build_welcome_book_v2.py
     # generates BOTH DEMO and BLANK files
 """
+import json
 from pathlib import Path
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -50,6 +51,8 @@ from brand_config import (
 BASE = Path(__file__).resolve().parent.parent
 DEMO_OUT = BASE / "_masters" / "GST-001-welcome-book-DEMO.xlsx"
 BLANK_OUT = BASE / "_masters" / "GST-001-welcome-book-BLANK.xlsx"
+DEMO_JSON_OUT = (BASE / "_delivery" / "GST-001-welcome-book"
+                      / "_assets" / "demo-data.json")
 
 # --- Tab names (used for navigation + tabColor) ---
 
@@ -1555,9 +1558,112 @@ def build_workbook(out_path, variant):
     print(f"Saved: {out_path}")
 
 
+def export_demo_json():
+    """Export SAMPLE constants to a JSON file the renderer loads for demo mode.
+
+    Schema mirrors the data contract §5 of the v2.1 spec — keyed by tab name,
+    value is a dict mapping cell addresses (e.g. "B8") to the sample value.
+    Local Guide is a list (table layout, not key/value).
+
+    All addresses use the v2.1 flattened layout: first input at B8 per tab.
+    Cell addresses verified against the actual DEMO xlsx output:
+      - Departure: custom_tasks lands at B16 (after formula B9, 4 checklist
+        rows B10-B13, and 2 static checklist rows). B14-B15 are static.
+      - Emergency: poison control hardcoded at B14, host phone formula at
+        B17 (excluded — renderer reads Property!B10 directly).
+    """
+    out = {
+        "Property": {
+            "B8":  SAMPLE["Property"]["name"],
+            "B9":  SAMPLE["Property"]["host"],
+            "B10": SAMPLE["Property"]["host_phone"],
+            "B11": SAMPLE["Property"]["check_in"],
+            "B12": SAMPLE["Property"]["check_out"],
+            "B13": SAMPLE["Property"]["property_type"],
+            "B14": SAMPLE["Property"]["max_guests"],
+            "B15": SAMPLE["Property"]["address"],
+        },
+        "Arrival": {
+            "B8":  SAMPLE["Arrival"]["address"],
+            "B9":  SAMPLE["Arrival"]["entry_method"],
+            "B10": SAMPLE["Arrival"]["door_code"],
+            "B11": SAMPLE["Arrival"]["parking"],
+            "B12": SAMPLE["Arrival"]["route"],
+            "B13": SAMPLE["Arrival"]["arrival_window"],
+            "B14": SAMPLE["Arrival"]["early_option"],
+        },
+        "WiFi + Tech": {
+            "B8":  SAMPLE["WiFi"]["ssid"],
+            "B9":  SAMPLE["WiFi"]["password"],
+            "B10": SAMPLE["WiFi"]["backup_ssid"],
+            "B11": SAMPLE["WiFi"]["tv_streaming"],
+            "B12": SAMPLE["WiFi"]["smart_lock_note"],
+            "B13": SAMPLE["WiFi"]["thermostat"],
+            "B14": SAMPLE["WiFi"]["tv_controls"],
+            "B15": SAMPLE["WiFi"]["wifi_support"],
+        },
+        "House Rules": {
+            "B8":  SAMPLE["Rules"]["quiet_hours"],
+            "B9":  SAMPLE["Rules"]["max_guests"],
+            "B10": SAMPLE["Rules"]["smoking"],
+            "B11": SAMPLE["Rules"]["pets"],
+            "B12": SAMPLE["Rules"]["events"],
+            "B13": SAMPLE["Rules"]["shoes"],
+            "B14": SAMPLE["Rules"]["custom_rules"],
+        },
+        "Local Guide": [
+            {"cat": cat, "name": name, "dist": dist, "phone": phone,
+             "notes": notes}
+            for (cat, name, dist, phone, notes) in SAMPLE["Local"]
+        ],
+        "Trash": {
+            "B8":  SAMPLE["Trash"]["pickup_day"],
+            "B9":  SAMPLE["Trash"]["bin_location"],
+            "B10": SAMPLE["Trash"]["recycling_accepted"],
+            "B11": SAMPLE["Trash"]["sorting_rules"],
+            "B12": SAMPLE["Trash"]["pickup_location"],
+            "B13": SAMPLE["Trash"]["thermostat_range"],
+            "B14": SAMPLE["Trash"]["power_outage"],
+        },
+        "Departure": {
+            "B8":  SAMPLE["Departure"]["checkout_time"],
+            # B9 is a derived formula in the xlsx (checkout day).
+            # For demo JSON we use a static plausible value matching the
+            # sample check_in date (2026-05-10 → check_out 2026-05-15).
+            "B9":  "Friday, May 15",
+            "B10": SAMPLE["Departure"]["linen_location"],
+            "B11": SAMPLE["Departure"]["trash_spot"],
+            "B12": SAMPLE["Departure"]["thermostat_setting"],
+            "B13": SAMPLE["Departure"]["key_return"],
+            # B14-B15 are static checklist rows ("Run the dishwasher",
+            # "Lock all doors + windows") — no input data.
+            "B16": SAMPLE["Departure"]["custom_tasks"],
+        },
+        "Emergency": {
+            "B8":  SAMPLE["Emergency"]["hospital_name"],
+            "B9":  SAMPLE["Emergency"]["hospital_phone"],
+            "B10": SAMPLE["Emergency"]["hospital_address"],
+            "B11": SAMPLE["Emergency"]["urgent_care_name"],
+            "B12": SAMPLE["Emergency"]["urgent_care_phone"],
+            "B13": SAMPLE["Emergency"]["police_non_emergency"],
+            "B14": "1-800-222-1222",  # poison control, hardcoded in xlsx
+            "B15": SAMPLE["Emergency"]["vet"],
+            "B16": SAMPLE["Emergency"]["utility"],
+            # B17 is a formula (=Property!B10) — renderer reads host phone
+            # from Property!B10 directly, so we don't include it here.
+        },
+    }
+
+    DEMO_JSON_OUT.parent.mkdir(parents=True, exist_ok=True)
+    with open(DEMO_JSON_OUT, "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=2, ensure_ascii=False)
+    print(f"Wrote demo JSON: {DEMO_JSON_OUT}")
+
+
 def main():
     build_workbook(DEMO_OUT, variant="demo")
     build_workbook(BLANK_OUT, variant="blank")
+    export_demo_json()
 
 
 if __name__ == "__main__":
