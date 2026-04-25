@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Colors — Tints & shades</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html,body{margin:0;padding:0;}
+  .card{width:700px;padding:28px;background:var(--bg-1);box-sizing:border-box;}
+  .grp{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+  .grp:last-child{margin-bottom:0;}
+  .chip{height:68px;display:flex;align-items:flex-end;padding:8px 10px;font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;}
+  .eyebrow{font-family:var(--font-body);font-weight:500;font-size:10px;letter-spacing:0.2em;color:var(--fg-2);text-transform:uppercase;margin-bottom:10px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="eyebrow">Navy family</div>
+  <div class="grp">
+    <div class="chip" style="background:#0A1F35;color:#F6EFE2">#0A1F35 shade</div>
+    <div class="chip" style="background:#12304E;color:#F6EFE2">#12304E base</div>
+    <div class="chip" style="background:#2A4867;color:#F6EFE2">#2A4867 tint</div>
+    <div class="chip" style="background:#12304E14;color:#12304E">#12304E 08%</div>
+  </div>
+  <div class="eyebrow">Parchment family</div>
+  <div class="grp">
+    <div class="chip" style="background:#FBF6EC;color:#2B2B2B">#FBF6EC lightest</div>
+    <div class="chip" style="background:#F6EFE2;color:#2B2B2B">#F6EFE2 base</div>
+    <div class="chip" style="background:#EFE5D0;color:#2B2B2B">#EFE5D0 alt</div>
+    <div class="chip" style="background:#E7DCC2;color:#2B2B2B">#E7DCC2 deep</div>
+  </div>
+  <div class="eyebrow">Gold & Clay states</div>
+  <div class="grp">
+    <div class="chip" style="background:#E2C884;color:#12304E">#E2C884 gold soft</div>
+    <div class="chip" style="background:#C9A24B;color:#12304E">#C9A24B gold base</div>
+    <div class="chip" style="background:#A9863A;color:#F6EFE2">#A9863A gold deep</div>
+    <div class="chip" style="background:#B5725E;color:#F6EFE2">#B5725E clay base</div>
+  </div>
+</div>
+</body></html>

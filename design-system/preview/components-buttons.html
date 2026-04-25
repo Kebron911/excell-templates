@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Components — Buttons</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html,body{margin:0;padding:0;}
+  .card{width:700px;padding:30px 32px;background:var(--bg-1);box-sizing:border-box;display:flex;flex-direction:column;gap:18px;}
+  .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--brand-gold);margin:0;min-width:92px;}
+  .btn{font-family:var(--font-body);font-weight:500;font-size:14px;letter-spacing:0.02em;padding:12px 22px;border:0;border-radius:2px;cursor:pointer;}
+  .primary{background:var(--brand-navy);color:var(--brand-parchment);}
+  .primary-hover{background:var(--brand-navy-tint);color:var(--brand-parchment);}
+  .secondary{background:transparent;color:var(--brand-navy);border:1px solid var(--brand-navy);}
+  .gold{background:var(--brand-gold);color:var(--brand-navy);}
+  .ghost{background:transparent;color:var(--brand-navy);padding:12px 0;}
+  .ghost u{text-decoration:underline;text-decoration-color:var(--brand-gold);text-underline-offset:3px;}
+  .disabled{background:var(--brand-gold-soft);color:var(--brand-navy);opacity:0.6;cursor:not-allowed;}
+  .focus{background:var(--brand-navy);color:var(--brand-parchment);box-shadow:0 0 0 3px rgba(201,162,75,0.45);}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="row"><span class="eyebrow">Primary</span>
+    <button class="btn primary">Grab the workbook</button>
+    <button class="btn primary-hover">Hover</button>
+    <button class="btn focus">Focus</button>
+  </div>
+  <div class="row"><span class="eyebrow">Secondary</span>
+    <button class="btn secondary">See what's inside</button>
+    <button class="btn gold">Add to bundle</button>
+    <button class="btn disabled">Sold out</button>
+  </div>
+  <div class="row"><span class="eyebrow">Link</span>
+    <button class="btn ghost"><u>Read the full guide →</u></button>
+    <button class="btn ghost" style="color:var(--brand-clay);"><u style="text-decoration-color:var(--brand-clay);">Skip for now</u></button>
+  </div>
+</div>
+</body></html>

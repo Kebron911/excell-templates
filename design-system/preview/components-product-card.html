@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Components — Product card</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html,body{margin:0;padding:0;}
+  .wrap{width:700px;padding:22px 24px;background:var(--bg-1);box-sizing:border-box;display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .pc{background:var(--brand-parchment);border:1px solid var(--rule);padding:22px 22px 20px;position:relative;border-radius:4px;display:flex;flex-direction:column;gap:10px;}
+  .sku{position:absolute;top:16px;right:20px;font-family:var(--font-mono);font-size:10px;letter-spacing:0.2em;color:var(--brand-gold);text-transform:uppercase;}
+  .cat{font-family:var(--font-mono);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--brand-navy);}
+  h3{font-family:var(--font-display);font-weight:500;font-size:24px;color:var(--brand-navy);margin:0;letter-spacing:-0.005em;line-height:1.15;}
+  .rule{width:40px;height:1px;background:var(--brand-gold);}
+  p{font-family:var(--font-body);font-size:13px;color:var(--fg-2);line-height:1.5;margin:0;}
+  .ft{display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;padding-top:8px;}
+  .price{font-family:var(--font-display);font-weight:500;font-size:26px;color:var(--brand-navy);}
+  .meta{font-family:var(--font-mono);font-size:10px;letter-spacing:0.18em;color:var(--fg-3);text-transform:uppercase;}
+  .hov{border-color:var(--brand-gold);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="pc">
+    <div class="sku">TAX-001</div>
+    <div class="cat">Mileage</div>
+    <h3>STR Mileage Log</h3>
+    <div class="rule"></div>
+    <p>The log that survived my 2022 audit. Auto-calculates 70¢/mile.</p>
+    <div class="ft"><span class="price">$17</span><span class="meta">Excel · Instant</span></div>
+  </div>
+  <div class="pc hov">
+    <div class="sku">TAX-002</div>
+    <div class="cat">Tax · hover</div>
+    <h3>Schedule E Workbook</h3>
+    <div class="rule"></div>
+    <p>One tab per property. Every IRS line auto-calculates. Built for 3–10 properties.</p>
+    <div class="ft"><span class="price">$97</span><span class="meta">Excel · 10 tabs</span></div>
+  </div>
+</div>
+</body></html>

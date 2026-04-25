@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <pattern id="grid" x="0" y="0" width="40" height="32" patternUnits="userSpaceOnUse">
+      <rect width="40" height="32" fill="#F6EFE2" stroke="#E7DCC2" stroke-width="1"></rect>
+    </pattern>
+  </defs>
+  <rect width="800" height="500" fill="#F6EFE2"></rect>
+  
+  <rect x="80" y="80" width="640" height="360" fill="#FBF6EC" stroke="#E7DCC2"></rect>
+  <rect x="80" y="80" width="640" height="40" fill="#12304E"></rect>
+  <text x="100" y="106" font-family="Inter, sans-serif" font-weight="600" font-size="13" fill="#F6EFE2" letter-spacing="2">SCHEDULE E · PROPERTY ROLLUP</text>
+  <rect x="80" y="120" width="640" height="320" fill="url(#grid)"></rect>
+  
+  <rect x="80" y="120" width="640" height="32" fill="#EFE5D0"></rect>
+  <text x="100" y="140" font-family="JetBrains Mono, monospace" font-size="10" fill="#12304E" letter-spacing="2">PROPERTY</text>
+  <text x="260" y="140" font-family="JetBrains Mono, monospace" font-size="10" fill="#12304E" letter-spacing="2">GROSS</text>
+  <text x="380" y="140" font-family="JetBrains Mono, monospace" font-size="10" fill="#12304E" letter-spacing="2">EXPENSES</text>
+  <text x="520" y="140" font-family="JetBrains Mono, monospace" font-size="10" fill="#12304E" letter-spacing="2">NET</text>
+  
+  <g font-family="Inter, sans-serif" font-size="13" fill="#2B2B2B">
+    <text x="100" y="175">Smoky Mtn Cabin</text><text x="260" y="175">$84,200</text><text x="380" y="175">$32,100</text><text x="520" y="175" fill="#12304E" font-weight="600">$52,100</text>
+    <text x="100" y="207">Gulf Shores Condo</text><text x="260" y="207">$61,450</text><text x="380" y="207">$28,900</text><text x="520" y="207" fill="#12304E" font-weight="600">$32,550</text>
+    <text x="100" y="239">Asheville Bungalow</text><text x="260" y="239">$49,800</text><text x="380" y="239">$21,200</text><text x="520" y="239" fill="#12304E" font-weight="600">$28,600</text>
+  </g>
+  
+  <rect x="80" y="260" width="640" height="36" fill="#12304E" fill-opacity="0.04"></rect>
+  <line x1="80" y1="260" x2="720" y2="260" stroke="#C9A24B" stroke-width="1"></line>
+  <text x="100" y="283" font-family="Inter, sans-serif" font-weight="600" font-size="13" fill="#B5725E">TOTAL PORTFOLIO</text>
+  <text x="260" y="283" font-family="Inter, sans-serif" font-weight="600" font-size="13" fill="#2B2B2B">$195,450</text>
+  <text x="380" y="283" font-family="Inter, sans-serif" font-weight="600" font-size="13" fill="#2B2B2B">$82,200</text>
+  <text x="520" y="283" font-family="Inter, sans-serif" font-weight="700" font-size="14" fill="#12304E">$113,250</text>
+  
+  <g transform="translate(620,340)" opacity="0.12">
+    <circle cx="40" cy="40" r="38" fill="#12304E"></circle>
+    <text x="28" y="54" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-weight="500" font-size="42" fill="#F6EFE2">S</text>
+    <text x="52" y="54" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-weight="500" font-size="42" fill="#C9A24B">L</text>
+  </g>
+</svg>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The STR Ledger — Run your rentals before they run you</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--brand-parchment); }
+  a { color: inherit; }
+  button:hover { filter: brightness(0.92); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/atoms.jsx"></script>
+<script type="text/babel" src="components/sections.jsx"></script>
+
+<script type="text/babel">
+function TaxSeasonBand() {
+  return (
+    <section style={{ background: "var(--brand-navy)", color: "var(--brand-parchment)", padding: "96px 48px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+        <div>
+          <Eyebrow onNavy>Tax season · 2026</Eyebrow>
+          <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 52, lineHeight: 1.08, margin: "20px 0 0", letterSpacing: "-0.01em", color: "var(--brand-parchment)" }}>
+            <span style={{ fontStyle: "italic", fontWeight: 400 }}>April 15</span> is coming.<br/>
+            Is your Schedule E<span style={{ color: "var(--brand-gold)" }}>.</span>
+          </h2>
+          <GoldRule width={48} my={24}/>
+          <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 20, color: "var(--brand-parchment)", margin: 0, maxWidth: 440, lineHeight: 1.5 }}>
+            You don't need another app. You need one workbook, built by a host who's done her own taxes for nine years, that lines up field-for-field with what your CPA will ask for.
+          </p>
+          <div style={{ marginTop: 36 }}>
+            <Button variant="gold" size="lg">Get The 2025 Ledger — $147</Button>
+          </div>
+        </div>
+        <div style={{ borderLeft: "1px solid var(--fg-on-navy-muted)", paddingLeft: 56 }}>
+          {[
+            ["01", "Gross rents & fees", "Pre-wired to Airbnb + VRBO CSVs"],
+            ["02", "Allowable deductions", "All 47, categorized, with cites"],
+            ["03", "Depreciation", "Cost-seg ready · Form 4562"],
+            ["04", "Hand-off pack", "PDF your CPA will actually smile at"],
+          ].map(([n, t, s]) => (
+            <div key={n} style={{ display: "grid", gridTemplateColumns: "56px 1fr", padding: "20px 0", borderBottom: "1px solid var(--fg-on-navy-muted)" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 24, color: "var(--brand-gold)" }}>{n}</span>
+              <div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 17, fontWeight: 500, color: "var(--brand-parchment)" }}>{t}</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--fg-on-navy-muted)", marginTop: 4 }}>{s}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ProductRow() {
+  const items = [
+    { tag: "Taxes", title: "The 2025 Ledger", price: "147", body: "The Schedule E workbook — pre-wired to 47 deductions, Form 4562, and every line a CPA actually asks for.", badge: "Bestseller" },
+    { tag: "Operations", title: "The Cleaner's Run Sheet", price: "47", body: "Turnover checklist + pay tracker your cleaners will actually fill in. Weekly rollup for you." },
+    { tag: "Pricing", title: "The Rate Card", price: "67", body: "Minimum-stay, seasonal, and event-premium logic — plus the margin math to justify every number." },
+    { tag: "Bundles", title: "The Whole Shelf", price: "297", body: "Every workbook, every checklist, every printable. One link. One price. One season.", badge: "Save $84" },
+  ];
+  return (
+    <section style={{ background: "var(--brand-parchment)", padding: "96px 48px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 56 }}>
+          <div>
+            <Eyebrow>The Catalog</Eyebrow>
+            <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 44, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 0" }}>
+              Four workbooks<span style={{ color: "var(--brand-gold)" }}>.</span> Zero subscriptions.
+            </h2>
+          </div>
+          <a href="#" style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--brand-navy)", borderBottom: "1px solid var(--brand-gold)", paddingBottom: 2, textDecoration: "none" }}>See the whole catalog →</a>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20 }}>
+          {items.map(i => <ProductCard key={i.title} {...i}/>)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BlogPreview() {
+  return (
+    <section style={{ background: "var(--brand-paper)", padding: "96px 48px", borderTop: "1px solid var(--rule-strong)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow>The Ledger Note</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 40, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "14px 0 48px" }}>
+          Notes from the <span style={{ fontStyle: "italic", fontWeight: 400 }}>margins</span><span style={{ color: "var(--brand-gold)" }}>.</span>
+        </h2>
+        <BlogCard
+          feature
+          category="Tax · Long read"
+          title="The 47 Airbnb deductions your CPA forgets to ask about."
+          excerpt="Most hosts leave $4,200 on the table every April. Not because they're careless — because the IRS categories were written for landlords, not operators. Here's the full list, with cites, in the order your Schedule E asks for them."
+          date="March 3 · 14 min read"
+        />
+        <BlogCard category="Operations" title="Stop texting your cleaners. Use the Run Sheet instead." excerpt="A one-page turnover doc — laminated, Velcroed to the supply closet — cuts a cleaner's callbacks by 80%." date="Feb 24 · 6 min read"/>
+        <BlogCard category="Pricing" title="Why your 'competitive' rate is leaving $4,200 on the table." excerpt="A cost-per-night framework that works whether you own one cabin or twenty-seven." date="Feb 17 · 9 min read"/>
+        <div style={{ borderTop: "1px solid var(--rule-strong)", paddingTop: 36, marginTop: 12 }}>
+          <Button variant="secondary">Read every note →</Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function App() {
+  return (<>
+    <Header active="home"/>
+    <Hero/>
+    <ProductRow/>
+    <TaxSeasonBand/>
+    <BlogPreview/>
+    <Footer/>
+  </>);
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

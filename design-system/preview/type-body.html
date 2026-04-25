@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Type — Body & mono</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html,body{margin:0;padding:0;}
+  .card{width:700px;padding:28px 36px;background:var(--bg-1);box-sizing:border-box;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;}
+  .col h5{font-family:var(--font-body);font-weight:500;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--brand-gold);margin:0 0 10px;}
+  .lead{font-family:var(--font-body);font-weight:400;font-size:18px;line-height:1.5;color:var(--fg-2);margin:0 0 10px;}
+  .body{font-family:var(--font-body);font-weight:400;font-size:15px;line-height:1.55;color:var(--fg-1);margin:0 0 8px;}
+  .cap{font-family:var(--font-body);font-size:12px;color:var(--fg-3);margin:0;}
+  .ui{font-family:var(--font-body);font-weight:500;font-size:14px;letter-spacing:0.02em;color:var(--brand-navy);margin:0 0 6px;}
+  .mono{font-family:var(--font-mono);font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--brand-gold);margin:0;}
+  .sku{font-family:var(--font-mono);font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:var(--brand-navy);margin:6px 0 0;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="grid">
+    <div class="col">
+      <h5>Body — Inter</h5>
+      <p class="lead">18 Lead · "Close your year before April does."</p>
+      <p class="body">16 Body · Every trip to the property — cleaning inspection, maintenance, guest emergency — is a deductible business mile.</p>
+      <p class="cap">12 Caption · 14-day refund, no questions asked.</p>
+    </div>
+    <div class="col">
+      <h5>UI & mono</h5>
+      <p class="ui">14 UI · Add to bundle</p>
+      <p class="mono">TAX-001 · INSTANT DOWNLOAD</p>
+      <p class="sku">SCHEDULE E · $97</p>
+      <p class="cap" style="margin-top:14px;">JetBrains Mono 11 / 0.22em tracked — SKUs, URLs, eyebrows only.</p>
+    </div>
+  </div>
+</div>
+</body></html>

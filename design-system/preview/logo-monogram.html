@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Logo — Monogram variants</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html,body{margin:0;padding:0;}
+  .card{width:700px;height:220px;background:var(--bg-1);display:flex;align-items:center;justify-content:center;gap:56px;}
+  .mg{width:140px;height:140px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:500;font-size:72px;line-height:1;}
+  .mg .s{display:inline-block;}
+  .mg .l{display:inline-block;margin-left:2px;}
+  .filled{background:var(--brand-navy);}
+  .filled .s{color:var(--brand-parchment);}
+  .filled .l{color:var(--brand-gold);}
+  .outline{background:transparent;border:1.5px solid var(--brand-navy);}
+  .outline .s{color:var(--brand-navy);}
+  .outline .l{color:var(--brand-gold);}
+  .reverse{background:var(--brand-navy);}
+  .reverse .s{color:var(--brand-parchment);}
+  .reverse .l{color:var(--brand-gold);}
+  .grp{display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .grp .cap{font-family:var(--font-mono);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--fg-2);}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="grp">
+    <div class="mg filled"><span class="s">S</span><span class="l">L</span></div>
+    <span class="cap">Filled · Avatar</span>
+  </div>
+  <div class="grp">
+    <div class="mg outline"><span class="s">S</span><span class="l">L</span></div>
+    <span class="cap">Outline · Inline</span>
+  </div>
+  <div class="grp" style="background:var(--brand-navy);padding:16px 24px;">
+    <div class="mg reverse"><span class="s">S</span><span class="l">L</span></div>
+    <span class="cap" style="color:var(--brand-gold);">On Navy · Header</span>
+  </div>
+</div>
+</body></html>

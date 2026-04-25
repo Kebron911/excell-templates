@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Components — Iconography</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  html,body{margin:0;padding:0;}
+  .card{width:700px;padding:28px 32px;background:var(--bg-1);box-sizing:border-box;}
+  h5{font-family:var(--font-body);font-weight:500;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--brand-gold);margin:0 0 14px;}
+  .grid{display:grid;grid-template-columns:repeat(8,1fr);gap:14px;}
+  .i{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .i svg{width:24px;height:24px;stroke:var(--brand-navy);stroke-width:1.5;}
+  .lbl{font-family:var(--font-mono);font-size:9px;letter-spacing:0.1em;color:var(--fg-3);text-transform:uppercase;}
+  .note{font-family:var(--font-body);font-size:12px;color:var(--fg-3);margin-top:14px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="card">
+  <h5>Lucide — 1.5px stroke, navy on parchment · substitution (see README)</h5>
+  <div class="grid">
+    <div class="i"><i data-lucide="calculator"></i><span class="lbl">calc</span></div>
+    <div class="i"><i data-lucide="file-spreadsheet"></i><span class="lbl">sheet</span></div>
+    <div class="i"><i data-lucide="home"></i><span class="lbl">home</span></div>
+    <div class="i"><i data-lucide="car"></i><span class="lbl">mileage</span></div>
+    <div class="i"><i data-lucide="receipt"></i><span class="lbl">receipt</span></div>
+    <div class="i"><i data-lucide="landmark"></i><span class="lbl">tax</span></div>
+    <div class="i"><i data-lucide="download"></i><span class="lbl">download</span></div>
+    <div class="i"><i data-lucide="mail"></i><span class="lbl">mail</span></div>
+    <div class="i"><i data-lucide="trending-up"></i><span class="lbl">growth</span></div>
+    <div class="i"><i data-lucide="key-round"></i><span class="lbl">access</span></div>
+    <div class="i"><i data-lucide="calendar"></i><span class="lbl">season</span></div>
+    <div class="i"><i data-lucide="shield-check"></i><span class="lbl">audit</span></div>
+    <div class="i"><i data-lucide="book-open"></i><span class="lbl">guide</span></div>
+    <div class="i"><i data-lucide="users"></i><span class="lbl">group</span></div>
+    <div class="i"><i data-lucide="chevron-right"></i><span class="lbl">next</span></div>
+    <div class="i"><i data-lucide="circle-check"></i><span class="lbl">done</span></div>
+  </div>
+  <div class="note">Stroke matches surrounding text color. Never filled. Pairs with a label — icon-only affordances reserved for nav + utility.</div>
+  <script>lucide.createIcons();</script>
+</div>
+</body></html>

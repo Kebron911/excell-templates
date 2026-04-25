@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Get the 47 — The STR Ledger</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--brand-navy); min-height: 100vh; }
+  button:hover { filter: brightness(0.92); }
+  input:focus { outline: none; border-color: var(--brand-gold); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/atoms.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+function Landing() {
+  const [email, setEmail] = useState("");
+  const [sent, setSent] = useState(false);
+  return (
+    <div style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "1.1fr 1fr" }}>
+      <div style={{ padding: "72px 72px 48px", color: "var(--brand-parchment)", display: "flex", flexDirection: "column" }}>
+        <a href="index.html" style={{ textDecoration: "none", alignSelf: "flex-start" }}><Wordmark reverse/></a>
+        <div style={{ margin: "auto 0", maxWidth: 580 }}>
+          <Eyebrow onNavy>The Free Guide</Eyebrow>
+          <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 72, letterSpacing: "-0.015em", color: "var(--brand-parchment)", margin: "20px 0 0", lineHeight: 1.02 }}>
+            <span style={{ fontStyle: "italic", fontWeight: 400 }}>47</span><br/>Airbnb deductions<span style={{ color: "var(--brand-gold)" }}>.</span>
+          </h1>
+          <GoldRule width={48} my={28}/>
+          <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 22, lineHeight: 1.5, color: "var(--brand-parchment)", margin: 0 }}>
+            The full list, in the order your Schedule E asks for them. 14 pages. With the cites. Free.
+          </p>
+          <ul style={{ listStyle: "none", padding: 0, margin: "36px 0 0", display: "flex", flexDirection: "column", gap: 16 }}>
+            {[
+              "All 47 deductions, pre-categorized",
+              "IRS cite under every one",
+              "The mileage &amp; phone pro-rata worksheet",
+              "One-page 'What to hand my CPA' checklist",
+            ].map(l => (
+              <li key={l} style={{ fontFamily: "var(--font-body)", fontSize: 16, color: "var(--brand-parchment)", paddingLeft: 24, position: "relative" }}>
+                <span style={{ position: "absolute", left: 0, color: "var(--brand-gold)", fontFamily: "var(--font-display)", fontStyle: "italic" }}>✓</span>
+                <span dangerouslySetInnerHTML={{ __html: l }}/>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-on-navy-muted)" }}>
+          © 2026 The STR Ledger · Not tax advice · consult your CPA
+        </div>
+      </div>
+
+      <div style={{ background: "var(--brand-parchment)", padding: "72px 72px 48px", display: "flex", alignItems: "center" }}>
+        <div style={{ width: "100%", maxWidth: 440 }}>
+          {!sent ? (
+            <form onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
+              <Eyebrow>Send it to me</Eyebrow>
+              <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 36, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "14px 0 0", lineHeight: 1.15 }}>
+                Enter your email<span style={{ color: "var(--brand-gold)" }}>.</span> No spam, one email a month, unsubscribe anytime.
+              </h2>
+              <GoldRule width={32} my={28}/>
+              <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)", marginBottom: 8 }}>Email</label>
+              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="sarah@gatlinburgstays.com" style={{
+                width: "100%", padding: "14px 16px", fontFamily: "var(--font-body)", fontSize: 16,
+                color: "var(--brand-navy)", background: "transparent",
+                border: "1px solid var(--rule-strong)", borderRadius: 0,
+              }}/>
+              <div style={{ marginTop: 12, display: "flex", alignItems: "flex-start", gap: 10 }}>
+                <input type="checkbox" id="own" defaultChecked style={{ marginTop: 4, accentColor: "var(--brand-gold)" }}/>
+                <label htmlFor="own" style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--fg-2)", lineHeight: 1.5 }}>I own or manage a short-term rental</label>
+              </div>
+              <div style={{ marginTop: 24 }}>
+                <Button variant="primary" size="lg" full>Send me the 47 →</Button>
+              </div>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--fg-3)", margin: "20px 0 0", lineHeight: 1.6 }}>
+                You'll get the guide as a PDF. Then one email a month from Emily. Unsubscribe anytime — the link's at the bottom of every note.
+              </p>
+            </form>
+          ) : (
+            <div>
+              <Eyebrow>On its way</Eyebrow>
+              <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 38, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "14px 0 0", lineHeight: 1.15 }}>
+                <span style={{ fontStyle: "italic", fontWeight: 400 }}>Check</span> your inbox<span style={{ color: "var(--brand-gold)" }}>.</span>
+              </h2>
+              <GoldRule width={32} my={24}/>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 16, lineHeight: 1.6, color: "var(--fg-2)" }}>
+                The PDF is on its way to <strong style={{ color: "var(--brand-navy)" }}>{email}</strong>. If you don't see it in five minutes, check your promotions tab — Gmail likes to file me there.
+              </p>
+              <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 18, color: "var(--brand-navy)", marginTop: 32 }}>— Emily</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<Landing/>);
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Colors — Semantic tokens</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html,body{margin:0;padding:0;}
+  .card{width:700px;padding:28px;background:var(--bg-1);box-sizing:border-box;}
+  .tbl{display:grid;grid-template-columns:1fr 1.6fr 24px;column-gap:16px;row-gap:10px;font-family:var(--font-mono);font-size:11px;align-items:center;}
+  .key{color:var(--brand-navy);letter-spacing:0.05em;}
+  .val{color:var(--fg-2);}
+  .sw{width:20px;height:20px;border:1px solid var(--rule);}
+  .hd{grid-column:1/-1;font-family:var(--font-body);font-weight:500;font-size:10px;letter-spacing:0.22em;color:var(--brand-gold);text-transform:uppercase;padding-top:8px;border-top:1px solid var(--rule);margin-top:6px;}
+  .hd:first-child{border-top:0;margin-top:0;padding-top:0;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="tbl">
+    <div class="hd">Foreground</div>
+    <div class="key">--fg-1</div><div class="val">#2B2B2B body on parchment</div><div class="sw" style="background:#2B2B2B"></div>
+    <div class="key">--fg-2</div><div class="val">#555049 secondary text</div><div class="sw" style="background:#555049"></div>
+    <div class="key">--fg-3</div><div class="val">#8A8176 caption / meta</div><div class="sw" style="background:#8A8176"></div>
+    <div class="key">--fg-on-navy</div><div class="val">#F6EFE2 type on navy</div><div class="sw" style="background:#F6EFE2"></div>
+    <div class="key">--fg-accent</div><div class="val">#C9A24B gold accent text</div><div class="sw" style="background:#C9A24B"></div>
+    <div class="hd">Surface</div>
+    <div class="key">--bg-1</div><div class="val">#F6EFE2 default page</div><div class="sw" style="background:#F6EFE2"></div>
+    <div class="key">--bg-2</div><div class="val">#EFE5D0 alt rows / cards</div><div class="sw" style="background:#EFE5D0"></div>
+    <div class="key">--bg-inverse</div><div class="val">#12304E navy hero block</div><div class="sw" style="background:#12304E"></div>
+    <div class="hd">Rule</div>
+    <div class="key">--rule</div><div class="val">#E7DCC2 hairline on parchment</div><div class="sw" style="background:#E7DCC2"></div>
+    <div class="key">--rule-gold</div><div class="val">#C9A24B gold rule accent</div><div class="sw" style="background:#C9A24B"></div>
+  </div>
+</div>
+</body></html>

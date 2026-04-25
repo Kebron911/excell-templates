@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Brand — Voice</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html,body{margin:0;padding:0;}
+  .card{width:700px;padding:28px 32px;background:var(--bg-1);box-sizing:border-box;}
+  h5{font-family:var(--font-body);font-weight:500;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--brand-gold);margin:0 0 14px;}
+  .tbl{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;}
+  .col{display:flex;flex-direction:column;gap:10px;}
+  .hd{font-family:var(--font-mono);font-size:10px;letter-spacing:0.22em;text-transform:uppercase;margin-bottom:2px;}
+  .no{color:var(--brand-clay);}
+  .yes{color:var(--brand-navy);}
+  .line{font-family:var(--font-body);font-size:13px;color:var(--fg-1);line-height:1.45;padding:10px 12px;border:1px solid var(--rule);background:var(--brand-parchment);}
+  .line.bad{border-color:var(--brand-clay);color:var(--fg-2);text-decoration:line-through;text-decoration-color:var(--brand-clay);}
+  .line.good{border-left:2px solid var(--brand-gold);}
+</style>
+</head>
+<body>
+<div class="card">
+  <h5>Voice tests — would Sarah forward this to her CPA?</h5>
+  <div class="tbl">
+    <div class="col">
+      <div class="hd no">Wrong</div>
+      <div class="line bad">Unlock your Airbnb tax savings! 🏠💸</div>
+      <div class="line bad">Hey host babe, ready to crush tax season?</div>
+      <div class="line bad">Our easy spreadsheet helps you track stuff.</div>
+      <div class="line bad">You got this!! ✨</div>
+    </div>
+    <div class="col">
+      <div class="hd yes">Right</div>
+      <div class="line good">The $8,427 deduction most STR hosts miss.</div>
+      <div class="line good">Close your year before April does.</div>
+      <div class="line good">Schedule E-ready workbook. Formula-tight. Built for 3–10 properties.</div>
+      <div class="line good">The books every real portfolio needs.</div>
+    </div>
+  </div>
+</div>
+</body></html>

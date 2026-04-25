@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400" width="1000" height="400">
+  <rect width="1000" height="400" fill="#12304E"></rect>
+  <text x="500" y="155" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-style="italic" font-weight="400" font-size="64" fill="#F6EFE2">The</text>
+  <text x="500" y="270" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-weight="500" font-size="128" fill="#F6EFE2" letter-spacing="-2">STR Ledger<tspan fill="#C9A24B">.</tspan></text>
+  <line x1="470" y1="310" x2="530" y2="310" stroke="#C9A24B" stroke-width="1.5"></line>
+  <text x="500" y="345" text-anchor="middle" font-family="Inter, sans-serif" font-weight="500" font-size="14" fill="#F6EFE2" letter-spacing="3">RUN YOUR RENTALS BEFORE THEY RUN YOU</text>
+</svg>

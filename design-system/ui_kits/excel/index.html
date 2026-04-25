@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The 2025 Ledger — Workbook Preview</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--brand-parchment); height: 100%; font-family: var(--font-body); }
+  #root { height: 100vh; display: flex; flex-direction: column; }
+  button:hover { filter: brightness(0.96); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/Sheet.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+const TABS = [
+  { key: "cover",    label: "Cover",       color: "var(--brand-navy)" },
+  { key: "income",   label: "01 · Income", color: "var(--brand-gold)" },
+  { key: "deducts",  label: "02 · Deductions" },
+  { key: "deprec",   label: "03 · Depreciation" },
+  { key: "mileage",  label: "04 · Mileage" },
+  { key: "schede",   label: "05 · Schedule E" },
+  { key: "summary",  label: "06 · Hand-off" },
+];
+
+function TitleBar() {
+  return (
+    <div style={{ background: "var(--brand-navy)", color: "var(--brand-parchment)", padding: "10px 20px", display: "flex", alignItems: "center", gap: 16, fontFamily: "var(--font-body)", fontSize: 13 }}>
+      <span style={{ display: "inline-flex", alignItems: "baseline", gap: 6 }}>
+        <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 14 }}>The</span>
+        <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 18, letterSpacing: "-0.01em" }}>STR Ledger<span style={{ color: "var(--brand-gold)" }}>.</span></span>
+      </span>
+      <span style={{ color: "var(--fg-on-navy-muted)", fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.18em", textTransform: "uppercase" }}>The-2025-Ledger.xlsx</span>
+      <span style={{ marginLeft: "auto", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Saved · iCloud · 2 min ago</span>
+    </div>
+  );
+}
+
+function Ribbon({ tab }) {
+  const items = ["File", "Home", "Insert", "Page", "Formulas", "Data", "Review", "View", "Ledger ★"];
+  return (
+    <div style={{ background: "var(--brand-parchment-dark)", borderBottom: "1px solid var(--rule-strong)" }}>
+      <div style={{ display: "flex", gap: 0, padding: "0 16px" }}>
+        {items.map((i, idx) => (
+          <div key={i} style={{
+            padding: "10px 18px", fontFamily: "var(--font-body)", fontSize: 13,
+            color: i === "Ledger ★" ? "var(--brand-gold)" : "var(--fg-1)",
+            borderBottom: idx === 1 ? "2px solid var(--brand-gold)" : "2px solid transparent",
+            fontWeight: idx === 1 ? 500 : 400,
+            letterSpacing: i === "Ledger ★" ? "0.06em" : 0,
+          }}>{i}</div>
+        ))}
+      </div>
+      <div style={{ display: "flex", gap: 18, padding: "12px 22px", borderTop: "1px solid var(--rule)", alignItems: "center" }}>
+        {["Paste", "Cut", "Copy", "|", "Calibri → Inter", "12", "B", "I", "U", "|", "$", "%", ".00", "|", "Σ Sum", "ƒ Fx"].map((x, i) => (
+          <span key={i} style={{
+            fontFamily: x === "|" ? undefined : "var(--font-body)", fontSize: 12,
+            color: x === "|" ? "var(--rule-strong)" : "var(--fg-2)",
+            fontWeight: x === "B" || x.startsWith("Σ") ? 600 : 400,
+            fontStyle: x === "I" ? "italic" : "normal",
+            textDecoration: x === "U" ? "underline" : "none",
+          }}>{x}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FormulaBar({ cell, formula }) {
+  return (
+    <div style={{ display: "flex", borderBottom: "1px solid var(--rule-strong)", background: "var(--brand-paper)" }}>
+      <div style={{ width: 120, padding: "8px 12px", borderRight: "1px solid var(--rule-strong)", fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--brand-navy)", fontWeight: 500 }}>{cell}</div>
+      <div style={{ width: 40, padding: "8px 10px", borderRight: "1px solid var(--rule-strong)", fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--brand-gold)", fontSize: 14 }}>ƒx</div>
+      <div style={{ flex: 1, padding: "8px 12px", fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg-2)" }}>{formula}</div>
+    </div>
+  );
+}
+
+function TabBar({ active, setActive }) {
+  return (
+    <div style={{ display: "flex", background: "var(--brand-parchment-dark)", borderTop: "1px solid var(--rule-strong)" }}>
+      {TABS.map(t => {
+        const isActive = t.key === active;
+        return (
+          <button key={t.key} onClick={() => setActive(t.key)} style={{
+            padding: "10px 22px", border: 0, cursor: "pointer",
+            background: isActive ? "var(--brand-paper)" : "transparent",
+            borderRight: "1px solid var(--rule)",
+            borderTop: isActive ? "2px solid " + (t.color || "var(--brand-gold)") : "2px solid transparent",
+            fontFamily: "var(--font-body)", fontSize: 13,
+            color: isActive ? "var(--brand-navy)" : "var(--fg-2)",
+            fontWeight: isActive ? 500 : 400,
+            position: "relative", top: isActive ? 0 : 0,
+          }}>{t.label}</button>
+        );
+      })}
+      <div style={{ marginLeft: "auto", padding: "10px 16px", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>7 sheets</div>
+    </div>
+  );
+}
+
+function StatusBar({ tab }) {
+  return (
+    <div style={{ display: "flex", padding: "8px 20px", background: "var(--brand-navy)", color: "var(--fg-on-navy-muted)", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", gap: 32 }}>
+      <span>Ready</span>
+      <span>Sum · $142,880</span>
+      <span>Count · 214</span>
+      <span style={{ marginLeft: "auto", color: "var(--brand-gold)" }}>Ledger mode · active</span>
+    </div>
+  );
+}
+
+// ---- Sheet content per tab ---------------------------------------------
+
+const incomeCols = [
+  { key: "date", label: "A · Date", width: 110 },
+  { key: "plat", label: "B · Platform", width: 90 },
+  { key: "conf", label: "C · Confirmation", width: 130 },
+  { key: "guest", label: "D · Guest", width: 140 },
+  { key: "nights", label: "E · Nights", width: 70 },
+  { key: "rent", label: "F · Rent", width: 100 },
+  { key: "clean", label: "G · Cleaning fee", width: 110 },
+  { key: "tax", label: "H · Occ. tax", width: 100 },
+  { key: "payout", label: "I · Net payout", width: 120 },
+];
+const incomeRows = [
+  { key: "h", bold: true, rule: true, date: "2025 TOTALS", plat: "", conf: "", guest: "", nights: "214", rent: "$118,420", clean: "$18,120", tax: "$6,340", payout: "$142,880" },
+  { key: 1, date: "01/04/25", plat: "Airbnb", conf: "HMX3K2NQ", guest: "Torres, M.",   nights: "3",  rent: "$860",   clean: "$145",  tax: "$42",  payout: "$1,047" },
+  { key: 2, date: "01/09/25", plat: "VRBO",   conf: "3182847",  guest: "Patel, R.",    nights: "7",  rent: "$1,980", clean: "$175",  tax: "$98",  payout: "$2,253" },
+  { key: 3, date: "01/17/25", plat: "Airbnb", conf: "HMX8F1PL", guest: "Nguyen, D.",   nights: "2",  rent: "$620",   clean: "$145",  tax: "$30",  payout: "$795"   },
+  { key: 4, date: "01/22/25", plat: "Direct", conf: "DIR-0042", guest: "Kellerman, A.",nights: "5",  rent: "$1,325", clean: "$145",  tax: "$64",  payout: "$1,534" },
+  { key: 5, date: "01/27/25", plat: "Airbnb", conf: "HMX9KL77", guest: "Jefferson, T.",nights: "4",  rent: "$1,060", clean: "$145",  tax: "$51",  payout: "$1,256" },
+  { key: 6, date: "02/02/25", plat: "VRBO",   conf: "3194012",  guest: "Cho, H.",      nights: "3",  rent: "$840",   clean: "$175",  tax: "$44",  payout: "$1,059" },
+  { key: 7, date: "02/08/25", plat: "Airbnb", conf: "HMXB2T1X", guest: "Romero, L.",   nights: "6",  rent: "$1,590", clean: "$145",  tax: "$76",  payout: "$1,811" },
+  { key: 8, date: "02/14/25", plat: "Direct", conf: "DIR-0043", guest: "Park, S.",     nights: "2",  rent: "$580",   clean: "$145",  tax: "$27",  payout: "$702"   },
+  { key: 9, date: "02/19/25", plat: "Airbnb", conf: "HMXC9FR2", guest: "Mathis, G.",   nights: "4",  rent: "$1,120", clean: "$145",  tax: "$54",  payout: "$1,319" },
+  { key:10, date: "02/23/25", plat: "VRBO",   conf: "3201166",  guest: "Singh, P.",    nights: "5",  rent: "$1,400", clean: "$175",  tax: "$71",  payout: "$1,646" },
+];
+
+const deductCols = [
+  { key: "no", label: "A · #",   width: 50 },
+  { key: "cat",  label: "B · Category", width: 180 },
+  { key: "desc", label: "C · Item", width: 260 },
+  { key: "line", label: "D · Schedule E line", width: 150 },
+  { key: "amt",  label: "E · Amount", width: 110 },
+  { key: "cite", label: "F · IRS cite", width: 140 },
+];
+const deductRows = [
+  { key: "h", bold: true, rule: true, no: "2025", cat: "ALL DEDUCTIONS", desc: "", line: "", amt: "$102,987", cite: "" },
+  { key: 1,  no: "01", cat: "Advertising",            desc: "AirDNA subscription",        line: "Line 5",  amt: "$348",    cite: "§162(a)(1)" },
+  { key: 2,  no: "02", cat: "Auto & travel",          desc: "Property-visit mileage",     line: "Line 6",  amt: "$2,146",  cite: "§162 / Rev. Proc. 2024-58" },
+  { key: 3,  no: "03", cat: "Cleaning & maintenance", desc: "Turnovers — Vol 47 LLC",     line: "Line 7",  amt: "$18,420", cite: "§162(a)" },
+  { key: 4,  no: "04", cat: "Commissions",            desc: "Airbnb host fees",           line: "Line 8",  amt: "$4,286",  cite: "§162(a)" },
+  { key: 5,  no: "05", cat: "Insurance",              desc: "Proper Insurance STR policy",line: "Line 9",  amt: "$1,840",  cite: "§162(a)" },
+  { key: 6,  no: "06", cat: "Legal & professional",   desc: "CPA prep fee (40% allocable)",line: "Line 10", amt: "$640",    cite: "§212(3)" },
+  { key: 7,  no: "07", cat: "Management fees",        desc: "Hospitable pro plan",        line: "Line 11", amt: "$468",    cite: "§162(a)" },
+  { key: 8,  no: "08", cat: "Mortgage interest",      desc: "Form 1098 · Chase",          line: "Line 12", amt: "$41,204", cite: "§163(h)" },
+  { key: 9,  no: "09", cat: "Repairs",                desc: "HVAC service, paint",        line: "Line 14", amt: "$3,218",  cite: "§162 / §263A" },
+  { key:10,  no: "10", cat: "Supplies",               desc: "Linens, toiletries, coffee", line: "Line 15", amt: "$6,115",  cite: "§162(a)" },
+  { key:11,  no: "11", cat: "Taxes",                  desc: "Property tax · Sevier Cty",  line: "Line 16", amt: "$4,180",  cite: "§164(a)" },
+  { key:12,  no: "12", cat: "Utilities",              desc: "Power, water, internet",     line: "Line 17", amt: "$4,662",  cite: "§162(a)" },
+  { key:13,  no: "13", cat: "Depreciation",           desc: "Straight-line (see 03 tab)", line: "Line 18", amt: "$22,960", cite: "§167 / §168" },
+];
+
+const deprecCols = [
+  { key: "asset", label: "A · Asset",        width: 220 },
+  { key: "placed", label: "B · Placed",      width: 100 },
+  { key: "basis", label: "C · Basis",        width: 120 },
+  { key: "life", label: "D · Life",          width: 90 },
+  { key: "method", label: "E · Method",      width: 120 },
+  { key: "priory", label: "F · Prior",       width: 110 },
+  { key: "cury", label: "G · 2025",          width: 110 },
+  { key: "accum", label: "H · Accum.",       width: 120 },
+];
+const deprecRows = [
+  { key: "h", bold: true, rule: true, asset: "TOTAL DEPRECIATION", placed: "", basis: "$628,400", life: "", method: "", priory: "$68,880", cury: "$22,960", accum: "$91,840" },
+  { key: 1, asset: "Building — 402 Ridge Cabin", placed: "03/15/22", basis: "$512,000", life: "27.5 yr", method: "SL / MM", priory: "$55,273", cury: "$18,618", accum: "$73,891" },
+  { key: 2, asset: "Land improvements — deck",   placed: "06/01/22", basis: "$24,800",  life: "15 yr",  method: "150DB",  priory: "$5,952",  cury: "$1,653",  accum: "$7,605" },
+  { key: 3, asset: "HVAC split-system",          placed: "09/12/23", basis: "$8,400",   life: "27.5 yr",method: "SL / MM", priory: "$508",    cury: "$305",    accum: "$813" },
+  { key: 4, asset: "Hot tub — Bullfrog A8L",     placed: "11/02/23", basis: "$14,200",  life: "7 yr",   method: "200DB",  priory: "$1,014",  cury: "$1,750",  accum: "$2,764" },
+  { key: 5, asset: "Furniture & fixtures (bulk)",placed: "04/10/22", basis: "$42,600",  life: "5 yr",   method: "200DB",  priory: "$5,965",  cury: "$526",    accum: "$6,491" },
+  { key: 6, asset: "Kitchen appliance pkg",      placed: "02/20/24", basis: "$6,400",   life: "5 yr",   method: "200DB",  priory: "$168",    cury: "$108",    accum: "$276" },
+];
+
+// Schedule E summary
+const scheRows = [
+  { key: "h1", bold: true, rule: true, line: "Property · 402 Ridge Cabin", descr: "", amt: "" },
+  { key: 1,  line: "3 · Rents received",                 descr: "Sum of Income tab",            amt: "$142,880" },
+  { key: 2,  line: "5 · Advertising",                    descr: "",                              amt: "−$348" },
+  { key: 3,  line: "6 · Auto & travel",                  descr: "",                              amt: "−$2,146" },
+  { key: 4,  line: "7 · Cleaning & maintenance",         descr: "",                              amt: "−$18,420" },
+  { key: 5,  line: "8 · Commissions",                    descr: "",                              amt: "−$4,286" },
+  { key: 6,  line: "9 · Insurance",                      descr: "",                              amt: "−$1,840" },
+  { key: 7,  line: "12 · Mortgage interest",             descr: "",                              amt: "−$41,204" },
+  { key: 8,  line: "14 · Repairs",                       descr: "",                              amt: "−$3,218" },
+  { key: 9,  line: "15 · Supplies",                      descr: "",                              amt: "−$6,115" },
+  { key:10,  line: "16 · Taxes",                         descr: "",                              amt: "−$4,180" },
+  { key:11,  line: "17 · Utilities",                     descr: "",                              amt: "−$4,662" },
+  { key:12,  line: "18 · Depreciation",                  descr: "from Form 4562",                amt: "−$22,960" },
+  { key:13,  line: "20 · Total expenses",                descr: "sum 5–19",                      amt: "−$102,987" },
+  { key:14, bold: true, rule: true, line: "21 · Net income (loss)", descr: "Line 3 − Line 20", amt: "$39,893" },
+];
+const scheCols = [
+  { key: "line", label: "A · Schedule E", width: 280 },
+  { key: "descr", label: "B · Note", width: 260 },
+  { key: "amt", label: "C · 2025", width: 140 },
+];
+
+function App() {
+  const [tab, setTab] = useState("income");
+
+  let content, cell, formula;
+  if (tab === "cover") { content = <CoverSheet/>; cell = "A1"; formula = ""; }
+  else if (tab === "income")  { content = <Sheet columns={incomeCols} rows={incomeRows} highlighted={new Set(["h"])} frozenRows={1}/>; cell = "I2"; formula = "=SUMIF(Income!B:B,\"Airbnb\",Income!I:I)+SUMIF(Income!B:B,\"VRBO\",Income!I:I)"; }
+  else if (tab === "deducts") { content = <Sheet columns={deductCols} rows={deductRows} highlighted={new Set(["h"])} frozenRows={1}/>; cell = "E2"; formula = "=SUBTOTAL(9,E3:E49)   ← sums all 47 categories"; }
+  else if (tab === "deprec")  { content = <Sheet columns={deprecCols} rows={deprecRows} highlighted={new Set(["h"])} frozenRows={1}/>; cell = "G2"; formula = "=SUMPRODUCT((C:C-F:F)/D:D)   ← current-year depreciation"; }
+  else if (tab === "schede")  { content = <Sheet columns={scheCols} rows={scheRows} highlighted={new Set(["h1",14])} frozenRows={1}/>; cell = "C15"; formula = "=C2-C14   ← flows to Form 1040 Schedule E, Line 21"; }
+  else { content = <div style={{ flex: 1, padding: 48, fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 32, color: "var(--fg-3)" }}>Sheet preview — open The 2025 Ledger to explore.</div>; cell = "A1"; formula = ""; }
+
+  return (<>
+    <TitleBar/>
+    <Ribbon tab={tab}/>
+    <FormulaBar cell={cell} formula={formula}/>
+    {content}
+    <TabBar active={tab} setActive={setTab}/>
+    <StatusBar tab={tab}/>
+  </>);
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

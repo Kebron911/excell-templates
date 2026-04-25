@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="500" height="500">
+  <circle cx="250" cy="250" r="240" fill="#12304E"></circle>
+  <text x="185" y="330" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-weight="500" font-size="260" fill="#F6EFE2">S</text>
+  <text x="315" y="330" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-weight="500" font-size="260" fill="#C9A24B">L</text>
+</svg>

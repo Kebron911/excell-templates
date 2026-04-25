@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TheSTRLedger — Etsy shop</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; font-family: Helvetica, Arial, sans-serif; }
+  a { color: inherit; }
+  button:hover { filter: brightness(0.96); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/Etsy.jsx"></script>
+
+<script type="text/babel">
+const LISTINGS = [
+  { sku: "TAX-001", cat: "Tax", tint: "parchment", title: "Mileage Log",
+    etsyTitle: "Airbnb Mileage Log Template | STR Tax Deduction Tracker | IRS Mileage Log Excel | Vacation Rental Business Expense | Instant Download",
+    subtitle: "The log that survived an IRS audit. Every deductible mile, auto-calculated.",
+    price: "17", reviews: "92", fav: "412", strike: null },
+  { sku: "TAX-002", cat: "Tax", tint: "navy", title: "P&L Lite",
+    etsyTitle: "Single-Property Airbnb P&L Template | Monthly Profit & Loss Excel | VRBO Rental Income Tracker | STR Business | Instant Download",
+    subtitle: "One property, every month, every line. The month-end P&L that finally balances.",
+    price: "27", reviews: "54", fav: "218", strike: "37" },
+  { sku: "TAX-003", cat: "Tax", tint: "parchment", title: "1099-NEC Tracker",
+    etsyTitle: "1099-NEC Tracker for Airbnb Hosts | Contractor Payment Log Excel | STR Cleaner & Handyman Tracker | Tax-Ready | Instant Download",
+    subtitle: "Track every cleaner, handyman, and stager. Hit January with the 1099s already drafted.",
+    price: "17", reviews: "38", fav: "156" },
+  { sku: "OPS-001", cat: "Operations", tint: "navy", title: "Turnover Checklist",
+    etsyTitle: "Airbnb Turnover Checklist | Cleaner Run Sheet Excel | STR Cleaning Checklist Template | Host Tools | Instant Download",
+    subtitle: "The one-page run sheet your cleaners will actually fill in. Weekly rollup for you.",
+    price: "12", reviews: "67", fav: "284" },
+  { sku: "OPS-002", cat: "Operations", tint: "parchment", title: "Rate Card",
+    etsyTitle: "Airbnb Dynamic Pricing Template | Seasonal Rate Card Excel | STR Minimum Stay Calculator | Host Pricing | Instant Download",
+    subtitle: "Minimum-stay, seasonal, and event-premium logic. With the margin math.",
+    price: "27", reviews: "29", fav: "141" },
+  { sku: "GST-001", cat: "Guest", tint: "navy", title: "Welcome Book",
+    etsyTitle: "Editable Airbnb Welcome Book Template | Guest House Manual Canva | STR Digital Welcome Book | Vacation Rental | Instant Download",
+    subtitle: "A 28-page editable welcome book. The one guests actually read.",
+    price: "17", reviews: "78", fav: "503", strike: null },
+  { sku: "BDL-001", cat: "Bundle", tint: "parchment", title: "Tax-Season Bundle",
+    etsyTitle: "Complete Airbnb Tax Bundle | Schedule E + Mileage + 1099 + P&L | STR Tax Season Pack Excel | All 5 Workbooks | Save $48",
+    subtitle: "Every workbook. One link. One price. One season.",
+    price: "97", strike: "145", reviews: "34", fav: "287" },
+];
+
+function ListingGrid() {
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 48px 64px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, fontFamily: "Helvetica, Arial, sans-serif", fontSize: 13, color: ETSY.text2 }}>
+        <span><strong style={{ color: ETSY.text }}>7 items</strong></span>
+        <div style={{ display: "flex", gap: 12 }}>
+          <select style={{ padding: "8px 12px", border: "1px solid " + ETSY.rule, borderRadius: 4, fontSize: 13, background: "white" }}>
+            <option>Sort: Most recent</option>
+            <option>Lowest price</option>
+            <option>Highest price</option>
+            <option>Top customer reviews</option>
+          </select>
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        {LISTINGS.map(l => <ListingCard key={l.sku} {...l}/>)}
+      </div>
+    </div>
+  );
+}
+
+function EtsyFooter() {
+  return (
+    <div style={{ background: "#F8F8F7", borderTop: "1px solid " + ETSY.rule, padding: "48px 48px 32px", textAlign: "center" }}>
+      <div style={{ fontFamily: "Georgia, serif", fontStyle: "italic", fontSize: 24, color: ETSY.orange, fontWeight: 500, marginBottom: 12 }}>Etsy</div>
+      <div style={{ fontSize: 12, color: ETSY.text3 }}>United States · English · USD · © 2026 Etsy, Inc.</div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<>
+  <EtsyTopNav cart={2}/>
+  <ShopBanner/>
+  <ShopOwnerBlock/>
+  <Announcement/>
+  <ShopNav active="all"/>
+  <ListingGrid/>
+  <EtsyFooter/>
+</>);
+</script>
+</body>
+</html>

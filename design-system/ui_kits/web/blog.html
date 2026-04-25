@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The 47 Airbnb deductions your CPA forgets to ask about — The STR Ledger</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--brand-parchment); }
+  a { color: inherit; }
+  button:hover { filter: brightness(0.92); }
+  .prose p { font-family: var(--font-body); font-size: 18px; line-height: 1.75; color: var(--fg-1); margin: 0 0 24px; }
+  .prose h2 { font-family: var(--font-display); font-weight: 500; font-size: 34px; letter-spacing: -0.01em; color: var(--brand-navy); margin: 56px 0 8px; line-height: 1.15; }
+  .prose h2 .dot { color: var(--brand-gold); }
+  .prose .rule { width: 32px; height: 1px; background: var(--brand-gold); margin: 14px 0 28px; }
+  .prose blockquote { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: 26px; line-height: 1.4; color: var(--brand-navy); border-left: 2px solid var(--brand-gold); padding: 6px 0 6px 24px; margin: 40px 0; }
+  .prose .pullbox { background: var(--brand-paper); border: 1px solid var(--rule); padding: 28px 32px; margin: 40px 0; }
+  .prose .pullbox .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--brand-gold); margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/atoms.jsx"></script>
+
+<script type="text/babel">
+function PostHead() {
+  return (
+    <header style={{ padding: "72px 48px 0" }}>
+      <div style={{ maxWidth: 780, margin: "0 auto" }}>
+        <Eyebrow>The Ledger Note · Tax</Eyebrow>
+        <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 64, letterSpacing: "-0.015em", color: "var(--brand-navy)", margin: "20px 0 0", lineHeight: 1.05 }}>
+          The <span style={{ fontStyle: "italic", fontWeight: 400 }}>47</span> Airbnb deductions<br/>your CPA forgets to ask about<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </h1>
+        <GoldRule width={48} my={28}/>
+        <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 22, color: "var(--fg-2)", lineHeight: 1.5, margin: 0 }}>
+          Most hosts leave $4,200 on the table every April. Not because they're careless — because the IRS categories were written for landlords, not operators.
+        </p>
+        <div style={{ display: "flex", gap: 16, marginTop: 36, paddingTop: 24, borderTop: "1px solid var(--rule)", fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>
+          <span>By Emily Reed</span>·<span>March 3, 2026</span>·<span>14 min read</span>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function PostBody() {
+  return (
+    <article className="prose" style={{ padding: "56px 48px 96px" }}>
+      <div style={{ maxWidth: 780, margin: "0 auto" }}>
+        <p>Here's what I've learned, nine seasons in: the IRS Schedule E was designed for a landlord who collects a rent check once a month. You are not that landlord. You are an operator. You clean, you stock, you reply to messages at midnight, you buy toilet paper in bulk — and most of what you buy is deductible if you track it right.</p>
+        <p>This is the full list, in the order your Schedule E asks for them, with the cite under each so your CPA can verify.</p>
+
+        <h2>Part I: income you might not know is income<span className="dot">.</span></h2>
+        <div className="rule"/>
+        <p>Cleaning fees. Extra-guest surcharges. Damage-deposit forfeits. Pet fees. Early-check-in fees. All of it lands on Line 3, and all of it is gross rental income — even if Airbnb hands it to you in a separate payout.</p>
+        <blockquote>If a guest handed you money for it, it's income. The deductions come later.</blockquote>
+
+        <h2>Part II: the 26 operating deductions<span className="dot">.</span></h2>
+        <div className="rule"/>
+        <p>Line 7 through Line 18 on Schedule E. This is where most hosts stop at "repairs" and "supplies" and leave half their year on the table. The categories, in order:</p>
+        <div className="pullbox">
+          <div className="kicker">The shortlist</div>
+          <p style={{ margin: 0, fontSize: 16, lineHeight: 1.9 }}>
+            Advertising · Auto &amp; travel · Cleaning &amp; maintenance · Commissions · Insurance · Legal &amp; professional · Management fees · Mortgage interest · Other interest · Repairs · Supplies · Taxes · Utilities · Depreciation
+          </p>
+        </div>
+
+        <h2>Part III: the ones everyone forgets<span className="dot">.</span></h2>
+        <div className="rule"/>
+        <p>These are where the real money hides. I've flagged the deduction number next to each so you can cross-reference The 2025 Ledger.</p>
+        <p><strong>#14 — Welcome-basket goods.</strong> The wine, the local coffee, the little jar of jam. If it's in the house when the guest arrives, it's a supply. Not a gift. Deductible at cost.</p>
+        <p><strong>#23 — Your phone.</strong> If you message guests from it, a pro-rata share is deductible. Pull your screen-time log, calculate the percentage, apply it to the annual bill. The 2025 Ledger has the pro-rata tab pre-built.</p>
+        <p><strong>#31 — The drive to Costco.</strong> Any trip where the primary purpose is the rental. Stocking supplies counts. Showing the property counts. 67 cents a mile in 2025.</p>
+        <p><strong>#42 — The software you're reading this on.</strong> Hosting tools, dynamic-pricing apps, the workbook you bought from us — all of it, line 15.</p>
+
+        <h2>What to do with this<span className="dot">.</span></h2>
+        <div className="rule"/>
+        <p>Two options. Option one: print this list, tape it inside the pantry door, and go through it line by line every month. That is exactly how I did it for six years. It works.</p>
+        <p>Option two: use the workbook that's already built. Every one of these 47 has a row. Every row has a cite. Every cite has a place on Schedule E.</p>
+        <div className="pullbox" style={{ background: "var(--brand-navy)", borderColor: "var(--brand-navy)" }}>
+          <div className="kicker" style={{ color: "var(--brand-gold)" }}>The Workbook</div>
+          <p style={{ margin: 0, fontSize: 18, lineHeight: 1.6, color: "var(--brand-parchment)", fontFamily: "var(--font-display)", fontStyle: "italic" }}>
+            The 2025 Ledger — all 47, pre-categorized, tied to your Schedule E. $147, thru March 31.
+          </p>
+          <div style={{ marginTop: 20 }}><Button variant="gold">Get the workbook →</Button></div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<>
+  <Header active="blog"/>
+  <PostHead/>
+  <PostBody/>
+  <Footer/>
+</>);
+</script>
+</body>
+</html>

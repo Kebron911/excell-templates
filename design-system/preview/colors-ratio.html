@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Colors — Usage ratio</title>
+<link rel="stylesheet" href="../colors_and_type.css"/>
+<style>
+  html,body{margin:0;padding:0;}
+  .card{width:700px;padding:28px;background:var(--bg-1);box-sizing:border-box;}
+  .bar{display:flex;height:60px;border:1px solid var(--rule);}
+  .bar > div{display:flex;align-items:flex-end;padding:8px 10px;font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;color:inherit;}
+  .legend{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:18px;font-family:var(--font-body);font-size:11px;color:var(--fg-2);}
+  .legend strong{display:block;font-family:var(--font-display);font-weight:500;color:var(--brand-navy);font-size:14px;}
+  .dot{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:middle;border:1px solid var(--rule);}
+  .note{font-family:var(--font-display);font-style:italic;color:var(--brand-navy);font-size:16px;margin-top:14px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="bar">
+    <div style="flex:55;background:#F6EFE2;color:#2B2B2B">55%</div>
+    <div style="flex:30;background:#12304E;color:#F6EFE2">30%</div>
+    <div style="flex:8;background:#2B2B2B;color:#F6EFE2">8</div>
+    <div style="flex:4;background:#C9A24B;color:#12304E">4</div>
+    <div style="flex:3;background:#B5725E;color:#F6EFE2">3</div>
+  </div>
+  <div class="legend">
+    <div><span class="dot" style="background:#F6EFE2"></span><strong>Parchment</strong>55% · surface</div>
+    <div><span class="dot" style="background:#12304E"></span><strong>Navy</strong>30% · structure</div>
+    <div><span class="dot" style="background:#2B2B2B"></span><strong>Graphite</strong>8% · type</div>
+    <div><span class="dot" style="background:#C9A24B"></span><strong>Gold</strong>4% · accent</div>
+    <div><span class="dot" style="background:#B5725E"></span><strong>Clay</strong>3% · warmth</div>
+  </div>
+  <div class="note">Warm-editorial, never navy-heavy or gold-flashy.</div>
+</div>
+</body></html>
