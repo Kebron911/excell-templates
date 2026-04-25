@@ -17,7 +17,7 @@ Implements the design at:
   6  Trash            — pickup + maintenance (7 fields)
   7  Departure        — checkout checklist (6 fields + formula)
   8  Emergency        — 911 block + contacts (9 fields + 1 hardcoded + 1 formula)
-  9  Review & Print   — readiness dashboard + pseudo-button + 3-page live preview
+  9  Launch           — readiness dashboard + OPEN renderer pseudo-button
   10 Bonus            — pre-written Airbnb listing copy (200 words)
   11 × Host Notes     — private host-only, quarantined with red warning
 
@@ -25,12 +25,12 @@ Usage:
     python build_welcome_book_v2.py
     # generates BOTH DEMO and BLANK files
 """
+import json
 from pathlib import Path
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.page import PageMargins
-from openpyxl.worksheet.pagebreak import Break
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
@@ -51,6 +51,8 @@ from brand_config import (
 BASE = Path(__file__).resolve().parent.parent
 DEMO_OUT = BASE / "_masters" / "GST-001-welcome-book-DEMO.xlsx"
 BLANK_OUT = BASE / "_masters" / "GST-001-welcome-book-BLANK.xlsx"
+DEMO_JSON_OUT = (BASE / "_delivery" / "GST-001-welcome-book"
+                      / "_assets" / "demo-data.json")
 
 # --- Tab names (used for navigation + tabColor) ---
 
@@ -64,7 +66,7 @@ TAB_NAMES = [
     "Trash",              # 6
     "Departure",          # 7
     "Emergency",          # 8
-    "Review & Print",     # 9
+    "Launch",             # 9
     "Bonus",              # 10
     "× Host Notes",       # 11
 ]
@@ -223,55 +225,77 @@ class Card:
 
 def build_input_tab(wb, section_num, tab_name, title, subtitle, cards,
                     input_count, prev_tab, next_tab):
-    """Render an input tab using the card-grouped layout.
+    """Render an input tab using the flattened layout (v2.1 simplified).
+
+    Layout:
+      Rows 1-5 : section header band (navy)
+      Row 6    : instruction strip (parchment)
+      Row 7    : single section banner (shows tab title via card_header)
+      Rows 8+  : inputs flow sequentially in column B with labels in column A.
+                 No per-card headers; card boundaries marked only by a thin
+                 gold top-border on the first row of each card group after
+                 the first (subtle visual tick, no text).
+
+    Card.header strings are IGNORED at render time but still used in the data
+    model for grouping. Card.static rows are rendered full-width after inputs
+    within the same card group.
 
     Args:
         wb: workbook
         section_num: 1-based section index (used in "SECTION N OF 8")
         tab_name: name of this tab
-        title: big title shown in the step header band
+        title: big title shown in the step header band + the row-7 section banner
         subtitle: italic subtitle shown below title
         cards: list of Card objects
         input_count: for print_area height calculation
         prev_tab: name of tab to go back to (or "" for Start)
-        next_tab: name of tab to go next to (or "" for Review & Print)
+        next_tab: name of tab to go next to (or "" for Launch)
     """
     ws = wb[tab_name]
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
     set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
 
-    # Row 1-5: step header band
+    # Rows 1-5: section header band (title, subtitle, back/next)
     section_header_band(ws, section_num, 8, title, subtitle, prev_tab, next_tab)
 
-    # Row 6: blank spacer (parchment)
     parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
-    ws.row_dimensions[6].height = 6
-    for c in range(1, 13):
-        ws.cell(row=6, column=c).fill = parchment_fill
 
-    # Row 7: instruction strip
-    ws.merge_cells("A7:L7")
-    c = ws["A7"]
-    c.value = ("Fill the highlighted fields below. The 'Review & Print' tab "
+    # Row 6: instruction strip
+    ws.merge_cells("A6:L6")
+    c = ws["A6"]
+    c.value = ("Fill the highlighted fields below. The 'Launch' tab "
                "(last) shows what your guest will see.")
     c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
     c.fill = parchment_fill
     c.alignment = Alignment(horizontal="center", vertical="center")
-    ws.row_dimensions[7].height = 22
+    ws.row_dimensions[6].height = 22
+
+    # Row 7: single section banner — uses the tab title, not per-card headers
+    card_header(ws, 7, ("A", "L"), title)
 
     # Freeze panes: rows 1-7 stay visible
     ws.freeze_panes = "A8"
 
-    # Render cards starting at row 9
-    current_row = 9
+    # Rows 8+: inputs flow sequentially in col B
+    current_row = 8
+    is_first_card = True
+    body_start = current_row
+
     for card in cards:
-        # Card header (1 row)
-        card_header(ws, current_row, ("A", "L"), card.header)
-        header_row = current_row
-        current_row += 1
+        # Thin gold top-border "tick" on the first row of each card
+        # after the first — visual grouping cue without text.
+        if not is_first_card and card.rows:
+            gold_side = Side(style="thin", color=COLOR_ACCENT)
+            for col in range(1, 13):
+                existing = ws.cell(row=current_row, column=col).border
+                ws.cell(row=current_row, column=col).border = Border(
+                    top=gold_side,
+                    bottom=existing.bottom,
+                    left=existing.left,
+                    right=existing.right,
+                )
 
         # Input rows
-        body_start = current_row
         for row_spec in card.rows:
             if len(row_spec) == 2:
                 label, value = row_spec
@@ -281,16 +305,16 @@ def build_input_tab(wb, section_num, tab_name, title, subtitle, cards,
             else:
                 raise ValueError(f"Card row must be 2 or 3 tuple, got {row_spec}")
 
-            # Label (cols A-C, merged)
-            ws.merge_cells(f"A{current_row}:C{current_row}")
-            lc = ws[f"A{current_row}"]
+            # Label — column A only (narrow)
+            lc = ws.cell(row=current_row, column=1)
             lc.value = label
             lc.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
             lc.alignment = Alignment(horizontal="right", vertical="center",
                                       indent=1)
-            # Input (cols D-L, merged)
-            ws.merge_cells(f"D{current_row}:L{current_row}")
-            ic = ws[f"D{current_row}"]
+
+            # Input — merged B:L
+            ws.merge_cells(f"B{current_row}:L{current_row}")
+            ic = ws[f"B{current_row}"]
             if value != "" and value is not None:
                 if isinstance(value, str) and value.startswith("="):
                     ic.value = value
@@ -306,12 +330,12 @@ def build_input_tab(wb, section_num, tab_name, title, subtitle, cards,
 
             # Dropdown
             if options:
-                add_dropdown(ws, f"D{current_row}", options)
+                add_dropdown(ws, f"B{current_row}", options)
 
             ws.row_dimensions[current_row].height = card.row_height
             current_row += 1
 
-        # Static content rows (after inputs)
+        # Static content rows (after inputs) — full-width merged
         for static_text in card.static:
             ws.merge_cells(f"A{current_row}:L{current_row}")
             sc = ws[f"A{current_row}"]
@@ -323,15 +347,12 @@ def build_input_tab(wb, section_num, tab_name, title, subtitle, cards,
             ws.row_dimensions[current_row].height = 24
             current_row += 1
 
-        body_end = current_row - 1
-        # Apply card body border + fill
-        card_body_fill(ws, body_start, body_end, ("A", "L"), border=True)
+        is_first_card = False
 
-        # 1-row spacer between cards (parchment)
-        for c in range(1, 13):
-            ws.cell(row=current_row, column=c).fill = parchment_fill
-        ws.row_dimensions[current_row].height = 12
-        current_row += 1
+    body_end = current_row - 1
+    # Apply card body border + fill once across the whole flattened body
+    if body_end >= body_start:
+        card_body_fill(ws, body_start, body_end, ("A", "L"), border=True)
 
     # Section footer
     footer_row = current_row + 1
@@ -352,8 +373,8 @@ def build_input_tab(wb, section_num, tab_name, title, subtitle, cards,
         next_label = f"Next: {next_tab} →"
         next_target = f"'{next_tab}'!A5"
     else:
-        next_label = "Next: Review & Print →"
-        next_target = "'Review & Print'!A1"
+        next_label = "Next: Launch →"
+        next_target = "'Launch'!A1"
 
     pseudo_button(ws, f"A{footer_row}", f"F{footer_row + 1}",
                    prev_label, prev_target, variant="secondary")
@@ -506,34 +527,45 @@ def build_start_tab(wb, variant):
     # Overall completion % formula
     ws.merge_cells("G36:L36")
     c = ws["G36"]
-    # Build COUNTA sum over all 8 input-tab ranges
+    # Build COUNTA sum over all 8 input-tab ranges (v2.1 flattened layout:
+    # inputs now live in col B starting at row 8; Local Guide unchanged).
     ranges = [
-        "'Property'!B5:B12",    # 8 fields
-        "'Arrival'!B5:B11",     # 7 fields
-        "'WiFi + Tech'!B5:B12", # 8 fields
-        "'House Rules'!B5:B11", # 7 fields
-        "'Local Guide'!B6:E25", # 80 cells (20 rows × 4 cols)
-        "'Trash'!B5:B11",       # 7 fields
-        "'Departure'!B5:B10",   # 6 fields
-        "'Emergency'!B5:B13",   # 9 fields
+        "'Property'!B8:B15",    # 8 fields
+        "'Arrival'!B8:B14",     # 7 fields
+        "'WiFi + Tech'!B8:B15", # 8 fields
+        "'House Rules'!B8:B14", # 7 fields
+        "'Local Guide'!B10:E29", # 80 cells (20 rows × 4 cols)
+        "'Trash'!B8:B14",       # 7 fields
+        # Departure: B9 is a formula (always-filled) and custom_tasks lives
+        # at B16, so count only the 6 user-input cells explicitly.
+        "'Departure'!B8,'Departure'!B10:B13,'Departure'!B16",
+        "'Emergency'!B8:B16",   # 9 fields
     ]
     counta_sum = " + ".join(f"COUNTA({r})" for r in ranges)
     c.value = f"=TEXT(({counta_sum})/{TOTAL_INPUTS}, \"0%\") & \" complete\""
     c.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="right", vertical="center", indent=1)
 
-    # Per-section status rows 38-45
+    # Per-section status rows 38-45 (v2.1 flattened layout).
+    # Optional 5th tuple element = custom COUNTA expression. Used for
+    # Departure because its B9 is a formula (always-filled checkout-day
+    # derived from Property!B11) and custom_tasks lives at B16 — so the
+    # contiguous B8:B13 range both over-counts (B9 formula) AND under-counts
+    # (misses B16). Explicit multi-ref COUNTA fixes both.
+    DEPARTURE_COUNTA = (
+        "COUNTA('Departure'!B8,'Departure'!B10:B13,'Departure'!B16)"
+    )
     section_rows = [
-        ("① Property Info",   "Property",    "B5:B12",   8),
-        ("② Arrival",          "Arrival",     "B5:B11",   7),
-        ("③ WiFi + Tech",      "WiFi + Tech", "B5:B12",   8),
-        ("④ House Rules",      "House Rules", "B5:B11",   7),
-        ("⑤ Local Guide",      "Local Guide", "B6:E25",  80),
-        ("⑥ Trash",            "Trash",       "B5:B11",   7),
-        ("⑦ Departure",        "Departure",   "B5:B10",   6),
-        ("⑧ Emergency",        "Emergency",   "B5:B13",   9),
+        ("① Property Info",   "Property",    "B8:B15",   8, None),
+        ("② Arrival",          "Arrival",     "B8:B14",   7, None),
+        ("③ WiFi + Tech",      "WiFi + Tech", "B8:B15",   8, None),
+        ("④ House Rules",      "House Rules", "B8:B14",   7, None),
+        ("⑤ Local Guide",      "Local Guide", "B10:E29", 80, None),
+        ("⑥ Trash",            "Trash",       "B8:B14",   7, None),
+        ("⑦ Departure",        "Departure",   "B8:B13",   6, DEPARTURE_COUNTA),
+        ("⑧ Emergency",        "Emergency",   "B8:B16",   9, None),
     ]
-    for i, (label, tab, range_, total) in enumerate(section_rows):
+    for i, (label, tab, range_, total, counta_expr) in enumerate(section_rows):
         r = 38 + i
         ws.row_dimensions[r].height = 18
         # Label (cols A-F)
@@ -544,11 +576,12 @@ def build_start_tab(wb, variant):
         c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
         # Status (cols G-J) — formula
         ws.merge_cells(f"G{r}:J{r}")
+        ca = counta_expr or f"COUNTA('{tab}'!{range_})"
         c = ws[f"G{r}"]
         c.value = (
-            f'=IF(COUNTA(\'{tab}\'!{range_})={total},"✅ Done",'
-            f'IF(COUNTA(\'{tab}\'!{range_})=0,"⏳ Empty",'
-            f'"⏳ "&COUNTA(\'{tab}\'!{range_})&" of {total}"))'
+            f'=IF({ca}={total},"✅ Done",'
+            f'IF({ca}=0,"⏳ Empty",'
+            f'"⏳ "&{ca}&" of {total}"))'
         )
         c.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
         c.alignment = Alignment(horizontal="left", vertical="center")
@@ -882,7 +915,7 @@ def build_departure_tab(wb, variant):
             rows=[
                 ("Checkout time:", s.get("checkout_time", "")),
                 ("Checkout day:",
-                 '=IF(Property!B8<>"", TEXT(Property!B8,"dddd, mmmm d"), "See Property tab")'),
+                 '=IF(Property!B11<>"", TEXT(Property!B11,"dddd, mmmm d"), "See Property tab")'),
             ],
         ),
         Card(
@@ -916,26 +949,40 @@ def build_departure_tab(wb, variant):
 
 
 def build_emergency_tab(wb, variant):
-    """Tab 8 — Emergency. 911 block + contacts."""
+    """Tab 8 — Emergency. 911 block + contacts flattened to B8:B16.
+
+    Layout (v2.1 simplified — inputs live in col B starting row 8):
+      Rows 1-5 : section header band (navy)
+      Row 6    : instruction strip ("911 first. Then the contacts below.")
+      Row 7    : big red 911 block (merged A7:L7)
+      Rows 8+  : inputs sequentially in col B. Poison control (row 14) is
+                 hardcoded; host phone (last row) is a formula pulling
+                 Property!B10.
+    """
     wb.create_sheet(TAB_NAMES[8])
     s = SAMPLE["Emergency"] if variant == "demo" else {}
     ws = wb["Emergency"]
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
     set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
 
-    # Header band
+    # Rows 1-5: header band
     section_header_band(ws, 8, 8, "Emergency Contacts",
                          "Keep this one nearby.",
                          "Departure", "")
 
-    # Row 6 spacer
     parchment = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
-    for c in range(1, 13):
-        ws.cell(row=6, column=c).fill = parchment
-    ws.row_dimensions[6].height = 6
 
-    # Row 7: big red 911 block (merged A:L, red tint fill, Georgia 22pt bold red)
-    ws.merge_cells("A7:L8")
+    # Row 6: instruction strip
+    ws.merge_cells("A6:L6")
+    c = ws["A6"]
+    c.value = "911 first. Then the contacts below."
+    c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+    c.fill = parchment
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[6].height = 22
+
+    # Row 7: big red 911 block (single row, merged A:L)
+    ws.merge_cells("A7:L7")
     c = ws["A7"]
     c.value = "IN AN EMERGENCY \u2014 CALL 911"
     c.font = Font(name=FONT_HEAD, size=22, bold=True, color=COLOR_ERROR)
@@ -947,86 +994,99 @@ def build_emergency_tab(wb, variant):
         left=Side(style="medium", color=COLOR_ERROR),
         right=Side(style="medium", color=COLOR_ERROR),
     )
-    ws.row_dimensions[7].height = 30
-    ws.row_dimensions[8].height = 30
+    ws.row_dimensions[7].height = 42
 
-    # Freeze panes (rows 1-8 stay visible)
-    ws.freeze_panes = "A9"
+    # Freeze panes (rows 1-7 stay visible)
+    ws.freeze_panes = "A8"
 
-    # Row 9: instruction strip
-    ws.merge_cells("A9:L9")
-    c = ws["A9"]
-    c.value = "911 first. Then the contacts below."
-    c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
-    c.fill = parchment
-    c.alignment = Alignment(horizontal="center", vertical="center")
-    ws.row_dimensions[9].height = 22
-
-    # Cards starting row 11
-    current_row = 11
-    for hdr, rows in [
+    # Rows 8+: flattened inputs in col B. Sequence matches v2.1 spec.
+    # The card grouping below is preserved only for the gold-tick borders
+    # between groups (no card header banners).
+    groups = [
+        # (group_name_for_comment, [(label, value_or_formula, is_hardcoded), ...])
         ("Hospital", [
-            ("Nearest hospital:", s.get("hospital_name", "")),
-            ("Hospital phone:", s.get("hospital_phone", "")),
-            ("Hospital address:", s.get("hospital_address", "")),
+            ("Nearest hospital:", s.get("hospital_name", ""), False),
+            ("Hospital phone:", s.get("hospital_phone", ""), False),
+            ("Hospital address:", s.get("hospital_address", ""), False),
         ]),
         ("Urgent Care & Police", [
-            ("Urgent care:", s.get("urgent_care_name", "")),
-            ("Urgent care phone:", s.get("urgent_care_phone", "")),
-            ("Non-emergency police:", s.get("police_non_emergency", "")),
+            ("Urgent care:", s.get("urgent_care_name", ""), False),
+            ("Urgent care phone:", s.get("urgent_care_phone", ""), False),
+            ("Non-emergency police:", s.get("police_non_emergency", ""), False),
         ]),
         ("Other", [
-            ("Poison control:", "1-800-222-1222"),  # hardcoded
-            ("24-hr vet (if pets):", s.get("vet", "")),
-            ("Utility outage reporting:", s.get("utility", "")),
-            ("Host phone (call/text):", "=Property!B7"),  # formula
+            ("Poison control:", "1-800-222-1222", True),  # hardcoded
+            ("24-hr vet (if pets):", s.get("vet", ""), False),
+            ("Utility outage reporting:", s.get("utility", ""), False),
+            ("Host phone (call/text):", "=Property!B10", False),  # formula
         ]),
-    ]:
-        card_header(ws, current_row, ("A", "L"), hdr)
-        current_row += 1
-        body_start = current_row
-        for label, value in rows:
-            ws.merge_cells(f"A{current_row}:C{current_row}")
-            lc = ws[f"A{current_row}"]
+    ]
+
+    current_row = 8
+    body_start = current_row
+    is_first_group = True
+    gold_side = Side(style="thin", color=COLOR_ACCENT)
+
+    for group_name, rows in groups:
+        if not is_first_group and rows:
+            # Thin gold tick-border on first row of subsequent groups
+            for col in range(1, 13):
+                existing = ws.cell(row=current_row, column=col).border
+                ws.cell(row=current_row, column=col).border = Border(
+                    top=gold_side,
+                    bottom=existing.bottom,
+                    left=existing.left,
+                    right=existing.right,
+                )
+
+        for label, value, is_hardcoded in rows:
+            # Label in col A
+            lc = ws.cell(row=current_row, column=1)
             lc.value = label
             lc.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
-            lc.alignment = Alignment(horizontal="right", vertical="center", indent=1)
-            ws.merge_cells(f"D{current_row}:L{current_row}")
-            ic = ws[f"D{current_row}"]
+            lc.alignment = Alignment(horizontal="right", vertical="center",
+                                      indent=1)
+
+            # Input merged B:L
+            ws.merge_cells(f"B{current_row}:L{current_row}")
+            ic = ws[f"B{current_row}"]
+
             if isinstance(value, str) and value.startswith("="):
                 ic.value = value
                 apply_style(ic, formula_cell_style())
-            elif value == "1-800-222-1222":
-                # hardcoded — not an input
+            elif is_hardcoded:
                 ic.value = value
                 ic.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
-                ic.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+                ic.alignment = Alignment(horizontal="left", vertical="center",
+                                          indent=1)
                 ic.fill = parchment
             else:
-                ic.value = value
-                apply_style(ic, input_cell_style())
-                ic.alignment = Alignment(horizontal="left", vertical="center",
-                                          wrap_text=True, indent=1)
+                if value != "" and value is not None:
+                    ic.value = value
+                    apply_style(ic, input_cell_style())
+                    ic.alignment = Alignment(horizontal="left", vertical="center",
+                                              wrap_text=True, indent=1)
+                else:
+                    apply_style(ic, input_cell_style())
+
             ws.row_dimensions[current_row].height = 24
             current_row += 1
-        body_end = current_row - 1
+
+        is_first_group = False
+
+    body_end = current_row - 1
+    if body_end >= body_start:
         card_body_fill(ws, body_start, body_end, ("A", "L"), border=True)
-        # Spacer
-        for c in range(1, 13):
-            ws.cell(row=current_row, column=c).fill = parchment
-        ws.row_dimensions[current_row].height = 12
-        current_row += 1
 
     # Footer
     footer_row = current_row + 1
-    gold_side = Side(style="thin", color=COLOR_ACCENT)
     for c in range(1, 13):
         ws.cell(row=footer_row, column=c).border = Border(top=gold_side)
         ws.cell(row=footer_row, column=c).fill = parchment
     pseudo_button(ws, f"A{footer_row}", f"F{footer_row + 1}",
                    "\u2190 Back: Departure", "'Departure'!A5", variant="secondary")
     pseudo_button(ws, f"G{footer_row}", f"L{footer_row + 1}",
-                   "Review & Print \u2192", "'Review & Print'!A1",
+                   "Launch \u2192", "'Launch'!A1",
                    variant="accent")
     ws.row_dimensions[footer_row].height = 22
     ws.row_dimensions[footer_row + 1].height = 22
@@ -1037,23 +1097,30 @@ def build_emergency_tab(wb, variant):
     ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
-def build_review_print_tab(wb, variant):
-    """Tab 9 — Review & Print. The payoff tab with live 3-page preview."""
+def build_launch_tab(wb, variant):
+    """Tab 9 — Launch. Readiness dashboard + OPEN-renderer pseudo-button.
+
+    v2.1 replaces the old 3-page live preview (rows 24-80) with a single
+    big button that opens welcome-book-renderer.html (bundled alongside
+    the xlsx). Users drag the xlsx onto the renderer page to produce the
+    printable PDF.
+    """
     ws = wb.create_sheet(TAB_NAMES[9])
     ws.sheet_properties.tabColor = COLOR_ACCENT
     set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
 
-    # --- ZONE 1: Review header (rows 1-6, navy) ---
+    # --- ZONE 1: Launch header (rows 1-6, navy) ---
     navy_fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     for r in range(1, 7):
         for c in range(1, 13):
             ws.cell(row=r, column=c).fill = navy_fill
 
     # Row 2: back + label
-    pseudo_button(ws, "A2", "C2", "← BACK", "'Emergency'!A5", variant="primary")
+    pseudo_button(ws, "A2", "C2", "← BACK: Emergency",
+                   "'Emergency'!A5", variant="primary")
     ws.merge_cells("D2:L2")
     c = ws["D2"]
-    c.value = "REVIEW & PRINT"
+    c.value = "LAUNCH"
     c.font = Font(name=FONT_MONO, size=10, bold=True, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="right", vertical="center", indent=2)
     ws.row_dimensions[2].height = 28
@@ -1069,7 +1136,7 @@ def build_review_print_tab(wb, variant):
     # Row 5: subtitle
     ws.merge_cells("A5:L5")
     c = ws["A5"]
-    c.value = "Preview below. Hit Print when happy."
+    c.value = "Open it in the renderer, then save as PDF."
     c.font = Font(name=FONT_HEAD, size=12, italic=True, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[5].height = 20
@@ -1090,9 +1157,9 @@ def build_review_print_tab(wb, variant):
     ws.merge_cells("A10:D11")
     c = ws["A10"]
     ranges = [
-        "'Property'!B5:B12", "'Arrival'!B5:B11", "'WiFi + Tech'!B5:B12",
-        "'House Rules'!B5:B11", "'Local Guide'!B10:E29", "'Trash'!B5:B11",
-        "'Departure'!B5:B10", "'Emergency'!B5:B13",
+        "'Property'!B8:B15", "'Arrival'!B8:B14", "'WiFi + Tech'!B8:B15",
+        "'House Rules'!B8:B14", "'Local Guide'!B10:E29", "'Trash'!B8:B14",
+        "'Departure'!B8:B13", "'Emergency'!B8:B16",
     ]
     counta_sum = " + ".join(f"COUNTA({r})" for r in ranges)
     c.value = f"=TEXT(({counta_sum})/{TOTAL_INPUTS}, \"0%\")"
@@ -1104,15 +1171,16 @@ def build_review_print_tab(wb, variant):
     c.font = Font(name=FONT_BODY, size=9, color=COLOR_MUTED)
     c.alignment = Alignment(horizontal="center")
 
-    # Card 2: Red flags (required fields missing)
-    # Define required fields: Property!B5, B6, B7 + WiFi!B5, B6 + Trash!B5 +
-    # Departure!B5 + Emergency!B7, B8, B10. 10 required fields.
+    # Card 2: Red flags (required fields missing) — v2.1 flattened layout
+    # Property/Arrival/WiFi/Trash/Departure inputs start at B8 (+3 from v2 B5).
+    # Emergency inputs start at B8 (+1 from v2 B7, since 911 block now only
+    # occupies row 7). 10 required fields.
     required = [
-        "'Property'!B5", "'Property'!B6", "'Property'!B7",
-        "'WiFi + Tech'!B5", "'WiFi + Tech'!B6",
-        "'Trash'!B5",
-        "'Departure'!B5",
-        "'Emergency'!B7", "'Emergency'!B8", "'Emergency'!B10",
+        "'Property'!B8", "'Property'!B9", "'Property'!B10",   # name, host, host phone
+        "'WiFi + Tech'!B8", "'WiFi + Tech'!B9",               # SSID, password
+        "'Trash'!B8",                                          # pickup day
+        "'Departure'!B8",                                      # checkout time
+        "'Emergency'!B8", "'Emergency'!B9", "'Emergency'!B11", # hospital, hosp phone, urgent care
     ]
     countblank_req = " + ".join(f'IF({r}="",1,0)' for r in required)
     ws.merge_cells("E9:H9")
@@ -1163,154 +1231,31 @@ def build_review_print_tab(wb, variant):
                 )
                 ws.cell(row=r, column=col).border = new_border
 
-    # --- ZONE 3: Generate PDF pseudo-button (rows 16-21) ---
+    # --- ZONE 3: OPEN renderer pseudo-button (rows 16-21) ---
     pseudo_button(ws, "A16", "L21",
-                   "📄  GENERATE YOUR PDF\nPress Ctrl+P → choose 'Save as PDF'",
-                   "'Review & Print'!A24",  # no-op scroll anchor
-                   variant="primary")
+                   "📘  OPEN YOUR WELCOME BOOK →",
+                   None,
+                   variant="primary",
+                   external_link="welcome-book-renderer.html")
     for r in range(16, 22):
         ws.row_dimensions[r].height = 28
 
-    # Row 22: fine print
+    # Row 22: caption beneath the OPEN button
     ws.merge_cells("A22:L22")
     c = ws["A22"]
-    c.value = "Print area is pre-set to letter portrait. × Host Notes tab excluded."
+    c.value = ("Drag this xlsx onto the page that opens. "
+               "Pick your theme, palette, and logo. Ctrl+P to save as PDF.")
     c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_MUTED)
     c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[22].height = 18
 
-    # --- ZONE 4: Live preview (rows 24-80, 3 pages) ---
-    # PAGE 1 — rows 24-45: hero + property + arrival + WiFi
-    # Hero band
-    for r in (24, 25):
-        for c in range(1, 13):
-            ws.cell(row=r, column=c).fill = navy_fill
-    ws.merge_cells("A24:L25")
-    c = ws["A24"]
-    c.value = '=CONCATENATE("Welcome to ", Property!B5)'
-    c.font = Font(name=FONT_HEAD, size=28, bold=True, color="F6EFE2")
-    c.alignment = Alignment(horizontal="center", vertical="center")
-    ws.row_dimensions[24].height = 30
-    ws.row_dimensions[25].height = 30
-
-    # Property info block (rows 27-35)
-    def _preview_row(row, label, source_formula, bold=False, size=11):
-        ws.merge_cells(f"A{row}:D{row}")
-        lc = ws[f"A{row}"]
-        lc.value = label
-        lc.font = Font(name=FONT_BODY, size=size, bold=True, color=COLOR_PRIMARY)
-        lc.alignment = Alignment(horizontal="right", indent=1)
-        ws.merge_cells(f"E{row}:L{row}")
-        vc = ws[f"E{row}"]
-        # Wrap source cell to render "(not set)" if empty
-        vc.value = f'=IF({source_formula}="","(not set)",{source_formula})'
-        vc.font = Font(name=FONT_BODY, size=size,
-                       bold=bold, color=COLOR_TEXT)
-        vc.alignment = Alignment(horizontal="left", vertical="center",
-                                  wrap_text=True, indent=1)
-
-    _preview_row(27, "Host:",            "Property!B6")
-    _preview_row(28, "Host phone:",      "Property!B7")
-    _preview_row(29, "Check-in:",        "Property!B8")
-    _preview_row(30, "Check-out:",       "Property!B9")
-    _preview_row(32, "Address:",         "Arrival!B5")
-    _preview_row(33, "Entry method:",    "Arrival!B6")
-    _preview_row(34, "Door/lock code:",  "Arrival!B7")
-    _preview_row(35, "Parking:",         "Arrival!B8", size=10)
-
-    # WiFi — rows 37-40 with BIG text for credentials
-    _preview_row(37, "",                 '""', size=12)  # section header spacer
-    ws.merge_cells("A38:L38")
-    c = ws["A38"]
-    c.value = "WiFi"
-    c.font = Font(name=FONT_HEAD, size=16, bold=True, color=COLOR_PRIMARY)
-    c.alignment = Alignment(horizontal="center")
-    _preview_row(39, "Network:", "'WiFi + Tech'!B5", bold=True, size=16)
-    _preview_row(40, "Password:", "'WiFi + Tech'!B6", bold=True, size=16)
-
-    # Page break at row 46
-    ws.row_breaks.append(Break(id=46))
-
-    # PAGE 2 — rows 47-65: rules + local guide top 10
-    ws.merge_cells("A48:L48")
-    c = ws["A48"]
-    c.value = "House Rules"
-    c.font = Font(name=FONT_HEAD, size=20, bold=True, color=COLOR_PRIMARY)
-    c.alignment = Alignment(horizontal="center")
-    ws.row_dimensions[48].height = 28
-    _preview_row(49, "Quiet hours:",      "'House Rules'!B5")
-    _preview_row(50, "Max guests:",       "'House Rules'!B6")
-    _preview_row(51, "Smoking:",          "'House Rules'!B7")
-    _preview_row(52, "Pets:",             "'House Rules'!B8")
-    _preview_row(53, "Events:",           "'House Rules'!B9")
-    _preview_row(54, "Shoes:",            "'House Rules'!B10")
-
-    # Local Guide top 10 — rows 56-65
-    ws.merge_cells("A56:L56")
-    c = ws["A56"]
-    c.value = "Local Guide — Our Top 10"
-    c.font = Font(name=FONT_HEAD, size=20, bold=True, color=COLOR_PRIMARY)
-    c.alignment = Alignment(horizontal="center")
-    ws.row_dimensions[56].height = 28
-    for i in range(10):
-        r = 57 + i
-        src_row = 10 + i
-        # Category
-        ws.merge_cells(f"A{r}:B{r}")
-        ws[f"A{r}"].value = f"='Local Guide'!A{src_row}"
-        ws[f"A{r}"].font = Font(name=FONT_BODY, size=10, bold=True,
-                                  color=COLOR_PRIMARY)
-        # Name
-        ws.merge_cells(f"C{r}:F{r}")
-        ws[f"C{r}"].value = f"=IF('Local Guide'!B{src_row}=\"\",\"\",'Local Guide'!B{src_row})"
-        ws[f"C{r}"].font = Font(name=FONT_BODY, size=10, color=COLOR_TEXT)
-        # Distance + phone
-        ws.merge_cells(f"G{r}:H{r}")
-        ws[f"G{r}"].value = f"=IF('Local Guide'!C{src_row}=\"\",\"\",'Local Guide'!C{src_row})"
-        ws[f"G{r}"].font = Font(name=FONT_BODY, size=10, color=COLOR_MUTED)
-        # Notes
-        ws.merge_cells(f"I{r}:L{r}")
-        ws[f"I{r}"].value = f"=IF('Local Guide'!E{src_row}=\"\",\"\",'Local Guide'!E{src_row})"
-        ws[f"I{r}"].font = Font(name=FONT_BODY, size=9, italic=True, color=COLOR_MUTED)
-
-    # Page break at row 66
-    ws.row_breaks.append(Break(id=66))
-
-    # PAGE 3 — rows 67-80: trash + departure + emergency
-    ws.merge_cells("A68:L68")
-    c = ws["A68"]
-    c.value = "Trash & Maintenance"
-    c.font = Font(name=FONT_HEAD, size=18, bold=True, color=COLOR_PRIMARY)
-    c.alignment = Alignment(horizontal="center")
-    _preview_row(69, "Pickup day:",       "'Trash'!B5")
-    _preview_row(70, "Bin location:",     "'Trash'!B6")
-
-    ws.merge_cells("A72:L72")
-    c = ws["A72"]
-    c.value = "Checkout"
-    c.font = Font(name=FONT_HEAD, size=18, bold=True, color=COLOR_PRIMARY)
-    c.alignment = Alignment(horizontal="center")
-    _preview_row(73, "Time:",             "Departure!B5")
-    _preview_row(74, "Linens:",           "Departure!B7")
-    _preview_row(75, "Key return:",       "Departure!B10")
-
-    # Emergency — red-bordered block rows 77-80
-    ws.merge_cells("A77:L77")
-    c = ws["A77"]
-    c.value = "Emergency — Call 911 First"
-    c.font = Font(name=FONT_HEAD, size=18, bold=True, color=COLOR_ERROR)
-    c.fill = PatternFill("solid", fgColor="FFE8E8")
-    c.alignment = Alignment(horizontal="center")
-    _preview_row(78, "Hospital:",         "Emergency!B7")
-    _preview_row(79, "Hospital phone:",   "Emergency!B8")
-    _preview_row(80, "Host phone:",       "Property!B7", bold=True, size=14)
-
-    # Print area: A24:L80 (3 pages)
-    ws.print_area = "A24:L80"
+    # Print area: readiness dashboard + OPEN button (rows 1-22 only)
+    ws.print_area = "A1:L22"
     ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
     ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
     ws.page_setup.fitToPage = True
     ws.sheet_properties.pageSetUpPr.fitToPage = True
-    ws.page_setup.fitToHeight = 3
+    ws.page_setup.fitToHeight = 1
     ws.page_setup.fitToWidth = 1
     ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
@@ -1331,7 +1276,7 @@ def build_bonus_tab(wb, variant):
         for c in range(1, 13):
             ws.cell(row=r, column=c).fill = gold_soft_fill
 
-    pseudo_button(ws, "A2", "C2", "\u2190 BACK", "'Review & Print'!A1",
+    pseudo_button(ws, "A2", "C2", "\u2190 BACK", "'Launch'!A1",
                    variant="secondary")
     ws.merge_cells("D2:L2")
     c = ws["D2"]
@@ -1454,7 +1399,7 @@ def build_bonus_tab(wb, variant):
         ws.cell(row=footer_row, column=c).border = Border(top=gold_side)
         ws.cell(row=footer_row, column=c).fill = parchment
     pseudo_button(ws, f"A{footer_row}", f"F{footer_row + 1}",
-                   "\u2190 Back: Review & Print", "'Review & Print'!A1",
+                   "\u2190 Back: Launch", "'Launch'!A1",
                    variant="secondary")
     pseudo_button(ws, f"G{footer_row}", f"L{footer_row + 1}",
                    "Host Notes (private) \u2192", "'\u00d7 Host Notes'!A1",
@@ -1595,7 +1540,7 @@ def build_workbook(out_path, variant):
     build_trash_tab(wb, variant)
     build_departure_tab(wb, variant)
     build_emergency_tab(wb, variant)
-    build_review_print_tab(wb, variant)
+    build_launch_tab(wb, variant)
     build_bonus_tab(wb, variant)
     build_host_notes_tab(wb, variant)
 
@@ -1613,9 +1558,112 @@ def build_workbook(out_path, variant):
     print(f"Saved: {out_path}")
 
 
+def export_demo_json():
+    """Export SAMPLE constants to a JSON file the renderer loads for demo mode.
+
+    Schema mirrors the data contract §5 of the v2.1 spec — keyed by tab name,
+    value is a dict mapping cell addresses (e.g. "B8") to the sample value.
+    Local Guide is a list (table layout, not key/value).
+
+    All addresses use the v2.1 flattened layout: first input at B8 per tab.
+    Cell addresses verified against the actual DEMO xlsx output:
+      - Departure: custom_tasks lands at B16 (after formula B9, 4 checklist
+        rows B10-B13, and 2 static checklist rows). B14-B15 are static.
+      - Emergency: poison control hardcoded at B14, host phone formula at
+        B17 (excluded — renderer reads Property!B10 directly).
+    """
+    out = {
+        "Property": {
+            "B8":  SAMPLE["Property"]["name"],
+            "B9":  SAMPLE["Property"]["host"],
+            "B10": SAMPLE["Property"]["host_phone"],
+            "B11": SAMPLE["Property"]["check_in"],
+            "B12": SAMPLE["Property"]["check_out"],
+            "B13": SAMPLE["Property"]["property_type"],
+            "B14": SAMPLE["Property"]["max_guests"],
+            "B15": SAMPLE["Property"]["address"],
+        },
+        "Arrival": {
+            "B8":  SAMPLE["Arrival"]["address"],
+            "B9":  SAMPLE["Arrival"]["entry_method"],
+            "B10": SAMPLE["Arrival"]["door_code"],
+            "B11": SAMPLE["Arrival"]["parking"],
+            "B12": SAMPLE["Arrival"]["route"],
+            "B13": SAMPLE["Arrival"]["arrival_window"],
+            "B14": SAMPLE["Arrival"]["early_option"],
+        },
+        "WiFi + Tech": {
+            "B8":  SAMPLE["WiFi"]["ssid"],
+            "B9":  SAMPLE["WiFi"]["password"],
+            "B10": SAMPLE["WiFi"]["backup_ssid"],
+            "B11": SAMPLE["WiFi"]["tv_streaming"],
+            "B12": SAMPLE["WiFi"]["smart_lock_note"],
+            "B13": SAMPLE["WiFi"]["thermostat"],
+            "B14": SAMPLE["WiFi"]["tv_controls"],
+            "B15": SAMPLE["WiFi"]["wifi_support"],
+        },
+        "House Rules": {
+            "B8":  SAMPLE["Rules"]["quiet_hours"],
+            "B9":  SAMPLE["Rules"]["max_guests"],
+            "B10": SAMPLE["Rules"]["smoking"],
+            "B11": SAMPLE["Rules"]["pets"],
+            "B12": SAMPLE["Rules"]["events"],
+            "B13": SAMPLE["Rules"]["shoes"],
+            "B14": SAMPLE["Rules"]["custom_rules"],
+        },
+        "Local Guide": [
+            {"cat": cat, "name": name, "dist": dist, "phone": phone,
+             "notes": notes}
+            for (cat, name, dist, phone, notes) in SAMPLE["Local"]
+        ],
+        "Trash": {
+            "B8":  SAMPLE["Trash"]["pickup_day"],
+            "B9":  SAMPLE["Trash"]["bin_location"],
+            "B10": SAMPLE["Trash"]["recycling_accepted"],
+            "B11": SAMPLE["Trash"]["sorting_rules"],
+            "B12": SAMPLE["Trash"]["pickup_location"],
+            "B13": SAMPLE["Trash"]["thermostat_range"],
+            "B14": SAMPLE["Trash"]["power_outage"],
+        },
+        "Departure": {
+            "B8":  SAMPLE["Departure"]["checkout_time"],
+            # B9 is a derived formula in the xlsx (checkout day).
+            # For demo JSON we use a static plausible value matching the
+            # sample check_in date (2026-05-10 → check_out 2026-05-15).
+            "B9":  "Friday, May 15",
+            "B10": SAMPLE["Departure"]["linen_location"],
+            "B11": SAMPLE["Departure"]["trash_spot"],
+            "B12": SAMPLE["Departure"]["thermostat_setting"],
+            "B13": SAMPLE["Departure"]["key_return"],
+            # B14-B15 are static checklist rows ("Run the dishwasher",
+            # "Lock all doors + windows") — no input data.
+            "B16": SAMPLE["Departure"]["custom_tasks"],
+        },
+        "Emergency": {
+            "B8":  SAMPLE["Emergency"]["hospital_name"],
+            "B9":  SAMPLE["Emergency"]["hospital_phone"],
+            "B10": SAMPLE["Emergency"]["hospital_address"],
+            "B11": SAMPLE["Emergency"]["urgent_care_name"],
+            "B12": SAMPLE["Emergency"]["urgent_care_phone"],
+            "B13": SAMPLE["Emergency"]["police_non_emergency"],
+            "B14": "1-800-222-1222",  # poison control, hardcoded in xlsx
+            "B15": SAMPLE["Emergency"]["vet"],
+            "B16": SAMPLE["Emergency"]["utility"],
+            # B17 is a formula (=Property!B10) — renderer reads host phone
+            # from Property!B10 directly, so we don't include it here.
+        },
+    }
+
+    DEMO_JSON_OUT.parent.mkdir(parents=True, exist_ok=True)
+    with open(DEMO_JSON_OUT, "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=2, ensure_ascii=False)
+    print(f"Wrote demo JSON: {DEMO_JSON_OUT}")
+
+
 def main():
     build_workbook(DEMO_OUT, variant="demo")
     build_workbook(BLANK_OUT, variant="blank")
+    export_demo_json()
 
 
 if __name__ == "__main__":

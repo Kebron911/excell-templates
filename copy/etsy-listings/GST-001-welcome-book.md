@@ -49,12 +49,14 @@ WHAT'S INCLUDED
 ✨ TWO XLSX FILES IN THE SAME DOWNLOAD:
    • DEMO — fully filled sample property to explore the tool
    • BLANK — cleared starter for your actual property
-✨ LIVE 3-PAGE PREVIEW inside the file — watch your welcome book
-   build itself as you fill fields. No "export to see it" friction.
+✨ Magazine-quality PDF rendered in your browser — 3 themes (Magazine / Editorial / Hotel) × 4 palettes
+✨ Logo upload — drop your property's PNG or SVG, it appears on every page
+✨ Tap-to-action QR codes — guests scan to auto-join WiFi, tap-to-call, or open Maps
+✨ Works fully offline — no account, no subscription, no data leaves your machine
 ✨ BONUS: Pre-written Airbnb listing copy (House Rules, Check-in,
    Checkout reminder) — paste into your Airbnb listing, copy-ready.
 ✨ SAMPLE OUTPUT PDF shipped in the download so you know exactly
-   what you're buying before opening Excel.
+   what you're buying before opening the renderer.
 
 📘 Fully editable Excel workbook + matching PDF
 📘 Multi-section guest guide covering:

@@ -1,0 +1,211 @@
+{
+  "Property": {
+    "B8": "Smokies Ridge Cabin",
+    "B9": "Daniel",
+    "B10": "+1 (555) 555-0199",
+    "B11": "2026-05-10",
+    "B12": "2026-05-15",
+    "B13": "Cabin",
+    "B14": 6,
+    "B15": "123 Mountain Lane, Gatlinburg, TN 37738"
+  },
+  "Arrival": {
+    "B8": "123 Mountain Lane, Gatlinburg, TN 37738",
+    "B9": "Smart lock",
+    "B10": "4321",
+    "B11": "Gravel drive on the right — there's room for 2 cars. Do not block the mailbox.",
+    "B12": "If GPS sends you up the fire road, ignore it. Stay on Ridge Way past the red barn.",
+    "B13": "After 3 PM",
+    "B14": "Coffee shops in the Local Guide tab are the best bet; the lockbox won't open before 3 PM."
+  },
+  "WiFi + Tech": {
+    "B8": "SmokiesRidge_Guest",
+    "B9": "welcome2024",
+    "B10": "",
+    "B11": "Netflix: already signed in. Hulu: guest@smokiesridge.com / stay2024",
+    "B12": "Same as entry — 4321",
+    "B13": "Nest on the hallway wall. Please keep between 65-78°F. Auto-schedule resumes after you leave.",
+    "B14": "The black Roku remote is the one to use. HDMI1 is Fire TV.",
+    "B15": "Host first (see Emergency tab). If no answer — Spectrum: 1-833-267-6094"
+  },
+  "House Rules": {
+    "B8": "10 PM – 7 AM",
+    "B9": 6,
+    "B10": "No smoking",
+    "B11": "No pets",
+    "B12": "No events",
+    "B13": "Remove at door",
+    "B14": "• Hot tub closes at 10 PM\n• Please don't move furniture\n• If you break something, tell us — we'd rather fix it than discover it later"
+  },
+  "Local Guide": [
+    {
+      "cat": "Coffee",
+      "name": "Mountain Grind",
+      "dist": "0.8 mi",
+      "phone": "(865) 555-0100",
+      "notes": "Best espresso in town; small pastry case fills fast"
+    },
+    {
+      "cat": "Coffee",
+      "name": "",
+      "dist": "",
+      "phone": "",
+      "notes": ""
+    },
+    {
+      "cat": "Restaurant",
+      "name": "The Cast Iron",
+      "dist": "2.1 mi",
+      "phone": "(865) 555-0118",
+      "notes": "Sunday brunch is chef's-kiss — reserve ahead"
+    },
+    {
+      "cat": "Restaurant",
+      "name": "Ridge BBQ",
+      "dist": "1.4 mi",
+      "phone": "(865) 555-0122",
+      "notes": "Brisket sells out by 7 PM Fri/Sat"
+    },
+    {
+      "cat": "Restaurant",
+      "name": "",
+      "dist": "",
+      "phone": "",
+      "notes": ""
+    },
+    {
+      "cat": "Grocery",
+      "name": "Food City",
+      "dist": "2.8 mi",
+      "phone": "(865) 555-0133",
+      "notes": "Open until 10 PM"
+    },
+    {
+      "cat": "Grocery",
+      "name": "",
+      "dist": "",
+      "phone": "",
+      "notes": ""
+    },
+    {
+      "cat": "Takeout",
+      "name": "Smoky Pizza Co",
+      "dist": "1.9 mi",
+      "phone": "(865) 555-0144",
+      "notes": "Delivers to the cabin"
+    },
+    {
+      "cat": "Takeout",
+      "name": "",
+      "dist": "",
+      "phone": "",
+      "notes": ""
+    },
+    {
+      "cat": "Pharmacy",
+      "name": "Walgreens",
+      "dist": "3.5 mi",
+      "phone": "(865) 555-0155",
+      "notes": "24-hr location"
+    },
+    {
+      "cat": "Gas station",
+      "name": "Shell on Hwy 321",
+      "dist": "0.5 mi",
+      "phone": "",
+      "notes": "Cheapest in the valley"
+    },
+    {
+      "cat": "Hospital/Urgent care",
+      "name": "LeConte Medical Center",
+      "dist": "8.1 mi",
+      "phone": "(865) 446-7000",
+      "notes": "ER 24/7"
+    },
+    {
+      "cat": "Coffee alt",
+      "name": "",
+      "dist": "",
+      "phone": "",
+      "notes": ""
+    },
+    {
+      "cat": "Outdoor/Hike",
+      "name": "Cades Cove Loop",
+      "dist": "14 mi",
+      "phone": "",
+      "notes": "11-mile scenic loop; allow 3 hrs"
+    },
+    {
+      "cat": "Outdoor/Hike",
+      "name": "",
+      "dist": "",
+      "phone": "",
+      "notes": ""
+    },
+    {
+      "cat": "Kid-friendly",
+      "name": "Dollywood",
+      "dist": "9 mi",
+      "phone": "(865) 428-9488",
+      "notes": "Worth a full day"
+    },
+    {
+      "cat": "Kid-friendly",
+      "name": "",
+      "dist": "",
+      "phone": "",
+      "notes": ""
+    },
+    {
+      "cat": "Date night",
+      "name": "The Wine Cellar",
+      "dist": "6.2 mi",
+      "phone": "(865) 555-0166",
+      "notes": "Prix fixe Thu/Fri/Sat"
+    },
+    {
+      "cat": "Bar/Nightlife",
+      "name": "Mill & Main",
+      "dist": "2.4 mi",
+      "phone": "(865) 555-0177",
+      "notes": "Live music Fri/Sat after 9"
+    },
+    {
+      "cat": "Emergency (non-911)",
+      "name": "Sevier County Sheriff",
+      "dist": "",
+      "phone": "(865) 436-5181",
+      "notes": "Non-emergency line"
+    }
+  ],
+  "Trash": {
+    "B8": "Thursday",
+    "B9": "Around the right side of the house, next to the shed",
+    "B10": "Cardboard, plastic #1-2, aluminum. No glass.",
+    "B11": "Green = recycling, black = trash. When in doubt — trash.",
+    "B12": "To the curb by 7 AM Thursday. Bring back Friday.",
+    "B13": "65-78°F — auto-schedule handles the rest",
+    "B14": "Breaker panel is in the laundry room. Sevier Electric: (865) 453-2887. Text host if it's longer than an hour."
+  },
+  "Departure": {
+    "B8": "11:00 AM",
+    "B9": "Friday, May 15",
+    "B10": "hallway laundry basket",
+    "B11": "curb (Thursday) or dumpster on-site",
+    "B12": "72°F",
+    "B13": "in lockbox, reset to 0000",
+    "B16": "• Throw any leftover food\n• Text the host when on the road — we'll release your deposit faster"
+  },
+  "Emergency": {
+    "B8": "LeConte Medical Center",
+    "B9": "(865) 446-7000",
+    "B10": "742 Middle Creek Rd, Sevierville, TN 37862",
+    "B11": "FastMed Urgent Care",
+    "B12": "(865) 428-1020",
+    "B13": "(865) 436-5181",
+    "B14": "1-800-222-1222",
+    "B15": "Mountain Vet ER — (865) 329-1905",
+    "B16": "Sevier Electric: (865) 453-2887"
+  }
+}

@@ -1,201 +1,173 @@
-# Sheet Spec — GST-001 Airbnb Welcome Book
+# Sheet Spec — GST-001 Airbnb Welcome Book (v2.1 flattened layout)
 
 ## Workbook-level
 
-- Filename: `GST-001-welcome-book.xlsx`
-- Tab colors: Harbor Navy `COLOR_PRIMARY` for guest-facing (tabs 1-8), Clay Rose `COLOR_SECONDARY` for host-only (tab 9) — actual hex values sourced from `brand_config.py`, not hardcoded in the build script
-- Print area: each tab has print area set to fit 1 page letter-portrait (except Local Guide which is 2 pages)
-- Freeze panes: row 4 frozen on each tab (brand header rows 1–3 stay visible)
-- Default font: Calibri 11pt body (FONT_BODY from brand_config); Georgia 20pt bold for tab titles (FONT_HEAD)
+- Filename: `GST-001-welcome-book.xlsx` (shipped as two files: `-DEMO.xlsx` + `-BLANK.xlsx`)
+- Tab colors: Harbor Navy `COLOR_PRIMARY` for guest-facing (tabs 1-8), Clay Rose `COLOR_SECONDARY` for host-only (× Host Notes tab)
+- Print area: each input tab has print area set to fit 1 page letter-portrait (except Local Guide which is 2 pages landscape)
+- Layout on input tabs (v2.1):
+  - Rows 1-5 : navy section header band (title, subtitle, back/next buttons)
+  - Row 6    : instruction strip (parchment, italic)
+  - Row 7    : single section banner (gold-soft fill, shows the tab title)
+  - Rows 8+  : labels in col A, inputs merged B:L, flattened — no per-card header banners. Card groupings are indicated only by a thin gold top-border "tick" on the first row of each subsequent card.
+- Freeze panes: A8 (rows 1-7 stay visible) on all input tabs
+- Default font: Calibri 11pt body (FONT_BODY); Georgia bold for titles (FONT_HEAD)
 - Workbook protection: NONE (every cell must be editable by buyer)
 
-## Sheet 1 — "Welcome"
+## Sheet — "Property" (Section 1 of 8)
 
-Brand header rows 1–3 via `apply_brand_header(ws, '=CONCATENATE("Welcome to ", B5)', "Welcome books that earn 5-stars.")` — note: the title cell uses a formula so row 1 reflects the property name once B5 is filled.
+Title band: "Property Info" / "Who you are and where they're staying."
+Row 7 section banner: "PROPERTY INFO"
 
-| Row | Col A | Col B | Col C |
-|---|---|---|---|
-| 4 | (blank spacer, height 12) | | |
-| 5 | "Property name:" | {PropertyName input — "Smokies Ridge Cabin"} | |
-| 6 | "Host first name:" | {HostFirstName input — "Daniel"} | |
-| 7 | "Host phone (text preferred):" | {HostPhone input — "+1 (555) 555-0199"} | |
-| 8 | "Check-in date:" | {CheckInDate input — 2026-05-10, format d-mmm-yyyy} | |
-| 9 | "Check-out date:" | {CheckOutDate input — 2026-05-15, format d-mmm-yyyy} | |
-| 10 | (blank) | | |
-| 11 | "How to use this book" (bold, size 14, primary color) | | |
-| 12 | "1. Open each tab along the bottom and fill in the yellow cells." | | |
-| 13 | "2. When every yellow cell is filled, save as PDF: File → Save As → PDF." | | |
-| 14 | "3. Print the PDF and leave it on the counter — or use the QR code placard." | | |
-| 15 | "4. RIGHT-CLICK the 'Host Reference' tab → Hide before sharing with guests." | | |
-| 16 | "5. Update anytime — this file is yours forever." | | |
-| 17 | (blank) | | |
-| 18 | Upgrade banner (merge A18:C18, via `add_upgrade_banner`) | | |
-| 19 | (blank) | | |
-| 20 | "Host note: The 'Host Reference' tab is for your eyes only — right-click → Hide before sharing." (italic, muted) | | |
-
-Input cells: B5, B6, B7, B8, B9. Style via `apply_style(cell, input_cell_style())`.
-Cross-tab dependencies: row 1 formula `=CONCATENATE("Welcome to ", B5)`; Emergency tab row 16 pulls host phone via `=Welcome!B7`.
-
-Column widths: A=22, B=35, C=22.
-Print area: A1:C20. Orientation: portrait. Paper: Letter.
-Freeze panes: A5.
-
-## Sheet 2 — "Arrival"
-
-Brand header rows 1–3 ("Arrival & Check-in" / "Everything your guest needs on day one").
-
-| Row | Col A | Col B |
+| Row | Col A (label) | Col B:L (input, merged) |
 |---|---|---|
-| 5 | "Full address:" | input — "123 Mountain Lane, Gatlinburg, TN 37738" |
-| 6 | "Entry method:" | input + DROPDOWN (Smart lock / Key lockbox / In-person / Other) — sample: "Smart lock" |
-| 7 | "Door/lock code:" | input — "4321" |
-| 8 | "Parking instructions:" | input (wrap text) — "Gravel drive on the right — room for 2 cars. Do not block the mailbox." |
-| 9 | "Best route (if tricky):" | input (wrap text) — "If GPS sends you up the fire road, ignore it. Stay on Ridge Way past the red barn." |
-| 10 | "Arrival time window:" | input — "After 3 PM" |
-| 11 | "What to do if you arrive early:" | input (wrap text) — "Coffee shops in the Local Guide tab are the best bet; the lockbox won't open before 3 PM." |
+| 8  | "Property name:" | input — "Smokies Ridge Cabin" |
+| 9  | "Host first name:" | input — "Daniel" |
+| 10 | "Host phone (text preferred):" | input — "+1 (555) 555-0199" |
+| 11 | "Check-in date:" | input — "2026-05-10" |
+| 12 | "Check-out date:" | input — "2026-05-15" |
+| 13 | "Property type:" | input + DROPDOWN (Single-family / Cabin / Condo / Apartment / Multi-family / Glamping / Other) |
+| 14 | "Max guests:" | input (number) — 6 |
+| 15 | "Full address:" | input — "123 Mountain Lane, Gatlinburg, TN 37738" |
+| 16 | static note: "First time? Go to Start → Quick Start for the 5-minute path." (full-width merged) | |
 
-Row 12: "First 5 minutes inside — what we recommend:" header (bold, primary color, merged A12:B12).
-Rows 13-16: 4 recommendation bullets merged A:B:
-- "1. Crank the thermostat to your comfort (settings on the WiFi tab)."
-- "2. Connect to WiFi — network + password on the WiFi tab."
-- "3. Check the fridge for the welcome items."
-- "4. If anything's broken or missing, text the host immediately — easier to fix day 1."
+Input range for COUNTA/progress: `B8:B15` (8 fields).
+Cross-tab dependencies: `Departure!B9` pulls check-in date via `Property!B11`; `Emergency!B17` pulls host phone via `Property!B10`; Launch tab preview pulls Property!B8 (name), B9 (host), B10 (phone), B11 (check-in), B12 (check-out).
 
-Data validation: cell B6 dropdown list = "Smart lock,Key lockbox,In-person,Other".
-Column widths: A=28, B=55. Row heights 20 default, 40 for rows 8 + 9 (wrap).
-Freeze panes: A5.
-Print area: A1:B16. Orientation: portrait.
+## Sheet — "Arrival" (Section 2 of 8)
 
-## Sheet 3 — "WiFi + Tech"
+Title band: "Arrival & Check-in" / "Everything your guest needs on day one."
+Row 7 section banner: "ARRIVAL & CHECK-IN"
 
-Brand header ("WiFi & Technology" / "So nobody has to text you about the wifi password").
-
-| Row | Col A | Col B |
+| Row | Col A (label) | Col B:L (input, merged) |
 |---|---|---|
-| 5 | "WiFi network name:" | input — "SmokiesRidge_Guest" |
-| 6 | "WiFi password:" | input (13pt bold) — "welcome2024" |
-| 7 | "Backup network (if any):" | input (13pt bold) — blank |
-| 8 | "TV streaming — service + login:" | input (wrap) — "Netflix: already signed in. Hulu: guest@smokiesridge.com / stay2024" |
-| 9 | "Smart lock code (if different):" | input (13pt bold) — "Same as entry — 4321" |
-| 10 | "Smart thermostat notes:" | input (wrap) — "Nest on the hallway wall. Please keep between 65-78°F. Auto-schedule resumes after you leave." |
-| 11 | "How to adjust TV volume/inputs:" | input (wrap) — "The black Roku remote is the one to use. HDMI1 is Fire TV." |
-| 12 | "Who to call if WiFi fails:" | input — "Host first (see Emergency tab). If no answer — Spectrum: 1-833-267-6094" |
+| 8  | "Full address:" | input — "123 Mountain Lane, Gatlinburg, TN 37738" |
+| 9  | "Entry method:" | input + DROPDOWN (Smart lock / Key lockbox / In-person / Other) |
+| 10 | "Door/lock code:" | input — "4321" |
+| 11 | "Parking instructions:" | input (wrap, row height 36) |
+| 12 | "Best route (if tricky):" | input (wrap, row height 36) |
+| 13 | "Arrival time window:" | input — "After 3 PM" |
+| 14 | "If you arrive early:" | input (wrap, row height 36) |
+| 15 | static: "1. Crank the thermostat to your comfort — WiFi tab has controls." | |
+| 16 | static: "2. Connect to WiFi — network + password on the WiFi tab." | |
+| 17 | static: "3. Check the fridge for welcome items." | |
+| 18 | static: "4. If anything's broken, text the host immediately." | |
 
-Column widths: A=32, B=50.
-Print area: A1:B13. Freeze: A5.
+Input range for progress: `B8:B14` (7 fields). Dropdown on B9.
 
-## Sheet 4 — "House Rules"
+## Sheet — "WiFi + Tech" (Section 3 of 8)
 
-Brand header ("House Rules" / "Short, clear, and why each one exists").
+Title band: "WiFi & Technology" / "So nobody has to text you about the wifi password."
+Row 7 section banner: "WIFI & TECHNOLOGY"
 
-| Row | Col A | Col B |
+| Row | Col A (label) | Col B:L (input, merged) |
 |---|---|---|
-| 5 | "Quiet hours:" | input — "10 PM – 7 AM" |
-| 6 | "Maximum guests:" | input (number) — 6 |
-| 7 | "Smoking:" | input + DROPDOWN (No smoking / No smoking inside / Smoking OK in designated area) — "No smoking" |
-| 8 | "Pets:" | input + DROPDOWN (No pets / Pets OK with deposit / Pets OK no deposit) — "No pets" |
-| 9 | "Events/parties:" | input + DROPDOWN (No events / Small gatherings OK with notice / OK) — "No events" |
-| 10 | "Shoes inside:" | input + DROPDOWN (Remove at door / OK / Preferred removed) — "Remove at door" |
-| 11 | "Additional custom rules:" | input (wrap, 10 rows tall) — "• Hot tub closes at 10 PM\n• Please don't move furniture\n• If you break something, tell us — we'd rather fix it than discover it later" |
+| 8  | "WiFi network name:" | input — "SmokiesRidge_Guest" |
+| 9  | "WiFi password:" | input — "welcome2024" |
+| 10 | "Backup network (if any):" | input — blank |
+| 11 | "TV streaming — service + login:" | input (wrap, row height 36) |
+| 12 | "How to adjust TV volume/inputs:" | input (wrap, row height 36) |
+| 13 | "Smart lock code (if different):" | input |
+| 14 | "Smart thermostat notes:" | input (wrap, row height 36) |
+| 15 | "Who to call if WiFi fails:" | input (wrap, row height 36) |
 
-Column widths: A=28, B=55. Row 11 height: 90 (wrap).
-Freeze: A5. Print area: A1:B11.
+Input range for progress: `B8:B15` (8 fields). Cross-tab: Launch preview pulls B8 (network) + B9 (password) at 16pt bold.
 
-## Sheet 5 — "Local Guide"
+## Sheet — "House Rules" (Section 4 of 8)
 
-Brand header ("Local Guide" / "What we'd tell a friend visiting").
+Title band: "House Rules" / "Short, clear, and why each one exists."
+Row 7 section banner: "HOUSE RULES"
 
-Row 5 headers (header_row_style): Category | Name | Distance | Phone | Why we love it
+| Row | Col A (label) | Col B:L (input, merged) |
+|---|---|---|
+| 8  | "Quiet hours:" | input — "10 PM – 7 AM" |
+| 9  | "Maximum guests:" | input (number) — 6 |
+| 10 | "Smoking:" | input + DROPDOWN (No smoking / No smoking inside / Smoking OK in designated area) |
+| 11 | "Pets:" | input + DROPDOWN (No pets / Pets OK with deposit / Pets OK no deposit) |
+| 12 | "Events/parties:" | input + DROPDOWN (No events / Small gatherings OK with notice / OK) |
+| 13 | "Shoes inside:" | input + DROPDOWN (Remove at door / OK / Preferred removed) |
+| 14 | "Your rules (one per line):" | input (wrap, row height 90) |
 
-Rows 6-25: 20 categories pre-filled in col A, blank inputs in cols B-E. Sample rows populate Coffee × 2, Restaurant × 3, others blank.
+Input range for progress: `B8:B14` (7 fields). Dropdowns on B10/B11/B12/B13.
 
-Category column pre-fills (rows 6-25 in order):
+## Sheet — "Local Guide" (Section 5 of 8)
+
+Title band: "Local Guide" / "What we'd tell a friend visiting."
+Custom wide-table layout (not the generic flattened card template).
+
+Row 9 column headers: Category | Name | Distance | Phone | Why we love it
+Rows 10-29: 20 categories pre-filled in col A, blank inputs in cols B-E (80 cells total).
+
+Category column pre-fills (rows 10-29 in order):
 Coffee, Coffee, Restaurant, Restaurant, Restaurant, Grocery, Grocery, Takeout, Takeout, Pharmacy, Gas station, Hospital/Urgent care, Coffee alt, Outdoor/Hike, Outdoor/Hike, Kid-friendly, Kid-friendly, Date night, Bar/Nightlife, Emergency (non-911)
 
-Sample populated:
-- Coffee / Mountain Grind / 0.8 mi / (865) 555-0100 / "Best espresso in town; small pastry case fills fast"
-- Restaurant / The Cast Iron / 2.1 mi / (865) 555-0118 / "Sunday brunch is chef's-kiss — reserve ahead"
+Sample populated (DEMO):
+- Coffee / Mountain Grind / 0.8 mi / (865) 555-0100 / "Best espresso in town…"
+- Restaurant / The Cast Iron / 2.1 mi / (865) 555-0118 / "Sunday brunch is chef's-kiss…"
 - Restaurant / Ridge BBQ / 1.4 mi / (865) 555-0122 / "Brisket sells out by 7 PM Fri/Sat"
 
-Col widths: A=22, B=28, C=10, D=16, E=45. Row heights 28. Page orientation: landscape (2 pages).
-Freeze: A6.
+Input range for progress: `B10:E29` (80 cells). Col widths: A=22, B=28, C=10, D=16, E=45. Row heights 28. Landscape (2 pages). Freeze: A8.
 
-## Sheet 6 — "Trash + Recycling"
+## Sheet — "Trash" (Section 6 of 8)
 
-Brand header ("Trash, Recycling & Maintenance").
+Title band: "Trash, Recycling & Maintenance" / "The stuff nobody likes to ask about."
+Row 7 section banner: "TRASH, RECYCLING & MAINTENANCE"
 
-| Row | Col A | Col B |
+| Row | Col A (label) | Col B:L (input, merged) |
 |---|---|---|
-| 5 | "Trash pickup day:" | input + DROPDOWN (Monday/Tuesday/Wednesday/Thursday/Friday/Saturday/Sunday/No pickup — dumpster on-site) — "Thursday" |
-| 6 | "Bin location:" | input — "Around the right side of the house, next to the shed" |
-| 7 | "Recycling accepted:" | input (wrap) — "Cardboard, plastic #1-2, aluminum. No glass." |
-| 8 | "What goes in which bin:" | input (wrap) — "Green = recycling, black = trash. When in doubt — trash." |
-| 9 | "Where to put bins on pickup morning:" | input — "To the curb by 7 AM Thursday. Bring back Friday." |
-| 10 | "HVAC/thermostat range to leave:" | input — "65-78°F — auto-schedule handles the rest" |
-| 11 | "If the power goes out:" | input (wrap) — "Breaker panel is in the laundry room. Sevier Electric: (865) 453-2887. Text host if it's longer than an hour." |
+| 8  | "Trash pickup day:" | input + DROPDOWN (Mon–Sun / No pickup — dumpster on-site) |
+| 9  | "Bin location:" | input |
+| 10 | "Recycling accepted:" | input (wrap) |
+| 11 | "What goes in which bin:" | input (wrap) |
+| 12 | "Where to put bins on pickup morning:" | input (wrap, row height 36) |
+| 13 | "HVAC/thermostat range to leave:" | input |
+| 14 | "If the power goes out:" | input (wrap, row height 36) |
 
-Col widths: A=32, B=55. Row heights 32 for wrap rows.
-Freeze: A5. Print area: A1:B12.
+Input range for progress: `B8:B14` (7 fields). Dropdown on B8.
 
-## Sheet 7 — "Departure"
+## Sheet — "Departure" (Section 7 of 8)
 
-Brand header ("Checkout" / "What to do before you drive away").
+Title band: "Checkout" / "What to do before you drive away."
+Row 7 section banner: "CHECKOUT"
 
-| Row | Col A | Col B |
+| Row | Col A (label) | Col B:L (input, merged) |
 |---|---|---|
-| 5 | "Checkout time:" | input — "11:00 AM" |
-| 6 | "Checkout day:" | FORMULA `=IF(Welcome!B9<>"", TEXT(Welcome!B9,"dddd, mmmm d"), "See Welcome tab")` — gray/formula style |
-| 8 | "Before you leave — please:" | (bold, size 13, primary) |
-| 9 | "☐ Strip bed linens and leave in:" | input — "hallway laundry basket" |
-| 10 | "☐ Run the dishwasher" | (no input — static checkbox) |
+| 8  | "Checkout time:" | input — "11:00 AM" |
+| 9  | "Checkout day:" | FORMULA `=IF(Property!B11<>"", TEXT(Property!B11,"dddd, mmmm d"), "See Property tab")` (formula style) |
+| 10 | "☐ Strip bed linens and leave in:" | input — "hallway laundry basket" |
 | 11 | "☐ Take trash + recycling to:" | input — "curb (Thursday) or dumpster on-site" |
 | 12 | "☐ Turn thermostat to:" | input — "72°F" |
-| 13 | "☐ Lock all doors + windows" | (no input) |
-| 14 | "☐ Leave key:" | input — "in lockbox, reset to 0000" |
-| 16 | "Custom checkout tasks:" | input (wrap, row height 50) — "• Throw any leftover food\n• Text the host when on the road — we'll release your deposit faster" |
+| 13 | "☐ Leave key:" | input — "in lockbox, reset to 0000" |
+| 14 | static: "☐ Run the dishwasher" | |
+| 15 | static: "☐ Lock all doors + windows" | |
+| 16 | "Your tasks (one per line):" | input (wrap, row height 60) — custom checkout tasks |
 
-Col widths: A=40, B=45. Freeze: A5. Print area: A1:B17.
+Input range for progress (6 fields): `B8:B13` — counts B8 (time input) + B9 (formula) + B10-B13 (4 checklist inputs). B16 (custom tasks) is intentionally NOT part of the counted range because rows 14-15 are static-text rows (merged A:L) that land between the checklist and the custom tasks input.
 
-## Sheet 8 — "Emergency"
+## Sheet — "Emergency" (Section 8 of 8)
 
-Brand header ("Emergency Contacts" / "Keep this one nearby").
+Title band: "Emergency Contacts" / "Keep this one nearby."
+Row 6 : instruction strip ("911 first. Then the contacts below.")
+Row 7 : big red "IN AN EMERGENCY — CALL 911" block (merged A7:L7, 22pt bold red, red border)
 
-Row 5: "IN AN EMERGENCY — CALL 911" merged A5:B5, Georgia 16pt bold, `COLOR_ERROR` red, centered. Row height 30.
-
-| Row | Col A | Col B |
+| Row | Col A (label) | Col B:L (input, merged) |
 |---|---|---|
-| 7 | "Nearest hospital:" | input — "LeConte Medical Center" |
-| 8 | "Hospital phone:" | input — "(865) 446-7000" |
-| 9 | "Hospital address:" | input (wrap) — "742 Middle Creek Rd, Sevierville, TN 37862" |
-| 10 | "Urgent care:" | input — "FastMed Urgent Care" |
-| 11 | "Urgent care phone:" | input — "(865) 428-1020" |
-| 12 | "Non-emergency police:" | input — "(865) 436-5181" |
-| 13 | "Poison control:" | hardcoded (NOT input) — "1-800-222-1222" |
-| 14 | "24-hr vet (if pets):" | input — "Mountain Vet ER — (865) 329-1905" |
-| 15 | "Utility outage reporting:" | input — "Sevier Electric: (865) 453-2887" |
-| 16 | "Host phone (call/text):" | FORMULA `=Welcome!B7` — gray/formula style |
+| 8  | "Nearest hospital:" | input — "LeConte Medical Center" |
+| 9  | "Hospital phone:" | input — "(865) 446-7000" |
+| 10 | "Hospital address:" | input — "742 Middle Creek Rd, Sevierville, TN 37862" |
+| 11 | "Urgent care:" | input — "FastMed Urgent Care" |
+| 12 | "Urgent care phone:" | input — "(865) 428-1020" |
+| 13 | "Non-emergency police:" | input — "(865) 436-5181" |
+| 14 | "Poison control:" | hardcoded (NOT input) — "1-800-222-1222" |
+| 15 | "24-hr vet (if pets):" | input — "Mountain Vet ER — (865) 329-1905" |
+| 16 | "Utility outage reporting:" | input — "Sevier Electric: (865) 453-2887" |
+| 17 | "Host phone (call/text):" | FORMULA `=Property!B10` (formula style) |
 
-Col widths: A=32, B=55. Freeze: A5. Print area: A1:B17.
+Input range for progress (9 fields): `B8:B16` — counts all filled cells including the hardcoded poison control at B14. B17 (host phone formula) is intentionally NOT in the counted range.
 
-## Sheet 9 — "Host Reference (HIDE)"
+## Sheet — "× Host Notes"
 
-Tab color: Clay Rose `COLOR_SECONDARY`. Tab name ends with "(HIDE)" so it's visually obvious.
+Tab color: Clay Rose `COLOR_SECONDARY`. Tab name starts with "× " for visual contrast.
+Quarantined with big red "⚠ PRIVATE — HIDE BEFORE SHARING" banner across rows 1-2. Print area forced to A1:A1 to protect against accidental printing.
 
-Brand header ("Host Reference — Hide Before Sharing" / "Your private operating sheet").
-
-| Row | Col A | Col B |
-|---|---|---|
-| 5 | "Cleaner name:" | input — "Sarah @ Smokies Clean" |
-| 6 | "Cleaner phone:" | input — "(865) 555-0145" |
-| 7 | "Handyman:" | input — "Bob — (865) 555-0198" |
-| 8 | "Plumber:" | input — "Ridge Plumbing — (865) 555-0177" |
-| 9 | "Pool/hot tub service:" | input — "HotTub Haven — quarterly service" |
-| 10 | "Insurance policy #:" | input — "ABC-1234567 (Proper Insurance)" |
-| 11 | "Wifi admin password (router):" | input — "admin / router-pw-here" |
-| 12 | "Smart lock master code:" | input — "9999 — not for guest use" |
-| 13 | "Passcodes for safes/boxes:" | input (wrap, h=36) — "Under-sink safe: 1234\nGarage keypad: 5678" |
-| 14 | "Things to NOT tell the guest:" | input (wrap, h=36) — "Hot tub chemistry is touchy — do not tell guests to refill. If hot tub is cloudy, call HotTub Haven." |
-
-Row 16: big red reminder merged A16:B16 — "⚠ RIGHT-CLICK this tab → Hide before sharing the workbook or exporting to PDF." — Georgia 12pt bold italic, `COLOR_ERROR`, centered + wrap. Height 30.
-
-Col widths: A=36, B=55. Freeze: A5. Print area: A1:B17.
+Input fields cover: cleaner, handyman, plumber, pool service, insurance, WiFi admin, smart-lock master, safe codes, private notes. Uses its own card-with-header layout (NOT the flattened layout) because it's a private host tool, not a buyer-facing input wizard.
