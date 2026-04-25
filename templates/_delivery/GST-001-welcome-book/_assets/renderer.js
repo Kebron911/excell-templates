@@ -235,8 +235,8 @@ function renderPages() {
   root.className = `canvas-inner theme-${appState.theme} palette-${appState.palette}`;
   const pages = {
     magazine: renderMagazineTheme,
-    editorial: renderEditorialTheme,  // stub — Task 9
-    hotel: renderHotelTheme,           // stub — Task 9
+    editorial: renderEditorialTheme,
+    hotel: renderHotelTheme,
   };
   const fn = pages[appState.theme] || renderMagazineTheme;
   root.innerHTML = "";
