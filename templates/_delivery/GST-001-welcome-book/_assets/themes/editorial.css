@@ -64,3 +64,7 @@
 }
 .theme-editorial .emergency h4 { margin: 0 0 4px 0; color: #a33;
                                   font-size: 15px; }
+
+.theme-editorial .wifi-callout .qr { float: right; margin: 0 0 6px 6px; }
+.theme-editorial .qr-address { float: right; margin-left: 10px; }
+.theme-editorial .emergency .qr { display: block; margin: 6px auto; }

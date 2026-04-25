@@ -126,3 +126,8 @@
   font-size: 18px;
 }
 .theme-magazine .emergency p { margin: 3px 0; font-size: 11px; }
+
+.theme-magazine .wifi-big { display: flex; justify-content: space-between;
+                              align-items: center; gap: 0.1in; flex-wrap: wrap; }
+.theme-magazine .wifi-big .qr { margin-left: auto; }
+.theme-magazine .qr-address { float: right; margin: 0.1in; }

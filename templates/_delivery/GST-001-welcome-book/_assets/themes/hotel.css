@@ -104,3 +104,7 @@
   margin: 0 0 6px 0; color: #a33; font-size: 18px;
   letter-spacing: 0.05em;
 }
+
+.theme-hotel .wifi-engraved { position: relative; }
+.theme-hotel .wifi-engraved .qr { position: absolute; right: 0.2in; top: 0.1in; }
+.theme-hotel .qr-address { display: block; margin: 0.1in auto; }

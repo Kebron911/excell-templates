@@ -190,6 +190,7 @@ function renderWorkspace() {
     wirePalettePicker(el.querySelector("#palette-picker"));
     wireThemePicker(el.querySelector("#theme-picker"));
     wireLogoSlot(el.querySelector("#logo-slot"));
+    wireQRToggles(el.querySelector("#qr-toggles"));
     renderPages();
   }, 0);
   return el;
@@ -243,6 +244,7 @@ function renderPages() {
   root.innerHTML = "";
   fn(appState.data, root);
   injectLogo(root);
+  injectQRs(root);
 }
 
 function renderEditorialTheme(d, root) {
@@ -643,6 +645,95 @@ function downscalePNG(file, maxWidth) {
     };
     img.src = url;
   });
+}
+
+function generateQR(payload) {
+  // qrcode-generator: typeNumber=0 (auto), errorCorrection='M'
+  const qr = qrcode(0, "M");
+  qr.addData(payload);
+  qr.make();
+  // Render as inline SVG for print sharpness. 0.8in @ 72dpi = ~58px css.
+  // We render at logical 4px-per-module and scale via CSS.
+  return qr.createSvgTag({ cellSize: 4, margin: 2 });
+}
+
+function qrPayloads(data) {
+  const W = data["WiFi + Tech"] || {};
+  const P = data.Property || {};
+  const A = data.Arrival || {};
+  return {
+    wifi: W.B8 && W.B9
+      ? `WIFI:T:WPA;S:${String(W.B8).replace(/([\\;,:"])/g,"\\$1")};` +
+        `P:${String(W.B9).replace(/([\\;,:"])/g,"\\$1")};;`
+      : null,
+    phone: P.B10 ? `tel:${String(P.B10).replace(/[^\d+]/g,"")}` : null,
+    address: A.B8 ? `geo:0,0?q=${encodeURIComponent(String(A.B8))}` : null,
+  };
+}
+
+function wireQRToggles(el) {
+  const payloads = qrPayloads(appState.data);
+  const rows = [
+    { key: "wifi",    label: "WiFi",       hint: "scan to connect" },
+    { key: "phone",   label: "Host phone", hint: "tap to call" },
+    { key: "address", label: "Address",    hint: "open in Maps" },
+  ];
+  el.innerHTML = rows.map(r => {
+    const enabled = !!payloads[r.key];
+    const checked = enabled && appState.qr[r.key];
+    return `
+      <label class="qr-row${enabled ? "" : " disabled"}">
+        <input type="checkbox" data-qr="${r.key}"
+               ${checked ? "checked" : ""}
+               ${enabled ? "" : "disabled"}>
+        <span class="qr-label">${r.label}</span>
+        <span class="qr-hint">${enabled ? r.hint : "— empty input"}</span>
+      </label>`;
+  }).join("");
+  el.querySelectorAll("input[data-qr]").forEach(cb =>
+    cb.addEventListener("change", () => {
+      const k = cb.dataset.qr;
+      setState({ qr: { ...appState.qr, [k]: cb.checked } });
+    })
+  );
+}
+
+function injectQRs(root) {
+  const payloads = qrPayloads(appState.data);
+  const on = (k) => appState.qr[k] && !!payloads[k];
+
+  if (on("wifi")) {
+    const wifiBlock = root.querySelector(".wifi-big, .wifi-callout, .wifi-engraved");
+    if (wifiBlock) {
+      const qr = document.createElement("div");
+      qr.className = "qr qr-wifi";
+      qr.innerHTML = generateQR(payloads.wifi)
+        + '<div class="qr-caption">scan to connect</div>';
+      wifiBlock.appendChild(qr);
+    }
+  }
+  if (on("phone")) {
+    const em = root.querySelector(".emergency");
+    if (em) {
+      const qr = document.createElement("div");
+      qr.className = "qr qr-phone";
+      qr.innerHTML = generateQR(payloads.phone)
+        + '<div class="qr-caption">tap to call</div>';
+      em.appendChild(qr);
+    }
+  }
+  if (on("address")) {
+    // Page 1 — next to the arrival facts block
+    const arrival = root.querySelector(
+      `.page[data-page="1"] dl.facts`);
+    if (arrival) {
+      const qr = document.createElement("div");
+      qr.className = "qr qr-address";
+      qr.innerHTML = generateQR(payloads.address)
+        + '<div class="qr-caption">open in Maps</div>';
+      arrival.parentNode.insertBefore(qr, arrival.nextSibling);
+    }
+  }
 }
 
 function injectLogo(root) {

@@ -182,3 +182,23 @@ pre#debug-dump {
   width: 22px; height: 22px; border-radius: 50%;
   cursor: pointer; font-size: 14px; line-height: 1;
 }
+
+/* QR inline block */
+.qr {
+  display: inline-block; vertical-align: top;
+  margin: 6px 0 6px 10px; text-align: center;
+}
+.qr svg { width: 0.8in; height: 0.8in; display: block; }
+.qr-caption {
+  font-family: "JetBrains Mono", monospace; font-size: 7px;
+  letter-spacing: 0.2em; color: var(--accent); margin-top: 2px;
+  text-transform: uppercase;
+}
+
+/* QR toggles sidebar */
+.qr-row { display: flex; align-items: center; gap: 6px;
+           font-size: 12px; padding: 4px 0; cursor: pointer; }
+.qr-row input { margin: 0; }
+.qr-row .qr-label { font-weight: 500; }
+.qr-row .qr-hint { color: #888; font-size: 10px; margin-left: auto; }
+.qr-row.disabled { opacity: 0.5; cursor: not-allowed; }
