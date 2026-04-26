@@ -99,6 +99,9 @@ SAMPLE = {
         "property_type": "Cabin",
         "max_guests": 6,
         "address": "123 Mountain Lane, Gatlinburg, TN 37738",
+        # v2.3
+        "str_permit": "STR-PERMIT-2026-0145 (Sevier County, TN)",
+        "accessibility": "3 steps to front porch, no ramp. Doorways 32\" min. Bedrooms on main floor.",
     },
     "Arrival": {
         "address": "123 Mountain Lane, Gatlinburg, TN 37738",
@@ -190,6 +193,8 @@ SAMPLE = {
             "Hot tub: 104°F max, no diving, kids must be supervised."
         ),
         "backup_contact": "Co-host: Sam Patel · 555-555-0144",
+        # v2.3 — drives the AirCover claim path block
+        "booking_platform": "Airbnb",
     },
     "Emergency": {
         "hospital_name": "LeConte Medical Center",
@@ -663,6 +668,8 @@ def build_property_tab(wb, variant):
             rows=[
                 ("Property name:", s.get("name", "")),
                 ("Host first name:", s.get("host", "")),
+                # v2.3 \u2014 STR permit / license number disclosure (municipal req)
+                ("STR permit / license #:", s.get("str_permit", "")),
             ],
         ),
         Card(
@@ -681,6 +688,9 @@ def build_property_tab(wb, variant):
             header="Setup",
             rows=[
                 ("Full address:", s.get("address", "")),
+                # v2.3 \u2014 accessibility note (Model STR Ordinance compliance)
+                ("Accessibility notes (steps / ramp / widths):",
+                 s.get("accessibility", "")),
             ],
             static=[
                 "First time? Go to Start \u2192 Quick Start for the 5-minute path.",
@@ -691,7 +701,7 @@ def build_property_tab(wb, variant):
         wb=wb, section_num=1, tab_name="Property",
         title="Property Info",
         subtitle="Who you are and where they're staying.",
-        cards=cards, input_count=8,
+        cards=cards, input_count=10,
         prev_tab="", next_tab="Arrival",
     )
 
@@ -1014,18 +1024,29 @@ def build_safety_disclosures_tab(wb, variant):
             row_height=48,
         ),
         Card(
-            header="Backup Contact",
+            header="Backup Contact & AirCover",
             rows=[
                 ("Backup host (if primary unreachable):",
                  s.get("backup_contact", "")),
+                # v2.3 — explicit AirCover / platform claim path so guests know
+                # what to do when something goes wrong and you're unreachable.
+                ("Booking platform (Airbnb / VRBO / Direct):",
+                 s.get("booking_platform", "")),
             ],
+            static=[
+                "AirCover claim path: open the Airbnb app → Trips → "
+                "this stay → Get help → Report a safety issue.",
+                "VRBO claim path: app → My Trips → this stay → Help → "
+                "Report an issue (covered by Book with Confidence Guarantee).",
+            ],
+            row_height=36,
         ),
     ]
     build_input_tab(
         wb=wb, section_num=8, tab_name="Safety & Disclosures",
         title="Safety & Disclosures",
         subtitle="Disclosure first, then safety locations.",
-        cards=cards, input_count=6,
+        cards=cards, input_count=7,
         prev_tab="Departure", next_tab="Emergency",
     )
 
