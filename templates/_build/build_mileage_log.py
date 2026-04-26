@@ -38,7 +38,7 @@ OUT = Path(__file__).resolve().parent.parent / "_masters" / "TAX-001-mileage-log
 
 # --- Constants ---
 
-IRS_RATE_2026 = 0.70
+IRS_RATE_2026 = 0.725  # IRS Notice 2026-10 — 72.5¢/mi business use, +2.5¢ from 2025
 
 PURPOSES = [
     "Property inspection",
@@ -58,29 +58,32 @@ PURPOSES = [
 PROPERTIES = ["Smokies Ridge", "Creek Side", "Lakehouse A"]
 
 # Sample rows 6-25 — 20 trips Jan-Mar 2026
-# Tuple: (date, property, destination, purpose, start_odo, end_odo, typed_miles_or_empty, notes)
+# v2.3.1: tuple grew to 12 fields with Logged On (audit-defense — proves
+# contemporaneous entry) and Parking + Tolls $ (separately deductible
+# under Standard Mileage Rate, IRS Pub 463).
+# Tuple: (trip_date, property, destination, purpose, start_odo, end_odo,
+#         typed_miles, notes, duration_hr, receipt_y_n, logged_on, parking_tolls)
 MILEAGE_SAMPLES = [
-    # (date, property, destination, purpose, start_odo, end_odo, typed_miles, notes, duration_hr, receipt_y_n)
-    ("2026-01-05", "Smokies Ridge", "Home Depot run",                        "Supplies run",                  45120, 45144, "", "Hot tub chemicals",                  1.5, "Y"),
-    ("2026-01-08", "Smokies Ridge", "Property inspection visit",             "Property inspection",           45150, 45195, "", "Quarterly inspection",               2.5, ""),
-    ("2026-01-15", "Creek Side",    "Knoxville airport guest pickup",        "Guest transport",               45200, 45292, "", "Airbnb Plus comped ride",            3.0, ""),
-    ("2026-01-20", "Smokies Ridge", "Meet new cleaner onsite",               "Meeting cleaner / staff",       45300, 45345, "", "Onboard Jamie",                      2.0, ""),
-    ("2026-02-02", "Creek Side",    "Turnover walkthrough",                  "Turnover (laundry/clean)",      45400, 45490, "", "",                                    4.0, "Y"),
-    ("2026-02-07", "Lakehouse A",   "Supplies + inspection",                 "Supplies run",                  45500, 45565, "", "",                                    2.5, "Y"),
-    ("2026-02-10", "Smokies Ridge", "Burst pipe emergency",                  "Emergency response",            45600, 45648, "", "Plumber met me",                     3.5, "Y"),
-    ("2026-02-14", "Creek Side",    "Hot tub service",                       "Contractor walkthrough",        45700, 45790, "", "",                                    2.0, ""),
-    ("2026-02-18", "Lakehouse A",   "Quarterly inspection",                  "Property inspection",           45800, 45867, "", "",                                    2.5, ""),
-    ("2026-02-22", "Smokies Ridge", "Guest pickup airport",                  "Guest transport",               45900, 45992, "", "",                                    3.0, ""),
-    ("2026-02-28", "Creek Side",    "Cleaner check-in",                      "Meeting cleaner / staff",       46050, 46095, "", "",                                    1.5, ""),
-    ("2026-03-05", "Lakehouse A",   "Lowe's run",                            "Supplies run",                  46150, 46178, "", "Bought new kettle",                  1.0, "Y"),
-    ("2026-03-10", "Smokies Ridge", "Turnover issue callback",               "Turnover (laundry/clean)",      46200, 46245, "", "Guest complaint follow-up",          2.0, ""),
-    ("2026-03-14", "Creek Side",    "Handyman meeting",                      "Contractor walkthrough",        46300, 46349, "", "",                                    1.5, ""),
-    ("2026-03-18", "Smokies Ridge", "Bank deposit run",                      "Bank / deposit",                46400, 46420, "", "Q1 guest deposits",                  0.75, "Y"),
-    ("2026-03-22", "Lakehouse A",   "Guest transport — late flight",         "Guest transport",               46500, 46587, "", "",                                    3.5, ""),
-    ("2026-03-25", "Creek Side",    "Supplies — Costco",                     "Supplies run",                  46650, 46695, "", "",                                    1.5, "Y"),
-    ("2026-03-28", "Smokies Ridge", "Mailing key set to next guest",         "Mailing / post office",         46800, 46815, "", "Lockbox malfunction backup",         0.5, "Y"),
-    ("2026-03-30", "Lakehouse A",   "CPA tax-prep meeting",                  "CPA / attorney meeting",        46900, 46928, "", "Q1 review",                          1.5, "Y"),
-    ("2026-03-31", "Smokies Ridge", "Month-end inspection",                  "Property inspection",           46950, 46995, "", "",                                    2.0, ""),
+    ("2026-01-05", "Smokies Ridge", "Home Depot run",                        "Supplies run",                  45120, 45144, "", "Hot tub chemicals",                  1.5, "Y", "2026-01-05", 0),
+    ("2026-01-08", "Smokies Ridge", "Property inspection visit",             "Property inspection",           45150, 45195, "", "Quarterly inspection",               2.5, "",  "2026-01-09", 0),
+    ("2026-01-15", "Creek Side",    "Knoxville airport guest pickup",        "Guest transport",               45200, 45292, "", "Airbnb Plus comped ride",            3.0, "",  "2026-01-15", 14),
+    ("2026-01-20", "Smokies Ridge", "Meet new cleaner onsite",               "Meeting cleaner / staff",       45300, 45345, "", "Onboard Jamie",                      2.0, "",  "2026-01-21", 0),
+    ("2026-02-02", "Creek Side",    "Turnover walkthrough",                  "Turnover (laundry/clean)",      45400, 45490, "", "",                                    4.0, "Y", "2026-02-02", 0),
+    ("2026-02-07", "Lakehouse A",   "Supplies + inspection",                 "Supplies run",                  45500, 45565, "", "",                                    2.5, "Y", "2026-02-08", 0),
+    ("2026-02-10", "Smokies Ridge", "Burst pipe emergency",                  "Emergency response",            45600, 45648, "", "Plumber met me",                     3.5, "Y", "2026-02-10", 0),
+    ("2026-02-14", "Creek Side",    "Hot tub service",                       "Contractor walkthrough",        45700, 45790, "", "",                                    2.0, "",  "2026-02-15", 0),
+    ("2026-02-18", "Lakehouse A",   "Quarterly inspection",                  "Property inspection",           45800, 45867, "", "",                                    2.5, "",  "2026-02-19", 0),
+    ("2026-02-22", "Smokies Ridge", "Guest pickup airport",                  "Guest transport",               45900, 45992, "", "",                                    3.0, "",  "2026-02-22", 18),
+    ("2026-02-28", "Creek Side",    "Cleaner check-in",                      "Meeting cleaner / staff",       46050, 46095, "", "",                                    1.5, "",  "2026-03-01", 0),
+    ("2026-03-05", "Lakehouse A",   "Lowe's run",                            "Supplies run",                  46150, 46178, "", "Bought new kettle",                  1.0, "Y", "2026-03-05", 0),
+    ("2026-03-10", "Smokies Ridge", "Turnover issue callback",               "Turnover (laundry/clean)",      46200, 46245, "", "Guest complaint follow-up",          2.0, "",  "2026-03-11", 0),
+    ("2026-03-14", "Creek Side",    "Handyman meeting",                      "Contractor walkthrough",        46300, 46349, "", "",                                    1.5, "",  "2026-03-15", 0),
+    ("2026-03-18", "Smokies Ridge", "Bank deposit run",                      "Bank / deposit",                46400, 46420, "", "Q1 guest deposits",                  0.75, "Y", "2026-03-18", 0),
+    ("2026-03-22", "Lakehouse A",   "Guest transport — late flight",         "Guest transport",               46500, 46587, "", "",                                    3.5, "",  "2026-03-22", 22),
+    ("2026-03-25", "Creek Side",    "Supplies — Costco",                     "Supplies run",                  46650, 46695, "", "",                                    1.5, "Y", "2026-03-26", 0),
+    ("2026-03-28", "Smokies Ridge", "Mailing key set to next guest",         "Mailing / post office",         46800, 46815, "", "Lockbox malfunction backup",         0.5, "Y", "2026-03-28", 0),
+    ("2026-03-30", "Lakehouse A",   "CPA tax-prep meeting",                  "CPA / attorney meeting",        46900, 46928, "", "Q1 review (Re: Smith CPA)",          1.5, "Y", "2026-03-31", 0),
+    ("2026-03-31", "Smokies Ridge", "Month-end inspection",                  "Property inspection",           46950, 46995, "", "",                                    2.0, "",  "2026-04-01", 0),
 ]
 
 MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -301,7 +304,7 @@ def build_start_tab(wb):
     ws.merge_cells("A44:L44")
     c = ws["A44"]
     c.value = (
-        f"⚠ IRS rate updates January 1 each year. Current: ${IRS_RATE_2026}/mi. "
+        f"⚠ IRS rate updates January 1 each year. Current 2026: ${IRS_RATE_2026:.3f}/mi (Notice 2026-10). "
         "Update Settings → B5 each January (irs.gov Publication 463)."
     )
     c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_ERROR)
@@ -347,10 +350,12 @@ def build_log_tab(wb):
     c4.alignment = Alignment(horizontal="left", vertical="center", indent=1)
     ws.row_dimensions[4].height = 18
 
-    # Row 5: styled headers (v2.3 adds Duration + Receipt for material-
-    # participation hours and audit-defense cross-reference)
+    # Row 5: styled headers
+    # v2.3   added Duration + Receipt (material-participation hours, audit cross-ref)
+    # v2.3.1 adds Logged On (audit: contemporaneous-record proof) and
+    #        Parking + Tolls $ (separately deductible under Standard Mileage Rate)
     headers = [
-        "Date",
+        "Trip Date",
         "Property",
         "Destination",
         "Business Purpose",
@@ -361,19 +366,22 @@ def build_log_tab(wb):
         "$ Deduction",
         "Notes",
         "✔ IRS",
-        "Duration (hr)",   # v2.3 — supports 100/500-hour material-participation tests
-        "📎 Receipt",      # v2.3 — Y if you kept the receipt/invoice for audit defense
+        "Duration (hr)",
+        "📎 Receipt",
+        "Logged On",         # v2.3.1 — when this row was entered (audit defense)
+        "Parking + Tolls $", # v2.3.1 — separately deductible per Pub 463
     ]
     for col, h in enumerate(headers, start=1):
         cell = ws.cell(row=5, column=col, value=h)
         apply_style(cell, header_row_style())
     ws.row_dimensions[5].height = 20
 
-    # Col widths — tightened to fit 13 cols on landscape Letter
+    # Col widths — tightened to fit 15 cols on landscape Letter
     set_col_widths(ws, [
-        ("A", 11), ("B", 18), ("C", 22), ("D", 20),
-        ("E", 9), ("F", 9), ("G", 9), ("H", 10),
-        ("I", 12), ("J", 22), ("K", 11), ("L", 11), ("M", 9),
+        ("A", 11), ("B", 16), ("C", 20), ("D", 18),
+        ("E", 8), ("F", 8), ("G", 8), ("H", 9),
+        ("I", 11), ("J", 18), ("K", 10), ("L", 9), ("M", 8),
+        ("N", 11), ("O", 10),
     ])
 
     # Rows 6-2005: data + formulas
@@ -384,12 +392,8 @@ def build_log_tab(wb):
         if sample:
             (date_val, prop, dest, purpose,
              start_odo, end_odo, typed_miles, notes,
-             duration_hr, receipt_yn) = sample
+             duration_hr, receipt_yn, logged_on, parking_tolls) = sample
 
-            # Parse the YYYY-MM-DD string into a real Excel date so date-
-            # filtered SUMIFS / COUNTIFS on Monthly Summary can compare
-            # against DATE() criteria. Strings like "2026-01-05" look right
-            # but never match a date criterion — silent zeros everywhere.
             date_obj = datetime.strptime(date_val, "%Y-%m-%d").date()
             a = ws.cell(row=i, column=1, value=date_obj)
             apply_style(a, input_cell_style())
@@ -424,15 +428,30 @@ def build_log_tab(wb):
             m = ws.cell(row=i, column=13, value=receipt_yn if receipt_yn else None)
             apply_style(m, input_cell_style())
             m.alignment = Alignment(horizontal="center", vertical="center")
+
+            # v2.3.1 — Logged On (date entered) for contemporaneous-record proof
+            n_val = datetime.strptime(logged_on, "%Y-%m-%d").date() if logged_on else None
+            n = ws.cell(row=i, column=14, value=n_val)
+            apply_style(n, input_cell_style())
+            n.number_format = "yyyy-mm-dd"
+
+            # v2.3.1 — Parking + Tolls $ (separately deductible)
+            o = ws.cell(row=i, column=15, value=parking_tolls if parking_tolls else None)
+            apply_style(o, input_cell_style())
+            o.number_format = '"$"#,##0.00'
         else:
-            # Empty row: still apply input style to L and M so empty cells
-            # are recognizably editable
             l = ws.cell(row=i, column=12)
             apply_style(l, input_cell_style())
             l.number_format = "0.00"
             m = ws.cell(row=i, column=13)
             apply_style(m, input_cell_style())
             m.alignment = Alignment(horizontal="center", vertical="center")
+            n = ws.cell(row=i, column=14)
+            apply_style(n, input_cell_style())
+            n.number_format = "yyyy-mm-dd"
+            o = ws.cell(row=i, column=15)
+            apply_style(o, input_cell_style())
+            o.number_format = '"$"#,##0.00'
 
         h_cell = ws.cell(
             row=i, column=8,
@@ -657,11 +676,13 @@ def build_ytd_tab(wb):
     bold_font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
 
     # --- YTD top-line KPIs (rows 5-8) ---
+    # v2.3.1 adds Parking & Tolls KPI — separately deductible per Pub 463
     kpis = [
         ("YTD Total Miles:",                       "='Monthly Summary'!B19",            "0"),
         ("YTD Total Deduction ($):",               "='Monthly Summary'!C19",            '"$"#,##0.00'),
         ("YTD Trips:",                             "='Monthly Summary'!D19",            None),
         ("YTD Hours (material participation):",    "=SUM('Mileage Log'!L6:L2005)",      "0.00"),
+        ("YTD Parking + Tolls ($):",               "=SUM('Mileage Log'!O6:O2005)",      '"$"#,##0.00'),
     ]
     for i, (label, formula, fmt) in enumerate(kpis, start=5):
         ws.cell(row=i, column=1, value=label).font = bold_font
@@ -861,6 +882,7 @@ def build_settings_tab(wb):
     hist_hdr.font = italic_muted
     ws.row_dimensions[7].height = 16
 
+    # IRS Notice 2026-10 set 2026 at 72.5¢. 2025 was 70¢, 2024 67¢, 2023 65.5¢.
     historical = [(8, "2023:", 0.655), (9, "2024:", 0.67), (10, "2025:", 0.70)]
     for row, label, val in historical:
         ws.cell(row=row, column=1, value=label).font = Font(
@@ -979,7 +1001,31 @@ def build_settings_tab(wb):
         b.number_format = fmt
         ws.row_dimensions[row].height = 16
 
-    ws.row_dimensions[27].height = 8
+    # v2.3.1 — Listed-property 50% rule alert (IRC §280F)
+    # If business use ≤50%, no Section 179 / accelerated depreciation; prior-year
+    # benefits may be subject to recapture as ordinary income. Conditional
+    # formatting hot-spots B26 red when this threshold is breached.
+    from openpyxl.formatting.rule import CellIsRule
+    ws.conditional_formatting.add(
+        "B26",
+        CellIsRule(
+            operator="lessThanOrEqual",
+            formula=["0.5"],
+            fill=PatternFill("solid", fgColor="FFCCCC"),
+            font=Font(bold=True, color=COLOR_ERROR),
+        ),
+    )
+    ws.merge_cells("A27:G27")
+    c27 = ws["A27"]
+    c27.value = (
+        "⚠ If Business Use % drops to 50% or below, IRS disallows Section 179 / "
+        "accelerated depreciation and may recapture prior-year deductions as "
+        "ordinary income (IRC §280F)."
+    )
+    c27.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_ERROR)
+    c27.alignment = Alignment(horizontal="left", vertical="center",
+                               wrap_text=True, indent=1)
+    ws.row_dimensions[27].height = 28
 
     # --- Vehicles & Method Election (rows 28-33) ---
     sect28 = ws.cell(row=28, column=1, value="Vehicles & Method Election")
