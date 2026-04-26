@@ -333,3 +333,171 @@ def section_header_band(ws, section_num, total_sections, title, subtitle,
     c.font = Font(name=FONT_HEAD, size=12, italic=True, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     c.fill = navy_fill
+
+
+def compact_header_band(ws, title, prev_tab=None, next_tab=None,
+                         prev_label=None, next_label=None):
+    """Render a 3-row navy header strip for operational-mode tabs.
+
+    Lighter than section_header_band — no SECTION N OF M chrome, no
+    big serif title row. Suited to data-table tabs where the
+    table itself is the centerpiece.
+
+    Layout:
+      Row 1: navy spacer (height 8)
+      Row 2: [← BACK] | TITLE (mono, right-aligned) | [NEXT →]
+      Row 3: navy spacer (height 6)
+    Existing content below row 3 (typically a row-4 spacer then a
+    header row at row 5) is left untouched.
+
+    Args:
+        ws: worksheet
+        title: tab name shown in mono uppercase at the right
+        prev_tab: name of tab the BACK button should jump to
+            (e.g., "Start"). Pass None to omit the BACK button.
+        next_tab: name of tab the NEXT button should jump to.
+            Pass None to omit the NEXT button.
+        prev_label: optional override for BACK button label
+            (default: "← BACK")
+        next_label: optional override for NEXT button label
+            (default: "NEXT →")
+    """
+    navy_fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
+
+    ws.row_dimensions[1].height = 8
+    ws.row_dimensions[2].height = 28
+    ws.row_dimensions[3].height = 6
+
+    for r in range(1, 4):
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = navy_fill
+
+    if prev_tab:
+        pseudo_button(
+            ws, "A2", "C2",
+            prev_label or "← BACK",
+            f"'{prev_tab}'!A1",
+            variant="primary",
+        )
+
+    # Center label slot — narrows when both buttons are present
+    if prev_tab and next_tab:
+        label_range = "D2:I2"
+    elif prev_tab and not next_tab:
+        label_range = "D2:L2"
+    elif next_tab and not prev_tab:
+        label_range = "A2:I2"
+    else:
+        label_range = "A2:L2"
+    ws.merge_cells(label_range)
+    label_cell = ws[label_range.split(":")[0]]
+    label_cell.value = title.upper()
+    label_cell.font = Font(name=FONT_MONO, size=10, bold=True,
+                            color=COLOR_ACCENT)
+    label_cell.alignment = Alignment(
+        horizontal="right" if next_tab or not prev_tab else "right",
+        vertical="center", indent=2,
+    )
+    label_cell.fill = navy_fill
+
+    if next_tab:
+        pseudo_button(
+            ws, "J2", "L2",
+            next_label or "NEXT →",
+            f"'{next_tab}'!A1",
+            variant="accent",
+        )
+
+
+def brand_footer(ws, start_row, version_line=None,
+                  contact_line=None):
+    """Render the gold-rule + email + version footer.
+
+    Three rows starting at start_row:
+      start_row     : gold thin-rule top border across A-L
+      start_row + 1 : contact line (graphite, slate-muted)
+      start_row + 2 : version line (italic gold)
+
+    Args:
+        ws: worksheet
+        start_row: first row of the footer (the gold-rule row)
+        version_line: defaults to "Free updates forever · v2.2".
+            Override to include a release date or SKU stamp.
+        contact_line: defaults to "Questions? <BRAND_EMAIL>".
+    """
+    gold_side = Side(style="thin", color=COLOR_ACCENT)
+    for c in range(1, 13):
+        ws.cell(row=start_row, column=c).border = Border(top=gold_side)
+
+    ws.merge_cells(f"A{start_row + 1}:L{start_row + 1}")
+    c = ws[f"A{start_row + 1}"]
+    c.value = contact_line or f"Questions? {BRAND_EMAIL}"
+    c.font = Font(name=FONT_BODY, size=10, color=COLOR_MUTED)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[start_row + 1].height = 18
+
+    ws.merge_cells(f"A{start_row + 2}:L{start_row + 2}")
+    c = ws[f"A{start_row + 2}"]
+    c.value = version_line or "Free updates forever · v2.2"
+    c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[start_row + 2].height = 18
+
+
+# Chart palette — used in order for multi-series / pie slices.
+# Stays within the brand tokens; never use raw hex in a build script.
+CHART_PALETTE = [
+    COLOR_PRIMARY,      # Harbor Navy
+    COLOR_ACCENT,       # Muted Gold
+    COLOR_SECONDARY,    # Clay Rose
+    COLOR_NAVY_TINT,    # Navy hover
+    COLOR_GOLD_SOFT,    # Soft gold
+    COLOR_NAVY_SHADE,   # Navy pressed
+    COLOR_PARCHMENT_ALT,# Parchment alt
+]
+
+
+def style_chart(chart, single_color=None):
+    """Apply brand styling to an openpyxl chart in-place.
+
+    For bar/column/line charts: tints all series in CHART_PALETTE order
+    (or single_color if given). For pie/doughnut charts: sets per-slice
+    colors via DataPoint records — single_color is ignored since pies
+    need varied slices.
+
+    Args:
+        chart: openpyxl chart object (BarChart, PieChart, etc.)
+        single_color: hex string (no #) to use for every series.
+            None = rotate through CHART_PALETTE.
+
+    Sets brand-consistent: navy axis lines, no chart border, gold gridlines
+    (Excel keeps default if we don't touch them, which is fine).
+    """
+    from openpyxl.chart.shapes import GraphicalProperties
+    from openpyxl.drawing.fill import ColorChoice
+    from openpyxl.drawing.line import LineProperties
+    from openpyxl.chart.marker import DataPoint
+
+    chart_type = type(chart).__name__
+
+    if chart_type in ("PieChart", "DoughnutChart", "PieChart3D"):
+        # Pies/donuts: one series, color each slice differently
+        if chart.series:
+            series = chart.series[0]
+            for i, color in enumerate(CHART_PALETTE):
+                dp = DataPoint(idx=i)
+                dp.graphicalProperties = GraphicalProperties(
+                    solidFill=color
+                )
+                series.dPt.append(dp)
+    else:
+        # Bar/column/line: each series gets one color
+        for i, series in enumerate(chart.series):
+            color = single_color or CHART_PALETTE[i % len(CHART_PALETTE)]
+            series.graphicalProperties = GraphicalProperties(
+                solidFill=color
+            )
+            # Thin navy line on the series border (clean editorial look)
+            series.graphicalProperties.line = LineProperties(
+                solidFill=COLOR_NAVY_SHADE, w=4500
+            )
