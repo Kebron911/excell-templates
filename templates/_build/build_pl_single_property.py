@@ -1,24 +1,41 @@
-"""Build TAX-002 Single-Property P&L Tracker Excel files.
+"""Build TAX-002 Single-Property P&L Tracker Excel files (v2.2 standard).
+
+Operational-mode tracker: customer logs revenue + expenses week to week,
+hands the Schedule E Summary tab to a CPA at year-end. Implements the
+v2.2 visual + interaction language set by the Welcome Book v2.2 and
+already shipped in the Mileage Log v2.3.
+
+Critical fixes vs v1 (per skill str-tax-context.md §"Active tax year"):
+- Active tax year cell on Settings (replaces brittle YEAR(TODAY()) usage)
+- Date strings parsed into datetime.date objects so SUMIFS date filters
+  actually match. v1 stored dates as text — every monthly aggregate
+  silently returned $0.
+- Schedule C/E selector on Settings + dependent Schedule routing footnote
+- Pre-startup-cost callout on Start tab (IRC §195)
 
 Generates BOTH Lite (Etsy) and Full (Gumroad) variants from shared code.
-Per spec: Lite and Full share 7-tab structure at MVP; difference is Welcome-
-tab upgrade-banner emphasis + filename.
-
-Implements templates/_briefs/TAX-002-pl-single-property-spec.md.
 """
+from datetime import datetime
 from pathlib import Path
 from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.formatting.rule import CellIsRule
 from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.worksheet.page import PageMargins
+from openpyxl.utils import get_column_letter
+from openpyxl.utils.cell import column_index_from_string
+from openpyxl.chart import BarChart, DoughnutChart, Reference
+from openpyxl.chart.label import DataLabelList
 
 from brand_config import (
     COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
+    COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
-    apply_brand_header, input_cell_style, formula_cell_style,
+    BRAND_NAME, BRAND_DOMAIN, BRAND_EMAIL,
+    input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, add_upgrade_banner, apply_style,
-    BRAND_DOMAIN,
+    pseudo_button, compact_header_band, brand_footer, style_chart,
 )
 
 BASE = Path(__file__).resolve().parent.parent
@@ -49,18 +66,22 @@ EXPENSE_CATEGORIES = [
 
 BOOKING_CHANNELS = ["Airbnb", "VRBO", "Booking.com", "Direct", "Other"]
 
+ACTIVE_TAX_YEAR = 2026
+
 # 10 sample bookings Jan-Mar 2026
+# v2.3 added Nights column — drives Avg Stay calc on Schedule E Summary
+# (≤7 nights avg unlocks the STR loophole under IRC §469).
 SAMPLE_REVENUE = [
-    ("2026-01-08", "Airbnb guest #A1092",       "Airbnb", 2400, 240, 210, "4 nights"),
-    ("2026-01-22", "Airbnb guest #A1098",       "Airbnb", 1800, 180, 210, "3 nights"),
-    ("2026-02-05", "VRBO guest #V4455",         "VRBO",   2100, 180, 210, "3 nights"),
-    ("2026-02-14", "Airbnb guest #A1112",       "Airbnb", 2800, 280, 210, "Valentine's week"),
-    ("2026-02-27", "Direct booking — Thompson", "Direct", 2200,   0, 210, "Returning guest"),
-    ("2026-03-07", "Airbnb guest #A1135",       "Airbnb", 1900, 190, 210, ""),
-    ("2026-03-14", "Airbnb guest #A1140",       "Airbnb", 2100, 210, 210, "St Patrick's weekend"),
-    ("2026-03-20", "VRBO guest #V4488",         "VRBO",   1800, 160, 210, ""),
-    ("2026-03-25", "Airbnb guest #A1147",       "Airbnb", 1600, 160, 210, ""),
-    ("2026-03-30", "Direct booking — Miller",   "Direct", 1800,   0, 210, "Month-end"),
+    ("2026-01-08", "Airbnb guest #A1092",       "Airbnb", 2400, 240, 210, 4, "4 nights"),
+    ("2026-01-22", "Airbnb guest #A1098",       "Airbnb", 1800, 180, 210, 3, "3 nights"),
+    ("2026-02-05", "VRBO guest #V4455",         "VRBO",   2100, 180, 210, 3, "3 nights"),
+    ("2026-02-14", "Airbnb guest #A1112",       "Airbnb", 2800, 280, 210, 7, "Valentine's week"),
+    ("2026-02-27", "Direct booking — Thompson", "Direct", 2200,   0, 210, 4, "Returning guest"),
+    ("2026-03-07", "Airbnb guest #A1135",       "Airbnb", 1900, 190, 210, 3, ""),
+    ("2026-03-14", "Airbnb guest #A1140",       "Airbnb", 2100, 210, 210, 4, "St Patrick's weekend"),
+    ("2026-03-20", "VRBO guest #V4488",         "VRBO",   1800, 160, 210, 3, ""),
+    ("2026-03-25", "Airbnb guest #A1147",       "Airbnb", 1600, 160, 210, 3, ""),
+    ("2026-03-30", "Direct booking — Miller",   "Direct", 1800,   0, 210, 3, "Month-end"),
 ]
 
 # 23 sample expenses
@@ -82,7 +103,7 @@ SAMPLE_EXPENSES = [
     ("2026-01-01", "Wells Fargo",         EXPENSE_CATEGORIES[7],  400, "ACH",         "Yes", "Jan mortgage int"),
     ("2026-02-01", "Wells Fargo",         EXPENSE_CATEGORIES[7],  400, "ACH",         "Yes", "Feb mortgage int"),
     ("2026-03-01", "Wells Fargo",         EXPENSE_CATEGORIES[7],  400, "ACH",         "Yes", "Mar mortgage int"),
-    # utilities: 1 internet + 2 electric
+    # utilities
     ("2026-01-15", "Spectrum",            EXPENSE_CATEGORIES[12],  90, "ACH",         "Yes", "Internet"),
     ("2026-01-20", "Sevier Electric",     EXPENSE_CATEGORIES[12], 120, "ACH",         "Yes", "Jan utilities"),
     ("2026-02-20", "Sevier Electric",     EXPENSE_CATEGORIES[12], 140, "ACH",         "Yes", "Feb utilities"),
@@ -96,6 +117,9 @@ SAMPLE_EXPENSES = [
     ("2026-03-20", "VRBO Platform Fee",   EXPENSE_CATEGORIES[14], 160, "Auto-deduct", "Yes", ""),
 ]
 
+MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
 
 def add_dropdown(ws, cell_range, formula1):
     dv = DataValidation(type="list", formula1=formula1, allow_blank=True)
@@ -103,138 +127,302 @@ def add_dropdown(ws, cell_range, formula1):
     ws.add_data_validation(dv)
 
 
+def _parse_date(s):
+    """v1 stored YYYY-MM-DD as text. SUMIFS with DATE() criteria can't
+    match string cells — silent zeros across every monthly aggregate.
+    Parse to a real datetime.date at write-time."""
+    return datetime.strptime(s, "%Y-%m-%d").date()
+
+
 # ---------------------------------------------------------------------------
 # Sheet builders
 # ---------------------------------------------------------------------------
 
-def build_welcome_tab(wb, is_lite):
-    """Sheet 1 — Welcome (cover + Schedule E intro + how-to steps)."""
+def build_start_tab(wb, is_lite):
+    """Sheet 0 — Start (operational-mode hero + cards + activity dashboard)."""
     ws = wb.active
-    ws.title = "Welcome"
-    ws.sheet_properties.tabColor = COLOR_SECONDARY
+    ws.title = "Start"
+    ws.sheet_properties.tabColor = COLOR_PRIMARY
+
+    set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
+
+    # --- ZONE 1: Navy hero band (rows 1-8) ---
+    navy_fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
+    for r in range(1, 9):
+        ws.row_dimensions[r].height = 22
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = navy_fill
+
+    ws.merge_cells("A2:F2")
+    c = ws["A2"]
+    c.value = BRAND_NAME
+    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     title_suffix = " (Lite)" if is_lite else ""
-    apply_brand_header(
-        ws,
-        f"Single-Property P&L Tracker{title_suffix}",
-        "Close your year before April does.",
+    ws.merge_cells("A4:L4")
+    c = ws["A4"]
+    c.value = f"Single-Property P&L{title_suffix}"
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    ws.row_dimensions[4].height = 48
+
+    ws.merge_cells("A5:L5")
+    c = ws["A5"]
+    c.value = "Close your year before April does."
+    c.font = Font(name=FONT_HEAD, size=14, italic=True, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+
+    ws.merge_cells("A7:L7")
+    c = ws["A7"]
+    c.value = "TAX-002 · v2.2"
+    c.font = Font(name=FONT_MONO, size=9, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+
+    # --- ZONE 2: "What this does" card (rows 10-16, parchment) ---
+    parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    for r in range(10, 17):
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = parchment_fill
+
+    ws.merge_cells("A10:L10")
+    c = ws["A10"]
+    c.value = "WHAT THIS DOES"
+    c.font = Font(name=FONT_MONO, size=10, bold=True, color=COLOR_PRIMARY)
+    c.fill = PatternFill("solid", fgColor=COLOR_GOLD_SOFT)
+    c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
+    ws.row_dimensions[10].height = 20
+
+    ws.merge_cells("A11:L15")
+    c = ws["A11"]
+    c.value = (
+        "Schedule E Part I categories drive every expense row, so the Schedule E "
+        "Summary tab is your CPA hand-off doc — not a separate report you build "
+        "at year-end. Log revenue + expenses weekly (the IRS contemporaneous-record "
+        "standard), and the Monthly P&L + Summary tabs auto-roll up. Reference: "
+        "IRS Publication 527 (Residential Rental Property)."
     )
+    c.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
+    c.alignment = Alignment(horizontal="left", vertical="center",
+                             wrap_text=True, indent=2)
 
-    ws.row_dimensions[4].height = 10
+    # --- ZONE 3: "How to use" card (rows 18-25, parchment-alt) ---
+    qs_fill = PatternFill("solid", fgColor=COLOR_PARCHMENT_ALT)
+    for r in range(18, 26):
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = qs_fill
 
-    # Row 5: Schedule E header
-    hdr5 = ws.cell(row=5, column=1, value="How this maps to IRS Schedule E")
-    hdr5.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_PRIMARY)
-    ws.row_dimensions[5].height = 22
+    ws.merge_cells("A18:L18")
+    c = ws["A18"]
+    c.value = "HOW TO USE"
+    c.font = Font(name=FONT_MONO, size=10, bold=True, color=COLOR_PRIMARY)
+    c.fill = PatternFill("solid", fgColor=COLOR_GOLD_SOFT)
+    c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
+    ws.row_dimensions[18].height = 20
 
-    # Row 6: Schedule E intro paragraph
-    para6 = ws.cell(
-        row=6, column=1,
-        value=(
-            "Expense categories on the Expense Log match Schedule E Part I line numbers (5-20). "
-            "The Schedule E Summary tab rolls up YTD totals ready for your CPA to copy into the form. "
-            "Reference: IRS Publication 527 (Residential Rental Property)."
-        ),
-    )
-    para6.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
-    para6.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
-    ws.row_dimensions[6].height = 50
-
-    # Row 7-8: spacers
-    ws.row_dimensions[7].height = 8
-    ws.row_dimensions[8].height = 8
-
-    # Row 9: How to use header
-    hdr9 = ws.cell(row=9, column=1, value="How to use")
-    hdr9.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_PRIMARY)
-    ws.row_dimensions[9].height = 22
-
-    # Rows 10-15: 6 how-to steps
-    steps = [
-        (10, "1. Property Info tab: fill in your property details (address, purchase price, loan info)."),
-        (11, "2. Revenue Log tab: log every booking — date, guest, channel, gross amount, fees."),
-        (12, "3. Expense Log tab: enter every expense and pick the Schedule E category from the dropdown."),
-        (13, "4. Monthly P&L tab: automatic SUMIFS roll-up by month — no manual math required."),
-        (14, "5. Schedule E Summary tab: YTD totals mapped to IRS line numbers — share with your CPA."),
-        (15, "6. Settings tab: verify the expense category list matches Schedule E Part I lines 6-20."),
+    quickstart_items = [
+        "① Property Info: fill in property details once (address, purchase, loan, in-service date).",
+        "② Revenue Log: log every booking — date, channel, gross, fees. One row per booking.",
+        "③ Expense Log: log every expense and pick the Schedule E category from the dropdown.",
+        "④ Monthly P&L: 12-column matrix auto-rolls; YTD column on the right.",
+        "⑤ Schedule E Summary: line-mapped totals to hand to your CPA at year-end.",
+        "⑥ Settings: bump 'Active tax year' each January so the dashboards stay right.",
+        "⑦ Log within 7 days — IRS disallows reconstructed records (Pub 527 §contemporaneous).",
     ]
-    for row_num, text in steps:
-        cell = ws.cell(row=row_num, column=1, value=text)
-        cell.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
-        cell.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
-        ws.row_dimensions[row_num].height = 20
+    for i, item in enumerate(quickstart_items):
+        row = 19 + i
+        ws.merge_cells(f"A{row}:L{row}")
+        c = ws[f"A{row}"]
+        c.value = item
+        c.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
+        c.alignment = Alignment(horizontal="left", vertical="center",
+                                 wrap_text=True, indent=2)
+        ws.row_dimensions[row].height = 20
 
-    # Rows 16-17: spacers
-    ws.row_dimensions[16].height = 8
-    ws.row_dimensions[17].height = 8
+    # --- ZONE 4: Primary "OPEN P&L" button (rows 27-30) ---
+    pseudo_button(ws, "A27", "L30",
+                   "→  OPEN MONTHLY P&L",
+                   "'Monthly P&L'!A1", variant="primary")
+    for r in range(27, 31):
+        ws.row_dimensions[r].height = 22
 
-    # Row 18: depreciation note (italic muted)
-    note18 = ws.cell(
-        row=18, column=1,
-        value=(
-            "Note: Schedule E Line 20 (Depreciation) — type your YTD depreciation number directly on the "
-            "Schedule E Summary tab. This Lite version doesn't include a depreciation calculator; for "
-            "5/7/15/27.5/39-yr depreciation by asset, see the Portfolio Bundle."
-        ),
+    # --- ZONE 5: Activity at-a-glance — 3 cards (rows 32-37) ---
+    for r in range(32, 38):
+        for c in range(1, 13):
+            ws.cell(row=r, column=c).fill = parchment_fill
+
+    # Card 1 (A-D): YTD Revenue
+    ws.merge_cells("A32:D32")
+    c = ws["A32"]
+    c.value = "YTD REVENUE"
+    c.font = Font(name=FONT_MONO, size=9, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center")
+    ws.merge_cells("A33:D34")
+    c = ws["A33"]
+    c.value = "='Monthly P&L'!N7"
+    c.font = Font(name=FONT_HEAD, size=28, bold=True, color=COLOR_PRIMARY)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    c.number_format = '"$"#,##0'
+    ws.merge_cells("A35:D35")
+    c = ws["A35"]
+    c.value = "rents + cleaning fees"
+    c.font = Font(name=FONT_BODY, size=9, color=COLOR_MUTED)
+    c.alignment = Alignment(horizontal="center")
+
+    # Card 2 (E-H): YTD Expenses
+    ws.merge_cells("E32:H32")
+    c = ws["E32"]
+    c.value = "YTD EXPENSES"
+    c.font = Font(name=FONT_MONO, size=9, bold=True, color=COLOR_ERROR)
+    c.alignment = Alignment(horizontal="center")
+    ws.merge_cells("E33:H34")
+    c = ws["E33"]
+    c.value = "='Monthly P&L'!N28"
+    c.font = Font(name=FONT_HEAD, size=28, bold=True, color=COLOR_ERROR)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    c.number_format = '"$"#,##0'
+    ws.merge_cells("E35:H35")
+    c = ws["E35"]
+    c.value = "deductible Schedule E"
+    c.font = Font(name=FONT_BODY, size=9, color=COLOR_MUTED)
+    c.alignment = Alignment(horizontal="center")
+
+    # Card 3 (I-L): Net Income
+    ws.merge_cells("I32:L32")
+    c = ws["I32"]
+    c.value = "NET INCOME"
+    c.font = Font(name=FONT_MONO, size=9, bold=True, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="center")
+    ws.merge_cells("I33:L34")
+    c = ws["I33"]
+    c.value = "='Monthly P&L'!N30"
+    c.font = Font(name=FONT_HEAD, size=28, bold=True, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    c.number_format = '"$"#,##0'
+    ws.merge_cells("I35:L35")
+    c = ws["I35"]
+    c.value = "Schedule E Line 26"
+    c.font = Font(name=FONT_BODY, size=9, color=COLOR_MUTED)
+    c.alignment = Alignment(horizontal="center")
+
+    # Gold borders around the 3 cards
+    gold_side = Side(style="thin", color=COLOR_ACCENT)
+    for first, last in [("A", "D"), ("E", "H"), ("I", "L")]:
+        fc = column_index_from_string(first)
+        lc_ = column_index_from_string(last)
+        for r in range(32, 36):
+            for col in range(fc, lc_ + 1):
+                existing = ws.cell(row=r, column=col).border
+                ws.cell(row=r, column=col).border = Border(
+                    top=gold_side if r == 32 else existing.top,
+                    bottom=gold_side if r == 35 else existing.bottom,
+                    left=gold_side if col == fc else existing.left,
+                    right=gold_side if col == lc_ else existing.right,
+                )
+
+    # --- ZONE 6: Secondary nav — 4 buttons (rows 39-40) ---
+    pseudo_button(ws, "A39", "C40", "Revenue Log",
+                   "'Revenue Log'!A1", variant="secondary")
+    pseudo_button(ws, "D39", "F40", "Expense Log",
+                   "'Expense Log'!A1", variant="secondary")
+    pseudo_button(ws, "G39", "I40", "📄 Schedule E Summary",
+                   "'Schedule E Summary'!A1", variant="accent")
+    pseudo_button(ws, "J39", "L40", "Settings",
+                   "'Settings'!A1", variant="secondary")
+    ws.row_dimensions[39].height = 22
+    ws.row_dimensions[40].height = 22
+
+    # --- ZONE 7: Tax-time / year-end checkpoint callout (rows 42-43) ---
+    ws.merge_cells("A42:L42")
+    c = ws["A42"]
+    c.value = (
+        "📄 TAX TIME: print Schedule E Summary + Monthly P&L "
+        "(File → Print → 'Print Active Sheets'). "
+        "📅 YEAR END: copy YTD totals into Settings → Year-end Archive before Jan 1, "
+        "then bump 'Active tax year' on Settings."
     )
-    note18.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_MUTED)
-    note18.alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
-    ws.row_dimensions[18].height = 36
+    c.font = Font(name=FONT_BODY, size=10, color=COLOR_PRIMARY)
+    c.fill = PatternFill("solid", fgColor=COLOR_GOLD_SOFT)
+    c.alignment = Alignment(horizontal="center", vertical="center",
+                             wrap_text=True)
+    ws.row_dimensions[42].height = 36
 
-    # Row 19: spacer
-    ws.row_dimensions[19].height = 8
+    # --- ZONE 8: Pre-startup costs warning (row 44) ---
+    # IRC §195: trips/expenses BEFORE acquiring or placing in service must
+    # be capitalized + amortized 15 yr (with up to $5K Year-1 deduction).
+    # Don't let customers blend pre-startup with operational expenses.
+    ws.merge_cells("A44:L44")
+    c = ws["A44"]
+    c.value = (
+        "⚠ Pre-startup costs (IRC §195): trips/expenses BEFORE the property is placed "
+        "in service must be capitalized over 15 years, not expensed here. "
+        "Track those separately and hand to your CPA."
+    )
+    c.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_ERROR)
+    c.alignment = Alignment(horizontal="center", vertical="center",
+                             wrap_text=True)
+    ws.row_dimensions[44].height = 28
 
-    # Row 20: upgrade banner — differs by is_lite
-    if is_lite:
-        banner_text = (
-            f"\U0001f4a1 Upgrade: Multi-Property P&L Master + depreciation by asset + LLC consolidation "
-            f"— {BRAND_DOMAIN}/portfolio-master ($97) \u00b7 included in Portfolio Bundle ($397)."
-        )
-    else:
-        banner_text = (
-            f"\U0001f4a1 Get the Portfolio Bundle at {BRAND_DOMAIN}/portfolio-bundle "
-            f"— 32 templates for multi-property hosts, $397 instead of $900."
-        )
+    # --- ZONE 9: Upgrade banner (row 46) — preserved from v1 ---
+    add_upgrade_banner(ws, 46)
 
-    banner = ws.cell(row=20, column=1, value=banner_text)
-    banner.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
-    banner.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
-    banner.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
-    ws.row_dimensions[20].height = 50
+    # --- ZONE 10: Footer (rows 48-50) ---
+    brand_footer(ws, 48,
+                 version_line="TAX-002 · v2.2 · Free updates forever")
 
-    # Col A width + freeze
-    set_col_widths(ws, [("A", 95)])
-    ws.freeze_panes = "A5"
+    # Print setup
+    ws.print_area = "A1:L50"
+    ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
+    ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
+    ws.page_setup.fitToPage = True
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToHeight = 1
+    ws.page_setup.fitToWidth = 1
+    ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
 def build_property_info_tab(wb):
-    """Sheet 2 — Property Info (12 labeled input rows)."""
+    """Sheet 1 — Property Info (12 labeled input rows)."""
     ws = wb.create_sheet("Property Info")
-    ws.sheet_properties.tabColor = COLOR_SECONDARY
+    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
 
-    apply_brand_header(ws, "Property Info", "Enter your rental property details.")
+    compact_header_band(ws, "Property Info",
+                         prev_tab="Start", next_tab="Revenue Log")
 
-    ws.row_dimensions[4].height = 10
+    parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    for c in range(1, 13):
+        ws.cell(row=4, column=c).fill = parchment_fill
+    ws.merge_cells("A4:L4")
+    c4 = ws["A4"]
+    c4.value = "Fill once per property — purchase, loan, in-service date"
+    c4.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+    c4.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+    ws.row_dimensions[4].height = 18
 
     set_col_widths(ws, [("A", 28), ("B", 40)])
 
     bold_right = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
     right_align = Alignment(horizontal="right", vertical="center")
 
-    # (row, label, sample_value, number_format_or_None)
     rows_data = [
         (5,  "Property name:",        "Smokies Ridge Cabin",  None),
         (6,  "Street address:",       "123 Mountain Lane",    None),
         (7,  "City / State / Zip:",   "Gatlinburg, TN 37738", None),
         (8,  "Property type:",        "Cabin",                None),
-        (9,  "Purchase date:",        "2023-08-15",           "yyyy-mm-dd"),
+        (9,  "Purchase date:",        _parse_date("2023-08-15"), "yyyy-mm-dd"),
         (10, "Purchase price ($):",   420000,                 '"$"#,##0'),
         (11, "Closing costs ($):",    8500,                   '"$"#,##0'),
         (12, "Loan amount ($):",      336000,                 '"$"#,##0'),
         (13, "Interest rate (%):",    0.0675,                 "0.000%"),
         (14, "Loan term (years):",    30,                     None),
-        (15, "Business start date:",  "2023-10-01",           "yyyy-mm-dd"),
-        (16, "Days rented YTD 2026:", 72,                     None),
+        (15, "Business start date:",  _parse_date("2023-10-01"), "yyyy-mm-dd"),
+        (16, "Days rented YTD:",      72,                     None),
+        # v2.3 — Personal-use days drive Pub 527's 14-day/10% test:
+        # if personal use exceeds the greater of 14 days or 10% of rental
+        # days, the property is a "residence" — losses cannot offset other
+        # income. Schedule E Summary computes the threshold and flags the
+        # deductibility risk.
+        (17, "Personal use days YTD:", 0,                     None),
     ]
 
     for row_num, label, value, fmt in rows_data:
@@ -248,25 +436,45 @@ def build_property_info_tab(wb):
         if fmt:
             b.number_format = fmt
 
+    # Row 18: explainer for personal use (Pub 527)
+    ws.merge_cells("A18:B18")
+    c18 = ws["A18"]
+    c18.value = (
+        "Personal use = days you/family used the property NOT charged "
+        "fair-market rent. Includes letting friends stay free."
+    )
+    c18.font = Font(name=FONT_BODY, size=9, italic=True, color=COLOR_MUTED)
+    c18.alignment = Alignment(horizontal="left", vertical="center",
+                               wrap_text=True, indent=1)
+    ws.row_dimensions[18].height = 28
+
 
 def build_revenue_log(wb):
-    """Sheet 3 — Revenue Log (10 sample bookings + 1000-row capacity)."""
+    """Sheet 2 — Revenue Log (10 sample bookings + 1000-row capacity)."""
     ws = wb.create_sheet("Revenue Log")
-    ws.sheet_properties.tabColor = COLOR_SECONDARY
+    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
 
-    apply_brand_header(ws, "Revenue Log", "Log every booking — date, guest, channel, gross, fees.")
+    compact_header_band(ws, "Revenue Log",
+                         prev_tab="Property Info", next_tab="Expense Log")
 
-    ws.row_dimensions[4].height = 10
+    parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    for c in range(1, 13):
+        ws.cell(row=4, column=c).fill = parchment_fill
+    ws.merge_cells("A4:L4")
+    c4 = ws["A4"]
+    c4.value = "Log every booking — date, guest, channel, gross, fees"
+    c4.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+    c4.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+    ws.row_dimensions[4].height = 18
 
     set_col_widths(ws, [
         ("A", 12), ("B", 28), ("C", 14), ("D", 12),
-        ("E", 12), ("F", 14), ("G", 12), ("H", 28),
+        ("E", 12), ("F", 14), ("G", 12), ("H", 8), ("I", 28),
     ])
 
-    # Row 5: styled headers
     headers = [
         "Date", "Guest / Source", "Channel", "Gross",
-        "Platform Fee", "Cleaning Collected", "Net", "Notes",
+        "Platform Fee", "Cleaning Collected", "Net", "Nights", "Notes",
     ]
     for col, h in enumerate(headers, start=1):
         cell = ws.cell(row=5, column=col, value=h)
@@ -275,9 +483,9 @@ def build_revenue_log(wb):
 
     # Rows 6-15: sample revenue data
     for i, r in enumerate(SAMPLE_REVENUE, start=6):
-        date_val, guest, channel, gross, platform_fee, cleaning, notes = r
+        date_val, guest, channel, gross, platform_fee, cleaning, nights, notes = r
 
-        a = ws.cell(row=i, column=1, value=date_val)
+        a = ws.cell(row=i, column=1, value=_parse_date(date_val))
         apply_style(a, input_cell_style())
         a.number_format = "yyyy-mm-dd"
 
@@ -299,52 +507,72 @@ def build_revenue_log(wb):
         apply_style(f, input_cell_style())
         f.number_format = '"$"#,##0.00'
 
-        # Col G: Net formula
         g = ws.cell(row=i, column=7, value=f"=D{i}-E{i}")
         apply_style(g, formula_cell_style())
         g.number_format = '"$"#,##0.00'
 
-        h = ws.cell(row=i, column=8, value=notes if notes else None)
+        h = ws.cell(row=i, column=8, value=nights)
         apply_style(h, input_cell_style())
+        h.alignment = Alignment(horizontal="center", vertical="center")
+
+        i_cell = ws.cell(row=i, column=9, value=notes if notes else None)
+        apply_style(i_cell, input_cell_style())
 
         ws.row_dimensions[i].height = 16
 
     # Blank capacity rows 16-1005
     last_data_row = len(SAMPLE_REVENUE) + 5
     for row_idx in range(last_data_row + 1, 1006):
-        for col_idx in range(1, 9):
+        for col_idx in range(1, 10):
             cell = ws.cell(row=row_idx, column=col_idx)
             apply_style(cell, input_cell_style())
             if col_idx == 1:
                 cell.number_format = "yyyy-mm-dd"
             if col_idx in (4, 5, 6):
                 cell.number_format = '"$"#,##0.00'
-        # Net formula for capacity rows
+            if col_idx == 8:
+                cell.alignment = Alignment(horizontal="center", vertical="center")
         g = ws.cell(row=row_idx, column=7, value=f"=D{row_idx}-E{row_idx}")
         apply_style(g, formula_cell_style())
         g.number_format = '"$"#,##0.00'
 
-    # Channel dropdown C6:C1005
     add_dropdown(ws, "C6:C1005", '"Airbnb,VRBO,Booking.com,Direct,Other"')
 
     ws.freeze_panes = "A6"
 
+    ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+    ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
+    ws.page_setup.fitToPage = True
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 0
+    ws.print_title_rows = "1:5"
+    ws.page_margins = PageMargins(left=0.4, right=0.4, top=0.5, bottom=0.5)
+
 
 def build_expense_log(wb):
-    """Sheet 4 — Expense Log (23 sample expenses + 2000-row capacity)."""
+    """Sheet 3 — Expense Log (23 sample expenses + 2000-row capacity)."""
     ws = wb.create_sheet("Expense Log")
-    ws.sheet_properties.tabColor = COLOR_SECONDARY
+    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
 
-    apply_brand_header(ws, "Expense Log", "Enter every expense with the matching Schedule E category.")
+    compact_header_band(ws, "Expense Log",
+                         prev_tab="Revenue Log", next_tab="Monthly P&L")
 
-    ws.row_dimensions[4].height = 10
+    parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    for c in range(1, 13):
+        ws.cell(row=4, column=c).fill = parchment_fill
+    ws.merge_cells("A4:L4")
+    c4 = ws["A4"]
+    c4.value = "One row per expense — pick a Schedule E category from the dropdown"
+    c4.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+    c4.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+    ws.row_dimensions[4].height = 18
 
     set_col_widths(ws, [
         ("A", 12), ("B", 24), ("C", 38), ("D", 12),
         ("E", 16), ("F", 10), ("G", 28),
     ])
 
-    # Row 5: styled headers
     headers = [
         "Date", "Vendor", "Category (Schedule E line)",
         "Amount", "Payment Method", "Receipt?", "Notes",
@@ -358,7 +586,7 @@ def build_expense_log(wb):
     for i, e in enumerate(SAMPLE_EXPENSES, start=6):
         date_val, vendor, category, amount, method, receipt, notes = e
 
-        a = ws.cell(row=i, column=1, value=date_val)
+        a = ws.cell(row=i, column=1, value=_parse_date(date_val))
         apply_style(a, input_cell_style())
         a.number_format = "yyyy-mm-dd"
 
@@ -377,6 +605,7 @@ def build_expense_log(wb):
 
         f = ws.cell(row=i, column=6, value=receipt)
         apply_style(f, input_cell_style())
+        f.alignment = Alignment(horizontal="center", vertical="center")
 
         g = ws.cell(row=i, column=7, value=notes if notes else None)
         apply_style(g, input_cell_style())
@@ -393,78 +622,91 @@ def build_expense_log(wb):
                 cell.number_format = "yyyy-mm-dd"
             if col_idx == 4:
                 cell.number_format = '"$"#,##0.00'
+            if col_idx == 6:
+                cell.alignment = Alignment(horizontal="center", vertical="center")
 
-    # Dropdowns
     add_dropdown(ws, "C6:C2005", "=Settings!$A$15:$A$31")
     add_dropdown(ws, "E6:E2005", '"Venmo,Zelle,Check,Cash,ACH,Credit Card,Auto-deduct,Other"')
     add_dropdown(ws, "F6:F2005", '"Yes,No"')
 
     ws.freeze_panes = "A6"
 
+    ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+    ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
+    ws.page_setup.fitToPage = True
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 0
+    ws.print_title_rows = "1:5"
+    ws.page_margins = PageMargins(left=0.4, right=0.4, top=0.5, bottom=0.5)
+
 
 def build_monthly_pl(wb):
-    """Sheet 5 — Monthly P&L (SUMIFS grids, 17 expense category rows)."""
+    """Sheet 4 — Monthly P&L (12-column matrix; uses Settings!$B$5 for year)."""
     ws = wb.create_sheet("Monthly P&L")
-    ws.sheet_properties.tabColor = COLOR_ACCENT
+    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
 
-    apply_brand_header(ws, "Monthly P&L", "Automatic monthly roll-up — no manual math required.")
+    compact_header_band(ws, "Monthly P&L",
+                         prev_tab="Expense Log", next_tab="Schedule E Summary")
 
-    ws.row_dimensions[4].height = 10
+    parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    for c in range(1, 13):
+        ws.cell(row=4, column=c).fill = parchment_fill
+    ws.merge_cells("A4:L4")
+    c4 = ws["A4"]
+    c4.value = "Auto-rolled from logs — change 'Active tax year' on Settings to switch years"
+    c4.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+    c4.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+    ws.row_dimensions[4].height = 18
 
-    # Col widths: A=38, B-M=10, N=12
-    col_widths = [("A", 38)] + [(chr(ord("B") + i), 10) for i in range(12)] + [("N", 12)]
+    col_widths = [("A", 38)] + [(get_column_letter(2 + i), 10) for i in range(12)] + [("N", 12)]
     set_col_widths(ws, col_widths)
 
-    # Row 5: styled headers
-    month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    headers = ["Category"] + month_names + ["YTD"]
+    headers = ["Category"] + MONTHS + ["YTD"]
     for col, h in enumerate(headers, start=1):
         cell = ws.cell(row=5, column=col, value=h)
         apply_style(cell, header_row_style())
     ws.row_dimensions[5].height = 20
 
-    # Row 6: spacer
     ws.row_dimensions[6].height = 8
 
-    # Row 7: Revenue — "Rents + cleaning fees collected"
+    # Row 7: Revenue
     rev_label = ws.cell(row=7, column=1, value="Rents + cleaning fees collected")
     rev_label.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_PRIMARY)
     rev_label.alignment = Alignment(horizontal="left", vertical="center")
     ws.row_dimensions[7].height = 18
 
+    # Active tax year drives every monthly aggregate. Without this cell,
+    # YEAR(TODAY()) ties the dashboard to Excel's clock — sample data
+    # silently shows $0 when system date is the wrong year.
     for m in range(1, 13):
-        col = m + 1  # B=2 for Jan, M=13 for Dec
+        col = m + 1
         if m < 12:
+            end_year_expr = "Settings!$B$5"
             end_month = m + 1
-            end_year_expr = "YEAR(TODAY())"
         else:
-            # December: end = Jan next year; simplest: DATE(YEAR(TODAY())+1,1,1)
+            end_year_expr = "Settings!$B$5+1"
             end_month = 1
-            end_year_expr = "YEAR(TODAY())+1"
 
         formula = (
             f"=SUMIFS('Revenue Log'!$D:$D,"
-            f"'Revenue Log'!$A:$A,\">=\"&DATE(YEAR(TODAY()),{m},1),"
+            f"'Revenue Log'!$A:$A,\">=\"&DATE(Settings!$B$5,{m},1),"
             f"'Revenue Log'!$A:$A,\"<\"&DATE({end_year_expr},{end_month},1))"
             f"+SUMIFS('Revenue Log'!$F:$F,"
-            f"'Revenue Log'!$A:$A,\">=\"&DATE(YEAR(TODAY()),{m},1),"
+            f"'Revenue Log'!$A:$A,\">=\"&DATE(Settings!$B$5,{m},1),"
             f"'Revenue Log'!$A:$A,\"<\"&DATE({end_year_expr},{end_month},1))"
         )
         cell = ws.cell(row=7, column=col, value=formula)
         apply_style(cell, formula_cell_style())
         cell.number_format = '"$"#,##0'
 
-    # YTD for revenue
     ytd_rev = ws.cell(row=7, column=14, value="=SUM(B7:M7)")
     apply_style(ytd_rev, formula_cell_style())
     ytd_rev.number_format = '"$"#,##0'
     ytd_rev.font = Font(name=FONT_BODY, size=11, bold=True, italic=True, color=COLOR_PRIMARY)
 
-    # Row 8: spacer
     ws.row_dimensions[8].height = 8
 
-    # Row 9: EXPENSES header
     exp_hdr = ws.cell(row=9, column=1, value="EXPENSES")
     exp_hdr.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_PRIMARY)
     ws.row_dimensions[9].height = 20
@@ -472,7 +714,6 @@ def build_monthly_pl(wb):
     # Rows 10-26: one row per expense category
     for idx, cat in enumerate(EXPENSE_CATEGORIES):
         row = 10 + idx
-        # Col A: category label
         a = ws.cell(row=row, column=1, value=cat)
         a.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
         a.alignment = Alignment(horizontal="left", vertical="center")
@@ -481,15 +722,15 @@ def build_monthly_pl(wb):
         for m in range(1, 13):
             col = m + 1
             if m < 12:
+                end_year_expr = "Settings!$B$5"
                 end_month = m + 1
-                end_year_expr = "YEAR(TODAY())"
             else:
+                end_year_expr = "Settings!$B$5+1"
                 end_month = 1
-                end_year_expr = "YEAR(TODAY())+1"
 
             formula = (
                 f"=SUMIFS('Expense Log'!$D:$D,"
-                f"'Expense Log'!$A:$A,\">=\"&DATE(YEAR(TODAY()),{m},1),"
+                f"'Expense Log'!$A:$A,\">=\"&DATE(Settings!$B$5,{m},1),"
                 f"'Expense Log'!$A:$A,\"<\"&DATE({end_year_expr},{end_month},1),"
                 f"'Expense Log'!$C:$C,A{row})"
             )
@@ -497,94 +738,97 @@ def build_monthly_pl(wb):
             apply_style(cell, formula_cell_style())
             cell.number_format = '"$"#,##0'
 
-        # Col N: YTD sum
         ytd = ws.cell(row=row, column=14, value=f"=SUM(B{row}:M{row})")
         apply_style(ytd, formula_cell_style())
         ytd.number_format = '"$"#,##0'
 
     last_exp_row = 10 + len(EXPENSE_CATEGORIES) - 1  # = 26
     tot_row = last_exp_row + 2                         # = 28
-
-    # Row 27: spacer
     ws.row_dimensions[last_exp_row + 1].height = 8
 
-    # Row 28: TOTAL EXPENSES
-    from openpyxl.utils import get_column_letter
     tot_label = ws.cell(row=tot_row, column=1, value="TOTAL EXPENSES")
     tot_label.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_ERROR)
     tot_label.alignment = Alignment(horizontal="left", vertical="center")
     ws.row_dimensions[tot_row].height = 20
 
-    for col in range(2, 15):  # B=2 through N=14
+    for col in range(2, 15):
         col_letter = get_column_letter(col)
         cell = ws.cell(row=tot_row, column=col, value=f"=SUM({col_letter}10:{col_letter}26)")
         apply_style(cell, formula_cell_style())
         cell.number_format = '"$"#,##0'
         cell.font = Font(name=FONT_BODY, size=11, bold=True, italic=True, color=COLOR_ERROR)
 
-    net_row = tot_row + 2  # = 30
-
-    # Row 29: spacer
+    net_row = tot_row + 2
     ws.row_dimensions[tot_row + 1].height = 8
 
-    # Row 30: NET INCOME (LOSS)
     net_label = ws.cell(row=net_row, column=1, value="NET INCOME (LOSS)")
     net_label.font = Font(name=FONT_HEAD, size=13, bold=True, color=COLOR_PRIMARY)
     net_label.alignment = Alignment(horizontal="left", vertical="center")
     ws.row_dimensions[net_row].height = 22
 
-    for col in range(2, 15):  # B through N
+    for col in range(2, 15):
         col_letter = get_column_letter(col)
         cell = ws.cell(row=net_row, column=col, value=f"={col_letter}7-{col_letter}{tot_row}")
         apply_style(cell, formula_cell_style())
         cell.number_format = '"$"#,##0'
         cell.font = Font(name=FONT_BODY, size=11, bold=True, italic=True, color=COLOR_PRIMARY)
 
-    # Conditional formatting on net row B30:N30
     ws.conditional_formatting.add(
         f"B{net_row}:N{net_row}",
-        CellIsRule(
-            operator="lessThan",
-            formula=["0"],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
-        ),
+        CellIsRule(operator="lessThan", formula=["0"],
+                    fill=PatternFill("solid", fgColor="FFCCCC")),
     )
     ws.conditional_formatting.add(
         f"B{net_row}:N{net_row}",
-        CellIsRule(
-            operator="greaterThan",
-            formula=["0"],
-            fill=PatternFill("solid", fgColor="C7EFCF"),
-        ),
+        CellIsRule(operator="greaterThan", formula=["0"],
+                    fill=PatternFill("solid", fgColor="C7EFCF")),
     )
 
     ws.freeze_panes = "B6"
 
+    # Print setup
+    ws.print_area = f"A1:N{net_row + 2}"
+    ws.print_title_rows = "1:5"
+    ws.page_setup.orientation = ws.ORIENTATION_LANDSCAPE
+    ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
+    ws.page_setup.fitToPage = True
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 1
+    ws.page_margins = PageMargins(left=0.4, right=0.4, top=0.5, bottom=0.5)
+
 
 def build_schedule_e_summary(wb):
-    """Sheet 6 — Schedule E Summary (IRS line-mapped YTD totals)."""
+    """Sheet 5 — Schedule E Summary (IRS line-mapped YTD totals)."""
     ws = wb.create_sheet("Schedule E Summary")
-    ws.sheet_properties.tabColor = COLOR_ACCENT
+    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
 
-    apply_brand_header(ws, "Schedule E Summary", "IRS Part I line-number-mapped totals — share with your CPA.")
+    compact_header_band(ws, "Schedule E Summary",
+                         prev_tab="Monthly P&L", next_tab="Settings")
 
-    ws.row_dimensions[4].height = 10
+    parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    for c in range(1, 13):
+        ws.cell(row=4, column=c).fill = parchment_fill
+    ws.merge_cells("A4:L4")
+    c4 = ws["A4"]
+    c4.value = "IRS Schedule E Part I line totals — hand directly to your CPA"
+    c4.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+    c4.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+    ws.row_dimensions[4].height = 18
 
     set_col_widths(ws, [("A", 50), ("B", 16)])
 
     bold_body = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
-    right_align = Alignment(horizontal="right", vertical="center")
     left_align = Alignment(horizontal="left", vertical="center")
 
-    # Row 5: Tax Year
     a5 = ws.cell(row=5, column=1, value="Tax Year:")
     a5.font = bold_body
     a5.alignment = left_align
-    b5 = ws.cell(row=5, column=2, value="=YEAR(TODAY())")
+    b5 = ws.cell(row=5, column=2, value="=Settings!$B$5")
     apply_style(b5, formula_cell_style())
+    b5.number_format = "0"
     ws.row_dimensions[5].height = 18
 
-    # Row 6: Property
     a6 = ws.cell(row=6, column=1, value="Property:")
     a6.font = bold_body
     a6.alignment = left_align
@@ -592,10 +836,8 @@ def build_schedule_e_summary(wb):
     apply_style(b6, formula_cell_style())
     ws.row_dimensions[6].height = 18
 
-    # Row 7: spacer
     ws.row_dimensions[7].height = 8
 
-    # Row 8: Line 3 — Rents received
     a8 = ws.cell(row=8, column=1, value="Line 3 — Rents received")
     a8.font = bold_body
     a8.alignment = left_align
@@ -605,7 +847,6 @@ def build_schedule_e_summary(wb):
     b8.font = Font(name=FONT_BODY, size=11, bold=True, italic=True, color=COLOR_TEXT)
     ws.row_dimensions[8].height = 18
 
-    # Row 9: Line 4 — Royalties (0)
     a9 = ws.cell(row=9, column=1, value="Line 4 — Royalties")
     a9.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
     a9.alignment = left_align
@@ -614,19 +855,16 @@ def build_schedule_e_summary(wb):
     b9.number_format = '"$"#,##0'
     ws.row_dimensions[9].height = 18
 
-    # Row 10: spacer
     ws.row_dimensions[10].height = 8
 
-    # Row 11: EXPENSES header
     hdr11 = ws.cell(row=11, column=1, value="EXPENSES (Schedule E Part I)")
     hdr11.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_PRIMARY)
     hdr11.alignment = left_align
     ws.row_dimensions[11].height = 20
 
-    # Rows 12-28: one row per expense category (17 categories)
     for idx, cat in enumerate(EXPENSE_CATEGORIES):
         row = 12 + idx
-        monthly_row = 10 + idx  # rows 10-26 on Monthly P&L
+        monthly_row = 10 + idx
 
         a = ws.cell(row=row, column=1, value=cat)
         a.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
@@ -639,11 +877,8 @@ def build_schedule_e_summary(wb):
 
     last_cat_row = 12 + len(EXPENSE_CATEGORIES) - 1  # = 28
     tot_row = last_cat_row + 2                         # = 30
-
-    # Row 29: spacer
     ws.row_dimensions[last_cat_row + 1].height = 8
 
-    # Row 30: Line 26a — Total expenses
     a30 = ws.cell(row=tot_row, column=1, value="Line 26a — Total expenses")
     a30.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_ERROR)
     a30.alignment = left_align
@@ -654,11 +889,8 @@ def build_schedule_e_summary(wb):
     ws.row_dimensions[tot_row].height = 20
 
     net_row = tot_row + 2  # = 32
-
-    # Row 31: spacer
     ws.row_dimensions[tot_row + 1].height = 8
 
-    # Row 32: Line 26 — Income or (loss)
     a32 = ws.cell(row=net_row, column=1, value="Line 26 — Income or (loss)")
     a32.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_PRIMARY)
     a32.alignment = left_align
@@ -668,71 +900,345 @@ def build_schedule_e_summary(wb):
     b32.font = Font(name=FONT_HEAD, size=14, bold=True, italic=True, color=COLOR_PRIMARY)
     ws.row_dimensions[net_row].height = 26
 
-    # Print area and orientation
-    ws.print_area = f"A1:B{net_row + 2}"
-    ws.page_setup.orientation = "portrait"
+    # --- Schedule routing footnote (after net income) ---
+    # Mirrors Mileage Log v2.3 pattern: the chosen schedule classification
+    # on Settings drives where this number actually lands on the customer's
+    # 1040. Pre-loaded with both common cases so the customer-CPA hand-off
+    # is unambiguous.
+    ws.row_dimensions[net_row + 1].height = 10
+    footnote_row = net_row + 2
+    ws.merge_cells(f"A{footnote_row}:B{footnote_row}")
+    c = ws.cell(row=footnote_row, column=1)
+    c.value = (
+        '=IF(Settings!$B$15="Schedule E (passive)",'
+        '"→ Schedule E (Form 1040), Line 26 — passive activity rules apply.",'
+        'IF(Settings!$B$15="Schedule C (active)",'
+        '"→ Schedule C, Line 31 — SE tax (15.3%) applies on net earnings.",'
+        '"→ Schedule classification not set — see Settings."))'
+    )
+    c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_PRIMARY)
+    c.fill = PatternFill("solid", fgColor=COLOR_GOLD_SOFT)
+    c.alignment = Alignment(horizontal="center", vertical="center",
+                             wrap_text=True)
+    ws.row_dimensions[footnote_row].height = 32
+
+    # --- v2.3 Audit-defense decision block (rows footnote_row+2 ... +14) ---
+    # Three top-of-mind questions every CPA asks before filing:
+    #   (1) STR loophole eligible? (avg stay ≤ 7 nights → IRC §469 escape)
+    #   (2) Personal use within 14-day/10% safe harbor? (Pub 527)
+    #   (3) QBI safe harbor met? (250+ hrs of service per Rev Proc 2019-38)
+    block_start = footnote_row + 2
+    sect = ws.cell(row=block_start, column=1, value="Audit-Defense Checks")
+    sect.font = Font(name=FONT_HEAD, size=13, bold=True, color=COLOR_PRIMARY)
+    ws.row_dimensions[block_start].height = 22
+
+    bold_body = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
+    italic_muted = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_MUTED)
+    left_align = Alignment(horizontal="left", vertical="center")
+
+    # (1) Avg stay — drives STR loophole eligibility under IRC §469
+    r = block_start + 1
+    a = ws.cell(row=r, column=1, value="Avg stay (nights):")
+    a.font = bold_body
+    a.alignment = left_align
+    b = ws.cell(
+        row=r, column=2,
+        value="=IFERROR(SUM('Revenue Log'!H6:H1005)/COUNTA('Revenue Log'!A6:A1005),0)"
+    )
+    apply_style(b, formula_cell_style())
+    b.number_format = "0.0"
+    ws.row_dimensions[r].height = 18
+
+    r += 1
+    ws.merge_cells(f"A{r}:B{r}")
+    c_eligible = ws.cell(row=r, column=1)
+    c_eligible.value = (
+        f'=IF(B{r-1}=0,"→ Add bookings to Revenue Log to compute eligibility.",'
+        f'IF(B{r-1}<=7,'
+        f'"✓ Avg stay ≤7 nights — STR loophole eligible (IRC §469 escape).",'
+        f'"⚠ Avg stay >7 nights — passive activity rules apply; losses limited."))'
+    )
+    c_eligible.font = Font(name=FONT_HEAD, size=11, bold=True, color=COLOR_PRIMARY)
+    c_eligible.fill = PatternFill("solid", fgColor=COLOR_GOLD_SOFT)
+    c_eligible.alignment = Alignment(horizontal="left", vertical="center",
+                                      wrap_text=True, indent=1)
+    ws.row_dimensions[r].height = 28
+
+    # (2) 14-day / 10% personal-use test (Pub 527)
+    r += 1
+    a = ws.cell(row=r, column=1, value="14-day / 10% threshold:")
+    a.font = bold_body
+    a.alignment = left_align
+    b = ws.cell(
+        row=r, column=2,
+        value="=MAX(14, 'Property Info'!B16*0.1)"
+    )
+    apply_style(b, formula_cell_style())
+    b.number_format = "0"
+    ws.row_dimensions[r].height = 18
+
+    r += 1
+    a = ws.cell(row=r, column=1, value="Personal use days YTD:")
+    a.font = bold_body
+    a.alignment = left_align
+    b = ws.cell(row=r, column=2, value="='Property Info'!B17")
+    apply_style(b, formula_cell_style())
+    b.number_format = "0"
+    ws.row_dimensions[r].height = 18
+
+    r += 1
+    ws.merge_cells(f"A{r}:B{r}")
+    c_resi = ws.cell(row=r, column=1)
+    c_resi.value = (
+        f'=IF(B{r-1}<=B{r-2},'
+        f'"✓ Personal use within safe harbor — full deductibility (Pub 527).",'
+        f'"⚠ Personal use exceeds 14 days OR 10% of rental days — property is a '
+        f'\\"residence\\"; rental losses cannot offset other income, excess '
+        f'expenses carry forward.")'
+    )
+    c_resi.font = Font(name=FONT_HEAD, size=11, bold=True, color=COLOR_PRIMARY)
+    c_resi.fill = PatternFill("solid", fgColor=COLOR_GOLD_SOFT)
+    c_resi.alignment = Alignment(horizontal="left", vertical="center",
+                                  wrap_text=True, indent=1)
+    ws.row_dimensions[r].height = 36
+
+    # (3) QBI safe-harbor flag (Rev Proc 2019-38)
+    r += 1
+    a = ws.cell(row=r, column=1, value="QBI §199A safe harbor met (250+ hrs):")
+    a.font = bold_body
+    a.alignment = left_align
+    b = ws.cell(row=r, column=2, value="='Settings'!$B$16")
+    apply_style(b, formula_cell_style())
+    ws.row_dimensions[r].height = 18
+
+    r += 1
+    ws.merge_cells(f"A{r}:B{r}")
+    c_qbi = ws.cell(row=r, column=1)
+    c_qbi.value = (
+        f'=IF(B{r-1}="Yes",'
+        f'"✓ Eligible for the 20% QBI deduction (§199A).",'
+        f'IF(B{r-1}="No",'
+        f'"→ Not eligible — track service hours on Mileage Log + ops tools.",'
+        f'"→ Set Settings!B19 once you know your service hours."))'
+    )
+    c_qbi.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+    c_qbi.alignment = Alignment(horizontal="left", vertical="center",
+                                 wrap_text=True, indent=1)
+    ws.row_dimensions[r].height = 24
+
+    # NIIT note (informational; no field to set since it depends on AGI)
+    r += 1
+    ws.merge_cells(f"A{r}:B{r}")
+    c_niit = ws.cell(row=r, column=1)
+    c_niit.value = (
+        "ℹ NIIT (3.8%) applies to passive rental income above $200K single / "
+        "$250K MFJ AGI thresholds. Material participation removes this — see "
+        "Mileage Log YTD Hours."
+    )
+    c_niit.font = italic_muted
+    c_niit.alignment = Alignment(horizontal="left", vertical="center",
+                                  wrap_text=True, indent=1)
+    ws.row_dimensions[r].height = 28
+
+    audit_block_end = r
+
+    # --- Chart: Donut — Expense composition (anchored D5) ---
+    donut = DoughnutChart()
+    donut.title = "Expense Composition (YTD)"
+    donut.height = 9
+    donut.width = 11
+    donut.holeSize = 50
+    donut_data = Reference(ws, min_col=2, min_row=11,
+                            max_row=last_cat_row, max_col=2)
+    donut_cats = Reference(ws, min_col=1, min_row=12,
+                            max_row=last_cat_row)
+    donut.add_data(donut_data, titles_from_data=True)
+    donut.set_categories(donut_cats)
+    donut.dataLabels = DataLabelList(showCatName=False, showPercent=True)
+    style_chart(donut)
+    ws.add_chart(donut, "D5")
+
+    ws.print_area = f"A1:B{audit_block_end + 2}"
+    ws.print_title_rows = "1:4"
+    ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
+    ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
+    ws.page_setup.fitToPage = True
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 1
+    ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
 def build_settings_tab(wb):
-    """Sheet 7 — Settings (expense category source list + tax reference)."""
+    """Sheet 6 — Settings (active tax year, Schedule classification, category list, archive)."""
     ws = wb.create_sheet("Settings")
-    ws.sheet_properties.tabColor = COLOR_SECONDARY
+    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
 
-    apply_brand_header(ws, "Settings", "Expense category list and tax reference data.")
+    compact_header_band(ws, "Settings",
+                         prev_tab="Schedule E Summary", next_tab=None)
 
-    ws.row_dimensions[4].height = 10
+    parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    for c in range(1, 13):
+        ws.cell(row=4, column=c).fill = parchment_fill
+    ws.merge_cells("A4:L4")
+    c4 = ws["A4"]
+    c4.value = "Active tax year · Schedule classification · expense list · year-end archive"
+    c4.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+    c4.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+    ws.row_dimensions[4].height = 18
 
-    set_col_widths(ws, [("A", 38)])
+    set_col_widths(ws, [
+        ("A", 38), ("B", 16), ("C", 14), ("D", 16),
+    ])
 
     bold_right = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
-    right_align = Alignment(horizontal="right", vertical="center")
+    italic_muted = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_MUTED)
 
-    # Row 5: Tax year label
-    a5 = ws.cell(row=5, column=1, value="Tax year:")
+    # --- Active tax year (row 5) — drives every monthly SUMIFS on P&L ---
+    a5 = ws.cell(row=5, column=1, value="Active tax year:")
     a5.font = bold_right
-    a5.alignment = right_align
+    a5.alignment = Alignment(horizontal="right", vertical="center")
+    b5 = ws.cell(row=5, column=2, value=ACTIVE_TAX_YEAR)
+    apply_style(b5, input_cell_style())
+    b5.number_format = "0"
     ws.row_dimensions[5].height = 18
 
-    # Row 6: Tax year formula
-    b6 = ws.cell(row=6, column=1, value="=YEAR(TODAY())")
-    apply_style(b6, formula_cell_style())
-    ws.row_dimensions[6].height = 18
+    # Row 6: explainer
+    ws.merge_cells("A6:D6")
+    c6 = ws["A6"]
+    c6.value = (
+        "Bump this each January. Every monthly aggregate on the Monthly P&L tab "
+        "filters by this year — without it, dashboards return $0 when the system "
+        "clock doesn't match logged dates."
+    )
+    c6.font = italic_muted
+    c6.alignment = Alignment(horizontal="left", vertical="center",
+                              wrap_text=True, indent=1)
+    ws.row_dimensions[6].height = 32
 
-    # Row 7: spacer
     ws.row_dimensions[7].height = 8
 
-    # Row 8: IRS reference note
-    ref8 = ws.cell(
-        row=8, column=1,
-        value="Reference: IRS Publication 527 — Residential Rental Property",
+    # --- Tax Classification (rows 8-15) ---
+    sect8 = ws.cell(row=8, column=1, value="Tax Classification")
+    sect8.font = Font(name=FONT_HEAD, size=13, bold=True, color=COLOR_PRIMARY)
+    ws.row_dimensions[8].height = 22
+
+    # Home office toggle
+    a9 = ws.cell(row=9, column=1,
+                  value="Home office is principal place of business:")
+    a9.font = bold_right
+    a9.alignment = Alignment(horizontal="right", vertical="center")
+    b9 = ws.cell(row=9, column=2, value="Not yet established")
+    apply_style(b9, input_cell_style())
+    add_dropdown(ws, "B9", '"Yes,No,Not yet established"')
+    ws.row_dimensions[9].height = 18
+
+    ws.merge_cells("A10:D10")
+    c10 = ws["A10"]
+    c10.value = (
+        "If 'Yes', residence-to-property trips are deductible business travel. "
+        "If 'No', they're commuting (non-deductible). Documenting this election "
+        "is on you, not the IRS."
     )
-    ref8.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_MUTED)
-    ref8.alignment = Alignment(horizontal="left", vertical="center")
-    ws.row_dimensions[8].height = 18
+    c10.font = italic_muted
+    c10.alignment = Alignment(horizontal="left", vertical="center",
+                               wrap_text=True, indent=1)
+    ws.row_dimensions[10].height = 28
 
-    # Row 9: spacer
-    ws.row_dimensions[9].height = 8
+    ws.row_dimensions[11].height = 6
 
-    # Row 10: Category list header
-    hdr10 = ws.cell(
-        row=10, column=1,
-        value="Expense category list (source for Expense Log dropdown):",
+    # Substantial-services callout (read it before picking the schedule)
+    ws.merge_cells("A12:D13")
+    c12 = ws["A12"]
+    c12.value = (
+        "⚠ Substantial-services trigger: if you provide cleaning DURING stays, "
+        "meals, or concierge, IRS treats this as a hospitality business — "
+        "Schedule C is required (15.3% SE tax applies)."
     )
-    hdr10.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_PRIMARY)
-    hdr10.alignment = Alignment(horizontal="left", vertical="center")
-    ws.row_dimensions[10].height = 18
+    c12.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_ERROR)
+    c12.alignment = Alignment(horizontal="left", vertical="center",
+                               wrap_text=True, indent=1)
+    ws.row_dimensions[12].height = 16
+    ws.row_dimensions[13].height = 16
 
-    # Rows 11-14: spacers
-    for r in range(11, 15):
-        ws.row_dimensions[r].height = 8
+    ws.row_dimensions[14].height = 6
 
-    # Rows 15-31: the 17 expense categories
+    # Schedule classification dropdown at B15 — referenced by the
+    # Schedule E Summary footnote and any future routing logic.
+    a15 = ws.cell(row=15, column=1, value="Schedule classification:")
+    a15.font = bold_right
+    a15.alignment = Alignment(horizontal="right", vertical="center")
+    b15 = ws.cell(row=15, column=2, value="Ask my CPA")
+    apply_style(b15, input_cell_style())
+    add_dropdown(ws, "B15",
+                  '"Schedule E (passive),Schedule C (active),Ask my CPA"')
+    ws.row_dimensions[15].height = 18
+
+    # v2.3 — QBI §199A safe-harbor flag (Rev Proc 2019-38)
+    # Read by the Audit-Defense Checks block on Schedule E Summary.
+    a16 = ws.cell(row=16, column=1, value="QBI safe harbor met (250+ service hrs):")
+    a16.font = bold_right
+    a16.alignment = Alignment(horizontal="right", vertical="center")
+    b16 = ws.cell(row=16, column=2, value="Not sure")
+    apply_style(b16, input_cell_style())
+    add_dropdown(ws, "B16", '"Yes,No,Not sure"')
+    ws.row_dimensions[16].height = 18
+
+    # --- Expense category source list (rows 17-35) ---
+    # Old v1 dropdown referenced A15:A31; v2.2 moves the list to A19:A35
+    # so the Schedule classification block above doesn't collide. The
+    # build_workbook() main rewires the Expense Log dropdown to match.
+    sect17 = ws.cell(row=17, column=1, value="Expense category list (Schedule E)")
+    sect17.font = Font(name=FONT_HEAD, size=13, bold=True, color=COLOR_PRIMARY)
+    ws.row_dimensions[17].height = 22
+
+    cat_help = ws.cell(row=18, column=1,
+                        value="(Source for the Expense Log dropdown — don't reorder)")
+    cat_help.font = italic_muted
+    ws.row_dimensions[18].height = 16
+
     for idx, cat in enumerate(EXPENSE_CATEGORIES):
-        row = 15 + idx
+        row = 19 + idx
         cell = ws.cell(row=row, column=1, value=cat)
         cell.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
         cell.alignment = Alignment(horizontal="left", vertical="center")
         ws.row_dimensions[row].height = 16
+
+    last_cat_row = 19 + len(EXPENSE_CATEGORIES) - 1  # 35
+
+    # --- Year-end Archive (rows 37-45) ---
+    sect37 = ws.cell(row=37, column=1, value="Year-end Archive")
+    sect37.font = Font(name=FONT_HEAD, size=13, bold=True, color=COLOR_PRIMARY)
+    ws.row_dimensions[37].height = 22
+
+    ws.merge_cells("A38:D38")
+    c38 = ws["A38"]
+    c38.value = (
+        "Each January, copy YTD totals into the row for the closing year, "
+        "then bump 'Active tax year' above and clear the logs for the new year."
+    )
+    c38.font = italic_muted
+    c38.alignment = Alignment(horizontal="left", vertical="center",
+                               wrap_text=True)
+    ws.row_dimensions[38].height = 28
+
+    archive_headers = ["Year", "Revenue", "Expenses", "Net"]
+    for col, h in enumerate(archive_headers, start=1):
+        cell = ws.cell(row=39, column=col, value=h)
+        apply_style(cell, header_row_style())
+    ws.row_dimensions[39].height = 18
+
+    for idx, year in enumerate(range(2024, 2031), start=40):
+        ws.cell(row=idx, column=1, value=year).font = Font(
+            name=FONT_BODY, size=11, color=COLOR_TEXT
+        )
+        for col in [2, 3, 4]:
+            cell = ws.cell(row=idx, column=col)
+            apply_style(cell, input_cell_style())
+            cell.number_format = '"$"#,##0'
+        ws.row_dimensions[idx].height = 16
+
+    return last_cat_row
 
 
 # ---------------------------------------------------------------------------
@@ -741,19 +1247,36 @@ def build_settings_tab(wb):
 
 def build_workbook(out_path, is_lite):
     wb = Workbook()
-    build_welcome_tab(wb, is_lite=is_lite)
+    build_start_tab(wb, is_lite=is_lite)
     build_property_info_tab(wb)
     build_revenue_log(wb)
     build_expense_log(wb)
     build_monthly_pl(wb)
     build_schedule_e_summary(wb)
-    build_settings_tab(wb)
+    last_cat_row = build_settings_tab(wb)
+
+    # Re-wire Expense Log dropdown to point at the new category range.
+    # The old range was A15:A31; v2.2 moves categories to A19:A35 so the
+    # Schedule classification block can sit at A15.
+    expense_ws = wb["Expense Log"]
+    new_dv = DataValidation(
+        type="list",
+        formula1=f"=Settings!$A$19:$A${last_cat_row}",
+        allow_blank=True,
+    )
+    new_dv.add("C6:C2005")
+    # Drop the stale dropdown that points at A15:A31 by replacing the
+    # data_validations list. (openpyxl re-emits the full list on save.)
+    keep = [dv for dv in expense_ws.data_validations.dataValidation
+            if "C6:C2005" not in str(dv.sqref)]
+    expense_ws.data_validations.dataValidation = keep
+    expense_ws.add_data_validation(new_dv)
 
     suffix = " (Lite)" if is_lite else ""
     wb.properties.title = f"Single-Property P&L Tracker{suffix} — The STR Ledger"
     wb.properties.creator = "The STR Ledger"
     wb.properties.company = "The STR Ledger"
-    wb.properties.description = "Single-property P&L with Schedule E category mapping."
+    wb.properties.description = "Single-property P&L with Schedule E category mapping (v2.2)."
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out_path)
