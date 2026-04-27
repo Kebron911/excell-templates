@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The P&L · Single Property — The STR Ledger</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--brand-parchment); }
+  a { color: inherit; }
+  button:hover { filter: brightness(0.92); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/atoms.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+function Breadcrumbs() {
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "20px 48px 0", fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--fg-3)" }}>
+      <a href="index.html" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Home</a> · <a href="#" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Templates</a> · <a href="#" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Tax</a> · <span style={{ color: "var(--brand-gold)" }}>The P&amp;L · Single Property</span>
+    </div>
+  );
+}
+
+function PreviewCover() {
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-navy)", padding: 36, position: "relative", boxSizing: "border-box" }}>
+      <div style={{ position: "absolute", inset: 28, background: "var(--brand-parchment)", padding: "56px 44px", boxShadow: "0 40px 60px -30px rgba(11,28,47,0.5)" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Tax workbook · TAX-002</div>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 44, letterSpacing: "-0.015em", color: "var(--brand-navy)", marginTop: 12, lineHeight: 1.05 }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span><br/>
+          P&amp;L<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "28px 0" }}/>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 17, color: "var(--fg-2)", lineHeight: 1.5 }}>
+          Single property · 2026.<br/>Pre-mapped to Schedule E,<br/>boxes 3 through 26.
+        </div>
+        <div style={{ position: "absolute", bottom: 44, left: 44, right: 44, fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>Vol. II · by Emily Reed, host since 2017</div>
+      </div>
+    </div>
+  );
+}
+
+function PreviewScheduleE() {
+  const lines = [
+    ["3",   "Rents received",         "22,600.00"],
+    ["6",   "Advertising",            "0.00"],
+    ["7",   "Auto + travel",          "1,502.95"],
+    ["8",   "Cleaning + maintenance", "3,600.00"],
+    ["10",  "Insurance",              "0.00"],
+    ["13",  "Mortgage interest",      "1,200.00"],
+    ["15",  "Repairs",                "800.00"],
+    ["16",  "Supplies",               "420.00"],
+    ["18",  "Utilities",              "350.00"],
+    ["19",  "Other · platform fees",  "1,680.00"],
+    ["20",  "Depreciation",           "5,090.91"],
+    ["26",  "Income or (loss)",       "7,956.14"],
+  ];
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", borderBottom: "1px solid var(--rule)", paddingBottom: 14 }}>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>06</span> · Schedule E Summary<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>YTD · 2026</div>
+      </div>
+      <div style={{ marginTop: 14 }}>
+        {lines.map(([line, label, amount], i) => {
+          const isTotal = label.startsWith("Income");
+          return (
+            <div key={line} style={{ display: "grid", gridTemplateColumns: "60px 1fr 130px", gap: 12, padding: "8px 0", borderTop: i === 0 ? "none" : (isTotal ? "2px solid var(--brand-navy)" : "1px dashed rgba(11,28,47,0.12)"), alignItems: "baseline", marginTop: isTotal ? 6 : 0 }}>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>L · {line}</span>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: isTotal ? 500 : 400, fontSize: isTotal ? 16 : 13, color: "var(--brand-navy)" }}>
+                {isTotal ? <><span style={{ fontStyle: "italic", fontWeight: 400 }}>{label.split(" or ")[0]}</span> or {label.split(" or ")[1]}</> : label}
+              </span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: isTotal ? 14 : 12, textAlign: "right", color: isTotal ? "var(--brand-gold)" : "var(--fg-2)", fontWeight: isTotal ? 500 : 400 }}>${amount}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ marginTop: 14, fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 12, color: "var(--fg-3)", textAlign: "right" }}>
+        Print-area set · 1-page letter portrait → CPA's inbox.
+      </div>
+    </div>
+  );
+}
+
+function PreviewMonthly() {
+  const months = ["JAN", "FEB", "MAR", "YTD"];
+  const rows = [
+    ["Rents",          "7,400",  "8,100",  "7,100",  "22,600"],
+    ["Cleaning",       "1,200",  "1,200",  "1,200",  "3,600"],
+    ["Mortgage int.",  "400",    "400",    "400",    "1,200"],
+    ["Repairs",        "0",      "800",    "0",      "800"],
+    ["Supplies",       "120",    "180",    "120",    "420"],
+    ["Utilities",      "118",    "112",    "120",    "350"],
+    ["Net",            "5,562",  "5,408",  "5,260",  "16,230"],
+  ];
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>05 · Monthly P&amp;L</div>
+      <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 32, color: "var(--brand-navy)", letterSpacing: "-0.015em", lineHeight: 1.05, marginTop: 8 }}>
+        <span style={{ fontStyle: "italic", fontWeight: 400 }}>By</span> the month<span style={{ color: "var(--brand-gold)" }}>.</span>
+      </div>
+      <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "20px 0" }}/>
+      <div style={{ display: "grid", gridTemplateColumns: "1.4fr repeat(4, 1fr)", gap: 6, padding: "8px 0", borderBottom: "1px solid var(--rule)", fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>
+        <span></span>
+        {months.map(m => <span key={m} style={{ textAlign: "right", color: m === "YTD" ? "var(--brand-gold)" : "var(--fg-3)" }}>{m}</span>)}
+      </div>
+      {rows.map(([label, ...vals], i) => {
+        const isNet = label === "Net";
+        return (
+          <div key={label} style={{ display: "grid", gridTemplateColumns: "1.4fr repeat(4, 1fr)", gap: 6, padding: "9px 0", borderTop: isNet ? "2px solid var(--brand-navy)" : "1px dashed rgba(11,28,47,0.10)", marginTop: isNet ? 6 : 0, alignItems: "baseline" }}>
+            <span style={{ fontFamily: "var(--font-display)", fontWeight: isNet ? 500 : 400, fontSize: 13, color: "var(--brand-navy)" }}>
+              {isNet ? <span style={{ fontStyle: "italic", fontWeight: 400 }}>{label}</span> : label}
+            </span>
+            {vals.map((v, j) => (
+              <span key={j} style={{ fontFamily: "var(--font-mono)", fontSize: isNet ? 13 : 11, textAlign: "right", color: isNet ? "var(--brand-gold)" : "var(--fg-2)", fontWeight: isNet ? 500 : 400 }}>${v}</span>
+            ))}
+          </div>
+        );
+      })}
+      <div style={{ marginTop: 14, fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 12, color: "var(--fg-3)" }}>
+        + 11 more categories · auto-rolled by SUMIFS.
+      </div>
+    </div>
+  );
+}
+
+function PreviewExpenses() {
+  const cats = [
+    ["8",   "Cleaning + maintenance", "Sarah Smokies Clean · 3 turns"],
+    ["13",  "Mortgage interest",      "Wells Fargo · auto-debit"],
+    ["15",  "Repairs",                "HVAC reset · emergency"],
+    ["16",  "Supplies",               "Costco · paper, soap, pods"],
+    ["18",  "Utilities",              "TVA + water + internet"],
+    ["19",  "Other · platform fees",  "Airbnb 10% · VRBO 8%"],
+  ];
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", borderBottom: "1px solid var(--rule)", paddingBottom: 14 }}>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>04</span> · Expense Log<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>17 categories · Schedule E mapped</div>
+      </div>
+      <div style={{ marginTop: 16 }}>
+        {cats.map(([line, name, vendor], i) => (
+          <div key={line} style={{ display: "grid", gridTemplateColumns: "60px 1.2fr 1.4fr", gap: 12, padding: "13px 0", borderTop: i === 0 ? "none" : "1px solid var(--rule)", alignItems: "baseline" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>L · {line}</span>
+            <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 14, color: "var(--brand-navy)", letterSpacing: "-0.005em" }}>{name}</span>
+            <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--fg-2)", lineHeight: 1.5 }}>{vendor}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 18, padding: "12px 14px", background: "var(--brand-navy)", color: "var(--brand-parchment)", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+        Dropdown · only Schedule E categories · CPA-proof
+      </div>
+    </div>
+  );
+}
+
+function ProductHero() {
+  const [pack, setPack] = useState("Single property");
+  const [view, setView] = useState(0);
+
+  const previews = [
+    { label: "Cover",      Component: PreviewCover },
+    { label: "Sched. E",   Component: PreviewScheduleE },
+    { label: "Monthly",    Component: PreviewMonthly },
+    { label: "Expenses",   Component: PreviewExpenses },
+  ];
+  const Cur = previews[view].Component;
+
+  return (
+    <section style={{ padding: "48px 48px 96px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 72 }}>
+        <div>
+          <div style={{ aspectRatio: "1/1.05", boxShadow: "0 30px 60px -30px rgba(11,28,47,0.4)" }}>
+            <Cur/>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 12 }}>
+            {previews.map((p, i) => (
+              <button key={i} onClick={() => setView(i)} aria-label={`View preview ${i+1}`} style={{
+                aspectRatio: "1/1", padding: "8px 6px", cursor: "pointer",
+                background: i === view ? "var(--brand-navy)" : "var(--brand-paper)",
+                border: "1px solid " + (i === view ? "var(--brand-navy)" : "var(--rule)"),
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
+              }}>
+                <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 22, color: i === view ? "var(--brand-gold)" : "var(--brand-navy)" }}>{i+1}</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase", color: i === view ? "var(--brand-parchment)" : "var(--fg-3)" }}>{p.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <Eyebrow>Tax workbook · TAX-002</Eyebrow>
+          <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 52, letterSpacing: "-0.015em", color: "var(--brand-navy)", margin: "16px 0 0", lineHeight: 1.08 }}>
+            <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span> P&amp;L<span style={{ color: "var(--brand-gold)" }}>.</span>
+          </h1>
+          <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 22, color: "var(--fg-2)", marginTop: 6 }}>Single property · 2026 edition</div>
+          <GoldRule width={48} my={24}/>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: 17, lineHeight: 1.65, color: "var(--fg-2)", margin: 0 }}>
+            Seven tabs, seventeen Schedule E categories, one monthly rollup. The expense dropdown only shows IRS line items — so your CPA copies your numbers straight into boxes 3 through 26. No re-categorizing. No "your draft didn't map."
+          </p>
+
+          <div style={{ marginTop: 36, padding: "24px 0", borderTop: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 44, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>$67</span>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-3)", textDecoration: "line-through" }}>$97</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)", marginLeft: "auto" }}>Early-filer price · thru Mar 31</span>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 28 }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)", marginBottom: 10 }}>License</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {["Single property", "2 properties", "3–5", "Portfolio Master"].map(n => (
+                <button key={n} onClick={() => setPack(n)} style={{
+                  fontFamily: "var(--font-body)", fontSize: 14, padding: "12px 20px",
+                  background: pack === n ? "var(--brand-navy)" : "transparent",
+                  color: pack === n ? "var(--brand-parchment)" : "var(--brand-navy)",
+                  border: "1px solid " + (pack === n ? "var(--brand-navy)" : "var(--rule-strong)"),
+                  cursor: "pointer",
+                }}>{n}</button>
+              ))}
+            </div>
+            <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 13, color: "var(--fg-3)", marginTop: 10 }}>
+              {pack === "Portfolio Master" ? "Multi-property + depreciation by asset + LLC consolidation. $97 — or included in the Portfolio Bundle." : "Built for one rental. Buy 2–5 if you have a few; upgrade to Portfolio Master at any time."}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
+            <Button variant="primary" size="lg" full>Add to cart · $67</Button>
+            <Button variant="secondary" size="lg">♡</Button>
+          </div>
+
+          <div style={{ marginTop: 32, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, paddingTop: 24, borderTop: "1px solid var(--rule)" }}>
+            {[
+              ["Instant download",      ".xlsx + .pdf"],
+              ["Free 2027 update",      "Through next April"],
+              ["30-day refund",         "No questions asked"],
+            ].map(([t, s]) => (
+              <div key={t}>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 500, color: "var(--brand-navy)" }}>{t}</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--fg-3)", marginTop: 2 }}>{s}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WhatsInside() {
+  const sections = [
+    ["01", "Welcome",             "How the workbook maps to Schedule E · the one-time setup that takes nine minutes · what to skip and what to never skip."],
+    ["02", "Property Info",       "Address, purchase price, closing costs, loan terms, days rented. The depreciation basis derives from this — get it right once."],
+    ["03", "Revenue Log",         "One row per booking · gross, platform fee, cleaning fee collected, net. Pre-wired to Airbnb + VRBO column shapes."],
+    ["04", "Expense Log",         "One row per expense · category dropdown is *only* the 17 Schedule E categories. CPA-proof by construction."],
+    ["05", "Monthly P&L",         "Auto-rolled SUMIFS matrix · month × category · twelve months across, seventeen rows down, plus a YTD column."],
+    ["06", "Schedule E Summary",  "Print-area set · letter portrait · YTD totals mapped to lines 3 through 26. The page your CPA staples to your return."],
+    ["07", "Settings",            "Tax year · category source · IRS Pub 527 cite · the dials you only touch once."],
+  ];
+  return (
+    <section style={{ background: "var(--brand-paper)", padding: "96px 48px", borderTop: "1px solid var(--rule-strong)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow>What's inside</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 40, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 48px", maxWidth: 720 }}>
+          Seven tabs<span style={{ color: "var(--brand-gold)" }}>.</span> Seventeen IRS categories. Zero re-categorizing.
+        </h2>
+        <div>
+          {sections.map(([n, t, b]) => (
+            <div key={n} style={{ display: "grid", gridTemplateColumns: "90px 1fr 1.2fr", gap: 48, padding: "32px 0", borderTop: "1px solid var(--rule-strong)" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 36, color: "var(--brand-gold)", lineHeight: 1 }}>{n}</span>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, letterSpacing: "-0.01em", color: "var(--brand-navy)", lineHeight: 1.2 }}>{t}</div>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--fg-2)", lineHeight: 1.6 }}>{b}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ScheduleEMap() {
+  const lines = [
+    ["L · 3",   "Rents received",         "From Revenue Log col D + F"],
+    ["L · 7",   "Auto + travel",          "From the Mileage Log (TAX-001)"],
+    ["L · 8",   "Cleaning + maintenance", "From Expense Log · cat. 8"],
+    ["L · 13",  "Mortgage interest",      "From Expense Log · cat. 13"],
+    ["L · 15",  "Repairs",                "From Expense Log · cat. 15"],
+    ["L · 16",  "Supplies",               "From Expense Log · cat. 16"],
+    ["L · 18",  "Utilities",              "From Expense Log · cat. 18"],
+    ["L · 19",  "Other (platform fees)",  "From Expense Log · cat. 19"],
+    ["L · 26",  "Income or loss",         "= L3 − sum(L6:L20)"],
+  ];
+  return (
+    <section style={{ padding: "96px 48px", background: "var(--brand-navy)", color: "var(--brand-parchment)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow onNavy>Schedule E · Part I</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 40, letterSpacing: "-0.01em", color: "var(--brand-parchment)", margin: "16px 0 12px", maxWidth: 700 }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>Every</span> field traces<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </h2>
+        <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 18, color: "var(--fg-on-navy-muted)", maxWidth: 600, lineHeight: 1.5, margin: "0 0 36px" }}>
+          Click any cell on the Schedule E Summary tab. It points to the exact cell in the source log it came from — so your CPA can audit the chain in fifteen seconds.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, borderTop: "1px solid rgba(201,162,75,0.25)" }}>
+          {lines.map(([line, label, src], i) => (
+            <div key={line} style={{
+              padding: "20px 24px", borderBottom: "1px solid rgba(201,162,75,0.25)",
+              borderRight: i % 2 === 0 ? "1px solid rgba(201,162,75,0.25)" : "none",
+            }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>{line}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 18, color: "var(--brand-parchment)", marginTop: 6 }}>{label}</div>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--fg-on-navy-muted)", marginTop: 4 }}>{src}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SarahQuote() {
+  return (
+    <section style={{ background: "var(--brand-parchment)", padding: "96px 48px" }}>
+      <div style={{ maxWidth: 880, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 120, color: "var(--brand-gold)", lineHeight: 0.6, marginBottom: 24 }}>"</div>
+        <p style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 32, lineHeight: 1.35, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: 0 }}>
+          My CPA used to bill me 4 hours to re-categorize my Schedule E draft. Last April it was 45 minutes. Same return, $1,400 less in fees<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </p>
+        <GoldRule width={32} my={32} align="center"/>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.24em", textTransform: "uppercase", color: "var(--fg-3)" }}>Sarah K. · 4 properties · Smoky Mountains</div>
+      </div>
+    </section>
+  );
+}
+
+function PairedWith() {
+  const items = [
+    ["TAX-001", "The Mileage Log",      "What feeds Line 7 — auto + travel. Pairs with the Property Info tab."],
+    ["TAX-003", "The 1099-NEC Tracker", "What feeds Line 8 + 11 — cleaners and contractors who crossed $600."],
+  ];
+  return (
+    <section style={{ padding: "96px 48px", background: "var(--brand-paper)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow>Often paired with</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 36, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 40px" }}>
+          The rest of the tax shelf<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24 }}>
+          {items.map(([sku, title, body]) => {
+            const href = sku === "TAX-003" ? "product-1099-nec.html" : "#";
+            return (
+              <a key={sku} href={href} style={{ display: "block", textDecoration: "none", padding: "32px 32px 28px", background: "var(--brand-parchment)", border: "1px solid var(--rule)" }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>{sku}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, letterSpacing: "-0.01em", color: "var(--brand-navy)", marginTop: 10 }}>
+                  <span style={{ fontStyle: "italic", fontWeight: 400 }}>{title.split(" ")[0]}</span> {title.split(" ").slice(1).join(" ")}<span style={{ color: "var(--brand-gold)" }}>.</span>
+                </div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-2)", lineHeight: 1.6, marginTop: 12 }}>{body}</div>
+              </a>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: 32, padding: "20px 24px", background: "var(--brand-navy)", color: "var(--brand-parchment)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
+          <div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Save $42</div>
+            <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 18, marginTop: 4 }}>Get all three in the Tax Season Bundle — $79.</div>
+          </div>
+          <a href="landing-tax-bundle.html" style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--brand-gold)", borderBottom: "1px solid var(--brand-gold)", paddingBottom: 2, textDecoration: "none" }}>See the bundle →</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<>
+  <Header active="templates"/>
+  <Breadcrumbs/>
+  <ProductHero/>
+  <WhatsInside/>
+  <ScheduleEMap/>
+  <SarahQuote/>
+  <PairedWith/>
+  <Footer/>
+</>);
+</script>
+</body>
+</html>

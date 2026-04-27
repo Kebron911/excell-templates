@@ -1,0 +1,183 @@
+{
+  "name": "W04 — Subscriber Sync (IS → Airtable)",
+  "nodes": [
+    {
+      "id": "w04-n01",
+      "name": "IS Subscriber Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "subscriber-is",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w04-n02",
+      "name": "Verify IS Webhook Secret",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst secret = $env.IS_WEBHOOK_SECRET;\n\n// Validate shared secret passed as query param or header\nconst querySecret = input.query?.secret;\nconst headerSecret = input.headers?.['x-is-secret'];\n\nif (secret && querySecret !== secret && headerSecret !== secret) {\n  throw new Error('IS webhook secret mismatch — rejected');\n}\n\nreturn [{ json: input.body }];"
+      }
+    },
+    {
+      "id": "w04-n03",
+      "name": "Normalize IS Contact",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 300],
+      "parameters": {
+        "jsCode": "const contact = $input.first().json;\n\nconst normalized = {\n  is_contact_id: contact.id || contact.contact_id,\n  email: (contact.email || '').toLowerCase(),\n  first_name: contact.first_name || contact.firstName || '',\n  last_name: contact.last_name || contact.lastName || '',\n  tags: contact.tags || [],\n  source_utm: contact.custom_fields?.utm_source || contact.utm_source || null,\n  source_campaign: contact.custom_fields?.utm_campaign || contact.utm_campaign || null,\n  subscribed_at: contact.created_at || contact.createdAt || new Date().toISOString(),\n  unsubscribed: contact.unsubscribed === true || contact.status === 'unsubscribed'\n};\n\n// Derive acquisition source\nconst sourceTag = normalized.tags.find(t => typeof t === 'string' && t.startsWith('source:'));\nif (sourceTag) {\n  normalized.acquisition_source = sourceTag.replace('source:', '');\n} else if (normalized.source_utm) {\n  normalized.acquisition_source = normalized.source_utm;\n} else {\n  normalized.acquisition_source = 'unknown';\n}\n\n// Derive persona\nconst personaTag = normalized.tags.find(t => typeof t === 'string' && t.startsWith('persona:'));\nnormalized.persona = personaTag ? personaTag.replace('persona:', '') : 'unknown';\n\n// Derive lead magnet\nconst magnetTag = normalized.tags.find(t => typeof t === 'string' && t.startsWith('magnet:'));\nnormalized.lead_magnet = magnetTag ? magnetTag.replace('magnet:', '') : null;\n\nif (!normalized.email) throw new Error('IS contact has no email');\nreturn [{ json: normalized }];"
+      }
+    },
+    {
+      "id": "w04-n04",
+      "name": "Upsert Customer",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "upsert",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CUSTOMERS", "mode": "id" },
+        "matchingColumns": ["Email"],
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "First name": "={{ $json.first_name }}",
+            "Last name": "={{ $json.last_name }}",
+            "IS contact ID": "={{ $json.is_contact_id }}",
+            "Acquisition source": "={{ $json.acquisition_source }}",
+            "Persona tag": "={{ $json.persona }}",
+            "First contact date": "={{ $json.subscribed_at }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w04-n05",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1250, 300],
+      "parameters": {
+        "mode": "manual",
+        "fields": {
+          "values": [
+            { "name": "synced", "booleanValue": true },
+            { "name": "email", "stringValue": "={{ $json.email }}" }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w04-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 600],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W04-subscriber-sync',\n  node: 'error-branch',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w04-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 600],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w04-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1250, 600],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W04 Subscriber Sync FAILED\nError: ' + $json.error_message }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "IS Subscriber Webhook": {
+      "main": [
+        [{ "node": "Verify IS Webhook Secret", "type": "main", "index": 0 }]
+      ]
+    },
+    "Verify IS Webhook Secret": {
+      "main": [
+        [{ "node": "Normalize IS Contact", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Normalize IS Contact": {
+      "main": [
+        [{ "node": "Upsert Customer", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert Customer": {
+      "main": [
+        [{ "node": "Success Response", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 60,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

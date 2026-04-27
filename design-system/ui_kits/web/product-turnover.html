@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Turnover Checklist — The STR Ledger</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--brand-parchment); }
+  a { color: inherit; }
+  button:hover { filter: brightness(0.92); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/atoms.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+function Breadcrumbs() {
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "20px 48px 0", fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--fg-3)" }}>
+      <a href="index.html" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Home</a> · <a href="#" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Templates</a> · <a href="#" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Operations</a> · <span style={{ color: "var(--brand-gold)" }}>The Turnover Checklist</span>
+    </div>
+  );
+}
+
+function PreviewCover() {
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-navy)", padding: 36, position: "relative", boxSizing: "border-box" }}>
+      <div style={{ position: "absolute", inset: 28, background: "var(--brand-parchment)", padding: "56px 44px", boxShadow: "0 40px 60px -30px rgba(11,28,47,0.5)" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Operations · OPS-001</div>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 44, letterSpacing: "-0.015em", color: "var(--brand-navy)", marginTop: 12, lineHeight: 1.05 }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span><br/>
+          Turnover Checklist<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "28px 0" }}/>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 17, color: "var(--fg-2)", lineHeight: 1.5 }}>
+          A 40-item walkthrough.<br/>Six tabs. One signed sheet<br/>per turnover.
+        </div>
+        <div style={{ position: "absolute", bottom: 44, left: 44, right: 44, fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>v1.0 · by Emily Reed, host since 2017</div>
+      </div>
+    </div>
+  );
+}
+
+function PreviewChecklist() {
+  const zones = [
+    ["Bedroom",   ["Strip + replace bedding (count pillowcases)", "Dust nightstands · dresser · headboard", "Mirror + glass · streak-free", "Vacuum under bed (the part guests check)"]],
+    ["Bathroom",  ["Scrub tub · grout · drain hair", "Mirror + faucets to a shine", "Restock TP to 3 rolls minimum", "Fresh towel set · folded hotel-style"]],
+    ["Kitchen",   ["Inside microwave + oven", "Coffee pods · filters · 12-count", "Dish soap · sponge replaced", "Fridge · wipe shelves, take out leftovers"]],
+  ];
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", borderBottom: "1px solid var(--rule)", paddingBottom: 14 }}>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>02</span> · Printable Checklist<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>40 items · 8 zones · 1 page</div>
+      </div>
+      <div style={{ marginTop: 14 }}>
+        {zones.map(([zone, items], i) => (
+          <div key={zone} style={{ padding: "10px 0", borderTop: i === 0 ? "none" : "1px dashed rgba(11,28,47,0.12)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)", marginBottom: 8 }}>{zone}</div>
+            {items.map((it, j) => (
+              <div key={j} style={{ display: "grid", gridTemplateColumns: "20px 1fr 32px", gap: 10, padding: "3px 0", alignItems: "baseline" }}>
+                <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--brand-gold)", fontSize: 14 }}>☐</span>
+                <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--brand-navy)", lineHeight: 1.45 }}>{it}</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--fg-3)", textAlign: "right" }}>__</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 14, fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 12, color: "var(--fg-3)", borderTop: "1px solid var(--rule)", paddingTop: 10 }}>
+        + 5 more zones · cleaner signs + dates at the bottom →
+      </div>
+    </div>
+  );
+}
+
+function PreviewScorecard() {
+  const rows = [
+    ["Sarah · Smokies Clean",      "5",  "38.4", "0%",  "1"],
+    ["Miguel · Ridge Housekeeping","6",  "36.7", "17%", "2"],
+    ["Jamie · Solo",               "4",  "32.5", "50%", "3"],
+  ];
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", borderBottom: "1px solid var(--rule)", paddingBottom: 14 }}>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>04</span> · Scorecard<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>15 turnovers · YTD</div>
+      </div>
+      <div style={{ marginTop: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1.6fr 0.6fr 0.6fr 0.6fr 0.4fr", gap: 12, padding: "8px 0", borderBottom: "1px solid var(--rule)", fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>
+          <span>Cleaner</span><span style={{ textAlign: "right" }}>Turns</span><span style={{ textAlign: "right" }}>Avg</span><span style={{ textAlign: "right" }}>Issue %</span><span style={{ textAlign: "right" }}>Rank</span>
+        </div>
+        {rows.map(([name, turns, avg, iss, rank], i) => {
+          const tone = i === 0 ? "var(--brand-gold)" : i === 1 ? "var(--fg-2)" : "var(--brand-clay)";
+          return (
+            <div key={name} style={{ display: "grid", gridTemplateColumns: "1.6fr 0.6fr 0.6fr 0.6fr 0.4fr", gap: 12, padding: "12px 0", borderBottom: "1px dashed rgba(11,28,47,0.12)", alignItems: "baseline" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 14, color: "var(--brand-navy)" }}>
+                <span style={{ fontStyle: "italic", fontWeight: 400 }}>{name.split(" · ")[0]}</span> <span style={{ color: "var(--fg-3)", fontSize: 11 }}>· {name.split(" · ")[1]}</span>
+              </span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, textAlign: "right", color: "var(--fg-2)" }}>{turns}</span>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 16, textAlign: "right", color: tone }}>{avg}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, textAlign: "right", color: "var(--fg-2)" }}>{iss}</span>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 18, textAlign: "right", color: "var(--brand-gold)" }}>{rank}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ marginTop: 18, padding: "12px 14px", background: "var(--brand-paper)", borderLeft: "2px solid var(--brand-gold)", fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 13, color: "var(--fg-2)" }}>
+        Sarah averages 5.7 points above Jamie. That's a $40 difference per turnover in your reviews.
+      </div>
+    </div>
+  );
+}
+
+function PreviewSupplies() {
+  const items = [
+    ["Coffee pods",     "12 ct.",  "Restock at 4"],
+    ["Toilet paper",    "9 rolls", "Never below 6"],
+    ["Paper towels",    "3 rolls", "Never below 2"],
+    ["Dish soap",       "1 full",  "Replace at 1/3"],
+    ["Hand soap (×3)",  "3 full",  "All bathrooms"],
+    ["Trash bags",      "8 ct.",   "Kitchen + 4 baths"],
+  ];
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box" }}>
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>06 · Supplies par levels</div>
+      <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 32, color: "var(--brand-navy)", letterSpacing: "-0.015em", lineHeight: 1.05, marginTop: 8 }}>
+        <span style={{ fontStyle: "italic", fontWeight: 400 }}>Stock</span> levels<span style={{ color: "var(--brand-gold)" }}>.</span>
+      </div>
+      <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "20px 0" }}/>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        {items.map(([k, v, n]) => (
+          <div key={k} style={{ padding: "14px 16px", background: "var(--brand-paper)", borderLeft: "2px solid var(--brand-gold)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>{k}</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 18, color: "var(--brand-navy)", marginTop: 4, letterSpacing: "-0.005em" }}>{v}</div>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--fg-2)", marginTop: 4, lineHeight: 1.5 }}>{n}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 16, fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 13, color: "var(--fg-3)" }}>
+        Per-property targets · so the Costco run isn't a guess.
+      </div>
+    </div>
+  );
+}
+
+function ProductHero() {
+  const [pack, setPack] = useState("1–2 properties");
+  const [view, setView] = useState(0);
+
+  const previews = [
+    { label: "Cover",     Component: PreviewCover },
+    { label: "Checklist", Component: PreviewChecklist },
+    { label: "Scorecard", Component: PreviewScorecard },
+    { label: "Supplies",  Component: PreviewSupplies },
+  ];
+  const Cur = previews[view].Component;
+
+  return (
+    <section style={{ padding: "48px 48px 96px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 72 }}>
+        <div>
+          <div style={{ aspectRatio: "1/1.05", boxShadow: "0 30px 60px -30px rgba(11,28,47,0.4)" }}>
+            <Cur/>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 12 }}>
+            {previews.map((p, i) => (
+              <button key={i} onClick={() => setView(i)} aria-label={`View preview ${i+1}`} style={{
+                aspectRatio: "1/1", padding: "8px 6px", cursor: "pointer",
+                background: i === view ? "var(--brand-navy)" : "var(--brand-paper)",
+                border: "1px solid " + (i === view ? "var(--brand-navy)" : "var(--rule)"),
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
+              }}>
+                <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 22, color: i === view ? "var(--brand-gold)" : "var(--brand-navy)" }}>{i+1}</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase", color: i === view ? "var(--brand-parchment)" : "var(--fg-3)" }}>{p.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <Eyebrow>Operations · OPS-001</Eyebrow>
+          <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 52, letterSpacing: "-0.015em", color: "var(--brand-navy)", margin: "16px 0 0", lineHeight: 1.08 }}>
+            <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span> Turnover Checklist<span style={{ color: "var(--brand-gold)" }}>.</span>
+          </h1>
+          <GoldRule width={48} my={24}/>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: 17, lineHeight: 1.65, color: "var(--fg-2)", margin: 0 }}>
+            Forty items, eight zones, one page your cleaner signs every time. Plus a scorecard that ranks your roster across turnovers — so you know who deserves the next booking and who's costing you a star.
+          </p>
+
+          <div style={{ marginTop: 36, padding: "24px 0", borderTop: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 44, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>$47</span>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-3)", textDecoration: "line-through" }}>$67</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)", marginLeft: "auto" }}>Founding-host price · thru May 31</span>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 28 }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)", marginBottom: 10 }}>How many properties</div>
+            <div style={{ display: "flex", gap: 8 }}>
+              {["1–2 properties", "3–5", "6–10", "Portfolio"].map(n => (
+                <button key={n} onClick={() => setPack(n)} style={{
+                  fontFamily: "var(--font-body)", fontSize: 14, padding: "12px 20px",
+                  background: pack === n ? "var(--brand-navy)" : "transparent",
+                  color: pack === n ? "var(--brand-parchment)" : "var(--brand-navy)",
+                  border: "1px solid " + (pack === n ? "var(--brand-navy)" : "var(--rule-strong)"),
+                  cursor: "pointer",
+                }}>{n}</button>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
+            <Button variant="primary" size="lg" full>Add to cart · $47</Button>
+            <Button variant="secondary" size="lg">♡</Button>
+          </div>
+
+          <div style={{ marginTop: 32, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, paddingTop: 24, borderTop: "1px solid var(--rule)" }}>
+            {[
+              ["Instant download", ".xlsx + .pdf"],
+              ["Free v1.1 update",  "Through Dec 2026"],
+              ["30-day refund",     "No questions asked"],
+            ].map(([t, s]) => (
+              <div key={t}>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 500, color: "var(--brand-navy)" }}>{t}</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--fg-3)", marginTop: 2 }}>{s}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WhatsInside() {
+  const sections = [
+    ["01", "Welcome",                 "How to use the workbook · who fills in what · the one-time setup that takes 12 minutes."],
+    ["02", "Printable Checklist",     "Forty items across eight zones, one page letter-portrait. Cleaner initials each, signs the bottom."],
+    ["03", "Turnover Log",            "Where you log what came back from the field. Date, property, cleaner, score, issues. The data the dashboard eats."],
+    ["04", "Scorecard Dashboard",     "Auto-rolling turns, average score, issue rate, and a rank column. Built to handle 500+ turnovers without breaking a formula."],
+    ["05", "Cleaner Roster",          "Names, phones, rates, the property each is assigned to. The list you'll text the morning your favorite cleaner has the flu."],
+    ["06", "Supplies Par Levels",     "Per-property stock targets. Coffee pods, paper towels, hand soap. So the Costco run isn't a guess."],
+  ];
+  return (
+    <section style={{ background: "var(--brand-paper)", padding: "96px 48px", borderTop: "1px solid var(--rule-strong)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow>What's inside</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 40, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 48px", maxWidth: 720 }}>
+          Six tabs<span style={{ color: "var(--brand-gold)" }}>.</span> Forty items. The same standard every time.
+        </h2>
+        <div>
+          {sections.map(([n, t, b]) => (
+            <div key={n} style={{ display: "grid", gridTemplateColumns: "90px 1fr 1.2fr", gap: 48, padding: "32px 0", borderTop: "1px solid var(--rule-strong)" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 36, color: "var(--brand-gold)", lineHeight: 1 }}>{n}</span>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, letterSpacing: "-0.01em", color: "var(--brand-navy)", lineHeight: 1.2 }}>{t}</div>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--fg-2)", lineHeight: 1.6 }}>{b}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HowItWorks() {
+  const steps = [
+    ["I.",   "Print one for the closet",  "Laminate it. Velcro it to the supply cabinet. Cleaner uses the same sheet every turnover."],
+    ["II.",  "Log what came back",        "Sixty seconds in the workbook after each turn. Score, issues, time spent."],
+    ["III.", "Read the ranking",          "By month-end, you'll know which cleaner earns the next booking. And which one to retrain — or replace."],
+  ];
+  return (
+    <section style={{ padding: "96px 48px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1.4fr", gap: 80 }}>
+        <div>
+          <Eyebrow>How it works</Eyebrow>
+          <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 36, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 0", lineHeight: 1.15 }}>
+            Stop texting<span style={{ color: "var(--brand-gold)" }}>.</span> Start scoring.
+          </h2>
+          <GoldRule width={48} my={24}/>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: 15, lineHeight: 1.65, color: "var(--fg-2)" }}>
+            One laminated checklist on the supply closet, one workbook on your laptop. No app for your cleaner to install, no SaaS subscription, no "trial expired in 3 days."
+          </p>
+        </div>
+        <div>
+          {steps.map(([n, t, b], i) => (
+            <div key={n} style={{ display: "grid", gridTemplateColumns: "60px 1fr", gap: 32, padding: "28px 0", borderTop: i === 0 ? "none" : "1px solid var(--rule)" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 28, color: "var(--brand-gold)", lineHeight: 1 }}>{n}</span>
+              <div>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 22, letterSpacing: "-0.005em", color: "var(--brand-navy)" }}>{t}</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--fg-2)", lineHeight: 1.6, marginTop: 6 }}>{b}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SarahQuote() {
+  return (
+    <section style={{ background: "var(--brand-navy)", padding: "96px 48px", color: "var(--brand-parchment)" }}>
+      <div style={{ maxWidth: 880, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 120, color: "var(--brand-gold)", lineHeight: 0.6, marginBottom: 24 }}>"</div>
+        <p style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 34, lineHeight: 1.35, letterSpacing: "-0.01em", color: "var(--brand-parchment)", margin: 0 }}>
+          We dropped from four 'where's the coffee' messages a week to zero. The checklist on the supply closet does what three Slack reminders couldn't<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </p>
+        <GoldRule width={32} my={32} align="center"/>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.24em", textTransform: "uppercase", color: "var(--fg-on-navy-muted)" }}>Marcy T. · 5 properties · Hocking Hills</div>
+      </div>
+    </section>
+  );
+}
+
+function PairedWith() {
+  const items = [
+    ["GST-001", "The Welcome Book",           "What your guest needs before they arrive. Pairs with the Departure tab."],
+    ["TAX-002", "The P&L · Single Property",  "Where your cleaner-pay numbers feed into Schedule E line 8 at year-end."],
+  ];
+  return (
+    <section style={{ padding: "96px 48px", background: "var(--brand-parchment)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow>Often paired with</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 36, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 40px" }}>
+          The rest of the operations shelf<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24 }}>
+          {items.map(([sku, title, body]) => {
+            const href = sku === "GST-001" ? "product-welcome-book.html" : sku === "TAX-002" ? "product-pl-tracker.html" : "#";
+            return (
+              <a key={sku} href={href} style={{ display: "block", textDecoration: "none", padding: "32px 32px 28px", background: "var(--brand-paper)", border: "1px solid var(--rule)" }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>{sku}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, letterSpacing: "-0.01em", color: "var(--brand-navy)", marginTop: 10 }}>
+                  <span style={{ fontStyle: "italic", fontWeight: 400 }}>{title.split(" ")[0]}</span> {title.split(" ").slice(1).join(" ")}<span style={{ color: "var(--brand-gold)" }}>.</span>
+                </div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-2)", lineHeight: 1.6, marginTop: 12 }}>{body}</div>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<>
+  <Header active="templates"/>
+  <Breadcrumbs/>
+  <ProductHero/>
+  <WhatsInside/>
+  <HowItWorks/>
+  <SarahQuote/>
+  <PairedWith/>
+  <Footer/>
+</>);
+</script>
+</body>
+</html>

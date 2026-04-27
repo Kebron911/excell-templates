@@ -1,0 +1,208 @@
+{
+  "name": "W08 — Lead Magnet Delivery",
+  "nodes": [
+    {
+      "id": "w08-n01",
+      "name": "Lead Magnet Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-magnet-47",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w08-n02",
+      "name": "Parse Form Submission",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst submission = input.body;\n\n// Honeypot check — reject bots\nif (submission.website || submission.honeypot) {\n  throw new Error('Honeypot triggered — bot submission rejected');\n}\n\nconst email = (submission.email || '').toLowerCase().trim();\nif (!email || !email.includes('@')) {\n  throw new Error(`Invalid email: ${email}`);\n}\n\nconst parsed = {\n  email,\n  first_name: submission.first_name || submission.firstName || '',\n  magnet_id: submission.form_slug || submission.magnet_id || 'hero-47',\n  utm_source: submission.custom_fields?.utm_source || submission.utm_source || null,\n  utm_medium: submission.custom_fields?.utm_medium || submission.utm_medium || null,\n  utm_campaign: submission.custom_fields?.utm_campaign || submission.utm_campaign || null,\n  utm_content: submission.custom_fields?.utm_content || submission.utm_content || null,\n  referrer: submission.referrer || input.headers?.referer || null,\n  landing_page: submission.landing_url || null,\n  timestamp: submission.submitted_at || new Date().toISOString(),\n  ip_country: submission.ip_country || null\n};\n\nreturn [{ json: parsed }];"
+      }
+    },
+    {
+      "id": "w08-n03",
+      "name": "Derive Attribution",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 300],
+      "parameters": {
+        "jsCode": "const parsed = $input.first().json;\nlet acquisition_source;\n\n// Priority 1: explicit UTM source\nif (parsed.utm_source) {\n  acquisition_source = parsed.utm_source.toLowerCase();\n}\n// Priority 2: referrer-based inference\nelse if (parsed.referrer) {\n  const ref = parsed.referrer.toLowerCase();\n  if (ref.includes('pinterest.com')) acquisition_source = 'pinterest';\n  else if (ref.includes('etsy.com')) acquisition_source = 'etsy-post-purchase';\n  else if (ref.includes('facebook.com') || ref.includes('fb.com')) acquisition_source = 'fb-group';\n  else if (ref.includes('blog.thestrledger.com')) acquisition_source = 'blog';\n  else acquisition_source = 'other';\n}\n// Priority 3: magnet-id defaults\nelse {\n  const defaults = {\n    'hero-47': 'direct',\n    'pinterest-cashflow': 'pinterest',\n    'etsy-post': 'etsy-post-purchase',\n    'blog-cost-per-stay': 'blog'\n  };\n  acquisition_source = defaults[parsed.magnet_id] || 'direct';\n}\n\nreturn [{ json: {\n  ...parsed,\n  acquisition_source,\n  acquisition_campaign: parsed.utm_campaign || null\n}}];"
+      }
+    },
+    {
+      "id": "w08-n04",
+      "name": "Upsert Customer",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "upsert",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CUSTOMERS", "mode": "id" },
+        "matchingColumns": ["Email"],
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "First name": "={{ $json.first_name }}",
+            "Acquisition source": "={{ $json.acquisition_source }}",
+            "Acquisition campaign": "={{ $json.acquisition_campaign || '' }}",
+            "Persona tag": "unknown",
+            "First contact date": "={{ $json.timestamp }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w08-n05",
+      "name": "IS Tag Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/contacts/tags",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ email: $json.email, tags: ['magnet:' + $json.magnet_id, 'source:' + $json.acquisition_source, 'list:weekly-tips'] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w08-n06",
+      "name": "Slack Subscriber Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1500, 300],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '📥 New subscriber via ' + $json.magnet_id + ': ' + ($json.first_name || $json.email.split('@')[0]) + ' from ' + $json.acquisition_source + ' (' + $json.ip_country + ')' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w08-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 600],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W08-lead-magnet-delivery',\n  node: 'error-branch',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w08-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 600],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w08-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1250, 600],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W08 Lead Magnet Delivery FAILED\nError: ' + $json.error_message }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Lead Magnet Webhook": {
+      "main": [
+        [{ "node": "Parse Form Submission", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Form Submission": {
+      "main": [
+        [{ "node": "Derive Attribution", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Derive Attribution": {
+      "main": [
+        [{ "node": "Upsert Customer", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert Customer": {
+      "main": [
+        [{ "node": "IS Tag Contact", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "IS Tag Contact": {
+      "main": [
+        [{ "node": "Slack Subscriber Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 60,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

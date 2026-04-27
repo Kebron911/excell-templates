@@ -1,0 +1,384 @@
+{
+  "name": "W05 — Product Publisher",
+  "nodes": [
+    {
+      "id": "w05-n01",
+      "name": "Product Publish Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "product-publish",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w05-n02",
+      "name": "Validate Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body;\nconst secret = $env.AIRTABLE_WEBHOOK_SECRET;\n\nif (secret && input.query?.secret !== secret) {\n  throw new Error('Webhook secret mismatch');\n}\n\nif (!body.record_id) throw new Error('Missing record_id in payload');\nreturn [{ json: { record_id: body.record_id, sku: body.sku || null } }];"
+      }
+    },
+    {
+      "id": "w05-n03",
+      "name": "Fetch Product Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "read",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PRODUCTS", "mode": "id" },
+        "id": "={{ $json.record_id }}"
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w05-n04",
+      "name": "Build Product Object",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 300],
+      "parameters": {
+        "jsCode": "const rec = $input.first().json.fields;\n\nif (!rec['Price — own site'] && !rec['Price — Etsy']) {\n  throw new Error(`Cannot publish ${rec.SKU} — no price set`);\n}\n\nconst product = {\n  airtable_record_id: $input.first().json.id,\n  sku: rec.SKU,\n  name: rec.Name,\n  short_description: rec['Short description'] || '',\n  full_description: rec['Full description'] || '',\n  tags: rec.Tags || [],\n  category: rec.Category,\n  tier: rec.Tier,\n  prices: {\n    own_site: rec['Price — own site'] || 0,\n    etsy: rec['Price — Etsy'] || 0,\n    etsy_lite: rec['Price — Etsy Lite'] || 0,\n    gumroad: rec['Price — Gumroad'] || 0\n  },\n  files: {\n    master: rec['Master file']?.[0]?.url || null,\n    lite: rec['Lite file']?.[0]?.url || null,\n    thumbnail: rec.Thumbnail?.[0]?.url || null,\n    preview_images: (rec['Preview images'] || []).map(a => a.url),\n    companion_pdf: rec['Companion PDF']?.[0]?.url || null\n  },\n  platform_status: {\n    is: { live: rec['Live on IS'] || false, id: rec['IS product ID'] || null },\n    gumroad: { live: rec['Live on Gumroad'] || false, id: rec['Gumroad product ID'] || null },\n    etsy: { live: rec['Live on Etsy'] || false, id: rec['Etsy listing ID'] || null }\n  }\n};\n\nreturn [{ json: product }];"
+      }
+    },
+    {
+      "id": "w05-n05",
+      "name": "Publish to IS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 100],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/products",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ name: $json.name, description: $json.full_description, price: $json.prices.own_site, thumbnail_url: $json.files.thumbnail, file_url: $json.files.master, tags: $json.tags, sku: $json.sku }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w05-n06",
+      "name": "Update IS Product ID in Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 100],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PRODUCTS", "mode": "id" },
+        "id": "={{ $node['Build Product Object'].json.airtable_record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Live on IS": true,
+            "IS product ID": "={{ $json.id || $json.product_id || '' }}",
+            "Last updated": "={{ $now }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w05-n07",
+      "name": "Publish to Gumroad",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.gumroad.com/v2/products",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ name: $json.name, price: Math.round($json.prices.gumroad * 100), description: $json.full_description, url: $json.sku.toLowerCase().replace('-', ''), customizable_price: false, access_token: $env.GUMROAD_API_KEY }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "4", "name": "Gumroad API Key" }
+      }
+    },
+    {
+      "id": "w05-n08",
+      "name": "Update Gumroad ID in Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PRODUCTS", "mode": "id" },
+        "id": "={{ $node['Build Product Object'].json.airtable_record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Live on Gumroad": true,
+            "Gumroad product ID": "={{ $json.product?.id || '' }}",
+            "Last updated": "={{ $now }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w05-n09",
+      "name": "Create Etsy Draft Listing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 500],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://openapi.etsy.com/v3/application/shops/' + $env.ETSY_SHOP_ID + '/listings' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ quantity: 999, title: $json.name, description: $json.full_description, price: $json.prices.etsy_lite || $json.prices.etsy, who_made: 'i_did', when_made: 'made_to_order', taxonomy_id: 2078, type: 'download', is_digital: true, file_data: '' }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "5", "name": "Etsy API Key" }
+      }
+    },
+    {
+      "id": "w05-n10",
+      "name": "Update Etsy Listing ID",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 500],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PRODUCTS", "mode": "id" },
+        "id": "={{ $node['Build Product Object'].json.airtable_record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Etsy listing ID": "={{ $json.listing_id || $json.listing?.listing_id || '' }}",
+            "Last updated": "={{ $now }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w05-n11",
+      "name": "Email Daniel — Etsy Draft Ready",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1750, 500],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": { "__rl": true, "value": "ltharrisond@hotmail.com", "mode": "expression" },
+        "subject": "={{ 'Etsy Draft Ready: ' + $node['Build Product Object'].json.sku }}",
+        "emailType": "html",
+        "message": "={{ '<p>The Etsy draft listing for <strong>' + $node['Build Product Object'].json.sku + '</strong> is ready for review.</p><p>Listing ID: ' + ($json.listing_id || 'check Etsy dashboard') + '</p><p>Please log into Etsy, review the draft, and publish when ready. Remember to upload the file and preview images manually if they were not attached via the API.</p>' }}",
+        "options": {}
+      },
+      "credentials": {
+        "gmailOAuth2": { "id": "6", "name": "Gmail account" }
+      }
+    },
+    {
+      "id": "w05-n12",
+      "name": "Merge Platform Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [2000, 300],
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      }
+    },
+    {
+      "id": "w05-n13",
+      "name": "Slack Published",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2250, 300],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '✅ Product published: ' + $node['Build Product Object'].json.sku + ' — IS ✅ Gumroad ✅ Etsy Draft ✅. Waiting for Daniel to publish Etsy listing.' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w05-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 600],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W05-product-publisher',\n  node: 'error-branch',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w05-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 600],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w05-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1250, 600],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W05 Product Publisher FAILED\nError: ' + $json.error_message }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Product Publish Webhook": {
+      "main": [
+        [{ "node": "Validate Request", "type": "main", "index": 0 }]
+      ]
+    },
+    "Validate Request": {
+      "main": [
+        [{ "node": "Fetch Product Record", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Product Record": {
+      "main": [
+        [{ "node": "Build Product Object", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Product Object": {
+      "main": [
+        [
+          { "node": "Publish to IS", "type": "main", "index": 0 },
+          { "node": "Publish to Gumroad", "type": "main", "index": 0 },
+          { "node": "Create Etsy Draft Listing", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Publish to IS": {
+      "main": [
+        [{ "node": "Update IS Product ID in Airtable", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update IS Product ID in Airtable": {
+      "main": [
+        [{ "node": "Merge Platform Results", "type": "main", "index": 0 }]
+      ]
+    },
+    "Publish to Gumroad": {
+      "main": [
+        [{ "node": "Update Gumroad ID in Airtable", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Gumroad ID in Airtable": {
+      "main": [
+        [{ "node": "Merge Platform Results", "type": "main", "index": 1 }]
+      ]
+    },
+    "Create Etsy Draft Listing": {
+      "main": [
+        [{ "node": "Update Etsy Listing ID", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Etsy Listing ID": {
+      "main": [
+        [{ "node": "Email Daniel — Etsy Draft Ready", "type": "main", "index": 0 }]
+      ]
+    },
+    "Email Daniel — Etsy Draft Ready": {
+      "main": [
+        [{ "node": "Merge Platform Results", "type": "main", "index": 2 }]
+      ]
+    },
+    "Merge Platform Results": {
+      "main": [
+        [{ "node": "Slack Published", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 300,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

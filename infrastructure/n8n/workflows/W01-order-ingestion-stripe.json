@@ -1,0 +1,351 @@
+{
+  "name": "W01 — Order Ingestion (Stripe)",
+  "nodes": [
+    {
+      "id": "w01-n01",
+      "name": "Stripe Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "order-stripe",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w01-n02",
+      "name": "Verify Stripe Signature",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\nconst input = $input.first().json;\nconst signatureHeader = input.headers['stripe-signature'];\nconst secret = $env.STRIPE_WEBHOOK_SECRET;\n\nif (!signatureHeader) throw new Error('Missing stripe-signature header');\nif (!secret) throw new Error('STRIPE_WEBHOOK_SECRET env var not set');\n\nconst elements = signatureHeader.split(',');\nconst timestamp = elements.find(e => e.startsWith('t=')).split('=')[1];\nconst signature = elements.find(e => e.startsWith('v1=')).split('=')[1];\n\nconst payloadString = JSON.stringify(input.body);\nconst signedPayload = `${timestamp}.${payloadString}`;\nconst expectedSig = crypto.createHmac('sha256', secret).update(signedPayload).digest('hex');\n\nif (expectedSig !== signature) throw new Error('Invalid Stripe signature');\n\nconst now = Math.floor(Date.now() / 1000);\nif (Math.abs(now - parseInt(timestamp)) > 300) throw new Error('Stripe timestamp outside 5-min tolerance (replay protection)');\n\nreturn [{ json: input.body }];"
+      }
+    },
+    {
+      "id": "w01-n03",
+      "name": "Route by Event Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [750, 300],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "checkout",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.type }}",
+                    "rightValue": "checkout.session.completed",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "payment_intent",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.type }}",
+                    "rightValue": "payment_intent.succeeded",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "refund",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.type }}",
+                    "rightValue": "charge.refunded",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w01-n04",
+      "name": "Normalize Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 200],
+      "parameters": {
+        "jsCode": "const event = $input.first().json;\nconst obj = event.data.object;\nlet normalized;\n\nif (event.type === 'checkout.session.completed') {\n  normalized = {\n    order_id: `stripe-${obj.id}`,\n    stripe_payment_intent: obj.payment_intent,\n    timestamp: new Date(event.created * 1000).toISOString(),\n    email: (obj.customer_details?.email || obj.customer_email || '').toLowerCase(),\n    first_name: obj.customer_details?.name?.split(' ')[0] || '',\n    gross_amount: (obj.amount_total || 0) / 100,\n    currency: obj.currency || 'usd',\n    platform: 'is',\n    products: obj.metadata?.products ? obj.metadata.products.split(',') : [],\n    orderbump_taken: obj.metadata?.orderbump === 'true',\n    orderbump_product: obj.metadata?.orderbump_sku || null,\n    orderbump_amount: parseFloat(obj.metadata?.orderbump_amount || 0),\n    oto_taken: obj.metadata?.oto === 'true',\n    oto_product: obj.metadata?.oto_sku || null,\n    oto_amount: parseFloat(obj.metadata?.oto_amount || 0),\n    discount_code: obj.metadata?.discount_code || null,\n    discount_amount: (obj.total_details?.amount_discount || 0) / 100,\n    tax_collected: (obj.total_details?.amount_tax || 0) / 100,\n    platform_fee: ((obj.amount_total || 0) / 100) * 0.034 + 0.30,\n    raw_payload: JSON.stringify(event).slice(0, 5000)\n  };\n} else {\n  // payment_intent.succeeded fallback\n  normalized = {\n    order_id: `stripe-${obj.id}`,\n    timestamp: new Date(event.created * 1000).toISOString(),\n    email: (obj.receipt_email || '').toLowerCase(),\n    first_name: '',\n    gross_amount: (obj.amount_received || 0) / 100,\n    platform: 'is',\n    products: obj.metadata?.products ? obj.metadata.products.split(',') : [],\n    orderbump_taken: false,\n    oto_taken: false,\n    platform_fee: ((obj.amount_received || 0) / 100) * 0.034 + 0.30,\n    raw_payload: JSON.stringify(event).slice(0, 5000)\n  };\n}\n\nif (!normalized.email) throw new Error('No email in Stripe payload');\nreturn [{ json: normalized }];"
+      }
+    },
+    {
+      "id": "w01-n05",
+      "name": "Upsert Customer",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1250, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "upsert",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CUSTOMERS", "mode": "id" },
+        "matchingColumns": ["Email"],
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "First name": "={{ $json.first_name }}",
+            "Acquisition source": "direct",
+            "First contact date": "={{ $json.timestamp }}",
+            "First purchase date": "={{ $json.timestamp }}",
+            "Last purchase date": "={{ $json.timestamp }}",
+            "Own-site buyer?": true
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w01-n06",
+      "name": "Expand Line Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 200],
+      "parameters": {
+        "jsCode": "const normalized = $input.first().json;\nconst customerRecord = $node['Upsert Customer'].json;\nconst orders = [];\n\nconst mainProduct = normalized.products[0] || null;\nif (mainProduct) {\n  const mainAmount = normalized.gross_amount\n    - (normalized.orderbump_taken ? normalized.orderbump_amount : 0)\n    - (normalized.oto_taken ? normalized.oto_amount : 0);\n  orders.push({\n    order_id: normalized.order_id,\n    product_sku: mainProduct,\n    gross_amount: Math.max(0, mainAmount),\n    platform_fee: normalized.platform_fee,\n    is_bump: false,\n    is_oto: false,\n    base: normalized,\n    customer_record_id: customerRecord.id\n  });\n}\n\nif (normalized.orderbump_taken && normalized.orderbump_product) {\n  orders.push({\n    order_id: `${normalized.order_id}-bump`,\n    product_sku: normalized.orderbump_product,\n    gross_amount: normalized.orderbump_amount,\n    platform_fee: 0,\n    is_bump: true,\n    is_oto: false,\n    base: normalized,\n    customer_record_id: customerRecord.id\n  });\n}\n\nif (normalized.oto_taken && normalized.oto_product) {\n  orders.push({\n    order_id: `${normalized.order_id}-oto`,\n    product_sku: normalized.oto_product,\n    gross_amount: normalized.oto_amount,\n    platform_fee: 0,\n    is_bump: false,\n    is_oto: true,\n    base: normalized,\n    customer_record_id: customerRecord.id\n  });\n}\n\nif (orders.length === 0) throw new Error('No products found in order');\nreturn orders.map(o => ({ json: o }));"
+      }
+    },
+    {
+      "id": "w01-n07",
+      "name": "Create Order",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "upsert",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "matchingColumns": ["Order ID"],
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Order ID": "={{ $json.order_id }}",
+            "Timestamp": "={{ $json.base.timestamp }}",
+            "Platform": "is",
+            "Gross amount": "={{ $json.gross_amount }}",
+            "Platform fee": "={{ $json.platform_fee }}",
+            "OrderBump taken?": "={{ $json.is_bump || $json.base.orderbump_taken }}",
+            "OTO taken?": "={{ $json.is_oto || $json.base.oto_taken }}",
+            "Tax collected": "={{ $json.base.tax_collected || 0 }}",
+            "Discount code applied": "={{ $json.base.discount_code || '' }}",
+            "Discount amount": "={{ $json.base.discount_amount || 0 }}",
+            "Refund status": "none",
+            "Raw webhook payload": "={{ $json.base.raw_payload }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w01-n08",
+      "name": "IS Tag Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/contacts/tags",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ email: $json.base.email, tags: ['product:' + $json.product_sku, 'bought:' + $json.base.timestamp.slice(0,10), 'platform:is', $json.gross_amount >= 97 ? 'persona:sarah' : 'persona:sam'] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w01-n09",
+      "name": "Slack Sale Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2250, 200],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '🎉 Sale: ' + $json.product_sku + ' × 1 = $' + $json.gross_amount + ' via IS/Stripe. Customer: ' + $json.base.email }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w01-n10",
+      "name": "Trigger W07 Refund Handler",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1000, 500],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.N8N_BASE_URL }}/webhook/refund-handler",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify($json) }}"
+      }
+    },
+    {
+      "id": "w01-n11",
+      "name": "Unhandled Event",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1000, 700],
+      "parameters": {}
+    },
+    {
+      "id": "w01-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 600],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W01-order-ingestion-stripe',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w01-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 600],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w01-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1250, 600],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W01 Stripe Ingestion FAILED\nNode: ' + $json.node + '\nError: ' + $json.error_message + '\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Stripe Webhook": {
+      "main": [
+        [{ "node": "Verify Stripe Signature", "type": "main", "index": 0 }]
+      ]
+    },
+    "Verify Stripe Signature": {
+      "main": [
+        [{ "node": "Route by Event Type", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Route by Event Type": {
+      "main": [
+        [{ "node": "Normalize Payload", "type": "main", "index": 0 }],
+        [{ "node": "Normalize Payload", "type": "main", "index": 0 }],
+        [{ "node": "Trigger W07 Refund Handler", "type": "main", "index": 0 }],
+        [{ "node": "Unhandled Event", "type": "main", "index": 0 }]
+      ]
+    },
+    "Normalize Payload": {
+      "main": [
+        [{ "node": "Upsert Customer", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert Customer": {
+      "main": [
+        [{ "node": "Expand Line Items", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Expand Line Items": {
+      "main": [
+        [{ "node": "Create Order", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Order": {
+      "main": [
+        [{ "node": "IS Tag Contact", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "IS Tag Contact": {
+      "main": [
+        [{ "node": "Slack Sale Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 120,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

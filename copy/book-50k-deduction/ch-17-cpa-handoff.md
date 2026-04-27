@@ -1,0 +1,189 @@
+# Chapter 17 — The CPA Handoff
+
+*What to send. How to send it. What to ask.*
+
+---
+
+In late February, two STR hosts sent their CPAs the prior year's tax file. They each owned three properties of similar size and similar revenue. They each had been clients of the same CPA firm for several years.
+
+The first host emailed a single ZIP file. Inside: a PDF of the prior-year return for reference, a folder per property containing closing statement and depreciation schedule, an Excel workbook with the year's bookkeeping fully categorized to Schedule E lines, a reservation log reconciling to the platform 1099-K, a mileage log, a 1099-NEC packet for filed contractors, and a one-page memo flagging three strategy questions she wanted to discuss in the kickoff meeting.
+
+The second host emailed a chain of nine messages over four weeks: bank statements PDF'd one at a time, a screenshot of QuickBooks, a question about whether furniture can be written off, an apology that the receipts for August were "in the car," a question about whether her cleaner needs a 1099, a request for the CPA to "just figure it out."
+
+The first host's CPA filed her return on March 8 and used the kickoff meeting to discuss cost segregation on her newest property. The second host's CPA filed her return on April 12, sent her a $1,400 supplemental cleanup invoice, and didn't have time to discuss anything strategic.
+
+Same firm. Same partner. Two completely different relationships. The difference was the handoff.
+
+This chapter is what the first host sent and what the second host should have. It is the practical close of this book — the moment where the year's bookkeeping, the seventeen chapters of regulation, and the workbook output meet your CPA.
+
+---
+
+## The handoff packet
+
+Send your CPA a single ZIP file no later than February 15 of the year following the tax year. The ZIP should contain the following, in this order:
+
+### Tier 1 — The cover sheet
+
+A one-page cover memo that is the only thing your CPA reads first. It contains:
+
+- Your name and the tax year being filed
+- The number of properties in the portfolio, listed by name
+- A one-line statement of your filing-form determination from Chapter 1 (Schedule E passive, Schedule E non-passive, or Schedule C) and the basis for that determination (e.g., "average stay 4 days, no substantial services, material participation under test 3 — non-passive Schedule E")
+- A bulleted list of any **strategy questions** you want addressed in the year's filing (cost segregation? §179 elections? Augusta Rule applied?)
+- A bulleted list of any **changes from the prior year** (new property, sold property, change in property manager, change in entity structure)
+- The contact method you prefer for follow-up questions
+
+This page exists so the CPA knows in 90 seconds what they're filing and what the strategic context is. Without it, the CPA reads the books cold and asks the same context questions every year.
+
+### Tier 2 — The prior-year return
+
+A PDF of the most recently-filed return for the rental activity. Required only if the CPA is new to your file; existing CPAs already have it.
+
+### Tier 3 — Per-property packets
+
+A folder per property, each containing:
+
+- **The closing statement** (HUD-1 or Closing Disclosure) — Chapter 6
+- **The depreciation schedule** as carried into the current year — Chapter 6, Chapter 7 if cost-segregation has been applied
+- **The placed-in-service date** documentation — usually the listing-live date plus screenshots of the first reservation
+- **Any new asset placements** during the year with cost basis and placed-in-service date — Chapter 8
+- **Capital improvements during the year** with the §263(a) BAR-test memo — Chapter 5
+- **Casualty events during the year** if any — Chapter 5
+
+Per-property organization matters because the IRS Schedule E worksheet is per-property. Hosts who blend properties into a single bookkeeping line force the CPA to disaggregate. Don't do that work to your CPA. Send it pre-disaggregated.
+
+### Tier 4 — The bookkeeping workbook
+
+The Schedule E Tax Prep Workbook (TAX-004) or equivalent, complete for the year, with all tabs populated. Every transaction categorized. Every line traceable to a Schedule E line.
+
+If your bookkeeping lives in a different tool (QuickBooks, Stessa, Xero), export a year-end report that's organized by Schedule E line. Don't send the CPA raw transaction data and expect categorization. Categorize first; export the categorized version.
+
+### Tier 5 — The §274(d) substantiation files
+
+- **Mileage log** — Chapter 9. The full year, contemporaneous, with every entry dated and purpose-noted.
+- **Per-diem records** — Chapter 9. Dates, places, amounts, business purposes.
+- **Lodging receipts** — Chapter 9. Same.
+
+These live in their own tier because §274(d) is the strict-substantiation regulation. Your CPA wants to see them as a complete file, not interleaved with other categories.
+
+### Tier 6 — The contractor 1099 packet
+
+- The 1099-NEC packet generated by your workbook for the year — Chapter 11
+- Copies of the W-9 forms on file for each filed contractor
+- Confirmation that 1099-NEC forms were filed by January 31 (your CPA will want to verify the filing happened, since the deadline precedes their return preparation)
+
+### Tier 7 — Special-situation documentation
+
+For any host who applied a special rule during the year:
+
+- **Cost segregation study or DIY memo** — Chapter 7. The allocation, the documentation, the Form 3115 if a method change is being filed.
+- **Home office worksheet** — Chapter 12. Square-footage calculation, expense allocation, method election.
+- **Augusta Rule documentation** — Chapter 15. Rental agreement, comparable-rate analysis, business-purpose memo.
+- **Material participation hour log** — Chapter 1, Chapter 8. The contemporaneous log substantiating the non-passive Schedule E claim.
+- **Insurance and entity records** — Chapter 13. Annual premium documentation, registered agent confirmations, formation amortization schedule.
+
+These items don't always apply, but when they do they go in their own folder so the CPA doesn't hunt for them.
+
+---
+
+## The kickoff meeting
+
+The handoff packet is the *paper* side. The kickoff meeting is the *conversation* side. Schedule a 30-minute video call within two weeks of sending the packet. The agenda:
+
+### Opening question for your CPA
+
+> "Did the packet have everything you need? What's missing?"
+
+If anything is missing, fix it now. Saving cleanup work for the CPA is the most expensive way to file.
+
+### Strategy questions worth raising every year
+
+Every year, ask:
+
+1. **"Should we run cost segregation on any property this year?"** (Chapter 7)
+2. **"Are we taking the §179 and §168(k) elections we should be?"** (Chapter 8)
+3. **"Did anything happen this year that would change my filing-form determination?"** (Chapter 1 — change in average stay, new substantial services, change in material participation)
+4. **"Are there any state-specific issues I should be aware of?"** (Property in California, Hawaii, New York, or other high-tax-complexity jurisdictions especially)
+5. **"What's the estimated-tax picture for next year?"** (Chapter 15 — Augusta Rule shifts, cost-seg recoveries, and similar moves change the quarterly schedule)
+
+These five questions, asked annually, surface most of the strategy work that hosts otherwise miss. The CPA has the answers; most hosts don't ask.
+
+### Year-specific questions
+
+If you're considering any of the following in the coming year, raise them in the kickoff meeting so the CPA can plan for them in the current year's filing:
+
+- Buying or selling a property
+- Adding or restructuring an LLC
+- A major renovation that crosses the §263(a) line
+- Switching from passive to non-passive Schedule E (or vice versa) by changing your participation pattern
+- Moving to a state with materially different STR tax treatment
+
+Your CPA can structure the current return to set up the next year's strategy if they know what's coming. They can't if they don't.
+
+---
+
+## What a good CPA does with a clean handoff
+
+A CPA who receives a clean packet typically:
+
+- Files the return faster (often in 2–4 weeks instead of 8–12)
+- Bills less (no cleanup hours)
+- Catches more strategic opportunities (their attention is on the high-leverage decisions, not on reconstructing transactions)
+- Maintains a longer-term planning conversation with you across multiple years
+
+This is what most hosts mean when they say their CPA "thanked them for the workbook." The CPA isn't grateful for the deductions. The CPA is grateful that they get to do *their actual job* — tax strategy — instead of their second job, which is forensic bookkeeping.
+
+For the CPA, this matters professionally. Strategy work is higher-margin and more interesting than cleanup work. A CPA whose entire client base sends clean packets can charge differently, work different hours, and provide different value than a CPA whose client base is in perpetual cleanup. Most CPAs prefer the former. Your handoff helps your CPA become that.
+
+---
+
+## When to switch CPAs
+
+Most STR hosts are well-served by their existing CPA, especially if the CPA has been receptive to the workflow in this book. Three warning signs that suggest a switch:
+
+1. **The CPA hasn't asked about cost segregation in two years** despite your portfolio's size suggesting it would be material. The omission isn't malicious — many general-practice CPAs don't carry cost-seg in their default playbook. But a $300K cabin held for three years that's never been evaluated for cost seg is a warning sign.
+
+2. **The CPA has filed Schedule C for an STR portfolio that has no substantial services**, exposing you to SE tax that wasn't owed. (Megan's situation from Chapter 1.) An out-of-pattern filing form that the CPA can't justify under §1.469-1T(e)(3)(ii)(A) is a sign of deeper unfamiliarity with rental tax.
+
+3. **The CPA actively resists the workbook handoff method** in favor of "let me just do it." A CPA who wants to do bookkeeping that you've already done is either over-billing or under-trusting. Both are reasons to look elsewhere.
+
+The right CPA for a serious STR portfolio is a CPA who *prefers* the workbook handoff because they prefer doing strategy. That CPA exists. They're often described as "real-estate-focused" or "STR-specialized." Look for them in your area.
+
+---
+
+## What to do at year-end
+
+A short pre-handoff checklist for the host. Run this in the last week of December:
+
+- [ ] Verify all per-property cards have complete year-end statements downloaded
+- [ ] Confirm the depreciation schedule reflects all assets placed in service during the year
+- [ ] File any 1099-NEC packets due January 31 (don't wait for the CPA — the deadline precedes their work)
+- [ ] Capture material participation hours through December 31 in the contemporaneous log
+- [ ] Photograph any final-month receipts before they get lost
+- [ ] Document any Augusta Rule activity with rental agreements and rate analyses
+- [ ] Confirm insurance renewals are reflected in the books
+- [ ] Run the workbook's annual-close routine to roll quarterly data into the year-end view
+
+Then send the packet by February 15 and schedule the kickoff. The CPA does the rest.
+
+---
+
+## A final note
+
+This book opened with a host who paid SE tax she didn't owe (Megan, Chapter 1) and walked through forty-seven deductions to a host who runs the system in twenty-one minutes a quarter (Amanda, Chapter 16). The arc of the book is the arc of every host's relationship with their portfolio's books: from confusion to system.
+
+The deductions are real. The regulations are knowable. The system is not magic — it is sustained discipline applied weekly for ninety minutes and quarterly for an hour.
+
+Run your rentals before they run you.
+
+---
+
+> ### *Capture this in the Tax Season Bundle.*
+>
+> The Tax Season Bundle ($147) includes every workbook referenced in this book — the Schedule E Workbook (TAX-004), the Single-Property P&L (TAX-002), the Mileage Log (TAX-001), the 1099-NEC Tracker (TAX-003), the Quarterly Estimated Tax Workbook (TAX-005), the Home Office Allocator (TAX-006), the Per-Diem Tracker (TAX-007), the Cost Segregation DIY Workbook (TAX-010), and the Year-Over-Year Comparison Workbook. Plus the CPA handoff template and the kickoff-meeting question list from this chapter, ready to use.
+>
+> `thestrledger.com/cap/17`
+
+---
+
+*This chapter is general guidance, not tax advice. The handoff structure, the kickoff-meeting agenda, and the CPA-relationship recommendations are operational suggestions; specific tax positions and strategies require consultation with a qualified tax professional.*

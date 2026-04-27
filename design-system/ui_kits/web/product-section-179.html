@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Section 179 Planner — The STR Ledger</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--brand-parchment); }
+  a { color: inherit; }
+  button:hover { filter: brightness(0.92); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/atoms.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+function Breadcrumbs() {
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "20px 48px 0", fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--fg-3)" }}>
+      <a href="index.html" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Home</a> · <a href="#" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Templates</a> · <a href="#" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Tax</a> · <span style={{ color: "var(--brand-gold)" }}>The Section 179 Planner</span>
+    </div>
+  );
+}
+
+function PreviewCover() {
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-navy)", padding: 36, position: "relative", boxSizing: "border-box" }}>
+      <div style={{ position: "absolute", inset: 28, background: "var(--brand-parchment)", padding: "56px 44px", boxShadow: "0 40px 60px -30px rgba(11,28,47,0.5)" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Tax workbook · TAX-009</div>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 38, letterSpacing: "-0.015em", color: "var(--brand-navy)", marginTop: 12, lineHeight: 1.05 }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span><br/>
+          §179 Planner<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "28px 0" }}/>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 17, color: "var(--fg-2)", lineHeight: 1.5 }}>
+          Hot tub. Vehicle. Furniture.<br/>Front-load this year's<br/>depreciation, legally.
+        </div>
+        <div style={{ position: "absolute", bottom: 44, left: 44, right: 44, fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>2026 ed. · IRC §179 · §168(k) · Form 4562</div>
+      </div>
+    </div>
+  );
+}
+
+function PreviewAssets() {
+  const assets = [
+    ["Hot tub",          "10-yr",  "$4,800",   "100%", "§179",  "$4,800"],
+    ["Outdoor sofa set", "5-yr",   "$1,200",   "100%", "§179",  "$1,200"],
+    ["Smart TV + stand", "5-yr",   "$980",     "100%", "§179",  "$980"],
+    ["Industrial vac",   "7-yr",   "$620",     "100%", "§179",  "$620"],
+    ["Pickup · 6K GVWR", "5-yr",   "$48,000",  "80%",  "§179*", "$16,320"],
+  ];
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", borderBottom: "1px solid var(--rule)", paddingBottom: 14 }}>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>02</span> · Asset List<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>5 of 15 · 2026 buys</div>
+      </div>
+      <div style={{ marginTop: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 60px 80px 50px 70px 80px", gap: 10, padding: "8px 0", borderBottom: "1px solid var(--rule)", fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>
+          <span>Asset</span><span style={{ textAlign: "center" }}>Class</span><span style={{ textAlign: "right" }}>Cost</span><span style={{ textAlign: "center" }}>Biz%</span><span style={{ textAlign: "center" }}>Method</span><span style={{ textAlign: "right" }}>Ded.</span>
+        </div>
+        {assets.map(([item, cls, cost, biz, method, ded], i) => (
+          <div key={i} style={{ display: "grid", gridTemplateColumns: "1.4fr 60px 80px 50px 70px 80px", gap: 10, padding: "12px 0", borderBottom: "1px dashed rgba(11,28,47,0.10)", alignItems: "baseline" }}>
+            <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 13, color: "var(--brand-navy)" }}>{item}</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.18em", textAlign: "center", color: "var(--fg-3)" }}>{cls}</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, textAlign: "right", color: "var(--fg-2)" }}>{cost}</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, textAlign: "center", color: biz === "80%" ? "var(--brand-clay)" : "var(--fg-3)" }}>{biz}</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.18em", textAlign: "center", color: "var(--brand-gold)", fontWeight: 600 }}>{method}</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, textAlign: "right", color: "var(--brand-gold)" }}>{ded}</span>
+          </div>
+        ))}
+        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 60px 80px 50px 70px 80px", gap: 10, padding: "12px 0", borderTop: "2px solid var(--brand-navy)", marginTop: 6, alignItems: "baseline" }}>
+          <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 14, color: "var(--brand-navy)" }}>
+            <span style={{ fontStyle: "italic", fontWeight: 400 }}>Total</span> §179 elected
+          </span>
+          <span></span><span></span><span></span><span></span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, textAlign: "right", color: "var(--brand-gold)", fontWeight: 500 }}>$23,920</span>
+        </div>
+      </div>
+      <div style={{ marginTop: 10, fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 11, color: "var(--fg-3)", textAlign: "right" }}>
+        * Vehicle cap · $20,400 × 80% biz = $16,320
+      </div>
+    </div>
+  );
+}
+
+function PreviewCaps() {
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box" }}>
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>04 · Income Limitation</div>
+      <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 30, color: "var(--brand-navy)", letterSpacing: "-0.015em", lineHeight: 1.05, marginTop: 8 }}>
+        <span style={{ fontStyle: "italic", fontWeight: 400 }}>Three</span> ceilings<span style={{ color: "var(--brand-gold)" }}>.</span>
+      </div>
+      <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "20px 0" }}/>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {[
+          ["Cap · 2026",         "$1,250,000",  "var(--fg-3)",       "Aggregate §179 election cap"],
+          ["Phase-out start",    "$3,130,000",  "var(--fg-3)",       "$1-for-$1 reduction over"],
+          ["Income limit",       "$43,000",     "var(--brand-clay)", "Net biz income · binds here"],
+          ["Elected this year",  "$23,920",     "var(--brand-gold)", "Under the income limit · OK"],
+        ].map(([label, val, tone, body], i) => (
+          <div key={i} style={{ padding: "14px 16px", background: "var(--brand-paper)", borderLeft: "2px solid " + tone }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 14, color: "var(--brand-navy)" }}>{label}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, color: tone, fontWeight: 500 }}>{val}</span>
+            </div>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--fg-2)", marginTop: 4 }}>{body}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 14, padding: "12px 14px", background: "var(--brand-navy)", color: "var(--brand-parchment)", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+        $0 carryover · all elected this year
+      </div>
+    </div>
+  );
+}
+
+function PreviewBonus() {
+  const years = [
+    ["2024",  "60%",  "var(--fg-3)"],
+    ["2025",  "40%",  "var(--fg-3)"],
+    ["2026",  "40%",  "var(--brand-gold)"],
+    ["2027",  "20%",  "var(--brand-clay)"],
+    ["2028",  "0%",   "var(--brand-clay)"],
+  ];
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box" }}>
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Bonus depreciation phase-down</div>
+      <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 30, color: "var(--brand-navy)", letterSpacing: "-0.015em", lineHeight: 1.05, marginTop: 8 }}>
+        <span style={{ fontStyle: "italic", fontWeight: 400 }}>40%</span> in 2026<span style={{ color: "var(--brand-gold)" }}>.</span>
+      </div>
+      <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "20px 0" }}/>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {years.map(([yr, rate, tone], i) => (
+          <div key={i} style={{ display: "grid", gridTemplateColumns: "100px 1fr 80px", gap: 16, padding: "12px 14px", background: "var(--brand-paper)", borderLeft: "2px solid " + tone, alignItems: "baseline" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: tone }}>{yr}</span>
+            <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 13, color: "var(--brand-navy)" }}>
+              {yr === "2026" ? "Current year — placed in service window" : yr === "2028" ? "Sunset — back to MACRS only" : "—"}
+            </span>
+            <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 22, color: tone, textAlign: "right" }}>{rate}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 14, padding: "12px 14px", background: "var(--brand-navy)", color: "var(--brand-parchment)", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+        IRC §168(k) · qualified property · ≤ 20-yr life
+      </div>
+    </div>
+  );
+}
+
+function ProductHero() {
+  const [pack, setPack] = useState("Schedule C");
+  const [view, setView] = useState(0);
+
+  const previews = [
+    { label: "Cover",  Component: PreviewCover },
+    { label: "Assets", Component: PreviewAssets },
+    { label: "Limits", Component: PreviewCaps },
+    { label: "Bonus",  Component: PreviewBonus },
+  ];
+  const Cur = previews[view].Component;
+
+  return (
+    <section style={{ padding: "48px 48px 96px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 72 }}>
+        <div>
+          <div style={{ aspectRatio: "1/1.05", boxShadow: "0 30px 60px -30px rgba(11,28,47,0.4)" }}>
+            <Cur/>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 12 }}>
+            {previews.map((p, i) => (
+              <button key={i} onClick={() => setView(i)} aria-label={`View preview ${i+1}`} style={{
+                aspectRatio: "1/1", padding: "8px 6px", cursor: "pointer",
+                background: i === view ? "var(--brand-navy)" : "var(--brand-paper)",
+                border: "1px solid " + (i === view ? "var(--brand-navy)" : "var(--rule)"),
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
+              }}>
+                <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 22, color: i === view ? "var(--brand-gold)" : "var(--brand-navy)" }}>{i+1}</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase", color: i === view ? "var(--brand-parchment)" : "var(--fg-3)" }}>{p.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <Eyebrow>Tax workbook · TAX-009</Eyebrow>
+          <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 52, letterSpacing: "-0.015em", color: "var(--brand-navy)", margin: "16px 0 0", lineHeight: 1.08 }}>
+            <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span> §179 Planner<span style={{ color: "var(--brand-gold)" }}>.</span>
+          </h1>
+          <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 22, color: "var(--fg-2)", marginTop: 6 }}>Form 4562 wizard · 2026</div>
+          <GoldRule width={48} my={24}/>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: 17, lineHeight: 1.65, color: "var(--fg-2)", margin: 0 }}>
+            Walks IRC §179 eligibility, models the 40% bonus depreciation alternative, and tests the income limitation that quietly caps half of all §179 elections. Up to fifteen assets, the heavy-vehicle cap baked in, Form 4562 Part I + II mirror — print-ready.
+          </p>
+
+          <div style={{ marginTop: 36, padding: "24px 0", borderTop: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 44, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>$27</span>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-3)", textDecoration: "line-through" }}>$37</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)", marginLeft: "auto" }}>Pre-Apr-15 price · file early</span>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 28 }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)", marginBottom: 10 }}>License</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {["Schedule C", "Schedule E", "Heavy vehicle", "Multi-asset"].map(n => (
+                <button key={n} onClick={() => setPack(n)} style={{
+                  fontFamily: "var(--font-body)", fontSize: 14, padding: "12px 20px",
+                  background: pack === n ? "var(--brand-navy)" : "transparent",
+                  color: pack === n ? "var(--brand-parchment)" : "var(--brand-navy)",
+                  border: "1px solid " + (pack === n ? "var(--brand-navy)" : "var(--rule-strong)"),
+                  cursor: "pointer",
+                }}>{n}</button>
+              ))}
+            </div>
+            <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 13, color: "var(--fg-3)", marginTop: 10 }}>
+              {pack === "Schedule E" ? "Schedule E filers can §179 personal-property assets used in active rental — not real estate itself. The rules are tighter; the workbook flags them." : pack === "Heavy vehicle" ? "Adds the >6,000 lb GVWR cap math · the truck §179 cap is $20,400 × business-use %." : "Active business · listed-property test · per-asset election toggles."}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
+            <Button variant="primary" size="lg" full>Add to cart · $27</Button>
+            <Button variant="secondary" size="lg">♡</Button>
+          </div>
+
+          <div style={{ marginTop: 32, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, paddingTop: 24, borderTop: "1px solid var(--rule)" }}>
+            {[
+              ["Instant download", ".xlsx + .pdf"],
+              ["Free 2027 update", "Through next April"],
+              ["30-day refund",    "No questions asked"],
+            ].map(([t, s]) => (
+              <div key={t}>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 500, color: "var(--brand-navy)" }}>{t}</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--fg-3)", marginTop: 2 }}>{s}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WhatsInside() {
+  const sections = [
+    ["01", "Eligibility",          "Active trade-or-business test · listed-property 50% test · the Schedule E vs Schedule C gating that determines what's elligible."],
+    ["02", "Asset List",           "Up to fifteen assets — description · MACRS class · cost · date placed in service · % business use · vehicle flag."],
+    ["03", "Election Per Asset",   "Toggle §179 / Bonus / MACRS for each asset · the trade-off the workbook spells out as you choose."],
+    ["04", "Income Limitation",    "§179 ≤ aggregate net business income. Excess carries forward indefinitely. The workbook tracks the carryover."],
+    ["05", "Form 4562 Map",        "Auto-built Part I (§179) + Part II (Bonus) mirror · print-ready · routes to Schedule C Line 13 or Schedule E Line 18."],
+    ["06", "Launch",               "Total deduction summary · the print packet you hand to your CPA. The eight green checks that mean you're ready."],
+    ["07", "Settings",              "Active tax year · §179 cap · phase-out threshold · bonus % · the dials you only touch once."],
+  ];
+  return (
+    <section style={{ background: "var(--brand-paper)", padding: "96px 48px", borderTop: "1px solid var(--rule-strong)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow>What's inside</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 40, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 48px", maxWidth: 720 }}>
+          Seven tabs<span style={{ color: "var(--brand-gold)" }}>.</span> Fifteen assets. The depreciation you don't have to wait five years for.
+        </h2>
+        <div>
+          {sections.map(([n, t, b]) => (
+            <div key={n} style={{ display: "grid", gridTemplateColumns: "90px 1fr 1.2fr", gap: 48, padding: "32px 0", borderTop: "1px solid var(--rule-strong)" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 36, color: "var(--brand-gold)", lineHeight: 1 }}>{n}</span>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, letterSpacing: "-0.01em", color: "var(--brand-navy)", lineHeight: 1.2 }}>{t}</div>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--fg-2)", lineHeight: 1.6 }}>{b}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function PhaseDownBlock() {
+  return (
+    <section style={{ background: "var(--brand-navy)", color: "var(--brand-parchment)", padding: "96px 48px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow onNavy>The window</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 48, letterSpacing: "-0.01em", lineHeight: 1.1, margin: "16px 0 12px", maxWidth: 720, color: "var(--brand-parchment)" }}>
+          Bonus depreciation is <span style={{ fontStyle: "italic", fontWeight: 400 }}>closing</span><span style={{ color: "var(--brand-gold)" }}>.</span>
+        </h2>
+        <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 19, color: "var(--fg-on-navy-muted)", maxWidth: 700, lineHeight: 1.5, margin: "0 0 40px" }}>
+          The 100% bonus from the 2017 TCJA is gone. We're at 40% in 2026, 20% in 2027, 0% in 2028. After that it's MACRS straight-line again — five or seven years to write off a $4,800 hot tub. §179 lives independently of the phase-down, but the trade-offs change as bonus rolls off.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 0, borderTop: "1px solid rgba(201,162,75,0.25)" }}>
+          {[
+            ["2024",  "60%",  "Phase-down begins"],
+            ["2025",  "40%",  "Halfway down"],
+            ["2026",  "40%",  "Current — buy now"],
+            ["2027",  "20%",  "Last meaningful year"],
+            ["2028",  "0%",   "Sunset — MACRS only"],
+          ].map(([yr, rate, body], i) => {
+            const current = yr === "2026";
+            return (
+              <div key={i} style={{
+                padding: "28px 22px", borderBottom: "1px solid rgba(201,162,75,0.25)",
+                borderRight: i < 4 ? "1px solid rgba(201,162,75,0.25)" : "none",
+                background: current ? "rgba(201,162,75,0.08)" : "transparent",
+              }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>{yr}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 36, color: current ? "var(--brand-gold)" : "var(--brand-parchment)", marginTop: 14, letterSpacing: "-0.01em" }}>{rate}</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--fg-on-navy-muted)", marginTop: 8, lineHeight: 1.5 }}>{body}</div>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-on-navy-muted)", marginTop: 24 }}>Source · IRC §168(k) · TCJA phase-down schedule</div>
+      </div>
+    </section>
+  );
+}
+
+function SarahQuote() {
+  return (
+    <section style={{ background: "var(--brand-parchment)", padding: "96px 48px" }}>
+      <div style={{ maxWidth: 880, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 120, color: "var(--brand-gold)", lineHeight: 0.6, marginBottom: 24 }}>"</div>
+        <p style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 32, lineHeight: 1.35, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: 0 }}>
+          I bought a hot tub, an outdoor sofa set, and a heavy pickup last year and my CPA said "we'll see at tax time." The workbook said §23,920 §179 deduction this year — not over five years. That changed how I planned the whole purchase<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </p>
+        <GoldRule width={32} my={32} align="center"/>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.24em", textTransform: "uppercase", color: "var(--fg-3)" }}>Marcus L. · 6 cabins · Broken Bow, OK</div>
+      </div>
+    </section>
+  );
+}
+
+function PairedWith() {
+  const items = [
+    ["TAX-004", "The Schedule E",   "Where Schedule E §179 elections route — Line 18, with Form 4562 attached."],
+    ["TAX-008", "The SE Tax",       "If you're Schedule C, §179 reduces SE-taxable income — model the interaction."],
+  ];
+  return (
+    <section style={{ padding: "96px 48px", background: "var(--brand-paper)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow>Often paired with</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 36, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 40px" }}>
+          The rest of the tax shelf<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24 }}>
+          {items.map(([sku, title, body]) => {
+            const href = sku === "TAX-004" ? "product-schedule-e.html" : sku === "TAX-008" ? "product-se-tax.html" : "#";
+            return (
+              <a key={sku} href={href} style={{ display: "block", textDecoration: "none", padding: "32px 32px 28px", background: "var(--brand-parchment)", border: "1px solid var(--rule)" }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>{sku}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, letterSpacing: "-0.01em", color: "var(--brand-navy)", marginTop: 10 }}>
+                  <span style={{ fontStyle: "italic", fontWeight: 400 }}>{title.split(" ")[0]}</span> {title.split(" ").slice(1).join(" ")}<span style={{ color: "var(--brand-gold)" }}>.</span>
+                </div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-2)", lineHeight: 1.6, marginTop: 12 }}>{body}</div>
+              </a>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: 32, padding: "20px 24px", background: "var(--brand-navy)", color: "var(--brand-parchment)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
+          <div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Save $50</div>
+            <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 18, marginTop: 4 }}>The full Tax Season Bundle — eight workbooks at $147.</div>
+          </div>
+          <a href="landing-tax-bundle.html" style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--brand-gold)", borderBottom: "1px solid var(--brand-gold)", paddingBottom: 2, textDecoration: "none" }}>See the bundle →</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<>
+  <Header active="templates"/>
+  <Breadcrumbs/>
+  <ProductHero/>
+  <WhatsInside/>
+  <PhaseDownBlock/>
+  <SarahQuote/>
+  <PairedWith/>
+  <Footer/>
+</>);
+</script>
+</body>
+</html>

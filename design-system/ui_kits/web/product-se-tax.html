@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Self-Employment Tax Calculator — The STR Ledger</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--brand-parchment); }
+  a { color: inherit; }
+  button:hover { filter: brightness(0.92); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/atoms.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+function Breadcrumbs() {
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "20px 48px 0", fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--fg-3)" }}>
+      <a href="index.html" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Home</a> · <a href="#" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Templates</a> · <a href="#" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Tax</a> · <span style={{ color: "var(--brand-gold)" }}>The Self-Employment Tax</span>
+    </div>
+  );
+}
+
+function PreviewCover() {
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-navy)", padding: 36, position: "relative", boxSizing: "border-box" }}>
+      <div style={{ position: "absolute", inset: 28, background: "var(--brand-parchment)", padding: "56px 44px", boxShadow: "0 40px 60px -30px rgba(11,28,47,0.5)" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Tax workbook · TAX-008</div>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 38, letterSpacing: "-0.015em", color: "var(--brand-navy)", marginTop: 12, lineHeight: 1.05 }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span><br/>
+          SE Tax<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "28px 0" }}/>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 17, color: "var(--fg-2)", lineHeight: 1.5 }}>
+          15.3 percent on Schedule C.<br/>Schedule SE mirror.<br/>Half-deductible · above the line.
+        </div>
+        <div style={{ position: "absolute", bottom: 44, left: 44, right: 44, fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>2026 ed. · IRC §1401 · §1402</div>
+      </div>
+    </div>
+  );
+}
+
+function PreviewCalc() {
+  const lines = [
+    ["Net SE income",       "$43,000",  "Schedule C net profit"],
+    ["× 92.35%",            "$39,706",  "IRC §1402 · NESE"],
+    ["SS · 12.4%",          "$4,924",   "Up to $176,100 wage base"],
+    ["Medicare · 2.9%",     "$1,151",   "No cap"],
+    ["Add'l Medicare 0.9%", "$0",       "MFJ < $250K threshold"],
+    ["Total SE tax",        "$6,075",   "Schedule 2 Line 4"],
+    ["Half-SE adjustment",  "$3,037",   "Schedule 1 Line 15 · above-line"],
+  ];
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", borderBottom: "1px solid var(--rule)", paddingBottom: 14 }}>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>03</span> · SE Tax Calc<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Step-by-step · IRS form</div>
+      </div>
+      <div style={{ marginTop: 14 }}>
+        {lines.map(([label, val, note], i) => {
+          const isTotal = label.startsWith("Total");
+          const isHalf = label.startsWith("Half");
+          return (
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "1.3fr 100px 1.4fr", gap: 12, padding: "11px 0", borderTop: i === 0 ? "none" : (isTotal ? "2px solid var(--brand-navy)" : "1px dashed rgba(11,28,47,0.10)"), marginTop: isTotal ? 6 : 0, alignItems: "baseline" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: isTotal ? 500 : 400, fontSize: 14, color: "var(--brand-navy)" }}>
+                {isTotal ? <span style={{ fontStyle: "italic", fontWeight: 400 }}>{label}</span> : label}
+              </span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: isTotal || isHalf ? 14 : 12, fontWeight: isTotal || isHalf ? 500 : 400, textAlign: "right", color: isTotal ? "var(--brand-gold)" : (isHalf ? "var(--brand-clay)" : "var(--fg-2)") }}>{val}</span>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--fg-3)", fontStyle: "italic" }}>{note}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ marginTop: 14, fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 12, color: "var(--fg-3)", textAlign: "right" }}>
+        Mirrors IRS Schedule SE Part I + Part II.
+      </div>
+    </div>
+  );
+}
+
+function PreviewWageBase() {
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box" }}>
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>02 · Wage Base</div>
+      <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 30, color: "var(--brand-navy)", letterSpacing: "-0.015em", lineHeight: 1.05, marginTop: 8 }}>
+        <span style={{ fontStyle: "italic", fontWeight: 400 }}>$176,100</span><span style={{ color: "var(--brand-gold)" }}>.</span>
+      </div>
+      <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "20px 0" }}/>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {[
+          ["Your W-2 wages",    "$0",      "var(--fg-3)"],
+          ["Spouse W-2",        "$84,000", "var(--fg-3)"],
+          ["Combined toward base","$84,000", "var(--fg-3)"],
+          ["Available for SS",   "$92,100",  "var(--brand-gold)"],
+          ["Your NESE",          "$39,706",  "var(--brand-navy)"],
+        ].map(([label, val, tone], i) => (
+          <div key={i} style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 12, padding: "12px 14px", background: "var(--brand-paper)", borderLeft: "2px solid " + tone, alignItems: "baseline" }}>
+            <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 14, color: "var(--brand-navy)" }}>{label}</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 14, color: tone, textAlign: "right", fontWeight: 500 }}>{val}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 14, padding: "12px 14px", background: "var(--brand-navy)", color: "var(--brand-parchment)", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+        NESE under base · full 12.4% applies
+      </div>
+    </div>
+  );
+}
+
+function PreviewSummary() {
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", borderBottom: "1px solid var(--rule)", paddingBottom: 14 }}>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>06</span> · Launch<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Print packet · 1 page</div>
+      </div>
+      <div style={{ marginTop: 18, padding: "20px", background: "var(--brand-navy)", color: "var(--brand-parchment)" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Total SE tax</div>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 56, color: "var(--brand-parchment)", letterSpacing: "-0.02em", marginTop: 4, lineHeight: 1 }}>
+          $6,075<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 14, color: "var(--brand-parchment)", marginTop: 6, opacity: 0.85 }}>Schedule 2 · Line 4 · added to Form 1040</div>
+      </div>
+      <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+        {[
+          ["$3,037", "Half-SE adjustment", "Reduces AGI · above-line"],
+          ["$11.6K", "Spouse W-2 cushion", "Toward $176,100 wage base"],
+          ["$0",     "Add'l Medicare",     "Under $250K MFJ"],
+          ["✓",      "Schedule SE ready",  "Print Part I + II"],
+        ].map(([n, t, s], i) => (
+          <div key={i} style={{ padding: "12px 14px", background: "var(--brand-paper)", borderLeft: "2px solid var(--brand-gold)" }}>
+            <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 18, color: "var(--brand-navy)" }}>{n}</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 12, color: "var(--brand-navy)", marginTop: 4 }}>{t}</div>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: 10, color: "var(--fg-2)", marginTop: 2 }}>{s}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ProductHero() {
+  const [pack, setPack] = useState("Schedule C");
+  const [view, setView] = useState(0);
+
+  const previews = [
+    { label: "Cover",     Component: PreviewCover },
+    { label: "Wage base", Component: PreviewWageBase },
+    { label: "Calc",      Component: PreviewCalc },
+    { label: "Summary",   Component: PreviewSummary },
+  ];
+  const Cur = previews[view].Component;
+
+  return (
+    <section style={{ padding: "48px 48px 96px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 72 }}>
+        <div>
+          <div style={{ aspectRatio: "1/1.05", boxShadow: "0 30px 60px -30px rgba(11,28,47,0.4)" }}>
+            <Cur/>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 12 }}>
+            {previews.map((p, i) => (
+              <button key={i} onClick={() => setView(i)} aria-label={`View preview ${i+1}`} style={{
+                aspectRatio: "1/1", padding: "8px 6px", cursor: "pointer",
+                background: i === view ? "var(--brand-navy)" : "var(--brand-paper)",
+                border: "1px solid " + (i === view ? "var(--brand-navy)" : "var(--rule)"),
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
+              }}>
+                <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 22, color: i === view ? "var(--brand-gold)" : "var(--brand-navy)" }}>{i+1}</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase", color: i === view ? "var(--brand-parchment)" : "var(--fg-3)" }}>{p.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <Eyebrow>Tax workbook · TAX-008</Eyebrow>
+          <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 52, letterSpacing: "-0.015em", color: "var(--brand-navy)", margin: "16px 0 0", lineHeight: 1.08 }}>
+            <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span> SE Tax<span style={{ color: "var(--brand-gold)" }}>.</span>
+          </h1>
+          <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 22, color: "var(--fg-2)", marginTop: 6 }}>Schedule SE wizard · 2026</div>
+          <GoldRule width={48} my={24}/>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: 17, lineHeight: 1.65, color: "var(--fg-2)", margin: 0 }}>
+            For Schedule C-filing STR hosts. Walks the IRS Schedule SE math step-by-step — net SE income × 92.35% × 15.3% — handles the wage-base check, multi-source SE, the spouse-also-SE scenario, and the Additional Medicare 0.9% threshold. Outputs a print-ready Schedule SE Part I + II.
+          </p>
+
+          <div style={{ marginTop: 36, padding: "24px 0", borderTop: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 44, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>$27</span>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-3)", textDecoration: "line-through" }}>$37</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)", marginLeft: "auto" }}>Tax-season price · thru Apr 15</span>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 28 }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)", marginBottom: 10 }}>License</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {["Schedule C", "Mixed E + C", "Both spouses", "Multi-K-1"].map(n => (
+                <button key={n} onClick={() => setPack(n)} style={{
+                  fontFamily: "var(--font-body)", fontSize: 14, padding: "12px 20px",
+                  background: pack === n ? "var(--brand-navy)" : "transparent",
+                  color: pack === n ? "var(--brand-parchment)" : "var(--brand-navy)",
+                  border: "1px solid " + (pack === n ? "var(--brand-navy)" : "var(--rule-strong)"),
+                  cursor: "pointer",
+                }}>{n}</button>
+              ))}
+            </div>
+            <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 13, color: "var(--fg-3)", marginTop: 10 }}>
+              {pack === "Both spouses" ? "Each spouse computes separately — no combination. Wage base applied per spouse." : pack === "Multi-K-1" ? "Adds three K-1 input rows for partnership SE income (Box 14A)." : "If you switched to Schedule C this year, this is the workbook you need."}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
+            <Button variant="primary" size="lg" full>Add to cart · $27</Button>
+            <Button variant="secondary" size="lg">♡</Button>
+          </div>
+
+          <div style={{ marginTop: 32, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, paddingTop: 24, borderTop: "1px solid var(--rule)" }}>
+            {[
+              ["Instant download", ".xlsx + .pdf"],
+              ["Free 2027 update", "Through next April"],
+              ["30-day refund",    "No questions asked"],
+            ].map(([t, s]) => (
+              <div key={t}>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 500, color: "var(--brand-navy)" }}>{t}</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--fg-3)", marginTop: 2 }}>{s}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WhatsInside() {
+  const sections = [
+    ["01", "Net SE Income",     "Schedule C net · Schedule F net (farm) · partnership K-1 SE income (Box 14A). The three sources that aggregate into SE."],
+    ["02", "Wage Base & W-2",   "Your W-2 + spouse W-2 · the $176,100 Social Security wage base check that may zero out the SS portion."],
+    ["03", "SE Tax Calc",       "Step-by-step computation · NESE × 92.35% · 12.4% SS up to base · 2.9% Medicare unlimited · the math your CPA shows on Schedule SE."],
+    ["04", "Adjustments",       "Half-SE-tax above-line adjustment · the Additional Medicare 0.9% threshold ($200K single / $250K MFJ)."],
+    ["05", "Schedule SE Map",   "Auto-built mirror of IRS Schedule SE Part I + Part II — print-ready · letter portrait → CPA's inbox."],
+    ["06", "Launch",            "Total SE tax · adjustment summary · the print packet you hand to your CPA."],
+    ["07", "Settings",          "Active tax year · brackets · wage-base reference · the dials you only touch once."],
+  ];
+  return (
+    <section style={{ background: "var(--brand-paper)", padding: "96px 48px", borderTop: "1px solid var(--rule-strong)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow>What's inside</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 40, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 48px", maxWidth: 720 }}>
+          Seven tabs<span style={{ color: "var(--brand-gold)" }}>.</span> One 15.3% bite. Modeled before you sign returns.
+        </h2>
+        <div>
+          {sections.map(([n, t, b]) => (
+            <div key={n} style={{ display: "grid", gridTemplateColumns: "90px 1fr 1.2fr", gap: 48, padding: "32px 0", borderTop: "1px solid var(--rule-strong)" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 36, color: "var(--brand-gold)", lineHeight: 1 }}>{n}</span>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, letterSpacing: "-0.01em", color: "var(--brand-navy)", lineHeight: 1.2 }}>{t}</div>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--fg-2)", lineHeight: 1.6 }}>{b}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function RatesBlock() {
+  return (
+    <section style={{ background: "var(--brand-navy)", color: "var(--brand-parchment)", padding: "96px 48px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
+        <div>
+          <Eyebrow onNavy>The rates</Eyebrow>
+          <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 52, letterSpacing: "-0.01em", lineHeight: 1.08, margin: "16px 0 0", color: "var(--brand-parchment)" }}>
+            <span style={{ fontStyle: "italic", fontWeight: 400 }}>15.3%</span><br/>on net SE income<br/>× 92.35%<span style={{ color: "var(--brand-gold)" }}>.</span>
+          </h2>
+          <GoldRule width={48} my={28}/>
+          <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 19, lineHeight: 1.5, color: "var(--brand-parchment)", margin: 0, maxWidth: 460 }}>
+            Schedule E hosts don't owe this. Schedule C hosts (substantial-services, concierge, daily cleaning during stays) do. The 92.35% factor is the IRS's adjustment to mirror the employer-side payroll tax — it's why the effective rate is 14.13%, not 15.3%.
+          </p>
+        </div>
+        <div style={{ borderLeft: "1px solid rgba(201,162,75,0.35)", paddingLeft: 56 }}>
+          {[
+            ["12.4%",   "Social Security",   "On NESE up to $176,100 wage base"],
+            ["2.9%",    "Medicare",          "On NESE · no cap"],
+            ["0.9%",    "Add'l Medicare",    "On amount over $200K single / $250K MFJ"],
+            ["50%",     "Half-SE adjustment","Deductible above-line · Sch 1 Line 15"],
+          ].map(([n, t, s]) => (
+            <div key={n} style={{ display: "grid", gridTemplateColumns: "100px 1fr", gap: 20, padding: "20px 0", borderBottom: "1px solid rgba(201,162,75,0.25)" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 28, color: "var(--brand-gold)" }}>{n}</span>
+              <div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 15, fontWeight: 500, color: "var(--brand-parchment)" }}>{t}</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--fg-on-navy-muted)", marginTop: 4 }}>{s}</div>
+              </div>
+            </div>
+          ))}
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-on-navy-muted)", marginTop: 18 }}>Source · IRC §1401 · §3121(a)(1) · 2026 wage base</div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function SarahQuote() {
+  return (
+    <section style={{ background: "var(--brand-parchment)", padding: "96px 48px" }}>
+      <div style={{ maxWidth: 880, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 120, color: "var(--brand-gold)", lineHeight: 0.6, marginBottom: 24 }}>"</div>
+        <p style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 32, lineHeight: 1.35, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: 0 }}>
+          I switched to Schedule C for the concierge service and my CPA mentioned "around $4,500" of SE tax. The workbook said $6,075. I almost underpaid Q1 by two grand. This thing paid for itself the first time I opened it<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </p>
+        <GoldRule width={32} my={32} align="center"/>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.24em", textTransform: "uppercase", color: "var(--fg-3)" }}>Renee D. · concierge STR · Park City, UT</div>
+      </div>
+    </section>
+  );
+}
+
+function PairedWith() {
+  const items = [
+    ["TAX-005", "The Estimated Tax",   "SE tax flows into your quarterly. This pair models both."],
+    ["TAX-009", "The Section 179",     "Active business test · §179 unlocks for Schedule C filers."],
+  ];
+  return (
+    <section style={{ padding: "96px 48px", background: "var(--brand-paper)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow>Often paired with</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 36, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 40px" }}>
+          The rest of the tax shelf<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24 }}>
+          {items.map(([sku, title, body]) => {
+            const href = sku === "TAX-005" ? "product-quarterly-tax.html" : sku === "TAX-009" ? "product-section-179.html" : "#";
+            return (
+              <a key={sku} href={href} style={{ display: "block", textDecoration: "none", padding: "32px 32px 28px", background: "var(--brand-parchment)", border: "1px solid var(--rule)" }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>{sku}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, letterSpacing: "-0.01em", color: "var(--brand-navy)", marginTop: 10 }}>
+                  <span style={{ fontStyle: "italic", fontWeight: 400 }}>{title.split(" ")[0]}</span> {title.split(" ").slice(1).join(" ")}<span style={{ color: "var(--brand-gold)" }}>.</span>
+                </div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-2)", lineHeight: 1.6, marginTop: 12 }}>{body}</div>
+              </a>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: 32, padding: "20px 24px", background: "var(--brand-navy)", color: "var(--brand-parchment)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
+          <div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Save $50</div>
+            <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 18, marginTop: 4 }}>The full Tax Season Bundle — eight workbooks at $147.</div>
+          </div>
+          <a href="landing-tax-bundle.html" style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--brand-gold)", borderBottom: "1px solid var(--brand-gold)", paddingBottom: 2, textDecoration: "none" }}>See the bundle →</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<>
+  <Header active="templates"/>
+  <Breadcrumbs/>
+  <ProductHero/>
+  <WhatsInside/>
+  <RatesBlock/>
+  <SarahQuote/>
+  <PairedWith/>
+  <Footer/>
+</>);
+</script>
+</body>
+</html>

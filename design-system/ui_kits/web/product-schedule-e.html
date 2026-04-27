@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Schedule E Tax-Prep Workbook — The STR Ledger</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--brand-parchment); }
+  a { color: inherit; }
+  button:hover { filter: brightness(0.92); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/atoms.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+function Breadcrumbs() {
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "20px 48px 0", fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--fg-3)" }}>
+      <a href="index.html" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Home</a> · <a href="#" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Templates</a> · <a href="#" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Tax</a> · <span style={{ color: "var(--brand-gold)" }}>The Schedule E Workbook</span>
+    </div>
+  );
+}
+
+function PreviewCover() {
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-navy)", padding: 36, position: "relative", boxSizing: "border-box" }}>
+      <div style={{ position: "absolute", inset: 28, background: "var(--brand-parchment)", padding: "56px 44px", boxShadow: "0 40px 60px -30px rgba(11,28,47,0.5)" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Tax workbook · TAX-004</div>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 40, letterSpacing: "-0.015em", color: "var(--brand-navy)", marginTop: 12, lineHeight: 1.05 }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span><br/>
+          Schedule E<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "28px 0" }}/>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 17, color: "var(--fg-2)", lineHeight: 1.5 }}>
+          Three properties. Twenty-six<br/>Schedule E lines. Zero<br/>"my CPA needs to recategorize."
+        </div>
+        <div style={{ position: "absolute", bottom: 44, left: 44, right: 44, fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>2026 ed. · IRC §469 · Pub 527</div>
+      </div>
+    </div>
+  );
+}
+
+function PreviewProperties() {
+  const props = [
+    ["A", "Smokies Ridge",  "Cabin · STR",  "$48,000", "+$8,200"],
+    ["B", "Creek Side",     "Cabin · STR",  "$36,000", "+$4,100"],
+    ["C", "Lakehouse A",    "SFR · STR",    "$52,000", "−$1,800"],
+  ];
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", borderBottom: "1px solid var(--rule)", paddingBottom: 14 }}>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>01</span> · Properties<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>3 of 3 · Lite license</div>
+      </div>
+      <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 14 }}>
+        {props.map(([letter, name, type, rents, net]) => {
+          const loss = net.startsWith("−");
+          return (
+            <div key={letter} style={{ display: "grid", gridTemplateColumns: "60px 1.4fr 1fr 0.9fr 0.9fr", gap: 12, padding: "16px 14px", background: "var(--brand-paper)", borderLeft: "2px solid " + (loss ? "var(--brand-clay)" : "var(--brand-gold)"), alignItems: "baseline" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 28, color: loss ? "var(--brand-clay)" : "var(--brand-gold)" }}>{letter}</span>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 15, color: "var(--brand-navy)" }}>
+                <span style={{ fontStyle: "italic", fontWeight: 400 }}>{name.split(" ")[0]}</span> {name.split(" ").slice(1).join(" ")}
+              </span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>{type}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--fg-2)", textAlign: "right" }}>{rents}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 500, color: loss ? "var(--brand-clay)" : "var(--brand-gold)", textAlign: "right" }}>{net}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ marginTop: 18, padding: "14px 16px", background: "var(--brand-navy)", color: "var(--brand-parchment)" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Net portfolio</div>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 22, marginTop: 4 }}>
+          +$10,500 ordinary income before passive limits<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PreviewScheduleE() {
+  const lines = [
+    ["1a",  "Address (A)",            "104 Ridge Rd"],
+    ["3",   "Rents received",         "136,000"],
+    ["6",   "Advertising",            "1,840"],
+    ["7",   "Auto + travel",          "3,920"],
+    ["8",   "Cleaning + maintenance", "18,400"],
+    ["13",  "Mortgage interest",      "44,200"],
+    ["18",  "Utilities",              "5,800"],
+    ["20",  "Depreciation",           "32,400"],
+    ["26",  "Income or (loss)",       "10,500"],
+  ];
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", borderBottom: "1px solid var(--rule)", paddingBottom: 14 }}>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>06</span> · Schedule E Map<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Print-area · 1 page</div>
+      </div>
+      <div style={{ marginTop: 14 }}>
+        {lines.map(([line, label, amount], i) => {
+          const isTotal = label.startsWith("Income");
+          const isAddr = line === "1a";
+          return (
+            <div key={line} style={{ display: "grid", gridTemplateColumns: "60px 1fr 130px", gap: 12, padding: "8px 0", borderTop: i === 0 ? "none" : (isTotal ? "2px solid var(--brand-navy)" : "1px dashed rgba(11,28,47,0.12)"), alignItems: "baseline", marginTop: isTotal ? 6 : 0 }}>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>L · {line}</span>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: isTotal ? 500 : 400, fontSize: isTotal ? 16 : 13, color: "var(--brand-navy)" }}>
+                {isTotal ? <><span style={{ fontStyle: "italic", fontWeight: 400 }}>{label.split(" or ")[0]}</span> or {label.split(" or ")[1]}</> : label}
+              </span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: isTotal ? 14 : 12, textAlign: "right", color: isTotal ? "var(--brand-gold)" : (isAddr ? "var(--fg-2)" : "var(--fg-2)"), fontWeight: isTotal ? 500 : 400 }}>{isAddr ? "" : "$"}{amount}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ marginTop: 14, fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 12, color: "var(--fg-3)", textAlign: "right" }}>
+        Mirrors IRS Form Schedule E Part I · letter portrait → CPA's inbox.
+      </div>
+    </div>
+  );
+}
+
+function PreviewLossLimits() {
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box" }}>
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>05 · Loss Limitations</div>
+      <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 28, color: "var(--brand-navy)", letterSpacing: "-0.015em", lineHeight: 1.05, marginTop: 8 }}>
+        <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span> §469 gate<span style={{ color: "var(--brand-gold)" }}>.</span>
+      </div>
+      <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "20px 0" }}/>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: 12 }}>
+        {[
+          ["Active participation?", "Yes", "var(--brand-gold)", "Up to $25K offset against ordinary income"],
+          ["AGI < $100K?",          "No · $148K", "var(--brand-clay)", "$25K offset phases out — partial only"],
+          ["Material participation?","Yes · 500 hr test", "var(--brand-gold)", "STR loophole eligible — full loss allowed"],
+          ["Avg stay ≤ 7 days?",     "Yes · 4.2 day avg", "var(--brand-gold)", "Qualifies as STR, not rental real estate"],
+        ].map(([q, ans, tone, body], i) => (
+          <div key={i} style={{ padding: "14px 16px", background: "var(--brand-paper)", borderLeft: "2px solid " + tone }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 14, color: "var(--brand-navy)" }}>{q}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: tone, fontWeight: 600 }}>{ans}</span>
+            </div>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--fg-2)", marginTop: 6 }}>{body}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 16, padding: "12px 14px", background: "var(--brand-navy)", color: "var(--brand-parchment)", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+        Verdict · STR loophole · full loss to ordinary
+      </div>
+    </div>
+  );
+}
+
+function ProductHero() {
+  const [pack, setPack] = useState("Lite · 3 properties");
+  const [view, setView] = useState(0);
+
+  const previews = [
+    { label: "Cover",      Component: PreviewCover },
+    { label: "Properties", Component: PreviewProperties },
+    { label: "Sched. E",   Component: PreviewScheduleE },
+    { label: "Loss limits",Component: PreviewLossLimits },
+  ];
+  const Cur = previews[view].Component;
+
+  return (
+    <section style={{ padding: "48px 48px 96px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 72 }}>
+        <div>
+          <div style={{ aspectRatio: "1/1.05", boxShadow: "0 30px 60px -30px rgba(11,28,47,0.4)" }}>
+            <Cur/>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 12 }}>
+            {previews.map((p, i) => (
+              <button key={i} onClick={() => setView(i)} aria-label={`View preview ${i+1}`} style={{
+                aspectRatio: "1/1", padding: "8px 6px", cursor: "pointer",
+                background: i === view ? "var(--brand-navy)" : "var(--brand-paper)",
+                border: "1px solid " + (i === view ? "var(--brand-navy)" : "var(--rule)"),
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
+              }}>
+                <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 22, color: i === view ? "var(--brand-gold)" : "var(--brand-navy)" }}>{i+1}</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase", color: i === view ? "var(--brand-parchment)" : "var(--fg-3)" }}>{p.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <Eyebrow>Tax workbook · TAX-004</Eyebrow>
+          <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 52, letterSpacing: "-0.015em", color: "var(--brand-navy)", margin: "16px 0 0", lineHeight: 1.08 }}>
+            <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span> Schedule E<span style={{ color: "var(--brand-gold)" }}>.</span>
+          </h1>
+          <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 22, color: "var(--fg-2)", marginTop: 6 }}>Tax-prep workbook · 2026 edition</div>
+          <GoldRule width={48} my={24}/>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: 17, lineHeight: 1.65, color: "var(--fg-2)", margin: 0 }}>
+            Eight tabs that mirror IRS Form Schedule E line-for-line. Captures property info, income, expenses, depreciation, and the §469 loss-limitation tests — then prints a one-page Schedule E your CPA transcribes directly to the form. Lower fees by April. Sleep through August.
+          </p>
+
+          <div style={{ marginTop: 36, padding: "24px 0", borderTop: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 44, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>$97</span>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-3)", textDecoration: "line-through" }}>$147</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)", marginLeft: "auto" }}>Tax-season price · thru Apr 15</span>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 28 }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)", marginBottom: 10 }}>License</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {["Lite · 3 properties", "Full · 10", "Portfolio · 25+"].map(n => (
+                <button key={n} onClick={() => setPack(n)} style={{
+                  fontFamily: "var(--font-body)", fontSize: 14, padding: "12px 20px",
+                  background: pack === n ? "var(--brand-navy)" : "transparent",
+                  color: pack === n ? "var(--brand-parchment)" : "var(--brand-navy)",
+                  border: "1px solid " + (pack === n ? "var(--brand-navy)" : "var(--rule-strong)"),
+                  cursor: "pointer",
+                }}>{n}</button>
+              ))}
+            </div>
+            <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 13, color: "var(--fg-3)", marginTop: 10 }}>
+              {pack === "Portfolio · 25+" ? "Multi-page Schedule E + LLC consolidation. $197 — included in the Portfolio Bundle." : pack === "Full · 10" ? "Up to 10 properties · Form 4562 cross-link · upgrade anytime." : "Three properties · the IRS Schedule E Part I capacity. Upgrade if your portfolio grows."}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
+            <Button variant="primary" size="lg" full>Add to cart · $97</Button>
+            <Button variant="secondary" size="lg">♡</Button>
+          </div>
+
+          <div style={{ marginTop: 32, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, paddingTop: 24, borderTop: "1px solid var(--rule)" }}>
+            {[
+              ["Instant download", ".xlsx + .pdf"],
+              ["Free 2027 update", "Through next April"],
+              ["30-day refund",    "No questions asked"],
+            ].map(([t, s]) => (
+              <div key={t}>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 500, color: "var(--brand-navy)" }}>{t}</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--fg-3)", marginTop: 2 }}>{s}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WhatsInside() {
+  const sections = [
+    ["01", "Property Info",    "Three properties × eight fields — address, type, fair-rental days, % ownership, EIN, QJV. The setup that drives every other tab."],
+    ["02", "Income",           "Per-property rents and royalties · the refundable-deposit reminder that keeps you out of trouble."],
+    ["03", "Expenses",         "Fourteen Schedule E expense lines × three properties — the IRS list, nothing extra. CPA-proof by construction."],
+    ["04", "Depreciation",     "Per-property basis · 27.5-yr residential straight-line · annual figure that feeds Form 4562 if you elect §179."],
+    ["05", "Loss Limitations", "The §469 gate · active vs material participation · STR-loophole eligibility · the $25K offset phase-out math."],
+    ["06", "Schedule E Map",   "Auto-built mirror of IRS Form Schedule E Part I — Lines 1 through 26. Print one page. Hand it to your CPA. Done."],
+    ["07", "Launch",           "Readiness dashboard · the eight green checks that mean you're ready to file · the print packet."],
+    ["08", "Settings",         "Active tax year · IRS code references · the dials you only touch once."],
+  ];
+  return (
+    <section style={{ background: "var(--brand-paper)", padding: "96px 48px", borderTop: "1px solid var(--rule-strong)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow>What's inside</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 40, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 48px", maxWidth: 720 }}>
+          Eight tabs<span style={{ color: "var(--brand-gold)" }}>.</span> One IRS form. Twelve hours of CPA fees, gone.
+        </h2>
+        <div>
+          {sections.map(([n, t, b]) => (
+            <div key={n} style={{ display: "grid", gridTemplateColumns: "90px 1fr 1.2fr", gap: 48, padding: "32px 0", borderTop: "1px solid var(--rule-strong)" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 36, color: "var(--brand-gold)", lineHeight: 1 }}>{n}</span>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, letterSpacing: "-0.01em", color: "var(--brand-navy)", lineHeight: 1.2 }}>{t}</div>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--fg-2)", lineHeight: 1.6 }}>{b}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function STRLoopholeBlock() {
+  return (
+    <section style={{ background: "var(--brand-navy)", color: "var(--brand-parchment)", padding: "96px 48px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow onNavy>The STR loophole</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 48, letterSpacing: "-0.01em", lineHeight: 1.1, margin: "16px 0 12px", maxWidth: 720, color: "var(--brand-parchment)" }}>
+          Why <span style={{ fontStyle: "italic", fontWeight: 400 }}>active</span> participation matters more than you think<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </h2>
+        <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 19, color: "var(--fg-on-navy-muted)", maxWidth: 700, lineHeight: 1.5, margin: "0 0 40px" }}>
+          IRC §469 normally caps rental losses at $25K — and phases that out above $100K AGI. But the STR loophole sidesteps it entirely, if you can prove material participation and a 7-day-or-less average stay. This workbook walks the gate.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, borderTop: "1px solid rgba(201,162,75,0.25)" }}>
+          {[
+            ["Average stay ≤ 7 days", "If yes, the property isn't 'rental real estate' under §469. STR rules apply."],
+            ["Material participation",  "500-hour test, 100-hour-most-active test, or substantially-all-participation. Pick one."],
+            ["No passive limit",        "Loss flows to ordinary income. No $25K cap. No AGI phase-out."],
+            ["Audit-defensible",        "Hours log, average-stay calc, and the form-line trace stay in the workbook."],
+          ].map(([title, body], i) => (
+            <div key={i} style={{
+              padding: "28px 32px", borderBottom: "1px solid rgba(201,162,75,0.25)",
+              borderRight: i % 2 === 0 ? "1px solid rgba(201,162,75,0.25)" : "none",
+            }}>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 22, color: "var(--brand-parchment)" }}>
+                <span style={{ fontStyle: "italic", fontWeight: 400 }}>{title.split(" ")[0]}</span> {title.split(" ").slice(1).join(" ")}<span style={{ color: "var(--brand-gold)" }}>.</span>
+              </div>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-on-navy-muted)", marginTop: 12, lineHeight: 1.6 }}>{body}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-on-navy-muted)", marginTop: 24 }}>Source · IRC §469 · Treas. Reg. §1.469-1T(e)(3)(ii)</div>
+      </div>
+    </section>
+  );
+}
+
+function SarahQuote() {
+  return (
+    <section style={{ background: "var(--brand-parchment)", padding: "96px 48px" }}>
+      <div style={{ maxWidth: 880, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 120, color: "var(--brand-gold)", lineHeight: 0.6, marginBottom: 24 }}>"</div>
+        <p style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 32, lineHeight: 1.35, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: 0 }}>
+          My CPA used to bill nine hours sorting my STR receipts. Last April she signed off in seventy-five minutes. Same return. $2,475 less in fees<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </p>
+        <GoldRule width={32} my={32} align="center"/>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.24em", textTransform: "uppercase", color: "var(--fg-3)" }}>Lauren M. · 6 properties · 30A, FL</div>
+      </div>
+    </section>
+  );
+}
+
+function PairedWith() {
+  const items = [
+    ["TAX-001", "The Mileage Log",      "Feeds Schedule E Line 7 — auto + travel — without a recategorize."],
+    ["TAX-006", "The Home Office",      "Feeds Line 18a — and turns commute miles into deductible business miles."],
+    ["TAX-009", "The Section 179",      "If you bought appliances or a heavy vehicle, this front-loads the depreciation."],
+  ];
+  return (
+    <section style={{ padding: "96px 48px", background: "var(--brand-paper)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow>Often paired with</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 36, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 40px" }}>
+          The rest of the tax shelf<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
+          {items.map(([sku, title, body]) => {
+            const href = sku === "TAX-001" ? "product-mileage-log.html" : sku === "TAX-006" ? "product-home-office.html" : sku === "TAX-009" ? "product-section-179.html" : "#";
+            return (
+              <a key={sku} href={href} style={{ display: "block", textDecoration: "none", padding: "32px 32px 28px", background: "var(--brand-parchment)", border: "1px solid var(--rule)" }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>{sku}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, letterSpacing: "-0.01em", color: "var(--brand-navy)", marginTop: 10 }}>
+                  <span style={{ fontStyle: "italic", fontWeight: 400 }}>{title.split(" ")[0]}</span> {title.split(" ").slice(1).join(" ")}<span style={{ color: "var(--brand-gold)" }}>.</span>
+                </div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-2)", lineHeight: 1.6, marginTop: 12 }}>{body}</div>
+              </a>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: 32, padding: "20px 24px", background: "var(--brand-navy)", color: "var(--brand-parchment)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
+          <div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Save $90</div>
+            <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 18, marginTop: 4 }}>The full Tax Season Bundle — eight workbooks at $147.</div>
+          </div>
+          <a href="landing-tax-bundle.html" style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--brand-gold)", borderBottom: "1px solid var(--brand-gold)", paddingBottom: 2, textDecoration: "none" }}>See the bundle →</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<>
+  <Header active="templates"/>
+  <Breadcrumbs/>
+  <ProductHero/>
+  <WhatsInside/>
+  <STRLoopholeBlock/>
+  <SarahQuote/>
+  <PairedWith/>
+  <Footer/>
+</>);
+</script>
+</body>
+</html>

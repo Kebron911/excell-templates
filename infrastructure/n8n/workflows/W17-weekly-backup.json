@@ -1,0 +1,818 @@
+{
+  "name": "W17 — Weekly Backup",
+  "nodes": [
+    {
+      "id": "w17-n01",
+      "name": "Weekly Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 2 * * 0"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w17-n02",
+      "name": "Generate Backup Metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst dateStr = now.toISOString().slice(0, 10);\nreturn [{ json: {\n  backup_date: dateStr,\n  backup_folder: `backup-${dateStr}`,\n  timestamp: now.toISOString(),\n  tables: ['Products', 'Customers', 'Orders', 'Content', 'Metrics', 'Errors']\n}}];"
+      }
+    },
+    {
+      "id": "w17-n03",
+      "name": "Fetch Products",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [750, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.airtable.com/v0/' + $env.AIRTABLE_BASE_ID + '/Products?pageSize=100' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.AIRTABLE_API_KEY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w17-n04",
+      "name": "Products to CSV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 200],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst records = data.records || [];\nif (!records.length) return [{ json: { table: 'Products', csv: 'SKU,Name,Status,Tier\\n', row_count: 0 } }];\n\nconst fields = Object.keys(records[0].fields);\nconst header = fields.map(f => `\"${f.replace(/\"/g, '\"\"')}\"`).join(',');\nconst rows = records.map(r => fields.map(f => {\n  const v = r.fields[f];\n  if (v === null || v === undefined) return '';\n  if (Array.isArray(v)) return `\"${v.map(i => i.name || i.id || i).join(';').replace(/\"/g, '\"\"')}\"`;\n  return `\"${String(v).replace(/\"/g, '\"\"')}\"`;\n}).join(','));\n\nreturn [{ json: { table: 'Products', csv: [header, ...rows].join('\\n'), row_count: records.length } }];"
+      }
+    },
+    {
+      "id": "w17-n05",
+      "name": "Fetch Customers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [750, 320],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.airtable.com/v0/' + $env.AIRTABLE_BASE_ID + '/Customers?pageSize=100' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.AIRTABLE_API_KEY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w17-n06",
+      "name": "Customers to CSV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 320],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst records = data.records || [];\nif (!records.length) return [{ json: { table: 'Customers', csv: 'Email,First name,Acquisition source\\n', row_count: 0 } }];\n\nconst fields = Object.keys(records[0].fields);\nconst header = fields.map(f => `\"${f.replace(/\"/g, '\"\"')}\"`).join(',');\nconst rows = records.map(r => fields.map(f => {\n  const v = r.fields[f];\n  if (v === null || v === undefined) return '';\n  if (Array.isArray(v)) return `\"${v.map(i => i.name || i.id || i).join(';').replace(/\"/g, '\"\"')}\"`;\n  return `\"${String(v).replace(/\"/g, '\"\"')}\"`;\n}).join(','));\n\nreturn [{ json: { table: 'Customers', csv: [header, ...rows].join('\\n'), row_count: records.length } }];"
+      }
+    },
+    {
+      "id": "w17-n07",
+      "name": "Fetch Orders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [750, 440],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.airtable.com/v0/' + $env.AIRTABLE_BASE_ID + '/Orders?pageSize=100' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.AIRTABLE_API_KEY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w17-n08",
+      "name": "Orders to CSV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 440],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst records = data.records || [];\nif (!records.length) return [{ json: { table: 'Orders', csv: 'Order ID,Timestamp,Platform,Gross amount\\n', row_count: 0 } }];\n\nconst fields = Object.keys(records[0].fields);\nconst header = fields.map(f => `\"${f.replace(/\"/g, '\"\"')}\"`).join(',');\nconst rows = records.map(r => fields.map(f => {\n  const v = r.fields[f];\n  if (v === null || v === undefined) return '';\n  if (Array.isArray(v)) return `\"${v.map(i => i.name || i.id || i).join(';').replace(/\"/g, '\"\"')}\"`;\n  return `\"${String(v).replace(/\"/g, '\"\"')}\"`;\n}).join(','));\n\nreturn [{ json: { table: 'Orders', csv: [header, ...rows].join('\\n'), row_count: records.length } }];"
+      }
+    },
+    {
+      "id": "w17-n09",
+      "name": "Fetch Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [750, 560],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.airtable.com/v0/' + $env.AIRTABLE_BASE_ID + '/Content?pageSize=100' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.AIRTABLE_API_KEY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w17-n10",
+      "name": "Content to CSV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 560],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst records = data.records || [];\nif (!records.length) return [{ json: { table: 'Content', csv: 'Title,Type,Status\\n', row_count: 0 } }];\n\nconst fields = Object.keys(records[0].fields);\nconst header = fields.map(f => `\"${f.replace(/\"/g, '\"\"')}\"`).join(',');\nconst rows = records.map(r => fields.map(f => {\n  const v = r.fields[f];\n  if (v === null || v === undefined) return '';\n  if (Array.isArray(v)) return `\"${v.map(i => i.name || i.id || i).join(';').replace(/\"/g, '\"\"')}\"`;\n  return `\"${String(v).replace(/\"/g, '\"\"')}\"`;\n}).join(','));\n\nreturn [{ json: { table: 'Content', csv: [header, ...rows].join('\\n'), row_count: records.length } }];"
+      }
+    },
+    {
+      "id": "w17-n11",
+      "name": "Fetch Metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [750, 680],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.airtable.com/v0/' + $env.AIRTABLE_BASE_ID + '/Metrics?pageSize=100' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.AIRTABLE_API_KEY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w17-n12",
+      "name": "Metrics to CSV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 680],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst records = data.records || [];\nif (!records.length) return [{ json: { table: 'Metrics', csv: 'Date,Metric name,Value\\n', row_count: 0 } }];\n\nconst fields = Object.keys(records[0].fields);\nconst header = fields.map(f => `\"${f.replace(/\"/g, '\"\"')}\"`).join(',');\nconst rows = records.map(r => fields.map(f => {\n  const v = r.fields[f];\n  if (v === null || v === undefined) return '';\n  if (Array.isArray(v)) return `\"${v.map(i => i.name || i.id || i).join(';').replace(/\"/g, '\"\"')}\"`;\n  return `\"${String(v).replace(/\"/g, '\"\"')}\"`;\n}).join(','));\n\nreturn [{ json: { table: 'Metrics', csv: [header, ...rows].join('\\n'), row_count: records.length } }];"
+      }
+    },
+    {
+      "id": "w17-n13",
+      "name": "Fetch Errors",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [750, 800],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.airtable.com/v0/' + $env.AIRTABLE_BASE_ID + '/Errors?pageSize=100' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.AIRTABLE_API_KEY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w17-n14",
+      "name": "Errors to CSV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 800],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst records = data.records || [];\nif (!records.length) return [{ json: { table: 'Errors', csv: 'Timestamp,Workflow,Node,Error message\\n', row_count: 0 } }];\n\nconst fields = Object.keys(records[0].fields);\nconst header = fields.map(f => `\"${f.replace(/\"/g, '\"\"')}\"`).join(',');\nconst rows = records.map(r => fields.map(f => {\n  const v = r.fields[f];\n  if (v === null || v === undefined) return '';\n  if (Array.isArray(v)) return `\"${v.map(i => i.name || i.id || i).join(';').replace(/\"/g, '\"\"')}\"`;\n  return `\"${String(v).replace(/\"/g, '\"\"')}\"`;\n}).join(','));\n\nreturn [{ json: { table: 'Errors', csv: [header, ...rows].join('\\n'), row_count: records.length } }];"
+      }
+    },
+    {
+      "id": "w17-n15",
+      "name": "IS Subscribers Export",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/subscribers?export=csv&limit=10000",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w17-n16",
+      "name": "IS Products Export",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 350],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/products?export=csv",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w17-n17",
+      "name": "IS Orders Export",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 500],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/orders?export=csv&days=30",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w17-n18",
+      "name": "Create Drive Folder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ name: $node['Generate Backup Metadata'].json.backup_folder, mimeType: 'application/vnd.google-apps.folder', parents: [$env.GOOGLE_DRIVE_BACKUP_FOLDER_ID] }) }}"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "7", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w17-n19",
+      "name": "Upload Products CSV",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1750, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "metadata", "value": "={{ JSON.stringify({ name: 'products.csv', mimeType: 'text/csv', parents: [$node['Create Drive Folder'].json.id] }) }}" },
+            { "name": "file", "value": "={{ $node['Products to CSV'].json.csv }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "7", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w17-n20",
+      "name": "Upload Customers CSV",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1750, 320],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "metadata", "value": "={{ JSON.stringify({ name: 'customers.csv', mimeType: 'text/csv', parents: [$node['Create Drive Folder'].json.id] }) }}" },
+            { "name": "file", "value": "={{ $node['Customers to CSV'].json.csv }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "7", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w17-n21",
+      "name": "Upload Orders CSV",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1750, 440],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "metadata", "value": "={{ JSON.stringify({ name: 'orders.csv', mimeType: 'text/csv', parents: [$node['Create Drive Folder'].json.id] }) }}" },
+            { "name": "file", "value": "={{ $node['Orders to CSV'].json.csv }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "7", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w17-n22",
+      "name": "Upload Content CSV",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1750, 560],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "metadata", "value": "={{ JSON.stringify({ name: 'content.csv', mimeType: 'text/csv', parents: [$node['Create Drive Folder'].json.id] }) }}" },
+            { "name": "file", "value": "={{ $node['Content to CSV'].json.csv }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "7", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w17-n23",
+      "name": "Upload Metrics CSV",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1750, 680],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "metadata", "value": "={{ JSON.stringify({ name: 'metrics.csv', mimeType: 'text/csv', parents: [$node['Create Drive Folder'].json.id] }) }}" },
+            { "name": "file", "value": "={{ $node['Metrics to CSV'].json.csv }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "7", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w17-n24",
+      "name": "Upload Errors CSV",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1750, 800],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "metadata", "value": "={{ JSON.stringify({ name: 'errors.csv', mimeType: 'text/csv', parents: [$node['Create Drive Folder'].json.id] }) }}" },
+            { "name": "file", "value": "={{ $node['Errors to CSV'].json.csv }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "7", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w17-n25",
+      "name": "Upload IS Subscribers CSV",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "metadata", "value": "={{ JSON.stringify({ name: 'is-subscribers.csv', mimeType: 'text/csv', parents: [$node['Create Drive Folder'].json.id] }) }}" },
+            { "name": "file", "value": "={{ $node['IS Subscribers Export'].json }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "7", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w17-n26",
+      "name": "Upload IS Products CSV",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 350],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "metadata", "value": "={{ JSON.stringify({ name: 'is-products.csv', mimeType: 'text/csv', parents: [$node['Create Drive Folder'].json.id] }) }}" },
+            { "name": "file", "value": "={{ $node['IS Products Export'].json }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "7", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w17-n27",
+      "name": "Upload IS Orders CSV",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 500],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "metadata", "value": "={{ JSON.stringify({ name: 'is-orders-last-30-days.csv', mimeType: 'text/csv', parents: [$node['Create Drive Folder'].json.id] }) }}" },
+            { "name": "file", "value": "={{ $node['IS Orders Export'].json }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "7", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w17-n28",
+      "name": "List Old Backup Folders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2250, 350],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(\"'\" + $env.GOOGLE_DRIVE_BACKUP_FOLDER_ID + \"' in parents and mimeType='application/vnd.google-apps.folder'\") + '&fields=files(id,name,createdTime)&orderBy=createdTime' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "7", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w17-n29",
+      "name": "Rotation Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2500, 350],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst folders = data.files || [];\nconst now = new Date();\nconst ms30Days = 30 * 24 * 60 * 60 * 1000;\nconst ms12Months = 365 * 24 * 60 * 60 * 1000;\n\n// Track which month-year combinations we've kept\nconst keptMonths = new Set();\nconst toDelete = [];\n\n// Sort folders newest first for month-keeping logic\nconst sorted = [...folders].sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));\n\nfor (const folder of sorted) {\n  const created = new Date(folder.createdTime);\n  const ageMs = now - created;\n  const monthKey = `${created.getFullYear()}-${String(created.getMonth() + 1).padStart(2, '0')}`;\n\n  if (ageMs < ms30Days) {\n    // Keep all backups from last 30 days\n    continue;\n  } else if (ageMs < ms12Months) {\n    // Keep only first (newest) backup of each month\n    if (!keptMonths.has(monthKey)) {\n      keptMonths.add(monthKey);\n    } else {\n      toDelete.push(folder.id);\n    }\n  } else {\n    // Older than 12 months — delete\n    toDelete.push(folder.id);\n  }\n}\n\nreturn toDelete.map(id => ({ json: { folder_id: id } }));"
+      }
+    },
+    {
+      "id": "w17-n30",
+      "name": "Delete Old Folders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2750, 350],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "DELETE",
+        "url": "={{ 'https://www.googleapis.com/drive/v3/files/' + $json.folder_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "7", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w17-n31",
+      "name": "Slack Backup Confirmation",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [3000, 350],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '✅ Weekly backup complete\\nDate: ' + $node['Generate Backup Metadata'].json.backup_date + '\\nTables exported: 6 (Products, Customers, Orders, Content, Metrics, Errors)\\nIS exports: 3 (subscribers, products, orders)\\nLocation: Backups/str-platform/' + $node['Generate Backup Metadata'].json.backup_folder + '\\nNext backup: Sunday 02:00 ET' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w17-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 950],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W17-weekly-backup',\n  node: 'error-branch',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w17-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 950],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w17-err03",
+      "name": "Slack P0 Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1750, 950],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 @channel W17 WEEKLY BACKUP FAILED — P0 ALERT\\nBackup date: ' + $node['Generate Backup Metadata'].json.backup_date + '\\nError: ' + $json.error_message + '\\nManual intervention required immediately.' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Weekly Schedule": {
+      "main": [
+        [{ "node": "Generate Backup Metadata", "type": "main", "index": 0 }]
+      ]
+    },
+    "Generate Backup Metadata": {
+      "main": [
+        [
+          { "node": "Fetch Products", "type": "main", "index": 0 },
+          { "node": "Fetch Customers", "type": "main", "index": 0 },
+          { "node": "Fetch Orders", "type": "main", "index": 0 },
+          { "node": "Fetch Content", "type": "main", "index": 0 },
+          { "node": "Fetch Metrics", "type": "main", "index": 0 },
+          { "node": "Fetch Errors", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Fetch Products": {
+      "main": [
+        [{ "node": "Products to CSV", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Products to CSV": {
+      "main": [
+        [{ "node": "IS Subscribers Export", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Customers": {
+      "main": [
+        [{ "node": "Customers to CSV", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Customers to CSV": {
+      "main": [
+        [{ "node": "IS Products Export", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Orders": {
+      "main": [
+        [{ "node": "Orders to CSV", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Orders to CSV": {
+      "main": [
+        [{ "node": "IS Orders Export", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Content": {
+      "main": [
+        [{ "node": "Content to CSV", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Content to CSV": {
+      "main": [
+        [{ "node": "Create Drive Folder", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Metrics": {
+      "main": [
+        [{ "node": "Metrics to CSV", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Metrics to CSV": {
+      "main": [
+        [{ "node": "Upload Metrics CSV", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Errors": {
+      "main": [
+        [{ "node": "Errors to CSV", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Errors to CSV": {
+      "main": [
+        [{ "node": "Upload Errors CSV", "type": "main", "index": 0 }]
+      ]
+    },
+    "IS Subscribers Export": {
+      "main": [
+        [{ "node": "IS Products Export", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "IS Products Export": {
+      "main": [
+        [{ "node": "IS Orders Export", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "IS Orders Export": {
+      "main": [
+        [{ "node": "Create Drive Folder", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Drive Folder": {
+      "main": [
+        [
+          { "node": "Upload Products CSV", "type": "main", "index": 0 },
+          { "node": "Upload Customers CSV", "type": "main", "index": 0 },
+          { "node": "Upload Orders CSV", "type": "main", "index": 0 },
+          { "node": "Upload Content CSV", "type": "main", "index": 0 },
+          { "node": "Upload IS Subscribers CSV", "type": "main", "index": 0 },
+          { "node": "Upload IS Products CSV", "type": "main", "index": 0 },
+          { "node": "Upload IS Orders CSV", "type": "main", "index": 0 }
+        ],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upload Products CSV": {
+      "main": [
+        [{ "node": "List Old Backup Folders", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upload Customers CSV": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upload Orders CSV": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upload Content CSV": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upload Metrics CSV": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upload Errors CSV": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upload IS Subscribers CSV": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upload IS Products CSV": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upload IS Orders CSV": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "List Old Backup Folders": {
+      "main": [
+        [{ "node": "Rotation Logic", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Rotation Logic": {
+      "main": [
+        [{ "node": "Delete Old Folders", "type": "main", "index": 0 }]
+      ]
+    },
+    "Delete Old Folders": {
+      "main": [
+        [{ "node": "Slack Backup Confirmation", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack P0 Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 600,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

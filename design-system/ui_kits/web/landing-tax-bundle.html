@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Tax Season Bundle — The STR Ledger</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--brand-navy); min-height: 100vh; }
+  button:hover { filter: brightness(0.92); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/atoms.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+function Landing() {
+  const [tier, setTier] = useState("Bundle");
+  return (
+    <div style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "1.15fr 1fr" }}>
+      {/* LEFT — pitch */}
+      <div style={{ padding: "64px 72px 48px", color: "var(--brand-parchment)", display: "flex", flexDirection: "column" }}>
+        <a href="index.html" style={{ textDecoration: "none", alignSelf: "flex-start" }}><Wordmark reverse/></a>
+
+        <div style={{ margin: "auto 0", maxWidth: 620 }}>
+          <Eyebrow onNavy>Tax Season Bundle · 2025 returns</Eyebrow>
+          <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 64, letterSpacing: "-0.015em", color: "var(--brand-parchment)", margin: "20px 0 0", lineHeight: 1.04 }}>
+            <span style={{ fontStyle: "italic", fontWeight: 400 }}>Close</span> your year<br/>before April does<span style={{ color: "var(--brand-gold)" }}>.</span>
+          </h1>
+          <GoldRule width={48} my={28}/>
+          <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 22, lineHeight: 1.5, color: "var(--brand-parchment)", margin: 0 }}>
+            Three workbooks. Every line of Schedule E, every 1099-NEC you owe, every receipt your CPA wants. Built for hosts with 1–10 properties.
+          </p>
+
+          {/* The three SKUs in the bundle */}
+          <div style={{ marginTop: 40, display: "grid", gap: 16 }}>
+            {[
+              ["TAX-001", "The Mileage Log",            "Auto-calculated at the 70¢ 2026 IRS rate. Survives an audit.", "$17", "#"],
+              ["TAX-002", "The P&L · Single Property",  "Income, deductions, depreciation — flowed onto Schedule E.",   "$67", "product-pl-tracker.html"],
+              ["TAX-003", "The 1099-NEC Tracker",        "Every cleaner, handyman, photographer ≥ $600. With W-9s attached.", "$37", "product-1099-nec.html"],
+            ].map(([sku, name, body, price, href]) => (
+              <a key={sku} href={href} style={{ display: "grid", gridTemplateColumns: "120px 1fr 80px", gap: 24, alignItems: "baseline", padding: "16px 0", borderTop: "1px solid rgba(201,162,75,0.25)", textDecoration: "none" }}>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>{sku}</span>
+                <div>
+                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 22, letterSpacing: "-0.005em", color: "var(--brand-parchment)" }}>
+                    <span style={{ fontStyle: "italic", fontWeight: 400 }}>{name.split(" ")[0]}</span> {name.split(" ").slice(1).join(" ")}<span style={{ color: "var(--brand-gold)" }}>.</span>
+                  </div>
+                  <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-on-navy-muted)", lineHeight: 1.55, marginTop: 4 }}>{body}</div>
+                </div>
+                <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 22, color: "var(--brand-parchment)", textAlign: "right" }}>{price}</span>
+              </a>
+            ))}
+          </div>
+
+          <div style={{ marginTop: 32, display: "flex", alignItems: "baseline", gap: 18 }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-on-navy-muted)" }}>Bought separately</span>
+            <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 18, color: "var(--brand-parchment)", textDecoration: "line-through" }}>$121</span>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Bundle · $79</span>
+          </div>
+        </div>
+
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-on-navy-muted)" }}>
+          © 2026 The STR Ledger · Not tax advice · consult your CPA
+        </div>
+      </div>
+
+      {/* RIGHT — checkout */}
+      <div style={{ background: "var(--brand-parchment)", padding: "64px 64px 48px", display: "flex", alignItems: "center" }}>
+        <div style={{ width: "100%", maxWidth: 460 }}>
+          <Eyebrow>Pick a tier</Eyebrow>
+          <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 36, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "14px 0 0", lineHeight: 1.15 }}>
+            Three workbooks<span style={{ color: "var(--brand-gold)" }}>.</span> One April that doesn't ruin your March.
+          </h2>
+          <GoldRule width={32} my={24}/>
+
+          {/* Tier picker */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
+            {[
+              { key: "Single",      title: "Just one workbook",   sub: "Pick any one. From $17.",            price: "$17 →", note: "" },
+              { key: "Bundle",      title: "Tax Season Bundle",   sub: "All three. $79 instead of $121.",   price: "$79",   note: "Most popular" },
+              { key: "BundlePlus",  title: "Bundle + Office Hours", sub: "All three + a 30-min Q&A with Emily.", price: "$149", note: "Limit 8 / month" },
+            ].map(t => {
+              const active = tier === t.key;
+              return (
+                <button key={t.key} onClick={() => setTier(t.key)} style={{
+                  textAlign: "left", padding: "20px 22px", cursor: "pointer",
+                  background: active ? "var(--brand-navy)" : "var(--brand-paper)",
+                  color: active ? "var(--brand-parchment)" : "var(--brand-navy)",
+                  border: "1px solid " + (active ? "var(--brand-navy)" : "var(--rule-strong)"),
+                  borderRadius: 0, display: "grid", gridTemplateColumns: "1fr auto", gap: 16, alignItems: "baseline",
+                }}>
+                  <div>
+                    <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 18, letterSpacing: "-0.005em" }}>
+                      <span style={{ fontStyle: "italic", fontWeight: 400 }}>{t.title.split(" ")[0]}</span> {t.title.split(" ").slice(1).join(" ")}
+                    </div>
+                    <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: active ? "var(--fg-on-navy-muted)" : "var(--fg-2)", marginTop: 4 }}>{t.sub}</div>
+                    {t.note && <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)", marginTop: 6 }}>{t.note}</div>}
+                  </div>
+                  <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, letterSpacing: "-0.01em" }}>
+                    <span style={{ fontStyle: "italic", fontWeight: 400 }}>{t.price}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div style={{ marginTop: 24 }}>
+            <Button variant="primary" size="lg" full>
+              {tier === "Single" ? "Choose your workbook →" : tier === "Bundle" ? "Get the bundle · $79 →" : "Get bundle + office hours · $149 →"}
+            </Button>
+          </div>
+
+          <div style={{ marginTop: 20, padding: "16px 18px", background: "var(--brand-paper)", border: "1px solid var(--rule)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)", marginBottom: 8 }}>What you get</div>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+              {[
+                "Three .xlsx workbooks · instant download",
+                "Matching .pdf demos · pre-filled with sample data",
+                "Free updates through the 2025 filing window (Oct 2026)",
+                "30-day refund · no questions asked",
+              ].map(l => (
+                <li key={l} style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--fg-2)", paddingLeft: 22, position: "relative", lineHeight: 1.5 }}>
+                  <span style={{ position: "absolute", left: 0, color: "var(--brand-gold)", fontFamily: "var(--font-display)", fontStyle: "italic" }}>✓</span>{l}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 15, color: "var(--fg-2)", margin: "24px 0 0", lineHeight: 1.55 }}>
+            "I bought the bundle on March 12. By March 28 my CPA had everything she asked for, and my refund was bigger than last year's." — Marcy T. · 5 properties · Hocking Hills
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<Landing/>);
+</script>
+</body>
+</html>

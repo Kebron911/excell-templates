@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Welcome Book — Pinterest A/B pairs — The STR Ledger</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #E9E9E9; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  .pin-wrap { width: 280px; height: 420px; overflow: hidden; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); background: white; }
+  .pin-wrap > div { transform: scale(0.28); transform-origin: top left; }
+  .pin-label { font-size: 13px; color: #222; margin-top: 12px; font-weight: 600; letter-spacing: 0.04em; }
+  .pin-sub   { font-size: 12px; color: #666; margin-top: 3px; line-height: 1.45; }
+  .col-head  { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #222; padding-bottom: 14px; border-bottom: 1px solid rgba(0,0,0,0.08); margin-bottom: 18px; }
+  .pair-rule { grid-column: 1 / -1; height: 1px; background: rgba(0,0,0,0.08); margin: 32px 0 20px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel">
+// ---- Frame + watermark — same pattern as components/Pin.jsx --------------
+function PinFrame({ children, tint = "parchment" }) {
+  const bg = tint === "navy" ? "var(--brand-navy)" : "var(--brand-parchment)";
+  const fg = tint === "navy" ? "var(--brand-parchment)" : "var(--brand-navy)";
+  return (
+    <div style={{ width: 1000, height: 1500, background: bg, color: fg, position: "relative", overflow: "hidden" }}>
+      {children}
+    </div>
+  );
+}
+
+function Watermark({ tint = "parchment" }) {
+  const color = tint === "navy" ? "var(--brand-parchment)" : "var(--brand-navy)";
+  const subColor = tint === "navy" ? "var(--fg-on-navy-muted)" : "var(--fg-3)";
+  const goldDot = "var(--brand-gold)";
+  return (
+    <div style={{ position: "absolute", bottom: 60, left: 60, right: 60, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+      <span style={{ fontFamily: "var(--font-display)", color, fontSize: 30, fontWeight: 500, letterSpacing: "-0.01em", display: "inline-flex", alignItems: "baseline", gap: 10 }}>
+        <span style={{ fontStyle: "italic", fontWeight: 400, fontSize: 22 }}>The</span>
+        <span>STR Ledger<span style={{ color: goldDot }}>.</span></span>
+      </span>
+      <span style={{ fontFamily: "var(--font-mono)", fontSize: 18, letterSpacing: "0.22em", textTransform: "uppercase", color: subColor }}>thestrledger.com</span>
+    </div>
+  );
+}
+
+// ---- Pair 1 · BIG NUMBER · review-rating angle ---------------------------
+// Same design, two headlines.
+
+function PairOneBigNumber({ headline, sub }) {
+  return (
+    <PinFrame tint="navy">
+      <div style={{ position: "absolute", top: 70, left: 80, right: 80, display: "flex", alignItems: "center", gap: 14 }}>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 18, letterSpacing: "0.3em", color: "var(--brand-gold)" }}>N<span style={{ color: "var(--brand-parchment)" }}>o.</span> 01</span>
+        <span style={{ flex: 1, height: 1, background: "var(--brand-gold)" }}/>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 18, letterSpacing: "0.28em", textTransform: "uppercase", color: "var(--brand-parchment)" }}>Guest Stays · Welcome Book</span>
+      </div>
+
+      <div style={{ padding: "180px 80px 0" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, letterSpacing: "0.28em", textTransform: "uppercase", color: "var(--fg-on-navy-muted)" }}>2 months · 6 properties</div>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 220, lineHeight: 0.95, letterSpacing: "-0.03em", color: "var(--brand-parchment)", marginTop: 28 }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>4.78 → 4.91</span><span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ width: 100, height: 2, background: "var(--brand-gold)", margin: "44px 0" }}/>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 60, lineHeight: 1.15, letterSpacing: "-0.01em", color: "var(--brand-parchment)", maxWidth: 800 }}>
+          {headline}<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 36, lineHeight: 1.4, color: "var(--fg-on-navy-muted)", marginTop: 36, maxWidth: 760 }}>{sub}</div>
+      </div>
+
+      {/* The "review card" — parchment object */}
+      <div style={{
+        position: "absolute", left: 80, right: 80, bottom: 220,
+        background: "var(--brand-parchment)", padding: "36px 44px",
+        boxShadow: "0 20px 40px -16px rgba(0,0,0,0.4)",
+      }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, letterSpacing: "0.28em", textTransform: "uppercase", color: "var(--fg-3)" }}>★★★★★ · Verified review</div>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 32, lineHeight: 1.4, color: "var(--brand-navy)", marginTop: 18 }}>
+          "We knew exactly what to do when we arrived. The local guide saved our weekend."
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 14, letterSpacing: "0.24em", textTransform: "uppercase", color: "var(--fg-3)", marginTop: 18 }}>— Jenna · Apr 2026</div>
+      </div>
+
+      <Watermark tint="navy"/>
+    </PinFrame>
+  );
+}
+
+// ---- Pair 2 · LIST PROMISE · 80 local picks angle ------------------------
+
+function PairTwoList({ headline, sub }) {
+  const cats = ["Coffee", "Brunch", "Dinner · cheap", "Dinner · nice", "Hike · easy", "Hike · hard", "Grocery · 24h", "Late-night drink", "Coffee · drive-thru", "Date night", "Kid-friendly", "Rainy day", "Pharmacy · 24h", "ATM nearby", "Gas station", "Local farm stand"];
+  return (
+    <PinFrame tint="parchment">
+      <div style={{ padding: "100px 80px 0" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, letterSpacing: "0.28em", textTransform: "uppercase", color: "var(--brand-gold)" }}>The Welcome Book</div>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 138, lineHeight: 0.94, letterSpacing: "-0.025em", color: "var(--brand-navy)", marginTop: 36 }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>80</span><br/>local picks<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 56, lineHeight: 1.15, letterSpacing: "-0.01em", color: "var(--brand-navy)", marginTop: 28, maxWidth: 780 }}>
+          {headline}<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ width: 100, height: 2, background: "var(--brand-gold)", margin: "36px 0 32px" }}/>
+        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 36, rowGap: 14 }}>
+          {cats.map(i => (
+            <li key={i} style={{ fontFamily: "var(--font-body)", fontSize: 22, color: "var(--brand-navy)", paddingLeft: 26, position: "relative", lineHeight: 1.4 }}>
+              <span style={{ position: "absolute", left: 0, color: "var(--brand-gold)", fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 22 }}>✓</span>
+              {i}
+            </li>
+          ))}
+          <li style={{ gridColumn: "1 / -1", fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 26, color: "var(--brand-gold)", marginTop: 8 }}>+ 64 more — 20 categories, 4 picks each →</li>
+        </ul>
+      </div>
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 220, background: "var(--brand-navy)", padding: "26px 80px", color: "var(--brand-parchment)", fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 28 }}>
+        {sub}
+      </div>
+      <Watermark/>
+    </PinFrame>
+  );
+}
+
+// ---- Pair 3 · QUOTE · founder/host story angle ---------------------------
+
+function PairThreeQuote({ headline, sub }) {
+  return (
+    <PinFrame tint="parchment">
+      <div style={{ position: "absolute", top: 70, left: 90, right: 90, display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 18, letterSpacing: "0.3em", color: "var(--brand-gold)" }}>N<span style={{ color: "var(--brand-navy)" }}>o.</span> 03</span>
+        <span style={{ flex: 1, height: 1, background: "var(--brand-gold)" }}/>
+        <span style={{ fontFamily: "var(--font-mono)", fontSize: 18, letterSpacing: "0.3em", color: "var(--brand-navy)", textTransform: "uppercase" }}>Host Results · 2026</span>
+      </div>
+
+      <div style={{ padding: "150px 90px 0" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 22, letterSpacing: "0.28em", textTransform: "uppercase", color: "var(--fg-3)" }}>Renee H., 6 properties</div>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 220, lineHeight: 0.92, letterSpacing: "-0.03em", color: "var(--brand-navy)", marginTop: 28 }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>+0.13</span><span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ width: 100, height: 2, background: "var(--brand-gold)", margin: "36px 0" }}/>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 56, lineHeight: 1.15, letterSpacing: "-0.01em", color: "var(--brand-navy)", maxWidth: 800 }}>
+          {headline}<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+      </div>
+
+      <div style={{
+        position: "absolute", left: 0, right: 0, bottom: 220,
+        background: "var(--brand-navy)", color: "var(--brand-parchment)",
+        padding: "36px 90px",
+      }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 28 }}>
+          <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 120, lineHeight: 0.6, color: "var(--brand-gold)", flexShrink: 0, marginTop: 14 }}>"</span>
+          <div>
+            <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 30, lineHeight: 1.35, color: "var(--brand-parchment)", maxWidth: 720 }}>
+              {sub}
+            </div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 14, letterSpacing: "0.26em", textTransform: "uppercase", color: "var(--fg-on-navy-muted)", marginTop: 16 }}>
+              — Renee H. · 6 properties · Asheville
+            </div>
+          </div>
+        </div>
+      </div>
+      <Watermark/>
+    </PinFrame>
+  );
+}
+
+// ---- A/B copy inventory --------------------------------------------------
+// Following brand-decisions.md §6.4 — control = warning/solution voice,
+// challenger = upbeat outcome-first voice. Same design, only headline changes.
+
+const PAIRS = [
+  {
+    pair: "Pair 1 · Big Number · review angle",
+    Component: PairOneBigNumber,
+    control: {
+      headline: "The welcome-book gap that costs 5-star reviews",
+      sub: "47 of every 100 reviews under 5 stars name 'unclear instructions.' Here's the file that closes the gap.",
+    },
+    challenger: {
+      headline: "Welcome books that earn 5-stars",
+      sub: "Renee's 6-property review average climbed from 4.78 to 4.91 in two months. Here's the workbook.",
+    },
+  },
+  {
+    pair: "Pair 2 · List Promise · local-guide angle",
+    Component: PairTwoList,
+    control: {
+      headline: "The question every guest asks at 9 PM (when nothing's open)",
+      sub: "Most welcome books skip 'where do I eat tonight.' This one answers it 80 times over.",
+    },
+    challenger: {
+      headline: "Twenty categories. Four picks each. Answered.",
+      sub: "Coffee, dinner, the grocery open at 9 PM — all in the welcome book your guest already has.",
+    },
+  },
+  {
+    pair: "Pair 3 · Quote · review-jump angle",
+    Component: PairThreeQuote,
+    control: {
+      headline: "The 0.13 stars hosts leave on the table",
+      sub: "Our review average sat at 4.78 for two years. The welcome book moved it to 4.91 in eight weeks. The line 'we knew exactly what to do' is in almost every review now.",
+    },
+    challenger: {
+      headline: "+0.13 stars in eight weeks",
+      sub: "We rewrote our welcome book in a weekend. Two months later: 4.91 average, and the line 'we knew exactly what to do' shows up in almost every review.",
+    },
+  },
+];
+
+function PinCard({ label, sub, children }) {
+  return (
+    <div>
+      <div className="pin-wrap">{children}</div>
+      <div className="pin-label">{label}</div>
+      <div className="pin-sub">{sub}</div>
+    </div>
+  );
+}
+
+function PinterestHeader() {
+  return (
+    <div style={{ background: "white", borderBottom: "1px solid #E9E9E9", padding: "12px 24px", display: "flex", alignItems: "center", gap: 16 }}>
+      <span style={{ width: 32, height: 32, borderRadius: "50%", background: "#E60023", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontFamily: "Georgia, serif" }}>P</span>
+      <input style={{ flex: 1, maxWidth: 720, padding: "12px 18px", fontSize: 14, borderRadius: 22, border: "1px solid transparent", background: "#EFEFEF" }} defaultValue="airbnb welcome book template"/>
+      <span style={{ fontSize: 13, color: "#555" }}>A/B test · @thestrledger</span>
+    </div>
+  );
+}
+
+function Page() {
+  return (
+    <div style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px 80px" }}>
+      <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 36, letterSpacing: "-0.01em", color: "var(--brand-navy)", marginBottom: 6 }}>
+        <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span> Welcome Book · A/B pin pairs<span style={{ color: "var(--brand-gold)" }}>.</span>
+      </div>
+      <div style={{ fontSize: 14, color: "#555", marginBottom: 32, maxWidth: 800, lineHeight: 1.55 }}>
+        Three matched pairs per <code style={{ background: "#fff", padding: "2px 6px", borderRadius: 4, border: "1px solid #ddd", fontSize: 13 }}>brand/brand-decisions.md §6.4</code>. Same design, same product link, same publish window. Only the headline + first description line changes between control (warning voice) and challenger (upbeat voice). Test runs through 2026-06-23.
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56 }}>
+        <div className="col-head">Control · §6.1 warning voice</div>
+        <div className="col-head">Challenger · upbeat voice</div>
+
+        {PAIRS.map((p, i) => {
+          const C = p.Component;
+          return (
+            <React.Fragment key={p.pair}>
+              {i > 0 && <div className="pair-rule"/>}
+              <div style={{ gridColumn: "1 / -1", fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)", marginBottom: -6 }}>{p.pair}</div>
+
+              <PinCard label="Control" sub={`"${p.control.headline}"`}>
+                <C headline={p.control.headline} sub={p.control.sub}/>
+              </PinCard>
+              <PinCard label="Challenger" sub={`"${p.challenger.headline}"`}>
+                <C headline={p.challenger.headline} sub={p.challenger.sub}/>
+              </PinCard>
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      <div style={{ marginTop: 56, padding: "24px 28px", background: "white", border: "1px solid #ddd", borderRadius: 8, fontSize: 13, color: "#333", lineHeight: 1.6, fontFamily: "Helvetica, Arial, sans-serif" }}>
+        <strong>Logging.</strong> Pin-level performance goes in <code>ops/pinterest-ab-test.md</code> weekly: pin ID, variant, campaign, impressions, outbound clicks, saves, outbound CTR. Decision rule: challenger needs ≥15% lift on outbound CTR over the control to become Pinterest default; otherwise §6.1 warning voice holds.
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<>
+  <PinterestHeader/>
+  <Page/>
+</>);
+</script>
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Per-Diem Meal Tracker — The STR Ledger</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--brand-parchment); }
+  a { color: inherit; }
+  button:hover { filter: brightness(0.92); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/atoms.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+function Breadcrumbs() {
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "20px 48px 0", fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--fg-3)" }}>
+      <a href="index.html" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Home</a> · <a href="#" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Templates</a> · <a href="#" style={{ color: "var(--fg-3)", textDecoration: "none" }}>Tax</a> · <span style={{ color: "var(--brand-gold)" }}>The Per-Diem Meal Tracker</span>
+    </div>
+  );
+}
+
+function PreviewCover() {
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-navy)", padding: 36, position: "relative", boxSizing: "border-box" }}>
+      <div style={{ position: "absolute", inset: 28, background: "var(--brand-parchment)", padding: "56px 44px", boxShadow: "0 40px 60px -30px rgba(11,28,47,0.5)" }}>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Tax workbook · TAX-007</div>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 40, letterSpacing: "-0.015em", color: "var(--brand-navy)", marginTop: 12, lineHeight: 1.05 }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span><br/>
+          Meal Tracker<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "28px 0" }}/>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 17, color: "var(--fg-2)", lineHeight: 1.5 }}>
+          Actual cost or per-diem.<br/>50 · 80 · 100 percent.<br/>The five fields IRS asks for.
+        </div>
+        <div style={{ position: "absolute", bottom: 44, left: 44, right: 44, fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>2026 ed. · Pub 463 · IRC §274(n)</div>
+      </div>
+    </div>
+  );
+}
+
+function PreviewLog() {
+  const rows = [
+    ["3 Jan",  "Smokies cleaner",  "Pancake House",       "$24",  "Cleaner meeting",   "100%", "$24"],
+    ["8 Jan",  "Property check",   "Cracker Barrel",      "$18",  "Lunch · solo",      "50%",  "$9"],
+    ["12 Jan", "Crew · pizza",     "Marco's",             "$78",  "Crew · 4 cleaners", "100%", "$78"],
+    ["18 Jan", "Contractor lunch", "Texas Roadhouse",     "$54",  "Plumber · meal",    "50%",  "$27"],
+    ["22 Jan", "Per-diem · trip",  "Asheville · 2 days",  "—",    "M&IE · standard",   "PD",   "$160"],
+    ["28 Jan", "CPA quarterly",    "Olive Garden",        "$62",  "CPA · review",      "50%",  "$31"],
+    ["2 Feb",  "Co-host strategy", "Bonefish",            "$112", "Co-host meeting",   "50%",  "$56"],
+  ];
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", borderBottom: "1px solid var(--rule)", paddingBottom: 14 }}>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>01</span> · Meals Log<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>5 fields · IRS Pub 463</div>
+      </div>
+      <div style={{ marginTop: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "55px 1fr 1fr 60px 1fr 50px 60px", gap: 8, padding: "8px 0", borderBottom: "1px solid var(--rule)", fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>
+          <span>Date</span><span>Trip</span><span>Place</span><span style={{ textAlign: "right" }}>Amt</span><span>Purpose</span><span style={{ textAlign: "center" }}>%</span><span style={{ textAlign: "right" }}>Ded</span>
+        </div>
+        {rows.map(([date, trip, place, amt, purp, pct, ded], i) => {
+          const fullDed = pct === "100%";
+          return (
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "55px 1fr 1fr 60px 1fr 50px 60px", gap: 8, padding: "8px 0", borderBottom: "1px dashed rgba(11,28,47,0.10)", alignItems: "baseline" }}>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--fg-3)" }}>{date}</span>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 11, color: "var(--brand-navy)" }}>{trip}</span>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 10, color: "var(--fg-2)" }}>{place}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, textAlign: "right", color: "var(--fg-2)" }}>{amt}</span>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 10, color: "var(--fg-2)", fontStyle: "italic" }}>{purp}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.16em", textAlign: "center", color: fullDed ? "var(--brand-gold)" : (pct === "PD" ? "var(--brand-clay)" : "var(--fg-3)"), fontWeight: 600 }}>{pct}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, textAlign: "right", color: "var(--brand-gold)" }}>{ded}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ marginTop: 14, fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 12, color: "var(--fg-3)", textAlign: "right" }}>
+        50 / 80 / 100 / PD · all four percentages handled.
+      </div>
+    </div>
+  );
+}
+
+function PreviewMonthly() {
+  const months = ["JAN", "FEB", "MAR", "YTD"];
+  const rows = [
+    ["Property inspection", "$84",  "$92",  "$78",  "$254"],
+    ["Cleaner meeting",     "$102", "$118", "$96",  "$316"],
+    ["Contractor",          "$58",  "$78",  "$42",  "$178"],
+    ["CPA · advisor",       "$31",  "$0",   "$54",  "$85"],
+    ["Per-diem · travel",   "$160", "$80",  "$240", "$480"],
+    ["Total deductible",    "$435", "$368", "$510", "$1,313"],
+  ];
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box", overflow: "hidden" }}>
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>03 · Monthly Summary</div>
+      <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 32, color: "var(--brand-navy)", letterSpacing: "-0.015em", lineHeight: 1.05, marginTop: 8 }}>
+        <span style={{ fontStyle: "italic", fontWeight: 400 }}>By</span> the purpose<span style={{ color: "var(--brand-gold)" }}>.</span>
+      </div>
+      <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "20px 0" }}/>
+      <div style={{ display: "grid", gridTemplateColumns: "1.5fr repeat(4, 1fr)", gap: 6, padding: "8px 0", borderBottom: "1px solid var(--rule)", fontFamily: "var(--font-mono)", fontSize: 9, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)" }}>
+        <span></span>
+        {months.map(m => <span key={m} style={{ textAlign: "right", color: m === "YTD" ? "var(--brand-gold)" : "var(--fg-3)" }}>{m}</span>)}
+      </div>
+      {rows.map(([label, ...vals], i) => {
+        const isTotal = label.startsWith("Total");
+        return (
+          <div key={label} style={{ display: "grid", gridTemplateColumns: "1.5fr repeat(4, 1fr)", gap: 6, padding: "9px 0", borderTop: isTotal ? "2px solid var(--brand-navy)" : "1px dashed rgba(11,28,47,0.10)", marginTop: isTotal ? 6 : 0, alignItems: "baseline" }}>
+            <span style={{ fontFamily: "var(--font-display)", fontWeight: isTotal ? 500 : 400, fontSize: 13, color: "var(--brand-navy)" }}>
+              {isTotal ? <span style={{ fontStyle: "italic", fontWeight: 400 }}>{label}</span> : label}
+            </span>
+            {vals.map((v, j) => (
+              <span key={j} style={{ fontFamily: "var(--font-mono)", fontSize: isTotal ? 13 : 11, textAlign: "right", color: isTotal ? "var(--brand-gold)" : (j === 3 ? "var(--brand-gold)" : "var(--fg-2)"), fontWeight: isTotal ? 500 : 400 }}>{v}</span>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function PreviewPercents() {
+  return (
+    <div style={{ width: "100%", height: "100%", background: "var(--brand-parchment)", padding: 36, boxSizing: "border-box" }}>
+      <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>The deduction percentages</div>
+      <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 30, color: "var(--brand-navy)", letterSpacing: "-0.015em", lineHeight: 1.05, marginTop: 8 }}>
+        <span style={{ fontStyle: "italic", fontWeight: 400 }}>Four</span> rates<span style={{ color: "var(--brand-gold)" }}>.</span>
+      </div>
+      <div style={{ height: 1, background: "var(--brand-gold)", width: 48, margin: "20px 0" }}/>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {[
+          ["100%", "var(--brand-gold)", "Crew meals · own-employee meals · company picnics"],
+          ["80%",  "var(--brand-clay)", "DOT hours-of-service · rare for STR"],
+          ["50%",  "var(--brand-navy)", "Standard business meals · client · contractor · CPA"],
+          ["0%",   "var(--fg-3)",       "Entertainment · post-2017 TCJA disallowed"],
+        ].map(([rate, tone, body], i) => (
+          <div key={i} style={{ display: "grid", gridTemplateColumns: "80px 1fr", gap: 16, padding: "14px 16px", background: "var(--brand-paper)", borderLeft: "2px solid " + tone, alignItems: "baseline" }}>
+            <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 28, color: tone, letterSpacing: "-0.01em" }}>{rate}</span>
+            <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--fg-2)", lineHeight: 1.5 }}>{body}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 14, padding: "12px 14px", background: "var(--brand-navy)", color: "var(--brand-parchment)", fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase" }}>
+        Dropdown selects · row applies the right %
+      </div>
+    </div>
+  );
+}
+
+function ProductHero() {
+  const [pack, setPack] = useState("Single host");
+  const [view, setView] = useState(0);
+
+  const previews = [
+    { label: "Cover",     Component: PreviewCover },
+    { label: "Log",       Component: PreviewLog },
+    { label: "Percents",  Component: PreviewPercents },
+    { label: "Monthly",   Component: PreviewMonthly },
+  ];
+  const Cur = previews[view].Component;
+
+  return (
+    <section style={{ padding: "48px 48px 96px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 72 }}>
+        <div>
+          <div style={{ aspectRatio: "1/1.05", boxShadow: "0 30px 60px -30px rgba(11,28,47,0.4)" }}>
+            <Cur/>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginTop: 12 }}>
+            {previews.map((p, i) => (
+              <button key={i} onClick={() => setView(i)} aria-label={`View preview ${i+1}`} style={{
+                aspectRatio: "1/1", padding: "8px 6px", cursor: "pointer",
+                background: i === view ? "var(--brand-navy)" : "var(--brand-paper)",
+                border: "1px solid " + (i === view ? "var(--brand-navy)" : "var(--rule)"),
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4,
+              }}>
+                <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 500, fontSize: 22, color: i === view ? "var(--brand-gold)" : "var(--brand-navy)" }}>{i+1}</span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: 8, letterSpacing: "0.22em", textTransform: "uppercase", color: i === view ? "var(--brand-parchment)" : "var(--fg-3)" }}>{p.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <Eyebrow>Tax workbook · TAX-007</Eyebrow>
+          <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 52, letterSpacing: "-0.015em", color: "var(--brand-navy)", margin: "16px 0 0", lineHeight: 1.08 }}>
+            <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span> Meal Tracker<span style={{ color: "var(--brand-gold)" }}>.</span>
+          </h1>
+          <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 22, color: "var(--fg-2)", marginTop: 6 }}>Actual cost + per-diem · 2026</div>
+          <GoldRule width={48} my={24}/>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: 17, lineHeight: 1.65, color: "var(--fg-2)", margin: 0 }}>
+            Captures the five IRS-required substantiation fields per meal — date, amount, business purpose, attendees, location — and applies the correct deduction percentage automatically. Tracks both methods. Flags double-counted dates. Lose another receipt? Use the GSA per-diem.
+          </p>
+
+          <div style={{ marginTop: 36, padding: "24px 0", borderTop: "1px solid var(--rule)", borderBottom: "1px solid var(--rule)" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 44, color: "var(--brand-navy)", letterSpacing: "-0.01em" }}>$17</span>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-3)", textDecoration: "line-through" }}>$24</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)", marginLeft: "auto" }}>Tax-season price · thru Apr 15</span>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 28 }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-3)", marginBottom: 10 }}>License</div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {["Single host", "Co-host", "PM (≤10)", "PM (10+)"].map(n => (
+                <button key={n} onClick={() => setPack(n)} style={{
+                  fontFamily: "var(--font-body)", fontSize: 14, padding: "12px 20px",
+                  background: pack === n ? "var(--brand-navy)" : "transparent",
+                  color: pack === n ? "var(--brand-parchment)" : "var(--brand-navy)",
+                  border: "1px solid " + (pack === n ? "var(--brand-navy)" : "var(--rule-strong)"),
+                  cursor: "pointer",
+                }}>{n}</button>
+              ))}
+            </div>
+            <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 13, color: "var(--fg-3)", marginTop: 10 }}>
+              {pack === "PM (10+)" ? "Adds team-meal expansion fields. Multi-driver and multi-host support." : "Single .xlsx · supports both Actual and per-diem methods. Use across all your trips."}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
+            <Button variant="primary" size="lg" full>Add to cart · $17</Button>
+            <Button variant="secondary" size="lg">♡</Button>
+          </div>
+
+          <div style={{ marginTop: 32, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, paddingTop: 24, borderTop: "1px solid var(--rule)" }}>
+            {[
+              ["Instant download", ".xlsx + .pdf"],
+              ["Free 2027 update", "Through next April"],
+              ["30-day refund",    "No questions asked"],
+            ].map(([t, s]) => (
+              <div key={t}>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 500, color: "var(--brand-navy)" }}>{t}</div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--fg-3)", marginTop: 2 }}>{s}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function WhatsInside() {
+  const sections = [
+    ["01", "Meals Log",        "One row per meal · the five IRS substantiation fields · the deduction-% dropdown that applies the right rate automatically."],
+    ["02", "Per-Diem Log",     "Standard meal allowance for travel days · GSA M&IE rate by city · no receipts needed under $75 (per IRS regs)."],
+    ["03", "Monthly Summary",  "Per-month totals · deduction-by-purpose breakdown · audit-defense fields per row (receipt kept · attendees · purpose)."],
+    ["04", "Settings",         "Active tax year · GSA per-diem rates by city · classification dropdown · the dials you only touch once."],
+  ];
+  return (
+    <section style={{ background: "var(--brand-paper)", padding: "96px 48px", borderTop: "1px solid var(--rule-strong)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow>What's inside</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 40, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 48px", maxWidth: 720 }}>
+          Four tabs<span style={{ color: "var(--brand-gold)" }}>.</span> Two methods. The receipts you stop losing.
+        </h2>
+        <div>
+          {sections.map(([n, t, b]) => (
+            <div key={n} style={{ display: "grid", gridTemplateColumns: "90px 1fr 1.2fr", gap: 48, padding: "32px 0", borderTop: "1px solid var(--rule-strong)" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 36, color: "var(--brand-gold)", lineHeight: 1 }}>{n}</span>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, letterSpacing: "-0.01em", color: "var(--brand-navy)", lineHeight: 1.2 }}>{t}</div>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--fg-2)", lineHeight: 1.6 }}>{b}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FivePillarsBlock() {
+  return (
+    <section style={{ background: "var(--brand-navy)", color: "var(--brand-parchment)", padding: "96px 48px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow onNavy>The five elements</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 48, letterSpacing: "-0.01em", lineHeight: 1.1, margin: "16px 0 12px", maxWidth: 720, color: "var(--brand-parchment)" }}>
+          What makes a meal <span style={{ fontStyle: "italic", fontWeight: 400 }}>actually</span> deductible<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </h2>
+        <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 19, color: "var(--fg-on-navy-muted)", maxWidth: 700, lineHeight: 1.5, margin: "0 0 40px" }}>
+          IRC §274(k) requires substantiation. Miss any one of these five elements and the deduction is denied at audit. The workbook makes them required fields.
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 0, borderTop: "1px solid rgba(201,162,75,0.25)" }}>
+          {[
+            ["Date",           "When · per receipt"],
+            ["Amount",         "$ + tip · per row"],
+            ["Business purpose","Why · CPA · cleaner · contractor"],
+            ["Attendees",      "Who · names · roles"],
+            ["Location",       "Restaurant · city · ST"],
+          ].map(([title, body], i) => (
+            <div key={i} style={{
+              padding: "28px 22px", borderBottom: "1px solid rgba(201,162,75,0.25)",
+              borderRight: i < 4 ? "1px solid rgba(201,162,75,0.25)" : "none",
+            }}>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>{i+1} of 5</div>
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 22, color: "var(--brand-parchment)", marginTop: 14 }}>
+                <span style={{ fontStyle: "italic", fontWeight: 400 }}>{title}</span><span style={{ color: "var(--brand-gold)" }}>.</span>
+              </div>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--fg-on-navy-muted)", marginTop: 10, lineHeight: 1.6 }}>{body}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--fg-on-navy-muted)", marginTop: 24 }}>Source · IRC §274(k) · Pub 463</div>
+      </div>
+    </section>
+  );
+}
+
+function SarahQuote() {
+  return (
+    <section style={{ background: "var(--brand-parchment)", padding: "96px 48px" }}>
+      <div style={{ maxWidth: 880, margin: "0 auto", textAlign: "center" }}>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontWeight: 400, fontSize: 120, color: "var(--brand-gold)", lineHeight: 0.6, marginBottom: 24 }}>"</div>
+        <p style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 32, lineHeight: 1.35, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: 0 }}>
+          I used to skip the meal deduction every year because I'd lose half the receipts. Switched to this in January. By April I had $1,313 deductible meals fully substantiated. My CPA didn't have a single follow-up question<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </p>
+        <GoldRule width={32} my={32} align="center"/>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, letterSpacing: "0.24em", textTransform: "uppercase", color: "var(--fg-3)" }}>Tasha B. · 3 properties · Hilton Head, SC</div>
+      </div>
+    </section>
+  );
+}
+
+function PairedWith() {
+  const items = [
+    ["TAX-001", "The Mileage Log",    "Most meals come with a drive. Track both, deduct both."],
+    ["TAX-002", "The P&L · Single",   "Where meals roll up — Schedule E Line 19 (other) or Schedule C Line 24b."],
+  ];
+  return (
+    <section style={{ padding: "96px 48px", background: "var(--brand-paper)" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <Eyebrow>Often paired with</Eyebrow>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 36, letterSpacing: "-0.01em", color: "var(--brand-navy)", margin: "16px 0 40px" }}>
+          The rest of the tax shelf<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24 }}>
+          {items.map(([sku, title, body]) => {
+            const href = sku === "TAX-001" ? "product-mileage-log.html" : sku === "TAX-002" ? "product-pl-tracker.html" : "#";
+            return (
+              <a key={sku} href={href} style={{ display: "block", textDecoration: "none", padding: "32px 32px 28px", background: "var(--brand-parchment)", border: "1px solid var(--rule)" }}>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>{sku}</div>
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 26, letterSpacing: "-0.01em", color: "var(--brand-navy)", marginTop: 10 }}>
+                  <span style={{ fontStyle: "italic", fontWeight: 400 }}>{title.split(" ")[0]}</span> {title.split(" ").slice(1).join(" ")}<span style={{ color: "var(--brand-gold)" }}>.</span>
+                </div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--fg-2)", lineHeight: 1.6, marginTop: 12 }}>{body}</div>
+              </a>
+            );
+          })}
+        </div>
+        <div style={{ marginTop: 32, padding: "20px 24px", background: "var(--brand-navy)", color: "var(--brand-parchment)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24 }}>
+          <div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)" }}>Save $50</div>
+            <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 18, marginTop: 4 }}>The full Tax Season Bundle — eight workbooks at $147.</div>
+          </div>
+          <a href="landing-tax-bundle.html" style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--brand-gold)", borderBottom: "1px solid var(--brand-gold)", paddingBottom: 2, textDecoration: "none" }}>See the bundle →</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<>
+  <Header active="templates"/>
+  <Breadcrumbs/>
+  <ProductHero/>
+  <WhatsInside/>
+  <FivePillarsBlock/>
+  <SarahQuote/>
+  <PairedWith/>
+  <Footer/>
+</>);
+</script>
+</body>
+</html>

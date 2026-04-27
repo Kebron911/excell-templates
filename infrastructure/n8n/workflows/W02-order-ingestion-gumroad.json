@@ -1,0 +1,372 @@
+{
+  "name": "W02 — Order Ingestion (Gumroad)",
+  "nodes": [
+    {
+      "id": "w02-n01",
+      "name": "Gumroad Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "order-gumroad",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w02-n02",
+      "name": "Verify Gumroad Secret",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body;\nconst queryToken = input.query?.secret;\n\nconst expectedSellerId = $env.GUMROAD_SELLER_ID;\nconst expectedSecret = $env.GUMROAD_SHARED_SECRET;\n\nif (body.seller_id !== expectedSellerId) {\n  throw new Error(`Gumroad seller_id mismatch: got ${body.seller_id}`);\n}\n\nif (queryToken !== expectedSecret) {\n  throw new Error('Gumroad shared secret mismatch');\n}\n\nreturn [{ json: body }];"
+      }
+    },
+    {
+      "id": "w02-n03",
+      "name": "Route by Resource",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [750, 300],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "sale",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.resource_name }}",
+                    "rightValue": "sale",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "refund",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.resource_name }}",
+                    "rightValue": "refund",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "dispute",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.resource_name }}",
+                    "rightValue": "dispute",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w02-n04",
+      "name": "Normalize Gumroad Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 200],
+      "parameters": {
+        "jsCode": "const body = $input.first().json;\n\nif (body.test === 'true') {\n  throw new Error('Test-mode Gumroad transaction — skipping');\n}\n\nconst grossAmount = parseInt(body.price || 0) / 100;\nconst normalized = {\n  order_id: `gumroad-${body.sale_id}`,\n  gumroad_product_id: body.product_id,\n  gumroad_product_permalink: body.product_permalink,\n  timestamp: new Date(body.sale_timestamp || Date.now()).toISOString(),\n  email: (body.email || '').toLowerCase(),\n  first_name: body.full_name?.split(' ')[0] || '',\n  full_name: body.full_name || '',\n  gross_amount: grossAmount,\n  currency: body.currency || 'usd',\n  platform: 'gumroad',\n  sku: body.sku || null,\n  platform_fee: grossAmount * 0.10 + 0.30,\n  ip_country: body.ip_country || null,\n  referrer: body.referrer || null,\n  affiliate_credit: body.affiliate_credit || null,\n  raw_payload: JSON.stringify(body).slice(0, 5000)\n};\n\nif (!normalized.email) throw new Error('No email in Gumroad payload');\nreturn [{ json: normalized }];"
+      }
+    },
+    {
+      "id": "w02-n05",
+      "name": "Lookup SKU from Airtable",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.airtable.com/v0/' + $env.AIRTABLE_BASE_ID + '/Products?filterByFormula=' + encodeURIComponent(\"Gumroad product ID}='\" + $json.gumroad_product_id + \"'\") }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.AIRTABLE_API_KEY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w02-n06",
+      "name": "Resolve SKU",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 200],
+      "parameters": {
+        "jsCode": "const lookupResult = $input.first().json;\nconst normalized = $node['Normalize Gumroad Payload'].json;\n\nconst records = lookupResult.records || [];\nconst sku = normalized.sku || (records[0]?.fields?.SKU) || null;\n\nif (!sku) {\n  // Log warning but continue — sale must not be lost\n  return [{ json: { ...normalized, sku: null, sku_missing: true } }];\n}\n\nreturn [{ json: { ...normalized, sku } }];"
+      }
+    },
+    {
+      "id": "w02-n07",
+      "name": "Upsert Customer",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "upsert",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CUSTOMERS", "mode": "id" },
+        "matchingColumns": ["Email"],
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "First name": "={{ $json.first_name }}",
+            "Acquisition source": "gumroad",
+            "First contact date": "={{ $json.timestamp }}",
+            "First purchase date": "={{ $json.timestamp }}",
+            "Last purchase date": "={{ $json.timestamp }}",
+            "Gumroad buyer?": true
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w02-n08",
+      "name": "Create Order",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2000, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "upsert",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "matchingColumns": ["Order ID"],
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Order ID": "={{ $json.order_id }}",
+            "Timestamp": "={{ $json.timestamp }}",
+            "Platform": "gumroad",
+            "Gross amount": "={{ $json.gross_amount }}",
+            "Platform fee": "={{ $json.platform_fee }}",
+            "OrderBump taken?": false,
+            "OTO taken?": false,
+            "Refund status": "none",
+            "Raw webhook payload": "={{ $json.raw_payload }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w02-n09",
+      "name": "IS Tag Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2250, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/contacts/tags",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ email: $json.email, tags: ['product:' + ($json.sku || 'unknown'), 'bought:' + $json.timestamp.slice(0,10), 'platform:gumroad', 'source:gumroad'] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w02-n10",
+      "name": "Slack Sale Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2500, 200],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '🎉 Gumroad Sale: ' + ($json.sku || 'unknown SKU') + ' = $' + $json.gross_amount + '. Customer: ' + $json.email }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w02-n11",
+      "name": "Trigger W07 Refund Handler",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1000, 500],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.N8N_BASE_URL }}/webhook/refund-handler",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ ...($input.first().json), platform: 'gumroad' }) }}"
+      }
+    },
+    {
+      "id": "w02-n12",
+      "name": "Other Event NoOp",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1000, 700],
+      "parameters": {}
+    },
+    {
+      "id": "w02-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 600],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W02-order-ingestion-gumroad',\n  node: 'error-branch',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w02-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 600],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w02-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1250, 600],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W02 Gumroad Ingestion FAILED\nError: ' + $json.error_message + '\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Gumroad Webhook": {
+      "main": [
+        [{ "node": "Verify Gumroad Secret", "type": "main", "index": 0 }]
+      ]
+    },
+    "Verify Gumroad Secret": {
+      "main": [
+        [{ "node": "Route by Resource", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Route by Resource": {
+      "main": [
+        [{ "node": "Normalize Gumroad Payload", "type": "main", "index": 0 }],
+        [{ "node": "Trigger W07 Refund Handler", "type": "main", "index": 0 }],
+        [{ "node": "Trigger W07 Refund Handler", "type": "main", "index": 0 }],
+        [{ "node": "Other Event NoOp", "type": "main", "index": 0 }]
+      ]
+    },
+    "Normalize Gumroad Payload": {
+      "main": [
+        [{ "node": "Lookup SKU from Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Lookup SKU from Airtable": {
+      "main": [
+        [{ "node": "Resolve SKU", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Resolve SKU": {
+      "main": [
+        [{ "node": "Upsert Customer", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert Customer": {
+      "main": [
+        [{ "node": "Create Order", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Order": {
+      "main": [
+        [{ "node": "IS Tag Contact", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "IS Tag Contact": {
+      "main": [
+        [{ "node": "Slack Sale Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 120,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}
