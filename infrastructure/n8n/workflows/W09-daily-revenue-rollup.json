@@ -1,0 +1,384 @@
+{
+  "name": "W09 — Daily Revenue Rollup",
+  "nodes": [
+    {
+      "id": "w09-n01",
+      "name": "Daily 06:00 ET Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 400],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w09-n02",
+      "name": "Compute Yesterday Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 400],
+      "parameters": {
+        "jsCode": "// Compute yesterday's date range in America/New_York timezone\nconst now = new Date();\nconst etOffsetMs = -5 * 60 * 60 * 1000; // EST baseline; n8n timezone setting handles DST display\nconst nowEt = new Date(now.getTime() + etOffsetMs);\n\nconst yesterdayEt = new Date(nowEt);\nyesterdayEt.setUTCDate(nowEt.getUTCDate() - 1);\nyesterdayEt.setUTCHours(0, 0, 0, 0);\n\nconst todayEt = new Date(yesterdayEt);\ntodayEt.setUTCDate(yesterdayEt.getUTCDate() + 1);\n\n// Convert ET midnight back to UTC ISO\nconst startUtc = new Date(yesterdayEt.getTime() - etOffsetMs).toISOString();\nconst endUtc = new Date(todayEt.getTime() - etOffsetMs).toISOString();\nconst dateStr = yesterdayEt.toISOString().slice(0, 10);\n\n// Stripe / Gumroad use unix timestamps\nconst startUnix = Math.floor(new Date(startUtc).getTime() / 1000);\nconst endUnix = Math.floor(new Date(endUtc).getTime() / 1000);\n\n// 30-day rolling window for refund-rate calculation\nconst rollingStart = new Date(yesterdayEt);\nrollingStart.setUTCDate(yesterdayEt.getUTCDate() - 29);\nconst rollingStartUtc = new Date(rollingStart.getTime() - etOffsetMs).toISOString();\n\nreturn [{ json: {\n  date: dateStr,\n  start_utc: startUtc,\n  end_utc: endUtc,\n  start_unix: startUnix,\n  end_unix: endUnix,\n  rolling_start_utc: rollingStartUtc,\n  generated_at: now.toISOString()\n}}];"
+      }
+    },
+    {
+      "id": "w09-n03",
+      "name": "List Orders Yesterday",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "filterByFormula": "={{ \"AND(IS_AFTER({Timestamp}, '\" + $json.start_utc + \"'), IS_BEFORE({Timestamp}, '\" + $json.end_utc + \"'))\" }}",
+        "options": {
+          "fields": ["Order ID", "Timestamp", "Platform", "Gross amount", "Platform fee", "OrderBump taken?", "OTO taken?", "Refund status", "Refund amount", "Product"]
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w09-n04",
+      "name": "List Orders Last 30 Days",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 600],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "filterByFormula": "={{ \"IS_AFTER({Timestamp}, '\" + $node['Compute Yesterday Range'].json.rolling_start_utc + \"')\" }}",
+        "options": {
+          "fields": ["Order ID", "Timestamp", "Platform", "Gross amount", "Refund status", "Refund amount"]
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w09-n05",
+      "name": "Aggregate Metrics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 500],
+      "parameters": {
+        "jsCode": "const range = $node['Compute Yesterday Range'].json;\nconst yesterday = $node['List Orders Yesterday'].all().map(i => i.json.fields || i.json);\nconst rolling = $node['List Orders Last 30 Days'].all().map(i => i.json.fields || i.json);\n\nconst sum = (arr, fn) => arr.reduce((acc, r) => acc + (fn(r) || 0), 0);\nconst count = (arr, pred) => arr.filter(pred).length;\n\nconst byPlatform = (plat) => yesterday.filter(o => (o['Platform'] || '').toLowerCase() === plat);\n\nconst revenue_total = sum(yesterday, o => Number(o['Gross amount']));\nconst revenue_etsy = sum(byPlatform('etsy'), o => Number(o['Gross amount']));\nconst revenue_gumroad = sum(byPlatform('gumroad'), o => Number(o['Gross amount']));\nconst revenue_is = sum(byPlatform('is'), o => Number(o['Gross amount']));\nconst orders_total = yesterday.length;\nconst orderbumps = count(yesterday, o => o['OrderBump taken?'] === true);\nconst otos = count(yesterday, o => o['OTO taken?'] === true);\nconst orderbump_rate = orders_total ? orderbumps / orders_total : 0;\nconst oto_rate = orders_total ? otos / orders_total : 0;\n\n// Rolling 30-day refund rate\nconst refunded30 = count(rolling, o => (o['Refund status'] || '').toLowerCase() === 'full' || (o['Refund status'] || '').toLowerCase() === 'partial');\nconst refund_rate_rolling_30 = rolling.length ? refunded30 / rolling.length : 0;\n\n// Top products yesterday\nconst productMap = {};\nfor (const o of yesterday) {\n  const sku = Array.isArray(o['Product']) ? (o['Product'][0]?.name || o['Product'][0] || 'unknown') : (o['Product'] || 'unknown');\n  const key = String(sku);\n  if (!productMap[key]) productMap[key] = { sku: key, units: 0, revenue: 0 };\n  productMap[key].units += 1;\n  productMap[key].revenue += Number(o['Gross amount']) || 0;\n}\nconst top_products = Object.values(productMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5);\n\nconst summary = {\n  date: range.date,\n  revenue_total: Number(revenue_total.toFixed(2)),\n  revenue_etsy: Number(revenue_etsy.toFixed(2)),\n  revenue_gumroad: Number(revenue_gumroad.toFixed(2)),\n  revenue_is: Number(revenue_is.toFixed(2)),\n  orders_total,\n  orderbump_rate: Number(orderbump_rate.toFixed(4)),\n  oto_rate: Number(oto_rate.toFixed(4)),\n  refund_rate_rolling_30: Number(refund_rate_rolling_30.toFixed(4)),\n  top_products,\n  start_unix: range.start_unix,\n  end_unix: range.end_unix\n};\n\n// One row per metric_name for Airtable Metrics writes\nconst metricRows = [\n  { date: range.date, metric_name: 'revenue_total', value: summary.revenue_total, summary },\n  { date: range.date, metric_name: 'revenue_etsy', value: summary.revenue_etsy, summary },\n  { date: range.date, metric_name: 'revenue_gumroad', value: summary.revenue_gumroad, summary },\n  { date: range.date, metric_name: 'revenue_is', value: summary.revenue_is, summary },\n  { date: range.date, metric_name: 'orders_total', value: summary.orders_total, summary },\n  { date: range.date, metric_name: 'orderbump_rate', value: summary.orderbump_rate, summary },\n  { date: range.date, metric_name: 'oto_rate', value: summary.oto_rate, summary },\n  { date: range.date, metric_name: 'refund_rate_rolling_30', value: summary.refund_rate_rolling_30, summary },\n  { date: range.date, metric_name: 'top_products', value: 0, summary, notes: JSON.stringify(summary.top_products) }\n];\n\nreturn metricRows.map(r => ({ json: r }));"
+      }
+    },
+    {
+      "id": "w09-n06",
+      "name": "Write Metrics Rows",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1250, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_METRICS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.date }}",
+            "Metric name": "={{ $json.metric_name }}",
+            "Value": "={{ $json.value }}",
+            "Notes": "={{ $json.notes || '' }}",
+            "Source workflow": "W09-daily-revenue-rollup"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w09-n07",
+      "name": "Stripe Balance Transactions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 600],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.stripe.com/v1/balance_transactions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "created[gte]", "value": "={{ $node['Compute Yesterday Range'].json.start_unix }}" },
+            { "name": "created[lt]", "value": "={{ $node['Compute Yesterday Range'].json.end_unix }}" },
+            { "name": "limit", "value": "100" },
+            { "name": "type", "value": "charge" }
+          ]
+        }
+      },
+      "credentials": {
+        "stripeApi": { "id": "6", "name": "Stripe account" }
+      }
+    },
+    {
+      "id": "w09-n08",
+      "name": "Gumroad Sales Yesterday",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 800],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.gumroad.com/v2/sales",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "after", "value": "={{ $node['Compute Yesterday Range'].json.date }}" },
+            { "name": "before", "value": "={{ new Date($node['Compute Yesterday Range'].json.end_utc).toISOString().slice(0,10) }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "5", "name": "Gumroad API Key" }
+      }
+    },
+    {
+      "id": "w09-n09",
+      "name": "Reconcile Totals",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 600],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const summary = $node['Aggregate Metrics'].first().json.summary;\n\nconst stripeData = $node['Stripe Balance Transactions'].first().json || {};\nconst stripeTxns = stripeData.data || [];\nconst stripeTotal = stripeTxns.reduce((acc, t) => acc + ((t.amount || 0) / 100), 0);\n\nconst gumroadData = $node['Gumroad Sales Yesterday'].first().json || {};\nconst gumroadSales = gumroadData.sales || [];\nconst gumroadTotal = gumroadSales.reduce((acc, s) => acc + (parseFloat(s.price) || 0), 0);\n\nconst pctDelta = (a, b) => {\n  if (a === 0 && b === 0) return 0;\n  if (a === 0) return 1;\n  return Math.abs((a - b) / a);\n};\n\nconst stripeDelta = pctDelta(summary.revenue_is, stripeTotal);\nconst gumroadDelta = pctDelta(summary.revenue_gumroad, gumroadTotal);\n\nconst discrepancies = [];\nif (stripeDelta > 0.01) {\n  discrepancies.push({\n    platform: 'stripe',\n    airtable: summary.revenue_is,\n    api: Number(stripeTotal.toFixed(2)),\n    delta_pct: Number((stripeDelta * 100).toFixed(2))\n  });\n}\nif (gumroadDelta > 0.01) {\n  discrepancies.push({\n    platform: 'gumroad',\n    airtable: summary.revenue_gumroad,\n    api: Number(gumroadTotal.toFixed(2)),\n    delta_pct: Number((gumroadDelta * 100).toFixed(2))\n  });\n}\n\nreturn [{ json: {\n  date: summary.date,\n  summary,\n  stripe_total: Number(stripeTotal.toFixed(2)),\n  gumroad_total: Number(gumroadTotal.toFixed(2)),\n  stripe_delta_pct: Number((stripeDelta * 100).toFixed(2)),\n  gumroad_delta_pct: Number((gumroadDelta * 100).toFixed(2)),\n  discrepancies,\n  reconciled: discrepancies.length === 0\n}}];"
+      }
+    },
+    {
+      "id": "w09-n10",
+      "name": "Has Discrepancy?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1750, 600],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "discrepancy",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.reconciled }}",
+                    "rightValue": false,
+                    "operator": { "type": "boolean", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+    {
+      "id": "w09-n11",
+      "name": "Log Reconciliation Error",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2000, 500],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toISOString() }}",
+            "Workflow": "W09-daily-revenue-rollup",
+            "Node": "Reconcile Totals",
+            "Error message": "={{ 'Revenue reconciliation delta > 1% on ' + $json.date + ': ' + JSON.stringify($json.discrepancies) }}",
+            "Payload": "={{ JSON.stringify($json).slice(0, 500) }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w09-n12",
+      "name": "Slack Daily Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2000, 700],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '📊 Daily Revenue Rollup — ' + $json.date + '\\nTotal: $' + $json.summary.revenue_total + ' (' + $json.summary.orders_total + ' orders)\\nIS: $' + $json.summary.revenue_is + ' | Etsy: $' + $json.summary.revenue_etsy + ' | Gumroad: $' + $json.summary.revenue_gumroad + '\\nOrderBump: ' + (($json.summary.orderbump_rate * 100).toFixed(1)) + '% | OTO: ' + (($json.summary.oto_rate * 100).toFixed(1)) + '% | 30d Refund: ' + (($json.summary.refund_rate_rolling_30 * 100).toFixed(1)) + '%\\nTop product: ' + ($json.summary.top_products[0]?.sku || 'n/a') + ' ($' + ($json.summary.top_products[0]?.revenue || 0) + ')\\nReconciled: ' + ($json.reconciled ? '✅' : '⚠️ ' + JSON.stringify($json.discrepancies)) }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w09-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 900],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W09-daily-revenue-rollup',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w09-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1250, 900],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w09-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1500, 900],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W09 Daily Revenue Rollup FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 06:00 ET Schedule": {
+      "main": [
+        [{ "node": "Compute Yesterday Range", "type": "main", "index": 0 }]
+      ]
+    },
+    "Compute Yesterday Range": {
+      "main": [
+        [
+          { "node": "List Orders Yesterday", "type": "main", "index": 0 },
+          { "node": "List Orders Last 30 Days", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "List Orders Yesterday": {
+      "main": [
+        [{ "node": "Aggregate Metrics", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "List Orders Last 30 Days": {
+      "main": [
+        [{ "node": "Aggregate Metrics", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Aggregate Metrics": {
+      "main": [
+        [
+          { "node": "Write Metrics Rows", "type": "main", "index": 0 },
+          { "node": "Stripe Balance Transactions", "type": "main", "index": 0 },
+          { "node": "Gumroad Sales Yesterday", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Write Metrics Rows": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Stripe Balance Transactions": {
+      "main": [
+        [{ "node": "Reconcile Totals", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Gumroad Sales Yesterday": {
+      "main": [
+        [{ "node": "Reconcile Totals", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Reconcile Totals": {
+      "main": [
+        [{ "node": "Has Discrepancy?", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Has Discrepancy?": {
+      "main": [
+        [
+          { "node": "Log Reconciliation Error", "type": "main", "index": 0 },
+          { "node": "Slack Daily Summary", "type": "main", "index": 0 }
+        ],
+        [{ "node": "Slack Daily Summary", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 300,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

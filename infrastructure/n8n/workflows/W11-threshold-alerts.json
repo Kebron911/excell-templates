@@ -1,0 +1,498 @@
+{
+  "name": "W11 — Threshold Alerts",
+  "nodes": [
+    {
+      "id": "w11-n01",
+      "name": "Metric Threshold Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 500],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "metric-threshold",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w11-n02",
+      "name": "Extract Metric",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 500],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body || input;\n\n// Airtable automation payload typically includes the row's fields\nconst fields = body.fields || body.record?.fields || body;\nconst metric_name = fields['Metric name'] || body.metric_name || '';\nconst valueRaw = fields['Value'] !== undefined ? fields['Value'] : body.value;\nconst value = typeof valueRaw === 'number' ? valueRaw : parseFloat(valueRaw);\nconst date = fields['Date'] || body.date || new Date().toISOString().slice(0, 10);\nconst notes = fields['Notes'] || body.notes || '';\nconst record_id = body.record_id || body.recordId || body.id || '';\n\nif (!metric_name) throw new Error('Missing metric_name in webhook payload');\nif (Number.isNaN(value)) throw new Error('Invalid value: ' + valueRaw);\n\n// Detect channel suffix on cac_by_channel_<name>\nlet route_key = metric_name;\nif (metric_name.startsWith('cac_by_channel_')) route_key = 'cac_by_channel';\n\nreturn [{ json: {\n  metric_name,\n  route_key,\n  value,\n  date,\n  notes,\n  record_id,\n  channel: metric_name.startsWith('cac_by_channel_') ? metric_name.slice('cac_by_channel_'.length) : null,\n  received_at: new Date().toISOString()\n}}];"
+      }
+    },
+    {
+      "id": "w11-n03",
+      "name": "Switch by Metric",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [750, 500],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "refund_rate",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route_key }}",
+                    "rightValue": "refund_rate_rolling_30",
+                    "operator": { "type": "string", "operation": "equals" }
+                  },
+                  {
+                    "leftValue": "={{ $json.value }}",
+                    "rightValue": 0.08,
+                    "operator": { "type": "number", "operation": "gt" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "email_open_rate",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route_key }}",
+                    "rightValue": "email_open_rate",
+                    "operator": { "type": "string", "operation": "equals" }
+                  },
+                  {
+                    "leftValue": "={{ $json.value }}",
+                    "rightValue": 0.25,
+                    "operator": { "type": "number", "operation": "lt" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "cac_by_channel",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route_key }}",
+                    "rightValue": "cac_by_channel",
+                    "operator": { "type": "string", "operation": "equals" }
+                  },
+                  {
+                    "leftValue": "={{ $json.value }}",
+                    "rightValue": 4.00,
+                    "operator": { "type": "number", "operation": "gt" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "orderbump_rate",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route_key }}",
+                    "rightValue": "orderbump_rate",
+                    "operator": { "type": "string", "operation": "equals" }
+                  },
+                  {
+                    "leftValue": "={{ $json.value }}",
+                    "rightValue": 0.15,
+                    "operator": { "type": "number", "operation": "lt" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+    {
+      "id": "w11-n04",
+      "name": "Build Refund Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 200],
+      "parameters": {
+        "jsCode": "const m = $input.first().json;\nconst pct = (m.value * 100).toFixed(1);\nconst dashboard = 'https://airtable.com/BASE_ID_PLACEHOLDER/TABLE_ID_ORDERS?view=refunds-30d';\nconst text = `🚨 Refund rate alert\\nLast 30 days: ${pct}% (target: <8%)\\nMetric: ${m.metric_name} on ${m.date}\\nRecommended action: review product quality and listing expectations; pull top 3 refund SKUs from dashboard.\\nDashboard: ${dashboard}`;\nreturn [{ json: { ...m, alert_type: 'refund_rate', alert_text: text, dashboard, target: '<8%', last_value_label: pct + '%' } }];"
+      }
+    },
+    {
+      "id": "w11-n05",
+      "name": "Build Email Open Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 400],
+      "parameters": {
+        "jsCode": "const m = $input.first().json;\nconst pct = (m.value * 100).toFixed(1);\nconst dashboard = 'https://airtable.com/BASE_ID_PLACEHOLDER/TABLE_ID_METRICS?view=email-open-rate';\nconst text = `📧 Email open rate alert\\nLatest: ${pct}% (target: ≥25%)\\nMetric: ${m.metric_name} on ${m.date}\\nRecommended action: deliverability check — verify SPF/DKIM/DMARC, warm-up status, and recent send-list hygiene.\\nDashboard: ${dashboard}`;\nreturn [{ json: { ...m, alert_type: 'email_open_rate', alert_text: text, dashboard, target: '>=25%', last_value_label: pct + '%' } }];"
+      }
+    },
+    {
+      "id": "w11-n06",
+      "name": "Build CAC Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 600],
+      "parameters": {
+        "jsCode": "const m = $input.first().json;\nconst dollars = m.value.toFixed(2);\nconst channel = m.channel || 'unknown';\nconst dashboard = `https://airtable.com/BASE_ID_PLACEHOLDER/TABLE_ID_METRICS?view=cac-${channel}`;\nconst text = `💸 CAC blown on ${channel}\\nLatest: $${dollars} (target: <$4.00)\\nMetric: ${m.metric_name} on ${m.date}\\nRecommended action: pause/reduce spend on ${channel}, audit creative + targeting, recheck attribution.\\nDashboard: ${dashboard}`;\nreturn [{ json: { ...m, alert_type: 'cac_by_channel', alert_text: text, dashboard, target: '<$4.00', last_value_label: '$' + dollars } }];"
+      }
+    },
+    {
+      "id": "w11-n07",
+      "name": "Build OrderBump Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 800],
+      "parameters": {
+        "jsCode": "const m = $input.first().json;\nconst pct = (m.value * 100).toFixed(1);\nconst dashboard = 'https://airtable.com/BASE_ID_PLACEHOLDER/TABLE_ID_ORDERS?view=orderbump-take-rate';\nconst text = `🛒 Bump mechanic failing\\nLatest: ${pct}% (target: ≥15%)\\nMetric: ${m.metric_name} on ${m.date}\\nRecommended action: review bump copy, price point, and placement on checkout page; A/B test alternative bump SKU.\\nDashboard: ${dashboard}`;\nreturn [{ json: { ...m, alert_type: 'orderbump_rate', alert_text: text, dashboard, target: '>=15%', last_value_label: pct + '%' } }];"
+      }
+    },
+    {
+      "id": "w11-n08",
+      "name": "Slack Refund Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1250, 200],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ $json.alert_text }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w11-n09",
+      "name": "Slack Email Open Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1250, 400],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ $json.alert_text }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w11-n10",
+      "name": "Slack CAC Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1250, 600],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ $json.alert_text }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w11-n11",
+      "name": "Slack OrderBump Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1250, 800],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ $json.alert_text }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w11-n12",
+      "name": "Log Refund Alert",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.received_at }}",
+            "Workflow": "W11-threshold-alerts",
+            "Node": "={{ $json.alert_type }}",
+            "Error message": "={{ 'Threshold breach: ' + $json.metric_name + ' = ' + $json.last_value_label + ' (target ' + $json.target + ')' }}",
+            "Payload": "={{ JSON.stringify({ metric_name: $json.metric_name, value: $json.value, date: $json.date, channel: $json.channel }) }}",
+            "Status": "Alert"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w11-n13",
+      "name": "Log Email Open Alert",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.received_at }}",
+            "Workflow": "W11-threshold-alerts",
+            "Node": "={{ $json.alert_type }}",
+            "Error message": "={{ 'Threshold breach: ' + $json.metric_name + ' = ' + $json.last_value_label + ' (target ' + $json.target + ')' }}",
+            "Payload": "={{ JSON.stringify({ metric_name: $json.metric_name, value: $json.value, date: $json.date }) }}",
+            "Status": "Alert"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w11-n14",
+      "name": "Log CAC Alert",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 600],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.received_at }}",
+            "Workflow": "W11-threshold-alerts",
+            "Node": "={{ $json.alert_type }}",
+            "Error message": "={{ 'Threshold breach: ' + $json.metric_name + ' = ' + $json.last_value_label + ' (target ' + $json.target + ') channel=' + ($json.channel || 'unknown') }}",
+            "Payload": "={{ JSON.stringify({ metric_name: $json.metric_name, value: $json.value, date: $json.date, channel: $json.channel }) }}",
+            "Status": "Alert"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w11-n15",
+      "name": "Log OrderBump Alert",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 800],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.received_at }}",
+            "Workflow": "W11-threshold-alerts",
+            "Node": "={{ $json.alert_type }}",
+            "Error message": "={{ 'Threshold breach: ' + $json.metric_name + ' = ' + $json.last_value_label + ' (target ' + $json.target + ')' }}",
+            "Payload": "={{ JSON.stringify({ metric_name: $json.metric_name, value: $json.value, date: $json.date }) }}",
+            "Status": "Alert"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w11-n16",
+      "name": "No Threshold Breach",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1000, 1000],
+      "parameters": {}
+    },
+    {
+      "id": "w11-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 1100],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W11-threshold-alerts',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w11-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 1100],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w11-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1000, 1100],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W11 Threshold Alerts FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Metric Threshold Webhook": {
+      "main": [
+        [{ "node": "Extract Metric", "type": "main", "index": 0 }]
+      ]
+    },
+    "Extract Metric": {
+      "main": [
+        [{ "node": "Switch by Metric", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Switch by Metric": {
+      "main": [
+        [{ "node": "Build Refund Alert", "type": "main", "index": 0 }],
+        [{ "node": "Build Email Open Alert", "type": "main", "index": 0 }],
+        [{ "node": "Build CAC Alert", "type": "main", "index": 0 }],
+        [{ "node": "Build OrderBump Alert", "type": "main", "index": 0 }],
+        [{ "node": "No Threshold Breach", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Refund Alert": {
+      "main": [
+        [
+          { "node": "Slack Refund Alert", "type": "main", "index": 0 },
+          { "node": "Log Refund Alert", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Build Email Open Alert": {
+      "main": [
+        [
+          { "node": "Slack Email Open Alert", "type": "main", "index": 0 },
+          { "node": "Log Email Open Alert", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Build CAC Alert": {
+      "main": [
+        [
+          { "node": "Slack CAC Alert", "type": "main", "index": 0 },
+          { "node": "Log CAC Alert", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Build OrderBump Alert": {
+      "main": [
+        [
+          { "node": "Slack OrderBump Alert", "type": "main", "index": 0 },
+          { "node": "Log OrderBump Alert", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Log Refund Alert": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Email Open Alert": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log CAC Alert": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log OrderBump Alert": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 300,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

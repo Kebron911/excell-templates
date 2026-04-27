@@ -1,0 +1,308 @@
+{
+  "name": "W15 — Pinterest Pin Performance Poll",
+  "nodes": [
+    {
+      "id": "w15-n01",
+      "name": "Daily Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w15-n02",
+      "name": "Compute Date Window",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "parameters": {
+        "jsCode": "// Pinterest analytics window: yesterday (full UTC day) to today\nconst now = new Date();\nconst end = new Date(now);\nconst start = new Date(now);\nstart.setDate(start.getDate() - 1);\n\nconst fmt = (d) => d.toISOString().slice(0, 10);\n\nreturn [{ json: {\n  start_date: fmt(start),\n  end_date: fmt(end),\n  poll_timestamp: now.toISOString()\n}}];"
+      }
+    },
+    {
+      "id": "w15-n03",
+      "name": "List Published Pins",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CONTENT", "mode": "id" },
+        "filterByFormula": "AND({Type}='pinterest-pin', {Status}='Published', NOT({pin_id}=''))",
+        "options": {
+          "fields": ["Title", "Type", "Status", "pin_id", "View count", "Save count", "Outbound clicks", "Published date", "Tags"]
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w15-n04",
+      "name": "Batch Pins (10 / batch)",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1000, 300],
+      "parameters": {
+        "batchSize": 10,
+        "options": {}
+      }
+    },
+    {
+      "id": "w15-n05",
+      "name": "Fetch Pin Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.pinterest.com/v5/pins/' + $json.fields.pin_id + '/analytics' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "start_date", "value": "={{ $node['Compute Date Window'].json.start_date }}" },
+            { "name": "end_date", "value": "={{ $node['Compute Date Window'].json.end_date }}" },
+            { "name": "metric_types", "value": "IMPRESSION,SAVE,OUTBOUND_CLICK" }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "13", "name": "Pinterest API" }
+      }
+    },
+    {
+      "id": "w15-n06",
+      "name": "Parse Analytics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "// Pinterest v5 analytics response shape:\n// { all: { lifetime_metrics: { IMPRESSION: n, SAVE: n, OUTBOUND_CLICK: n }, daily_metrics: [...] } }\nconst pin = $input.first().json;\nconst pinRecord = $node['Batch Pins (10 / batch)'].json;\nconst recordId = pinRecord.id;\nconst pinId = pinRecord.fields?.pin_id;\nconst publishedDate = pinRecord.fields?.['Published date'] || null;\n\nconst all = pin.all || {};\nconst metrics = all.lifetime_metrics || all.metrics || {};\n\n// Sum daily metrics if lifetime not present\nlet impressions = metrics.IMPRESSION ?? 0;\nlet saves = metrics.SAVE ?? 0;\nlet outboundClicks = metrics.OUTBOUND_CLICK ?? 0;\n\nif ((impressions === 0 && saves === 0 && outboundClicks === 0) && Array.isArray(all.daily_metrics)) {\n  for (const day of all.daily_metrics) {\n    impressions += day.metrics?.IMPRESSION ?? 0;\n    saves += day.metrics?.SAVE ?? 0;\n    outboundClicks += day.metrics?.OUTBOUND_CLICK ?? 0;\n  }\n}\n\n// Compute pin age in days for archive eligibility\nlet ageDays = null;\nif (publishedDate) {\n  ageDays = Math.floor((Date.now() - new Date(publishedDate).getTime()) / (1000 * 60 * 60 * 24));\n}\n\nreturn [{ json: {\n  record_id: recordId,\n  pin_id: pinId,\n  view_count: impressions,\n  save_count: saves,\n  outbound_clicks: outboundClicks,\n  age_days: ageDays,\n  existing_tags: pinRecord.fields?.Tags || [],\n  poll_timestamp: $node['Compute Date Window'].json.poll_timestamp\n}}];"
+      }
+    },
+    {
+      "id": "w15-n07",
+      "name": "Update Pin Metrics",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CONTENT", "mode": "id" },
+        "id": "={{ $json.record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "View count": "={{ $json.view_count }}",
+            "Save count": "={{ $json.save_count }}",
+            "Outbound clicks": "={{ $json.outbound_clicks }}",
+            "Last analytics poll": "={{ $json.poll_timestamp }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w15-n08",
+      "name": "Compute Performance Tiers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 550],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "// Aggregate ALL pins processed in this run, then compute top 10% / bottom 10%\n// by Outbound clicks. Pull the full set from the loop's accumulated outputs.\nconst all = $items('Parse Analytics', 0, 0).map(i => i.json).filter(p => p && p.record_id);\n\nif (all.length === 0) {\n  return [{ json: { summary: 'No pins processed', amplification: [], archive: [] } }];\n}\n\n// Sort by outbound clicks descending\nconst sorted = [...all].sort((a, b) => b.outbound_clicks - a.outbound_clicks);\n\n// Top 10% (min 1 pin) — amplification candidates\nconst topCount = Math.max(1, Math.floor(sorted.length * 0.10));\nconst amplification = sorted.slice(0, topCount).map(p => ({\n  record_id: p.record_id,\n  pin_id: p.pin_id,\n  outbound_clicks: p.outbound_clicks,\n  view_count: p.view_count,\n  tag: 'amplification-candidate',\n  existing_tags: p.existing_tags\n}));\n\n// Bottom 10% — archive candidates ONLY if pin is at least 14 days old AND impressions < 50\nconst bottomCount = Math.max(1, Math.floor(sorted.length * 0.10));\nconst bottomSlice = sorted.slice(-bottomCount);\nconst archive = bottomSlice\n  .filter(p => p.age_days != null && p.age_days >= 14 && p.view_count < 50)\n  .map(p => ({\n    record_id: p.record_id,\n    pin_id: p.pin_id,\n    outbound_clicks: p.outbound_clicks,\n    view_count: p.view_count,\n    age_days: p.age_days,\n    tag: 'archive-candidate',\n    existing_tags: p.existing_tags\n  }));\n\n// Emit one item per pin to be tagged (concat amplification + archive)\nconst tagged = [...amplification, ...archive];\n\nif (tagged.length === 0) {\n  return [{ json: { summary: 'No tier changes', amplification_count: amplification.length, archive_count: archive.length, total_pins: all.length } }];\n}\n\n// Pass summary in the first item's json for downstream Slack node\nreturn tagged.map((p, idx) => ({ json: {\n  ...p,\n  is_first: idx === 0,\n  total_pins: all.length,\n  amplification_count: amplification.length,\n  archive_count: archive.length\n}}));"
+      }
+    },
+    {
+      "id": "w15-n09",
+      "name": "Tag Tier Pins",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 550],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CONTENT", "mode": "id" },
+        "id": "={{ $json.record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Tags": "={{ Array.from(new Set([...($json.existing_tags || []), $json.tag])) }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w15-n10",
+      "name": "Slack Content Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2000, 550],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-content", "mode": "name" },
+        "text": "={{ '📌 Pinterest analytics poll complete\\nPins polled: ' + ($json.total_pins || 0) + '\\nAmplification candidates (top 10%): ' + ($json.amplification_count || 0) + '\\nArchive candidates (bottom 10%, 14d+, <50 imp): ' + ($json.archive_count || 0) + '\\nWindow: ' + $node['Compute Date Window'].json.start_date + ' → ' + $node['Compute Date Window'].json.end_date + '\\nReview the Amplification view in Airtable Content table.' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w15-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 800],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W15-pinterest-pin-performance-poll',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w15-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 800],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w15-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1750, 800],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W15 Pinterest Pin Performance Poll FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Daily Schedule": {
+      "main": [
+        [{ "node": "Compute Date Window", "type": "main", "index": 0 }]
+      ]
+    },
+    "Compute Date Window": {
+      "main": [
+        [{ "node": "List Published Pins", "type": "main", "index": 0 }]
+      ]
+    },
+    "List Published Pins": {
+      "main": [
+        [{ "node": "Batch Pins (10 / batch)", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Batch Pins (10 / batch)": {
+      "main": [
+        [{ "node": "Compute Performance Tiers", "type": "main", "index": 0 }],
+        [{ "node": "Fetch Pin Analytics", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Pin Analytics": {
+      "main": [
+        [{ "node": "Parse Analytics", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Analytics": {
+      "main": [
+        [{ "node": "Update Pin Metrics", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Pin Metrics": {
+      "main": [
+        [{ "node": "Batch Pins (10 / batch)", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Compute Performance Tiers": {
+      "main": [
+        [{ "node": "Tag Tier Pins", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Tag Tier Pins": {
+      "main": [
+        [{ "node": "Slack Content Summary", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 300,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

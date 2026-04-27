@@ -1,0 +1,574 @@
+{
+  "name": "W07 — Refund Handler",
+  "nodes": [
+    {
+      "id": "w07-n01",
+      "name": "Refund Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 400],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "refund-handler",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w07-n02",
+      "name": "Detect Source",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body || input;\nconst headers = input.headers || {};\n\nlet source = (body.source || '').toLowerCase();\n\n// Auto-detect from payload shape if source not provided\nif (!source) {\n  if (body.type && String(body.type).startsWith('charge.')) source = 'stripe';\n  else if (body.refund_id || body.refund_amount) source = 'gumroad';\n  else if (body.receipt_id || body.is_refund !== undefined) source = 'etsy';\n  else if (headers['stripe-signature']) source = 'stripe';\n}\n\nif (!['stripe','gumroad','etsy'].includes(source)) {\n  throw new Error('Unable to determine refund source. Pass body.source = stripe|gumroad|etsy');\n}\n\nreturn [{ json: { source, body, headers, received_at: new Date().toISOString() } }];"
+      }
+    },
+    {
+      "id": "w07-n03",
+      "name": "Source Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [750, 400],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "stripe",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.source }}",
+                    "rightValue": "stripe",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "gumroad",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.source }}",
+                    "rightValue": "gumroad",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "etsy",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.source }}",
+                    "rightValue": "etsy",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w07-n04",
+      "name": "Normalize Stripe",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 200],
+      "parameters": {
+        "jsCode": "const env = $input.first().json;\nconst body = env.body || {};\nconst obj = (body.data && body.data.object) || body;\nconst refunds = obj.refunds && obj.refunds.data ? obj.refunds.data : (obj.refunds || []);\nconst latestRefund = Array.isArray(refunds) && refunds.length ? refunds[refunds.length - 1] : null;\n\nconst chargeId = obj.id || obj.charge || (latestRefund && latestRefund.charge);\nconst paymentIntent = obj.payment_intent || (latestRefund && latestRefund.payment_intent);\nconst orderRef = paymentIntent ? ('stripe-' + paymentIntent) : (chargeId ? ('stripe-' + chargeId) : null);\n\nconst refundAmountCents = (latestRefund && latestRefund.amount) || obj.amount_refunded || 0;\nconst grossCents = obj.amount || obj.amount_captured || 0;\n\nreturn [{ json: {\n  source: 'stripe',\n  order_id: orderRef,\n  email: (obj.receipt_email || (obj.billing_details && obj.billing_details.email) || '').toLowerCase(),\n  refund_amount: refundAmountCents / 100,\n  gross_amount: grossCents / 100,\n  currency: obj.currency || 'usd',\n  refund_reason: (latestRefund && latestRefund.reason) || obj.failure_reason || 'unspecified',\n  refund_id: (latestRefund && latestRefund.id) || obj.id,\n  refunded_at: new Date(((latestRefund && latestRefund.created) || obj.created || Math.floor(Date.now()/1000)) * 1000).toISOString(),\n  raw_payload: JSON.stringify(body).slice(0, 5000)\n}}];"
+      }
+    },
+    {
+      "id": "w07-n05",
+      "name": "Normalize Gumroad",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 400],
+      "parameters": {
+        "jsCode": "const env = $input.first().json;\nconst body = env.body || {};\n\nconst saleId = body.sale_id || body.id;\nconst orderRef = saleId ? ('gumroad-' + saleId) : null;\nconst priceCents = parseInt(body.price || body.sale_price || 0);\nconst refundAmount = body.refund_amount\n  ? parseFloat(body.refund_amount)\n  : priceCents / 100;\n\nreturn [{ json: {\n  source: 'gumroad',\n  order_id: orderRef,\n  email: (body.email || '').toLowerCase(),\n  refund_amount: refundAmount,\n  gross_amount: priceCents / 100,\n  currency: (body.currency || 'usd').toLowerCase(),\n  refund_reason: body.refund_reason || body.cancellation_reason || 'unspecified',\n  refund_id: body.refund_id || ('gumroad-refund-' + saleId),\n  refunded_at: body.refunded_at || new Date().toISOString(),\n  raw_payload: JSON.stringify(body).slice(0, 5000)\n}}];"
+      }
+    },
+    {
+      "id": "w07-n06",
+      "name": "Normalize Etsy",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 600],
+      "parameters": {
+        "jsCode": "const env = $input.first().json;\nconst body = env.body || {};\n\nconst receiptId = body.receipt_id || (body.raw && JSON.parse(typeof body.raw === 'string' ? body.raw : JSON.stringify(body.raw)).receipt_id);\nconst orderRef = receiptId ? ('etsy-' + receiptId) : (body.order_id || null);\nconst grossAmount = parseFloat(body.gross_amount || 0);\n\nreturn [{ json: {\n  source: 'etsy',\n  order_id: orderRef,\n  email: (body.email || '').toLowerCase(),\n  refund_amount: parseFloat(body.refund_amount != null ? body.refund_amount : grossAmount),\n  gross_amount: grossAmount,\n  currency: (body.currency || 'USD').toLowerCase(),\n  refund_reason: body.refund_reason || 'etsy_buyer_request',\n  refund_id: body.refund_id || ('etsy-refund-' + receiptId),\n  refunded_at: body.refunded_at || new Date().toISOString(),\n  raw_payload: typeof body.raw === 'string' ? body.raw.slice(0,5000) : JSON.stringify(body).slice(0, 5000)\n}}];"
+      }
+    },
+    {
+      "id": "w07-n07",
+      "name": "Find Order",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1250, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "filterByFormula": "={{ \"{Order ID} = '\" + $json.order_id + \"'\" }}",
+        "options": { "fields": ["Order ID", "Email", "Gross amount", "Customer"] }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w07-n08",
+      "name": "Order Found?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1500, 400],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "found",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.id }}",
+                    "rightValue": "",
+                    "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+    {
+      "id": "w07-n09",
+      "name": "Update Order Refund",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "id": "={{ $json.id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Refund amount": "={{ $node['Source Switch'].context && $node['Source Switch'].context.outputIndex !== undefined ? '' : $node['Normalize Stripe'].json.refund_amount || $node['Normalize Gumroad'].json.refund_amount || $node['Normalize Etsy'].json.refund_amount }}",
+            "Refund status": "refunded",
+            "Refund reason": "={{ $node['Normalize Stripe'].json.refund_reason || $node['Normalize Gumroad'].json.refund_reason || $node['Normalize Etsy'].json.refund_reason }}",
+            "Refund ID": "={{ $node['Normalize Stripe'].json.refund_id || $node['Normalize Gumroad'].json.refund_id || $node['Normalize Etsy'].json.refund_id }}",
+            "Refunded at": "={{ $node['Normalize Stripe'].json.refunded_at || $node['Normalize Gumroad'].json.refunded_at || $node['Normalize Etsy'].json.refunded_at }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w07-n10",
+      "name": "Resolve Refund Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 400],
+      "parameters": {
+        "jsCode": "// Pull the active normalized payload from whichever upstream branch ran.\nconst nodes = ['Normalize Stripe', 'Normalize Gumroad', 'Normalize Etsy'];\nlet n = null;\nfor (const name of nodes) {\n  try {\n    const v = $node[name].json;\n    if (v && v.order_id) { n = v; break; }\n  } catch (e) { /* not executed */ }\n}\nif (!n) throw new Error('No normalized refund payload found in upstream branches');\n\nconst orderRow = $node['Find Order'].json;\nconst orderRecordId = orderRow && orderRow.id;\nconst customerLinks = orderRow && orderRow.fields && orderRow.fields['Customer'];\nconst customerRecordId = Array.isArray(customerLinks) && customerLinks.length ? customerLinks[0] : null;\nconst email = (orderRow && orderRow.fields && orderRow.fields['Email']) || n.email;\n\nreturn [{ json: {\n  ...n,\n  order_record_id: orderRecordId,\n  customer_record_id: customerRecordId,\n  email\n}}];"
+      }
+    },
+    {
+      "id": "w07-n11",
+      "name": "Get Customer Orders",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2250, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "filterByFormula": "={{ \"{Email} = '\" + $json.email + \"'\" }}",
+        "options": { "fields": ["Order ID", "Email", "Gross amount", "Refund amount", "Refund status", "Timestamp"] }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w07-n12",
+      "name": "Recompute Net LTV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2500, 400],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst ctx = $node['Resolve Refund Context'].json;\n\nlet gross = 0;\nlet refunds = 0;\nlet orderCount = 0;\nfor (const it of items) {\n  const f = (it.json && it.json.fields) || {};\n  gross += parseFloat(f['Gross amount'] || 0);\n  refunds += parseFloat(f['Refund amount'] || 0);\n  orderCount++;\n}\nconst netLTV = Math.round((gross - refunds) * 100) / 100;\n\nreturn [{ json: {\n  ...ctx,\n  gross_total: Math.round(gross * 100) / 100,\n  refund_total: Math.round(refunds * 100) / 100,\n  net_ltv: netLTV,\n  order_count: orderCount\n}}];"
+      }
+    },
+    {
+      "id": "w07-n13",
+      "name": "Update Customer LTV",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2750, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CUSTOMERS", "mode": "id" },
+        "id": "={{ $json.customer_record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Net LTV": "={{ $json.net_ltv }}",
+            "Total refunds": "={{ $json.refund_total }}",
+            "Refund count": "={{ $json.order_count }}",
+            "Last refund date": "={{ $json.refunded_at }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w07-n14",
+      "name": "Get 30-Day Orders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3000, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.airtable.com/v0/' + $env.AIRTABLE_BASE_ID + '/Orders' }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "filterByFormula", "value": "={{ 'IS_AFTER({Timestamp}, DATEADD(NOW(), -30, \"days\"))' }}" },
+            { "name": "pageSize", "value": "100" }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "={{ 'Bearer ' + $env.AIRTABLE_API_KEY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w07-n15",
+      "name": "Compute 30-Day Refund Rate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3250, 400],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst records = (data && data.records) || [];\nconst ctx = $node['Recompute Net LTV'].json;\n\nlet totalGross = 0;\nlet totalRefunds = 0;\nlet refundedCount = 0;\nfor (const r of records) {\n  const f = r.fields || {};\n  totalGross += parseFloat(f['Gross amount'] || 0);\n  const refundAmt = parseFloat(f['Refund amount'] || 0);\n  totalRefunds += refundAmt;\n  if (refundAmt > 0 || (f['Refund status'] && String(f['Refund status']).toLowerCase() === 'refunded')) refundedCount++;\n}\n\nconst rateByDollar = totalGross > 0 ? totalRefunds / totalGross : 0;\nconst rateByCount = records.length > 0 ? refundedCount / records.length : 0;\n\nreturn [{ json: {\n  ...ctx,\n  refund_rate_by_dollar: Math.round(rateByDollar * 10000) / 100,\n  refund_rate_by_count: Math.round(rateByCount * 10000) / 100,\n  total_orders_30d: records.length,\n  refunded_orders_30d: refundedCount,\n  threshold_breached: rateByDollar > 0.08\n}}];"
+      }
+    },
+    {
+      "id": "w07-n16",
+      "name": "Threshold Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [3500, 400],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "breached",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.threshold_breached }}",
+                    "rightValue": true,
+                    "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+    {
+      "id": "w07-n17",
+      "name": "Emit Threshold Metric",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [3750, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_METRICS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.refunded_at.slice(0, 10) }}",
+            "Metric name": "refund_rate_30d_breach",
+            "Value": "={{ $json.refund_rate_by_dollar }}",
+            "Context": "={{ JSON.stringify({ total_orders_30d: $json.total_orders_30d, refunded_orders_30d: $json.refunded_orders_30d, threshold_pct: 8, source: $json.source }) }}",
+            "Severity": "high",
+            "Triggered workflow": "W11"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w07-n18",
+      "name": "IS Tag Refunded",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3750, 500],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL + '/api/contacts/tags' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ email: $json.email, tags: ['refunded:' + $json.refunded_at.slice(0,10), 'refund_reason:' + ($json.refund_reason || 'unspecified').replace(/[^a-z0-9_]/gi,'_').toLowerCase(), 'refund_source:' + $json.source] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w07-n19",
+      "name": "Slack Refund Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [4000, 400],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-ops", "mode": "name" },
+        "text": "={{ 'Refund processed: ' + $json.order_id + ' ($' + $json.refund_amount + ' ' + $json.currency.toUpperCase() + ') from ' + $json.email + ' via ' + $json.source + '. Reason: ' + $json.refund_reason + '. 30d refund rate: ' + $json.refund_rate_by_dollar + '%' + ($json.threshold_breached ? ' THRESHOLD BREACHED — W11 metric emitted.' : '.') }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w07-n20",
+      "name": "Order Not Found Logger",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1750, 600],
+      "parameters": {
+        "jsCode": "const upstream = $node['Source Switch'].json;\nconst nodes = ['Normalize Stripe','Normalize Gumroad','Normalize Etsy'];\nlet n = null;\nfor (const name of nodes) {\n  try { const v = $node[name].json; if (v && v.order_id) { n = v; break; } } catch (e) {}\n}\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W07-refund-handler',\n  node: 'Find Order',\n  error_message: 'Refund received but no Order found in Airtable for order_id=' + (n && n.order_id),\n  payload: JSON.stringify(n || upstream).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w07-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 800],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: input.timestamp || new Date().toISOString(),\n  workflow: input.workflow || 'W07-refund-handler',\n  node: input.node || $node.name || 'unknown',\n  error_message: input.error_message || input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: input.payload || JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w07-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 800],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w07-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2000, 800],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ 'W07 Refund Handler FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Refund Webhook": {
+      "main": [
+        [{ "node": "Detect Source", "type": "main", "index": 0 }]
+      ]
+    },
+    "Detect Source": {
+      "main": [
+        [{ "node": "Source Switch", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Source Switch": {
+      "main": [
+        [{ "node": "Normalize Stripe", "type": "main", "index": 0 }],
+        [{ "node": "Normalize Gumroad", "type": "main", "index": 0 }],
+        [{ "node": "Normalize Etsy", "type": "main", "index": 0 }]
+      ]
+    },
+    "Normalize Stripe": {
+      "main": [
+        [{ "node": "Find Order", "type": "main", "index": 0 }]
+      ]
+    },
+    "Normalize Gumroad": {
+      "main": [
+        [{ "node": "Find Order", "type": "main", "index": 0 }]
+      ]
+    },
+    "Normalize Etsy": {
+      "main": [
+        [{ "node": "Find Order", "type": "main", "index": 0 }]
+      ]
+    },
+    "Find Order": {
+      "main": [
+        [{ "node": "Order Found?", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Order Found?": {
+      "main": [
+        [{ "node": "Update Order Refund", "type": "main", "index": 0 }],
+        [{ "node": "Order Not Found Logger", "type": "main", "index": 0 }]
+      ]
+    },
+    "Order Not Found Logger": {
+      "main": [
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Order Refund": {
+      "main": [
+        [{ "node": "Resolve Refund Context", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Resolve Refund Context": {
+      "main": [
+        [{ "node": "Get Customer Orders", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Customer Orders": {
+      "main": [
+        [{ "node": "Recompute Net LTV", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Recompute Net LTV": {
+      "main": [
+        [{ "node": "Update Customer LTV", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Customer LTV": {
+      "main": [
+        [{ "node": "Get 30-Day Orders", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get 30-Day Orders": {
+      "main": [
+        [{ "node": "Compute 30-Day Refund Rate", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Compute 30-Day Refund Rate": {
+      "main": [
+        [{ "node": "Threshold Switch", "type": "main", "index": 0 }]
+      ]
+    },
+    "Threshold Switch": {
+      "main": [
+        [{ "node": "Emit Threshold Metric", "type": "main", "index": 0 }],
+        [{ "node": "IS Tag Refunded", "type": "main", "index": 0 }]
+      ]
+    },
+    "Emit Threshold Metric": {
+      "main": [
+        [{ "node": "IS Tag Refunded", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "IS Tag Refunded": {
+      "main": [
+        [{ "node": "Slack Refund Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 120,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

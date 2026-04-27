@@ -1,0 +1,924 @@
+{
+  "name": "W18 — Integrity Checker",
+  "nodes": [
+    {
+      "id": "w18-n01",
+      "name": "Daily 03:00 ET Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 400],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 3 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w18-n02",
+      "name": "Init Run Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 400],
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);\nconst startOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 0, 0, 0);\nconst endOfYesterday = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59);\nreturn [{ json: {\n  run_id: `w18-${now.toISOString().slice(0,10)}`,\n  run_started_at: now.toISOString(),\n  prior_day_iso: yesterday.toISOString().slice(0, 10),\n  prior_day_start_unix: Math.floor(startOfYesterday.getTime() / 1000),\n  prior_day_end_unix: Math.floor(endOfYesterday.getTime() / 1000),\n  mismatches_minor: 0,\n  mismatches_major: 0,\n  total_checks: 0\n}}];"
+      }
+    },
+    {
+      "id": "w18-n03",
+      "name": "List IS-Live Products",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PRODUCTS", "mode": "id" },
+        "filterByFormula": "={{ \"AND({Live on IS} = TRUE(), {IS product ID} != '')\" }}",
+        "options": {}
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w18-n04",
+      "name": "Split IS Products",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1000, 200],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "w18-n05",
+      "name": "IS API Get Product",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.IS_API_BASE_URL + '/api/products/' + $json.fields['IS product ID'] }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w18-n06",
+      "name": "Compare IS Product",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 200],
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\nconst remote = $input.first().json;\nconst local = $node['Split IS Products'].json.fields;\nconst recordId = $node['Split IS Products'].json.id;\n\nconst mismatches = [];\nlet severity = 'none';\n\n// Name check (major)\nif ((remote.name || '').trim() !== (local['Name'] || '').trim()) {\n  mismatches.push({ field: 'name', local: local['Name'], remote: remote.name });\n  severity = 'major';\n}\n\n// Description check (minor)\nif ((remote.description || '').trim() !== (local['Description'] || '').trim()) {\n  mismatches.push({ field: 'description', local: (local['Description'] || '').slice(0, 100), remote: (remote.description || '').slice(0, 100) });\n  if (severity !== 'major') severity = 'minor';\n}\n\n// Price check (minor — fixable via resync)\nconst localPrice = parseFloat(local['Price (USD)'] || 0);\nconst remotePrice = parseFloat(remote.price || 0);\nif (Math.abs(localPrice - remotePrice) > 0.01) {\n  mismatches.push({ field: 'price', local: localPrice, remote: remotePrice });\n  if (severity !== 'major') severity = 'minor';\n}\n\n// File hash check (major)\nconst localHash = local['File hash'] || '';\nconst remoteHash = remote.file_hash || (remote.file_url ? crypto.createHash('sha256').update(remote.file_url).digest('hex') : '');\nif (localHash && remoteHash && localHash !== remoteHash) {\n  mismatches.push({ field: 'file_hash', local: localHash, remote: remoteHash });\n  severity = 'major';\n}\n\nreturn [{ json: {\n  platform: 'is',\n  product_record_id: recordId,\n  product_sku: local['SKU'],\n  product_name: local['Name'],\n  has_mismatch: mismatches.length > 0,\n  severity,\n  mismatches,\n  mismatch_summary: mismatches.map(m => `${m.field}: local=${m.local} | remote=${m.remote}`).join(' || ')\n}}];"
+      }
+    },
+    {
+      "id": "w18-n07",
+      "name": "IF IS Mismatch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1750, 200],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "minor",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.has_mismatch }}",
+                    "rightValue": true,
+                    "operator": { "type": "boolean", "operation": "equals" }
+                  },
+                  {
+                    "leftValue": "={{ $json.severity }}",
+                    "rightValue": "minor",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "major",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.has_mismatch }}",
+                    "rightValue": true,
+                    "operator": { "type": "boolean", "operation": "equals" }
+                  },
+                  {
+                    "leftValue": "={{ $json.severity }}",
+                    "rightValue": "major",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w18-n08",
+      "name": "Log IS Drift to Errors",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2000, 100],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toISOString() }}",
+            "Workflow": "W18-integrity-checker",
+            "Node": "={{ 'IS drift on ' + $json.product_sku }}",
+            "Error message": "={{ 'IS drift (' + $json.severity + '): ' + $json.mismatch_summary }}",
+            "Payload": "={{ JSON.stringify($json).slice(0, 500) }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w18-n09",
+      "name": "Trigger W06 Resync (Minor)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2250, 50],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.N8N_BASE_URL + '/webhook/product-resync' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ platform: 'is', product_record_id: $json.product_record_id, reason: 'w18-minor-drift', mismatches: $json.mismatches }) }}"
+      }
+    },
+    {
+      "id": "w18-n10",
+      "name": "Slack Major IS Drift Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2250, 150],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '⚠️ W18 MAJOR drift on IS product ' + $json.product_sku + ' (' + $json.product_name + ')\\nFields: ' + $json.mismatch_summary + '\\nHuman review required.' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w18-n11",
+      "name": "Loop Back IS",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2500, 200],
+      "parameters": {}
+    },
+    {
+      "id": "w18-n12",
+      "name": "List Gumroad-Live Products",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PRODUCTS", "mode": "id" },
+        "filterByFormula": "={{ \"AND({Live on Gumroad} = TRUE(), {Gumroad product ID} != '')\" }}",
+        "options": {}
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w18-n13",
+      "name": "Split Gumroad Products",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1000, 400],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "w18-n14",
+      "name": "Gumroad API Get Product",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.gumroad.com/v2/products/' + $json.fields['Gumroad product ID'] }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "5", "name": "Gumroad API Key" }
+      }
+    },
+    {
+      "id": "w18-n15",
+      "name": "Compare Gumroad Product",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 400],
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst remote = response.product || response;\nconst local = $node['Split Gumroad Products'].json.fields;\nconst recordId = $node['Split Gumroad Products'].json.id;\n\nconst mismatches = [];\nlet severity = 'none';\n\nif ((remote.name || '').trim() !== (local['Name'] || '').trim()) {\n  mismatches.push({ field: 'name', local: local['Name'], remote: remote.name });\n  severity = 'major';\n}\n\nif ((remote.description || '').replace(/<[^>]+>/g, '').trim() !== (local['Description'] || '').trim()) {\n  mismatches.push({ field: 'description', local: (local['Description'] || '').slice(0, 100), remote: (remote.description || '').slice(0, 100) });\n  if (severity !== 'major') severity = 'minor';\n}\n\n// Gumroad price stored in cents\nconst localPriceCents = Math.round(parseFloat(local['Price (USD)'] || 0) * 100);\nconst remotePriceCents = parseInt(remote.price || 0);\nif (Math.abs(localPriceCents - remotePriceCents) > 1) {\n  mismatches.push({ field: 'price_cents', local: localPriceCents, remote: remotePriceCents });\n  if (severity !== 'major') severity = 'minor';\n}\n\n// Published flag\nif (local['Live on Gumroad'] === true && remote.published === false) {\n  mismatches.push({ field: 'published', local: true, remote: false });\n  severity = 'major';\n}\n\nreturn [{ json: {\n  platform: 'gumroad',\n  product_record_id: recordId,\n  product_sku: local['SKU'],\n  product_name: local['Name'],\n  has_mismatch: mismatches.length > 0,\n  severity,\n  mismatches,\n  mismatch_summary: mismatches.map(m => `${m.field}: local=${m.local} | remote=${m.remote}`).join(' || ')\n}}];"
+      }
+    },
+    {
+      "id": "w18-n16",
+      "name": "IF Gumroad Mismatch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1750, 400],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "minor",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.has_mismatch }}",
+                    "rightValue": true,
+                    "operator": { "type": "boolean", "operation": "equals" }
+                  },
+                  {
+                    "leftValue": "={{ $json.severity }}",
+                    "rightValue": "minor",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "major",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.has_mismatch }}",
+                    "rightValue": true,
+                    "operator": { "type": "boolean", "operation": "equals" }
+                  },
+                  {
+                    "leftValue": "={{ $json.severity }}",
+                    "rightValue": "major",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w18-n17",
+      "name": "Log Gumroad Drift to Errors",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2000, 350],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toISOString() }}",
+            "Workflow": "W18-integrity-checker",
+            "Node": "={{ 'Gumroad drift on ' + $json.product_sku }}",
+            "Error message": "={{ 'Gumroad drift (' + $json.severity + '): ' + $json.mismatch_summary }}",
+            "Payload": "={{ JSON.stringify($json).slice(0, 500) }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w18-n18",
+      "name": "Trigger W06 Resync Gumroad",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2250, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.N8N_BASE_URL + '/webhook/product-resync' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ platform: 'gumroad', product_record_id: $json.product_record_id, reason: 'w18-minor-drift', mismatches: $json.mismatches }) }}"
+      }
+    },
+    {
+      "id": "w18-n19",
+      "name": "Slack Major Gumroad Drift",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2250, 400],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '⚠️ W18 MAJOR drift on Gumroad product ' + $json.product_sku + ' (' + $json.product_name + ')\\nFields: ' + $json.mismatch_summary + '\\nHuman review required.' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w18-n20",
+      "name": "Loop Back Gumroad",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2500, 400],
+      "parameters": {}
+    },
+    {
+      "id": "w18-n21",
+      "name": "List Customers w/ IS Contact",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 600],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CUSTOMERS", "mode": "id" },
+        "filterByFormula": "={{ \"{IS contact ID} != ''\" }}",
+        "options": {}
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w18-n22",
+      "name": "Split Customers",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1000, 600],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "w18-n23",
+      "name": "IS API Get Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 600],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.IS_API_BASE_URL + '/api/contacts/' + $json.fields['IS contact ID'] }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w18-n24",
+      "name": "Compare Contact Tags",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 600],
+      "parameters": {
+        "jsCode": "const remote = $input.first().json;\nconst local = $node['Split Customers'].json.fields;\nconst recordId = $node['Split Customers'].json.id;\n\nconst remoteTags = (remote.tags || []).map(t => (t.name || t).toLowerCase()).sort();\n\n// Build expected tags from local purchase history\nconst purchasedSKUs = local['Purchased SKUs'] || [];\nconst expectedTags = new Set();\nfor (const sku of (Array.isArray(purchasedSKUs) ? purchasedSKUs : [purchasedSKUs])) {\n  if (sku) expectedTags.add('product:' + String(sku).toLowerCase());\n}\nexpectedTags.add('platform:is');\nif ((local['LTV (USD)'] || 0) >= 97) expectedTags.add('persona:sarah');\nelse if ((local['LTV (USD)'] || 0) > 0) expectedTags.add('persona:sam');\n\nconst expectedArr = [...expectedTags].sort();\nconst missing = expectedArr.filter(t => !remoteTags.includes(t));\nconst extra = remoteTags.filter(t => t.startsWith('product:') && !expectedArr.includes(t));\n\nconst hasMismatch = missing.length > 0 || extra.length > 0;\n\nreturn [{ json: {\n  customer_record_id: recordId,\n  email: local['Email'],\n  has_mismatch: hasMismatch,\n  missing_tags: missing,\n  extra_tags: extra,\n  mismatch_summary: hasMismatch ? `missing=[${missing.join(',')}] extra=[${extra.join(',')}]` : 'ok'\n}}];"
+      }
+    },
+    {
+      "id": "w18-n25",
+      "name": "IF Contact Mismatch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1750, 600],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "mismatch",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.has_mismatch }}",
+                    "rightValue": true,
+                    "operator": { "type": "boolean", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w18-n26",
+      "name": "Log Contact Drift to Errors",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2000, 600],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toISOString() }}",
+            "Workflow": "W18-integrity-checker",
+            "Node": "={{ 'IS contact tag drift: ' + $json.email }}",
+            "Error message": "={{ 'Tag drift: ' + $json.mismatch_summary }}",
+            "Payload": "={{ JSON.stringify($json).slice(0, 500) }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w18-n27",
+      "name": "Loop Back Customers",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2250, 600],
+      "parameters": {}
+    },
+    {
+      "id": "w18-n28",
+      "name": "Stripe Charges Prior Day",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [750, 800],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.stripe.com/v1/charges",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "created[gte]", "value": "={{ $node['Init Run Context'].json.prior_day_start_unix }}" },
+            { "name": "created[lte]", "value": "={{ $node['Init Run Context'].json.prior_day_end_unix }}" },
+            { "name": "limit", "value": "100" }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "6", "name": "Stripe API Key" }
+      }
+    },
+    {
+      "id": "w18-n29",
+      "name": "List Airtable IS Orders Prior Day",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 800],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "filterByFormula": "={{ \"AND({Platform} = 'is', IS_AFTER({Timestamp}, '\" + $node['Init Run Context'].json.prior_day_iso + \" 00:00:00'), IS_BEFORE({Timestamp}, '\" + $node['Init Run Context'].json.prior_day_iso + \" 23:59:59'))\" }}",
+        "options": {}
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w18-n30",
+      "name": "Reconcile Stripe vs Airtable",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 800],
+      "parameters": {
+        "jsCode": "const stripeData = $node['Stripe Charges Prior Day'].json;\nconst airtableItems = $node['List Airtable IS Orders Prior Day'].all();\n\nconst stripeCount = (stripeData.data || []).filter(c => c.status === 'succeeded' && !c.refunded).length;\nconst airtableCount = airtableItems.length;\nconst delta = stripeCount - airtableCount;\nconst hasMismatch = Math.abs(delta) > 0;\n\nreturn [{ json: {\n  prior_day: $node['Init Run Context'].json.prior_day_iso,\n  stripe_count: stripeCount,\n  airtable_count: airtableCount,\n  delta,\n  has_mismatch: hasMismatch,\n  summary: `Stripe ${stripeCount} vs Airtable ${airtableCount} (delta ${delta})`\n}}];"
+      }
+    },
+    {
+      "id": "w18-n31",
+      "name": "IF Stripe Mismatch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1500, 800],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "mismatch",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.has_mismatch }}",
+                    "rightValue": true,
+                    "operator": { "type": "boolean", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w18-n32",
+      "name": "Log Stripe Drift",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 800],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toISOString() }}",
+            "Workflow": "W18-integrity-checker",
+            "Node": "Stripe vs Airtable reconciliation",
+            "Error message": "={{ 'Stripe/Airtable order count mismatch on ' + $json.prior_day + ': ' + $json.summary }}",
+            "Payload": "={{ JSON.stringify($json).slice(0, 500) }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w18-n33",
+      "name": "Slack Stripe Drift Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2000, 800],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W18 Stripe/Airtable reconciliation FAIL for ' + $json.prior_day + ': ' + $json.summary + '\\nInvestigate webhook delivery / W01.' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w18-n34",
+      "name": "Slack Run Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2500, 800],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🩺 W18 Integrity Checker complete\\nRun: ' + $node['Init Run Context'].json.run_id + '\\nIS products checked, Gumroad products checked, IS contacts checked, Stripe reconciliation done.\\nReview Errors table for any open drift.' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w18-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 1000],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W18-integrity-checker',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w18-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 1000],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w18-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1750, 1000],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W18 Integrity Checker FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 03:00 ET Schedule": {
+      "main": [
+        [{ "node": "Init Run Context", "type": "main", "index": 0 }]
+      ]
+    },
+    "Init Run Context": {
+      "main": [
+        [
+          { "node": "List IS-Live Products", "type": "main", "index": 0 },
+          { "node": "List Gumroad-Live Products", "type": "main", "index": 0 },
+          { "node": "List Customers w/ IS Contact", "type": "main", "index": 0 },
+          { "node": "Stripe Charges Prior Day", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "List IS-Live Products": {
+      "main": [
+        [{ "node": "Split IS Products", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split IS Products": {
+      "main": [
+        [{ "node": "IS API Get Product", "type": "main", "index": 0 }]
+      ]
+    },
+    "IS API Get Product": {
+      "main": [
+        [{ "node": "Compare IS Product", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Compare IS Product": {
+      "main": [
+        [{ "node": "IF IS Mismatch", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF IS Mismatch": {
+      "main": [
+        [
+          { "node": "Log IS Drift to Errors", "type": "main", "index": 0 },
+          { "node": "Trigger W06 Resync (Minor)", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Log IS Drift to Errors", "type": "main", "index": 0 },
+          { "node": "Slack Major IS Drift Alert", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Log IS Drift to Errors": {
+      "main": [
+        [{ "node": "Loop Back IS", "type": "main", "index": 0 }]
+      ]
+    },
+    "Trigger W06 Resync (Minor)": {
+      "main": [
+        [{ "node": "Loop Back IS", "type": "main", "index": 0 }]
+      ]
+    },
+    "Slack Major IS Drift Alert": {
+      "main": [
+        [{ "node": "Loop Back IS", "type": "main", "index": 0 }]
+      ]
+    },
+    "Loop Back IS": {
+      "main": [
+        [{ "node": "Split IS Products", "type": "main", "index": 0 }]
+      ]
+    },
+    "List Gumroad-Live Products": {
+      "main": [
+        [{ "node": "Split Gumroad Products", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Gumroad Products": {
+      "main": [
+        [{ "node": "Gumroad API Get Product", "type": "main", "index": 0 }]
+      ]
+    },
+    "Gumroad API Get Product": {
+      "main": [
+        [{ "node": "Compare Gumroad Product", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Compare Gumroad Product": {
+      "main": [
+        [{ "node": "IF Gumroad Mismatch", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF Gumroad Mismatch": {
+      "main": [
+        [
+          { "node": "Log Gumroad Drift to Errors", "type": "main", "index": 0 },
+          { "node": "Trigger W06 Resync Gumroad", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Log Gumroad Drift to Errors", "type": "main", "index": 0 },
+          { "node": "Slack Major Gumroad Drift", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Log Gumroad Drift to Errors": {
+      "main": [
+        [{ "node": "Loop Back Gumroad", "type": "main", "index": 0 }]
+      ]
+    },
+    "Trigger W06 Resync Gumroad": {
+      "main": [
+        [{ "node": "Loop Back Gumroad", "type": "main", "index": 0 }]
+      ]
+    },
+    "Slack Major Gumroad Drift": {
+      "main": [
+        [{ "node": "Loop Back Gumroad", "type": "main", "index": 0 }]
+      ]
+    },
+    "Loop Back Gumroad": {
+      "main": [
+        [{ "node": "Split Gumroad Products", "type": "main", "index": 0 }]
+      ]
+    },
+    "List Customers w/ IS Contact": {
+      "main": [
+        [{ "node": "Split Customers", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Customers": {
+      "main": [
+        [{ "node": "IS API Get Contact", "type": "main", "index": 0 }]
+      ]
+    },
+    "IS API Get Contact": {
+      "main": [
+        [{ "node": "Compare Contact Tags", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Compare Contact Tags": {
+      "main": [
+        [{ "node": "IF Contact Mismatch", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF Contact Mismatch": {
+      "main": [
+        [{ "node": "Log Contact Drift to Errors", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Contact Drift to Errors": {
+      "main": [
+        [{ "node": "Loop Back Customers", "type": "main", "index": 0 }]
+      ]
+    },
+    "Loop Back Customers": {
+      "main": [
+        [{ "node": "Split Customers", "type": "main", "index": 0 }]
+      ]
+    },
+    "Stripe Charges Prior Day": {
+      "main": [
+        [{ "node": "List Airtable IS Orders Prior Day", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "List Airtable IS Orders Prior Day": {
+      "main": [
+        [{ "node": "Reconcile Stripe vs Airtable", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Reconcile Stripe vs Airtable": {
+      "main": [
+        [{ "node": "IF Stripe Mismatch", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF Stripe Mismatch": {
+      "main": [
+        [
+          { "node": "Log Stripe Drift", "type": "main", "index": 0 },
+          { "node": "Slack Stripe Drift Alert", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Slack Stripe Drift Alert": {
+      "main": [
+        [{ "node": "Slack Run Summary", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 600,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

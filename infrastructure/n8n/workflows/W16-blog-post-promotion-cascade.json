@@ -1,0 +1,420 @@
+{
+  "name": "W16 — Blog Post Promotion Cascade",
+  "nodes": [
+    {
+      "id": "w16-n01",
+      "name": "Blog Published Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 400],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "blog-published",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w16-n02",
+      "name": "Extract Blog Record ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst recordId = body.record_id || body.recordId || body.id;\n\nif (!recordId) {\n  throw new Error('Missing record_id in webhook payload from Airtable automation');\n}\n\nreturn [{ json: {\n  record_id: recordId,\n  triggered_at: new Date().toISOString()\n}}];"
+      }
+    },
+    {
+      "id": "w16-n03",
+      "name": "Get Blog Post Row",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "get",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CONTENT", "mode": "id" },
+        "id": "={{ $json.record_id }}"
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w16-n04",
+      "name": "Build Claude Pin Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const row = $input.first().json;\nconst f = row.fields || {};\nconst title = f.Title || f.title || '';\nconst url = f['URL'] || f.url || '';\nconst keyword = f['Target keyword'] || f.target_keyword || '';\nconst summary = f['Summary'] || f.summary || f.Body?.slice(0, 500) || '';\n\nif (!title || !url) {\n  throw new Error('Blog row missing Title or URL');\n}\n\nconst prompt = `You are a Pinterest content strategist for The STR Ledger, an editorial-finance brand selling Excel workbooks for Airbnb/VRBO hosts. Generate exactly 5 Pinterest pin variants for this blog post.\\n\\nBlog title: ${title}\\nBlog URL: ${url}\\nTarget keyword: ${keyword}\\nSummary: ${summary}\\n\\nReturn a JSON array of exactly 5 objects, one for each variant_type in this order: tip-list, quote-card, infographic, question, before-after.\\n\\nEach object must have:\\n  - variant_type (string, one of the 5 above)\\n  - pin_title (string, max 100 chars, hook-driven)\\n  - pin_description (string, 200-500 chars, includes target keyword and CTA to read the post)\\n  - hashtags (array of 5-8 strings, no '#' prefix, lowercase, relevant to short-term-rental hosts)\\n\\nReturn ONLY the JSON array, no markdown, no commentary.`;\n\nreturn [{ json: {\n  blog_record_id: row.id,\n  blog_title: title,\n  blog_url: url,\n  blog_keyword: keyword,\n  prompt: prompt,\n  triggered_at: $node['Extract Blog Record ID'].json.triggered_at\n}}];"
+      }
+    },
+    {
+      "id": "w16-n05",
+      "name": "Claude — Generate Pin Variants",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ model: 'claude-opus-4-7', max_tokens: 2000, messages: [{ role: 'user', content: $json.prompt }] }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "7", "name": "Claude API" }
+      }
+    },
+    {
+      "id": "w16-n06",
+      "name": "Parse Pin Variants",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const resp = $input.first().json;\nconst text = resp.content?.[0]?.text || '';\n\nif (!text) throw new Error('Claude returned empty content');\n\n// Strip markdown code fences if present\nlet cleaned = text.trim();\ncleaned = cleaned.replace(/^```json\\s*/i, '').replace(/^```\\s*/, '').replace(/```\\s*$/, '').trim();\n\nlet variants;\ntry {\n  variants = JSON.parse(cleaned);\n} catch (e) {\n  throw new Error('Failed to parse Claude JSON: ' + e.message + ' | raw: ' + cleaned.slice(0, 300));\n}\n\nif (!Array.isArray(variants) || variants.length === 0) {\n  throw new Error('Claude did not return a non-empty array');\n}\n\nconst ctx = $node['Build Claude Pin Prompt'].json;\n\n// Map variant_type to Vista Create template id (placeholders — replace with real ids)\nconst templateMap = {\n  'tip-list': $env.VISTA_TEMPLATE_TIP_LIST || 'tmpl-tip-list-001',\n  'quote-card': $env.VISTA_TEMPLATE_QUOTE || 'tmpl-quote-card-001',\n  'infographic': $env.VISTA_TEMPLATE_INFOGRAPHIC || 'tmpl-infographic-001',\n  'question': $env.VISTA_TEMPLATE_QUESTION || 'tmpl-question-001',\n  'before-after': $env.VISTA_TEMPLATE_BEFORE_AFTER || 'tmpl-before-after-001'\n};\n\nreturn variants.map((v, idx) => ({ json: {\n  index: idx,\n  variant_type: v.variant_type,\n  pin_title: v.pin_title,\n  pin_description: v.pin_description,\n  hashtags: Array.isArray(v.hashtags) ? v.hashtags : [],\n  vista_template_id: templateMap[v.variant_type] || templateMap['tip-list'],\n  blog_record_id: ctx.blog_record_id,\n  blog_title: ctx.blog_title,\n  blog_url: ctx.blog_url,\n  blog_keyword: ctx.blog_keyword\n}}));"
+      }
+    },
+    {
+      "id": "w16-n07",
+      "name": "Batch Variants (1 / batch)",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1750, 400],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "w16-n08",
+      "name": "Vista Create — Generate Pin Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.create.vista.com/v1/projects",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ template_id: $json.vista_template_id, fields: { headline: $json.pin_title, subheadline: $json.blog_keyword, body: $json.pin_description.slice(0, 200), cta: 'Read the full post', url: $json.blog_url }, output_format: 'png', output_size: { width: 1000, height: 1500 } }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "14", "name": "Vista Create API" }
+      }
+    },
+    {
+      "id": "w16-n09",
+      "name": "Create Pin Content Row",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2250, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CONTENT", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $node['Batch Variants (1 / batch)'].json.pin_title }}",
+            "Type": "pinterest-pin",
+            "Status": "Draft",
+            "Variant type": "={{ $node['Batch Variants (1 / batch)'].json.variant_type }}",
+            "Pin description": "={{ $node['Batch Variants (1 / batch)'].json.pin_description }}",
+            "Hashtags": "={{ ($node['Batch Variants (1 / batch)'].json.hashtags || []).join(' ') }}",
+            "Image URL": "={{ $json.output_url || $json.image_url || $json.url || '' }}",
+            "Vista project id": "={{ $json.id || $json.project_id || '' }}",
+            "Parent blog post": "={{ [$node['Batch Variants (1 / batch)'].json.blog_record_id] }}",
+            "Created at": "={{ new Date().toISOString() }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w16-n10",
+      "name": "Build Email Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 700],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "// Runs once after the variant loop finishes (SplitInBatches 'done' branch)\nconst ctx = $node['Build Claude Pin Prompt'].json;\nconst variantCount = $items('Parse Pin Variants', 0, 0).length;\n\nconst prompt = `You are an email copywriter for The STR Ledger newsletter (audience: Airbnb/VRBO hosts who run their business with spreadsheets). Write a short broadcast email announcing this new blog post.\\n\\nBlog title: ${ctx.blog_title}\\nBlog URL: ${ctx.blog_url}\\nTarget keyword: ${ctx.blog_keyword}\\n\\nReturn a JSON object with exactly two keys:\\n  - subject (string, max 60 chars, plain text, no emoji unless the brand voice clearly calls for one)\\n  - body_markdown (string, 150-300 words, markdown-formatted, ends with a clear CTA link to the blog URL)\\n\\nVoice: editorial, dry-confident, host-to-host. No hype, no exclamation marks. Lead with the problem the post solves.\\n\\nReturn ONLY the JSON object, no markdown fence, no commentary.`;\n\nreturn [{ json: {\n  blog_record_id: ctx.blog_record_id,\n  blog_title: ctx.blog_title,\n  blog_url: ctx.blog_url,\n  variant_count: variantCount,\n  prompt: prompt\n}}];"
+      }
+    },
+    {
+      "id": "w16-n11",
+      "name": "Claude — Generate Email Broadcast",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2250, 700],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ model: 'claude-opus-4-7', max_tokens: 1500, messages: [{ role: 'user', content: $json.prompt }] }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "7", "name": "Claude API" }
+      }
+    },
+    {
+      "id": "w16-n12",
+      "name": "Parse Email JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2500, 700],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const resp = $input.first().json;\nconst text = resp.content?.[0]?.text || '';\nif (!text) throw new Error('Claude returned empty email content');\n\nlet cleaned = text.trim();\ncleaned = cleaned.replace(/^```json\\s*/i, '').replace(/^```\\s*/, '').replace(/```\\s*$/, '').trim();\n\nlet email;\ntry {\n  email = JSON.parse(cleaned);\n} catch (e) {\n  throw new Error('Failed to parse Claude email JSON: ' + e.message + ' | raw: ' + cleaned.slice(0, 300));\n}\n\nif (!email.subject || !email.body_markdown) {\n  throw new Error('Email JSON missing subject or body_markdown');\n}\n\nconst ctx = $node['Build Email Prompt'].json;\n\nreturn [{ json: {\n  subject: email.subject,\n  body_markdown: email.body_markdown,\n  blog_record_id: ctx.blog_record_id,\n  blog_title: ctx.blog_title,\n  blog_url: ctx.blog_url,\n  variant_count: ctx.variant_count\n}}];"
+      }
+    },
+    {
+      "id": "w16-n13",
+      "name": "Create Email Content Row",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2750, 700],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CONTENT", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $json.subject }}",
+            "Type": "email-broadcast",
+            "Status": "Draft",
+            "Email subject": "={{ $json.subject }}",
+            "Email body": "={{ $json.body_markdown }}",
+            "Parent blog post": "={{ [$json.blog_record_id] }}",
+            "Created at": "={{ new Date().toISOString() }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w16-n14",
+      "name": "Slack Cascade Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [3000, 700],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-content", "mode": "name" },
+        "text": "={{ '📝 Blog post promotion cascade ready\\nBlog: ' + $json.blog_title + '\\nURL: ' + $json.blog_url + '\\n📌 Pinterest pin drafts created: ' + ($json.variant_count || 0) + '\\n✉️ Email broadcast draft: \"' + $json.subject + '\"\\nAll items in Airtable Content as Status=Draft. Review + publish when ready.' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w16-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 1000],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W16-blog-post-promotion-cascade',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w16-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 1000],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w16-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1750, 1000],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W16 Blog Post Promotion Cascade FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Blog Published Webhook": {
+      "main": [
+        [{ "node": "Extract Blog Record ID", "type": "main", "index": 0 }]
+      ]
+    },
+    "Extract Blog Record ID": {
+      "main": [
+        [{ "node": "Get Blog Post Row", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Blog Post Row": {
+      "main": [
+        [{ "node": "Build Claude Pin Prompt", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Claude Pin Prompt": {
+      "main": [
+        [{ "node": "Claude — Generate Pin Variants", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude — Generate Pin Variants": {
+      "main": [
+        [{ "node": "Parse Pin Variants", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Pin Variants": {
+      "main": [
+        [{ "node": "Batch Variants (1 / batch)", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Batch Variants (1 / batch)": {
+      "main": [
+        [{ "node": "Build Email Prompt", "type": "main", "index": 0 }],
+        [{ "node": "Vista Create — Generate Pin Image", "type": "main", "index": 0 }]
+      ]
+    },
+    "Vista Create — Generate Pin Image": {
+      "main": [
+        [{ "node": "Create Pin Content Row", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Pin Content Row": {
+      "main": [
+        [{ "node": "Batch Variants (1 / batch)", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Email Prompt": {
+      "main": [
+        [{ "node": "Claude — Generate Email Broadcast", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude — Generate Email Broadcast": {
+      "main": [
+        [{ "node": "Parse Email JSON", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Email JSON": {
+      "main": [
+        [{ "node": "Create Email Content Row", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Email Content Row": {
+      "main": [
+        [{ "node": "Slack Cascade Summary", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 300,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

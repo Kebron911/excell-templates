@@ -1,0 +1,773 @@
+{
+  "name": "W12 — Customer Support Triage",
+  "nodes": [
+    {
+      "id": "w12-n01",
+      "name": "Inbox Poll (IMAP)",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "parameters": {
+        "mailbox": "INBOX",
+        "postProcessAction": "read",
+        "format": "simple",
+        "options": {
+          "allowUnauthorizedCerts": false,
+          "forceReconnect": 60
+        }
+      },
+      "credentials": {
+        "imap": { "id": "9", "name": "IMAP — hello@thestrledger.com" }
+      }
+    },
+    {
+      "id": "w12-n02",
+      "name": "Extract Email Fields",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const msg = $input.first().json;\nconst from_raw = msg.from || '';\nconst from_match = from_raw.match(/<([^>]+)>/);\nconst from_email = (from_match ? from_match[1] : from_raw).toLowerCase().trim();\nconst from_name = from_raw.split('<')[0].replace(/\"/g, '').trim();\nconst subject = (msg.subject || '(no subject)').slice(0, 500);\nconst body_raw = msg.text || msg.textHtml || msg.textPlain || '';\nconst body = body_raw.replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim().slice(0, 8000);\nconst message_id = msg.messageId || msg.uid || `msg-${Date.now()}`;\n\nif (!from_email || !from_email.includes('@')) {\n  throw new Error('No valid sender email parsed from inbound message');\n}\n\n// Auto-reply / bounce detection — short circuit\nconst lc = (subject + ' ' + body).toLowerCase();\nconst is_auto = /(out of office|auto-?reply|delivery (status|failure)|undeliverable|mailer-daemon|do[- ]not[- ]reply|noreply@)/i.test(lc);\n\nreturn [{ json: {\n  message_id,\n  from_email,\n  from_name,\n  subject,\n  body,\n  received_at: new Date().toISOString(),\n  is_auto\n}}];"
+      }
+    },
+    {
+      "id": "w12-n03",
+      "name": "Claude Classify + Draft",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [750, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({\n  model: 'claude-opus-4-7',\n  max_tokens: 1500,\n  system: 'You are the support triage system for The STR Ledger, a small shop selling Excel templates for short-term-rental hosts. Classify inbound customer emails and draft a brand-voice response. Brand voice: direct, friendly, no fluff, signs off as \"— The STR Ledger\". Always return STRICT JSON with no markdown fences.',\n  messages: [{\n    role: 'user',\n    content: 'Classify this inbound support email into EXACTLY ONE of: faq | refund_request | bug_report | feature_request | sales_inquiry | spam.\\n\\nReturn STRICT JSON ONLY (no prose, no markdown) with this shape:\\n{\\n  \"classification\": \"<one of the six labels>\",\\n  \"confidence\": <0.0-1.0>,\\n  \"reasoning\": \"<one sentence>\",\\n  \"draft_response\": \"<full email body to customer, signed — The STR Ledger>\",\\n  \"detected_product\": \"<sku slug if any product is named, else null>\",\\n  \"refund_in_policy\": <true/false — only relevant for refund_request, based on email evidence; default false>\\n}\\n\\nFROM: ' + $json.from_email + '\\nSUBJECT: ' + $json.subject + '\\n\\nBODY:\\n' + $json.body\n  }]\n}) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "7", "name": "Claude API Key" }
+      }
+    },
+    {
+      "id": "w12-n04",
+      "name": "Parse Claude Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const claude = $input.first().json;\nconst email = $node['Extract Email Fields'].json;\n\nconst raw_text = claude?.content?.[0]?.text || '';\nif (!raw_text) throw new Error('Claude returned empty content');\n\nlet parsed;\ntry {\n  // Strip any code fences just in case\n  const cleaned = raw_text.replace(/^```(?:json)?\\s*/i, '').replace(/\\s*```$/, '').trim();\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  throw new Error('Could not parse Claude JSON: ' + e.message + ' | text: ' + raw_text.slice(0, 300));\n}\n\nconst valid = ['faq','refund_request','bug_report','feature_request','sales_inquiry','spam'];\nlet classification = (parsed.classification || '').toLowerCase().trim();\nif (!valid.includes(classification)) classification = 'faq';\n\n// Force spam routing if Extract flagged auto-reply\nif (email.is_auto) classification = 'spam';\n\nreturn [{ json: {\n  ...email,\n  classification,\n  confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0.5,\n  reasoning: parsed.reasoning || '',\n  draft_response: parsed.draft_response || '',\n  detected_product: parsed.detected_product || null,\n  refund_in_policy: !!parsed.refund_in_policy,\n  priority: classification === 'sales_inquiry' ? 'high' : (classification === 'bug_report' ? 'high' : 'normal')\n}}];"
+      }
+    },
+    {
+      "id": "w12-n05",
+      "name": "Route by Classification",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1250, 300],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "faq",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.classification }}", "rightValue": "faq", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "refund_request",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.classification }}", "rightValue": "refund_request", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "bug_report",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.classification }}", "rightValue": "bug_report", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "feature_request",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.classification }}", "rightValue": "feature_request", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "sales_inquiry",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.classification }}", "rightValue": "sales_inquiry", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "spam",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.classification }}", "rightValue": "spam", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w12-n06",
+      "name": "FAQ Draft to SupportDrafts",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1550, 80],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_SUPPORT_DRAFTS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Message ID": "={{ $json.message_id }}",
+            "Received at": "={{ $json.received_at }}",
+            "From email": "={{ $json.from_email }}",
+            "From name": "={{ $json.from_name }}",
+            "Subject": "={{ $json.subject }}",
+            "Body": "={{ $json.body }}",
+            "Classification": "faq",
+            "Confidence": "={{ $json.confidence }}",
+            "Draft response": "={{ $json.draft_response }}",
+            "Priority": "normal",
+            "Status": "Awaiting Daniel review"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w12-n07",
+      "name": "Lookup Order by Email",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1550, 240],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "filterByFormula": "={{ \"AND(LOWER({Customer email}) = '\" + $json.from_email + \"', {Refund status} = 'none')\" }}",
+        "sort": { "property": [ { "field": "Timestamp", "direction": "desc" } ] },
+        "options": { "limit": 1 }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w12-n08",
+      "name": "Refund Eligibility Gate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1800, 240],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const email = $node['Parse Claude Response'].json;\nconst orders = $input.all().map(i => i.json).filter(o => o && (o.id || o.fields));\n\nif (!orders.length) {\n  return [{ json: {\n    ...email,\n    eligibility: 'no_order_found',\n    order: null,\n    within_window: false\n  }}];\n}\n\nconst order = orders[0];\nconst fields = order.fields || order;\nconst ts = fields['Timestamp'] || fields['timestamp'];\nconst order_age_days = ts ? (Date.now() - new Date(ts).getTime()) / (1000 * 60 * 60 * 24) : 999;\nconst within_window = order_age_days <= 14;\nconst platform = (fields['Platform'] || '').toLowerCase();\nconst order_id = fields['Order ID'] || '';\nconst gross = parseFloat(fields['Gross amount'] || 0);\nconst stripe_pi = fields['Stripe payment intent'] || null;\nconst gumroad_sale_id = fields['Gumroad sale ID'] || (order_id.startsWith('gumroad-') ? order_id.replace('gumroad-', '') : null);\n\nlet eligibility = 'human_review';\nif (within_window && (platform === 'is' || platform === 'gumroad') && (stripe_pi || gumroad_sale_id) && gross > 0) {\n  eligibility = 'auto_approve';\n}\n\nreturn [{ json: {\n  ...email,\n  eligibility,\n  within_window,\n  order_age_days: Math.round(order_age_days * 10) / 10,\n  order_record_id: order.id,\n  order_id,\n  platform,\n  gross,\n  stripe_payment_intent: stripe_pi,\n  gumroad_sale_id\n}}];"
+      }
+    },
+    {
+      "id": "w12-n09",
+      "name": "Auto-Approve?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [2050, 240],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "auto",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.eligibility }}", "rightValue": "auto_approve", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "human",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.eligibility }}", "rightValue": "auto_approve", "operator": { "type": "string", "operation": "notEquals" } }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w12-n10",
+      "name": "Stripe Refund",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2300, 160],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/refunds",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "payment_intent", "value": "={{ $json.stripe_payment_intent }}" },
+            { "name": "reason", "value": "requested_by_customer" },
+            { "name": "metadata[workflow]", "value": "W12" },
+            { "name": "metadata[order_id]", "value": "={{ $json.order_id }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "10", "name": "Stripe Refund API" }
+      }
+    },
+    {
+      "id": "w12-n11",
+      "name": "Gumroad Refund",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2300, 320],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ 'https://api.gumroad.com/v2/sales/' + $json.gumroad_sale_id + '/refund' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "11", "name": "Gumroad Refund API" }
+      }
+    },
+    {
+      "id": "w12-n12",
+      "name": "Refund Platform Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [2200, 240],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "is",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.platform }}", "rightValue": "is", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "gumroad",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.platform }}", "rightValue": "gumroad", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w12-n13",
+      "name": "Mark Order Refunded",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2550, 240],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "id": "={{ $node['Refund Eligibility Gate'].json.order_record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Refund status": "full",
+            "Refund date": "={{ new Date().toISOString() }}",
+            "Refund reason": "Customer support request (W12 auto-approved)"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w12-n14",
+      "name": "Send Refund Confirmation",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2800, 240],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "fromEmail": "hello@thestrledger.com",
+        "toEmail": "={{ $node['Parse Claude Response'].json.from_email }}",
+        "subject": "={{ 'Re: ' + $node['Parse Claude Response'].json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $node['Parse Claude Response'].json.draft_response + '\\n\\nYour refund of $' + $node['Refund Eligibility Gate'].json.gross + ' has been processed and will land in your account in 5–10 business days.\\n\\n— The STR Ledger' }}",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": { "id": "8", "name": "SMTP — hello@thestrledger.com" }
+      }
+    },
+    {
+      "id": "w12-n15",
+      "name": "Refund Human Review Queue",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2300, 460],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_SUPPORT_DRAFTS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Message ID": "={{ $json.message_id }}",
+            "Received at": "={{ $json.received_at }}",
+            "From email": "={{ $json.from_email }}",
+            "From name": "={{ $json.from_name }}",
+            "Subject": "={{ $json.subject }}",
+            "Body": "={{ $json.body }}",
+            "Classification": "refund_request",
+            "Confidence": "={{ $json.confidence }}",
+            "Draft response": "={{ $json.draft_response }}",
+            "Priority": "high",
+            "Status": "Awaiting Daniel review",
+            "Notes": "={{ 'Eligibility: ' + $json.eligibility + ' | Order age (days): ' + ($json.order_age_days || 'n/a') + ' | Within 14d window: ' + $json.within_window }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w12-n16",
+      "name": "Bug Report to ProductIssues",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1550, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PRODUCT_ISSUES", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Reported at": "={{ $json.received_at }}",
+            "Reporter email": "={{ $json.from_email }}",
+            "Reporter name": "={{ $json.from_name }}",
+            "Subject": "={{ $json.subject }}",
+            "Description": "={{ $json.body }}",
+            "Detected product": "={{ $json.detected_product || '' }}",
+            "Source": "support email",
+            "Severity": "Triage",
+            "Status": "Open",
+            "Original message ID": "={{ $json.message_id }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w12-n17",
+      "name": "Bug Draft to SupportDrafts",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1800, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_SUPPORT_DRAFTS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Message ID": "={{ $node['Parse Claude Response'].json.message_id }}",
+            "Received at": "={{ $node['Parse Claude Response'].json.received_at }}",
+            "From email": "={{ $node['Parse Claude Response'].json.from_email }}",
+            "From name": "={{ $node['Parse Claude Response'].json.from_name }}",
+            "Subject": "={{ $node['Parse Claude Response'].json.subject }}",
+            "Body": "={{ $node['Parse Claude Response'].json.body }}",
+            "Classification": "bug_report",
+            "Confidence": "={{ $node['Parse Claude Response'].json.confidence }}",
+            "Draft response": "={{ $node['Parse Claude Response'].json.draft_response }}",
+            "Priority": "high",
+            "Status": "Awaiting Daniel review"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w12-n18",
+      "name": "Append Feedback to Customer",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1550, 560],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "upsert",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CUSTOMERS", "mode": "id" },
+        "matchingColumns": ["Email"],
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.from_email }}",
+            "First name": "={{ $json.from_name.split(' ')[0] || '' }}",
+            "Last feedback at": "={{ $json.received_at }}",
+            "Feedback notes": "={{ '[' + $json.received_at.slice(0,10) + '] ' + $json.subject + ': ' + $json.body.slice(0, 500) }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w12-n19",
+      "name": "Send Feature Thank-You",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1800, 560],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "fromEmail": "hello@thestrledger.com",
+        "toEmail": "={{ $node['Parse Claude Response'].json.from_email }}",
+        "subject": "={{ 'Re: ' + $node['Parse Claude Response'].json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $node['Parse Claude Response'].json.draft_response }}",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": { "id": "8", "name": "SMTP — hello@thestrledger.com" }
+      }
+    },
+    {
+      "id": "w12-n20",
+      "name": "Sales Inquiry to SupportDrafts",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1550, 720],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_SUPPORT_DRAFTS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Message ID": "={{ $json.message_id }}",
+            "Received at": "={{ $json.received_at }}",
+            "From email": "={{ $json.from_email }}",
+            "From name": "={{ $json.from_name }}",
+            "Subject": "={{ $json.subject }}",
+            "Body": "={{ $json.body }}",
+            "Classification": "sales_inquiry",
+            "Confidence": "={{ $json.confidence }}",
+            "Draft response": "={{ $json.draft_response }}",
+            "Priority": "high",
+            "Status": "Awaiting Daniel review"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w12-n21",
+      "name": "Spam Archive (NoOp)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1550, 880],
+      "parameters": {}
+    },
+    {
+      "id": "w12-n22",
+      "name": "Slack Triage Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [3050, 400],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-support", "mode": "name" },
+        "text": "={{ '📨 W12 triage — ' + ($node['Parse Claude Response'].json.classification || 'unknown') + ' (' + Math.round(($node['Parse Claude Response'].json.confidence || 0) * 100) + '% conf)\\nFrom: ' + $node['Parse Claude Response'].json.from_email + '\\nSubject: ' + $node['Parse Claude Response'].json.subject + '\\nReasoning: ' + ($node['Parse Claude Response'].json.reasoning || '—') }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w12-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 800],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W12-customer-support-triage',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w12-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 800],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w12-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1250, 800],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W12 Support Triage FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Inbox Poll (IMAP)": {
+      "main": [
+        [{ "node": "Extract Email Fields", "type": "main", "index": 0 }]
+      ]
+    },
+    "Extract Email Fields": {
+      "main": [
+        [{ "node": "Claude Classify + Draft", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude Classify + Draft": {
+      "main": [
+        [{ "node": "Parse Claude Response", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Claude Response": {
+      "main": [
+        [{ "node": "Route by Classification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Route by Classification": {
+      "main": [
+        [{ "node": "FAQ Draft to SupportDrafts", "type": "main", "index": 0 }],
+        [{ "node": "Lookup Order by Email", "type": "main", "index": 0 }],
+        [{ "node": "Bug Report to ProductIssues", "type": "main", "index": 0 }],
+        [{ "node": "Append Feedback to Customer", "type": "main", "index": 0 }],
+        [{ "node": "Sales Inquiry to SupportDrafts", "type": "main", "index": 0 }],
+        [{ "node": "Spam Archive (NoOp)", "type": "main", "index": 0 }]
+      ]
+    },
+    "FAQ Draft to SupportDrafts": {
+      "main": [
+        [{ "node": "Slack Triage Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Lookup Order by Email": {
+      "main": [
+        [{ "node": "Refund Eligibility Gate", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Refund Eligibility Gate": {
+      "main": [
+        [{ "node": "Auto-Approve?", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Auto-Approve?": {
+      "main": [
+        [{ "node": "Refund Platform Switch", "type": "main", "index": 0 }],
+        [{ "node": "Refund Human Review Queue", "type": "main", "index": 0 }]
+      ]
+    },
+    "Refund Platform Switch": {
+      "main": [
+        [{ "node": "Stripe Refund", "type": "main", "index": 0 }],
+        [{ "node": "Gumroad Refund", "type": "main", "index": 0 }]
+      ]
+    },
+    "Stripe Refund": {
+      "main": [
+        [{ "node": "Mark Order Refunded", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Gumroad Refund": {
+      "main": [
+        [{ "node": "Mark Order Refunded", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Mark Order Refunded": {
+      "main": [
+        [{ "node": "Send Refund Confirmation", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Refund Confirmation": {
+      "main": [
+        [{ "node": "Slack Triage Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Refund Human Review Queue": {
+      "main": [
+        [{ "node": "Slack Triage Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Bug Report to ProductIssues": {
+      "main": [
+        [{ "node": "Bug Draft to SupportDrafts", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Bug Draft to SupportDrafts": {
+      "main": [
+        [{ "node": "Slack Triage Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Append Feedback to Customer": {
+      "main": [
+        [{ "node": "Send Feature Thank-You", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Feature Thank-You": {
+      "main": [
+        [{ "node": "Slack Triage Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Sales Inquiry to SupportDrafts": {
+      "main": [
+        [{ "node": "Slack Triage Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Spam Archive (NoOp)": {
+      "main": [
+        [{ "node": "Slack Triage Notification", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 180,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

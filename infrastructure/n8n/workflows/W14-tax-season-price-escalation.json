@@ -1,0 +1,248 @@
+{
+  "name": "W14 — Tax Season Price Escalation",
+  "nodes": [
+    {
+      "id": "w14-n01",
+      "name": "Weekly Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w14-n02",
+      "name": "Window Guard",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "// Guard: only proceed if today is between Feb 1 and Apr 15 inclusive (America/New_York)\nconst nowET = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));\nconst year = nowET.getFullYear();\nconst month = nowET.getMonth() + 1; // 1-12\nconst day = nowET.getDate();\n\nconst inWindow = (month === 2) || (month === 3) || (month === 4 && day <= 15);\n\nif (!inWindow) {\n  // Off-season: emit nothing -> downstream nodes do not execute\n  return [];\n}\n\nreturn [{ json: {\n  today_iso: nowET.toISOString(),\n  year: year,\n  month: month,\n  day: day,\n  in_window: true\n}}];"
+      }
+    },
+    {
+      "id": "w14-n03",
+      "name": "Determine Target Price",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const ctx = $input.first().json;\nconst month = ctx.month;\nconst day = ctx.day;\n\n// Schedule (active band by current date):\n//  Feb 1 -> Feb 28/29 : $147\n//  Mar 1 -> Mar 31    : $167\n//  Apr 1 -> Apr 15    : $187\n//  Apr 16 onward      : $97  (off-season — handled by separate Apr-16 trigger; included for completeness)\nlet target_price;\nlet band_label;\n\nif (month === 2) {\n  target_price = 147;\n  band_label = 'feb-tax-prep-window';\n} else if (month === 3) {\n  target_price = 167;\n  band_label = 'mar-mid-season';\n} else if (month === 4 && day <= 15) {\n  target_price = 187;\n  band_label = 'apr-deadline-peak';\n} else if (month === 4 && day >= 16) {\n  target_price = 97;\n  band_label = 'off-season-reset';\n} else {\n  target_price = 97;\n  band_label = 'off-season';\n}\n\nreturn [{ json: {\n  ...ctx,\n  target_price: target_price,\n  band_label: band_label,\n  product_name: 'Tax Season Bundle',\n  product_sku: 'tax-season-bundle',\n  change_timestamp: new Date().toISOString()\n}}];"
+      }
+    },
+    {
+      "id": "w14-n04",
+      "name": "Update Tax Bundle Price",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "upsert",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PRODUCTS", "mode": "id" },
+        "matchingColumns": ["SKU"],
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "SKU": "={{ $json.product_sku }}",
+            "Name": "={{ $json.product_name }}",
+            "Price — own site": "={{ $json.target_price }}",
+            "Price — Gumroad": "={{ $json.target_price }}",
+            "Price — Payhip": "={{ $json.target_price }}",
+            "Status": "Active",
+            "Last price change": "={{ $json.change_timestamp }}",
+            "Price band": "={{ $json.band_label }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w14-n05",
+      "name": "Push to W06 Product Updater",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.N8N_BASE_URL }}/webhook/product-updated",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ sku: $json.product_sku, name: $json.product_name, price: $json.target_price, price_own_site: $json.target_price, price_gumroad: $json.target_price, price_payhip: $json.target_price, source_workflow: 'W14-tax-season-price-escalation', band: $json.band_label, changed_at: $json.change_timestamp }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      }
+    },
+    {
+      "id": "w14-n06",
+      "name": "Log Metric",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_METRICS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.change_timestamp.slice(0,10) }}",
+            "Metric name": "price-changed-tax-season-bundle",
+            "Value": "={{ $json.target_price }}",
+            "Notes": "={{ 'Band: ' + $json.band_label + ' | SKU: ' + $json.product_sku + ' | Pushed via W06' }}",
+            "Source": "W14-tax-season-price-escalation",
+            "Timestamp": "={{ $json.change_timestamp }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w14-n07",
+      "name": "Slack Ops Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1750, 300],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-ops", "mode": "name" },
+        "text": "={{ '💲 Tax Season Bundle price updated\\nNew price: $' + $json.target_price + ' (band: ' + $json.band_label + ')\\nApplied to: own-site, Gumroad, Payhip\\nDate: ' + $json.change_timestamp.slice(0,10) + '\\nW06 Product Updater notified — storefront sync in flight.' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w14-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 600],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W14-tax-season-price-escalation',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w14-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 600],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w14-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1250, 600],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W14 Tax Season Price Escalation FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Weekly Schedule": {
+      "main": [
+        [{ "node": "Window Guard", "type": "main", "index": 0 }]
+      ]
+    },
+    "Window Guard": {
+      "main": [
+        [{ "node": "Determine Target Price", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Determine Target Price": {
+      "main": [
+        [{ "node": "Update Tax Bundle Price", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Tax Bundle Price": {
+      "main": [
+        [{ "node": "Push to W06 Product Updater", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Push to W06 Product Updater": {
+      "main": [
+        [{ "node": "Log Metric", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Metric": {
+      "main": [
+        [{ "node": "Slack Ops Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 300,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

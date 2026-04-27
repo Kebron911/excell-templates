@@ -1,0 +1,431 @@
+{
+  "name": "W13 — Review Request",
+  "nodes": [
+    {
+      "id": "w13-n01",
+      "name": "Daily 10:00 ET Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w13-n02",
+      "name": "Compute 7-Day Window",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "parameters": {
+        "jsCode": "// Compute the day exactly 7 days ago in ET (workflow timezone)\nconst now = new Date();\nconst sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);\n\nconst y = sevenDaysAgo.getUTCFullYear();\nconst m = String(sevenDaysAgo.getUTCMonth() + 1).padStart(2, '0');\nconst d = String(sevenDaysAgo.getUTCDate()).padStart(2, '0');\nconst date_str = `${y}-${m}-${d}`;\n\nreturn [{ json: {\n  target_date: date_str,\n  window_start: `${date_str}T00:00:00.000Z`,\n  window_end: `${date_str}T23:59:59.999Z`,\n  run_at: now.toISOString()\n}}];"
+      }
+    },
+    {
+      "id": "w13-n03",
+      "name": "List Eligible Orders",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "filterByFormula": "={{ \"AND(IS_SAME({Timestamp}, '\" + $json.target_date + \"', 'day'), NOT({Review requested}), {Refund status} = 'none')\" }}",
+        "options": { "limit": 200 }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w13-n04",
+      "name": "Split Per Order",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1000, 300],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "w13-n05",
+      "name": "Get Customer + Product",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const order = $input.first().json;\nconst f = order.fields || order;\n\n// Customer is a linked record on Orders → take linked Customer email lookup field if present;\n// fall back to a `Customer email` rollup/lookup field (recommended Airtable schema).\nconst email = (f['Customer email'] || f['Email'] || '').toLowerCase().trim();\nconst first_name = f['First name'] || f['Customer first name'] || '';\nconst product_name = f['Product name'] || f['Product'] || 'STR Ledger workbook';\nconst product_sku = f['Product SKU'] || (Array.isArray(f['Product']) ? f['Product'][0] : '') || '';\nconst platform = (f['Platform'] || '').toLowerCase();\nconst order_id = f['Order ID'] || '';\nconst gumroad_product_permalink = f['Gumroad product permalink'] || '';\nconst etsy_listing_id = f['Etsy listing ID'] || '';\n\nif (!email || !email.includes('@')) {\n  throw new Error(`Order ${order_id} has no usable customer email`);\n}\nif (!['etsy', 'gumroad', 'is'].includes(platform)) {\n  throw new Error(`Order ${order_id} has unsupported platform: ${platform}`);\n}\n\nlet review_url;\nif (platform === 'etsy') {\n  review_url = etsy_listing_id\n    ? `https://www.etsy.com/your/purchases?ref=review&listing_id=${etsy_listing_id}`\n    : 'https://www.etsy.com/your/purchases';\n} else if (platform === 'gumroad') {\n  review_url = gumroad_product_permalink\n    ? `${gumroad_product_permalink}#ratings`\n    : 'https://gumroad.com/library';\n} else {\n  review_url = 'https://www.trustpilot.com/evaluate/thestrledger.com';\n}\n\nreturn [{ json: {\n  order_record_id: order.id,\n  order_id,\n  email,\n  first_name: first_name || 'there',\n  product_name,\n  product_sku,\n  platform,\n  review_url\n}}];"
+      }
+    },
+    {
+      "id": "w13-n06",
+      "name": "Route by Platform",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1500, 300],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "etsy",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.platform }}", "rightValue": "etsy", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "gumroad",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.platform }}", "rightValue": "gumroad", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "is",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.platform }}", "rightValue": "is", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w13-n07",
+      "name": "Claude Draft (Etsy)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1750, 120],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({\n  model: 'claude-opus-4-7',\n  max_tokens: 600,\n  system: 'You write short, plain-text customer emails for The STR Ledger. Voice: direct, friendly, no fluff. Sign off as \"— The STR Ledger\". Output ONLY the email body — no subject line, no markdown, no preamble.',\n  messages: [{\n    role: 'user',\n    content: 'Write a 7-days-after-purchase review request email using this template (fill in placeholders, keep tone, keep it short):\\n\\n' +\n      $json.first_name + ',\\n\\nYou picked up the ' + $json.product_name + ' a week ago — hope it has been useful.\\n\\nIf it has, would you drop a quick review? Takes 30 seconds and makes a huge difference for a small shop like ours:\\n\\n[Leave a review on Etsy →] (' + $json.review_url + ')\\n\\nIf something did not work, hit reply. I will fix it.\\n\\n— The STR Ledger\\n\\nReturn ONLY the final email body text.'\n  }]\n}) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "7", "name": "Claude API Key" }
+      }
+    },
+    {
+      "id": "w13-n08",
+      "name": "Claude Draft (Gumroad)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1750, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({\n  model: 'claude-opus-4-7',\n  max_tokens: 600,\n  system: 'You write short, plain-text customer emails for The STR Ledger. Voice: direct, friendly, no fluff. Sign off as \"— The STR Ledger\". Output ONLY the email body — no subject line, no markdown, no preamble.',\n  messages: [{\n    role: 'user',\n    content: 'Write a 7-days-after-purchase review request email using this template (fill in placeholders, keep tone, keep it short):\\n\\n' +\n      $json.first_name + ',\\n\\nYou picked up the ' + $json.product_name + ' a week ago — hope it has been useful.\\n\\nIf it has, would you drop a quick review? Takes 30 seconds and makes a huge difference for a small shop like ours:\\n\\n[Leave a review on Gumroad →] (' + $json.review_url + ')\\n\\nIf something did not work, hit reply. I will fix it.\\n\\n— The STR Ledger\\n\\nReturn ONLY the final email body text.'\n  }]\n}) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "7", "name": "Claude API Key" }
+      }
+    },
+    {
+      "id": "w13-n09",
+      "name": "Claude Draft (IS / Trustpilot)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1750, 480],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({\n  model: 'claude-opus-4-7',\n  max_tokens: 600,\n  system: 'You write short, plain-text customer emails for The STR Ledger. Voice: direct, friendly, no fluff. Sign off as \"— The STR Ledger\". Output ONLY the email body — no subject line, no markdown, no preamble.',\n  messages: [{\n    role: 'user',\n    content: 'Write a 7-days-after-purchase testimonial-request email using this template (fill in placeholders, keep tone). Ask them to either reply with a 1-2 sentence testimonial OR drop a Trustpilot review:\\n\\n' +\n      $json.first_name + ',\\n\\nYou picked up the ' + $json.product_name + ' a week ago — hope it has been useful.\\n\\nIf it has, would you reply with a 1–2 sentence testimonial I can use? Or drop a quick review here, takes 30 seconds:\\n\\n[Review on Trustpilot →] (' + $json.review_url + ')\\n\\nIf something did not work, hit reply. I will fix it.\\n\\n— The STR Ledger\\n\\nReturn ONLY the final email body text.'\n  }]\n}) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "7", "name": "Claude API Key" }
+      }
+    },
+    {
+      "id": "w13-n10",
+      "name": "Parse Drafted Body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const claude = $input.first().json;\nconst order = $node['Get Customer + Product'].json;\nconst body = (claude?.content?.[0]?.text || '').trim();\nif (!body) throw new Error('Claude returned empty email body');\n\nconst subject = `Quick favor, ${order.first_name}?`;\n\nreturn [{ json: {\n  ...order,\n  subject,\n  email_body: body\n}}];"
+      }
+    },
+    {
+      "id": "w13-n11",
+      "name": "Send Review Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2250, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "fromEmail": "hello@thestrledger.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.email_body }}",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": { "id": "8", "name": "SMTP — hello@thestrledger.com" }
+      }
+    },
+    {
+      "id": "w13-n12",
+      "name": "Mark Review Requested",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "id": "={{ $json.order_record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Review requested": true,
+            "Review requested at": "={{ new Date().toISOString() }}",
+            "Review platform": "={{ $json.platform }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w13-n13",
+      "name": "Aggregate Sent Count",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2750, 300],
+      "parameters": {
+        "jsCode": "// Runs after the SplitInBatches loop completes — aggregate all items\nconst items = $input.all();\nconst by_platform = { etsy: 0, gumroad: 0, is: 0 };\nlet total = 0;\nfor (const it of items) {\n  const p = (it.json.platform || '').toLowerCase();\n  if (by_platform[p] !== undefined) by_platform[p]++;\n  total++;\n}\nreturn [{ json: {\n  total_sent: total,\n  by_platform,\n  target_date: $node['Compute 7-Day Window'].json.target_date,\n  run_at: new Date().toISOString()\n}}];"
+      }
+    },
+    {
+      "id": "w13-n14",
+      "name": "Slack Daily Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [3000, 300],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-support", "mode": "name" },
+        "text": "={{ '✅ W13 Review Requests sent — ' + $json.total_sent + ' emails for orders dated ' + $json.target_date + '\\nEtsy: ' + $json.by_platform.etsy + ' | Gumroad: ' + $json.by_platform.gumroad + ' | IS: ' + $json.by_platform.is }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w13-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 700],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W13-review-request',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w13-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 700],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w13-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2000, 700],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W13 Review Request FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Daily 10:00 ET Schedule": {
+      "main": [
+        [{ "node": "Compute 7-Day Window", "type": "main", "index": 0 }]
+      ]
+    },
+    "Compute 7-Day Window": {
+      "main": [
+        [{ "node": "List Eligible Orders", "type": "main", "index": 0 }]
+      ]
+    },
+    "List Eligible Orders": {
+      "main": [
+        [{ "node": "Split Per Order", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Per Order": {
+      "main": [
+        [{ "node": "Aggregate Sent Count", "type": "main", "index": 0 }],
+        [{ "node": "Get Customer + Product", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Customer + Product": {
+      "main": [
+        [{ "node": "Route by Platform", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Route by Platform": {
+      "main": [
+        [{ "node": "Claude Draft (Etsy)", "type": "main", "index": 0 }],
+        [{ "node": "Claude Draft (Gumroad)", "type": "main", "index": 0 }],
+        [{ "node": "Claude Draft (IS / Trustpilot)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude Draft (Etsy)": {
+      "main": [
+        [{ "node": "Parse Drafted Body", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude Draft (Gumroad)": {
+      "main": [
+        [{ "node": "Parse Drafted Body", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude Draft (IS / Trustpilot)": {
+      "main": [
+        [{ "node": "Parse Drafted Body", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Drafted Body": {
+      "main": [
+        [{ "node": "Send Review Email", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Review Email": {
+      "main": [
+        [{ "node": "Mark Review Requested", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Mark Review Requested": {
+      "main": [
+        [{ "node": "Split Per Order", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Aggregate Sent Count": {
+      "main": [
+        [{ "node": "Slack Daily Summary", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 180,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

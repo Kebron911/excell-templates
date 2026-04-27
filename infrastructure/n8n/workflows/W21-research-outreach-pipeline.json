@@ -1,0 +1,575 @@
+{
+  "name": "W21 — Research Outreach Pipeline",
+  "nodes": [
+    {
+      "id": "w21-n01",
+      "name": "Drive CSV Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 30,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://drive.google.com/drive/folders/STR_OUTREACH_INBOX_FOLDER_ID"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "15", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w21-n02",
+      "name": "Download CSV File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://www.googleapis.com/drive/v3/files/' + $json.id + '?alt=media' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 60000
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": { "id": "15", "name": "Google Drive account" }
+      }
+    },
+    {
+      "id": "w21-n03",
+      "name": "Parse CSV",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 300],
+      "parameters": {
+        "jsCode": "const fileMeta = $node['Drive CSV Trigger'].json;\nconst raw = typeof $input.first().json === 'string' ? $input.first().json : ($input.first().json.data || $input.first().json.body || '');\nconst text = String(raw || '').replace(/\\r/g, '');\nconst lines = text.split('\\n').filter(l => l.trim().length > 0);\nif (lines.length < 2) throw new Error('CSV has no data rows');\n\nfunction splitCSVLine(line) {\n  const out = [];\n  let cur = '';\n  let inQuotes = false;\n  for (let i = 0; i < line.length; i++) {\n    const ch = line[i];\n    if (ch === '\"') {\n      if (inQuotes && line[i + 1] === '\"') { cur += '\"'; i++; }\n      else inQuotes = !inQuotes;\n    } else if (ch === ',' && !inQuotes) { out.push(cur); cur = ''; }\n    else cur += ch;\n  }\n  out.push(cur);\n  return out.map(s => s.trim());\n}\n\nconst headers = splitCSVLine(lines[0]).map(h => h.toLowerCase());\nconst nameIdx = headers.indexOf('name');\nconst emailIdx = headers.indexOf('email');\nconst websiteIdx = headers.indexOf('website');\nconst contextIdx = headers.indexOf('context');\nif (emailIdx === -1) throw new Error('CSV missing email column');\n\nconst rows = [];\nfor (let i = 1; i < lines.length; i++) {\n  const cols = splitCSVLine(lines[i]);\n  const email = (cols[emailIdx] || '').toLowerCase().trim();\n  if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) continue;\n  rows.push({\n    source_file_id: fileMeta.id,\n    source_file_name: fileMeta.name,\n    name: nameIdx >= 0 ? cols[nameIdx] : '',\n    email,\n    website: websiteIdx >= 0 ? cols[websiteIdx] : '',\n    context: contextIdx >= 0 ? cols[contextIdx] : ''\n  });\n}\nif (rows.length === 0) throw new Error('CSV had no valid email rows');\nreturn rows.map(r => ({ json: r }));"
+      }
+    },
+    {
+      "id": "w21-n04",
+      "name": "Split Prospects",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1000, 300],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "w21-n05",
+      "name": "Upsert OutreachQueue",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1250, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "upsert",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_OUTREACH_QUEUE", "mode": "id" },
+        "matchingColumns": ["Email"],
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "Name": "={{ $json.name }}",
+            "Website": "={{ $json.website }}",
+            "Context": "={{ $json.context }}",
+            "Source file": "={{ $json.source_file_name }}",
+            "Status": "New",
+            "Imported at": "={{ new Date().toISOString() }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w21-n06",
+      "name": "Claude Draft Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ model: 'claude-opus-4-7', max_tokens: 1024, system: 'You are Daniel Harrison, founder of The STR Ledger — Excel workbooks and ops systems for short-term rental hosts. Draft cold outreach emails that are specific, helpful, and human. Never use templated language. Never make claims you cannot back up. Two-to-three short paragraphs. One concrete ask. Always reference something specific from the prospect context. Output strictly JSON: {\"subject\": string, \"body\": string, \"reasoning\": string}.', messages: [{ role: 'user', content: 'Prospect:\\nName: ' + ($json.name || 'unknown') + '\\nEmail: ' + $json.email + '\\nWebsite: ' + ($json.website || 'n/a') + '\\nContext: ' + ($json.context || 'n/a') + '\\n\\nDraft a cold email from Daniel introducing The STR Ledger templates. Reference the prospect context naturally. End with a single specific ask.' }] }) }}",
+        "options": { "timeout": 60000 }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "7", "name": "Claude API" }
+      }
+    },
+    {
+      "id": "w21-n07",
+      "name": "Extract Draft",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1750, 300],
+      "parameters": {
+        "jsCode": "const resp = $input.first().json;\nconst text = (resp.content && resp.content[0] && resp.content[0].text) || '';\nlet parsed = { subject: '', body: '', reasoning: '' };\ntry {\n  // Strip code fences if present\n  const cleaned = text.replace(/```json\\s*/i, '').replace(/```\\s*$/i, '').trim();\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  parsed = { subject: '(claude returned non-JSON)', body: text.slice(0, 4000), reasoning: 'json-parse-failed' };\n}\nconst queueRecord = $node['Upsert OutreachQueue'].json;\nreturn [{ json: {\n  outreach_record_id: queueRecord.id,\n  email: queueRecord.fields ? queueRecord.fields.Email : ($node['Split Prospects'].json.email),\n  draft_subject: parsed.subject || '',\n  draft_body: parsed.body || '',\n  draft_reasoning: parsed.reasoning || '',\n  raw_claude: text.slice(0, 2000)\n}}];"
+      }
+    },
+    {
+      "id": "w21-n08",
+      "name": "Update OutreachQueue Draft",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2000, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_OUTREACH_QUEUE", "mode": "id" },
+        "id": "={{ $json.outreach_record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Draft subject": "={{ $json.draft_subject }}",
+            "Draft body": "={{ $json.draft_body }}",
+            "Draft reasoning": "={{ $json.draft_reasoning }}",
+            "Status": "AwaitingApproval",
+            "Drafted at": "={{ new Date().toISOString() }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w21-n09",
+      "name": "Loop Back Prospects",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2250, 300],
+      "parameters": {}
+    },
+    {
+      "id": "w21-n10",
+      "name": "Email Daniel — Drafts Ready",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "fromEmail": "ops@thestrledger.com",
+        "toEmail": "ltharrisond@hotmail.com",
+        "subject": "={{ '[STR Ledger] Outreach drafts ready for review (' + ($node['Drive CSV Trigger'].json.name || 'unknown CSV') + ')' }}",
+        "emailFormat": "text",
+        "text": "={{ 'Outreach drafts have been generated for review.\\n\\nSource file: ' + ($node['Drive CSV Trigger'].json.name || 'unknown') + '\\nReview each at: ' + ($env.AIRTABLE_OUTREACH_QUEUE_VIEW_URL || 'https://airtable.com/') + '\\n\\nFor each row, set Status=Approve or Status=Skip. Approval auto-fires the Instantly send.' }}",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": { "id": "8", "name": "SMTP account" }
+      }
+    },
+    {
+      "id": "w21-n11",
+      "name": "Approval Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 700],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "outreach-approved",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w21-n12",
+      "name": "Get OutreachQueue Row",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [500, 700],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "get",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_OUTREACH_QUEUE", "mode": "id" },
+        "id": "={{ $json.body.outreach_record_id }}"
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w21-n13",
+      "name": "Guard Approved Status",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [750, 700],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "approved",
+              "conditions": {
+                "options": { "caseSensitive": false, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ ($json.fields && $json.fields.Status) || '' }}",
+                    "rightValue": "Approved",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w21-n14",
+      "name": "Instantly Send Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1000, 700],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.instantly.ai/api/v1/send_email",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ campaign_id: $env.INSTANTLY_CAMPAIGN_ID, from_email: 'daniel@thestrledger.com', to_email: $json.fields.Email, subject: $json.fields['Draft subject'], body: $json.fields['Draft body'], reply_to: 'daniel@thestrledger.com', custom_variables: { outreach_record_id: $json.id } }) }}",
+        "options": { "timeout": 60000 }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "17", "name": "Instantly API" }
+      }
+    },
+    {
+      "id": "w21-n15",
+      "name": "Mark Sent",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1250, 700],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_OUTREACH_QUEUE", "mode": "id" },
+        "id": "={{ $node['Get OutreachQueue Row'].json.id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Sent",
+            "Sent at": "={{ new Date().toISOString() }}",
+            "Instantly response": "={{ JSON.stringify($json).slice(0, 1000) }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w21-n16",
+      "name": "Slack Sent Confirmation",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1500, 700],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-outreach", "mode": "name" },
+        "text": "={{ '📤 W21 outreach sent to ' + $node['Get OutreachQueue Row'].json.fields.Email + ' — subject: ' + $node['Get OutreachQueue Row'].json.fields['Draft subject'] }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w21-n17",
+      "name": "Reply Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 950],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "instantly-reply",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w21-n18",
+      "name": "Find OutreachQueue by Email",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [500, 950],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_OUTREACH_QUEUE", "mode": "id" },
+        "filterByFormula": "={{ \"LOWER({Email}) = '\" + (($json.body && ($json.body.lead_email || $json.body.email)) || '').toLowerCase() + \"'\" }}",
+        "options": {}
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w21-n19",
+      "name": "Update OutreachQueue Replied",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 950],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_OUTREACH_QUEUE", "mode": "id" },
+        "id": "={{ $json.id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Replied",
+            "Replied at": "={{ new Date().toISOString() }}",
+            "Reply payload": "={{ JSON.stringify($node['Reply Webhook'].json.body).slice(0, 2000) }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w21-n20",
+      "name": "Slack Reply Notice",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1000, 950],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-outreach", "mode": "name" },
+        "text": "={{ '📨 W21 reply received from ' + $json.fields.Email + ' — handle in inbox.' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w21-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 1200],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W21-research-outreach-pipeline',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w21-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 1200],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w21-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2000, 1200],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W21 Outreach Pipeline FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Drive CSV Trigger": {
+      "main": [
+        [{ "node": "Download CSV File", "type": "main", "index": 0 }]
+      ]
+    },
+    "Download CSV File": {
+      "main": [
+        [{ "node": "Parse CSV", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse CSV": {
+      "main": [
+        [{ "node": "Split Prospects", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Prospects": {
+      "main": [
+        [{ "node": "Upsert OutreachQueue", "type": "main", "index": 0 }],
+        [{ "node": "Email Daniel — Drafts Ready", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert OutreachQueue": {
+      "main": [
+        [{ "node": "Claude Draft Email", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude Draft Email": {
+      "main": [
+        [{ "node": "Extract Draft", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Extract Draft": {
+      "main": [
+        [{ "node": "Update OutreachQueue Draft", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update OutreachQueue Draft": {
+      "main": [
+        [{ "node": "Loop Back Prospects", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Loop Back Prospects": {
+      "main": [
+        [{ "node": "Split Prospects", "type": "main", "index": 0 }]
+      ]
+    },
+    "Email Daniel — Drafts Ready": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Approval Webhook": {
+      "main": [
+        [{ "node": "Get OutreachQueue Row", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get OutreachQueue Row": {
+      "main": [
+        [{ "node": "Guard Approved Status", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Guard Approved Status": {
+      "main": [
+        [{ "node": "Instantly Send Email", "type": "main", "index": 0 }]
+      ]
+    },
+    "Instantly Send Email": {
+      "main": [
+        [{ "node": "Mark Sent", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Mark Sent": {
+      "main": [
+        [{ "node": "Slack Sent Confirmation", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Reply Webhook": {
+      "main": [
+        [{ "node": "Find OutreachQueue by Email", "type": "main", "index": 0 }]
+      ]
+    },
+    "Find OutreachQueue by Email": {
+      "main": [
+        [{ "node": "Update OutreachQueue Replied", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update OutreachQueue Replied": {
+      "main": [
+        [{ "node": "Slack Reply Notice", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 600,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

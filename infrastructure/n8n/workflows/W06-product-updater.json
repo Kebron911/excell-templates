@@ -1,0 +1,601 @@
+{
+  "name": "W06 — Product Updater",
+  "nodes": [
+    {
+      "id": "w06-n01",
+      "name": "Product Updated Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 400],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "product-updated",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w06-n02",
+      "name": "Validate & Extract",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body || input;\n\nconst recordId = body.record_id || body.recordId || (body.record && body.record.id);\nif (!recordId) throw new Error('Missing product record_id in webhook payload');\n\nconst changedFields = (body.metadata && body.metadata.changed_fields) || body.changed_fields || [];\nif (!Array.isArray(changedFields)) throw new Error('changed_fields must be an array');\n\nconst executionId = $execution.id || ('exec-' + Date.now());\n\nreturn [{ json: {\n  record_id: recordId,\n  changed_fields: changedFields,\n  execution_id: executionId,\n  triggered_at: new Date().toISOString()\n}}];"
+      }
+    },
+    {
+      "id": "w06-n03",
+      "name": "Get Product Row",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "get",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PRODUCTS", "mode": "id" },
+        "id": "={{ $json.record_id }}"
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w06-n04",
+      "name": "Acquire Sync Lock",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PRODUCTS", "mode": "id" },
+        "id": "={{ $json.id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Sync lock": "={{ $node['Validate & Extract'].json.execution_id }}",
+            "Sync status": "in_progress",
+            "Sync started at": "={{ $node['Validate & Extract'].json.triggered_at }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w06-n05",
+      "name": "Build Update Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 400],
+      "parameters": {
+        "jsCode": "const lockResult = $input.first().json;\nconst meta = $node['Validate & Extract'].json;\nconst product = $node['Get Product Row'].json;\nconst f = product.fields || {};\n\nconst changed = new Set(meta.changed_fields.map(s => String(s).toLowerCase()));\nconst contentFieldsChanged = ['name','description','price','price_is','price_gumroad','price_etsy','master file','thumbnail','tags','preview images']\n  .some(k => changed.has(k));\n\nconst version = String(f['Version'] || '0.0.0');\nconst prevVersion = String(f['Previous version'] || version);\nconst bumpKind = (() => {\n  const a = version.split('.').map(n => parseInt(n) || 0);\n  const b = prevVersion.split('.').map(n => parseInt(n) || 0);\n  if (a[0] > b[0]) return 'MAJOR';\n  if (a[1] > b[1]) return 'MINOR';\n  if (a[2] > b[2]) return 'PATCH';\n  return 'NONE';\n})();\n\nreturn [{ json: {\n  record_id: product.id,\n  execution_id: meta.execution_id,\n  triggered_at: meta.triggered_at,\n  sku: f['SKU'] || '',\n  name: f['Name'] || '',\n  description: f['Full description'] || f['Description'] || '',\n  price_is: f['Price (IS)'] || f['Price'] || 0,\n  price_gumroad: f['Price (Gumroad)'] || f['Price'] || 0,\n  price_etsy: f['Price (Etsy)'] || f['Price'] || 0,\n  master_file_url: (f['Master file'] && f['Master file'][0] && f['Master file'][0].url) || '',\n  thumbnail_url: (f['Thumbnail'] && f['Thumbnail'][0] && f['Thumbnail'][0].url) || '',\n  tags: f['Tags'] || [],\n  is_product_id: f['IS product ID'] || '',\n  gumroad_product_id: f['Gumroad product ID'] || '',\n  etsy_listing_id: f['Etsy listing ID'] || '',\n  status: f['Status'] || '',\n  live_on_is: !!f['Live on IS'],\n  live_on_gumroad: !!f['Live on Gumroad'],\n  live_on_etsy: !!f['Live on Etsy'],\n  version,\n  previous_version: prevVersion,\n  bump_kind: bumpKind,\n  content_fields_changed: contentFieldsChanged,\n  changed_fields: meta.changed_fields\n}}];"
+      }
+    },
+    {
+      "id": "w06-n06",
+      "name": "Fanout to Platforms",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1500, 400],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "is",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.live_on_is && $json.is_product_id }}",
+                    "rightValue": true,
+                    "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "gumroad",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.live_on_gumroad && $json.gumroad_product_id }}",
+                    "rightValue": true,
+                    "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "etsy",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.live_on_etsy }}",
+                    "rightValue": true,
+                    "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+    {
+      "id": "w06-n07",
+      "name": "IS Update Product",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1750, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $env.IS_API_BASE_URL + '/api/products/' + $json.is_product_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ name: $json.name, description: $json.description, price: $json.price_is, file_url: $json.master_file_url, image_url: $json.thumbnail_url, tags: $json.tags, sku: $json.sku }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w06-n08",
+      "name": "Gumroad Update Product",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1750, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ 'https://api.gumroad.com/v2/products/' + $json.gumroad_product_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "name", "value": "={{ $json.name }}" },
+            { "name": "description", "value": "={{ $json.description }}" },
+            { "name": "price", "value": "={{ Math.round($json.price_gumroad * 100) }}" },
+            { "name": "tags", "value": "={{ ($json.tags || []).join(',') }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "5", "name": "Gumroad API" }
+      }
+    },
+    {
+      "id": "w06-n09",
+      "name": "Build Etsy Draft Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1750, 600],
+      "parameters": {
+        "jsCode": "const p = $input.first().json;\nconst tags = (p.tags || []).join(', ');\nconst body = [\n  'Etsy listing manual update required.',\n  '',\n  'SKU: ' + p.sku,\n  'Etsy listing ID: ' + (p.etsy_listing_id || '(not yet linked)'),\n  'Name: ' + p.name,\n  'Price (Etsy): $' + p.price_etsy,\n  'Tags: ' + tags,\n  '',\n  'Description:',\n  p.description,\n  '',\n  'Thumbnail: ' + (p.thumbnail_url || '(none)'),\n  'Master file: ' + (p.master_file_url || '(none)'),\n  '',\n  'Changed fields: ' + (p.changed_fields || []).join(', '),\n  'Triggered at: ' + p.triggered_at,\n  'Execution ID: ' + p.execution_id\n].join('\\n');\n\nreturn [{ json: {\n  record_id: p.record_id,\n  execution_id: p.execution_id,\n  to: $env.ETSY_NOTIFY_EMAIL || 'daniel@thestrledger.com',\n  subject: '[STR Ledger] Etsy listing update needed: ' + p.name + ' (' + p.sku + ')',\n  body,\n  platform: 'etsy',\n  status: 'pending_manual'\n}}];"
+      }
+    },
+    {
+      "id": "w06-n10",
+      "name": "Send Etsy Draft Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 600],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL + '/api/email/send' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ to: $json.to, subject: $json.subject, body: $json.body }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w06-n11",
+      "name": "Mark IS Synced",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 200],
+      "parameters": {
+        "jsCode": "return [{ json: { record_id: $node['Build Update Context'].json.record_id, execution_id: $node['Build Update Context'].json.execution_id, platform: 'is', status: 'success', synced_at: new Date().toISOString() }}];"
+      }
+    },
+    {
+      "id": "w06-n12",
+      "name": "Mark Gumroad Synced",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 400],
+      "parameters": {
+        "jsCode": "return [{ json: { record_id: $node['Build Update Context'].json.record_id, execution_id: $node['Build Update Context'].json.execution_id, platform: 'gumroad', status: 'success', synced_at: new Date().toISOString() }}];"
+      }
+    },
+    {
+      "id": "w06-n13",
+      "name": "Aggregate Platform Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [2250, 400],
+      "parameters": {
+        "mode": "append"
+      }
+    },
+    {
+      "id": "w06-n14",
+      "name": "Verify Lock & Finalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2500, 400],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst meta = $node['Validate & Extract'].json;\nconst ctx = $node['Build Update Context'].json;\nconst current = $node['Get Product Row'].json;\nconst currentLock = (current.fields && current.fields['Sync lock']) || '';\n\n// Last-write-wins: if current Sync lock no longer matches our execution_id,\n// a newer update has taken over — we abort our finalize.\nif (currentLock && currentLock !== meta.execution_id) {\n  return [{ json: {\n    record_id: ctx.record_id,\n    execution_id: meta.execution_id,\n    skipped: true,\n    reason: 'Superseded by newer execution ' + currentLock\n  }}];\n}\n\nconst results = items.map(i => i.json).filter(j => j.platform);\nconst statuses = {};\nfor (const r of results) statuses[r.platform] = r.status || 'unknown';\n\nconst overall = Object.values(statuses).every(s => s === 'success' || s === 'pending_manual')\n  ? 'success'\n  : 'partial';\n\nreturn [{ json: {\n  record_id: ctx.record_id,\n  execution_id: meta.execution_id,\n  sku: ctx.sku,\n  name: ctx.name,\n  version: ctx.version,\n  bump_kind: ctx.bump_kind,\n  per_platform_status: JSON.stringify(statuses),\n  overall_status: overall,\n  finalized_at: new Date().toISOString(),\n  skipped: false\n}}];"
+      }
+    },
+    {
+      "id": "w06-n15",
+      "name": "Skip vs Finalize Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [2750, 400],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "skipped",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.skipped }}",
+                    "rightValue": true,
+                    "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+    {
+      "id": "w06-n16",
+      "name": "Update Product Sync Status",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [3000, 500],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PRODUCTS", "mode": "id" },
+        "id": "={{ $json.record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Sync status": "={{ $json.overall_status }}",
+            "Per-platform sync status": "={{ $json.per_platform_status }}",
+            "Last updated": "={{ $json.finalized_at }}",
+            "Sync lock": ""
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w06-n17",
+      "name": "Version Bump Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [3250, 500],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "majorOrMinor",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.bump_kind }}",
+                    "rightValue": "MAJOR",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "or"
+              }
+            },
+            {
+              "outputKey": "minor",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.bump_kind }}",
+                    "rightValue": "MINOR",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "extra" }
+      }
+    },
+    {
+      "id": "w06-n18",
+      "name": "Trigger W22 Notify Customers",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3500, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.N8N_BASE_URL + '/webhook/template-update-notify' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ record_id: $json.record_id, sku: $json.sku, name: $json.name, version: $json.version, bump_kind: $json.bump_kind }) }}"
+      }
+    },
+    {
+      "id": "w06-n19",
+      "name": "Trigger W22 Minor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3500, 550],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.N8N_BASE_URL + '/webhook/template-update-notify' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ record_id: $json.record_id, sku: $json.sku, name: $json.name, version: $json.version, bump_kind: $json.bump_kind }) }}"
+      }
+    },
+    {
+      "id": "w06-n20",
+      "name": "Slack Sync Confirmation",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [3500, 700],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-ops", "mode": "name" },
+        "text": "={{ 'Product update synced: ' + $json.name + ' (' + $json.sku + ') v' + $json.version + ' — ' + $json.overall_status + ' [' + $json.per_platform_status + ']' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w06-n21",
+      "name": "Slack Skip Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [3000, 300],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-ops", "mode": "name" },
+        "text": "={{ 'W06 skipped: execution ' + $json.execution_id + ' superseded for record ' + $json.record_id + '. Reason: ' + $json.reason }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w06-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 800],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W06-product-updater',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w06-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 800],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w06-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2000, 800],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ 'W06 Product Updater FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Product Updated Webhook": {
+      "main": [
+        [{ "node": "Validate & Extract", "type": "main", "index": 0 }]
+      ]
+    },
+    "Validate & Extract": {
+      "main": [
+        [{ "node": "Get Product Row", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Product Row": {
+      "main": [
+        [{ "node": "Acquire Sync Lock", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Acquire Sync Lock": {
+      "main": [
+        [{ "node": "Build Update Context", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Update Context": {
+      "main": [
+        [{ "node": "Fanout to Platforms", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fanout to Platforms": {
+      "main": [
+        [{ "node": "IS Update Product", "type": "main", "index": 0 }],
+        [{ "node": "Gumroad Update Product", "type": "main", "index": 0 }],
+        [{ "node": "Build Etsy Draft Email", "type": "main", "index": 0 }],
+        [{ "node": "Aggregate Platform Results", "type": "main", "index": 0 }]
+      ]
+    },
+    "IS Update Product": {
+      "main": [
+        [{ "node": "Mark IS Synced", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Mark IS Synced": {
+      "main": [
+        [{ "node": "Aggregate Platform Results", "type": "main", "index": 0 }]
+      ]
+    },
+    "Gumroad Update Product": {
+      "main": [
+        [{ "node": "Mark Gumroad Synced", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Mark Gumroad Synced": {
+      "main": [
+        [{ "node": "Aggregate Platform Results", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Etsy Draft Email": {
+      "main": [
+        [{ "node": "Send Etsy Draft Email", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Etsy Draft Email": {
+      "main": [
+        [{ "node": "Aggregate Platform Results", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Aggregate Platform Results": {
+      "main": [
+        [{ "node": "Verify Lock & Finalize", "type": "main", "index": 0 }]
+      ]
+    },
+    "Verify Lock & Finalize": {
+      "main": [
+        [{ "node": "Skip vs Finalize Switch", "type": "main", "index": 0 }]
+      ]
+    },
+    "Skip vs Finalize Switch": {
+      "main": [
+        [{ "node": "Slack Skip Notification", "type": "main", "index": 0 }],
+        [{ "node": "Update Product Sync Status", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update Product Sync Status": {
+      "main": [
+        [{ "node": "Version Bump Switch", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Version Bump Switch": {
+      "main": [
+        [{ "node": "Trigger W22 Notify Customers", "type": "main", "index": 0 }],
+        [{ "node": "Trigger W22 Minor", "type": "main", "index": 0 }],
+        [{ "node": "Slack Sync Confirmation", "type": "main", "index": 0 }]
+      ]
+    },
+    "Trigger W22 Notify Customers": {
+      "main": [
+        [{ "node": "Slack Sync Confirmation", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Trigger W22 Minor": {
+      "main": [
+        [{ "node": "Slack Sync Confirmation", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 120,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

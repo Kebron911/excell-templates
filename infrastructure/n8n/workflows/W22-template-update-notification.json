@@ -1,0 +1,350 @@
+{
+  "name": "W22 — Template Update Notification",
+  "nodes": [
+    {
+      "id": "w22-n01",
+      "name": "Version Bump Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 400],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "product-version-bump",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w22-n02",
+      "name": "Parse Bump Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 400],
+      "parameters": {
+        "jsCode": "const body = ($input.first().json.body) || {};\nconst productId = body.product_id || body.productId || body.record_id || '';\nconst oldVersion = body.old_version || body.oldVersion || '';\nconst newVersion = body.new_version || body.newVersion || '';\nconst bumpType = (body.bump_type || body.bumpType || '').toLowerCase();\n\nif (!productId) throw new Error('Missing product_id in payload');\nif (!newVersion) throw new Error('Missing new_version in payload');\nif (!['patch', 'minor', 'major'].includes(bumpType)) throw new Error('Invalid bump_type: ' + bumpType);\n\nreturn [{ json: {\n  product_record_id: productId,\n  old_version: oldVersion,\n  new_version: newVersion,\n  bump_type: bumpType,\n  is_silent: bumpType === 'patch',\n  triggered_at: new Date().toISOString()\n}}];"
+      }
+    },
+    {
+      "id": "w22-n03",
+      "name": "Route by Bump Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [750, 400],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "notify",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.is_silent }}",
+                    "rightValue": false,
+                    "operator": { "type": "boolean", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "silent",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.is_silent }}",
+                    "rightValue": true,
+                    "operator": { "type": "boolean", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w22-n04",
+      "name": "Silent Patch NoOp",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1000, 550],
+      "parameters": {}
+    },
+    {
+      "id": "w22-n05",
+      "name": "Get Product",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "get",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PRODUCTS", "mode": "id" },
+        "id": "={{ $json.product_record_id }}"
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w22-n06",
+      "name": "Build Product Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 300],
+      "parameters": {
+        "jsCode": "const product = $input.first().json;\nconst bump = $node['Parse Bump Payload'].json;\nconst f = product.fields || {};\nreturn [{ json: {\n  product_record_id: product.id,\n  product_sku: f['SKU'] || '',\n  product_name: f['Name'] || 'your STR Ledger template',\n  download_link: f['Download URL'] || f['Customer download link'] || ('https://thestrledger.com/account/downloads/' + (f['SKU'] || '')),\n  changelog: f['Changelog'] || '',\n  old_version: bump.old_version,\n  new_version: bump.new_version,\n  bump_type: bump.bump_type\n}}];"
+      }
+    },
+    {
+      "id": "w22-n07",
+      "name": "List Customers Who Purchased",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CUSTOMERS", "mode": "id" },
+        "filterByFormula": "={{ \"FIND('\" + $json.product_sku + \"', ARRAYJOIN({Purchased SKUs} & '')) > 0\" }}",
+        "options": {}
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w22-n08",
+      "name": "Split Customers",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1750, 300],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "w22-n09",
+      "name": "IS Send Update Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL + '/api/transactional/send' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ template_id: 'template-update-notification', to: $json.fields.Email, contact_id: $json.fields['IS contact ID'] || null, variables: { first_name: $json.fields['First name'] || 'there', product_name: $node['Build Product Context'].json.product_name, new_version: $node['Build Product Context'].json.new_version, old_version: $node['Build Product Context'].json.old_version, bump_type: $node['Build Product Context'].json.bump_type, download_link: $node['Build Product Context'].json.download_link, changelog: $node['Build Product Context'].json.changelog } }) }}",
+        "options": { "timeout": 30000 }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w22-n10",
+      "name": "Append Notification History",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2250, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CUSTOMERS", "mode": "id" },
+        "id": "={{ $node['Split Customers'].json.id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Notification history": "={{ ($node['Split Customers'].json.fields['Notification history'] || '') + '\\n' + new Date().toISOString() + ' | ' + $node['Build Product Context'].json.product_name + ' v' + $node['Build Product Context'].json.new_version + ' (' + $node['Build Product Context'].json.bump_type + ')' }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w22-n11",
+      "name": "Loop Back Customers",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2500, 300],
+      "parameters": {}
+    },
+    {
+      "id": "w22-n12",
+      "name": "Aggregate Sent Count",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2750, 300],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst ctx = $node['Build Product Context'].json;\nreturn [{ json: {\n  product_name: ctx.product_name,\n  product_sku: ctx.product_sku,\n  new_version: ctx.new_version,\n  bump_type: ctx.bump_type,\n  customers_notified: items.length\n}}];"
+      }
+    },
+    {
+      "id": "w22-n13",
+      "name": "Slack Content Channel Confirmation",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [3000, 300],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-content", "mode": "name" },
+        "text": "={{ '📢 W22: ' + $json.customers_notified + ' customers notified about ' + $json.product_name + ' v' + $json.new_version + ' (' + $json.bump_type + ' bump).' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w22-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 700],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W22-template-update-notification',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w22-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 700],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w22-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2000, 700],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W22 Template Update Notification FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Version Bump Webhook": {
+      "main": [
+        [{ "node": "Parse Bump Payload", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Bump Payload": {
+      "main": [
+        [{ "node": "Route by Bump Type", "type": "main", "index": 0 }]
+      ]
+    },
+    "Route by Bump Type": {
+      "main": [
+        [{ "node": "Get Product", "type": "main", "index": 0 }],
+        [{ "node": "Silent Patch NoOp", "type": "main", "index": 0 }]
+      ]
+    },
+    "Get Product": {
+      "main": [
+        [{ "node": "Build Product Context", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Product Context": {
+      "main": [
+        [{ "node": "List Customers Who Purchased", "type": "main", "index": 0 }]
+      ]
+    },
+    "List Customers Who Purchased": {
+      "main": [
+        [{ "node": "Split Customers", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Customers": {
+      "main": [
+        [{ "node": "IS Send Update Email", "type": "main", "index": 0 }],
+        [{ "node": "Aggregate Sent Count", "type": "main", "index": 0 }]
+      ]
+    },
+    "IS Send Update Email": {
+      "main": [
+        [{ "node": "Append Notification History", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Append Notification History": {
+      "main": [
+        [{ "node": "Loop Back Customers", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Loop Back Customers": {
+      "main": [
+        [{ "node": "Split Customers", "type": "main", "index": 0 }]
+      ]
+    },
+    "Aggregate Sent Count": {
+      "main": [
+        [{ "node": "Slack Content Channel Confirmation", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 600,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

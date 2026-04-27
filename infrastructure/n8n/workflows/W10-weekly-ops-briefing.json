@@ -1,0 +1,370 @@
+{
+  "name": "W10 — Weekly Ops Briefing",
+  "nodes": [
+    {
+      "id": "w10-n01",
+      "name": "Monday 07:00 ET Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 400],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * 1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w10-n02",
+      "name": "Compute Last 7 Days Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 400],
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst etOffsetMs = -5 * 60 * 60 * 1000;\nconst nowEt = new Date(now.getTime() + etOffsetMs);\n\n// End = today ET midnight; Start = end - 7 days\nconst endEt = new Date(nowEt);\nendEt.setUTCHours(0, 0, 0, 0);\nconst startEt = new Date(endEt);\nstartEt.setUTCDate(endEt.getUTCDate() - 7);\n\n// Prior-week comparison range\nconst priorEndEt = new Date(startEt);\nconst priorStartEt = new Date(priorEndEt);\npriorStartEt.setUTCDate(priorEndEt.getUTCDate() - 7);\n\nconst toUtc = d => new Date(d.getTime() - etOffsetMs).toISOString();\n\nreturn [{ json: {\n  start_utc: toUtc(startEt),\n  end_utc: toUtc(endEt),\n  prior_start_utc: toUtc(priorStartEt),\n  prior_end_utc: toUtc(priorEndEt),\n  week_start_date: startEt.toISOString().slice(0, 10),\n  week_end_date: endEt.toISOString().slice(0, 10),\n  generated_at: now.toISOString()\n}}];"
+      }
+    },
+    {
+      "id": "w10-n03",
+      "name": "List Metrics Last 7d",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 250],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_METRICS", "mode": "id" },
+        "filterByFormula": "={{ \"AND(IS_AFTER({Date}, '\" + $json.start_utc.slice(0,10) + \"'), IS_BEFORE({Date}, '\" + $json.end_utc.slice(0,10) + \"'))\" }}",
+        "options": {
+          "fields": ["Date", "Metric name", "Value", "Notes", "Source workflow"]
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w10-n04",
+      "name": "List Metrics Prior 7d",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_METRICS", "mode": "id" },
+        "filterByFormula": "={{ \"AND(IS_AFTER({Date}, '\" + $node['Compute Last 7 Days Range'].json.prior_start_utc.slice(0,10) + \"'), IS_BEFORE({Date}, '\" + $node['Compute Last 7 Days Range'].json.prior_end_utc.slice(0,10) + \"'))\" }}",
+        "options": {
+          "fields": ["Date", "Metric name", "Value"]
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w10-n05",
+      "name": "List Orders Last 7d",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 550],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "filterByFormula": "={{ \"AND(IS_AFTER({Timestamp}, '\" + $node['Compute Last 7 Days Range'].json.start_utc + \"'), IS_BEFORE({Timestamp}, '\" + $node['Compute Last 7 Days Range'].json.end_utc + \"'))\" }}",
+        "options": {
+          "fields": ["Order ID", "Timestamp", "Platform", "Gross amount", "OrderBump taken?", "OTO taken?", "Refund status", "Product"]
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w10-n06",
+      "name": "List Content Last 7d",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 700],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CONTENT", "mode": "id" },
+        "filterByFormula": "={{ \"AND(IS_AFTER({Published date}, '\" + $node['Compute Last 7 Days Range'].json.start_utc.slice(0,10) + \"'), IS_BEFORE({Published date}, '\" + $node['Compute Last 7 Days Range'].json.end_utc.slice(0,10) + \"'))\" }}",
+        "options": {
+          "fields": ["Title", "Type", "Status", "Published date", "Views", "Conversions"]
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w10-n07",
+      "name": "Assemble Weekly Blob",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 500],
+      "parameters": {
+        "jsCode": "const range = $node['Compute Last 7 Days Range'].json;\nconst metrics = $node['List Metrics Last 7d'].all().map(i => i.json.fields || i.json);\nconst priorMetrics = $node['List Metrics Prior 7d'].all().map(i => i.json.fields || i.json);\nconst orders = $node['List Orders Last 7d'].all().map(i => i.json.fields || i.json);\nconst content = $node['List Content Last 7d'].all().map(i => i.json.fields || i.json);\n\nconst sumMetric = (rows, name) => rows.filter(r => r['Metric name'] === name).reduce((a, r) => a + (Number(r['Value']) || 0), 0);\nconst avgMetric = (rows, name) => {\n  const vals = rows.filter(r => r['Metric name'] === name).map(r => Number(r['Value']) || 0);\n  return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;\n};\n\nconst revenue_week = sumMetric(metrics, 'revenue_total');\nconst revenue_prior = sumMetric(priorMetrics, 'revenue_total');\nconst wow_revenue_pct = revenue_prior ? ((revenue_week - revenue_prior) / revenue_prior) * 100 : 0;\n\nconst orders_week = sumMetric(metrics, 'orders_total');\nconst orders_prior = sumMetric(priorMetrics, 'orders_total');\nconst wow_orders_pct = orders_prior ? ((orders_week - orders_prior) / orders_prior) * 100 : 0;\n\n// Channel revenue\nconst channels = {\n  is: sumMetric(metrics, 'revenue_is'),\n  etsy: sumMetric(metrics, 'revenue_etsy'),\n  gumroad: sumMetric(metrics, 'revenue_gumroad')\n};\n\n// Top products from Orders\nconst productMap = {};\nfor (const o of orders) {\n  const sku = Array.isArray(o['Product']) ? (o['Product'][0]?.name || o['Product'][0] || 'unknown') : (o['Product'] || 'unknown');\n  const key = String(sku);\n  if (!productMap[key]) productMap[key] = { sku: key, units: 0, revenue: 0 };\n  productMap[key].units += 1;\n  productMap[key].revenue += Number(o['Gross amount']) || 0;\n}\nconst top_products = Object.values(productMap).sort((a, b) => b.revenue - a.revenue).slice(0, 5);\n\n// Refund + behaviour rates (latest available)\nconst latest = (name) => {\n  const rows = metrics.filter(r => r['Metric name'] === name);\n  if (!rows.length) return 0;\n  const sorted = rows.sort((a, b) => new Date(b['Date']) - new Date(a['Date']));\n  return Number(sorted[0]['Value']) || 0;\n};\nconst refund_rate_rolling_30 = latest('refund_rate_rolling_30');\nconst orderbump_rate = avgMetric(metrics, 'orderbump_rate');\nconst oto_rate = avgMetric(metrics, 'oto_rate');\n\n// Anomaly flags\nconst anomalies = [];\nif (refund_rate_rolling_30 > 0.08) anomalies.push({ metric: 'refund_rate_rolling_30', value: refund_rate_rolling_30, target: '<0.08' });\nif (orderbump_rate < 0.15 && orders_week > 0) anomalies.push({ metric: 'orderbump_rate', value: orderbump_rate, target: '>0.15' });\n\nconst content_summary = {\n  total_published: content.length,\n  by_type: content.reduce((acc, c) => { const t = c['Type'] || 'unknown'; acc[t] = (acc[t] || 0) + 1; return acc; }, {}),\n  total_views: content.reduce((a, c) => a + (Number(c['Views']) || 0), 0),\n  total_conversions: content.reduce((a, c) => a + (Number(c['Conversions']) || 0), 0)\n};\n\nconst blob = {\n  week_start: range.week_start_date,\n  week_end: range.week_end_date,\n  revenue_week: Number(revenue_week.toFixed(2)),\n  revenue_prior_week: Number(revenue_prior.toFixed(2)),\n  wow_revenue_pct: Number(wow_revenue_pct.toFixed(2)),\n  orders_week,\n  orders_prior_week: orders_prior,\n  wow_orders_pct: Number(wow_orders_pct.toFixed(2)),\n  channel_revenue: channels,\n  top_products,\n  orderbump_rate: Number(orderbump_rate.toFixed(4)),\n  oto_rate: Number(oto_rate.toFixed(4)),\n  refund_rate_rolling_30: Number(refund_rate_rolling_30.toFixed(4)),\n  content_summary,\n  anomalies\n};\n\nreturn [{ json: { blob, blob_json: JSON.stringify(blob, null, 2), range } }];"
+      }
+    },
+    {
+      "id": "w10-n08",
+      "name": "Claude Generate Briefing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 500],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({\n  model: 'claude-opus-4-7',\n  max_tokens: 2000,\n  system: 'You are the weekly ops analyst for The STR Ledger. You write concise, professional briefings in markdown with concrete numbers.',\n  messages: [{\n    role: 'user',\n    content: 'You are the weekly ops analyst for The STR Ledger. Given the following data, write a concise\\nbriefing (under 500 words) for Daniel. Lead with revenue total + trend. Then top\\nproducts. Then channel breakdown. Then anomalies (flag any metric outside its\\ntarget band — refunds >8%, email open <25%, CAC >$4). End with 3 suggested actions.\\n\\nData:\\n' + $json.blob_json + '\\n\\nFormat: markdown, professional tone, concrete numbers.'\n  }]\n}) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "7", "name": "Claude API" }
+      }
+    },
+    {
+      "id": "w10-n09",
+      "name": "Parse Claude Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 500],
+      "parameters": {
+        "jsCode": "const resp = $input.first().json;\nconst blobItem = $node['Assemble Weekly Blob'].first().json;\n\n// Anthropic response shape: { content: [{ type: 'text', text: '...' }] }\nlet markdown = '';\nif (resp && Array.isArray(resp.content)) {\n  markdown = resp.content.filter(c => c.type === 'text').map(c => c.text).join('\\n').trim();\n} else if (resp && typeof resp.completion === 'string') {\n  markdown = resp.completion.trim();\n} else {\n  throw new Error('Unexpected Claude response shape: ' + JSON.stringify(resp).slice(0, 300));\n}\n\nif (!markdown) throw new Error('Empty briefing returned by Claude');\n\nconst subject = `STR Ledger Weekly Briefing — ${blobItem.range.week_start_date} → ${blobItem.range.week_end_date}`;\n\nreturn [{ json: {\n  subject,\n  markdown,\n  week_start: blobItem.range.week_start_date,\n  week_end: blobItem.range.week_end_date,\n  blob: blobItem.blob,\n  generated_at: new Date().toISOString()\n}}];"
+      }
+    },
+    {
+      "id": "w10-n10",
+      "name": "Email Daniel",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1750, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "fromEmail": "hello@thestrledger.com",
+        "toEmail": "ltharrisond@hotmail.com",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "both",
+        "text": "={{ $json.markdown }}",
+        "html": "={{ '<pre style=\"font-family: ui-sans-serif, system-ui, sans-serif; white-space: pre-wrap; line-height: 1.5;\">' + $json.markdown.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>' }}",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": { "id": "8", "name": "SMTP account" }
+      }
+    },
+    {
+      "id": "w10-n11",
+      "name": "Save Briefing to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 600],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_WEEKLY_BRIEFINGS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Week start": "={{ $json.week_start }}",
+            "Week end": "={{ $json.week_end }}",
+            "Subject": "={{ $json.subject }}",
+            "Briefing markdown": "={{ $json.markdown }}",
+            "Data blob": "={{ JSON.stringify($json.blob) }}",
+            "Generated at": "={{ $json.generated_at }}",
+            "Source workflow": "W10-weekly-ops-briefing"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w10-n12",
+      "name": "Slack Briefing Notice",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2000, 500],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '📰 Weekly Ops Briefing sent — ' + $json.week_start + ' → ' + $json.week_end + '\\nRevenue: $' + $json.blob.revenue_week + ' (WoW ' + ($json.blob.wow_revenue_pct >= 0 ? '+' : '') + $json.blob.wow_revenue_pct + '%)\\nOrders: ' + $json.blob.orders_week + ' | Anomalies flagged: ' + $json.blob.anomalies.length + '\\nFull briefing emailed to Daniel and saved to WeeklyBriefings.' }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w10-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 850],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W10-weekly-ops-briefing',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w10-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1500, 850],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w10-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1750, 850],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W10 Weekly Ops Briefing FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Monday 07:00 ET Schedule": {
+      "main": [
+        [{ "node": "Compute Last 7 Days Range", "type": "main", "index": 0 }]
+      ]
+    },
+    "Compute Last 7 Days Range": {
+      "main": [
+        [
+          { "node": "List Metrics Last 7d", "type": "main", "index": 0 },
+          { "node": "List Metrics Prior 7d", "type": "main", "index": 0 },
+          { "node": "List Orders Last 7d", "type": "main", "index": 0 },
+          { "node": "List Content Last 7d", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "List Metrics Last 7d": {
+      "main": [
+        [{ "node": "Assemble Weekly Blob", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "List Metrics Prior 7d": {
+      "main": [
+        [{ "node": "Assemble Weekly Blob", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "List Orders Last 7d": {
+      "main": [
+        [{ "node": "Assemble Weekly Blob", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "List Content Last 7d": {
+      "main": [
+        [{ "node": "Assemble Weekly Blob", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Assemble Weekly Blob": {
+      "main": [
+        [{ "node": "Claude Generate Briefing", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude Generate Briefing": {
+      "main": [
+        [{ "node": "Parse Claude Response", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Claude Response": {
+      "main": [
+        [
+          { "node": "Email Daniel", "type": "main", "index": 0 },
+          { "node": "Save Briefing to Airtable", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Email Daniel": {
+      "main": [
+        [{ "node": "Slack Briefing Notice", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Save Briefing to Airtable": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 300,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

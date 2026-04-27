@@ -1,0 +1,354 @@
+{
+  "name": "W19 — FB Group New Member",
+  "nodes": [
+    {
+      "id": "w19-n01",
+      "name": "Zapier Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fb-group-new-member",
+        "responseMode": "onReceived",
+        "responseData": "={{ JSON.stringify({ received: true }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "w19-n02",
+      "name": "Parse Entry Answers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst body = input.body || input;\n\n// Zapier payload shape (configurable). We accept either nested fields or flat top-level keys.\nconst fb_user_id = (body.fb_user_id || body.user_id || body.member_id || '').toString().trim();\nconst full_name = (body.name || body.full_name || body.member_name || '').toString().trim();\nconst first_name = (body.first_name || full_name.split(' ')[0] || '').trim();\nconst last_name = (body.last_name || full_name.split(' ').slice(1).join(' ') || '').trim();\nconst email = (body.email || body.member_email || '').toString().toLowerCase().trim();\nconst joined_at = body.joined_at || body.joinedAt || body.timestamp || new Date().toISOString();\nconst profile_url = body.profile_url || body.profileUrl || (fb_user_id ? `https://facebook.com/${fb_user_id}` : '');\n\n// Three FB Group entry questions — match either explicit keys or by question position\nconst hosting_status = (body.hosting_status || body.q1 || body.answer_1 || body.question_1 || '').toString().trim();\nconst listing_count_raw = (body.listing_count || body.q2 || body.answer_2 || body.question_2 || '').toString().trim();\nconst headache = (body.headache || body.biggest_headache || body.q3 || body.answer_3 || body.question_3 || '').toString().trim();\n\n// Normalize listing_count to a number when possible\nconst listing_count_num = parseInt((listing_count_raw.match(/\\d+/) || ['0'])[0], 10) || 0;\n\nif (!fb_user_id && !email) {\n  throw new Error('Webhook must include at least fb_user_id or email');\n}\n\nreturn [{ json: {\n  fb_user_id,\n  full_name,\n  first_name,\n  last_name,\n  email,\n  profile_url,\n  joined_at,\n  hosting_status,\n  listing_count_raw,\n  listing_count_num,\n  headache,\n  raw_payload: JSON.stringify(body).slice(0, 5000)\n}}];"
+      }
+    },
+    {
+      "id": "w19-n03",
+      "name": "Claude Persona Inference",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [750, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({\n  model: 'claude-opus-4-7',\n  max_tokens: 600,\n  system: 'You classify new Facebook Group members for The STR Ledger into one of four buyer personas based on their three entry-question answers. Use this rubric strictly:\\n- dreamer: not yet hosting, planning / researching / about to launch first listing\\n- sam: actively hosting exactly 1 listing (newer host, single property)\\n- sarah: actively hosting 3 or more listings (experienced host)\\n- pam: manages listings on behalf of others (co-host, property manager, agency)\\nFor 2 listings, choose between sam and sarah based on context (lean sarah if they sound experienced).\\nReturn STRICT JSON only — no markdown, no prose.',\n  messages: [{\n    role: 'user',\n    content: 'Classify this new FB Group member into a persona.\\n\\nQ1 Hosting status: ' + ($json.hosting_status || '(blank)') + '\\nQ2 Listing count: ' + ($json.listing_count_raw || '(blank)') + ' (parsed as number: ' + $json.listing_count_num + ')\\nQ3 Biggest headache: ' + ($json.headache || '(blank)') + '\\n\\nReturn STRICT JSON ONLY:\\n{\\n  \"persona\": \"dreamer\" | \"sam\" | \"sarah\" | \"pam\",\\n  \"confidence\": <0.0-1.0>,\\n  \"reasoning\": \"<one short sentence>\",\\n  \"headache_tag\": \"<short slug summarizing their #1 headache, e.g. cleaning-coordination, pricing, taxes, guest-screening>\"\\n}'\n  }]\n}) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "7", "name": "Claude API Key" }
+      }
+    },
+    {
+      "id": "w19-n04",
+      "name": "Parse Persona + Apply Rules",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const claude = $input.first().json;\nconst member = $node['Parse Entry Answers'].json;\n\nconst raw = claude?.content?.[0]?.text || '';\nif (!raw) throw new Error('Claude returned empty content');\n\nlet parsed;\ntry {\n  const cleaned = raw.replace(/^```(?:json)?\\s*/i, '').replace(/\\s*```$/, '').trim();\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  throw new Error('Could not parse Claude JSON: ' + e.message);\n}\n\nconst valid_personas = ['dreamer','sam','sarah','pam'];\nlet persona = (parsed.persona || '').toLowerCase().trim();\nlet confidence = typeof parsed.confidence === 'number' ? parsed.confidence : 0.5;\nlet reasoning = parsed.reasoning || '';\n\n// Deterministic rule overrides — these win over Claude when answers are clear\nconst hs = (member.hosting_status || '').toLowerCase();\nconst headache_lc = (member.headache || '').toLowerCase();\nconst manages_for_others = /manage|co-?host|property manager|agency|on behalf|clients/.test(hs + ' ' + headache_lc);\nconst is_planning = /planning|plan to|about to|researching|not yet|haven't started|first listing|future/.test(hs + ' ' + headache_lc);\n\nif (manages_for_others) {\n  persona = 'pam';\n  confidence = Math.max(confidence, 0.9);\n  reasoning = 'Rule override: manages listings for others → pam. ' + reasoning;\n} else if (is_planning) {\n  persona = 'dreamer';\n  confidence = Math.max(confidence, 0.85);\n  reasoning = 'Rule override: planning / not yet hosting → dreamer. ' + reasoning;\n} else if (member.listing_count_num === 1) {\n  persona = 'sam';\n  confidence = Math.max(confidence, 0.85);\n  reasoning = 'Rule override: 1 listing → sam. ' + reasoning;\n} else if (member.listing_count_num >= 3) {\n  persona = 'sarah';\n  confidence = Math.max(confidence, 0.85);\n  reasoning = 'Rule override: 3+ listings → sarah. ' + reasoning;\n}\n\nif (!valid_personas.includes(persona)) {\n  persona = 'dreamer';\n  confidence = 0.3;\n}\n\nconst headache_tag = parsed.headache_tag || 'general';\nconst high_confidence = confidence >= 0.75;\n\nreturn [{ json: {\n  ...member,\n  persona,\n  confidence,\n  reasoning,\n  headache_tag,\n  high_confidence\n}}];"
+      }
+    },
+    {
+      "id": "w19-n05",
+      "name": "Upsert Customer (FB Member)",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1250, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "upsert",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_CUSTOMERS", "mode": "id" },
+        "matchingColumns": ["={{ $json.email ? 'Email' : 'FB user ID' }}"],
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email || '' }}",
+            "FB user ID": "={{ $json.fb_user_id || '' }}",
+            "First name": "={{ $json.first_name }}",
+            "Last name": "={{ $json.last_name }}",
+            "FB profile URL": "={{ $json.profile_url }}",
+            "FB Group member?": true,
+            "FB Group joined at": "={{ $json.joined_at }}",
+            "Persona tag": "={{ $json.persona }}",
+            "Persona confidence": "={{ $json.confidence }}",
+            "Headache tag": "={{ $json.headache_tag }}",
+            "Headache notes": "={{ $json.headache }}",
+            "Hosting status": "={{ $json.hosting_status }}",
+            "Listing count": "={{ $json.listing_count_num }}",
+            "Acquisition source": "fb-group",
+            "First contact date": "={{ $json.joined_at }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w19-n06",
+      "name": "Confidence Gate",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1500, 300],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "high_conf_dm",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.high_confidence }}", "rightValue": true, "operator": { "type": "boolean", "operation": "true" } },
+                  { "leftValue": "={{ $json.fb_user_id }}", "rightValue": "", "operator": { "type": "string", "operation": "notEquals" } }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "manual_queue",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  { "leftValue": "={{ $json.high_confidence }}", "rightValue": true, "operator": { "type": "boolean", "operation": "false" } }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": { "fallbackOutput": 1 }
+      }
+    },
+    {
+      "id": "w19-n07",
+      "name": "Build Persona DM",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1750, 180],
+      "parameters": {
+        "jsCode": "const m = $input.first().json;\n\nconst greetings = {\n  dreamer: `Hey ${m.first_name || 'there'}! Welcome to the group. Saw you're getting ready to launch — that first listing is the biggest leap. If pricing or setup is your sticking point, holler. Free numbers worksheet here if useful: https://thestrledger.com/start`,\n  sam: `Hey ${m.first_name || 'there'}! Welcome in. One listing is where most of the leverage gets built — dial in the systems now and the second one is half the work. If ${m.headache_tag || 'the ops side'} is biting you, I have a free template that might help: https://thestrledger.com/start`,\n  sarah: `Hey ${m.first_name || 'there'}! Welcome — glad to have a multi-listing host in here. At ${m.listing_count_num || 'your'} listings the spreadsheet sprawl gets real. If you're wrestling with ${m.headache_tag || 'consolidated reporting'}, the Portfolio Bundle was built for exactly that situation: https://thestrledger.com/portfolio`,\n  pam: `Hey ${m.first_name || 'there'}! Welcome. Managing for clients is a different beast — owner reporting, fee splits, all of it. If owner statements are your headache, the Pro Manager Bundle handles that: https://thestrledger.com/pro-manager`\n};\n\nconst message = greetings[m.persona] || greetings.dreamer;\nreturn [{ json: { ...m, dm_message: message } }];"
+      }
+    },
+    {
+      "id": "w19-n08",
+      "name": "Send FB DM via Graph API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2000, 180],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v18.0/me/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({\n  recipient: { id: $json.fb_user_id },\n  messaging_type: 'MESSAGE_TAG',\n  tag: 'ACCOUNT_UPDATE',\n  message: { text: $json.dm_message }\n}) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "12", "name": "Facebook Graph API" }
+      }
+    },
+    {
+      "id": "w19-n09",
+      "name": "Outreach Queue (Manual DM)",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 460],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_SUPPORT_DRAFTS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Message ID": "={{ 'fb-' + ($json.fb_user_id || $json.email || Date.now()) }}",
+            "Received at": "={{ $json.joined_at }}",
+            "From email": "={{ $json.email || ($json.fb_user_id + '@facebook.local') }}",
+            "From name": "={{ $json.full_name }}",
+            "Subject": "={{ 'FB Group: New ' + $json.persona + ' to DM (' + Math.round($json.confidence*100) + '% conf)' }}",
+            "Body": "={{ 'Hosting status: ' + $json.hosting_status + '\\nListings: ' + $json.listing_count_raw + '\\nHeadache: ' + $json.headache + '\\nProfile: ' + $json.profile_url + '\\nReasoning: ' + $json.reasoning }}",
+            "Classification": "fb_group_outreach",
+            "Confidence": "={{ $json.confidence }}",
+            "Draft response": "={{ 'Send a manual welcome DM tailored to persona: ' + $json.persona }}",
+            "Priority": "high",
+            "Status": "Awaiting Daniel review"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w19-n10",
+      "name": "Slack Community Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2250, 300],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-community", "mode": "name" },
+        "text": "={{ '👋 New FB Group member — ' + ($node['Parse Persona + Apply Rules'].json.full_name || $node['Parse Persona + Apply Rules'].json.fb_user_id) + '\\nPersona: ' + $node['Parse Persona + Apply Rules'].json.persona + ' (' + Math.round($node['Parse Persona + Apply Rules'].json.confidence * 100) + '% conf)\\nListings: ' + $node['Parse Persona + Apply Rules'].json.listing_count_raw + ' | Headache: ' + $node['Parse Persona + Apply Rules'].json.headache_tag + '\\nDM: ' + ($node['Parse Persona + Apply Rules'].json.high_confidence ? 'auto-sent' : 'queued for manual review') }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w19-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, 600],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W19-fb-group-new-member',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w19-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 600],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w19-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1250, 600],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W19 FB Group Member FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Zapier Webhook": {
+      "main": [
+        [{ "node": "Parse Entry Answers", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Entry Answers": {
+      "main": [
+        [{ "node": "Claude Persona Inference", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude Persona Inference": {
+      "main": [
+        [{ "node": "Parse Persona + Apply Rules", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse Persona + Apply Rules": {
+      "main": [
+        [{ "node": "Upsert Customer (FB Member)", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Upsert Customer (FB Member)": {
+      "main": [
+        [{ "node": "Confidence Gate", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Confidence Gate": {
+      "main": [
+        [{ "node": "Build Persona DM", "type": "main", "index": 0 }],
+        [{ "node": "Outreach Queue (Manual DM)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Persona DM": {
+      "main": [
+        [{ "node": "Send FB DM via Graph API", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send FB DM via Graph API": {
+      "main": [
+        [{ "node": "Slack Community Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Outreach Queue (Manual DM)": {
+      "main": [
+        [{ "node": "Slack Community Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 180,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}

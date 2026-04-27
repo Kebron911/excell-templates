@@ -1,0 +1,565 @@
+{
+  "name": "W20 — Affiliate Commission Cycle",
+  "nodes": [
+    {
+      "id": "w20-n01",
+      "name": "Monthly 1st 06:00 ET Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 1 * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w20-n02",
+      "name": "Compute Prior Month Range",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300],
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst y = now.getUTCFullYear();\nconst m = now.getUTCMonth(); // current month (0-indexed)\nconst startPrior = new Date(Date.UTC(y, m - 1, 1, 0, 0, 0));\nconst endPrior = new Date(Date.UTC(y, m, 1, 0, 0, 0) - 1);\nconst periodLabel = `${startPrior.getUTCFullYear()}-${String(startPrior.getUTCMonth() + 1).padStart(2, '0')}`;\nreturn [{ json: {\n  period: periodLabel,\n  period_start_iso: startPrior.toISOString(),\n  period_end_iso: endPrior.toISOString(),\n  period_start_date: startPrior.toISOString().slice(0, 10),\n  period_end_date: endPrior.toISOString().slice(0, 10),\n  run_id: `w20-${periodLabel}`\n}}];"
+      }
+    },
+    {
+      "id": "w20-n03",
+      "name": "List Prior-Month Affiliate Orders",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [750, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "filterByFormula": "={{ \"AND(LEFT({Source campaign}, 10) = 'affiliate:', IS_AFTER({Timestamp}, '\" + $node['Compute Prior Month Range'].json.period_start_date + \" 00:00:00'), IS_BEFORE({Timestamp}, '\" + $node['Compute Prior Month Range'].json.period_end_date + \" 23:59:59'), {Refund status} != 'full'))\" }}",
+        "options": {}
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w20-n04",
+      "name": "List Partners",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1000, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PARTNERS", "mode": "id" },
+        "filterByFormula": "={{ \"{Status} = 'Active'\" }}",
+        "options": {}
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w20-n05",
+      "name": "Group + Compute Commissions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 300],
+      "parameters": {
+        "jsCode": "const orderItems = $node['List Prior-Month Affiliate Orders'].all();\nconst partnerItems = $node['List Partners'].all();\nconst period = $node['Compute Prior Month Range'].json.period;\n\n// Build partner lookup keyed by affiliate_id (slug)\nconst partners = {};\nfor (const p of partnerItems) {\n  const f = p.json.fields;\n  if (f['Affiliate ID']) {\n    partners[f['Affiliate ID']] = {\n      record_id: p.json.id,\n      affiliate_id: f['Affiliate ID'],\n      name: f['Name'] || '',\n      email: f['Email'] || '',\n      payout_method: f['Payout method'] || 'wise',\n      payout_destination: f['Payout destination'] || '',\n      manual_tier_override: f['Manual tier override'] || null\n    };\n  }\n}\n\n// Group orders by affiliate_id\nconst grouped = {};\nfor (const o of orderItems) {\n  const f = o.json.fields;\n  const campaign = f['Source campaign'] || '';\n  if (!campaign.startsWith('affiliate:')) continue;\n  const affId = campaign.slice('affiliate:'.length).split(':')[0].trim();\n  if (!affId) continue;\n  if (!grouped[affId]) grouped[affId] = { affiliate_id: affId, orders: [], referral_count: 0, net_total: 0 };\n  grouped[affId].orders.push({\n    order_id: f['Order ID'],\n    net_amount: parseFloat(f['Net amount'] || (f['Gross amount'] || 0) - (f['Platform fee'] || 0)),\n    timestamp: f['Timestamp']\n  });\n  grouped[affId].referral_count += 1;\n  grouped[affId].net_total += parseFloat(f['Net amount'] || (f['Gross amount'] || 0) - (f['Platform fee'] || 0));\n}\n\n// Apply tier logic\nfunction tierFor(referralCount, override) {\n  if (override) return override;\n  if (referralCount >= 10) return 'top';\n  if (referralCount >= 3) return 'active';\n  return 'standard';\n}\nconst rates = { standard: 0.30, active: 0.40, top: 0.50 };\n\nconst payouts = [];\nfor (const affId of Object.keys(grouped)) {\n  const g = grouped[affId];\n  const partner = partners[affId];\n  if (!partner) {\n    // Unknown affiliate — flag\n    payouts.push({\n      affiliate_id: affId,\n      partner_record_id: null,\n      partner_name: '(unknown affiliate)',\n      partner_email: null,\n      tier: 'unknown',\n      commission_rate: 0,\n      referral_count: g.referral_count,\n      net_total: Math.round(g.net_total * 100) / 100,\n      total_commission: 0,\n      period,\n      orders: g.orders,\n      flag: 'unknown_affiliate'\n    });\n    continue;\n  }\n  const tier = tierFor(g.referral_count, partner.manual_tier_override);\n  const rate = rates[tier] || 0.30;\n  const commission = Math.round(g.net_total * rate * 100) / 100;\n  payouts.push({\n    affiliate_id: affId,\n    partner_record_id: partner.record_id,\n    partner_name: partner.name,\n    partner_email: partner.email,\n    payout_method: partner.payout_method,\n    payout_destination: partner.payout_destination,\n    tier,\n    commission_rate: rate,\n    referral_count: g.referral_count,\n    net_total: Math.round(g.net_total * 100) / 100,\n    total_commission: commission,\n    period,\n    orders: g.orders,\n    flag: null\n  });\n}\n\nif (payouts.length === 0) {\n  return [{ json: { period, no_payouts: true, payouts: [] } }];\n}\nreturn payouts.map(p => ({ json: p }));"
+      }
+    },
+    {
+      "id": "w20-n06",
+      "name": "Split per Affiliate",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1500, 300],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "w20-n07",
+      "name": "Create PayoutQueue Row",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PAYOUT_QUEUE", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Affiliate ID": "={{ $json.affiliate_id }}",
+            "Partner": "={{ $json.partner_record_id ? [$json.partner_record_id] : [] }}",
+            "Period": "={{ $json.period }}",
+            "Tier": "={{ $json.tier }}",
+            "Commission rate": "={{ $json.commission_rate }}",
+            "Referral count": "={{ $json.referral_count }}",
+            "Net total (USD)": "={{ $json.net_total }}",
+            "Total commission (USD)": "={{ $json.total_commission }}",
+            "Status": "Pending",
+            "Flag": "={{ $json.flag || '' }}",
+            "Orders payload": "={{ JSON.stringify($json.orders).slice(0, 5000) }}",
+            "Created at": "={{ new Date().toISOString() }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w20-n08",
+      "name": "Aggregate Payouts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 300],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst payouts = items.map(i => i.json);\nconst total = payouts.reduce((acc, p) => acc + (parseFloat(p['Total commission (USD)']) || 0), 0);\nconst period = $node['Compute Prior Month Range'].json.period;\nconst lines = payouts.map(p => `- ${p['Affiliate ID']}: $${p['Total commission (USD)']} (${p.Tier}, ${p['Referral count']} refs)`).join('\\n');\nreturn [{ json: {\n  period,\n  payout_count: payouts.length,\n  total_commission: Math.round(total * 100) / 100,\n  summary_lines: lines || '(none)',\n  approve_url: `${$env.AIRTABLE_PAYOUT_QUEUE_VIEW_URL || 'https://airtable.com/'}?period=${period}`\n}}];"
+      }
+    },
+    {
+      "id": "w20-n09",
+      "name": "Email Daniel — Approval Request",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2250, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "fromEmail": "ops@thestrledger.com",
+        "toEmail": "ltharrisond@hotmail.com",
+        "subject": "={{ '[STR Ledger] Affiliate payouts ready: ' + $json.period + ' ($' + $json.total_commission + ' across ' + $json.payout_count + ' affiliates)' }}",
+        "emailFormat": "text",
+        "text": "={{ 'Affiliate commission cycle for ' + $json.period + ' is queued.\\n\\nTotals:\\n' + $json.summary_lines + '\\n\\nGrand total: $' + $json.total_commission + '\\n\\nReview and approve in Airtable: ' + $json.approve_url + '\\n\\nWhen ready, hit the Approve button in Airtable (or POST to ' + $env.N8N_BASE_URL + '/webhook/payout-approved with { period: \"' + $json.period + '\" }).' }}",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": { "id": "8", "name": "SMTP account" }
+      }
+    },
+    {
+      "id": "w20-n10",
+      "name": "Approval Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 700],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "payout-approved",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w20-n11",
+      "name": "Fetch Approved PayoutQueue",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [500, 700],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PAYOUT_QUEUE", "mode": "id" },
+        "filterByFormula": "={{ \"AND({Period} = '\" + ($json.body && $json.body.period ? $json.body.period : '') + \"', {Status} = 'Approved')\" }}",
+        "options": {}
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w20-n12",
+      "name": "Split Approved",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [750, 700],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "w20-n13",
+      "name": "Route by Payout Method",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [1000, 700],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "wise",
+              "conditions": {
+                "options": { "caseSensitive": false, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ ($json.fields && $json.fields['Payout method'] || 'wise').toLowerCase() }}",
+                    "rightValue": "wise",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "stripe",
+              "conditions": {
+                "options": { "caseSensitive": false, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ ($json.fields && $json.fields['Payout method'] || '').toLowerCase() }}",
+                    "rightValue": "stripe",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "w20-n14",
+      "name": "Wise Create Transfer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 600],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.wise.com/v1/transfers",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ targetAccount: $json.fields['Payout destination'], quoteUuid: null, customerTransactionId: 'w20-' + $json.fields['Affiliate ID'] + '-' + $json.fields['Period'], details: { reference: 'STRL ' + $json.fields['Period'] + ' commission', transferPurpose: 'verification.transfers.purpose.pay.bills', sourceOfFunds: 'verification.source.of.funds.other' }, sourceCurrency: 'USD', targetCurrency: 'USD', sourceAmount: $json.fields['Total commission (USD)'] }) }}",
+        "options": { "timeout": 60000 }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "16", "name": "Wise API" }
+      }
+    },
+    {
+      "id": "w20-n15",
+      "name": "Stripe Connect Transfer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 800],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/transfers",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "amount", "value": "={{ Math.round(parseFloat($json.fields['Total commission (USD)']) * 100) }}" },
+            { "name": "currency", "value": "usd" },
+            { "name": "destination", "value": "={{ $json.fields['Payout destination'] }}" },
+            { "name": "transfer_group", "value": "={{ 'w20-' + $json.fields['Period'] }}" },
+            { "name": "metadata[affiliate_id]", "value": "={{ $json.fields['Affiliate ID'] }}" },
+            { "name": "metadata[period]", "value": "={{ $json.fields['Period'] }}" }
+          ]
+        },
+        "options": { "timeout": 60000 }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "6", "name": "Stripe API Key" }
+      }
+    },
+    {
+      "id": "w20-n16",
+      "name": "Normalize Transfer Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 700],
+      "parameters": {
+        "jsCode": "const queue = $node['Split Approved'].json;\nconst input = $input.first().json;\nconst transactionId = input.id || input.transferId || input.transaction_id || `unknown-${Date.now()}`;\nconst status = input.status || (input.id ? 'Sent' : 'Failed');\nreturn [{ json: {\n  payout_queue_record_id: queue.id,\n  affiliate_id: queue.fields['Affiliate ID'],\n  partner_link: queue.fields['Partner'] || [],\n  period: queue.fields['Period'],\n  total_commission: queue.fields['Total commission (USD)'],\n  payout_method: queue.fields['Payout method'] || 'wise',\n  transaction_id: transactionId,\n  transfer_status: status,\n  raw_response: JSON.stringify(input).slice(0, 2000)\n}}];"
+      }
+    },
+    {
+      "id": "w20-n17",
+      "name": "Create Payouts Row",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 700],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PAYOUTS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Affiliate ID": "={{ $json.affiliate_id }}",
+            "Partner": "={{ $json.partner_link }}",
+            "Period": "={{ $json.period }}",
+            "Amount (USD)": "={{ $json.total_commission }}",
+            "Payout method": "={{ $json.payout_method }}",
+            "Transaction ID": "={{ $json.transaction_id }}",
+            "Status": "Sent",
+            "Raw response": "={{ $json.raw_response }}",
+            "Sent at": "={{ new Date().toISOString() }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w20-n18",
+      "name": "Update PayoutQueue → Paid",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2000, 700],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_PAYOUT_QUEUE", "mode": "id" },
+        "id": "={{ $json.payout_queue_record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Paid",
+            "Transaction ID": "={{ $json.transaction_id }}",
+            "Paid at": "={{ new Date().toISOString() }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w20-n19",
+      "name": "Loop Back Approved",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2250, 700],
+      "parameters": {}
+    },
+    {
+      "id": "w20-n20",
+      "name": "Slack Payouts Confirmation",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2500, 700],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '💸 W20 Affiliate payouts complete\\nPeriod: ' + ($json.period || '') + '\\nTransaction: ' + ($json.transaction_id || '') + '\\nAmount: $' + ($json.total_commission || '') + ' to ' + ($json.affiliate_id || '') }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w20-err01",
+      "name": "Build Error Envelope",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1500, 1000],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W20-affiliate-commission-cycle',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
+      }
+    },
+    {
+      "id": "w20-err02",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1750, 1000],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Workflow": "={{ $json.workflow }}",
+            "Node": "={{ $json.node }}",
+            "Error message": "={{ $json.error_message }}",
+            "Payload": "={{ $json.payload }}",
+            "Status": "Open"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w20-err03",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2000, 1000],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W20 Affiliate Cycle FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nPayload: ' + $json.payload }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Monthly 1st 06:00 ET Schedule": {
+      "main": [
+        [{ "node": "Compute Prior Month Range", "type": "main", "index": 0 }]
+      ]
+    },
+    "Compute Prior Month Range": {
+      "main": [
+        [{ "node": "List Prior-Month Affiliate Orders", "type": "main", "index": 0 }]
+      ]
+    },
+    "List Prior-Month Affiliate Orders": {
+      "main": [
+        [{ "node": "List Partners", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "List Partners": {
+      "main": [
+        [{ "node": "Group + Compute Commissions", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Group + Compute Commissions": {
+      "main": [
+        [{ "node": "Split per Affiliate", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split per Affiliate": {
+      "main": [
+        [{ "node": "Create PayoutQueue Row", "type": "main", "index": 0 }],
+        [{ "node": "Aggregate Payouts", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create PayoutQueue Row": {
+      "main": [
+        [{ "node": "Split per Affiliate", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Aggregate Payouts": {
+      "main": [
+        [{ "node": "Email Daniel — Approval Request", "type": "main", "index": 0 }]
+      ]
+    },
+    "Email Daniel — Approval Request": {
+      "main": [
+        [],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Approval Webhook": {
+      "main": [
+        [{ "node": "Fetch Approved PayoutQueue", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Approved PayoutQueue": {
+      "main": [
+        [{ "node": "Split Approved", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Approved": {
+      "main": [
+        [{ "node": "Route by Payout Method", "type": "main", "index": 0 }]
+      ]
+    },
+    "Route by Payout Method": {
+      "main": [
+        [{ "node": "Wise Create Transfer", "type": "main", "index": 0 }],
+        [{ "node": "Stripe Connect Transfer", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wise Create Transfer": {
+      "main": [
+        [{ "node": "Normalize Transfer Result", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Stripe Connect Transfer": {
+      "main": [
+        [{ "node": "Normalize Transfer Result", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Normalize Transfer Result": {
+      "main": [
+        [{ "node": "Create Payouts Row", "type": "main", "index": 0 }]
+      ]
+    },
+    "Create Payouts Row": {
+      "main": [
+        [{ "node": "Update PayoutQueue → Paid", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Update PayoutQueue → Paid": {
+      "main": [
+        [{ "node": "Slack Payouts Confirmation", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Slack Payouts Confirmation": {
+      "main": [
+        [{ "node": "Loop Back Approved", "type": "main", "index": 0 }]
+      ]
+    },
+    "Loop Back Approved": {
+      "main": [
+        [{ "node": "Split Approved", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build Error Envelope": {
+      "main": [
+        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 600,
+    "timezone": "America/New_York",
+    "errorWorkflow": "vQKuXqX6mzCEGmaE"
+  },
+  "pinData": {}
+}
