@@ -61,7 +61,7 @@
 
 ---
 
-## The 22 workflows
+## The 30 workflows
 
 | # | Workflow | Trigger | Priority | Owner family |
 |---|---|---|---|---|
@@ -87,6 +87,21 @@
 | W20 | **Affiliate Commission Cycle** | Cron monthly | **P3** | E. |
 | W21 | **Research Outreach Pipeline** | CSV drop on Google Drive | **P3** | I. Research |
 | W22 | **Template Update Notification** | Airtable version bump | **P3** | A. |
+| W23 | **Course Purchase Onboarding** | Delegated from W01/W02 (course SKU) | **P0** | L. Course |
+| W24 | **Course Module Drip Unlock** | Cron daily 06:00 | **P0** | L. |
+| W25 | **First Saturday Tracker** | LMS event webhook | **P1** | L. |
+| W26 | **Cohort Enrollment & Fulfillment** | Delegated from W23 (cohort SKU) | **P0** | L. |
+| W27 | **Cohort Group Call Reminders** | Cron Mon/Tue per active cohort | **P1** | L. |
+| W28 | **Refund Reply Intake** | Inbound email reply pattern | **P1** | L. |
+| W29 | **NPS Day-30 Collection** | Cron daily 08:00 | **P1** | L. |
+| W30 | **Annual "What Changed" Distribution** | Cron January 20 annually | **P1** | L. |
+
+The course workflows (W23–W30) form the "Owner family L — Course." They share several conventions:
+
+- All course buyers carry tags `course:{{tier}}` and `customer:course` (set in W23) — every downstream course workflow filters on these tags
+- LMS state lives in Airtable's `Course_Students` table (created in W23) — `student_id`, `email`, `tier`, `purchase_date`, `current_module`, `first_saturday_scheduled`, `nps_score`, `graduation_date`
+- The 10-email post-purchase onboarding sequence runs in IS natively (not n8n) — n8n triggers tag changes that fire the IS sequence; n8n does NOT send the emails directly
+- Course Pinterest pins use W16's existing Blog Post Promotion Cascade with `content_type: course-pin` — no new workflow needed
 
 ---
 

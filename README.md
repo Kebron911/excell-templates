@@ -13,11 +13,14 @@ brand/
   brand-decisions.md       ← locked brand identity (name, palette, type, voice)
   assets/                  ← logo exports + Vista Create outputs (produced per Task 0.5)
 copy/                      ← user-facing drafts (Etsy, email, blog, Pinterest, FB)
+  _atomization/            ← weekly content engine: topic brief + master deck templates + per-deck folders
 docs/
   runbooks/                ← ops procedures
+    weekly-content-atomization.md             ← Mon–Fri checklist for the content engine
   superpowers/
     specs/
       2026-04-22-str-tax-platform-design.md   ← master strategy design
+      2026-04-29-content-atomization-engine.md ← create-once-use-everywhere content system
     plans/
       2026-04-22-weeks-1-8-launch.md          ← weeks 1-8 execution plan
       2026-04-22-brand-substitution.md        ← brand token substitution pass
@@ -41,4 +44,4 @@ templates/                 ← Excel template briefs + specs (one folder per SKU
 - **Automation:** n8n self-hosted at `n8n.thestrledger.com`, Claude over MCP
 - **Launch sequence:** Etsy-MVP in Weeks 1–2, full stack by Week 8
 
-See [the master strategy](docs/superpowers/specs/2026-04-22-str-tax-platform-design.md) and [the locked brand](brand/brand-decisions.md).
+See [the master strategy](docs/superpowers/specs/2026-04-22-str-tax-platform-design.md), [the locked brand](brand/brand-decisions.md), and [the content atomization engine](docs/superpowers/specs/2026-04-29-content-atomization-engine.md) (one Source Topic → 11 platform artifacts → self-feeding loop).

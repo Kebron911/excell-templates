@@ -1,0 +1,377 @@
+{
+  "name": "W28 — Refund Reply Intake",
+  "nodes": [
+    {
+      "id": "w28-n01",
+      "name": "Email Trigger (IMAP)",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [250, 400],
+      "parameters": {
+        "mailbox": "INBOX",
+        "options": {
+          "customEmailConfig": "[\"UNSEEN\"]",
+          "ignoreTextAttachments": true
+        }
+      },
+      "credentials": {
+        "imap": { "id": "5", "name": "Hello@thestrledger Inbox" }
+      }
+    },
+    {
+      "id": "w28-n02",
+      "name": "Filter Refund Pattern",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [475, 400],
+      "parameters": {
+        "jsCode": "const email = $input.first().json;\nconst fromEmail = (email.from?.value?.[0]?.address || email.from || '').toLowerCase();\nconst subject = (email.subject || '').toLowerCase();\nconst text = (email.text || email.textAsHtml || '').toLowerCase();\nconst combined = subject + ' ' + text;\n\n// Match \\brefund\\b but exclude common false positives like \"refund policy\" being asked pre-purchase\nconst hasRefundKeyword = /\\brefund\\b/.test(combined);\nconst isQuestion = /\\?|how|what|when|policy|do you/.test(combined.substring(0, 200));\n\n// If it has \"refund\" but looks like a question, hand off to W12\nif (!hasRefundKeyword) return [];\nif (isQuestion && !text.match(/\\bi want|please refund|please process my refund|requesting (a |my )?refund\\b/i)) {\n  return [];  // pre-purchase question, not a refund request\n}\n\nreturn [{ json: {\n  from_email: fromEmail,\n  subject: email.subject,\n  body: email.text || '',\n  message_id: email.messageId || email['message-id']\n}}];"
+      }
+    },
+    {
+      "id": "w28-n03",
+      "name": "Lookup Course_Students",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [700, 400],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "filterByFormula": "={{ \"{email} = '\" + $json.from_email + \"'\" }}",
+        "options": { "limit": 1 }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w28-n04",
+      "name": "Course Buyer Match?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [925, 400],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "match",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "exists" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w28-n05",
+      "name": "Check 14-day Window",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1150, 250],
+      "parameters": {
+        "jsCode": "const student = $input.first().json;\nconst purchaseDate = new Date(student.purchase_date);\nconst now = new Date();\nconst daysSincePurchase = Math.floor((now - purchaseDate) / (1000 * 60 * 60 * 24));\n\nconst inWindow = daysSincePurchase <= 14;\nconst dwyBlocked = student.tier === 'dwy' && student.dwy_first_session_held === true;\n\nreturn [{ json: {\n  ...student,\n  in_window: inWindow && !dwyBlocked,\n  days_since: daysSincePurchase,\n  block_reason: dwyBlocked ? 'dwy_first_session_held' : (inWindow ? null : 'past_14_days')\n}}];"
+      }
+    },
+    {
+      "id": "w28-n06",
+      "name": "In Window?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1375, 250],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "in-window",
+              "leftValue": "={{ $json.in_window }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w28-n07",
+      "name": "Lookup Order for Refund",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1600, 150],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
+        "filterByFormula": "={{ \"AND({email} = '\" + $json.email + \"', SEARCH('course-', {sku}) > 0)\" }}",
+        "sort": [{ "field": "timestamp", "direction": "asc" }],
+        "options": { "limit": 1 }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w28-n08",
+      "name": "Platform Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1825, 150],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "typeValidation": "loose" },
+                "conditions": [
+                  { "id": "stripe", "leftValue": "={{ $json.platform }}", "rightValue": "is", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "stripe"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "typeValidation": "loose" },
+                "conditions": [
+                  { "id": "gumroad", "leftValue": "={{ $json.platform }}", "rightValue": "gumroad", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "gumroad"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w28-n09",
+      "name": "Stripe — Process Refund",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2050, 100],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/refunds",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "payment_intent", "value": "={{ $json.stripe_payment_intent_id }}" },
+            { "name": "reason", "value": "requested_by_customer" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "6", "name": "Stripe Restricted Key" }
+      }
+    },
+    {
+      "id": "w28-n10",
+      "name": "Gumroad — Process Refund",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2050, 250],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ 'https://api.gumroad.com/v2/sales/' + $json.gumroad_sale_id + '/refund' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "7", "name": "Gumroad Access Token" }
+      }
+    },
+    {
+      "id": "w28-n11",
+      "name": "Update Course_Students Status",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2275, 150],
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "id": "={{ $('Lookup Course_Students').first().json.id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "refunded",
+            "refunded_at": "={{ new Date().toISOString() }}",
+            "refund_amount": "={{ $('Lookup Order for Refund').first().json.gross_amount }}"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w28-n12",
+      "name": "IS — Revoke Access + Swap Tags",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2500, 150],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/courses/revoke",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ contact_email: $('Lookup Course_Students').first().json.email, course_id: $env['IS_COURSE_ID_' + $('Lookup Course_Students').first().json.tier.toUpperCase().replace('-', '_')], tag_swaps: { add: ['course:refunded'], remove: ['course:purchased', 'course:onboarding-day-0', 'course:onboarding-day-1', 'course:onboarding-day-3', 'course:onboarding-day-7', 'course:onboarding-day-14', 'course:onboarding-day-21', 'course:onboarding-day-30', 'course:onboarding-day-60', 'course:onboarding-day-90'] } }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w28-n13",
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2725, 150],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/email/send",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ to: $('Lookup Course_Students').first().json.email, subject: 'Refund processed', body: 'Confirmed. Your $' + $('Lookup Order for Refund').first().json.gross_amount + ' has been refunded to your original payment method. Most cards reflect the credit within 3-5 business days. No survey, no negotiation — that was the deal. The book is still yours. The community door stays open if you want it. — The STR Ledger' }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w28-n14",
+      "name": "Slack: Refund Within Window",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2950, 150],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '↩️ Refund processed within window\\nStudent: ' + $('Lookup Course_Students').first().json.email + '\\nTier: ' + $('Lookup Course_Students').first().json.tier + '\\nDays since purchase: ' + $('Check 14-day Window').first().json.days_since + '\\nAmount: $' + $('Lookup Order for Refund').first().json.gross_amount }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w28-n15",
+      "name": "Out-of-Window: Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1600, 450],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/email/send",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ to: $('Lookup Course_Students').first().json.email, subject: 'Re: ' + $('Filter Refund Pattern').first().json.subject, body: 'Your refund window closed on ' + new Date(new Date($('Lookup Course_Students').first().json.purchase_date).getTime() + 14*86400000).toISOString().substring(0,10) + '. We would still like to help — hit reply with what is happening and Daniel will respond within one business day. — The STR Ledger' }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w28-n16",
+      "name": "Out-of-Window: Slack Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1825, 450],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '⚠️ Out-of-window refund request\\nStudent: ' + $('Lookup Course_Students').first().json.email + '\\nTier: ' + $('Lookup Course_Students').first().json.tier + '\\nDays since purchase: ' + $('Check 14-day Window').first().json.days_since + '\\nReason: ' + $('Check 14-day Window').first().json.block_reason + '\\nNeeds human review.' }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w28-n99",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2275, 600],
+      "parameters": {
+        "jsCode": "const error = $input.first().json;\nreturn [{ json: { workflow_id: 'W28', node_name: error.node_name || 'unknown', timestamp: new Date().toISOString(), error_message: error.error?.message || JSON.stringify(error).substring(0, 500), severity: 'P0' } }];"
+      }
+    },
+    {
+      "id": "w28-n100",
+      "name": "Log Error + P0 Alert",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2500, 600],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": { "mappingMode": "autoMapInputData" }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w28-n101",
+      "name": "P0 Slack Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2725, 600],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 P0: W28 Refund processing failed\\nError: ' + $json.error_message + '\\nManual refund required within 2 business hours per policy.' }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Email Trigger (IMAP)": { "main": [[{ "node": "Filter Refund Pattern", "type": "main", "index": 0 }]] },
+    "Filter Refund Pattern": { "main": [[{ "node": "Lookup Course_Students", "type": "main", "index": 0 }]] },
+    "Lookup Course_Students": { "main": [[{ "node": "Course Buyer Match?", "type": "main", "index": 0 }]] },
+    "Course Buyer Match?": { "main": [[{ "node": "Check 14-day Window", "type": "main", "index": 0 }], []] },
+    "Check 14-day Window": { "main": [[{ "node": "In Window?", "type": "main", "index": 0 }]] },
+    "In Window?": { "main": [[{ "node": "Lookup Order for Refund", "type": "main", "index": 0 }], [{ "node": "Out-of-Window: Reply", "type": "main", "index": 0 }]] },
+    "Lookup Order for Refund": { "main": [[{ "node": "Platform Switch", "type": "main", "index": 0 }]] },
+    "Platform Switch": { "main": [[{ "node": "Stripe — Process Refund", "type": "main", "index": 0 }], [{ "node": "Gumroad — Process Refund", "type": "main", "index": 0 }]] },
+    "Stripe — Process Refund": { "main": [[{ "node": "Update Course_Students Status", "type": "main", "index": 0 }]], "error": [[{ "node": "Error Handler", "type": "main", "index": 0 }]] },
+    "Gumroad — Process Refund": { "main": [[{ "node": "Update Course_Students Status", "type": "main", "index": 0 }]], "error": [[{ "node": "Error Handler", "type": "main", "index": 0 }]] },
+    "Update Course_Students Status": { "main": [[{ "node": "IS — Revoke Access + Swap Tags", "type": "main", "index": 0 }]] },
+    "IS — Revoke Access + Swap Tags": { "main": [[{ "node": "Send Confirmation Email", "type": "main", "index": 0 }]] },
+    "Send Confirmation Email": { "main": [[{ "node": "Slack: Refund Within Window", "type": "main", "index": 0 }]] },
+    "Out-of-Window: Reply": { "main": [[{ "node": "Out-of-Window: Slack Alert", "type": "main", "index": 0 }]] },
+    "Error Handler": { "main": [[{ "node": "Log Error + P0 Alert", "type": "main", "index": 0 }]] },
+    "Log Error + P0 Alert": { "main": [[{ "node": "P0 Slack Alert", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "course" }, { "name": "P1" }, { "name": "L-family" }, { "name": "refund" }]
+}

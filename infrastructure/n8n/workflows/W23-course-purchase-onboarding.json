@@ -1,0 +1,361 @@
+{
+  "name": "W23 — Course Purchase Onboarding",
+  "nodes": [
+    {
+      "id": "w23-n01",
+      "name": "Course Onboarding Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 400],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "course-onboarding",
+        "responseMode": "onReceived",
+        "options": {
+          "rawBody": false
+        }
+      }
+    },
+    {
+      "id": "w23-n02",
+      "name": "Validate Shared Secret",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [475, 400],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "secret-check",
+              "leftValue": "={{ $json.query?.secret }}",
+              "rightValue": "={{ $env.COURSE_WEBHOOK_SECRET }}",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w23-n03",
+      "name": "Normalize and Validate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 350],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const order = $input.first().json.body;\n\nif (!order.email || !order.course_tier) {\n  throw new Error('Missing required fields: email and course_tier');\n}\n\nconst validTiers = ['self-study', 'cohort', 'dwy'];\nif (!validTiers.includes(order.course_tier)) {\n  throw new Error(`Invalid course_tier: ${order.course_tier}`);\n}\n\nfunction addDays(iso, days) {\n  const d = new Date(iso);\n  d.setDate(d.getDate() + days);\n  return d.toISOString();\n}\n\nconst purchaseTs = order.timestamp || new Date().toISOString();\n\nreturn [{ json: {\n  ...order,\n  email: order.email.toLowerCase().trim(),\n  enrollment_date: new Date().toISOString(),\n  purchase_date: purchaseTs,\n  module_unlock_schedule: {\n    'module-0': purchaseTs,\n    'module-1': addDays(purchaseTs, 2),\n    'module-2': addDays(purchaseTs, 4),\n    'module-3': addDays(purchaseTs, 14),\n    'module-4': addDays(purchaseTs, 21),\n    'module-5': addDays(purchaseTs, 35),\n    'module-6': addDays(purchaseTs, 50),\n    'module-7': addDays(purchaseTs, 70)\n  }\n}}];"
+      }
+    },
+    {
+      "id": "w23-n04",
+      "name": "Upsert Course_Students Row",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [925, 350],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "upsert",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "matchingColumns": ["email"],
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.email }}",
+            "first_name": "={{ $json.first_name || '' }}",
+            "tier": "={{ $json.course_tier }}",
+            "purchase_date": "={{ $json.purchase_date }}",
+            "order_id": "={{ $json.order_id }}",
+            "current_module": "module-0",
+            "module_unlock_schedule": "={{ JSON.stringify($json.module_unlock_schedule) }}",
+            "first_saturday_scheduled": null,
+            "nps_score": null,
+            "graduation_date": null,
+            "status": "active",
+            "discount_code_used": "={{ $json.discount_code_used || '' }}",
+            "utm_source": "={{ $json.utm_source || '' }}",
+            "utm_campaign": "={{ $json.utm_campaign || '' }}"
+          },
+          "schema": []
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w23-n05",
+      "name": "Resolve IS Course ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1150, 350],
+      "parameters": {
+        "jsCode": "const tier = $('Normalize and Validate').first().json.course_tier;\nconst tierToEnv = {\n  'self-study': 'IS_COURSE_ID_SELF_STUDY',\n  'cohort': 'IS_COURSE_ID_COHORT',\n  'dwy': 'IS_COURSE_ID_DWY'\n};\nconst envKey = tierToEnv[tier];\nconst courseId = $env[envKey];\n\nif (!courseId) {\n  throw new Error(`Missing env var ${envKey} for tier ${tier}`);\n}\n\nreturn [{ json: {\n  ...$input.first().json,\n  ...$('Normalize and Validate').first().json,\n  is_course_id: courseId\n}}];"
+      }
+    },
+    {
+      "id": "w23-n06",
+      "name": "IS — Grant LMS Access",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1375, 350],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/courses/grant",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ contact_email: $json.email, course_id: $json.is_course_id, drip_schedule: $json.module_unlock_schedule }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w23-n07",
+      "name": "Update Course_Students with student_id",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1600, 350],
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "id": "={{ $('Upsert Course_Students Row').first().json.id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "is_student_id": "={{ $json.student_id || $json.id }}"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w23-n08",
+      "name": "IS — Apply Onboarding Tags",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1825, 350],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/contacts/tags",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ email: $('Normalize and Validate').first().json.email, tags: ['course:purchased', 'course:' + $('Normalize and Validate').first().json.course_tier, 'customer:course', 'course:onboarding-day-0'] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w23-n09",
+      "name": "Tier Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [2050, 350],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "typeValidation": "loose" },
+                "conditions": [
+                  {
+                    "id": "self-study",
+                    "leftValue": "={{ $('Normalize and Validate').first().json.course_tier }}",
+                    "rightValue": "self-study",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "self-study"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "typeValidation": "loose" },
+                "conditions": [
+                  {
+                    "id": "cohort",
+                    "leftValue": "={{ $('Normalize and Validate').first().json.course_tier }}",
+                    "rightValue": "cohort",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "cohort"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "typeValidation": "loose" },
+                "conditions": [
+                  {
+                    "id": "dwy",
+                    "leftValue": "={{ $('Normalize and Validate').first().json.course_tier }}",
+                    "rightValue": "dwy",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "dwy"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w23-n10a",
+      "name": "Self-Study: No Further Action",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2275, 200],
+      "parameters": {}
+    },
+    {
+      "id": "w23-n10b",
+      "name": "Cohort: Forward to W26",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2275, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.thestrledger.com/webhook/cohort-enrollment",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ ...$('Normalize and Validate').first().json, course_students_record_id: $('Upsert Course_Students Row').first().json.id, is_student_id: $('IS — Grant LMS Access').first().json.student_id, secret: $env.COURSE_WEBHOOK_SECRET }) }}"
+      }
+    },
+    {
+      "id": "w23-n10c",
+      "name": "DWY: Forward to W26 + Concierge Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2275, 600],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.thestrledger.com/webhook/cohort-enrollment",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ ...$('Normalize and Validate').first().json, course_students_record_id: $('Upsert Course_Students Row').first().json.id, is_student_id: $('IS — Grant LMS Access').first().json.student_id, dwy_concierge: true, secret: $env.COURSE_WEBHOOK_SECRET }) }}"
+      }
+    },
+    {
+      "id": "w23-n11",
+      "name": "DWY Concierge Slack Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2500, 600],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '🎓 New DWY enrollment: ' + ($('Normalize and Validate').first().json.first_name || $('Normalize and Validate').first().json.email.split('@')[0]) + ' (' + $('Normalize and Validate').first().json.email + '). Concierge intake form sent. First 1:1 should be scheduled within 7 days.' }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w23-n12",
+      "name": "Convergence Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2725, 400],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '🎓 New course enrollment\\nTier: ' + $('Normalize and Validate').first().json.course_tier + '\\nEmail: ' + $('Normalize and Validate').first().json.email + '\\nSource: ' + ($('Normalize and Validate').first().json.utm_source || 'direct') + '\\nDiscount: ' + ($('Normalize and Validate').first().json.discount_code_used || 'none') }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w23-n99",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [925, 700],
+      "parameters": {
+        "jsCode": "const error = $input.first().json;\nreturn [{ json: {\n  workflow_id: 'W23',\n  node_name: error.node_name || 'unknown',\n  timestamp: new Date().toISOString(),\n  error_message: error.error?.message || JSON.stringify(error).substring(0, 500),\n  payload_excerpt: JSON.stringify(error).substring(0, 500),\n  retry_count: error.retry_count || 0\n}}];"
+      }
+    },
+    {
+      "id": "w23-n100",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1150, 700],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "autoMapInputData"
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w23-n101",
+      "name": "Slack Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1375, 700],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 W23 Course Onboarding error\\nNode: ' + $json.node_name + '\\nError: ' + $json.error_message }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Course Onboarding Webhook": { "main": [[{ "node": "Validate Shared Secret", "type": "main", "index": 0 }]] },
+    "Validate Shared Secret": { "main": [[{ "node": "Normalize and Validate", "type": "main", "index": 0 }], []] },
+    "Normalize and Validate": { "main": [[{ "node": "Upsert Course_Students Row", "type": "main", "index": 0 }]], "error": [[{ "node": "Error Handler", "type": "main", "index": 0 }]] },
+    "Upsert Course_Students Row": { "main": [[{ "node": "Resolve IS Course ID", "type": "main", "index": 0 }]], "error": [[{ "node": "Error Handler", "type": "main", "index": 0 }]] },
+    "Resolve IS Course ID": { "main": [[{ "node": "IS — Grant LMS Access", "type": "main", "index": 0 }]] },
+    "IS — Grant LMS Access": { "main": [[{ "node": "Update Course_Students with student_id", "type": "main", "index": 0 }]], "error": [[{ "node": "Error Handler", "type": "main", "index": 0 }]] },
+    "Update Course_Students with student_id": { "main": [[{ "node": "IS — Apply Onboarding Tags", "type": "main", "index": 0 }]] },
+    "IS — Apply Onboarding Tags": { "main": [[{ "node": "Tier Switch", "type": "main", "index": 0 }]], "error": [[{ "node": "Error Handler", "type": "main", "index": 0 }]] },
+    "Tier Switch": { "main": [[{ "node": "Self-Study: No Further Action", "type": "main", "index": 0 }], [{ "node": "Cohort: Forward to W26", "type": "main", "index": 0 }], [{ "node": "DWY: Forward to W26 + Concierge Alert", "type": "main", "index": 0 }]] },
+    "Self-Study: No Further Action": { "main": [[{ "node": "Convergence Slack Notification", "type": "main", "index": 0 }]] },
+    "Cohort: Forward to W26": { "main": [[{ "node": "Convergence Slack Notification", "type": "main", "index": 0 }]] },
+    "DWY: Forward to W26 + Concierge Alert": { "main": [[{ "node": "DWY Concierge Slack Alert", "type": "main", "index": 0 }]] },
+    "DWY Concierge Slack Alert": { "main": [[{ "node": "Convergence Slack Notification", "type": "main", "index": 0 }]] },
+    "Error Handler": { "main": [[{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]] },
+    "Log Error to Airtable": { "main": [[{ "node": "Slack Error Alert", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "course" }, { "name": "P0" }, { "name": "L-family" }]
+}

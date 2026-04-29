@@ -1,0 +1,309 @@
+{
+  "name": "Receipt-OCR Workflow — The 47-Deduction Operator",
+  "meta": {
+    "description": "Forward a receipt photo to a dedicated email address; this workflow OCRs it, applies the categorization rule library, and appends a categorized row to your Airtable transactions base. Course bonus B6.",
+    "version": "1.0",
+    "course": "the-47-deduction-operator",
+    "documentation": "See receipt-ocr-workflow-setup.md alongside this file"
+  },
+  "nodes": [
+    {
+      "id": "ocr-n01",
+      "name": "IMAP Inbox Trigger",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [250, 400],
+      "parameters": {
+        "mailbox": "INBOX",
+        "options": {
+          "customEmailConfig": "[\"UNSEEN\"]",
+          "downloadAttachments": true,
+          "ignoreTextAttachments": false
+        }
+      },
+      "credentials": {
+        "imap": { "id": "REPLACE_WITH_YOUR_IMAP_CREDENTIAL_ID", "name": "Your receipts inbox" }
+      }
+    },
+    {
+      "id": "ocr-n02",
+      "name": "Filter — has image attachment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [475, 400],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nreturn items.filter(item => {\n  if (!item.binary) return false;\n  return Object.values(item.binary).some(b => \n    (b.mimeType || '').startsWith('image/') || b.mimeType === 'application/pdf'\n  );\n});"
+      }
+    },
+    {
+      "id": "ocr-n03",
+      "name": "Parse Subject for Property Tag",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 400],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\n// Plus-addressing path: receipts+cabinA@... -> Cabin A\nconst toAddr = (item.to?.value?.[0]?.address || item.to || '').toLowerCase();\nconst plusMatch = toAddr.match(/\\+([a-z0-9-]+)@/);\n\n// Subject path: \"Cabin A — repair\" or \"A - utilities\"\nconst subject = (item.subject || '').toLowerCase();\nconst subjMatch = subject.match(/cabin\\s*([abc])/) ||\n                  subject.match(/property\\s*([abc])/) ||\n                  subject.match(/^([abc])(?:\\s|-|$)/);\n\nlet property = 'UNASSIGNED';\nif (plusMatch) {\n  // Normalize cabinA -> Cabin A\n  const tag = plusMatch[1];\n  const cabinMatch = tag.match(/cabin([abc])/i);\n  if (cabinMatch) property = `Cabin ${cabinMatch[1].toUpperCase()}`;\n  else property = tag;\n} else if (subjMatch) {\n  property = `Cabin ${subjMatch[1].toUpperCase()}`;\n}\n\nconst attachmentKey = Object.keys(item.binary || {})[0];\n\nreturn [{\n  json: { ...item, property, attachment_key: attachmentKey },\n  binary: item.binary\n}];"
+      }
+    },
+    {
+      "id": "ocr-n04",
+      "name": "Upload Image to S3",
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [925, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "={{ $env.S3_RECEIPTS_BUCKET }}",
+        "fileName": "={{ 'receipts/' + $json.property + '/' + new Date().toISOString().substring(0,7) + '/' + ($json.message_id || Date.now()) + '.jpg' }}",
+        "binaryPropertyName": "={{ $json.attachment_key }}",
+        "additionalFields": {
+          "acl": "private",
+          "contentType": "image/jpeg"
+        }
+      },
+      "credentials": {
+        "aws": { "id": "REPLACE_WITH_YOUR_AWS_CREDENTIAL_ID", "name": "AWS S3" }
+      }
+    },
+    {
+      "id": "ocr-n05",
+      "name": "Build S3 URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1150, 400],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst bucket = $env.S3_RECEIPTS_BUCKET;\nconst region = $env.AWS_REGION || 'us-east-1';\nconst key = item.Key || item.name;\nconst image_url = `https://${bucket}.s3.${region}.amazonaws.com/${key}`;\n\nreturn [{ json: {\n  ...$('Parse Subject for Property Tag').first().json,\n  image_url,\n  s3_key: key\n}}];"
+      }
+    },
+    {
+      "id": "ocr-n06",
+      "name": "Veryfi OCR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1375, 400],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.veryfi.com/api/v8/partner/documents/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "CLIENT-ID", "value": "={{ $env.VERYFI_CLIENT_ID }}" },
+            { "name": "AUTHORIZATION", "value": "={{ 'apikey ' + $env.VERYFI_USERNAME + ':' + $env.VERYFI_API_KEY }}" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ file_url: $json.image_url, categories: ['Maintenance', 'Utilities', 'Supplies', 'Travel', 'Office', 'Other'] }) }}"
+      }
+    },
+    {
+      "id": "ocr-n07",
+      "name": "Extract OCR Fields",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1600, 400],
+      "parameters": {
+        "jsCode": "const ocr = $input.first().json;\nconst meta = $('Build S3 URL').first().json;\n\nreturn [{ json: {\n  property: meta.property,\n  image_url: meta.image_url,\n  vendor_name: ocr.vendor?.name || 'UNKNOWN',\n  date: ocr.date || new Date().toISOString().substring(0, 10),\n  total: parseFloat(ocr.total || 0),\n  subtotal: parseFloat(ocr.subtotal || 0),\n  tax: parseFloat(ocr.tax || 0),\n  veryfi_category: ocr.category || 'Other',\n  veryfi_id: ocr.id,\n  message_id: meta.message_id,\n  from_email: meta.from?.value?.[0]?.address || meta.from || ''\n}}];"
+      }
+    },
+    {
+      "id": "ocr-n08",
+      "name": "Load Rule Library",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1825, 400],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "={{ $env.AIRTABLE_BASE_ID }}", "mode": "id" },
+        "table": { "__rl": true, "value": "Categorization_Rules", "mode": "name" },
+        "options": {
+          "fields": ["rule_id", "match_type", "match_value", "amount_condition", "schedule_e_line", "category", "confidence"]
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "REPLACE_WITH_YOUR_AIRTABLE_CREDENTIAL_ID", "name": "Airtable" }
+      }
+    },
+    {
+      "id": "ocr-n09",
+      "name": "Apply Rule Library",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2050, 400],
+      "parameters": {
+        "jsCode": "const rules = $input.all().map(r => r.json);\nconst tx = $('Extract OCR Fields').first().json;\nconst vendor = (tx.vendor_name || '').toLowerCase();\nconst amount = tx.total || 0;\n\nlet match = null;\nfor (const rule of rules) {\n  if (rule.match_type === 'vendor_contains' && vendor.includes((rule.match_value || '').toLowerCase())) {\n    match = rule;\n    break;\n  }\n  if (rule.match_type === 'vendor_equals' && vendor === (rule.match_value || '').toLowerCase()) {\n    match = rule;\n    break;\n  }\n  if (rule.match_type === 'vendor_and_amount') {\n    const vendorMatch = vendor.includes((rule.match_value || '').toLowerCase());\n    if (!vendorMatch) continue;\n    // Evaluate amount_condition like \"amount < 500\" — safely\n    const cond = (rule.amount_condition || '').replace(/amount/g, String(amount));\n    let result = false;\n    try {\n      // Only allow simple numeric comparisons; reject anything else\n      if (/^[0-9.<>=! ]+$/.test(cond)) {\n        result = Function('\"use strict\"; return (' + cond + ')')();\n      }\n    } catch (e) { result = false; }\n    if (result) {\n      match = rule;\n      break;\n    }\n  }\n}\n\nreturn [{ json: {\n  ...tx,\n  matched_rule_id: match?.rule_id || null,\n  category: match?.category || 'Review',\n  schedule_e_line: match?.schedule_e_line || null,\n  confidence: match?.confidence || 'low'\n}}];"
+      }
+    },
+    {
+      "id": "ocr-n10",
+      "name": "Confidence Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [2275, 400],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "typeValidation": "loose" },
+                "conditions": [
+                  { "id": "high", "leftValue": "={{ $json.confidence }}", "rightValue": "high", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "high"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "typeValidation": "loose" },
+                "conditions": [
+                  { "id": "medium", "leftValue": "={{ $json.confidence }}", "rightValue": "medium", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "medium"
+            }
+          ],
+          "fallbackOutput": "extra"
+        }
+      }
+    },
+    {
+      "id": "ocr-n11",
+      "name": "Append to Transactions (high/medium)",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2500, 350],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "={{ $env.AIRTABLE_BASE_ID }}", "mode": "id" },
+        "table": { "__rl": true, "value": "Transactions", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.date }}",
+            "Property": "={{ $json.property }}",
+            "Vendor": "={{ $json.vendor_name }}",
+            "Subtotal": "={{ $json.subtotal }}",
+            "Tax": "={{ $json.tax }}",
+            "Total": "={{ $json.total }}",
+            "Schedule_E_Line": "={{ $json.schedule_e_line }}",
+            "Category": "={{ $json.category }}",
+            "Confidence": "={{ $json.confidence }}",
+            "Receipt_URL": "={{ $json.image_url }}",
+            "Source": "ocr-receipt-workflow",
+            "Status": "={{ $json.confidence === 'medium' ? 'pending-review-batched' : 'captured' }}"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "REPLACE_WITH_YOUR_AIRTABLE_CREDENTIAL_ID", "name": "Airtable" }
+      }
+    },
+    {
+      "id": "ocr-n12",
+      "name": "Append to Review_Queue (low)",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2500, 550],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "={{ $env.AIRTABLE_BASE_ID }}", "mode": "id" },
+        "table": { "__rl": true, "value": "Review_Queue", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.date }}",
+            "Property": "={{ $json.property }}",
+            "Vendor": "={{ $json.vendor_name }}",
+            "Total": "={{ $json.total }}",
+            "Receipt_URL": "={{ $json.image_url }}",
+            "Reason": "no-rule-match-or-low-confidence"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "REPLACE_WITH_YOUR_AIRTABLE_CREDENTIAL_ID", "name": "Airtable" }
+      }
+    },
+    {
+      "id": "ocr-n13",
+      "name": "Telegram Alert (low)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [2725, 550],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ '📥 Receipt needs review\\n────────────────\\nProperty: ' + $json.property + '\\nVendor: ' + $json.vendor_name + '\\nTotal: $' + $json.total + '\\nDate: ' + $json.date + '\\n\\nOpen Review queue and categorize.' }}"
+      },
+      "credentials": {
+        "telegramApi": { "id": "REPLACE_WITH_YOUR_TELEGRAM_CREDENTIAL_ID", "name": "Telegram bot" }
+      }
+    },
+    {
+      "id": "ocr-n14",
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2725, 350],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "fromEmail": "={{ $env.OUTBOUND_FROM_EMAIL }}",
+        "toEmail": "={{ $json.from_email }}",
+        "subject": "={{ 'Captured: ' + $json.vendor_name + ' $' + $json.total }}",
+        "text": "={{ 'Logged.\\n\\nProperty:  ' + $json.property + '\\nVendor:    ' + $json.vendor_name + '\\nTotal:     $' + $json.total + '\\nDate:      ' + $json.date + '\\nCategory:  ' + $json.category + ' (Schedule E line ' + ($json.schedule_e_line || 'pending') + ')\\n\\nReceipt photo: ' + $json.image_url + '\\n\\n' + ($json.confidence === 'low' ? 'Routed to Review queue.' : 'Auto-categorized.') }}",
+        "options": {}
+      },
+      "credentials": {
+        "smtp": { "id": "REPLACE_WITH_YOUR_SMTP_CREDENTIAL_ID", "name": "Outbound SMTP" }
+      }
+    },
+    {
+      "id": "ocr-n99",
+      "name": "OCR Failed — Route to Review",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1600, 700],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "={{ $env.AIRTABLE_BASE_ID }}", "mode": "id" },
+        "table": { "__rl": true, "value": "Review_Queue", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ new Date().toISOString().substring(0,10) }}",
+            "Property": "={{ $('Parse Subject for Property Tag').first().json.property }}",
+            "Vendor": "OCR_FAILED",
+            "Receipt_URL": "={{ $('Build S3 URL').first().json.image_url || 'N/A' }}",
+            "Reason": "veryfi-ocr-failed"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "REPLACE_WITH_YOUR_AIRTABLE_CREDENTIAL_ID", "name": "Airtable" }
+      }
+    }
+  ],
+  "connections": {
+    "IMAP Inbox Trigger": { "main": [[{ "node": "Filter — has image attachment", "type": "main", "index": 0 }]] },
+    "Filter — has image attachment": { "main": [[{ "node": "Parse Subject for Property Tag", "type": "main", "index": 0 }]] },
+    "Parse Subject for Property Tag": { "main": [[{ "node": "Upload Image to S3", "type": "main", "index": 0 }]] },
+    "Upload Image to S3": { "main": [[{ "node": "Build S3 URL", "type": "main", "index": 0 }]] },
+    "Build S3 URL": { "main": [[{ "node": "Veryfi OCR", "type": "main", "index": 0 }]] },
+    "Veryfi OCR": { "main": [[{ "node": "Extract OCR Fields", "type": "main", "index": 0 }]], "error": [[{ "node": "OCR Failed — Route to Review", "type": "main", "index": 0 }]] },
+    "Extract OCR Fields": { "main": [[{ "node": "Load Rule Library", "type": "main", "index": 0 }]] },
+    "Load Rule Library": { "main": [[{ "node": "Apply Rule Library", "type": "main", "index": 0 }]] },
+    "Apply Rule Library": { "main": [[{ "node": "Confidence Switch", "type": "main", "index": 0 }]] },
+    "Confidence Switch": { "main": [[{ "node": "Append to Transactions (high/medium)", "type": "main", "index": 0 }], [{ "node": "Append to Transactions (high/medium)", "type": "main", "index": 0 }], [{ "node": "Append to Review_Queue (low)", "type": "main", "index": 0 }]] },
+    "Append to Transactions (high/medium)": { "main": [[{ "node": "Send Confirmation Email", "type": "main", "index": 0 }]] },
+    "Append to Review_Queue (low)": { "main": [[{ "node": "Telegram Alert (low)", "type": "main", "index": 0 }, { "node": "Send Confirmation Email", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "course-deliverable" }, { "name": "student-facing" }, { "name": "bonus-b6" }]
+}

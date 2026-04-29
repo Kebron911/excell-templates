@@ -1,0 +1,420 @@
+{
+  "name": "W26 — Cohort Enrollment & Fulfillment",
+  "nodes": [
+    {
+      "id": "w26-n01",
+      "name": "Cohort Enrollment Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 400],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cohort-enrollment",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w26-n02",
+      "name": "Validate Secret",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [475, 400],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "secret-check",
+              "leftValue": "={{ $json.body?.secret }}",
+              "rightValue": "={{ $env.COURSE_WEBHOOK_SECRET }}",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w26-n03",
+      "name": "Normalize Inputs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const data = $input.first().json.body;\n\nif (!data.email || !data.course_tier || !data.course_students_record_id) {\n  throw new Error('Missing required fields');\n}\n\nreturn [{ json: {\n  email: data.email.toLowerCase().trim(),\n  first_name: data.first_name || '',\n  course_tier: data.course_tier,\n  course_students_record_id: data.course_students_record_id,\n  is_student_id: data.is_student_id || null,\n  dwy_concierge: !!data.dwy_concierge\n}}];"
+      }
+    },
+    {
+      "id": "w26-n04",
+      "name": "Resolve Next Active Cohort",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [925, 400],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COHORTS", "mode": "id" },
+        "filterByFormula": "AND({status} = 'enrolling', {seats_remaining} > 0)",
+        "sort": [{ "field": "start_date", "direction": "asc" }],
+        "options": { "limit": 1 }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w26-n05",
+      "name": "Has Active Cohort?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1150, 400],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "has-cohort",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "exists" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w26-n06",
+      "name": "Update Course_Students with Cohort",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1375, 250],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "id": "={{ $('Normalize Inputs').first().json.course_students_record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "cohort_id": "={{ $json.cohort_id }}",
+            "cohort_start_date": "={{ $json.start_date }}",
+            "cohort_slack_channel": "={{ $json.slack_channel_name }}"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w26-n07",
+      "name": "Decrement Cohort Seats",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1600, 250],
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COHORTS", "mode": "id" },
+        "id": "={{ $('Resolve Next Active Cohort').first().json.id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "seats_remaining": "={{ $('Resolve Next Active Cohort').first().json.seats_remaining - 1 }}"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w26-n08",
+      "name": "Slack: Invite to Workspace + Channel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1825, 250],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "parameters": {
+        "method": "POST",
+        "url": "https://slack.com/api/admin.users.invite",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackApi",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ team_id: $env.SLACK_TEAM_ID, email: $('Normalize Inputs').first().json.email, channel_ids: [$('Resolve Next Active Cohort').first().json.slack_channel_id] }) }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w26-n09",
+      "name": "Generate 4 Cohort Call ICS Files",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2050, 250],
+      "parameters": {
+        "jsCode": "const cohort = $('Resolve Next Active Cohort').first().json;\nconst student = $('Normalize Inputs').first().json;\nconst startDate = new Date(cohort.start_date);\n\n// Cohort calls are Tuesdays 7-8 PM ET, weeks 1-4. Plus week 3 Thursday 7 PM ET 90-min CPA panel for DWY.\nconst calls = [];\nfor (let week = 1; week <= 4; week++) {\n  const callDate = new Date(startDate);\n  callDate.setDate(callDate.getDate() + (week - 1) * 7);\n  const yyyy = callDate.getUTCFullYear();\n  const mm = String(callDate.getUTCMonth() + 1).padStart(2, '0');\n  const dd = String(callDate.getUTCDate()).padStart(2, '0');\n  // 7 PM ET = 23:00 UTC (winter standard) or 24:00 UTC (summer DST). Approximate at 23:00 UTC; calendar app handles TZ.\n  const startUtc = `${yyyy}${mm}${dd}T230000Z`;\n  const endUtc = `${yyyy}${mm}${dd}T235959Z`;\n  const uid = `cohort-call-${week}-${student.email}-${Date.now()}@thestrledger.com`;\n  const nowUtc = new Date().toISOString().replace(/[-:.]/g, '').replace(/\\d{3}Z$/, 'Z');\n  const ics = `BEGIN:VCALENDAR\\nVERSION:2.0\\nPRODID:-//The STR Ledger//Operator Course//EN\\nBEGIN:VEVENT\\nUID:${uid}\\nDTSTAMP:${nowUtc}\\nDTSTART:${startUtc}\\nDTEND:${endUtc}\\nSUMMARY:Cohort Call ${week} — Operator Course\\nDESCRIPTION:Week ${week} of ${cohort.cohort_id}. Pre-call homework in your LMS dashboard.\\nEND:VEVENT\\nEND:VCALENDAR`;\n  calls.push({\n    week,\n    subject: `Cohort Call ${week} — Tuesday ${callDate.toISOString().substring(0,10)}`,\n    ics_base64: Buffer.from(ics).toString('base64'),\n    filename: `cohort-call-${week}.ics`\n  });\n}\n\n// DWY: add Thursday CPA panel of week 3\nif (student.course_tier === 'dwy') {\n  const panelDate = new Date(startDate);\n  panelDate.setDate(panelDate.getDate() + 16); // Thursday of week 3\n  const yyyy = panelDate.getUTCFullYear();\n  const mm = String(panelDate.getUTCMonth() + 1).padStart(2, '0');\n  const dd = String(panelDate.getUTCDate()).padStart(2, '0');\n  const startUtc = `${yyyy}${mm}${dd}T230000Z`;\n  const endUtc = `${yyyy}${mm}${dd}T003000Z`;\n  const uid = `cpa-panel-${student.email}-${Date.now()}@thestrledger.com`;\n  const nowUtc = new Date().toISOString().replace(/[-:.]/g, '').replace(/\\d{3}Z$/, 'Z');\n  const ics = `BEGIN:VCALENDAR\\nVERSION:2.0\\nPRODID:-//The STR Ledger//Operator Course//EN\\nBEGIN:VEVENT\\nUID:${uid}\\nDTSTAMP:${nowUtc}\\nDTSTART:${startUtc}\\nDTEND:${endUtc}\\nSUMMARY:CPA Panel Session — Operator Course\\nDESCRIPTION:90-min CPA panel for cohort ${cohort.cohort_id}. Submit panel question by Friday.\\nEND:VEVENT\\nEND:VCALENDAR`;\n  calls.push({\n    week: 'cpa-panel',\n    subject: `CPA Panel — Thursday ${panelDate.toISOString().substring(0,10)}`,\n    ics_base64: Buffer.from(ics).toString('base64'),\n    filename: 'cpa-panel.ics'\n  });\n}\n\nreturn calls.map(c => ({ json: { ...c, email: student.email } }));"
+      }
+    },
+    {
+      "id": "w26-n10",
+      "name": "IS — Send Calendar Invite",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2275, 250],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/email/send",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ to: $json.email, subject: $json.subject, body: 'Calendar invite attached.', attachments: [{ name: $json.filename, content: $json.ics_base64, type: 'text/calendar' }] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w26-n11",
+      "name": "Trigger Wall Poster Fulfillment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2500, 250],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.printful.com/orders",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ recipient: { email: $('Normalize Inputs').first().json.email, name: $('Normalize Inputs').first().json.first_name }, items: [{ sync_variant_id: $env.PRINTFUL_POSTER_VARIANT_ID, quantity: 1 }] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "4", "name": "Printful API Key" }
+      }
+    },
+    {
+      "id": "w26-n12",
+      "name": "DWY Branch Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2050, 500],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "is-dwy",
+              "leftValue": "={{ $('Normalize Inputs').first().json.dwy_concierge }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w26-n13",
+      "name": "Send DWY Concierge Intake Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2275, 450],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/email/send",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ to: $('Normalize Inputs').first().json.email, subject: 'Your concierge intake — let us get started', body: 'Welcome to the Done-With-You tier. The intake form below collects your portfolio details so the first 1:1 session can be focused work, not discovery. Complete it within the next 3 business days. Form link: https://thestrledger.com/dwy-intake/' + $('Normalize Inputs').first().json.course_students_record_id }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w26-n14",
+      "name": "Create DWY Intake Queue Row",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2500, 450],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_DWY_INTAKE_QUEUE", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $('Normalize Inputs').first().json.email }}",
+            "first_name": "={{ $('Normalize Inputs').first().json.first_name }}",
+            "course_students_record_id": "={{ $('Normalize Inputs').first().json.course_students_record_id }}",
+            "intake_sent_at": "={{ new Date().toISOString() }}",
+            "status": "intake-sent"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w26-n15",
+      "name": "IS — Apply Cohort Tags",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1825, 250],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/contacts/tags",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ email: $('Normalize Inputs').first().json.email, tags: ['course:cohort-enrolled', 'cohort:' + $('Resolve Next Active Cohort').first().json.cohort_id, 'cohort-week:1', 'course:milestone:cohort-onboarded'] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w26-n16",
+      "name": "Slack Ops Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2725, 350],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '👥 Cohort enrollment\\nStudent: ' + ($('Normalize Inputs').first().json.first_name || $('Normalize Inputs').first().json.email) + '\\nCohort: ' + $('Resolve Next Active Cohort').first().json.cohort_id + '\\nTier: ' + $('Normalize Inputs').first().json.course_tier + '\\nSeats remaining: ' + ($('Resolve Next Active Cohort').first().json.seats_remaining - 1) }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w26-n17",
+      "name": "No Active Cohort: Add to Waitlist",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1375, 700],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COHORT_WAITLIST", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $('Normalize Inputs').first().json.email }}",
+            "first_name": "={{ $('Normalize Inputs').first().json.first_name }}",
+            "course_tier": "={{ $('Normalize Inputs').first().json.course_tier }}",
+            "course_students_record_id": "={{ $('Normalize Inputs').first().json.course_students_record_id }}",
+            "added_at": "={{ new Date().toISOString() }}"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w26-n18",
+      "name": "Send Waitlist Confirmation Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1600, 700],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/email/send",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ to: $('Normalize Inputs').first().json.email, subject: 'You are on the waitlist — next cohort opens soon', body: 'No active cohort right now, but your seat is secured. We will email you the moment the next cohort opens enrollment. Estimated: 4-8 weeks. Self-Study lessons in your LMS are unlocking on schedule starting today. — The STR Ledger' }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w26-n19",
+      "name": "P0 Alert: No Cohort Inventory",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1825, 700],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 Cohort sold without active cohort: ' + $('Normalize Inputs').first().json.email + '. Customer added to waitlist. Open the next cohort or refund.' }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w26-n99",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [925, 850],
+      "parameters": {
+        "jsCode": "const error = $input.first().json;\nreturn [{ json: { workflow_id: 'W26', node_name: error.node_name || 'unknown', timestamp: new Date().toISOString(), error_message: error.error?.message || JSON.stringify(error).substring(0, 500), payload_excerpt: JSON.stringify(error).substring(0, 500) } }];"
+      }
+    },
+    {
+      "id": "w26-n100",
+      "name": "Log Error",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1150, 850],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": { "mappingMode": "autoMapInputData" }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    }
+  ],
+  "connections": {
+    "Cohort Enrollment Webhook": { "main": [[{ "node": "Validate Secret", "type": "main", "index": 0 }]] },
+    "Validate Secret": { "main": [[{ "node": "Normalize Inputs", "type": "main", "index": 0 }], []] },
+    "Normalize Inputs": { "main": [[{ "node": "Resolve Next Active Cohort", "type": "main", "index": 0 }]], "error": [[{ "node": "Error Handler", "type": "main", "index": 0 }]] },
+    "Resolve Next Active Cohort": { "main": [[{ "node": "Has Active Cohort?", "type": "main", "index": 0 }]] },
+    "Has Active Cohort?": { "main": [[{ "node": "Update Course_Students with Cohort", "type": "main", "index": 0 }], [{ "node": "No Active Cohort: Add to Waitlist", "type": "main", "index": 0 }]] },
+    "Update Course_Students with Cohort": { "main": [[{ "node": "Decrement Cohort Seats", "type": "main", "index": 0 }]] },
+    "Decrement Cohort Seats": { "main": [[{ "node": "Slack: Invite to Workspace + Channel", "type": "main", "index": 0 }, { "node": "IS — Apply Cohort Tags", "type": "main", "index": 0 }, { "node": "DWY Branch Check", "type": "main", "index": 0 }]] },
+    "Slack: Invite to Workspace + Channel": { "main": [[{ "node": "Generate 4 Cohort Call ICS Files", "type": "main", "index": 0 }]] },
+    "Generate 4 Cohort Call ICS Files": { "main": [[{ "node": "IS — Send Calendar Invite", "type": "main", "index": 0 }]] },
+    "IS — Send Calendar Invite": { "main": [[{ "node": "Trigger Wall Poster Fulfillment", "type": "main", "index": 0 }]] },
+    "Trigger Wall Poster Fulfillment": { "main": [[{ "node": "Slack Ops Notification", "type": "main", "index": 0 }]] },
+    "DWY Branch Check": { "main": [[{ "node": "Send DWY Concierge Intake Email", "type": "main", "index": 0 }], []] },
+    "Send DWY Concierge Intake Email": { "main": [[{ "node": "Create DWY Intake Queue Row", "type": "main", "index": 0 }]] },
+    "No Active Cohort: Add to Waitlist": { "main": [[{ "node": "Send Waitlist Confirmation Email", "type": "main", "index": 0 }]] },
+    "Send Waitlist Confirmation Email": { "main": [[{ "node": "P0 Alert: No Cohort Inventory", "type": "main", "index": 0 }]] },
+    "Error Handler": { "main": [[{ "node": "Log Error", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "course" }, { "name": "P0" }, { "name": "L-family" }]
+}

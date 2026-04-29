@@ -1,0 +1,252 @@
+{
+  "name": "W30 — Annual What Changed Distribution",
+  "nodes": [
+    {
+      "id": "w30-n01",
+      "name": "Annual Cron Jan 20 09:00 ET",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 400],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 20 1 *" }] }
+      }
+    },
+    {
+      "id": "w30-n02",
+      "name": "Get Current Year Update",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [475, 400],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_ANNUAL_UPDATES", "mode": "id" },
+        "filterByFormula": "={{ \"AND({year} = '\" + new Date().getFullYear() + \"', {status} = 'ready-to-send')\" }}",
+        "options": { "limit": 1 }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w30-n03",
+      "name": "Update Ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [700, 400],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "conditions": [
+            { "id": "ready", "leftValue": "={{ $json.id }}", "rightValue": "", "operator": { "type": "string", "operation": "exists" } }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w30-n04",
+      "name": "Get Recent Course Students",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [925, 300],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "filterByFormula": "AND(OR({status} = 'active', {status} = 'graduated'), OR({graduation_date} = BLANK(), DATETIME_DIFF(NOW(), {graduation_date}, 'days') < 730))"
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w30-n05",
+      "name": "Get Email Template",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [925, 500],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_EMAIL_TEMPLATES", "mode": "id" },
+        "filterByFormula": "={{ \"{template_id} = 'course-annual-update-\" + new Date().getFullYear() + \"'\" }}",
+        "options": { "limit": 1 }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w30-n06",
+      "name": "Build Email Per Recipient",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1150, 400],
+      "parameters": {
+        "jsCode": "const students = $('Get Recent Course Students').all();\nconst update = $('Get Current Year Update').first().json;\nconst template = $('Get Email Template').first()?.json;\nconst year = new Date().getFullYear();\n\nconst defaultBody = `Tax law moved this year. Your annual update is live.\\n\\nWatch the 30-min video: ${update.video_url}\\nDownload the action list: ${update.action_list_pdf_url}\\n\\nSummary of what changed: ${update.summary_paragraph || 'See the video for the full breakdown.'}\\n\\nIf you've been running the seven-minute tax tab through last year, the action list takes about 30 minutes to apply. Block the time on January's calendar.\\n\\n— The STR Ledger`;\n\nconst body = template?.body_template ? template.body_template.replace(/\\{\\{(\\w+)\\}\\}/g, (m, key) => update[key] || '') : defaultBody;\nconst subject = template?.subject_template ? template.subject_template.replace(/\\{\\{year\\}\\}/g, year) : `What Changed in ${year} — your annual update is live`;\n\nreturn students.map(s => ({\n  json: {\n    email: s.json.email,\n    subject,\n    body\n  }\n}));"
+      }
+    },
+    {
+      "id": "w30-n07",
+      "name": "Batch by 50",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1375, 400],
+      "parameters": { "batchSize": 50, "options": {} }
+    },
+    {
+      "id": "w30-n08",
+      "name": "IS — Send Update Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1600, 400],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/email/send",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ to: $json.email, subject: $json.subject, body: $json.body }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w30-n09",
+      "name": "IS — Apply Annual-Update Tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1825, 400],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/contacts/tags",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ email: $json.email, tags: ['course:annual-update-' + new Date().getFullYear() + '-sent'] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w30-n10",
+      "name": "Wait Between Batches",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [2050, 400],
+      "parameters": { "amount": 30, "unit": "seconds" }
+    },
+    {
+      "id": "w30-n11",
+      "name": "Update Annual Updates Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2275, 400],
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_ANNUAL_UPDATES", "mode": "id" },
+        "id": "={{ $('Get Current Year Update').first().json.id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sent_at": "={{ new Date().toISOString() }}",
+            "sent_count": "={{ $('Get Recent Course Students').all().length }}",
+            "status": "sent"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w30-n12",
+      "name": "YouTube Manual-Upload Checklist",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2500, 350],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '📺 YouTube manual upload checklist (annual update)\\n[ ] Upload the first 5 minutes to YouTube under \"Annual Updates\" playlist\\n[ ] Description: link to thestrledger.com/operator-course\\n[ ] Schedule for tomorrow 6 PM ET\\nVideo source: ' + $('Get Current Year Update').first().json.video_url }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w30-n13",
+      "name": "Trigger W16 for Pinterest Pins",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2500, 500],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.thestrledger.com/webhook/blog-post-published",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ content_type: 'annual-update-video', url: $('Get Current Year Update').first().json.youtube_public_url, title: 'What Changed in ' + new Date().getFullYear() + ' — STR Tax Update' }) }}"
+      }
+    },
+    {
+      "id": "w30-n14",
+      "name": "Ops Summary Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2725, 400],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '📅 Annual What Changed distribution — ' + new Date().getFullYear() + '\\nRecipients: ' + $('Get Recent Course Students').all().length + ' students\\nYouTube checklist posted above. Pinterest pins queued via W16.' }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w30-n15",
+      "name": "Update Not Ready: Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [925, 700],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🚨 Annual update not ready for distribution\\nYear: ' + new Date().getFullYear() + '\\nNo Course_Annual_Updates record with status=ready-to-send found.\\nManually fix: create the record with video URL, action list URL, summary paragraph; set status=ready-to-send; rerun this workflow.' }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    }
+  ],
+  "connections": {
+    "Annual Cron Jan 20 09:00 ET": { "main": [[{ "node": "Get Current Year Update", "type": "main", "index": 0 }]] },
+    "Get Current Year Update": { "main": [[{ "node": "Update Ready?", "type": "main", "index": 0 }]] },
+    "Update Ready?": { "main": [[{ "node": "Get Recent Course Students", "type": "main", "index": 0 }, { "node": "Get Email Template", "type": "main", "index": 0 }], [{ "node": "Update Not Ready: Alert", "type": "main", "index": 0 }]] },
+    "Get Recent Course Students": { "main": [[{ "node": "Build Email Per Recipient", "type": "main", "index": 0 }]] },
+    "Get Email Template": { "main": [[{ "node": "Build Email Per Recipient", "type": "main", "index": 0 }]] },
+    "Build Email Per Recipient": { "main": [[{ "node": "Batch by 50", "type": "main", "index": 0 }]] },
+    "Batch by 50": { "main": [[{ "node": "IS — Send Update Email", "type": "main", "index": 0 }], [{ "node": "Update Annual Updates Record", "type": "main", "index": 0 }]] },
+    "IS — Send Update Email": { "main": [[{ "node": "IS — Apply Annual-Update Tag", "type": "main", "index": 0 }]] },
+    "IS — Apply Annual-Update Tag": { "main": [[{ "node": "Wait Between Batches", "type": "main", "index": 0 }]] },
+    "Wait Between Batches": { "main": [[{ "node": "Batch by 50", "type": "main", "index": 0 }]] },
+    "Update Annual Updates Record": { "main": [[{ "node": "YouTube Manual-Upload Checklist", "type": "main", "index": 0 }, { "node": "Trigger W16 for Pinterest Pins", "type": "main", "index": 0 }]] },
+    "YouTube Manual-Upload Checklist": { "main": [[{ "node": "Ops Summary Slack", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1", "timezone": "America/New_York" },
+  "tags": [{ "name": "course" }, { "name": "P1" }, { "name": "L-family" }, { "name": "annual" }]
+}

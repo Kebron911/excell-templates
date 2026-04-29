@@ -1,0 +1,382 @@
+{
+  "name": "W29 — NPS Day-30 Collection",
+  "nodes": [
+    {
+      "id": "w29-n01",
+      "name": "Daily Cron 08:00 ET",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 250],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * *" }] }
+      }
+    },
+    {
+      "id": "w29-n02",
+      "name": "Get Day-30 Students",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [475, 250],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "filterByFormula": "AND({status} = 'active', {nps_asked_at} = BLANK(), DATETIME_DIFF(NOW(), {purchase_date}, 'days') >= 30, DATETIME_DIFF(NOW(), {purchase_date}, 'days') < 31)"
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w29-n03",
+      "name": "Build NPS Email Per Student",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 250],
+      "parameters": {
+        "jsCode": "const students = $input.all();\nconst webhookBase = 'https://n8n.thestrledger.com/webhook/nps-response';\n\nreturn students.map(s => {\n  const email = s.json.email;\n  const encEmail = encodeURIComponent(email);\n  const npsLink = `${webhookBase}?email=${encEmail}&q=1`;\n  const fsLink = `${webhookBase}?email=${encEmail}&q=2`;\n  const body = `Thirty days in.\\n\\nTwo questions, three minutes total.\\n\\nONE. On a scale of 0 to 10, how likely are you to recommend the course to another STR host?\\n${npsLink}\\n\\nTWO. Have you run your first 21-minute Saturday yet?\\n${fsLink}\\n\\nThe first question is our NPS. We watch it weekly. The second is our most predictive completion signal.\\n\\nIf \"not yet\" — reply to this email with what is blocking you. The most common blockers are: not enough time, intimidation by the workbook, life events. We have seen all three.\\n\\n— The STR Ledger`;\n  return {\n    json: {\n      email,\n      airtable_record_id: s.json.id,\n      subject: 'Thirty days in. Two questions.',\n      body\n    }\n  };\n});"
+      }
+    },
+    {
+      "id": "w29-n04",
+      "name": "IS — Send NPS Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [925, 250],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/email/send",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ to: $json.email, subject: $json.subject, body: $json.body }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w29-n05",
+      "name": "Mark NPS Asked",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1150, 250],
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "id": "={{ $json.airtable_record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": { "nps_asked_at": "={{ new Date().toISOString() }}" }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w29-n06",
+      "name": "IS — Apply NPS-Asked Tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1375, 250],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/contacts/tags",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ email: $json.email, tags: ['course:nps-asked-30'] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w29-n10",
+      "name": "NPS Response Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 600],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nps-response",
+        "responseMode": "lastNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "w29-n11",
+      "name": "Question Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [475, 600],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "typeValidation": "loose" },
+                "conditions": [
+                  { "id": "q1", "leftValue": "={{ $json.query?.q || $json.body?.q }}", "rightValue": "1", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "q1-nps"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": false, "typeValidation": "loose" },
+                "conditions": [
+                  { "id": "q2", "leftValue": "={{ $json.query?.q || $json.body?.q }}", "rightValue": "2", "operator": { "type": "string", "operation": "equals" } }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "q2-firstsat"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w29-n12",
+      "name": "Process NPS Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 500],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst score = parseInt(data.body?.score || data.query?.score);\nconst email = (data.body?.email || data.query?.email || '').toLowerCase();\n\nif (isNaN(score) || score < 0 || score > 10) {\n  throw new Error('Invalid NPS score: ' + score);\n}\nif (!email) throw new Error('Missing email');\n\nconst tagBucket = score >= 9 ? 'promoter' : score >= 7 ? 'passive' : 'detractor';\n\nreturn [{ json: {\n  email,\n  score,\n  tag_bucket: tagBucket,\n  comment: data.body?.comment || data.query?.comment || ''\n}}];"
+      }
+    },
+    {
+      "id": "w29-n13",
+      "name": "Lookup Student for NPS Update",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [925, 500],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "filterByFormula": "={{ \"{email} = '\" + $json.email + \"'\" }}",
+        "options": { "limit": 1 }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w29-n14",
+      "name": "Update NPS Fields",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1150, 500],
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "id": "={{ $json.id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nps_score": "={{ $('Process NPS Score').first().json.score }}",
+            "nps_responded_at": "={{ new Date().toISOString() }}",
+            "nps_comment": "={{ $('Process NPS Score').first().json.comment }}"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w29-n15",
+      "name": "IS — Apply NPS Bucket Tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1375, 500],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/contacts/tags",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ email: $('Process NPS Score').first().json.email, tags: ['course:nps:' + $('Process NPS Score').first().json.tag_bucket, 'course:nps-' + $('Process NPS Score').first().json.score] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w29-n16",
+      "name": "Detractor Alert?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1600, 500],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "typeValidation": "loose" },
+          "conditions": [
+            { "id": "is-detractor", "leftValue": "={{ $('Process NPS Score').first().json.tag_bucket }}", "rightValue": "detractor", "operator": { "type": "string", "operation": "equals" } }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w29-n17",
+      "name": "Slack Detractor Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1825, 450],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '⚠️ NPS Detractor — needs personal reply within 24h\\nStudent: ' + $('Process NPS Score').first().json.email + '\\nScore: ' + $('Process NPS Score').first().json.score + '\\nComment: ' + ($('Process NPS Score').first().json.comment || '(none)') }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w29-n20",
+      "name": "Process First-Saturday Status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 700],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst completed = (data.body?.completed || data.query?.completed) === 'yes';\nconst email = (data.body?.email || data.query?.email || '').toLowerCase();\n\nreturn [{ json: { email, first_saturday_completed: completed } }];"
+      }
+    },
+    {
+      "id": "w29-n21",
+      "name": "Lookup Student for FS Update",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [925, 700],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "filterByFormula": "={{ \"{email} = '\" + $json.email + \"'\" }}",
+        "options": { "limit": 1 }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w29-n22",
+      "name": "Update First-Saturday Completed",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1150, 700],
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "id": "={{ $json.id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "first_saturday_completed": "={{ $('Process First-Saturday Status').first().json.first_saturday_completed }}",
+            "first_saturday_completed_reported_at": "={{ new Date().toISOString() }}"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w29-n23",
+      "name": "Not Yet?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1375, 700],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "typeValidation": "loose" },
+          "conditions": [
+            { "id": "not-yet", "leftValue": "={{ $('Process First-Saturday Status').first().json.first_saturday_completed }}", "rightValue": false, "operator": { "type": "boolean", "operation": "equals" } }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w29-n24",
+      "name": "Slack: First-Saturday Stuck",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1600, 650],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
+        "text": "={{ '🛑 First Saturday not completed at Day 30\\nStudent: ' + $('Process First-Saturday Status').first().json.email + '\\nReach out to ask what is blocking. The Day-30 check-in email asked them to reply with blockers.' }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w29-n99",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [925, 900],
+      "parameters": {
+        "jsCode": "const error = $input.first().json;\nreturn [{ json: { workflow_id: 'W29', node_name: error.node_name || 'unknown', timestamp: new Date().toISOString(), error_message: error.error?.message || JSON.stringify(error).substring(0, 500) } }];"
+      }
+    },
+    {
+      "id": "w29-n100",
+      "name": "Log Error",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1150, 900],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": { "mappingMode": "autoMapInputData" }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    }
+  ],
+  "connections": {
+    "Daily Cron 08:00 ET": { "main": [[{ "node": "Get Day-30 Students", "type": "main", "index": 0 }]] },
+    "Get Day-30 Students": { "main": [[{ "node": "Build NPS Email Per Student", "type": "main", "index": 0 }]] },
+    "Build NPS Email Per Student": { "main": [[{ "node": "IS — Send NPS Email", "type": "main", "index": 0 }]] },
+    "IS — Send NPS Email": { "main": [[{ "node": "Mark NPS Asked", "type": "main", "index": 0 }]] },
+    "Mark NPS Asked": { "main": [[{ "node": "IS — Apply NPS-Asked Tag", "type": "main", "index": 0 }]] },
+    "NPS Response Webhook": { "main": [[{ "node": "Question Switch", "type": "main", "index": 0 }]] },
+    "Question Switch": { "main": [[{ "node": "Process NPS Score", "type": "main", "index": 0 }], [{ "node": "Process First-Saturday Status", "type": "main", "index": 0 }]] },
+    "Process NPS Score": { "main": [[{ "node": "Lookup Student for NPS Update", "type": "main", "index": 0 }]], "error": [[{ "node": "Error Handler", "type": "main", "index": 0 }]] },
+    "Lookup Student for NPS Update": { "main": [[{ "node": "Update NPS Fields", "type": "main", "index": 0 }]] },
+    "Update NPS Fields": { "main": [[{ "node": "IS — Apply NPS Bucket Tag", "type": "main", "index": 0 }]] },
+    "IS — Apply NPS Bucket Tag": { "main": [[{ "node": "Detractor Alert?", "type": "main", "index": 0 }]] },
+    "Detractor Alert?": { "main": [[{ "node": "Slack Detractor Alert", "type": "main", "index": 0 }], []] },
+    "Process First-Saturday Status": { "main": [[{ "node": "Lookup Student for FS Update", "type": "main", "index": 0 }]] },
+    "Lookup Student for FS Update": { "main": [[{ "node": "Update First-Saturday Completed", "type": "main", "index": 0 }]] },
+    "Update First-Saturday Completed": { "main": [[{ "node": "Not Yet?", "type": "main", "index": 0 }]] },
+    "Not Yet?": { "main": [[{ "node": "Slack: First-Saturday Stuck", "type": "main", "index": 0 }], []] },
+    "Error Handler": { "main": [[{ "node": "Log Error", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1", "timezone": "America/New_York" },
+  "tags": [{ "name": "course" }, { "name": "P1" }, { "name": "L-family" }, { "name": "cron" }]
+}

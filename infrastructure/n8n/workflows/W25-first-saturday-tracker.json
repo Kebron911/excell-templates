@@ -1,0 +1,269 @@
+{
+  "name": "W25 — First Saturday Tracker",
+  "nodes": [
+    {
+      "id": "w25-n01",
+      "name": "First Saturday Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 400],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "first-saturday-scheduled",
+        "responseMode": "onReceived",
+        "options": {}
+      }
+    },
+    {
+      "id": "w25-n02",
+      "name": "Validate Secret",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [475, 400],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "secret-check",
+              "leftValue": "={{ $json.body?.secret || $json.query?.secret }}",
+              "rightValue": "={{ $env.LMS_WEBHOOK_SECRET }}",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w25-n03",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 350],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const data = $input.first().json.body;\n\nif (!data.email || !data.saturday_date) {\n  throw new Error('Missing required fields: email and saturday_date');\n}\n\nconst saturdayDate = new Date(data.saturday_date);\nif (isNaN(saturdayDate.getTime())) {\n  throw new Error('Invalid saturday_date');\n}\n\nconst today = new Date();\ntoday.setHours(0, 0, 0, 0);\nconst daysUntil = Math.floor((saturdayDate - today) / (1000 * 60 * 60 * 24));\n\nreturn [{ json: {\n  email: data.email.toLowerCase().trim(),\n  saturday_date: data.saturday_date,\n  submitted_at: data.submitted_at || new Date().toISOString(),\n  days_until_saturday: daysUntil,\n  is_within_14_days: daysUntil >= 0 && daysUntil <= 14,\n  send_calendar_invite: !!data.send_calendar_invite\n}}];"
+      }
+    },
+    {
+      "id": "w25-n04",
+      "name": "Find Course_Students Row",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [925, 350],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "filterByFormula": "={{ \"{email} = '\" + $json.email + \"'\" }}",
+        "options": { "fields": ["email", "tier", "current_module"] }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w25-n05",
+      "name": "Has Match?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1150, 350],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "exists-check",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "exists" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w25-n06",
+      "name": "Update Course_Students",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1375, 250],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "id": "={{ $json.id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "first_saturday_scheduled": "={{ $('Validate Input').first().json.saturday_date }}",
+            "first_saturday_scheduled_at": "={{ $('Validate Input').first().json.submitted_at }}",
+            "first_saturday_within_14_days": "={{ $('Validate Input').first().json.is_within_14_days }}"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w25-n07",
+      "name": "IS — Apply Milestone Tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1600, 250],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/contacts/tags",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ email: $('Validate Input').first().json.email, tags: ['course:milestone:first-saturday-set'] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w25-n08",
+      "name": "Send Calendar Invite?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1825, 250],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "send-ical-check",
+              "leftValue": "={{ $('Validate Input').first().json.send_calendar_invite }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w25-n09",
+      "name": "Generate ICS File",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2050, 150],
+      "parameters": {
+        "jsCode": "const data = $('Validate Input').first().json;\nconst date = new Date(data.saturday_date);\nconst yyyy = date.getUTCFullYear();\nconst mm = String(date.getUTCMonth() + 1).padStart(2, '0');\nconst dd = String(date.getUTCDate()).padStart(2, '0');\nconst startUtc = `${yyyy}${mm}${dd}T140000Z`; // 9am ET in UTC\nconst endUtc = `${yyyy}${mm}${dd}T160000Z`;   // 11am ET\nconst uid = `first-saturday-${data.email}-${Date.now()}@thestrledger.com`;\nconst nowUtc = new Date().toISOString().replace(/[-:.]/g, '').replace(/\\d{3}Z$/, 'Z');\n\nconst ics = `BEGIN:VCALENDAR\\nVERSION:2.0\\nPRODID:-//The STR Ledger//Operator Course//EN\\nBEGIN:VEVENT\\nUID:${uid}\\nDTSTAMP:${nowUtc}\\nDTSTART:${startUtc}\\nDTEND:${endUtc}\\nSUMMARY:Quarterly Tax Tab — first run\\nDESCRIPTION:Your first 21-minute Saturday from The 47-Deduction Operator course. Bring one property's receipts and the dedicated card's CSV.\\nEND:VEVENT\\nEND:VCALENDAR`;\n\nconst base64 = Buffer.from(ics).toString('base64');\n\nreturn [{ json: {\n  email: data.email,\n  saturday_date: data.saturday_date,\n  ics_base64: base64\n}}];"
+      }
+    },
+    {
+      "id": "w25-n10",
+      "name": "IS — Send Calendar Invite Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2275, 150],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/email/send",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ to: $json.email, subject: 'Your first 21-minute Saturday is on the calendar', body: 'You scheduled your first 21-minute Saturday for ' + $json.saturday_date + '. Calendar invite attached. Bring one property to the workbook — first runs are always slower than 21 minutes; plan an hour. — The STR Ledger', attachments: [{ name: 'first-saturday.ics', content: $json.ics_base64, type: 'text/calendar' }] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w25-n11",
+      "name": "Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2050, 350],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '🗓️ First Saturday scheduled\\nStudent: ' + $('Validate Input').first().json.email + '\\nSaturday date: ' + $('Validate Input').first().json.saturday_date + ' (' + $('Validate Input').first().json.days_until_saturday + ' days out)' }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w25-n12",
+      "name": "Log Non-Enrolled Email",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1375, 500],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "workflow_id": "W25",
+            "node_name": "Has Match?",
+            "timestamp": "={{ new Date().toISOString() }}",
+            "error_message": "={{ 'Non-enrolled email hit first-saturday webhook: ' + $('Validate Input').first().json.email }}",
+            "severity": "warning"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w25-n99",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [925, 700],
+      "parameters": {
+        "jsCode": "const error = $input.first().json;\nreturn [{ json: {\n  workflow_id: 'W25',\n  node_name: error.node_name || 'unknown',\n  timestamp: new Date().toISOString(),\n  error_message: error.error?.message || JSON.stringify(error).substring(0, 500),\n  payload_excerpt: JSON.stringify(error).substring(0, 500)\n}}];"
+      }
+    },
+    {
+      "id": "w25-n100",
+      "name": "Log Error",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1150, 700],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": { "mappingMode": "autoMapInputData" }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    }
+  ],
+  "connections": {
+    "First Saturday Webhook": { "main": [[{ "node": "Validate Secret", "type": "main", "index": 0 }]] },
+    "Validate Secret": { "main": [[{ "node": "Validate Input", "type": "main", "index": 0 }], []] },
+    "Validate Input": { "main": [[{ "node": "Find Course_Students Row", "type": "main", "index": 0 }]], "error": [[{ "node": "Error Handler", "type": "main", "index": 0 }]] },
+    "Find Course_Students Row": { "main": [[{ "node": "Has Match?", "type": "main", "index": 0 }]] },
+    "Has Match?": { "main": [[{ "node": "Update Course_Students", "type": "main", "index": 0 }], [{ "node": "Log Non-Enrolled Email", "type": "main", "index": 0 }]] },
+    "Update Course_Students": { "main": [[{ "node": "IS — Apply Milestone Tag", "type": "main", "index": 0 }]], "error": [[{ "node": "Error Handler", "type": "main", "index": 0 }]] },
+    "IS — Apply Milestone Tag": { "main": [[{ "node": "Send Calendar Invite?", "type": "main", "index": 0 }, { "node": "Slack Notification", "type": "main", "index": 0 }]] },
+    "Send Calendar Invite?": { "main": [[{ "node": "Generate ICS File", "type": "main", "index": 0 }], []] },
+    "Generate ICS File": { "main": [[{ "node": "IS — Send Calendar Invite Email", "type": "main", "index": 0 }]] },
+    "Error Handler": { "main": [[{ "node": "Log Error", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "course" }, { "name": "P1" }, { "name": "L-family" }]
+}

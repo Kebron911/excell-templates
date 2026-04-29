@@ -1,0 +1,243 @@
+{
+  "name": "W27 — Cohort Group Call Reminders",
+  "nodes": [
+    {
+      "id": "w27-n01a",
+      "name": "Monday 19:00 ET — 24h Reminder",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300],
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 19 * * 1" }]
+        }
+      }
+    },
+    {
+      "id": "w27-n01b",
+      "name": "Tuesday 18:00 ET — 1h Reminder",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 500],
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 18 * * 2" }]
+        }
+      }
+    },
+    {
+      "id": "w27-n02",
+      "name": "Set Reminder Type",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [475, 400],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "type",
+              "name": "reminder_type",
+              "value": "={{ $node['Monday 19:00 ET — 24h Reminder'].id ? '24h' : '1h' }}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w27-n03",
+      "name": "Get Active Cohorts",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [700, 400],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COHORTS", "mode": "id" },
+        "filterByFormula": "AND({status} = 'in-progress', IS_AFTER({next_call_date}, NOW()), IS_BEFORE({next_call_date}, DATEADD(NOW(), 30, 'hours')))"
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w27-n04",
+      "name": "Per Cohort",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [925, 400],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "w27-n05",
+      "name": "Get Enrolled Students",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1150, 400],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "filterByFormula": "={{ \"AND({cohort_id} = '\" + $json.cohort_id + \"', {status} = 'active')\" }}"
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w27-n06",
+      "name": "Build Email Per Student",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1375, 400],
+      "parameters": {
+        "jsCode": "const students = $input.all();\nconst cohort = $('Per Cohort').first().json;\nconst reminderType = $('Set Reminder Type').first().json.reminder_type;\nconst weekNum = cohort.current_week || 1;\n\nconst subjectMap = {\n  '24h': `Tomorrow at 7 PM ET — Cohort Call ${weekNum}`,\n  '1h':  `In one hour — Cohort Call ${weekNum}`\n};\n\nconst bodyMap = {\n  '24h': `Cohort Call ${weekNum} is tomorrow (Tuesday) at 7 PM ET.\\n\\nPre-call homework lives in your LMS dashboard for week ${weekNum}. Bring whatever's on the homework list — receipts, scorecard outputs, draft questions.\\n\\nZoom link: ${cohort.zoom_link}\\n\\n— The STR Ledger`,\n  '1h':  `Cohort Call ${weekNum} starts at 7 PM ET — one hour from now.\\n\\nZoom link: ${cohort.zoom_link}\\n\\nIf you can't make it live, the recording lands in your LMS within 24 hours. — The STR Ledger`\n};\n\nreturn students.map(s => ({\n  json: {\n    email: s.json.email,\n    subject: subjectMap[reminderType],\n    body: bodyMap[reminderType],\n    cohort_id: cohort.cohort_id,\n    week_num: weekNum,\n    reminder_type: reminderType\n  }\n}));"
+      }
+    },
+    {
+      "id": "w27-n07",
+      "name": "IS — Send Reminder Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1600, 400],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/email/send",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ to: $json.email, subject: $json.subject, body: $json.body }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w27-n08",
+      "name": "1h Reminder Path: Bump Week Tag",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1825, 400],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "is-1h",
+              "leftValue": "={{ $json.reminder_type }}",
+              "rightValue": "1h",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w27-n09",
+      "name": "IS — Bump Cohort-Week Tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2050, 350],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/contacts/tags/swap",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ email: $json.email, remove: ['cohort-week:' + $json.week_num], add: ['cohort-week:' + ($json.week_num + 1)] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w27-n10",
+      "name": "Update Cohort Last Reminder",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2050, 550],
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COHORTS", "mode": "id" },
+        "id": "={{ $('Per Cohort').first().json.id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "last_reminder_sent_at": "={{ new Date().toISOString() }}",
+            "last_reminder_type": "={{ $('Set Reminder Type').first().json.reminder_type }}"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w27-n11",
+      "name": "Slack Ops Notification (1h only)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2275, 350],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ '🎙️ Cohort Call ' + $json.week_num + ' — ' + $json.cohort_id + '\\nStarts at 7:00 PM ET\\nReminders sent.' }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w27-n99",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1375, 700],
+      "parameters": {
+        "jsCode": "const error = $input.first().json;\nreturn [{ json: { workflow_id: 'W27', node_name: error.node_name || 'unknown', timestamp: new Date().toISOString(), error_message: error.error?.message || JSON.stringify(error).substring(0, 500), payload_excerpt: JSON.stringify(error).substring(0, 500) } }];"
+      }
+    },
+    {
+      "id": "w27-n100",
+      "name": "Log Error",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1600, 700],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": { "mappingMode": "autoMapInputData" }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    }
+  ],
+  "connections": {
+    "Monday 19:00 ET — 24h Reminder": { "main": [[{ "node": "Set Reminder Type", "type": "main", "index": 0 }]] },
+    "Tuesday 18:00 ET — 1h Reminder": { "main": [[{ "node": "Set Reminder Type", "type": "main", "index": 0 }]] },
+    "Set Reminder Type": { "main": [[{ "node": "Get Active Cohorts", "type": "main", "index": 0 }]] },
+    "Get Active Cohorts": { "main": [[{ "node": "Per Cohort", "type": "main", "index": 0 }]] },
+    "Per Cohort": { "main": [[{ "node": "Get Enrolled Students", "type": "main", "index": 0 }], [{ "node": "Update Cohort Last Reminder", "type": "main", "index": 0 }]] },
+    "Get Enrolled Students": { "main": [[{ "node": "Build Email Per Student", "type": "main", "index": 0 }]] },
+    "Build Email Per Student": { "main": [[{ "node": "IS — Send Reminder Email", "type": "main", "index": 0 }]] },
+    "IS — Send Reminder Email": { "main": [[{ "node": "1h Reminder Path: Bump Week Tag", "type": "main", "index": 0 }]], "error": [[{ "node": "Error Handler", "type": "main", "index": 0 }]] },
+    "1h Reminder Path: Bump Week Tag": { "main": [[{ "node": "IS — Bump Cohort-Week Tag", "type": "main", "index": 0 }, { "node": "Slack Ops Notification (1h only)", "type": "main", "index": 0 }], []] },
+    "Error Handler": { "main": [[{ "node": "Log Error", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1", "timezone": "America/New_York" },
+  "tags": [{ "name": "course" }, { "name": "P1" }, { "name": "L-family" }, { "name": "cron" }]
+}

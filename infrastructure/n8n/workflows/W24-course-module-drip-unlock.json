@@ -1,0 +1,247 @@
+{
+  "name": "W24 — Course Module Drip Unlock",
+  "nodes": [
+    {
+      "id": "w24-n01",
+      "name": "Daily Cron 06:00 ET",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 400],
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "cronExpression", "expression": "0 6 * * *" }]
+        }
+      }
+    },
+    {
+      "id": "w24-n02",
+      "name": "Get Active Course Students",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [475, 400],
+      "parameters": {
+        "operation": "search",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "filterByFormula": "AND({status} = 'active', {graduation_date} = BLANK())",
+        "options": {
+          "fields": ["email", "tier", "module_unlock_schedule", "current_module", "is_student_id"]
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w24-n03",
+      "name": "Determine Unlocks for Today",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 400],
+      "parameters": {
+        "jsCode": "const students = $input.all();\nconst today = new Date();\nconst moduleOrder = ['module-0', 'module-1', 'module-2', 'module-3', 'module-4', 'module-5', 'module-6', 'module-7'];\n\nconst unlocksToProcess = [];\n\nfor (const student of students) {\n  let schedule;\n  try {\n    schedule = JSON.parse(student.json.module_unlock_schedule || '{}');\n  } catch (e) {\n    // Skip students with malformed schedule; they'll be flagged in errors\n    continue;\n  }\n  const currentModule = student.json.current_module || 'module-0';\n  const currentIndex = moduleOrder.indexOf(currentModule);\n\n  let highestUnlocked = currentModule;\n  let highestIndex = currentIndex;\n  for (let i = currentIndex + 1; i < moduleOrder.length; i++) {\n    const moduleKey = moduleOrder[i];\n    const unlockDateStr = schedule[moduleKey];\n    if (!unlockDateStr) break;\n    const unlockDate = new Date(unlockDateStr);\n    if (unlockDate <= today) {\n      highestUnlocked = moduleKey;\n      highestIndex = i;\n    } else {\n      break;\n    }\n  }\n\n  if (highestUnlocked !== currentModule) {\n    const modulesToUnlock = moduleOrder.slice(currentIndex + 1, highestIndex + 1);\n    unlocksToProcess.push({\n      airtable_record_id: student.json.id,\n      email: student.json.email,\n      tier: student.json.tier,\n      is_student_id: student.json.is_student_id,\n      from_module: currentModule,\n      to_module: highestUnlocked,\n      modules_to_unlock: modulesToUnlock\n    });\n  }\n}\n\nreturn unlocksToProcess.map(u => ({ json: u }));"
+      }
+    },
+    {
+      "id": "w24-n04",
+      "name": "Split Per Student",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [925, 400],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "w24-n05",
+      "name": "Resolve Course ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1150, 400],
+      "parameters": {
+        "jsCode": "const tier = $json.tier;\nconst tierToEnv = {\n  'self-study': 'IS_COURSE_ID_SELF_STUDY',\n  'cohort': 'IS_COURSE_ID_COHORT',\n  'dwy': 'IS_COURSE_ID_DWY'\n};\nconst courseId = $env[tierToEnv[tier]];\nreturn [{ json: { ...$json, is_course_id: courseId } }];"
+      }
+    },
+    {
+      "id": "w24-n06",
+      "name": "Iterate Modules to Unlock",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1375, 400],
+      "parameters": {
+        "jsCode": "const studentData = $json;\nreturn studentData.modules_to_unlock.map(moduleId => ({\n  json: {\n    email: studentData.email,\n    is_course_id: studentData.is_course_id,\n    is_student_id: studentData.is_student_id,\n    airtable_record_id: studentData.airtable_record_id,\n    module_id: moduleId\n  }\n}));"
+      }
+    },
+    {
+      "id": "w24-n07",
+      "name": "IS — Unlock Module",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1600, 400],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/courses/lessons/unlock",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ contact_email: $json.email, course_id: $json.is_course_id, module_id: $json.module_id }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w24-n08",
+      "name": "IS — Apply Milestone Tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1825, 400],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.IS_API_BASE_URL }}/api/contacts/tags",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ email: $json.email, tags: ['course:milestone:' + $json.module_id + '-unlocked'] }) }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "2", "name": "IS API Key" }
+      }
+    },
+    {
+      "id": "w24-n09",
+      "name": "Update Current Module",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [2050, 400],
+      "parameters": {
+        "operation": "update",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_COURSE_STUDENTS", "mode": "id" },
+        "id": "={{ $json.airtable_record_id }}",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "current_module": "={{ $json.module_id }}",
+            "last_unlock_at": "={{ new Date().toISOString() }}"
+          }
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    },
+    {
+      "id": "w24-n10",
+      "name": "Aggregate Daily Summary",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [2275, 400],
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      }
+    },
+    {
+      "id": "w24-n11",
+      "name": "Build Slack Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2500, 400],
+      "parameters": {
+        "jsCode": "const unlocks = $input.first().json.data || [];\nif (unlocks.length === 0) {\n  return [{ json: { send_slack: false } }];\n}\n\nconst byModule = {};\nfor (const u of unlocks) {\n  byModule[u.module_id] = (byModule[u.module_id] || 0) + 1;\n}\n\nconst lines = Object.entries(byModule).map(([m, c]) => `  ${m} (${c} student${c>1?'s':''})`).join('\\n');\n\nreturn [{ json: {\n  send_slack: true,\n  message: `🔓 Module Drip Unlock — daily summary\\nTotal unlocks processed: ${unlocks.length}\\nBy module:\\n${lines}`\n}}];"
+      }
+    },
+    {
+      "id": "w24-n12",
+      "name": "Slack Daily Summary (if any)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2725, 400],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "send-check",
+              "leftValue": "={{ $json.send_slack }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "w24-n13",
+      "name": "Post Summary to Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2950, 350],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
+        "text": "={{ $json.message }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "3", "name": "Slack account" }
+      }
+    },
+    {
+      "id": "w24-n99",
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1600, 700],
+      "parameters": {
+        "jsCode": "const error = $input.first().json;\nreturn [{ json: {\n  workflow_id: 'W24',\n  node_name: error.node_name || 'unknown',\n  timestamp: new Date().toISOString(),\n  error_message: error.error?.message || JSON.stringify(error).substring(0, 500),\n  payload_excerpt: JSON.stringify(error).substring(0, 500),\n  affected_email: error.email || 'unknown'\n}}];"
+      }
+    },
+    {
+      "id": "w24-n100",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [1825, 700],
+      "parameters": {
+        "operation": "create",
+        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
+        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
+        "columns": { "mappingMode": "autoMapInputData" }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
+      }
+    }
+  ],
+  "connections": {
+    "Daily Cron 06:00 ET": { "main": [[{ "node": "Get Active Course Students", "type": "main", "index": 0 }]] },
+    "Get Active Course Students": { "main": [[{ "node": "Determine Unlocks for Today", "type": "main", "index": 0 }]] },
+    "Determine Unlocks for Today": { "main": [[{ "node": "Split Per Student", "type": "main", "index": 0 }]] },
+    "Split Per Student": { "main": [[{ "node": "Resolve Course ID", "type": "main", "index": 0 }], [{ "node": "Aggregate Daily Summary", "type": "main", "index": 0 }]] },
+    "Resolve Course ID": { "main": [[{ "node": "Iterate Modules to Unlock", "type": "main", "index": 0 }]] },
+    "Iterate Modules to Unlock": { "main": [[{ "node": "IS — Unlock Module", "type": "main", "index": 0 }]] },
+    "IS — Unlock Module": { "main": [[{ "node": "IS — Apply Milestone Tag", "type": "main", "index": 0 }]], "error": [[{ "node": "Error Handler", "type": "main", "index": 0 }]] },
+    "IS — Apply Milestone Tag": { "main": [[{ "node": "Update Current Module", "type": "main", "index": 0 }]], "error": [[{ "node": "Error Handler", "type": "main", "index": 0 }]] },
+    "Update Current Module": { "main": [[{ "node": "Split Per Student", "type": "main", "index": 0 }]] },
+    "Aggregate Daily Summary": { "main": [[{ "node": "Build Slack Summary", "type": "main", "index": 0 }]] },
+    "Build Slack Summary": { "main": [[{ "node": "Slack Daily Summary (if any)", "type": "main", "index": 0 }]] },
+    "Slack Daily Summary (if any)": { "main": [[{ "node": "Post Summary to Slack", "type": "main", "index": 0 }], []] },
+    "Error Handler": { "main": [[{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1", "timezone": "America/New_York" },
+  "tags": [{ "name": "course" }, { "name": "P0" }, { "name": "L-family" }, { "name": "cron" }]
+}
