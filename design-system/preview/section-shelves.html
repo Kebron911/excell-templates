@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Shelves — section preview</title>
+<style>
+  /* ---- Webfonts (inlined so preview is self-contained) ---- */
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  /* ---- Brand tokens (inlined subset of colors_and_type.css) */
+  :root {
+    --brand-navy:           #12304E;
+    --brand-parchment:      #F6EFE2;
+    --brand-gold:           #C9A24B;
+    --brand-graphite:       #2B2B2B;
+    --brand-parchment-deep: #E7DCC2;
+    --bg-3:                 #FBF6EC;
+    --fg-2:                 #555049;
+    --fg-3:                 #8A8176;
+    --rule-strong:          #BEB19A;
+
+    --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --font-body:    "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+    --font-mono:    "JetBrains Mono", Menlo, Consolas, ui-monospace, monospace;
+
+    --sp-3:  12px;
+    --sp-4:  16px;
+    --sp-5:  24px;
+    --sp-6:  32px;
+    --sp-7:  48px;
+    --sp-8:  64px;
+    --sp-9:  96px;
+
+    --sh-lifted: 0 8px 24px -8px rgba(10, 31, 53, 0.20), 0 2px 6px rgba(10, 31, 53, 0.08);
+
+    --ease-std: cubic-bezier(0.2, 0.6, 0.2, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --dur-std:  200ms;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg-3);
+    font-family: var(--font-body);
+    color: var(--brand-graphite);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ---- Section frame ---------------------------------------- */
+  .section-shelves {
+    background: var(--bg-3);
+    padding: var(--sp-9) var(--sp-7);
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* ---- Section head ----------------------------------------- */
+  .section-head { max-width: 760px; margin-bottom: var(--sp-8); }
+
+  .section-eyebrow {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--brand-navy);
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 44px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--brand-navy);
+    line-height: 1.1;
+    margin: var(--sp-4) 0 0;
+    text-wrap: balance;
+  }
+  .section-title .it   { font-style: italic; font-weight: 400; }
+  .section-title .gold { color: var(--brand-gold); }
+  .head-rule {
+    width: 48px; height: 1px; background: var(--brand-gold);
+    border: 0; margin: var(--sp-5) 0;
+  }
+  .section-sub {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 20px;
+    color: var(--fg-2);
+    line-height: 1.5;
+    margin: 0;
+    max-width: 560px;
+  }
+
+  /* ---- 3×3 shelf grid --------------------------------------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top:  1px solid var(--rule-strong);
+    border-left: 1px solid var(--rule-strong);
+  }
+  @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+
+  /* ---- Shelf cell (subject-first hierarchy) ----------------- */
+  .shelf {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    background: var(--bg-3);
+    padding: var(--sp-7) var(--sp-6) var(--sp-6);
+    border-right:  1px solid var(--rule-strong);
+    border-bottom: 1px solid var(--rule-strong);
+    position: relative;
+    transition:
+      background var(--dur-std) var(--ease-std),
+      transform  var(--dur-std) var(--ease-std),
+      box-shadow var(--dur-std) var(--ease-std);
+    opacity: 0;
+    transform: translateY(20px);
+    min-height: 320px;
+  }
+  .shelf.in {
+    animation: shelf-rise 600ms var(--ease-out) both;
+    animation-delay: calc(var(--i) * 80ms);
+  }
+  @keyframes shelf-rise {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .shelf:hover {
+    background: var(--brand-parchment);
+    transform: translateY(-2px);
+    box-shadow: var(--sh-lifted);
+    z-index: 1;
+  }
+  .shelf:hover .shelf-rule { width: 56px; }
+  .shelf:hover .arrow      { color: var(--brand-gold); transform: translateX(4px); }
+
+  /* SUBJECT — the loud thing */
+  .shelf-name {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 32px;
+    letter-spacing: -0.005em;
+    color: var(--brand-navy);
+    line-height: 1.1;
+    margin: 0;
+  }
+  .shelf-rule {
+    width: 32px; height: 1px; background: var(--brand-gold);
+    border: 0; margin: var(--sp-4) 0 var(--sp-4);
+    transition: width var(--dur-std) var(--ease-std);
+  }
+  .shelf-desc {
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--fg-2);
+    margin: 0;
+  }
+
+  /* BREADTH — the quiet caption */
+  .shelf-foot {
+    margin-top: auto;
+    padding-top: var(--sp-6);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .count {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1;
+  }
+  .count-num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 18px;
+    color: var(--brand-navy);
+  }
+  .count-label {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--fg-3);
+    margin-top: 6px;
+  }
+  .arrow {
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--brand-navy);
+    transition: color var(--dur-std), transform var(--dur-std) var(--ease-std);
+    display: inline-block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shelf, .shelf.in {
+      opacity: 1; transform: none; animation: none;
+    }
+    .shelf:hover { transform: none; box-shadow: none; }
+    .shelf:hover .arrow { transform: none; }
+    .shelf:hover .shelf-rule { width: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<section class="section-shelves">
+  <div class="container">
+
+    <div class="section-head">
+      <span class="section-eyebrow">The Whole Shelf</span>
+      <h2 class="section-title">
+        Nine categories. Sixty-five <span class="it">workbooks</span><span class="gold">.</span>
+      </h2>
+      <hr class="head-rule">
+      <p class="section-sub">For hosts at every stage — from the first listing to the twentieth.</p>
+    </div>
+
+    <div class="grid" id="shelfGrid">
+
+      <a href="/catalog?shelf=tax" class="shelf" style="--i:0">
+        <h3 class="shelf-name">Tax</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Schedule E &amp; C, depreciation, cost-seg, mileage, per-diem, home office, 1099-NEC, quarterly estimates, single-property P&amp;Ls — the hand-off pack your CPA opens without a phone call.</p>
+        <div class="shelf-foot">
+          <span class="count">
+            <span class="count-num">14</span>
+            <span class="count-label">Workbooks</span>
+          </span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/catalog?shelf=operations" class="shelf" style="--i:1">
+        <h3 class="shelf-name">Operations</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Turnover sheets, supply pars, maintenance CRMs, AirCover logs, utility &amp; insurance trackers, permit-status logs — the paper trail that keeps a property running when you're not in it.</p>
+        <div class="shelf-foot">
+          <span class="count">
+            <span class="count-num">9</span>
+            <span class="count-label">Workbooks</span>
+          </span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/catalog?shelf=guest" class="shelf" style="--i:2">
+        <h3 class="shelf-name">Guest&nbsp;Experience</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Welcome book, house rules builder, pet policy document — the documents that earn five stars without a single follow-up message.</p>
+        <div class="shelf-foot">
+          <span class="count">
+            <span class="count-num">3</span>
+            <span class="count-label">Workbooks</span>
+          </span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/catalog?shelf=pricing" class="shelf" style="--i:1">
+        <h3 class="shelf-name">Pricing</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Dynamic pricing, competitor rate trackers, minimum-stay optimizer, cleaning-fee math, ADR &amp; RevPAR dashboard, break-even occupancy — the math behind every number you charge.</p>
+        <div class="shelf-foot">
+          <span class="count">
+            <span class="count-num">8</span>
+            <span class="count-label">Workbooks</span>
+          </span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/catalog?shelf=marketing" class="shelf" style="--i:2">
+        <h3 class="shelf-name">Marketing</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Listing SEO scoring, review-response templates, referral and repeat-guest CRM — three workbooks that fill the calendar without paid ads.</p>
+        <div class="shelf-foot">
+          <span class="count">
+            <span class="count-num">3</span>
+            <span class="count-label">Workbooks</span>
+          </span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/catalog?shelf=legal" class="shelf" style="--i:3">
+        <h3 class="shelf-name">Legal</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">License renewals, transient-occupancy tax filing calendar, guest screening &amp; ban list, insurance claim log — the file you reach for when something goes sideways.</p>
+        <div class="shelf-foot">
+          <span class="count">
+            <span class="count-num">4</span>
+            <span class="count-label">Workbooks</span>
+          </span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/catalog?shelf=team" class="shelf" style="--i:2">
+        <h3 class="shelf-name">Team</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Cleaner CRM &amp; payroll, co-host commission splits, owner reporting dashboards, multi-owner consolidations — the structure that lets you stop being the bottleneck.</p>
+        <div class="shelf-foot">
+          <span class="count">
+            <span class="count-num">4</span>
+            <span class="count-label">Workbooks</span>
+          </span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/catalog?shelf=acquisition" class="shelf" style="--i:3">
+        <h3 class="shelf-name">Acquisition</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Deal analyzers, AirDNA integrators, rehab &amp; setup budgets, 5-year pro-formas, BRRRR-to-STR refi math, 1031 exchange trackers, cost-to-launch — the math you run before you sign the loan docs.</p>
+        <div class="shelf-foot">
+          <span class="count">
+            <span class="count-num">12</span>
+            <span class="count-label">Workbooks</span>
+          </span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/catalog?shelf=strategic" class="shelf" style="--i:4">
+        <h3 class="shelf-name">Strategic</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Multi-property dashboards, multi-entity consolidations, DSCR &amp; cash-flow forecasts, year-over-year analytics, portfolio valuation, exit-timeline planners — the long-view spreadsheets you'll only need a few times a year.</p>
+        <div class="shelf-foot">
+          <span class="count">
+            <span class="count-num">8</span>
+            <span class="count-label">Workbooks</span>
+          </span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    }
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.shelf').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>

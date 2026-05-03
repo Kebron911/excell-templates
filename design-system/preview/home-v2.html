@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The STR Ledger — Run your rentals before they run you</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --brand-navy:           #12304E;
+  --brand-navy-tint:      #2A4867;
+  --brand-navy-shade:     #0A1F35;
+  --brand-parchment:      #F6EFE2;
+  --brand-parchment-alt:  #EFE5D0;
+  --brand-parchment-deep: #E7DCC2;
+  --brand-gold:           #C9A24B;
+  --brand-gold-deep:      #A9863A;
+  --brand-clay:           #B5725E;
+  --brand-graphite:       #2B2B2B;
+  --bg-3:                 #FBF6EC;
+  --fg-2:                 #555049;
+  --fg-3:                 #8A8176;
+  --fg-on-navy-muted:     #BFB8A7;
+  --rule:                 var(--brand-parchment-deep);
+  --rule-strong:          #BEB19A;
+  --semantic-success:     #3C6B3F;
+
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-body:    "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", Menlo, Consolas, ui-monospace, monospace;
+
+  --sp-1: 4px;  --sp-2: 8px;   --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px;  --sp-7: 48px; --sp-8: 64px;
+  --sp-9: 96px; --sp-10: 128px;
+
+  --sh-card:   0 1px 2px rgba(10,31,53,0.06), 0 1px 1px rgba(10,31,53,0.04);
+  --sh-lifted: 0 8px 24px -8px rgba(10,31,53,0.20), 0 2px 6px rgba(10,31,53,0.08);
+  --sh-deep:   0 40px 60px -30px rgba(11,28,47,0.6);
+
+  --ease-std: cubic-bezier(0.2, 0.6, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --dur-fast: 120ms; --dur-std: 200ms; --dur-slow: 360ms;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: var(--brand-parchment);
+  font-family: var(--font-body);
+  color: var(--brand-graphite);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; }
+
+/* ---- Reusable atoms --------------------------------------- */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--brand-navy);
+}
+.eyebrow.gold { color: var(--brand-gold); }
+.eyebrow.on-navy { color: var(--brand-gold); }
+
+.gold-rule { width: 48px; height: 1px; background: var(--brand-gold); border: 0; margin: var(--sp-5) 0; }
+.gold-rule.short { width: 32px; }
+.gold-rule.wide  { width: 56px; }
+
+.it { font-style: italic; font-weight: 400; }
+.gold { color: var(--brand-gold); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 24px;
+  font-family: var(--font-body);
+  font-weight: 500; font-size: 14px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background var(--dur-std), color var(--dur-std), border-color var(--dur-std), transform var(--dur-std);
+}
+.btn-primary  { background: var(--brand-navy); color: var(--brand-parchment); }
+.btn-primary:hover { background: var(--brand-navy-tint); }
+.btn-gold     { background: var(--brand-gold); color: var(--brand-navy); }
+.btn-gold:hover { background: var(--brand-gold-deep); color: var(--brand-parchment); }
+.btn-ghost    { background: transparent; color: var(--brand-navy); border-color: var(--brand-navy); }
+.btn-ghost:hover { background: var(--brand-navy); color: var(--brand-parchment); }
+.btn-ghost.on-navy { color: var(--brand-parchment); border-color: var(--brand-parchment); }
+.btn-ghost.on-navy:hover { background: var(--brand-parchment); color: var(--brand-navy); }
+.btn-lg { padding: 16px 28px; font-size: 15px; }
+
+.link-gold {
+  color: var(--brand-navy);
+  text-decoration: none;
+  font-size: 14px;
+  border-bottom: 1px solid var(--brand-gold);
+  padding-bottom: 2px;
+  transition: border-color var(--dur-std);
+}
+.link-gold:hover { border-bottom-color: var(--brand-navy); }
+
+/* ---- Reveal-on-scroll ------------------------------------- */
+.reveal { opacity: 0; transform: translateY(20px); }
+.reveal.in {
+  animation: rise 600ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+@keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+/* ============================================================
+   1. HEADER
+   ============================================================ */
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--brand-parchment);
+  padding: 20px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: box-shadow var(--dur-std), border-bottom-color var(--dur-std);
+  border-bottom: 1px solid transparent;
+}
+.site-header.scrolled {
+  border-bottom: 1px solid var(--brand-gold);
+  box-shadow: 0 1px 12px -8px rgba(10,31,53,0.2);
+}
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 500; font-size: 22px;
+  color: var(--brand-navy);
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  line-height: 1;
+}
+.wordmark .it { font-size: 14px; margin-right: 4px; }
+.wordmark .gold { color: var(--brand-gold); }
+.nav { display: flex; gap: 32px; align-items: center; }
+.nav a {
+  font-family: var(--font-body);
+  font-weight: 500; font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--brand-navy);
+  text-decoration: none;
+  position: relative;
+  padding: 4px 0;
+}
+.nav a::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+  height: 1px; background: var(--brand-gold);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform var(--dur-std) var(--ease-std);
+}
+.nav a:hover::after { transform: scaleX(1); }
+
+/* ============================================================
+   2. HERO
+   ============================================================ */
+.hero {
+  background: var(--brand-parchment);
+  padding: 96px 48px 112px;
+  border-bottom: 1px solid var(--rule);
+}
+.hero-grid {
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: 1.15fr 1fr;
+  gap: 80px; align-items: center;
+}
+.hero-h1 {
+  font-family: var(--font-display);
+  font-weight: 500; font-size: 68px;
+  line-height: 1.12; letter-spacing: -0.015em;
+  color: var(--brand-navy);
+  margin: 24px 0 0; max-width: 620px;
+}
+.hero-lead {
+  font-family: var(--font-body); font-size: 18px;
+  line-height: 1.6; color: var(--fg-2);
+  max-width: 520px; margin: 0;
+}
+.hero-ctas { display: flex; gap: 16px; margin-top: 36px; flex-wrap: wrap; }
+.hero-stats {
+  margin-top: 48px; padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  display: flex; gap: 56px; flex-wrap: wrap;
+}
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 32px; font-weight: 500;
+  color: var(--brand-navy);
+  letter-spacing: -0.01em; line-height: 1;
+}
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-3); margin-top: 8px;
+}
+
+/* Workbook cover stack — rotates between 3 categories */
+.hero-cover-frame {
+  position: relative;
+  aspect-ratio: 4/5;
+  background: var(--brand-navy);
+  padding: 28px;
+}
+.hero-cover {
+  position: absolute; inset: 20px;
+  background: var(--brand-parchment);
+  box-shadow: var(--sh-deep);
+  padding: 44px 36px;
+  opacity: 0;
+  transition: opacity 800ms var(--ease-std);
+  display: flex; flex-direction: column;
+}
+.hero-cover.show { opacity: 1; }
+.cover-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--brand-gold);
+}
+.cover-title {
+  font-family: var(--font-display);
+  font-weight: 500; font-size: 26px;
+  letter-spacing: -0.01em;
+  color: var(--brand-navy);
+  margin-top: 8px; line-height: 1.15;
+}
+.cover-rule {
+  height: 1px; background: var(--brand-gold);
+  width: 32px; margin: 18px 0;
+}
+.cover-rows {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 10px; column-gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 12px; color: var(--fg-2);
+}
+.cover-rows .v { text-align: right; color: var(--brand-navy); }
+.cover-rows .div { grid-column: 1 / -1; height: 1px; background: var(--rule-strong); margin: 8px 0; }
+.cover-rows .total { color: var(--brand-navy); font-weight: 600; }
+.cover-rows .pos   { text-align: right; color: var(--semantic-success); font-weight: 600; }
+.cover-check {
+  font-family: var(--font-mono);
+  font-size: 12px; color: var(--fg-2);
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0;
+}
+.cover-check .box { width: 10px; height: 10px; border: 1px solid var(--brand-navy); flex-shrink: 0; }
+.cover-check.done .box { background: var(--brand-gold); border-color: var(--brand-gold); }
+
+/* ============================================================
+   3. TRUST STRIP (marquee)
+   ============================================================ */
+.trust-strip {
+  background: var(--bg-3);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 24px 0;
+  overflow: hidden;
+  position: relative;
+}
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+}
+.trust-strip:hover .marquee { animation-play-state: paused; }
+.marquee-item {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  padding: 0 56px;
+  white-space: nowrap;
+}
+.marquee-item.label { color: var(--brand-navy); }
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+/* ============================================================
+   4. ON THE SHELF (4 product cards)
+   ============================================================ */
+.on-shelf { background: var(--brand-parchment); padding: 96px 48px; }
+.on-shelf-head {
+  max-width: 1200px; margin: 0 auto var(--sp-7);
+  display: flex; align-items: flex-end; justify-content: space-between;
+  flex-wrap: wrap; gap: 24px;
+}
+.section-h2 {
+  font-family: var(--font-display);
+  font-weight: 500; font-size: 44px;
+  letter-spacing: -0.01em;
+  color: var(--brand-navy);
+  line-height: 1.1;
+  margin: 16px 0 0; text-wrap: balance;
+}
+.cards-row {
+  max-width: 1200px; margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.product-card {
+  background: var(--bg-3);
+  border: 1px solid var(--rule);
+  padding: 32px 28px;
+  position: relative;
+  text-decoration: none; color: inherit;
+  transition: border-color var(--dur-std), box-shadow var(--dur-std), transform var(--dur-std);
+  display: flex; flex-direction: column;
+}
+.product-card:hover {
+  border-color: var(--brand-navy);
+  box-shadow: var(--sh-lifted);
+  transform: translateY(-2px);
+}
+.product-card .badge {
+  position: absolute; top: 20px; right: 20px;
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--brand-gold);
+}
+.product-card .tag {
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--fg-3);
+}
+.product-card h3 {
+  font-family: var(--font-display);
+  font-weight: 500; font-size: 24px;
+  letter-spacing: -0.01em;
+  color: var(--brand-navy);
+  margin: 14px 0 10px; line-height: 1.2;
+}
+.product-card p {
+  font-family: var(--font-body);
+  font-size: 14px; color: var(--fg-2);
+  margin: 0; line-height: 1.55;
+  min-height: 64px;
+}
+.product-card .divider {
+  height: 1px; background: var(--rule);
+  margin: 24px 0 16px;
+}
+.product-card .foot {
+  display: flex; align-items: baseline; justify-content: space-between;
+}
+.product-card .price {
+  font-family: var(--font-display);
+  font-weight: 500; font-size: 22px;
+  color: var(--brand-navy);
+}
+.product-card .more {
+  font-size: 13px; color: var(--brand-navy);
+  border-bottom: 1px solid transparent;
+  transition: border var(--dur-std);
+}
+.product-card:hover .more { border-bottom-color: var(--brand-gold); }
+
+/* ============================================================
+   5. THE SHELVES (catalog grid)
+   ============================================================ */
+.shelves { background: var(--bg-3); padding: 96px 48px; }
+.shelves .container { max-width: 1200px; margin: 0 auto; }
+.shelves-head { max-width: 760px; margin-bottom: 64px; }
+.shelves-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--rule-strong);
+  border-left: 1px solid var(--rule-strong);
+}
+.shelf {
+  display: flex; flex-direction: column;
+  text-decoration: none; color: inherit;
+  background: var(--bg-3);
+  padding: 48px 32px 32px;
+  border-right: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+  min-height: 320px;
+  transition: background var(--dur-std), transform var(--dur-std), box-shadow var(--dur-std);
+}
+.shelf:hover {
+  background: var(--brand-parchment);
+  transform: translateY(-2px);
+  box-shadow: var(--sh-lifted);
+  z-index: 1;
+}
+.shelf-name {
+  font-family: var(--font-display);
+  font-weight: 500; font-size: 32px;
+  letter-spacing: -0.005em;
+  color: var(--brand-navy);
+  line-height: 1.1; margin: 0;
+}
+.shelf-rule {
+  width: 32px; height: 1px;
+  background: var(--brand-gold); border: 0;
+  margin: 16px 0;
+  transition: width var(--dur-std);
+}
+.shelf:hover .shelf-rule { width: 56px; }
+.shelf-desc {
+  font-family: var(--font-body);
+  font-size: 14px; line-height: 1.55;
+  color: var(--fg-2); margin: 0;
+}
+.shelf-foot {
+  margin-top: auto; padding-top: 32px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+}
+.count-num {
+  font-family: var(--font-display);
+  font-style: italic; font-weight: 400;
+  font-size: 18px; color: var(--brand-navy); line-height: 1;
+}
+.count-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--fg-3);
+  margin-top: 6px; display: block;
+}
+.shelf .arrow {
+  font-size: 16px; color: var(--brand-navy);
+  transition: color var(--dur-std), transform var(--dur-std);
+}
+.shelf:hover .arrow { color: var(--brand-gold); transform: translateX(4px); }
+
+/* ============================================================
+   6. LEDGER vs APP
+   ============================================================ */
+.versus { background: var(--brand-parchment); padding: 96px 48px; border-top: 1px solid var(--rule); }
+.versus .container { max-width: 1100px; margin: 0 auto; }
+.versus-head { max-width: 680px; margin-bottom: 56px; }
+.versus-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  border: 1px solid var(--rule-strong);
+}
+.versus-col { padding: 40px 32px; }
+.versus-col + .versus-col { border-left: 1px solid var(--rule-strong); }
+.versus-col.app { background: var(--bg-3); }
+.versus-title {
+  font-family: var(--font-display);
+  font-weight: 500; font-size: 22px;
+  color: var(--brand-navy);
+  margin: 0 0 8px;
+}
+.versus-sub {
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--fg-3);
+  margin: 0 0 24px;
+}
+.versus-row {
+  display: flex; gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--rule);
+  font-size: 14px; line-height: 1.45;
+}
+.versus-row:first-of-type { border-top: 0; }
+.versus-row .mark {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  width: 16px;
+}
+.versus-col.ledger .mark { color: var(--brand-gold); }
+.versus-col.app .mark    { color: var(--brand-clay); }
+.versus-col.app          { color: var(--fg-3); }
+.versus-col.app .versus-row { color: var(--fg-3); }
+
+/* ============================================================
+   7. CURRENT CAMPAIGN (navy)
+   ============================================================ */
+.campaign {
+  background: var(--brand-navy);
+  color: var(--brand-parchment);
+  padding: 96px 48px;
+}
+.campaign .grid {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+}
+.campaign h2 {
+  font-family: var(--font-display);
+  font-weight: 500; font-size: 52px;
+  line-height: 1.08; letter-spacing: -0.01em;
+  color: var(--brand-parchment);
+  margin: 20px 0 0;
+}
+.campaign .lead {
+  font-family: var(--font-display);
+  font-style: italic; font-weight: 400;
+  font-size: 20px;
+  color: var(--brand-parchment);
+  line-height: 1.5;
+  margin: 0; max-width: 460px;
+}
+.campaign .steps {
+  border-left: 1px solid var(--fg-on-navy-muted);
+  padding-left: 56px;
+}
+.campaign .step {
+  display: grid; grid-template-columns: 56px 1fr;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--fg-on-navy-muted);
+}
+.campaign .step:last-child { border-bottom: 0; }
+.campaign .step-n {
+  font-family: var(--font-display);
+  font-style: italic; font-weight: 400;
+  font-size: 24px; color: var(--brand-gold);
+}
+.campaign .step-t {
+  font-family: var(--font-body);
+  font-size: 17px; font-weight: 500;
+  color: var(--brand-parchment);
+}
+.campaign .step-s {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--fg-on-navy-muted);
+  margin-top: 4px;
+}
+
+/* ============================================================
+   8. TESTIMONIALS
+   ============================================================ */
+.testi { background: var(--bg-3); padding: 96px 48px; }
+.testi .container { max-width: 1200px; margin: 0 auto; }
+.testi-head { max-width: 680px; margin-bottom: 56px; }
+.testi-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.testi-card {
+  background: var(--brand-parchment);
+  padding: 40px 32px;
+  border: 1px solid var(--rule);
+  position: relative;
+}
+.testi-card .quotemark {
+  font-family: var(--font-display);
+  font-size: 60px; font-style: italic;
+  color: var(--brand-gold);
+  line-height: 1; height: 24px;
+  margin-bottom: 8px;
+}
+.testi-body {
+  font-family: var(--font-display);
+  font-style: italic; font-weight: 400;
+  font-size: 19px; line-height: 1.45;
+  color: var(--brand-navy);
+  margin: 0 0 28px;
+}
+.testi-rule { width: 32px; height: 1px; background: var(--brand-gold); border: 0; margin: 24px 0 16px; }
+.testi-name {
+  font-family: var(--font-mono);
+  font-size: 11px; letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--brand-navy);
+  font-weight: 500;
+}
+.testi-shelf {
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--brand-gold);
+  margin-top: 6px;
+}
+
+/* ============================================================
+   9. NOTES (blog)
+   ============================================================ */
+.notes { background: var(--brand-parchment); padding: 96px 48px; border-top: 1px solid var(--rule); }
+.notes .container { max-width: 1100px; margin: 0 auto; }
+.notes-head { margin-bottom: 48px; }
+.note {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 32px;
+  padding: 28px 0;
+  border-top: 1px solid var(--rule-strong);
+  text-decoration: none; color: inherit;
+}
+.note.feature {
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  padding: 36px 0;
+}
+.note-thumb {
+  background: var(--brand-navy);
+  aspect-ratio: 1/1;
+  display: flex; align-items: flex-end;
+  padding: 14px;
+}
+.note.feature .note-thumb { aspect-ratio: 4/3; padding: 28px; }
+.note-thumb .eyebrow { color: var(--brand-gold); }
+.note-cat { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--brand-navy); }
+.note-title {
+  font-family: var(--font-display);
+  font-weight: 500; font-size: 22px;
+  letter-spacing: -0.01em;
+  color: var(--brand-navy);
+  margin: 14px 0 12px; line-height: 1.18;
+}
+.note.feature .note-title { font-size: 36px; }
+.note-excerpt {
+  font-family: var(--font-body);
+  font-size: 14px; color: var(--fg-2);
+  margin: 0; line-height: 1.6; max-width: 520px;
+}
+.note.feature .note-excerpt { font-size: 17px; }
+.note-date {
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin-top: 16px;
+}
+.notes-cta { padding-top: 36px; margin-top: 12px; border-top: 1px solid var(--rule-strong); }
+
+/* ============================================================
+   10. LEAD MAGNET (3-lane picker)
+   ============================================================ */
+.magnet { background: var(--brand-navy); color: var(--brand-parchment); padding: 96px 48px; }
+.magnet .container { max-width: 720px; margin: 0 auto; text-align: center; }
+.magnet h2 {
+  font-family: var(--font-display);
+  font-weight: 500; font-size: 44px;
+  color: var(--brand-parchment);
+  margin: 16px 0 0; line-height: 1.1;
+}
+.magnet .lead {
+  font-family: var(--font-display);
+  font-style: italic; font-size: 18px;
+  color: var(--brand-parchment);
+  margin: 0 auto;
+  max-width: 480px;
+}
+.lanes {
+  display: flex; gap: 12px; justify-content: center;
+  margin: 36px 0 24px; flex-wrap: wrap;
+}
+.lane {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 20px;
+  border: 1px solid var(--fg-on-navy-muted);
+  background: transparent;
+  color: var(--brand-parchment);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--dur-std), background var(--dur-std);
+  font-family: var(--font-body);
+}
+.lane:hover { border-color: var(--brand-gold); }
+.lane.selected { border-color: var(--brand-gold); background: rgba(201,162,75,0.08); }
+.lane-dot {
+  width: 12px; height: 12px;
+  border: 1.5px solid var(--brand-gold);
+  border-radius: 50%; flex-shrink: 0;
+  position: relative;
+}
+.lane.selected .lane-dot::after {
+  content: ''; position: absolute; inset: 2px;
+  background: var(--brand-gold); border-radius: 50%;
+}
+.lane-name {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--brand-gold);
+}
+.lane-desc {
+  font-family: var(--font-body); font-size: 13px;
+  color: var(--brand-parchment); margin-top: 4px;
+}
+.magnet-form {
+  display: flex; gap: 8px; max-width: 520px; margin: 0 auto;
+  flex-wrap: wrap; justify-content: center;
+}
+.magnet-input {
+  flex: 1; min-width: 240px;
+  padding: 14px 16px;
+  background: transparent;
+  border: 1px solid var(--fg-on-navy-muted);
+  border-bottom: 1px solid var(--brand-gold);
+  color: var(--brand-parchment);
+  font-family: var(--font-body); font-size: 14px;
+}
+.magnet-input::placeholder { color: var(--fg-on-navy-muted); }
+.magnet-input:focus { outline: none; border-color: var(--brand-gold); }
+.magnet-fine {
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--fg-on-navy-muted); margin-top: 24px;
+}
+
+/* ============================================================
+   11. FAQ
+   ============================================================ */
+.faq { background: var(--brand-parchment); padding: 96px 48px; }
+.faq .container { max-width: 880px; margin: 0 auto; }
+.faq-head { margin-bottom: 56px; }
+.faq-item {
+  border-top: 1px solid var(--rule-strong);
+}
+.faq-item:last-child { border-bottom: 1px solid var(--rule-strong); }
+.faq-q {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 24px 0; cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 22px; font-weight: 500;
+  color: var(--brand-navy);
+  letter-spacing: -0.005em;
+  transition: color var(--dur-std);
+}
+.faq-q:hover { color: var(--brand-navy-tint); }
+.faq-toggle {
+  width: 24px; height: 24px;
+  position: relative; flex-shrink: 0;
+  transition: transform var(--dur-slow) var(--ease-std);
+}
+.faq-toggle::before, .faq-toggle::after {
+  content: ''; position: absolute;
+  background: var(--brand-gold);
+}
+.faq-toggle::before { left: 0; right: 0; top: 50%; height: 1px; transform: translateY(-50%); }
+.faq-toggle::after  { top: 0; bottom: 0; left: 50%; width: 1px; transform: translateX(-50%); }
+.faq-item.open .faq-toggle { transform: rotate(45deg); }
+.faq-a-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--dur-slow) var(--ease-std);
+}
+.faq-item.open .faq-a-wrap { grid-template-rows: 1fr; }
+.faq-a {
+  overflow: hidden;
+}
+.faq-a-inner {
+  padding: 0 0 24px;
+  font-family: var(--font-body);
+  font-size: 16px; color: var(--fg-2);
+  line-height: 1.6; max-width: 720px;
+}
+
+/* ============================================================
+   12. CLOSING CTA
+   ============================================================ */
+.closing {
+  background: var(--brand-parchment);
+  padding: 128px 48px;
+  border-top: 1px solid var(--rule);
+  text-align: center;
+}
+.closing h2 {
+  font-family: var(--font-display);
+  font-weight: 500; font-size: 64px;
+  letter-spacing: -0.015em;
+  color: var(--brand-navy);
+  line-height: 1.05;
+  margin: 0 auto; max-width: 720px;
+}
+.closing-rule { width: 56px; height: 1px; background: var(--brand-gold); border: 0; margin: 32px auto; }
+.closing-ctas { display: flex; gap: 20px; justify-content: center; align-items: center; flex-wrap: wrap; }
+.closing-link {
+  font-family: var(--font-display);
+  font-style: italic; font-size: 18px;
+  color: var(--brand-navy); text-decoration: none;
+  border-bottom: 1px solid var(--brand-gold);
+  padding-bottom: 2px;
+}
+
+/* ============================================================
+   13. FOOTER
+   ============================================================ */
+.site-footer {
+  background: var(--brand-navy-shade);
+  color: var(--fg-on-navy-muted);
+  padding: 64px 48px 40px;
+}
+.footer-grid {
+  max-width: 1200px; margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 64px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--brand-navy-tint);
+}
+.footer-brand .wordmark { color: var(--brand-parchment); font-size: 28px; }
+.footer-brand p {
+  font-family: var(--font-display);
+  font-style: italic; font-size: 16px;
+  color: var(--fg-on-navy-muted);
+  margin: 16px 0 0; max-width: 320px;
+  line-height: 1.5;
+}
+.footer-col-title {
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--brand-gold);
+  margin-bottom: 16px;
+}
+.footer-col a {
+  display: block;
+  font-family: var(--font-body); font-size: 14px;
+  color: var(--brand-parchment);
+  text-decoration: none;
+  padding: 6px 0;
+  transition: color var(--dur-std);
+}
+.footer-col a:hover { color: var(--brand-gold); }
+.footer-base {
+  max-width: 1200px; margin: 24px auto 0;
+  display: flex; justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-on-navy-muted);
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 1024px) {
+  .hero-grid, .campaign .grid { grid-template-columns: 1fr; gap: 56px; }
+  .hero-h1 { font-size: 56px; }
+  .cards-row, .testi-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .shelves-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .hero, .on-shelf, .shelves, .versus, .campaign, .testi, .notes, .magnet, .faq, .closing { padding-left: 24px; padding-right: 24px; }
+  .site-header { padding: 16px 24px; }
+  .hero-h1 { font-size: 44px; }
+  .section-h2, .campaign h2 { font-size: 32px; }
+  .closing h2 { font-size: 40px; }
+  .cards-row, .testi-grid, .versus-grid { grid-template-columns: 1fr; }
+  .nav { display: none; }
+  .footer-grid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal.in { opacity: 1; transform: none; animation: none; }
+  .marquee { animation: none; }
+  .product-card:hover, .shelf:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER
+============================================================ -->
+<header class="site-header" id="siteHeader">
+  <a href="#" class="wordmark"><span class="it">The</span>STR Ledger<span class="gold">.</span></a>
+  <nav class="nav">
+    <a href="#catalog">Catalog</a>
+    <a href="#notes">Notes</a>
+    <a href="#campaign">Campaigns</a>
+    <a href="#about">About</a>
+  </nav>
+  <a href="#catalog" class="btn btn-primary">Browse Catalog</a>
+</header>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <span class="eyebrow reveal" style="--i:0">For Airbnb &amp; VRBO Hosts</span>
+      <h1 class="hero-h1 reveal" style="--i:1">
+        Run your rentals<br>
+        <span class="it">before they run you<span class="gold">.</span></span>
+      </h1>
+      <hr class="gold-rule wide reveal" style="--i:2">
+      <p class="hero-lead reveal" style="--i:3">
+        Workbooks for every part of running a short-term rental — taxes, turnover, guests, pricing, marketing, the whole shelf. Whether you run one cabin or twenty-seven.
+      </p>
+      <div class="hero-ctas reveal" style="--i:4">
+        <a href="#catalog" class="btn btn-primary btn-lg">Browse the catalog</a>
+        <a href="#catalog" class="btn btn-ghost btn-lg">See all 65 templates →</a>
+      </div>
+      <div class="hero-stats reveal" style="--i:5">
+        <div>
+          <div class="stat-num" data-count="2847">2,847</div>
+          <div class="stat-label">Hosts on the ledger</div>
+        </div>
+        <div>
+          <div class="stat-num" data-count="65">65</div>
+          <div class="stat-label">Templates</div>
+        </div>
+        <div>
+          <div class="stat-num" data-count="9">9</div>
+          <div class="stat-label">Shelves</div>
+        </div>
+        <div>
+          <div class="stat-num" data-star="4.9">4.9★</div>
+          <div class="stat-label">Reviews</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero workbook stack: 3 covers rotating -->
+    <div class="hero-cover-frame reveal" style="--i:6" id="heroCovers">
+      <!-- Tax cover -->
+      <div class="hero-cover" data-cover="tax">
+        <div class="cover-eyebrow">Schedule E · Line 19</div>
+        <div class="cover-title"><span class="it">The</span> 2025 Ledger<span class="gold">.</span></div>
+        <div class="cover-rule"></div>
+        <div class="cover-rows">
+          <span>Gross rents</span><span class="v">$142,880</span>
+          <span>Cleaning</span><span class="v">−$18,420</span>
+          <span>Supplies</span><span class="v">−$6,115</span>
+          <span>Mortgage int.</span><span class="v">−$41,204</span>
+          <span>Depreciation</span><span class="v">−$22,960</span>
+          <span>Management</span><span class="v">−$14,288</span>
+          <span class="div"></span>
+          <span class="total">Net income</span><span class="pos">$39,893</span>
+        </div>
+      </div>
+      <!-- Ops cover -->
+      <div class="hero-cover" data-cover="ops">
+        <div class="cover-eyebrow">Turnover · Block 7</div>
+        <div class="cover-title"><span class="it">The</span> Cleaner's Run Sheet<span class="gold">.</span></div>
+        <div class="cover-rule"></div>
+        <div class="cover-check done"><span class="box"></span>Strip beds &amp; restock linen</div>
+        <div class="cover-check done"><span class="box"></span>Bathrooms — refill amenities</div>
+        <div class="cover-check done"><span class="box"></span>Kitchen — dishwasher cycle</div>
+        <div class="cover-check"><span class="box"></span>Patio &amp; grill check</div>
+        <div class="cover-check"><span class="box"></span>Smoke / CO detector test</div>
+        <div class="cover-check"><span class="box"></span>Photo handoff to owner</div>
+      </div>
+      <!-- Guest cover -->
+      <div class="hero-cover" data-cover="guest">
+        <div class="cover-eyebrow">Property · Cabin 03</div>
+        <div class="cover-title"><span class="it">The</span> Welcome Book<span class="gold">.</span></div>
+        <div class="cover-rule"></div>
+        <div class="cover-rows">
+          <span>Wi-Fi</span><span class="v">cabin-3-guest</span>
+          <span>Check-out</span><span class="v">10:00 AM</span>
+          <span>Coffee</span><span class="v">Drawer left of stove</span>
+          <span>Quiet hours</span><span class="v">10 PM – 7 AM</span>
+          <span>Trash day</span><span class="v">Tuesday AM</span>
+          <span>Emergency</span><span class="v">911 · 555-0142</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TRUST STRIP (marquee)
+============================================================ -->
+<div class="trust-strip">
+  <div class="marquee">
+    <span class="marquee-item label">As featured in</span>
+    <span class="marquee-item">BiggerPockets</span>
+    <span class="marquee-item">AirDNA</span>
+    <span class="marquee-item">STR Insider</span>
+    <span class="marquee-item">Host Financial</span>
+    <span class="marquee-item">The Playbook</span>
+    <span class="marquee-item">Rental Radio</span>
+    <!-- duplicate for seamless loop -->
+    <span class="marquee-item label">As featured in</span>
+    <span class="marquee-item">BiggerPockets</span>
+    <span class="marquee-item">AirDNA</span>
+    <span class="marquee-item">STR Insider</span>
+    <span class="marquee-item">Host Financial</span>
+    <span class="marquee-item">The Playbook</span>
+    <span class="marquee-item">Rental Radio</span>
+  </div>
+</div>
+
+<!-- ============================================================
+     ON THE SHELF (4 cards mixed categories)
+============================================================ -->
+<section class="on-shelf" id="catalog">
+  <div class="on-shelf-head">
+    <div class="reveal" style="--i:0">
+      <span class="eyebrow">On the Shelf</span>
+      <h2 class="section-h2">New this season<span class="gold">.</span></h2>
+    </div>
+    <a href="#" class="link-gold reveal" style="--i:1">See whole catalog →</a>
+  </div>
+  <div class="cards-row">
+    <a href="#" class="product-card reveal" style="--i:0">
+      <span class="badge">Bestseller</span>
+      <span class="tag">Tax</span>
+      <h3>The 2025 Ledger</h3>
+      <p>The Schedule E workbook — pre-wired to 47 deductions, Form 4562, and every line a CPA actually asks for.</p>
+      <div class="divider"></div>
+      <div class="foot"><span class="price">$147</span><span class="more">View details →</span></div>
+    </a>
+    <a href="#" class="product-card reveal" style="--i:1">
+      <span class="tag">Operations</span>
+      <h3>The Cleaner's Run Sheet</h3>
+      <p>Turnover checklist + pay tracker your cleaners will actually fill in. Weekly rollup for you.</p>
+      <div class="divider"></div>
+      <div class="foot"><span class="price">$47</span><span class="more">View details →</span></div>
+    </a>
+    <a href="#" class="product-card reveal" style="--i:2">
+      <span class="tag">Guest</span>
+      <h3>The Welcome Book</h3>
+      <p>Editable house manual — Wi-Fi, rules, recs, emergency. Print, laminate, leave on the counter.</p>
+      <div class="divider"></div>
+      <div class="foot"><span class="price">$37</span><span class="more">View details →</span></div>
+    </a>
+    <a href="#" class="product-card reveal" style="--i:3">
+      <span class="badge">Save $84</span>
+      <span class="tag">Bundle</span>
+      <h3>The Whole Shelf</h3>
+      <p>Every workbook, every checklist, every printable. One link. One price. One season.</p>
+      <div class="divider"></div>
+      <div class="foot"><span class="price">$297</span><span class="more">View details →</span></div>
+    </a>
+  </div>
+</section>
+
+<!-- ============================================================
+     THE SHELVES
+============================================================ -->
+<section class="shelves">
+  <div class="container">
+    <div class="shelves-head reveal" style="--i:0">
+      <span class="eyebrow">The Whole Shelf</span>
+      <h2 class="section-h2">
+        Nine categories. Sixty-five <span class="it">workbooks</span><span class="gold">.</span>
+      </h2>
+      <hr class="gold-rule">
+      <p style="font-family: var(--font-display); font-style: italic; font-size: 20px; color: var(--fg-2); line-height: 1.5; margin: 0; max-width: 560px;">
+        For hosts at every stage — from the first listing to the twentieth.
+      </p>
+    </div>
+
+    <div class="shelves-grid">
+      <a href="#" class="shelf reveal" style="--i:0">
+        <h3 class="shelf-name">Tax</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Schedule E &amp; C, depreciation, cost-seg, mileage, per-diem, home office, 1099-NEC, quarterly estimates, single-property P&amp;Ls — the hand-off pack your CPA opens without a phone call.</p>
+        <div class="shelf-foot"><span><span class="count-num">14</span><span class="count-label">Workbooks</span></span><span class="arrow">→</span></div>
+      </a>
+      <a href="#" class="shelf reveal" style="--i:1">
+        <h3 class="shelf-name">Operations</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Turnover sheets, supply pars, maintenance CRMs, AirCover logs, utility &amp; insurance trackers, permit-status logs — the paper trail that keeps a property running when you're not in it.</p>
+        <div class="shelf-foot"><span><span class="count-num">9</span><span class="count-label">Workbooks</span></span><span class="arrow">→</span></div>
+      </a>
+      <a href="#" class="shelf reveal" style="--i:2">
+        <h3 class="shelf-name">Guest&nbsp;Experience</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Welcome book, house rules builder, pet policy document — the documents that earn five stars without a single follow-up message.</p>
+        <div class="shelf-foot"><span><span class="count-num">3</span><span class="count-label">Workbooks</span></span><span class="arrow">→</span></div>
+      </a>
+      <a href="#" class="shelf reveal" style="--i:1">
+        <h3 class="shelf-name">Pricing</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Dynamic pricing, competitor rate trackers, minimum-stay optimizer, cleaning-fee math, ADR &amp; RevPAR dashboard, break-even occupancy — the math behind every number you charge.</p>
+        <div class="shelf-foot"><span><span class="count-num">8</span><span class="count-label">Workbooks</span></span><span class="arrow">→</span></div>
+      </a>
+      <a href="#" class="shelf reveal" style="--i:2">
+        <h3 class="shelf-name">Marketing</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Listing SEO scoring, review-response templates, referral and repeat-guest CRM — three workbooks that fill the calendar without paid ads.</p>
+        <div class="shelf-foot"><span><span class="count-num">3</span><span class="count-label">Workbooks</span></span><span class="arrow">→</span></div>
+      </a>
+      <a href="#" class="shelf reveal" style="--i:3">
+        <h3 class="shelf-name">Legal</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">License renewals, transient-occupancy tax filing calendar, guest screening &amp; ban list, insurance claim log — the file you reach for when something goes sideways.</p>
+        <div class="shelf-foot"><span><span class="count-num">4</span><span class="count-label">Workbooks</span></span><span class="arrow">→</span></div>
+      </a>
+      <a href="#" class="shelf reveal" style="--i:2">
+        <h3 class="shelf-name">Team</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Cleaner CRM &amp; payroll, co-host commission splits, owner reporting dashboards, multi-owner consolidations — the structure that lets you stop being the bottleneck.</p>
+        <div class="shelf-foot"><span><span class="count-num">4</span><span class="count-label">Workbooks</span></span><span class="arrow">→</span></div>
+      </a>
+      <a href="#" class="shelf reveal" style="--i:3">
+        <h3 class="shelf-name">Acquisition</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Deal analyzers, AirDNA integrators, rehab &amp; setup budgets, 5-year pro-formas, BRRRR-to-STR refi math, 1031 exchange trackers, cost-to-launch — the math you run before you sign the loan docs.</p>
+        <div class="shelf-foot"><span><span class="count-num">12</span><span class="count-label">Workbooks</span></span><span class="arrow">→</span></div>
+      </a>
+      <a href="#" class="shelf reveal" style="--i:4">
+        <h3 class="shelf-name">Strategic</h3>
+        <hr class="shelf-rule">
+        <p class="shelf-desc">Multi-property dashboards, multi-entity consolidations, DSCR &amp; cash-flow forecasts, year-over-year analytics, portfolio valuation, exit-timeline planners — the long-view spreadsheets you'll only need a few times a year.</p>
+        <div class="shelf-foot"><span><span class="count-num">8</span><span class="count-label">Workbooks</span></span><span class="arrow">→</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     LEDGER vs APP
+============================================================ -->
+<section class="versus">
+  <div class="container">
+    <div class="versus-head reveal" style="--i:0">
+      <span class="eyebrow">The Quiet Argument</span>
+      <h2 class="section-h2">Why a workbook beats a <span class="it">$29/month</span> app<span class="gold">.</span></h2>
+      <hr class="gold-rule">
+    </div>
+    <div class="versus-grid reveal" style="--i:1">
+      <div class="versus-col ledger">
+        <h3 class="versus-title"><span class="it">The</span> Ledger<span class="gold">.</span></h3>
+        <div class="versus-sub">One-time · yours forever</div>
+        <div class="versus-row"><span class="mark">✓</span><span>One-time price. No subscription. No card on file.</span></div>
+        <div class="versus-row"><span class="mark">✓</span><span>Your data stays in your file, on your computer.</span></div>
+        <div class="versus-row"><span class="mark">✓</span><span>Opens in any Excel — Mac, PC, web, mobile.</span></div>
+        <div class="versus-row"><span class="mark">✓</span><span>CPAs receive an .xlsx and smile.</span></div>
+        <div class="versus-row"><span class="mark">✓</span><span>Every formula visible. Every cite audited.</span></div>
+        <div class="versus-row"><span class="mark">✓</span><span>Yours in four minutes. No onboarding call.</span></div>
+      </div>
+      <div class="versus-col app">
+        <h3 class="versus-title">The App.</h3>
+        <div class="versus-sub">$29/mo · vendor-locked</div>
+        <div class="versus-row"><span class="mark">✗</span><span>$29 a month. $348 a year. Forever.</span></div>
+        <div class="versus-row"><span class="mark">✗</span><span>Your data lives on someone else's server.</span></div>
+        <div class="versus-row"><span class="mark">✗</span><span>"Export to PDF" — then your CPA retypes it.</span></div>
+        <div class="versus-row"><span class="mark">✗</span><span>"Smart categorization" with no audit trail.</span></div>
+        <div class="versus-row"><span class="mark">✗</span><span>Black-box logic. Trust the dashboard.</span></div>
+        <div class="versus-row"><span class="mark">✗</span><span>Demo. Onboarding. Trial. Sales call.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CURRENT CAMPAIGN (rotates by month — currently Operations)
+============================================================ -->
+<section class="campaign" id="campaign">
+  <div class="grid">
+    <div class="reveal" style="--i:0">
+      <span class="eyebrow on-navy">Campaign · Spring 2026</span>
+      <h2>
+        <span class="it">Turnover</span> chaos<br>
+        has a spreadsheet<span class="gold">.</span>
+      </h2>
+      <hr class="gold-rule">
+      <p class="lead">
+        Six properties, three cleaners, one weekend. The difference between a five-star turnover and a 2 AM "where's the spare key" message is a one-page run sheet.
+      </p>
+      <div style="margin-top: 36px;">
+        <a href="#" class="btn btn-gold btn-lg">Shop the Operations shelf →</a>
+      </div>
+    </div>
+    <div class="steps reveal" style="--i:1">
+      <div class="step"><span class="step-n">01</span><div><div class="step-t">The Run Sheet</div><div class="step-s">One page · what to do, in what order</div></div></div>
+      <div class="step"><span class="step-n">02</span><div><div class="step-t">Supply Pars</div><div class="step-s">Reorder before you run out, not after</div></div></div>
+      <div class="step"><span class="step-n">03</span><div><div class="step-t">Vendor Log</div><div class="step-s">Plumber, HVAC, lawn — one source of truth</div></div></div>
+      <div class="step"><span class="step-n">04</span><div><div class="step-t">Cleaner Pay Tracker</div><div class="step-s">Hours in. 1099 out. No spreadsheet drama.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TESTIMONIALS
+============================================================ -->
+<section class="testi">
+  <div class="container">
+    <div class="testi-head reveal" style="--i:0">
+      <span class="eyebrow">The Ledger Notes</span>
+      <h2 class="section-h2">What hosts and CPAs are saying<span class="gold">.</span></h2>
+      <hr class="gold-rule">
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card reveal" style="--i:0">
+        <div class="quotemark">&ldquo;</div>
+        <p class="testi-body">Cut my client's tax prep from nine hours to ninety minutes. Same return. Better trail. I told her to buy four more.</p>
+        <hr class="testi-rule">
+        <div class="testi-name">Jung Kim, CPA · Portland</div>
+        <div class="testi-shelf">Tax</div>
+      </div>
+      <div class="testi-card reveal" style="--i:1">
+        <div class="quotemark">&ldquo;</div>
+        <p class="testi-body">My cleaners actually fill in the run sheet now. The first month it caught a missing smoke alarm before a guest did.</p>
+        <hr class="testi-rule">
+        <div class="testi-name">Anna Maciejewski · 6 properties · NC</div>
+        <div class="testi-shelf">Operations</div>
+      </div>
+      <div class="testi-card reveal" style="--i:2">
+        <div class="quotemark">&ldquo;</div>
+        <p class="testi-body">The welcome book paid for itself in one week. Three guests messaged to say it was the best they'd seen — that's three fewer five-star messages I had to chase.</p>
+        <hr class="testi-rule">
+        <div class="testi-name">Lila Patel · 3 cabins · Smokies</div>
+        <div class="testi-shelf">Guest Experience</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     NOTES (blog preview)
+============================================================ -->
+<section class="notes" id="notes">
+  <div class="container">
+    <div class="notes-head reveal" style="--i:0">
+      <span class="eyebrow">The Ledger Note</span>
+      <h2 class="section-h2">Notes from the <span class="it">margins</span><span class="gold">.</span></h2>
+    </div>
+
+    <a href="#" class="note feature reveal" style="--i:0">
+      <div class="note-thumb"><span class="eyebrow">The Ledger Note</span></div>
+      <div>
+        <span class="note-cat">Tax · Long read</span>
+        <h3 class="note-title">The 47 Airbnb deductions your CPA forgets to ask about.</h3>
+        <p class="note-excerpt">Most hosts leave $4,200 on the table every April. Not because they're careless — because the IRS categories were written for landlords, not operators. Here's the full list, with cites, in the order your Schedule E asks for them.</p>
+        <div class="note-date">March 3 · 14 min read</div>
+      </div>
+    </a>
+
+    <a href="#" class="note reveal" style="--i:1">
+      <div class="note-thumb"><span class="eyebrow">The Ledger Note</span></div>
+      <div>
+        <span class="note-cat">Operations</span>
+        <h3 class="note-title">Stop texting your cleaners. Use the Run Sheet instead.</h3>
+        <p class="note-excerpt">A one-page turnover doc — laminated, Velcroed to the supply closet — cuts a cleaner's callbacks by 80%.</p>
+        <div class="note-date">Feb 24 · 6 min read</div>
+      </div>
+    </a>
+
+    <a href="#" class="note reveal" style="--i:2">
+      <div class="note-thumb"><span class="eyebrow">The Ledger Note</span></div>
+      <div>
+        <span class="note-cat">Guest Experience</span>
+        <h3 class="note-title">Five-star reviews are a documentation problem.</h3>
+        <p class="note-excerpt">The hosts who write everything down win the reviews. Welcome books, check-in scripts, local recs — the boring stuff that makes guests feel like they had a private concierge.</p>
+        <div class="note-date">Feb 17 · 9 min read</div>
+      </div>
+    </a>
+
+    <div class="notes-cta reveal" style="--i:3">
+      <a href="#" class="btn btn-ghost">Read every note →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     LEAD MAGNET (3-lane picker)
+============================================================ -->
+<section class="magnet">
+  <div class="container">
+    <span class="eyebrow on-navy reveal" style="--i:0">The House Note</span>
+    <h2 class="reveal" style="--i:1">The starter pack, in your inbox<span class="gold">.</span></h2>
+    <hr class="gold-rule" style="margin: 24px auto;">
+    <p class="lead reveal" style="--i:2">
+      Pick the shelf you need first. We'll send the right starter PDF — plus one short note a week.
+    </p>
+
+    <div class="lanes reveal" style="--i:3">
+      <button class="lane selected" data-lane="tax">
+        <span class="lane-dot"></span>
+        <span><span class="lane-name">Tax</span><span class="lane-desc">47 deductions, cited</span></span>
+      </button>
+      <button class="lane" data-lane="ops">
+        <span class="lane-dot"></span>
+        <span><span class="lane-name">Operations</span><span class="lane-desc">The one-page turnover sheet</span></span>
+      </button>
+      <button class="lane" data-lane="guest">
+        <span class="lane-dot"></span>
+        <span><span class="lane-name">Guest</span><span class="lane-desc">Welcome-book skeleton</span></span>
+      </button>
+    </div>
+
+    <form class="magnet-form reveal" style="--i:4" onsubmit="event.preventDefault(); alert('Demo — no backend wired.');">
+      <input type="email" class="magnet-input" placeholder="you@yourledger.com" required>
+      <button type="submit" class="btn btn-gold btn-lg">Send the PDF</button>
+    </form>
+
+    <p class="magnet-fine reveal" style="--i:5">
+      No spam · One note a week · Unsubscribe in one click
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     FAQ
+============================================================ -->
+<section class="faq">
+  <div class="container">
+    <div class="faq-head reveal" style="--i:0">
+      <span class="eyebrow">Still Deciding</span>
+      <h2 class="section-h2">The questions hosts ask before buying<span class="gold">.</span></h2>
+      <hr class="gold-rule">
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">
+        <span>Will this work on Mac Excel and Google Sheets?</span>
+        <span class="faq-toggle"></span>
+      </div>
+      <div class="faq-a-wrap"><div class="faq-a"><div class="faq-a-inner">
+        Yes — every workbook is built and tested in Excel for Windows, Excel for Mac, and Google Sheets. Some advanced formulas degrade gracefully in Sheets; we flag any cell that does and show the Sheets-safe equivalent in a sidebar tab.
+      </div></div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">
+        <span>Do I need accounting or spreadsheet experience?</span>
+        <span class="faq-toggle"></span>
+      </div>
+      <div class="faq-a-wrap"><div class="faq-a"><div class="faq-a-inner">
+        No. Every workbook ships with a "Read this first" tab written in plain English, a one-screen video walkthrough, and a sample populated with realistic data. If you can fill in a Google Form, you can run a ledger.
+      </div></div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">
+        <span>I only have one property — is this overkill?</span>
+        <span class="faq-toggle"></span>
+      </div>
+      <div class="faq-a-wrap"><div class="faq-a"><div class="faq-a-inner">
+        No, and starting with one is the easiest time to set this up. Every workbook handles 1 to 50 properties without rebuilding — you fill in one row today and the same file scales when you add the second, third, and tenth. You won't outgrow it.
+      </div></div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">
+        <span>Can I buy one shelf and add others later?</span>
+        <span class="faq-toggle"></span>
+      </div>
+      <div class="faq-a-wrap"><div class="faq-a"><div class="faq-a-inner">
+        Yes. Every workbook works standalone. Cross-shelf integrations (e.g., Operations cleaner pay → Tax 1099-NEC tracker) are wired with simple paste-link instructions, not file dependencies. Buy one this month, another next quarter, the bundle when you're ready.
+      </div></div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">
+        <span>What's the refund policy?</span>
+        <span class="faq-toggle"></span>
+      </div>
+      <div class="faq-a-wrap"><div class="faq-a"><div class="faq-a-inner">
+        14-day full refund, no questions. Email a one-line note. Keep the file — we'd rather you used it than fought us for $47.
+      </div></div></div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">
+        <span>How is this different from Stessa or Hostfully?</span>
+        <span class="faq-toggle"></span>
+      </div>
+      <div class="faq-a-wrap"><div class="faq-a"><div class="faq-a-inner">
+        Stessa and Hostfully are SaaS platforms — your data lives on their servers, you pay monthly, and exporting to your CPA means a PDF dump. The Ledger is a workbook you own. Same numbers, lower cost, full audit trail, and your data never leaves your file. Many of our customers run both.
+      </div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CLOSING CTA
+============================================================ -->
+<section class="closing">
+  <h2 class="reveal" style="--i:0">
+    Run your rentals<br>
+    <span class="it">before they run you</span><span class="gold">.</span>
+  </h2>
+  <hr class="closing-rule reveal" style="--i:1">
+  <div class="closing-ctas reveal" style="--i:2">
+    <a href="#catalog" class="btn btn-primary btn-lg">Browse the catalog</a>
+    <a href="#" class="closing-link">Read a sample chapter →</a>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer class="site-footer" id="about">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="wordmark"><span class="it">The</span>STR Ledger<span class="gold">.</span></a>
+      <p>Editorial-grade workbooks for short-term rental hosts who treat their portfolio like a business.</p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Catalog</div>
+      <a href="#">Tax</a>
+      <a href="#">Operations</a>
+      <a href="#">Guest Experience</a>
+      <a href="#">Pricing</a>
+      <a href="#">Marketing</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Company</div>
+      <a href="#">About</a>
+      <a href="#">Notes</a>
+      <a href="#">Press</a>
+      <a href="#">Contact</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Legal</div>
+      <a href="#">Terms</a>
+      <a href="#">Privacy</a>
+      <a href="#">Refunds</a>
+      <a href="#">Affiliate</a>
+    </div>
+  </div>
+  <div class="footer-base">
+    <span>© 2026 The STR Ledger</span>
+    <span>Made with Excel and Cormorant Garamond</span>
+  </div>
+</footer>
+
+<script>
+  /* ---- Sticky header gold rule on scroll ----------------- */
+  const header = document.getElementById('siteHeader');
+  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 80);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ---- Reveal-on-scroll ---------------------------------- */
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) {
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    }
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* ---- Hero counter tick --------------------------------- */
+  const tickIO = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const el = e.target;
+      const star = el.dataset.star;
+      if (star) {
+        const target = parseFloat(star);
+        animate(el, 0, target, 1200, v => v.toFixed(1) + '★');
+      } else {
+        const target = parseInt(el.dataset.count, 10);
+        animate(el, 0, target, 1200, v => Math.floor(v).toLocaleString());
+      }
+      tickIO.unobserve(el);
+    }
+  }, { threshold: 0.4 });
+  document.querySelectorAll('[data-count], [data-star]').forEach(el => tickIO.observe(el));
+
+  function animate(el, from, to, dur, fmt) {
+    const start = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = fmt(from + (to - from) * eased);
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* ---- Hero workbook cover rotation ---------------------- */
+  const covers = document.querySelectorAll('#heroCovers .hero-cover');
+  if (covers.length) {
+    let idx = 0;
+    covers[0].classList.add('show');
+    setInterval(() => {
+      covers[idx].classList.remove('show');
+      idx = (idx + 1) % covers.length;
+      covers[idx].classList.add('show');
+    }, 5000);
+  }
+
+  /* ---- Lead magnet lane picker --------------------------- */
+  document.querySelectorAll('.lane').forEach(lane => {
+    lane.addEventListener('click', () => {
+      document.querySelectorAll('.lane').forEach(l => l.classList.remove('selected'));
+      lane.classList.add('selected');
+    });
+  });
+
+  /* ---- FAQ accordion ------------------------------------- */
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.querySelector('.faq-q').addEventListener('click', () => {
+      item.classList.toggle('open');
+    });
+  });
+</script>
+
+</body>
+</html>
