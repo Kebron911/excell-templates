@@ -241,6 +241,55 @@
       "parameters": {}
     },
     {
+      "id": "w02-n13",
+      "name": "Is Course SKU?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [2750, 200],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "course",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.sku }}",
+                    "rightValue": "^course-",
+                    "operator": { "type": "string", "operation": "regex" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "none" }
+      }
+    },
+    {
+      "id": "w02-n14",
+      "name": "Forward to W23 Course Onboarding",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3000, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.N8N_BASE_URL }}/webhook/course-onboarding",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "secret", "value": "={{ $env.COURSE_WEBHOOK_SECRET }}" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ order_id: $json.order_id, timestamp: $json.timestamp, email: $json.email, first_name: $json.first_name, course_tier: $json.sku.replace('course-', ''), gross_amount: $json.gross_amount, platform: 'gumroad', discount_code_used: null, utm_source: $json.referrer || null }) }}"
+      }
+    },
+    {
       "id": "w02-err01",
       "name": "Build Error Envelope",
       "type": "n8n-nodes-base.code",
@@ -346,6 +395,22 @@
     "IS Tag Contact": {
       "main": [
         [{ "node": "Slack Sale Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Slack Sale Notification": {
+      "main": [
+        [{ "node": "Is Course SKU?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Is Course SKU?": {
+      "main": [
+        [{ "node": "Forward to W23 Course Onboarding", "type": "main", "index": 0 }]
+      ]
+    },
+    "Forward to W23 Course Onboarding": {
+      "main": [
+        [],
         [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
       ]
     },

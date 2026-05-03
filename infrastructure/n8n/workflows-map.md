@@ -879,6 +879,19 @@ If something didn't work, hit reply. I'll fix it.
 21. **W21 Research Outreach Pipeline** — when ScrapeBox + Instantly are set up.
 22. **W22 Template Update Notification** — when first major version bump occurs.
 
+### Phase 5 — Course launch (Owner family L)
+
+23. **W23 Course Purchase Onboarding** — must precede first paid course enrollment; depends on W01/W02 course-SKU Switch + Airtable `Course_Students` table.
+24. **W24 Course Module Drip Unlock** — daily 06:00 cron; depends on W23 writing the unlock schedule per student.
+25. **W25 First Saturday Tracker** — once Self-Study tier sees first cohort of buyers (~Day 5 post-launch).
+26. **W26 Cohort Enrollment & Fulfillment** — required for the first paid Cohort tier; runs the calendar invites + group chat provisioning.
+27. **W27 Cohort Group Call Reminders** — once first cohort is mid-flight (Week 2 of cohort).
+28. **W28 Refund Reply Intake** — pre-launch defensive build; refund window is open from Day 1.
+29. **W29 NPS Day-30 Collection** — fires Day 30 of first cohort.
+30. **W30 Annual "What Changed" Distribution** — January 20 each year for the prior tax-year update.
+
+For per-workflow detail on W23–W30, see the individual `.md` specs in `infrastructure/n8n/workflows/` (W23-course-purchase-onboarding through W30-annual-what-changed-distribution). The per-workflow specs section above ends at W22 because the course family was added after the initial map; rather than duplicating those specs here, treat the workflow `.md` files as the source of truth for L-family details.
+
 ---
 
 ## Testing strategy
@@ -1061,7 +1074,11 @@ infrastructure/n8n/
     ├── W02-order-ingestion-gumroad.md
     ├── W02-order-ingestion-gumroad.json
     ├── ...
-    └── W22-template-update-notification.md
+    ├── W22-template-update-notification.md
+    ├── W23-course-purchase-onboarding.md
+    ├── W23-course-purchase-onboarding.json
+    ├── ...
+    └── W30-annual-what-changed-distribution.json
 ```
 
 Each workflow gets its own `.md` spec + `.json` export once built. The `.md` captures *why*; the `.json` captures *what n8n runs*. Both committed to git so the infrastructure is reproducible if the VPS is ever lost.
@@ -1088,4 +1105,5 @@ n8n glues the world together. It is not a replacement for any of these tools' na
 ## Change log
 
 - `2026-04-22` — Initial workflow universe documented (22 workflows)
+- `2026-04-29` — Added Owner family L (Course): W23–W30. W01 + W02 gain a course-SKU Switch node forwarding `course-*` orders to W23's `/webhook/course-onboarding`.
 - (future entries as the map evolves)

@@ -129,6 +129,14 @@ Only fires for first 100 Gumroad sales.
 
 HTTP 200 with `{"status": "processed"}`
 
+### Node 11 — Switch: Is Course SKU?
+
+Checks `sku` for `^course-` regex. If matched, routes to Node 12. Otherwise no-op.
+
+### Node 12 — Forward to W23 Course Onboarding
+
+POST to `{{ $env.N8N_BASE_URL }}/webhook/course-onboarding?secret={{ $env.COURSE_WEBHOOK_SECRET }}` with the order envelope plus `course_tier` derived from the Gumroad SKU. W23 owns LMS provisioning and onboarding tagging.
+
 ### Error branch
 
 Same pattern as W01:

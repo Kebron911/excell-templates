@@ -214,7 +214,15 @@ return orders.map(o => ({ ...o, base: normalized }));
 
 - Set HTTP 200 with `{"status": "processed", "order_id": "..."}`
 
-### Error branch (wraps Nodes 2–9)
+### Node 11 — Switch: Is Course SKU?
+
+Checks `product_sku` for `^course-` regex. If matched, routes to Node 12. Otherwise no-op (template orders end here).
+
+### Node 12 — Forward to W23 Course Onboarding
+
+POST to `{{ $env.N8N_BASE_URL }}/webhook/course-onboarding?secret={{ $env.COURSE_WEBHOOK_SECRET }}` with the normalized order envelope plus `course_tier` derived from the SKU (`course-self-study` → `self-study`, etc). W23 owns LMS provisioning, IS course tagging, and the post-purchase 10-email sequence trigger.
+
+### Error branch (wraps Nodes 2–12)
 
 If any node fails:
 1. Write to Airtable Errors table:

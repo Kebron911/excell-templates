@@ -226,6 +226,55 @@
       "parameters": {}
     },
     {
+      "id": "w01-n12",
+      "name": "Is Course SKU?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [2500, 200],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "course",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "" },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.product_sku }}",
+                    "rightValue": "^course-",
+                    "operator": { "type": "string", "operation": "regex" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": { "fallbackOutput": "none" }
+      }
+    },
+    {
+      "id": "w01-n13",
+      "name": "Forward to W23 Course Onboarding",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2750, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.N8N_BASE_URL }}/webhook/course-onboarding",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "secret", "value": "={{ $env.COURSE_WEBHOOK_SECRET }}" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ order_id: $json.order_id, timestamp: $json.base.timestamp, email: $json.base.email, first_name: $json.base.first_name, course_tier: $json.product_sku.replace('course-', ''), gross_amount: $json.gross_amount, platform: 'is', stripe_customer_id: $json.base.stripe_payment_intent || null, discount_code_used: $json.base.discount_code || null, utm_source: $json.base.utm_source || null, utm_campaign: $json.base.utm_campaign || null }) }}"
+      }
+    },
+    {
       "id": "w01-err01",
       "name": "Build Error Envelope",
       "type": "n8n-nodes-base.code",
@@ -325,6 +374,22 @@
     "IS Tag Contact": {
       "main": [
         [{ "node": "Slack Sale Notification", "type": "main", "index": 0 }],
+        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
+      ]
+    },
+    "Slack Sale Notification": {
+      "main": [
+        [{ "node": "Is Course SKU?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Is Course SKU?": {
+      "main": [
+        [{ "node": "Forward to W23 Course Onboarding", "type": "main", "index": 0 }]
+      ]
+    },
+    "Forward to W23 Course Onboarding": {
+      "main": [
+        [],
         [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
       ]
     },
