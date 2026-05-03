@@ -37,8 +37,7 @@ from openpyxl.utils.cell import column_index_from_string
 from openpyxl.chart import BarChart, LineChart, Reference
 from openpyxl.chart.label import DataLabelList
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -46,6 +45,7 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, add_upgrade_banner, apply_style,
     pseudo_button, compact_header_band, brand_footer, style_chart,
+    COLOR_WHITE, STATE_BAD_FILL, STATE_GOOD_FILL,
 )
 
 BASE = Path(__file__).resolve().parent.parent
@@ -206,13 +206,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Year-Over-Year Comparison"
-    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 48
 
@@ -431,7 +431,7 @@ def _write_24col_header(ws, header_row):
                     end_row=header_row, end_column=14)
     c = ws.cell(row=header_row, column=2,
                  value="=\"PRIOR YEAR (\"&Settings!$B$7&\")\"")
-    c.font = Font(name=FONT_HEAD, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_HEAD, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_NAVY_TINT_HEX())
     c.alignment = Alignment(horizontal="center", vertical="center")
 
@@ -439,14 +439,14 @@ def _write_24col_header(ws, header_row):
                     end_row=header_row, end_column=27)
     c = ws.cell(row=header_row, column=15,
                  value="=\"CURRENT YEAR (\"&Settings!$B$5&\")\"")
-    c.font = Font(name=FONT_HEAD, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_HEAD, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     c.alignment = Alignment(horizontal="center", vertical="center")
 
     ws.merge_cells(start_row=header_row, start_column=28,
                     end_row=header_row, end_column=29)
     c = ws.cell(row=header_row, column=28, value="DELTA")
-    c.font = Font(name=FONT_HEAD, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_HEAD, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
 
@@ -681,12 +681,12 @@ def _write_property_section(ws, prop_idx, prop_name, start_row, variant):
     ws.conditional_formatting.add(
         f"AB{rev_data_start}:AB{net_row}",
         CellIsRule(operator="lessThan", formula=["0"],
-                    fill=PatternFill("solid", fgColor="FFCCCC")),
+                    fill=PatternFill("solid", fgColor=STATE_BAD_FILL)),
     )
     ws.conditional_formatting.add(
         f"AB{rev_data_start}:AB{net_row}",
         CellIsRule(operator="greaterThan", formula=["0"],
-                    fill=PatternFill("solid", fgColor="C7EFCF")),
+                    fill=PatternFill("solid", fgColor=STATE_GOOD_FILL)),
     )
 
     return net_row + 2  # 1 blank row after net

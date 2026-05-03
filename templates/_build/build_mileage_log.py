@@ -23,8 +23,7 @@ from openpyxl.utils.cell import column_index_from_string
 from openpyxl.chart import BarChart, DoughnutChart, Reference
 from openpyxl.chart.label import DataLabelList
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -32,13 +31,25 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, add_upgrade_banner, apply_style,
     pseudo_button, compact_header_band, brand_footer, style_chart,
+    STATE_BAD_FILL, STATE_GOOD_FILL,
+    STATE_WARN_FILL,
 )
 
-OUT = Path(__file__).resolve().parent.parent / "_masters" / "TAX-001-mileage-log.xlsx"
+SKU = "TAX-001"
+NAME = "mileage-log"
+BASE = Path(__file__).resolve().parent.parent
+DEMO_OUT = BASE / "_masters" / f"{SKU}-{NAME}-DEMO.xlsx"
+BLANK_OUT = BASE / "_masters" / f"{SKU}-{NAME}-BLANK.xlsx"
 
 # --- Constants ---
 
 IRS_RATE_2026 = 0.725  # IRS Notice 2026-10 — 72.5¢/mi business use, +2.5¢ from 2025
+RATES_AS_OF = "2026-01-01"  # Suite Theme 4 — bump when IRS publishes next Notice
+
+
+def _val(variant, demo_value):
+    """Return demo_value when building DEMO, None for BLANK."""
+    return demo_value if variant == "demo" else None
 
 PURPOSES = [
     "Property inspection",
@@ -97,7 +108,7 @@ def add_dropdown(ws, cell_range, formula1):
     ws.add_data_validation(dv)
 
 
-def build_start_tab(wb):
+def build_start_tab(wb, variant):
     """Sheet 0 — Start (operational-mode hero + cards + activity dashboard)."""
     ws = wb.active
     ws.title = "Start"
@@ -115,13 +126,13 @@ def build_start_tab(wb):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "STR Mileage Log"
-    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 48
 
@@ -133,7 +144,7 @@ def build_start_tab(wb):
 
     ws.merge_cells("A7:L7")
     c = ws["A7"]
-    c.value = "TAX-001 · v2.2"
+    c.value = f"{SKU} · v2.3 · {variant.upper()}"
     c.font = Font(name=FONT_MONO, size=9, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
 
@@ -330,7 +341,7 @@ def build_start_tab(wb):
     ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
-def build_log_tab(wb):
+def build_log_tab(wb, variant):
     """Sheet 1 — Mileage Log (one row per trip, 2000 capacity rows)."""
     ws = wb.create_sheet("Mileage Log")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
@@ -384,10 +395,13 @@ def build_log_tab(wb):
         ("N", 11), ("O", 10),
     ])
 
-    # Rows 6-2005: data + formulas
+    # Rows 6-2005: data + formulas. DEMO populates rows 6-25 with sample
+    # trips; BLANK leaves all rows empty (formulas still wired so the customer
+    # gets ✓/⚠ feedback the moment they enter a row).
+    samples = MILEAGE_SAMPLES if variant == "demo" else []
     for i in range(6, 2006):
         sample_idx = i - 6
-        sample = MILEAGE_SAMPLES[sample_idx] if sample_idx < len(MILEAGE_SAMPLES) else None
+        sample = samples[sample_idx] if sample_idx < len(samples) else None
 
         if sample:
             (date_val, prop, dest, purpose,
@@ -489,14 +503,14 @@ def build_log_tab(wb):
         "K6:K2005",
         FormulaRule(
             formula=['K6="⚠ missing"'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
         ),
     )
     ws.conditional_formatting.add(
         "K6:K2005",
         FormulaRule(
             formula=['K6="✓"'],
-            fill=PatternFill("solid", fgColor="C7EFCF"),
+            fill=PatternFill("solid", fgColor=STATE_GOOD_FILL),
         ),
     )
 
@@ -593,7 +607,7 @@ def build_monthly_tab(wb):
     ws.row_dimensions[18].height = 8
 
     # Row 19: YTD totals (preserved with original gold tint)
-    ytd_gold = PatternFill("solid", fgColor="FFE9B0")
+    ytd_gold = PatternFill("solid", fgColor=STATE_WARN_FILL)
     ytd_font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
 
     a19 = ws.cell(row=19, column=1, value="YTD Total")
@@ -653,11 +667,16 @@ def build_monthly_tab(wb):
 
 
 def build_ytd_tab(wb):
-    """Sheet 3 — YTD Dashboard (totals + breakdown by purpose and property)."""
-    ws = wb.create_sheet("YTD Dashboard")
-    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
+    """Sheet 3 — YTD Dashboard (totals + breakdown by purpose and property).
 
-    compact_header_band(ws, "YTD Dashboard",
+    Doubles as the CPA hand-off page: tab is gold so a CPA spots it on
+    open, subtitle reads "📄 For your CPA — print this tab", print area
+    is set below.
+    """
+    ws = wb.create_sheet("YTD Dashboard")
+    ws.sheet_properties.tabColor = COLOR_ACCENT
+
+    compact_header_band(ws, "YTD Dashboard · For Your CPA",
                          prev_tab="Monthly Summary", next_tab="Settings")
 
     # Row 4: subtitle
@@ -666,7 +685,7 @@ def build_ytd_tab(wb):
         ws.cell(row=4, column=c).fill = parchment_fill
     ws.merge_cells("A4:L4")
     c4 = ws["A4"]
-    c4.value = "Totals + breakdown by purpose and property"
+    c4.value = "📄 FOR YOUR CPA — print this tab. Totals + breakdown by purpose and property."
     c4.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
     c4.alignment = Alignment(horizontal="left", vertical="center", indent=1)
     ws.row_dimensions[4].height = 18
@@ -864,7 +883,19 @@ def build_settings_tab(wb):
     b5 = ws.cell(row=5, column=2, value=IRS_RATE_2026)
     apply_style(b5, input_cell_style())
     b5.number_format = '"$"0.000'
-    ws.row_dimensions[5].height = 18
+    # Freshness stamp (suite Theme 4): IRS publishes the new business mileage
+    # rate each December via Notice. Customer should bump B5 + RATES_AS_OF
+    # when their tax year rolls over. Without this, mileage deductions silently
+    # use last year's rate.
+    ws.merge_cells("C5:G5")
+    c5_note = ws["C5"]
+    c5_note.value = (
+        f"📅 Rate as of {RATES_AS_OF} — IRS publishes the next year's rate "
+        f"each Dec; edit B5 then."
+    )
+    c5_note.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_MUTED)
+    c5_note.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+    ws.row_dimensions[5].height = 20
 
     # Active tax year drives Monthly Summary SUMIFS — without this,
     # date-filtered formulas return 0 when Excel's clock doesn't match
@@ -1011,7 +1042,7 @@ def build_settings_tab(wb):
         CellIsRule(
             operator="lessThanOrEqual",
             formula=["0.5"],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(bold=True, color=COLOR_ERROR),
         ),
     )
@@ -1141,22 +1172,28 @@ def build_settings_tab(wb):
         ws.row_dimensions[idx].height = 16
 
 
-def main():
+def build_workbook(out_path, variant):
     wb = Workbook()
-    build_start_tab(wb)
-    build_log_tab(wb)
+    build_start_tab(wb, variant)
+    build_log_tab(wb, variant)
     build_monthly_tab(wb)
     build_ytd_tab(wb)
     build_settings_tab(wb)
 
-    wb.properties.title = "STR Mileage Log — The STR Ledger"
+    suffix = f" ({variant.upper()})"
+    wb.properties.title = f"STR Mileage Log{suffix} — The STR Ledger"
     wb.properties.creator = "The STR Ledger"
     wb.properties.company = "The STR Ledger"
     wb.properties.description = "IRS-compliant mileage log for STR hosts (Schedule C/E)."
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(OUT)
-    print(f"Saved: {OUT}")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(out_path)
+    print(f"Saved: {out_path.name}")
+
+
+def main():
+    build_workbook(DEMO_OUT, "demo")
+    build_workbook(BLANK_OUT, "blank")
 
 
 if __name__ == "__main__":

@@ -100,7 +100,7 @@ def _section_band(ws, row, label, span="A:L"):
     ws.merge_cells(f"{first}{row}:{last}{row}")
     c = ws[f"{first}{row}"]
     c.value = label
-    c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[row].height = 24
@@ -171,13 +171,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "AirDNA Data Integrator"
-    c.font = Font(name=FONT_HEAD, size=30, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=30, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
 
@@ -831,7 +831,7 @@ def build_settings_tab(wb, variant):
     for col in range(1, 5):
         ws.cell(row=5, column=col).fill = navy_fill
     cell = ws.cell(row=5, column=1, value="ACTIVE WORKBOOK")
-    cell.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    cell.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     cell.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[5].height = 24
 

@@ -18,8 +18,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.chart import PieChart, Reference
 from openpyxl.chart.label import DataLabelList
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -29,6 +28,7 @@ from brand_config import (
     pseudo_button, compact_header_band, brand_footer,
     apply_brand_header,
     style_chart,
+    COLOR_FORMULA_TINT, COLOR_WHITE,
 )
 
 SKU = "ACQ-006"
@@ -140,13 +140,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Rehab Budget + ROI"
-    c.font = Font(name=FONT_HEAD, size=30, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=30, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
 
@@ -255,7 +255,7 @@ def build_start_tab(wb, variant):
         "Capex vs Repair classification matters for tax. Pair this with "
         "Cost Segregation DIY (TAX-010) to claim accelerated depreciation."
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     ws.row_dimensions[32].height = 28
@@ -412,13 +412,13 @@ def build_detail_tab(wb, variant):
                 # Only override if the cell uses the default formula gray —
                 # leave the input-yellow cells alone.
                 fg = cell.fill.fgColor.rgb if cell.fill.fgColor else None
-                if fg and str(fg).upper().endswith("EDEDED"):
+                if fg and str(fg).upper().endswith(COLOR_FORMULA_TINT):
                     cell.fill = parchment_alt_fill
 
     # Totals row (just below capacity)
     totals_row = last_row + 1
     ws.cell(row=totals_row, column=3, value="TOTALS").font = Font(
-        name=FONT_HEAD, size=12, bold=True, color="F6EFE2"
+        name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT
     )
     ws.cell(row=totals_row, column=3).fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     ws.cell(row=totals_row, column=3).alignment = Alignment(
@@ -453,7 +453,7 @@ def build_detail_tab(wb, variant):
         FormulaRule(
             formula=[f'AND(ISNUMBER(G{DETAIL_FIRST_DATA_ROW}),G{DETAIL_FIRST_DATA_ROW}>0.15)'],
             fill=PatternFill("solid", fgColor=COLOR_ERROR),
-            font=Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF"),
+            font=Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE),
         ),
     )
     # Gold if 5-15%
@@ -589,7 +589,7 @@ def build_allocation_tab(wb, variant):
     # Totals row at row 26 (cat_last_row + 4 leaves space)
     totals_row = cat_last_row + 4
     cell = ws.cell(row=totals_row, column=2, value="TOTAL")
-    cell.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    cell.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     cell.alignment = Alignment(horizontal="right", vertical="center", indent=1)
     for col in [3, 4, 5]:
@@ -640,7 +640,7 @@ def build_allocation_tab(wb, variant):
     # Capex/Repair Total row
     cr_total_row = 9
     cell = ws.cell(row=cr_total_row, column=8, value="TOTAL")
-    cell.font = Font(name=FONT_HEAD, size=11, bold=True, color="F6EFE2")
+    cell.font = Font(name=FONT_HEAD, size=11, bold=True, color=COLOR_BG_LIGHT)
     cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     cell.alignment = Alignment(horizontal="right", vertical="center", indent=1)
     for col in [9, 10]:
@@ -729,7 +729,7 @@ def build_roi_tab(wb, variant, allocation_total_row):
         ws.merge_cells(f"A{row}:L{row}")
         cc = ws[f"A{row}"]
         cc.value = label
-        cc.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+        cc.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
         cc.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
         cc.alignment = Alignment(horizontal="left", vertical="center", indent=2)
         ws.row_dimensions[row].height = 22

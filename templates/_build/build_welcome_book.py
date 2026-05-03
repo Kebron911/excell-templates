@@ -40,12 +40,13 @@ from brand_config import (
     COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
     COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_NAVY_TINT, COLOR_NAVY_SHADE, COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
+    COLOR_WHITE, STATE_BAD_FILL,
     FONT_HEAD, FONT_BODY, FONT_MONO,
     BRAND_NAME, BRAND_DOMAIN, BRAND_EMAIL,
     # Existing helpers
     input_cell_style, formula_cell_style, header_row_style,
     set_col_widths, apply_style,
-    # v2 helpers (Task 1)
+    # v2 helpers
     pseudo_button, card_header, card_body_fill, section_header_band,
 )
 
@@ -446,14 +447,14 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = f"{BRAND_NAME}"
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     # Row 4: big title
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Welcome Book"
-    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 48
 
@@ -1089,7 +1090,7 @@ def build_emergency_tab(wb, variant):
     c = ws["A7"]
     c.value = "IN AN EMERGENCY \u2014 CALL 911"
     c.font = Font(name=FONT_HEAD, size=22, bold=True, color=COLOR_ERROR)
-    c.fill = PatternFill("solid", fgColor="FFE8E8")
+    c.fill = PatternFill("solid", fgColor=STATE_BAD_FILL)
     c.alignment = Alignment(horizontal="center", vertical="center")
     c.border = Border(
         top=Side(style="medium", color=COLOR_ERROR),
@@ -1233,7 +1234,7 @@ def build_launch_tab(wb, variant):
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Your welcome book is ready"
-    c.font = Font(name=FONT_HEAD, size=32, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=32, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 42
 
@@ -1523,7 +1524,7 @@ def build_host_notes_tab(wb, variant):
     set_col_widths(ws, [(get_column_letter(c), 8) for c in range(1, 13)])
 
     # Rows 1-5: big red warning block
-    red_tint_fill = PatternFill("solid", fgColor="FFE8E8")
+    red_tint_fill = PatternFill("solid", fgColor=STATE_BAD_FILL)
     for r in range(1, 6):
         for c in range(1, 13):
             ws.cell(row=r, column=c).fill = red_tint_fill

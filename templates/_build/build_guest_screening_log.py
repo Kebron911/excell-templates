@@ -21,8 +21,7 @@ from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -30,6 +29,8 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, apply_style,
     pseudo_button, compact_header_band, brand_footer,
+    STATE_BAD_FILL, STATE_GOOD_FILL, STATE_WARN_FILL,
+    STATE_GOOD_TEXT,
 )
 
 SKU = "LGL-003"
@@ -180,13 +181,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Guest Screening Log + Ban List"
-    c.font = Font(name=FONT_HEAD, size=34, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=34, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 46
 
@@ -531,7 +532,7 @@ def build_screening_log_tab(wb, variant):
         "A6:M305",
         FormulaRule(
             formula=['AND(ISNUMBER($E6),$E6<2,ISNUMBER($G6),$G6=0)'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
         ),
     )
     # Decision col color: green Approved, red Declined
@@ -539,15 +540,15 @@ def build_screening_log_tab(wb, variant):
         "L6:L305",
         FormulaRule(
             formula=['$L6="Approved"'],
-            fill=PatternFill("solid", fgColor="C7EFCF"),
-            font=Font(bold=True, color="0F5132"),
+            fill=PatternFill("solid", fgColor=STATE_GOOD_FILL),
+            font=Font(bold=True, color=STATE_GOOD_TEXT),
         ),
     )
     ws.conditional_formatting.add(
         "L6:L305",
         FormulaRule(
             formula=['$L6="Declined"'],
-            fill=PatternFill("solid", fgColor="F8D7DA"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(bold=True, color=COLOR_ERROR),
         ),
     )
@@ -555,7 +556,7 @@ def build_screening_log_tab(wb, variant):
         "L6:L305",
         FormulaRule(
             formula=['$L6="Pending"'],
-            fill=PatternFill("solid", fgColor="FFF3BF"),
+            fill=PatternFill("solid", fgColor=STATE_WARN_FILL),
         ),
     )
 
@@ -675,7 +676,7 @@ def build_ban_list_tab(wb, variant):
         "G6:G55",
         FormulaRule(
             formula=['$G6>=4'],
-            fill=PatternFill("solid", fgColor="F8D7DA"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(bold=True, color=COLOR_ERROR),
         ),
     )
@@ -683,7 +684,7 @@ def build_ban_list_tab(wb, variant):
         "G6:G55",
         FormulaRule(
             formula=['AND($G6>=2,$G6<=3)'],
-            fill=PatternFill("solid", fgColor="FFF3BF"),
+            fill=PatternFill("solid", fgColor=STATE_WARN_FILL),
         ),
     )
 

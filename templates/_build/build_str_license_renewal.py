@@ -22,8 +22,7 @@ from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT, COLOR_NAVY_TINT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -32,6 +31,7 @@ from brand_config import (
     header_row_style, set_col_widths, apply_style,
     pseudo_button, compact_header_band, apply_brand_header,
     brand_footer,
+    COLOR_WHITE, STATE_BAD_FILL, STATE_GOOD_TEXT,
 )
 
 SKU = "LGL-001"
@@ -165,13 +165,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "STR License Renewal Calendar"
-    c.font = Font(name=FONT_HEAD, size=30, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=30, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
 
@@ -279,7 +279,7 @@ def build_start_tab(wb, variant):
         'past their renewal date. Renew before the next booking starts.",'
         '"ALL CLEAR — No expired licenses in your portfolio.")'
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ERROR)
     c.alignment = Alignment(horizontal="center", vertical="center",
                              wrap_text=True)
@@ -289,7 +289,7 @@ def build_start_tab(wb, variant):
         "A17:L17",
         FormulaRule(
             formula=['COUNTIF(\'Licenses\'!H7:H106,"*Expired*")=0'],
-            fill=PatternFill("solid", fgColor="166534"),
+            fill=PatternFill("solid", fgColor=STATE_GOOD_TEXT),
         ),
     )
 
@@ -334,7 +334,7 @@ def build_start_tab(wb, variant):
         "Need broader coverage across multi-jurisdiction portfolios? "
         f"Upgrade to OPS-003 License/Permit Tracker at {BRAND_DOMAIN}/upgrade."
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center",
                              wrap_text=True)
@@ -484,14 +484,14 @@ def build_licenses_tab(wb, variant):
     ws.conditional_formatting.add(
         "G7:G106",
         CellIsRule(operator="lessThan", formula=["0"],
-                   fill=PatternFill("solid", fgColor="FFB3B3"),
+                   fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
                    font=Font(name=FONT_BODY, size=10, bold=True,
                              color=COLOR_ERROR)),
     )
     ws.conditional_formatting.add(
         "G7:G106",
         CellIsRule(operator="between", formula=["0", "29"],
-                   fill=PatternFill("solid", fgColor="FFCCCC"),
+                   fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
                    font=Font(name=FONT_BODY, size=10, bold=True,
                              color=COLOR_ERROR)),
     )
@@ -513,14 +513,14 @@ def build_licenses_tab(wb, variant):
         FormulaRule(
             formula=['ISNUMBER(SEARCH("Expired",$H7))'],
             fill=PatternFill("solid", fgColor=COLOR_ERROR),
-            font=Font(name=FONT_BODY, size=10, bold=True, color="FFFFFF"),
+            font=Font(name=FONT_BODY, size=10, bold=True, color=COLOR_WHITE),
         ),
     )
     ws.conditional_formatting.add(
         "H7:H106",
         FormulaRule(
             formula=['ISNUMBER(SEARCH("Critical",$H7))'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(name=FONT_BODY, size=10, bold=True, color=COLOR_ERROR),
         ),
     )
@@ -659,7 +659,7 @@ def build_calendar_tab(wb, variant):
     totals_row = last_row + 1
     ws.cell(row=totals_row, column=1, value="TOTAL")
     cell = ws.cell(row=totals_row, column=1)
-    cell.font = Font(name=FONT_MONO, size=10, bold=True, color="FFFFFF")
+    cell.font = Font(name=FONT_MONO, size=10, bold=True, color=COLOR_WHITE)
     cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     cell.alignment = Alignment(horizontal="right", vertical="center", indent=1)
     ws.merge_cells(start_row=totals_row, start_column=1,
@@ -673,7 +673,7 @@ def build_calendar_tab(wb, variant):
         cell = ws.cell(row=totals_row, column=col)
         cell.value = f"=SUM({col_letter}7:{col_letter}{last_row})"
         cell.font = Font(name=FONT_BODY, size=11, bold=True,
-                          color="FFFFFF")
+                          color=COLOR_WHITE)
         cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
         cell.alignment = Alignment(horizontal="right", vertical="center")
         cell.number_format = '"$"#,##0;;'

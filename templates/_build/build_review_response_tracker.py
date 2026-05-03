@@ -21,8 +21,7 @@ from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -31,6 +30,7 @@ from brand_config import (
     header_row_style, set_col_widths, add_upgrade_banner, apply_style,
     pseudo_button, compact_header_band, brand_footer,
     card_header, card_body_fill, apply_brand_header,
+    STATE_BAD_FILL, STATE_GOOD_FILL,
 )
 
 SKU = "MKT-002"
@@ -330,13 +330,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Review Response Tracker"
-    c.font = Font(name=FONT_HEAD, size=34, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=34, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 46
 
@@ -707,7 +707,7 @@ def build_reviews_log_tab(wb, variant):
         "F6:F305",
         FormulaRule(
             formula=["F6=5"],
-            fill=PatternFill("solid", fgColor="C7EFCF"),
+            fill=PatternFill("solid", fgColor=STATE_GOOD_FILL),
             font=Font(bold=True, color=COLOR_TEXT),
         ),
     )
@@ -734,7 +734,7 @@ def build_reviews_log_tab(wb, variant):
         "F6:F305",
         FormulaRule(
             formula=["AND(F6>=1,F6<=2)"],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(bold=True, color=COLOR_ERROR),
         ),
     )
@@ -744,7 +744,7 @@ def build_reviews_log_tab(wb, variant):
         "J6:J305",
         FormulaRule(
             formula=['AND(J6="N",A6<>"",TODAY()-A6>7)'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(bold=True, color=COLOR_ERROR),
         ),
     )
@@ -947,7 +947,7 @@ def build_lessons_tab(wb):
         "D8:D17",
         FormulaRule(
             formula=['D8="⚠ drag"'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(bold=True, color=COLOR_ERROR),
         ),
     )
@@ -955,7 +955,7 @@ def build_lessons_tab(wb):
         "D8:D17",
         FormulaRule(
             formula=['D8="ok"'],
-            fill=PatternFill("solid", fgColor="C7EFCF"),
+            fill=PatternFill("solid", fgColor=STATE_GOOD_FILL),
         ),
     )
 

@@ -28,8 +28,7 @@ from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT, COLOR_NAVY_TINT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -38,6 +37,7 @@ from brand_config import (
     set_col_widths, apply_style,
     pseudo_button, compact_header_band, apply_brand_header,
     brand_footer,
+    COLOR_GRAY_LIGHT, COLOR_INPUT_TINT, COLOR_WHITE, STATE_BAD_FILL,
 )
 
 SKU = "LGL-004"
@@ -221,13 +221,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Insurance Claim Log"
-    c.font = Font(name=FONT_HEAD, size=30, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=30, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
 
@@ -382,7 +382,7 @@ def build_start_tab(wb, variant):
         "💡  Need full operations coverage? Add the Operator Bundle at "
         f"{BRAND_DOMAIN}/operator — turnover + maintenance + claims + insurance."
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     ws.row_dimensions[32].height = 32
@@ -506,7 +506,7 @@ def build_claims_log_tab(wb, variant):
     ws.conditional_formatting.add(
         "P6:P55",
         CellIsRule(operator="equal", formula=['"Denied"'],
-                   fill=PatternFill("solid", fgColor="FFCCCC")),
+                   fill=PatternFill("solid", fgColor=STATE_BAD_FILL)),
     )
     # Gold-soft if FNOL/Adjuster assigned/Estimate received
     ws.conditional_formatting.add(
@@ -714,13 +714,13 @@ def build_active_claim_tab(wb, variant):
         # Yes/Partial/— cell col B
         cb = ws.cell(row=r, column=2, value=mark)
         cb.font = Font(name=FONT_BODY, size=10, bold=True, color=COLOR_PRIMARY)
-        cb.fill = PatternFill("solid", fgColor="FFF7D6")
+        cb.fill = PatternFill("solid", fgColor=COLOR_INPUT_TINT)
         cb.alignment = Alignment(horizontal="center", vertical="center")
         cb.border = Border(
-            left=Side(style="thin", color="CCCCCC"),
-            right=Side(style="thin", color="CCCCCC"),
-            top=Side(style="thin", color="CCCCCC"),
-            bottom=Side(style="thin", color="CCCCCC"),
+            left=Side(style="thin", color=COLOR_GRAY_LIGHT),
+            right=Side(style="thin", color=COLOR_GRAY_LIGHT),
+            top=Side(style="thin", color=COLOR_GRAY_LIGHT),
+            bottom=Side(style="thin", color=COLOR_GRAY_LIGHT),
         )
         add_dropdown(ws, f"B{r}", '"Yes,Partial,No,—"')
 
@@ -917,7 +917,7 @@ def build_annual_summary_tab(wb, variant):
     ws.merge_cells("A8:L8")
     c = ws["A8"]
     c.value = "TOTALS"
-    c.font = Font(name=FONT_HEAD, size=14, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_BG_LIGHT)
     c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[8].height = 28
@@ -963,7 +963,7 @@ def build_annual_summary_tab(wb, variant):
     ws.merge_cells("A17:L17")
     c = ws["A17"]
     c.value = "BY CLAIM TYPE"
-    c.font = Font(name=FONT_HEAD, size=14, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_BG_LIGHT)
     c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[17].height = 28
@@ -1004,7 +1004,7 @@ def build_annual_summary_tab(wb, variant):
     ws.merge_cells("A27:L27")
     c = ws["A27"]
     c.value = "BY PROPERTY"
-    c.font = Font(name=FONT_HEAD, size=14, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_BG_LIGHT)
     c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[27].height = 28
@@ -1169,7 +1169,7 @@ def build_settings_tab(wb, variant):
     ws.merge_cells("A43:L43")
     c = ws["A43"]
     c.value = "YEAR-END ARCHIVE  —  fill each January from the Annual Summary"
-    c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[43].height = 24

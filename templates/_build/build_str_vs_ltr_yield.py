@@ -15,8 +15,7 @@ from openpyxl.formatting.rule import FormulaRule, CellIsRule
 from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -25,6 +24,7 @@ from brand_config import (
     header_row_style, set_col_widths, apply_style,
     pseudo_button, compact_header_band, brand_footer,
     apply_brand_header,
+    COLOR_NAVY_TINT, COLOR_WHITE,
 )
 
 SKU = "ACQ-012"
@@ -89,7 +89,7 @@ def _section_band(ws, row, label):
     ws.merge_cells(f"A{row}:L{row}")
     c = ws[f"A{row}"]
     c.value = label
-    c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[row].height = 24
@@ -208,13 +208,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "STR vs LTR Yield Comparison"
-    c.font = Font(name=FONT_HEAD, size=30, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=30, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
 
@@ -376,10 +376,10 @@ def build_inputs_tab(wb, variant):
     ws.cell(row=5, column=2).value = ""
     cell = ws.cell(row=5, column=3, value="STR")
     apply_style(cell, header_row_style())
-    cell.font = Font(name=FONT_HEAD, size=13, bold=True, color="FFFFFF")
+    cell.font = Font(name=FONT_HEAD, size=13, bold=True, color=COLOR_WHITE)
     cell = ws.cell(row=5, column=5, value="LTR")
     apply_style(cell, header_row_style())
-    cell.font = Font(name=FONT_HEAD, size=13, bold=True, color="FFFFFF")
+    cell.font = Font(name=FONT_HEAD, size=13, bold=True, color=COLOR_WHITE)
     cell.fill = PatternFill("solid", fgColor=COLOR_SECONDARY)
     ws.row_dimensions[5].height = 24
 
@@ -911,7 +911,7 @@ def build_settings_tab(wb, variant):
 # the 4th KPI card. brand_config exports COLOR_NAVY_TINT but I don't actually use
 # it as a fill there — the Font color falls back to COLOR_ACCENT regardless. So
 # this is just a label slot; nothing renders with this constant. Keeping inlined.
-COLOR_NAVY_TINT_PROXY = "2A4867"
+COLOR_NAVY_TINT_PROXY = COLOR_NAVY_TINT
 
 
 def build_workbook(out_path, variant):

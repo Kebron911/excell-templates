@@ -19,8 +19,7 @@ from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT, COLOR_NAVY_TINT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -29,6 +28,7 @@ from brand_config import (
     header_row_style, set_col_widths, apply_style,
     pseudo_button, compact_header_band, brand_footer,
     apply_brand_header,
+    COLOR_WHITE, STATE_BAD_FILL, STATE_GOOD_TEXT,
 )
 
 SKU = "OPS-008"
@@ -169,13 +169,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Insurance Policy Tracker"
-    c.font = Font(name=FONT_HEAD, size=30, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=30, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
 
@@ -278,7 +278,7 @@ def build_start_tab(wb, variant):
         'no liability protection during a guest stay.",'
         '"ALL CLEAR — No policies in the 60-day renewal window.")'
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ERROR)
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     ws.row_dimensions[17].height = 36
@@ -290,7 +290,7 @@ def build_start_tab(wb, variant):
                 'COUNTIFS(\'Policies\'!J7:J36,">=0",'
                 '\'Policies\'!J7:J36,"<=60")=0'
             ],
-            fill=PatternFill("solid", fgColor="166534"),
+            fill=PatternFill("solid", fgColor=STATE_GOOD_TEXT),
         ),
     )
 
@@ -344,7 +344,7 @@ def build_start_tab(wb, variant):
         f"{BRAND_DOMAIN}/operator — turnover + maintenance + supply + "
         "damage claims + insurance + permits, $197."
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center",
                              wrap_text=True)
@@ -494,14 +494,14 @@ def build_policies_tab(wb, variant):
     ws.conditional_formatting.add(
         "J7:J36",
         CellIsRule(operator="lessThan", formula=["0"],
-                   fill=PatternFill("solid", fgColor="FFB3B3"),
+                   fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
                    font=Font(name=FONT_BODY, size=10, bold=True,
                               color=COLOR_ERROR)),
     )
     ws.conditional_formatting.add(
         "J7:J36",
         CellIsRule(operator="between", formula=["0", "29"],
-                   fill=PatternFill("solid", fgColor="FFCCCC"),
+                   fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
                    font=Font(name=FONT_BODY, size=10, bold=True,
                               color=COLOR_ERROR)),
     )
@@ -516,8 +516,8 @@ def build_policies_tab(wb, variant):
         "K7:K36",
         FormulaRule(
             formula=['$K7="Expired"'],
-            fill=PatternFill("solid", fgColor="B91C1C"),
-            font=Font(name=FONT_BODY, size=10, bold=True, color="FFFFFF"),
+            fill=PatternFill("solid", fgColor=COLOR_ERROR),
+            font=Font(name=FONT_BODY, size=10, bold=True, color=COLOR_WHITE),
         ),
     )
     ws.conditional_formatting.add(
@@ -668,7 +668,7 @@ def build_coverage_map_tab(wb, variant):
         f"B7:{last_letter}16",
         FormulaRule(
             formula=[f'B7="GAP"'],
-            fill=PatternFill("solid", fgColor="FFB3B3"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(name=FONT_BODY, size=10, bold=True, color=COLOR_ERROR),
         ),
     )
@@ -709,7 +709,7 @@ def build_coverage_map_tab(wb, variant):
         '&" — review the red cells above. Each gap is uninsured exposure.",'
         '"NO COVERAGE GAPS — every property carries coverage in every column.")'
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ERROR)
     c.alignment = Alignment(horizontal="center", vertical="center",
                              wrap_text=True)
@@ -718,7 +718,7 @@ def build_coverage_map_tab(wb, variant):
         f"A20:{total_letter}20",
         FormulaRule(
             formula=['COUNTIF(B7:G16,"GAP")=0'],
-            fill=PatternFill("solid", fgColor="166534"),
+            fill=PatternFill("solid", fgColor=STATE_GOOD_TEXT),
         ),
     )
 
@@ -791,7 +791,7 @@ def build_premium_forecast_tab(wb, variant):
         )
         cell = ws.cell(row=6, column=col, value=formula)
         apply_style(cell, header_row_style())
-        cell.font = Font(name=FONT_MONO, size=9, bold=True, color="FFFFFF")
+        cell.font = Font(name=FONT_MONO, size=9, bold=True, color=COLOR_WHITE)
         cell.alignment = Alignment(horizontal="center", vertical="center",
                                     text_rotation=90)
 
@@ -877,7 +877,7 @@ def build_premium_forecast_tab(wb, variant):
     totals_row = 38
     ws.cell(row=totals_row, column=1, value="Monthly total")
     ws.cell(row=totals_row, column=1).font = Font(
-        name=FONT_HEAD, size=11, bold=True, color="FFFFFF"
+        name=FONT_HEAD, size=11, bold=True, color=COLOR_WHITE
     )
     ws.cell(row=totals_row, column=1).alignment = Alignment(
         horizontal="left", vertical="center", indent=1
@@ -899,7 +899,7 @@ def build_premium_forecast_tab(wb, variant):
             value=f'=IF(SUM({col_letter}7:{col_letter}36)=0,"",'
                   f'SUM({col_letter}7:{col_letter}36))',
         )
-        cell.font = Font(name=FONT_BODY, size=9, bold=True, color="FFFFFF")
+        cell.font = Font(name=FONT_BODY, size=9, bold=True, color=COLOR_WHITE)
         cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
         cell.alignment = Alignment(horizontal="right", vertical="center")
         cell.number_format = '"$"#,##0;;""'

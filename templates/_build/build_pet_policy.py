@@ -284,13 +284,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Pet Policy Builder"
-    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 48
 
@@ -651,7 +651,7 @@ def build_launch_tab(wb, variant):
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Your pet policy is ready"
-    c.font = Font(name=FONT_HEAD, size=32, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=32, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 42
 

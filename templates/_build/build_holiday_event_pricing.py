@@ -18,8 +18,7 @@ from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT, COLOR_NAVY_TINT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -27,6 +26,8 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, apply_style,
     pseudo_button, compact_header_band, brand_footer,
+    COLOR_WHITE,
+    STATE_BAD_FILL,
 )
 
 SKU = "REV-005"
@@ -173,13 +174,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Holiday + Event Pricing Calendar"
-    c.font = Font(name=FONT_HEAD, size=30, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=30, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
 
@@ -344,7 +345,7 @@ def build_start_tab(wb, variant):
         f"{BRAND_DOMAIN}/revenue — RevPAR, cleaning fee optimizer, "
         "break-even occupancy, holiday pricing."
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center",
                              wrap_text=True)
@@ -575,7 +576,7 @@ def build_year_view_tab(wb, variant):
                         end_row=top_row, end_column=left_col + month_width - 1)
         cell = ws.cell(row=top_row, column=left_col)
         cell.value = f"{MONTH_NAMES[m]} {ACTIVE_YEAR}"
-        cell.font = Font(name=FONT_HEAD, size=11, bold=True, color="F6EFE2")
+        cell.font = Font(name=FONT_HEAD, size=11, bold=True, color=COLOR_BG_LIGHT)
         cell.fill = navy_fill
         cell.alignment = Alignment(horizontal="center", vertical="center")
         ws.row_dimensions[top_row].height = 18
@@ -779,7 +780,7 @@ def build_upcoming_tab(wb, variant):
         ws.row_dimensions[row].height = 20
 
     # Conditional formatting: red row when days <= 14 AND status = N
-    red_fill = PatternFill("solid", fgColor="FFB3B3")
+    red_fill = PatternFill("solid", fgColor=STATE_BAD_FILL)
     red_font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_ERROR)
     for row in range(7, 37):
         ws.conditional_formatting.add(

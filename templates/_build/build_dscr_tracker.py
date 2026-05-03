@@ -19,8 +19,7 @@ from openpyxl.formatting.rule import CellIsRule, FormulaRule
 from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT, COLOR_NAVY_TINT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -28,6 +27,8 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, apply_style,
     pseudo_button, compact_header_band, brand_footer,
+    COLOR_WHITE, STATE_BAD_FILL,
+    COLOR_GRAY_LIGHT,
 )
 
 SKU = "FIN-004"
@@ -104,13 +105,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "DSCR Tracker"
-    c.font = Font(name=FONT_HEAD, size=30, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=30, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
 
@@ -247,7 +248,7 @@ def build_start_tab(wb, variant):
         f"Want full P&L per property? Get TAX-002 Single-Property P&L "
         f"Tracker at {BRAND_DOMAIN} - Schedule E-ready, $47."
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     ws.row_dimensions[33].height = 30
@@ -323,7 +324,7 @@ def build_per_property_tab(wb, variant):
 
     # Data rows 8-17
     props = _pad_props(PROPERTIES_DEMO if variant == "DEMO" else [])
-    thin_side = Side(style="thin", color="DDDDDD")
+    thin_side = Side(style="thin", color=COLOR_GRAY_LIGHT)
     cell_border = Border(left=thin_side, right=thin_side,
                          top=thin_side, bottom=thin_side)
 
@@ -419,7 +420,7 @@ def build_per_property_tab(wb, variant):
         dscr_range,
         FormulaRule(
             formula=[f'AND($A8<>"",$I8<>"",$I8<Settings!$B$9)'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_ERROR),
         ),
     )
@@ -453,7 +454,7 @@ def build_per_property_tab(wb, variant):
         status_range,
         FormulaRule(
             formula=[f'$J8="Negative"'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(name=FONT_BODY, size=11, bold=True, color=COLOR_ERROR),
         ),
     )
@@ -477,14 +478,14 @@ def build_per_property_tab(wb, variant):
     # Totals row 18: portfolio totals + portfolio DSCR
     total_r = 18
     cell = ws.cell(row=total_r, column=1, value="PORTFOLIO TOTALS")
-    cell.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    cell.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     cell.alignment = Alignment(horizontal="left", vertical="center", indent=1)
 
     for col_idx in range(2, 11):
         c2 = ws.cell(row=total_r, column=col_idx)
         c2.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
-        c2.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+        c2.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
         c2.alignment = Alignment(horizontal="right", vertical="center", indent=1)
 
     # Sums for B, C, D, F, G, H
@@ -493,7 +494,7 @@ def build_per_property_tab(wb, variant):
         cell = ws.cell(row=total_r, column=col_idx,
                        value=f'=SUM({col_letter}8:{col_letter}17)')
         cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
-        cell.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+        cell.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
         cell.number_format = '"$"#,##0'
         cell.alignment = Alignment(horizontal="right", vertical="center", indent=1)
 
@@ -587,7 +588,7 @@ def build_stress_test_tab(wb, variant):
         ws.merge_cells(merge_range)
         c = ws[merge_range.split(":")[0]]
         c.value = label
-        c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+        c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
         c.fill = PatternFill("solid", fgColor=COLOR_NAVY_TINT)
         c.alignment = Alignment(horizontal="center", vertical="center")
     # Row 6 col A header
@@ -613,7 +614,7 @@ def build_stress_test_tab(wb, variant):
     ws.freeze_panes = "B8"
 
     # Data rows 8-17 — pull property name, then compute stressed metrics
-    thin_side = Side(style="thin", color="DDDDDD")
+    thin_side = Side(style="thin", color=COLOR_GRAY_LIGHT)
     cell_border = Border(left=thin_side, right=thin_side,
                           top=thin_side, bottom=thin_side)
 
@@ -677,7 +678,7 @@ def build_stress_test_tab(wb, variant):
                     f'AND($A8<>"",{dscr_col_letter}8<>"",'
                     f'{dscr_col_letter}8<Settings!$B$9)'
                 ],
-                fill=PatternFill("solid", fgColor="FFCCCC"),
+                fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
                 font=Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_ERROR),
             ),
         )
@@ -708,7 +709,7 @@ def build_stress_test_tab(wb, variant):
     # Summary row 19 — # of properties at risk per scenario
     ws.merge_cells("A19:A19")
     cell = ws.cell(row=19, column=1, value="# AT RISK (DSCR < 1.0)")
-    cell.font = Font(name=FONT_HEAD, size=11, bold=True, color="F6EFE2")
+    cell.font = Font(name=FONT_HEAD, size=11, bold=True, color=COLOR_BG_LIGHT)
     cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     cell.alignment = Alignment(horizontal="left", vertical="center", indent=1)
 
@@ -724,7 +725,7 @@ def build_stress_test_tab(wb, variant):
                         f'=COUNTIFS(A8:A17,"<>",{dscr_letter}8:{dscr_letter}17,'
                         f'"<"&Settings!$B$9)&" of "&COUNTIF(A8:A17,"<>")'
                     ))
-        c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+        c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
         c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
         c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[19].height = 26
@@ -806,7 +807,7 @@ def build_refi_eligibility_tab(wb, variant):
     ws.row_dimensions[7].height = 36
     ws.freeze_panes = "A8"
 
-    thin_side = Side(style="thin", color="DDDDDD")
+    thin_side = Side(style="thin", color=COLOR_GRAY_LIGHT)
     cell_border = Border(left=thin_side, right=thin_side,
                           top=thin_side, bottom=thin_side)
 
@@ -908,7 +909,7 @@ def build_refi_eligibility_tab(wb, variant):
             rng,
             FormulaRule(
                 formula=[f'${col_letter}8="Fail"'],
-                fill=PatternFill("solid", fgColor="FFCCCC"),
+                fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
                 font=Font(name=FONT_BODY, size=11, bold=True, color=COLOR_ERROR),
             ),
         )
@@ -926,14 +927,14 @@ def build_refi_eligibility_tab(wb, variant):
         "I8:I17",
         FormulaRule(
             formula=['$I8="Not Eligible"'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_ERROR),
         ),
     )
 
     # Summary row 19
     cell = ws.cell(row=19, column=1, value="# DSCR-LOAN ELIGIBLE")
-    cell.font = Font(name=FONT_HEAD, size=11, bold=True, color="F6EFE2")
+    cell.font = Font(name=FONT_HEAD, size=11, bold=True, color=COLOR_BG_LIGHT)
     cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     cell.alignment = Alignment(horizontal="left", vertical="center", indent=1)
 

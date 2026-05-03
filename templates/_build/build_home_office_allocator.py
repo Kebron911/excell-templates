@@ -28,8 +28,7 @@ from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
+from brand_config import (COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
     COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -38,6 +37,7 @@ from brand_config import (
     compact_header_band, brand_footer,
     set_col_widths, apply_style, input_cell_style, formula_cell_style,
     header_row_style,
+    COLOR_WHITE,
 )
 
 BASE = Path(__file__).resolve().parent.parent
@@ -232,19 +232,34 @@ def build_start_tab(wb, variant):
             ws.cell(row=r, column=c).fill = navy_fill
     ws.merge_cells("A2:F2")
     c = ws["A2"]; c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.merge_cells("A4:L4")
     c = ws["A4"]; c.value = "Home Office Allocator"
-    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 48
     ws.merge_cells("A5:L5")
     c = ws["A5"]; c.value = "Make your laundry room pay you back."
     c.font = Font(name=FONT_HEAD, size=14, italic=True, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
+
+    # Row 6: VERDICT cell — single declarative answer (suite Theme 1).
+    ws.merge_cells("A6:L6")
+    c = ws["A6"]
+    c.value = (
+        '=IF(IFERROR(\'Launch\'!A10,0)>0,'
+        '"✅  Home-office deduction = "&TEXT(\'Launch\'!A10,"$#,##0")'
+        '&"  ·  "&\'Launch\'!E10&" method.",'
+        '"\U0001F4CA  Fill Eligibility + Space Allocation to see your deduction.")'
+    )
+    c.font = Font(name=FONT_HEAD, size=16, bold=True, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    c.fill = navy_fill
+    ws.row_dimensions[6].height = 32
+
     ws.merge_cells("A7:L7")
-    c = ws["A7"]; c.value = f"{SKU} · v2.2 · {variant.upper()}"
+    c = ws["A7"]; c.value = f"{SKU} · v2.3 · {variant.upper()}"
     c.font = Font(name=FONT_MONO, size=9, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
 
@@ -663,7 +678,7 @@ def build_form_8829_map_tab(wb, variant):
         if kind == "header":
             ws.merge_cells(f"A{r}:C{r}")
             c = ws.cell(row=r, column=1, value=f"  {line_num} — {label}")
-            c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+            c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
             c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
             c.alignment = Alignment(horizontal="left", vertical="center", indent=1)
             ws.row_dimensions[r].height = 22
@@ -727,7 +742,7 @@ def build_launch_tab(wb, variant):
     ws.row_dimensions[2].height = 28
     ws.merge_cells("A4:L4")
     c = ws["A4"]; c.value = "Your home-office deduction"
-    c.font = Font(name=FONT_HEAD, size=32, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=32, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 42
     ws.merge_cells("A5:L5")
@@ -819,7 +834,7 @@ def build_launch_tab(wb, variant):
     c.value = (
         "💡 Upgrade to the Tax Season Bundle ($147) at thestrledger.com/tax-bundle."
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     ws.row_dimensions[23].height = 36

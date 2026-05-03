@@ -21,8 +21,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 from openpyxl.chart import BarChart, LineChart, Reference
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -30,6 +29,7 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, apply_style,
     pseudo_button, compact_header_band, brand_footer, style_chart,
+    COLOR_WHITE,
 )
 
 SKU = "PAM-004"
@@ -298,7 +298,7 @@ def _section_band(ws, row, label, max_col=12):
     ws.merge_cells(f"A{row}:{last}{row}")
     c = ws[f"A{row}"]
     c.value = label
-    c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[row].height = 24
@@ -324,13 +324,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Multi-Owner Consolidated Reporting"
-    c.font = Font(name=FONT_HEAD, size=28, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=28, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 42
 
@@ -450,7 +450,7 @@ def build_start_tab(wb, variant):
         "Manage cleaners + commissions + multi-owner reporting in one bundle? "
         f"Get the Pro Manager Bundle at {BRAND_DOMAIN}/pro-manager — saves $1,000+ vs individual SKUs."
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     ws.row_dimensions[33].height = 36
@@ -602,7 +602,7 @@ def build_per_owner_dashboard_tab(wb, variant):
         ws.merge_cells(f"A{block_start}:H{block_start}")
         c = ws[f"A{block_start}"]
         c.value = f'=IFERROR("OWNER " & {i + 1} & ": " & \'Owners\'!B{owner_row}, "OWNER " & {i + 1})'
-        c.font = Font(name=FONT_HEAD, size=13, bold=True, color="F6EFE2")
+        c.font = Font(name=FONT_HEAD, size=13, bold=True, color=COLOR_BG_LIGHT)
         c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
         c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
         ws.row_dimensions[block_start].height = 22
@@ -868,7 +868,7 @@ def build_pam_pl_tab(wb, variant):
     # NOI row
     noi_row = total_exp_row + 2
     ws.cell(row=noi_row, column=1, value="NOI (Income − Expenses)").font = Font(
-        name=FONT_HEAD, size=12, bold=True, color="F6EFE2"
+        name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT
     )
     ws.cell(row=noi_row, column=1).fill = PatternFill(
         "solid", fgColor=COLOR_PRIMARY
@@ -883,7 +883,7 @@ def build_pam_pl_tab(wb, variant):
             row=noi_row, column=col,
             value=f"={col_letter}{total_income_row}-{col_letter}{total_exp_row}",
         )
-        cell.font = Font(name=FONT_BODY, size=11, bold=True, color="F6EFE2")
+        cell.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_BG_LIGHT)
         cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
         cell.alignment = Alignment(horizontal="right", vertical="center")
         cell.number_format = '"$"#,##0'
@@ -891,7 +891,7 @@ def build_pam_pl_tab(wb, variant):
         row=noi_row, column=14,
         value=f"=N{total_income_row}-N{total_exp_row}",
     )
-    cell.font = Font(name=FONT_BODY, size=11, bold=True, color="F6EFE2")
+    cell.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_BG_LIGHT)
     cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     cell.alignment = Alignment(horizontal="right", vertical="center")
     cell.number_format = '"$"#,##0'
@@ -1132,7 +1132,7 @@ def build_profitability_tab(wb, variant):
         f'RANK($D6,$D${first_data}:$D${last_data},1)+1<=3)'
     )
     error_fill = PatternFill("solid", fgColor=COLOR_ERROR)
-    error_font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    error_font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     ws.conditional_formatting.add(
         f"A{first_data}:F{last_data}",
         FormulaRule(

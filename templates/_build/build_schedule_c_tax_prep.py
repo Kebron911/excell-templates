@@ -34,8 +34,7 @@ from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
+from brand_config import (COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
     COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -44,6 +43,7 @@ from brand_config import (
     compact_header_band, brand_footer,
     set_col_widths, apply_style, input_cell_style, formula_cell_style,
     header_row_style,
+    COLOR_WHITE,
 )
 
 BASE = Path(__file__).resolve().parent.parent
@@ -227,11 +227,11 @@ def build_start_tab(wb, variant):
             ws.cell(row=r, column=c).fill = navy_fill
     ws.merge_cells("A2:F2")
     c = ws["A2"]; c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.merge_cells("A4:L4")
     c = ws["A4"]; c.value = "Schedule C Tax-Prep Workbook"
-    c.font = Font(name=FONT_HEAD, size=32, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=32, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
     ws.merge_cells("A5:L5")
@@ -254,7 +254,7 @@ def build_start_tab(wb, variant):
     c.value = ("⚠  ARE YOU SURE Schedule C is right? "
                "Most STR hosts file Schedule E. If you don't provide substantial services "
                "AND don't materially participate, switch to TAX-004 — Schedule E.")
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
 
     # ZONE 2 — "What you'll build" 3-card (rows 11-20)
@@ -972,7 +972,7 @@ def build_launch_tab(wb, variant):
     ws.row_dimensions[2].height = 28
     ws.merge_cells("A4:L4")
     c = ws["A4"]; c.value = "Your Schedule C is ready"
-    c.font = Font(name=FONT_HEAD, size=32, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=32, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 42
     ws.merge_cells("A5:L5")
@@ -1162,7 +1162,7 @@ def build_launch_tab(wb, variant):
         "Schedule C + Schedule E + Mileage + 1099 + Home Office + Section 179 + "
         "Quarterly Estimateds + Per-Diem."
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     ws.row_dimensions[up_row].height = 36

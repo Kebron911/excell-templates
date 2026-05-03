@@ -27,6 +27,22 @@ COLOR_NAVY_SHADE = "0A1F35"      # pressed, shadow
 COLOR_PARCHMENT_ALT = "EFE5D0"   # alt-row banding, subtle card
 COLOR_GOLD_SOFT = "E2C884"       # disabled/muted accent
 
+# --- Utility neutrals (text on dark fills, body emphasis, low-chrome backgrounds) ---
+COLOR_WHITE = "FFFFFF"           # text/icons on navy/gold fills
+COLOR_INK = "222222"             # bold body text emphasis (softer than near-black)
+COLOR_NEAR_BLACK = "1A1A1A"      # deepest text emphasis, headers
+COLOR_GRAY_LIGHT = "CCCCCC"      # divider lines, low-emphasis borders
+COLOR_INPUT_TINT = "FFF7D6"      # input-cell yellow tint
+COLOR_FORMULA_TINT = "EDEDED"    # calculated-cell gray tint
+
+# --- Semantic state fills (conditional formatting — bad/good/warn) ---
+STATE_BAD_FILL = "FFCCCC"        # light red wash — over budget, deadline missed, alert
+STATE_GOOD_FILL = "C7EFCF"       # light green wash — on track, paid, healthy
+STATE_WARN_FILL = "FFF3BF"       # light yellow wash — caution, due soon, marginal
+STATE_BAD_TEXT = "7F1D1D"        # dark red text on bad-state cells
+STATE_GOOD_TEXT = "166534"       # dark green text on good-state cells
+STATE_INFO_FILL = "E0E7FF"       # light blue wash — informational, lead/pipeline
+
 # --- Fonts ---
 FONT_HEAD = "Georgia"         # serif for headings
 FONT_BODY = "Calibri"         # sans for body (default Excel-safe)

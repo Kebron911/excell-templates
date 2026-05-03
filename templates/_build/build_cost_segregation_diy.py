@@ -30,8 +30,7 @@ from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
+from brand_config import (COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
     COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -40,6 +39,8 @@ from brand_config import (
     compact_header_band, brand_footer,
     set_col_widths, apply_style, input_cell_style, formula_cell_style,
     header_row_style,
+    COLOR_FORMULA_TINT, COLOR_WHITE,
+    STATE_BAD_FILL,
 )
 
 BASE = Path(__file__).resolve().parent.parent
@@ -133,7 +134,7 @@ def append_warning_callout(ws, row, formula_text):
     c = ws[f"A{row}"]
     c.value = formula_text
     c.font = Font(name=FONT_BODY, size=10, bold=True, color=COLOR_ERROR)
-    c.fill = PatternFill("solid", fgColor="FCE7E7")
+    c.fill = PatternFill("solid", fgColor=STATE_BAD_FILL)
     c.alignment = Alignment(horizontal="left", vertical="center",
                              wrap_text=True, indent=2)
     ws.row_dimensions[row].height = 30
@@ -178,17 +179,32 @@ def build_start_tab(wb, variant):
             ws.cell(row=r, column=c).fill = navy_fill
     ws.merge_cells("A2:F2")
     c = ws["A2"]; c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.merge_cells("A4:L4")
     c = ws["A4"]; c.value = "Cost Segregation DIY"
-    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 48
     ws.merge_cells("A5:L5")
     c = ws["A5"]; c.value = "Pull 5 years of depreciation into one. The IRS-acceptable DIY method."
     c.font = Font(name=FONT_HEAD, size=14, italic=True, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
+
+    # Row 6: VERDICT cell — single declarative answer (suite Theme 1).
+    ws.merge_cells("A6:L6")
+    c = ws["A6"]
+    c.value = (
+        '=IF(IFERROR(\'Y1 Summary\'!F12,0)>0,'
+        '"✅  Year-1 deduction = "&TEXT(\'Y1 Summary\'!F12,"$#,##0")'
+        '&"  ·  Tax savings = "&TEXT(\'Y1 Summary\'!F20,"$#,##0"),'
+        '"\U0001F4CA  Fill Property Basics + Land Allocation to see your acceleration.")'
+    )
+    c.font = Font(name=FONT_HEAD, size=16, bold=True, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    c.fill = navy_fill
+    ws.row_dimensions[6].height = 32
+
     ws.merge_cells("A7:L7")
     c = ws["A7"]; c.value = f"{SKU} · v2.3 · {variant.upper()}"
     c.font = Font(name=FONT_MONO, size=9, color=COLOR_ACCENT)
@@ -765,7 +781,7 @@ def build_y1_summary_tab(wb, variant):
     c = ws.cell(row=r, column=3, value="—")
     c.font = Font(name=FONT_BODY, size=11, color=COLOR_MUTED)
     c.alignment = Alignment(horizontal="center", vertical="center")
-    c.fill = PatternFill("solid", fgColor="EDEDED")
+    c.fill = PatternFill("solid", fgColor=COLOR_FORMULA_TINT)
     c = ws.cell(row=r, column=4, value=0)
     apply_style(c, formula_cell_style())
     c.number_format = '"$"#,##0'
@@ -798,7 +814,7 @@ def build_y1_summary_tab(wb, variant):
         c = ws.cell(row=r, column=col, value="—")
         c.font = Font(name=FONT_BODY, size=11, color=COLOR_MUTED)
         c.alignment = Alignment(horizontal="center", vertical="center")
-        c.fill = PatternFill("solid", fgColor="EDEDED")
+        c.fill = PatternFill("solid", fgColor=COLOR_FORMULA_TINT)
     ws.row_dimensions[r].height = 20
 
     # Row 12: TOTAL
@@ -995,7 +1011,7 @@ def build_form_4562_mirror_tab(wb):
         if kind == "header":
             ws.merge_cells(f"A{r}:C{r}")
             c = ws.cell(row=r, column=1, value=f"  {line_num} — {label}")
-            c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+            c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
             c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
             c.alignment = Alignment(horizontal="left", vertical="center", indent=1)
             ws.row_dimensions[r].height = 24
@@ -1028,9 +1044,9 @@ def build_form_4562_mirror_tab(wb):
                 ws.cell(row=r, column=2).fill = PatternFill("solid", fgColor=COLOR_GOLD_SOFT)
                 ws.cell(row=r, column=2).font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_PRIMARY)
             if kind == "grand_total":
-                c.font = Font(name=FONT_HEAD, size=14, bold=True, color="F6EFE2")
+                c.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_BG_LIGHT)
                 c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
-                ws.cell(row=r, column=2).font = Font(name=FONT_HEAD, size=14, bold=True, color="F6EFE2")
+                ws.cell(row=r, column=2).font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_BG_LIGHT)
                 ws.cell(row=r, column=2).fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
             ws.row_dimensions[r].height = 20
         r += 1
@@ -1069,7 +1085,7 @@ def build_launch_tab(wb, variant):
     ws.row_dimensions[2].height = 28
     ws.merge_cells("A4:L4")
     c = ws["A4"]; c.value = "Your cost segregation is ready"
-    c.font = Font(name=FONT_HEAD, size=32, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=32, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 42
     ws.merge_cells("A5:L5")
@@ -1245,7 +1261,7 @@ def build_launch_tab(wb, variant):
     ws.merge_cells("A46:L46")
     c = ws["A46"]
     c.value = "💡 Upgrade to the Tax Season Bundle ($147) — TAX-001/002/003/009/010 + Schedule E workbook."
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     ws.row_dimensions[46].height = 36
@@ -1309,8 +1325,21 @@ def build_settings_tab(wb, variant):
         c.number_format = fmt
         ws.row_dimensions[r].height = 18
 
+    # Freshness stamp (suite Theme 4) — bonus % is statutory + phasing, MACRS
+    # tables are stable but customer should still confirm against the IRS Pub
+    # 946 they get from their CPA each year.
+    ws.merge_cells("A12:F12")
+    note = ws["A12"]
+    note.value = (
+        "📅 Bonus % + MACRS Y1 percentages as of 2026-01-01 — bonus phases to "
+        "0% by 2028 (statutory). Confirm against IRS Pub 946 yearly."
+    )
+    note.font = italic_muted
+    note.alignment = Alignment(horizontal="left", vertical="center",
+                                wrap_text=True, indent=1)
+    ws.row_dimensions[12].height = 28
+
     # Historical bonus depreciation reference
-    ws.row_dimensions[12].height = 8
     a = ws.cell(row=13, column=1, value="Historical bonus depreciation %:")
     a.font = italic_muted
     historical = [

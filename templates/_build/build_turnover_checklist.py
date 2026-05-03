@@ -23,8 +23,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 from openpyxl.chart import BarChart, Reference
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -32,9 +31,19 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, add_upgrade_banner, apply_style,
     pseudo_button, compact_header_band, brand_footer, style_chart,
+    STATE_BAD_FILL, STATE_GOOD_FILL, STATE_WARN_FILL,
+    COLOR_GRAY_LIGHT,
 )
 
-OUT = Path(__file__).resolve().parent.parent / "_masters" / "OPS-001-turnover-checklist.xlsx"
+SKU = "OPS-001"
+NAME = "turnover-checklist"
+BASE = Path(__file__).resolve().parent.parent
+DEMO_OUT = BASE / "_masters" / f"{SKU}-{NAME}-DEMO.xlsx"
+BLANK_OUT = BASE / "_masters" / f"{SKU}-{NAME}-BLANK.xlsx"
+
+
+def _val(variant, demo_value):
+    return demo_value if variant == "demo" else None
 
 # --- Sample / constant data ---
 
@@ -168,14 +177,14 @@ def _parse_date(s):
 
 
 def _thin_border_bottom():
-    return Border(bottom=Side(style="thin", color="AAAAAA"))
+    return Border(bottom=Side(style="thin", color=COLOR_GRAY_LIGHT))
 
 
 # ---------------------------------------------------------------------------
 # Sheet builders
 # ---------------------------------------------------------------------------
 
-def build_start_tab(wb):
+def build_start_tab(wb, variant):
     """Sheet 0 — Start (operational hero + cards + activity dashboard)."""
     ws = wb.active
     ws.title = "Start"
@@ -193,13 +202,13 @@ def build_start_tab(wb):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Cleaner Turnover Checklist + Scorecard"
-    c.font = Font(name=FONT_HEAD, size=30, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=30, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
 
@@ -211,7 +220,7 @@ def build_start_tab(wb):
 
     ws.merge_cells("A7:L7")
     c = ws["A7"]
-    c.value = "OPS-001 · v2.2"
+    c.value = f"{SKU} · v2.3 · {variant.upper()}"
     c.font = Font(name=FONT_MONO, size=9, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
 
@@ -384,7 +393,7 @@ def build_start_tab(wb):
     add_upgrade_banner(ws, 45)
 
     brand_footer(ws, 47,
-                 version_line="OPS-001 · v2.2 · Free updates forever")
+                 version_line="OPS-001 · v2.3 · Free updates forever")
 
     ws.print_area = "A1:L49"
     ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
@@ -524,7 +533,7 @@ def build_printable_tab(wb):
     set_col_widths(ws, [("A", 4), ("B", 60), ("C", 10), ("D", 15)])
 
 
-def build_log_tab(wb):
+def build_log_tab(wb, variant):
     """Sheet 2 — Turnover Log (one row per turnover, host-facing)."""
     ws = wb.create_sheet("Turnover Log")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
@@ -557,7 +566,8 @@ def build_log_tab(wb):
         ("E", 40), ("F", 16), ("G", 12),
     ])
 
-    for i, row_data in enumerate(TURNOVER_LOG_SAMPLES):
+    log_rows = TURNOVER_LOG_SAMPLES if variant == "demo" else []
+    for i, row_data in enumerate(log_rows):
         row = 6 + i
         date_val, prop, cleaner, items, notes, complaint, minutes = row_data
         a = ws.cell(row=row, column=1, value=_parse_date(date_val))
@@ -586,7 +596,7 @@ def build_log_tab(wb):
         ws.row_dimensions[row].height = 16
 
     # Blank capacity rows
-    for row_idx in range(6 + len(TURNOVER_LOG_SAMPLES), 507):
+    for row_idx in range(6 + len(log_rows), 507):
         for col_idx in range(1, 8):
             cell = ws.cell(row=row_idx, column=col_idx)
             apply_style(cell, input_cell_style())
@@ -611,7 +621,7 @@ def build_log_tab(wb):
     ws.page_margins = PageMargins(left=0.4, right=0.4, top=0.5, bottom=0.5)
 
 
-def build_scorecard_tab(wb):
+def build_scorecard_tab(wb, variant):
     """Sheet 3 — Scorecard Dashboard (rolling metrics per cleaner)."""
     ws = wb.create_sheet("Scorecard Dashboard")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
@@ -638,8 +648,11 @@ def build_scorecard_tab(wb):
 
     set_col_widths(ws, [("A", 28), ("B", 14), ("C", 14), ("D", 14), ("E", 10)])
 
-    # Pre-populate cleaner names rows 6-8
-    for idx, roster_row in enumerate(CLEANER_ROSTER_SAMPLES):
+    # Pre-populate cleaner names rows 6-8 (DEMO only — BLANK leaves them empty
+    # so a host can type their own roster names; formulas below are wired
+    # against col A so they resolve to 0 / blank cleanly when empty).
+    roster_rows = CLEANER_ROSTER_SAMPLES if variant == "demo" else []
+    for idx, roster_row in enumerate(roster_rows):
         row = 6 + idx
         ws.cell(row=row, column=1, value=roster_row[0]).font = Font(
             name=FONT_BODY, size=11, color=COLOR_TEXT
@@ -690,17 +703,17 @@ def build_scorecard_tab(wb):
     ws.conditional_formatting.add(
         "C6:C15",
         CellIsRule(operator="greaterThanOrEqual", formula=[str(green_threshold)],
-                    fill=PatternFill("solid", fgColor="C7EFCF")),
+                    fill=PatternFill("solid", fgColor=STATE_GOOD_FILL)),
     )
     ws.conditional_formatting.add(
         "C6:C15",
         CellIsRule(operator="between", formula=[str(yellow_lo), str(yellow_hi)],
-                    fill=PatternFill("solid", fgColor="FFF3BF")),
+                    fill=PatternFill("solid", fgColor=STATE_WARN_FILL)),
     )
     ws.conditional_formatting.add(
         "C6:C15",
         CellIsRule(operator="between", formula=["0.01", str(red_hi)],
-                    fill=PatternFill("solid", fgColor="FFCCCC")),
+                    fill=PatternFill("solid", fgColor=STATE_BAD_FILL)),
     )
 
     ws.row_dimensions[16].height = 10
@@ -756,7 +769,7 @@ def build_scorecard_tab(wb):
     ws.page_margins = PageMargins(left=0.4, right=0.4, top=0.5, bottom=0.5)
 
 
-def build_roster_tab(wb):
+def build_roster_tab(wb, variant):
     """Sheet 4 — Cleaner Roster (team contact list)."""
     ws = wb.create_sheet("Cleaner Roster")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
@@ -786,7 +799,8 @@ def build_roster_tab(wb):
         ("D", 12), ("E", 14), ("F", 40),
     ])
 
-    for i, row_data in enumerate(CLEANER_ROSTER_SAMPLES):
+    roster = CLEANER_ROSTER_SAMPLES if variant == "demo" else []
+    for i, row_data in enumerate(roster):
         row = 6 + i
         name, phone, email, pay_rate, start_date, notes = row_data
         a = ws.cell(row=row, column=1, value=name)
@@ -812,7 +826,7 @@ def build_roster_tab(wb):
         ws.row_dimensions[row].height = 16
 
     # Blank capacity rows up to 25 (matches Turnover Log dropdown ref)
-    for row in range(6 + len(CLEANER_ROSTER_SAMPLES), 26):
+    for row in range(6 + len(roster), 26):
         for col in range(1, 7):
             cell = ws.cell(row=row, column=col)
             apply_style(cell, input_cell_style())
@@ -825,7 +839,7 @@ def build_roster_tab(wb):
     ws.freeze_panes = "A6"
 
 
-def build_supplies_tab(wb):
+def build_supplies_tab(wb, variant):
     """Sheet 5 — Supplies Par Levels by Property."""
     ws = wb.create_sheet("Supplies Par Levels")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
@@ -856,7 +870,8 @@ def build_supplies_tab(wb):
     widths = [("A", 20)] + [(get_column_letter(2 + i), 12) for i in range(9)]
     set_col_widths(ws, widths)
 
-    for i, row_data in enumerate(SUPPLIES_SAMPLES):
+    supplies = SUPPLIES_SAMPLES if variant == "demo" else []
+    for i, row_data in enumerate(supplies):
         row = 6 + i
         for col, val in enumerate(row_data, start=1):
             cell = ws.cell(row=row, column=col, value=val)
@@ -864,7 +879,7 @@ def build_supplies_tab(wb):
         ws.row_dimensions[row].height = 16
 
     # Blank capacity rows
-    for row in range(6 + len(SUPPLIES_SAMPLES), 16):
+    for row in range(6 + len(supplies), 16):
         for col in range(1, 11):
             cell = ws.cell(row=row, column=col)
             apply_style(cell, input_cell_style())
@@ -873,23 +888,29 @@ def build_supplies_tab(wb):
     ws.freeze_panes = "B6"
 
 
-def main():
+def build_workbook(out_path, variant):
     wb = Workbook()
-    build_start_tab(wb)
+    build_start_tab(wb, variant)
     build_printable_tab(wb)
-    build_log_tab(wb)
-    build_scorecard_tab(wb)
-    build_roster_tab(wb)
-    build_supplies_tab(wb)
+    build_log_tab(wb, variant)
+    build_scorecard_tab(wb, variant)
+    build_roster_tab(wb, variant)
+    build_supplies_tab(wb, variant)
 
-    wb.properties.title = "Cleaner Turnover Checklist + Scorecard — The STR Ledger"
+    suffix = f" ({variant.upper()})"
+    wb.properties.title = f"Cleaner Turnover Checklist + Scorecard{suffix} — The STR Ledger"
     wb.properties.creator = "The STR Ledger"
     wb.properties.company = "The STR Ledger"
-    wb.properties.description = "Printable cleaner checklist + rolling cleaner scorecard for STR hosts (v2.2)."
+    wb.properties.description = "Printable cleaner checklist + rolling cleaner scorecard for STR hosts (v2.3)."
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(OUT)
-    print(f"Saved: {OUT}")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(out_path)
+    print(f"Saved: {out_path.name}")
+
+
+def main():
+    build_workbook(DEMO_OUT, "demo")
+    build_workbook(BLANK_OUT, "blank")
 
 
 if __name__ == "__main__":

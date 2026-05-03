@@ -25,8 +25,7 @@ from openpyxl.utils.cell import column_index_from_string
 from openpyxl.chart import BarChart, DoughnutChart, Reference
 from openpyxl.chart.label import DataLabelList
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -34,6 +33,7 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, add_upgrade_banner, apply_style,
     pseudo_button, compact_header_band, brand_footer, style_chart,
+    STATE_BAD_FILL, STATE_GOOD_FILL, STATE_WARN_FILL,
 )
 
 SKU = "PAM-002"
@@ -137,13 +137,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Cleaner CRM + Payroll"
-    c.font = Font(name=FONT_HEAD, size=34, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=34, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 46
 
@@ -449,7 +449,7 @@ def build_cleaners_tab(wb, variant):
         "G6:G35",
         FormulaRule(
             formula=['G6="No"'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(bold=True, color=COLOR_ERROR),
         ),
     )
@@ -609,14 +609,14 @@ def build_turnover_log_tab(wb, variant):
         "H6:H1005",
         FormulaRule(
             formula=['H6="Inspected"'],
-            fill=PatternFill("solid", fgColor="C7EFCF"),
+            fill=PatternFill("solid", fgColor=STATE_GOOD_FILL),
         ),
     )
     ws.conditional_formatting.add(
         "H6:H1005",
         FormulaRule(
             formula=['H6="In progress"'],
-            fill=PatternFill("solid", fgColor="FFF3BF"),
+            fill=PatternFill("solid", fgColor=STATE_WARN_FILL),
         ),
     )
 
@@ -918,7 +918,7 @@ def build_performance_tab(wb):
         "F6:F55",
         FormulaRule(
             formula=['F6="Top performer"'],
-            fill=PatternFill("solid", fgColor="C7EFCF"),
+            fill=PatternFill("solid", fgColor=STATE_GOOD_FILL),
             font=Font(bold=True, color=COLOR_PRIMARY),
         ),
     )
@@ -926,7 +926,7 @@ def build_performance_tab(wb):
         "F6:F55",
         FormulaRule(
             formula=['F6="Needs review"'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(bold=True, color=COLOR_ERROR),
         ),
     )
@@ -1064,7 +1064,7 @@ def build_year_end_tab(wb):
         "C6:C35",
         FormulaRule(
             formula=['C6="✓ Required"'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(bold=True),
         ),
     )
@@ -1072,14 +1072,14 @@ def build_year_end_tab(wb):
         "F6:F35",
         FormulaRule(
             formula=['F6="✓ Ready to file"'],
-            fill=PatternFill("solid", fgColor="C7EFCF"),
+            fill=PatternFill("solid", fgColor=STATE_GOOD_FILL),
         ),
     )
     ws.conditional_formatting.add(
         "F6:F35",
         FormulaRule(
             formula=['LEFT(F6,1)="⚠"'],
-            fill=PatternFill("solid", fgColor="FFF3BF"),
+            fill=PatternFill("solid", fgColor=STATE_WARN_FILL),
         ),
     )
 

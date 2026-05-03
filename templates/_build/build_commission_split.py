@@ -19,8 +19,7 @@ from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -28,6 +27,7 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, apply_style,
     pseudo_button, compact_header_band, brand_footer,
+    COLOR_INK, COLOR_WHITE,
 )
 
 SKU = "PAM-003"
@@ -231,7 +231,7 @@ def _section_band(ws, row, label, max_col=12):
     ws.merge_cells(f"A{row}:{last}{row}")
     c = ws[f"A{row}"]
     c.value = label
-    c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[row].height = 24
@@ -257,13 +257,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Commission / Split Calculator"
-    c.font = Font(name=FONT_HEAD, size=30, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=30, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
 
@@ -386,7 +386,7 @@ def build_start_tab(wb, variant):
         "Bundle: Owner Reporting + Commission Split + Cleaner Tracker = "
         f"the Pro Co-Host Toolkit at {BRAND_DOMAIN}/pro-cohost."
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     ws.row_dimensions[33].height = 36
@@ -667,7 +667,7 @@ def build_monthly_statement_tab(wb, variant):
     ws.merge_cells("B3:G3")
     c = ws["B3"]
     c.value = "MONTHLY COMMISSION STATEMENT"
-    c.font = Font(name=FONT_HEAD, size=22, bold=True, color="222222")
+    c.font = Font(name=FONT_HEAD, size=22, bold=True, color=COLOR_INK)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[3].height = 32
 
@@ -745,7 +745,7 @@ def build_monthly_statement_tab(wb, variant):
     ws.merge_cells("B12:G12")
     c = ws["B12"]
     c.value = "BOOKINGS THIS MONTH"
-    c.font = Font(name=FONT_MONO, size=10, bold=True, color="222222")
+    c.font = Font(name=FONT_MONO, size=10, bold=True, color=COLOR_INK)
     c.fill = PatternFill("solid", fgColor=COLOR_GOLD_SOFT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[12].height = 22
@@ -758,10 +758,10 @@ def build_monthly_statement_tab(wb, variant):
     for ref, lbl in sub_headers:
         cell = ws[ref]
         cell.value = lbl
-        cell.font = Font(name=FONT_BODY, size=10, bold=True, color="222222")
+        cell.font = Font(name=FONT_BODY, size=10, bold=True, color=COLOR_INK)
         cell.fill = PatternFill("solid", fgColor=COLOR_PARCHMENT_ALT)
         cell.alignment = Alignment(horizontal="center", vertical="center")
-        cell.border = Border(bottom=Side(style="thin", color="999999"))
+        cell.border = Border(bottom=Side(style="thin", color=COLOR_MUTED))
     ws.row_dimensions[13].height = 22
 
     # Booking rows 14-28 (15 visible — show first 15 matching rows from Bookings Log)
@@ -823,7 +823,7 @@ def build_monthly_statement_tab(wb, variant):
         com_cell = ws.cell(row=row, column=7, value=(
             f'=IFERROR(INDEX(\'Bookings Log\'!$L$6:$L$505,{idx_formula[1:]}),"")'
         ))
-        com_cell.font = Font(name=FONT_BODY, size=10, bold=True, color="222222")
+        com_cell.font = Font(name=FONT_BODY, size=10, bold=True, color=COLOR_INK)
         com_cell.alignment = Alignment(horizontal="right", vertical="center")
         com_cell.number_format = '"$"#,##0.00'
 
@@ -831,7 +831,7 @@ def build_monthly_statement_tab(wb, variant):
 
     # Totals row 30
     ws.cell(row=30, column=2, value="Subtotals:").font = Font(
-        name=FONT_BODY, size=11, bold=True, color="222222"
+        name=FONT_BODY, size=11, bold=True, color=COLOR_INK
     )
     ws.cell(row=30, column=2).alignment = Alignment(horizontal="right", vertical="center")
 
@@ -840,7 +840,7 @@ def build_monthly_statement_tab(wb, variant):
         ("D", "F", "gross",   COLOR_TEXT),
         ("E", None, None,     COLOR_ERROR),  # = D - F
         ("F", "J", "net",     COLOR_TEXT),
-        ("G", "L", "commission", "222222"),
+        ("G", "L", "commission", COLOR_INK),
     ]:
         if src_letter:
             f = (
@@ -863,7 +863,7 @@ def build_monthly_statement_tab(wb, variant):
     ws.merge_cells("B32:G32")
     c = ws["B32"]
     c.value = "COMMISSION DETAIL"
-    c.font = Font(name=FONT_MONO, size=10, bold=True, color="222222")
+    c.font = Font(name=FONT_MONO, size=10, bold=True, color=COLOR_INK)
     c.fill = PatternFill("solid", fgColor=COLOR_GOLD_SOFT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[32].height = 22
@@ -876,7 +876,7 @@ def build_monthly_statement_tab(wb, variant):
     ws.row_dimensions[33].height = 18
 
     # FINAL ROW row 35-37
-    rule_side_med = Side(style="medium", color="222222")
+    rule_side_med = Side(style="medium", color=COLOR_INK)
     for col in range(2, 8):
         ws.cell(row=35, column=col).border = Border(top=rule_side_med)
     ws.row_dimensions[35].height = 6
@@ -884,11 +884,11 @@ def build_monthly_statement_tab(wb, variant):
     ws.merge_cells("B36:E36")
     c = ws["B36"]
     c.value = "TOTAL TO CO-HOST"
-    c.font = Font(name=FONT_HEAD, size=13, bold=True, color="222222")
+    c.font = Font(name=FONT_HEAD, size=13, bold=True, color=COLOR_INK)
     c.alignment = Alignment(horizontal="right", vertical="center", indent=1)
 
     cell = ws.cell(row=36, column=7, value="=G30")
-    cell.font = Font(name=FONT_HEAD, size=18, bold=True, color="222222")
+    cell.font = Font(name=FONT_HEAD, size=18, bold=True, color=COLOR_INK)
     cell.alignment = Alignment(horizontal="right", vertical="center")
     cell.number_format = '"$"#,##0.00'
     cell.fill = PatternFill("solid", fgColor=COLOR_GOLD_SOFT)
@@ -897,7 +897,7 @@ def build_monthly_statement_tab(wb, variant):
     ws.merge_cells("B37:E37")
     c = ws["B37"]
     c.value = "TOTAL TO OWNER"
-    c.font = Font(name=FONT_HEAD, size=13, bold=True, color="222222")
+    c.font = Font(name=FONT_HEAD, size=13, bold=True, color=COLOR_INK)
     c.alignment = Alignment(horizontal="right", vertical="center", indent=1)
 
     cell = ws.cell(row=37, column=7, value="=F30-G30")
@@ -910,7 +910,7 @@ def build_monthly_statement_tab(wb, variant):
     ws.merge_cells("B39:G39")
     c = ws["B39"]
     c.value = "PAYMENT INSTRUCTIONS"
-    c.font = Font(name=FONT_MONO, size=9, bold=True, color="222222")
+    c.font = Font(name=FONT_MONO, size=9, bold=True, color=COLOR_INK)
     c.fill = PatternFill("solid", fgColor=COLOR_PARCHMENT_ALT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[39].height = 18
@@ -931,7 +931,7 @@ def build_monthly_statement_tab(wb, variant):
     ws.merge_cells("B43:G43")
     c = ws["B43"]
     c.value = '="Generated "&TEXT(TODAY(),"mmmm d, yyyy")'
-    c.font = Font(name=FONT_BODY, size=9, italic=True, color="888888")
+    c.font = Font(name=FONT_BODY, size=9, italic=True, color=COLOR_MUTED)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[43].height = 16
 
@@ -1078,10 +1078,10 @@ def build_year_end_tab(wb, variant):
 
     # Totals row 24
     ws.cell(row=24, column=1, value="TOTALS").font = Font(
-        name=FONT_HEAD, size=12, bold=True, color="222222"
+        name=FONT_HEAD, size=12, bold=True, color=COLOR_INK
     )
     ws.cell(row=24, column=1).alignment = Alignment(horizontal="right", vertical="center", indent=1)
-    for col_letter, color in [("C", "222222"), ("D", COLOR_TEXT),
+    for col_letter, color in [("C", COLOR_INK), ("D", COLOR_TEXT),
                                ("E", COLOR_ERROR), ("F", COLOR_TEXT),
                                ("G", COLOR_PRIMARY)]:
         cell = ws.cell(

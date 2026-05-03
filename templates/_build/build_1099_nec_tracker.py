@@ -24,8 +24,7 @@ from openpyxl.utils.cell import column_index_from_string
 from openpyxl.chart import BarChart, DoughnutChart, Reference
 from openpyxl.chart.label import DataLabelList
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -33,9 +32,19 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, add_upgrade_banner, apply_style,
     pseudo_button, compact_header_band, brand_footer, style_chart,
+    COLOR_FORMULA_TINT, STATE_BAD_FILL, STATE_GOOD_FILL, STATE_WARN_FILL,
+    STATE_INFO_FILL,
 )
 
-OUT = Path(__file__).resolve().parent.parent / "_masters" / "TAX-003-1099-nec-tracker.xlsx"
+SKU = "TAX-003"
+NAME = "1099-nec-tracker"
+BASE = Path(__file__).resolve().parent.parent
+DEMO_OUT = BASE / "_masters" / f"{SKU}-{NAME}-DEMO.xlsx"
+BLANK_OUT = BASE / "_masters" / f"{SKU}-{NAME}-BLANK.xlsx"
+
+
+def _val(variant, demo_value):
+    return demo_value if variant == "demo" else None
 
 # --- Sample data ---
 
@@ -108,7 +117,7 @@ def _parse_date(s):
 # Sheet builders
 # ---------------------------------------------------------------------------
 
-def build_start_tab(wb):
+def build_start_tab(wb, variant):
     """Sheet 0 — Start (operational-mode hero + cards + activity dashboard)."""
     ws = wb.active
     ws.title = "Start"
@@ -126,13 +135,13 @@ def build_start_tab(wb):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "1099-NEC Contractor Tracker"
-    c.font = Font(name=FONT_HEAD, size=34, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=34, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 46
 
@@ -144,7 +153,7 @@ def build_start_tab(wb):
 
     ws.merge_cells("A7:L7")
     c = ws["A7"]
-    c.value = "TAX-003 · v2.2"
+    c.value = f"{SKU} · v2.3 · {variant.upper()}"
     c.font = Font(name=FONT_MONO, size=9, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
 
@@ -339,7 +348,7 @@ def build_start_tab(wb):
     ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
-def build_contractors_tab(wb):
+def build_contractors_tab(wb, variant):
     """Sheet 1 — Contractors (one row per vendor, W-9 tracking)."""
     ws = wb.create_sheet("Contractors")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
@@ -376,8 +385,9 @@ def build_contractors_tab(wb):
         apply_style(cell, header_row_style())
     ws.row_dimensions[5].height = 20
 
-    # Rows 6-10: sample contractors
-    for row_idx, contractor in enumerate(CONTRACTORS, start=6):
+    # Rows 6+: sample contractors (DEMO only)
+    contractor_rows = CONTRACTORS if variant == "demo" else []
+    for row_idx, contractor in enumerate(contractor_rows, start=6):
         for col_idx, value in enumerate(contractor, start=1):
             # W-9 Date (12) and COI Expiry (15) are dates — parse strings
             if col_idx in (12, 15):
@@ -416,7 +426,7 @@ def build_contractors_tab(wb):
     ws.page_margins = PageMargins(left=0.4, right=0.4, top=0.5, bottom=0.5)
 
 
-def build_log_tab(wb):
+def build_log_tab(wb, variant):
     """Sheet 2 — Payment Log (one row per payment, 2000 capacity rows)."""
     ws = wb.create_sheet("Payment Log")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
@@ -454,7 +464,8 @@ def build_log_tab(wb):
         apply_style(cell, header_row_style())
     ws.row_dimensions[5].height = 20
 
-    for i, payment in enumerate(PAYMENTS, start=6):
+    payment_rows = PAYMENTS if variant == "demo" else []
+    for i, payment in enumerate(payment_rows, start=6):
         date_val, contractor, amount, method, prop, desc, notes = payment
 
         a = ws.cell(row=i, column=1, value=_parse_date(date_val))
@@ -494,7 +505,7 @@ def build_log_tab(wb):
 
         ws.row_dimensions[i].height = 16
 
-    last_data_row = len(PAYMENTS) + 5
+    last_data_row = len(payment_rows) + 5
     for row_idx in range(last_data_row + 1, 2006):
         for col_idx in range(1, 10):
             cell = ws.cell(row=row_idx, column=col_idx)
@@ -528,11 +539,11 @@ def build_log_tab(wb):
 
 
 def build_dashboard_tab(wb):
-    """Sheet 3 — 1099 Prep Dashboard (auto-calculated from other sheets)."""
+    """Sheet 3 — 1099 Prep Dashboard / CPA Hand-off page."""
     ws = wb.create_sheet("1099 Prep Dashboard")
-    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
+    ws.sheet_properties.tabColor = COLOR_ACCENT  # gold = CPA hand-off
 
-    compact_header_band(ws, "1099 Prep Dashboard",
+    compact_header_band(ws, "1099 Prep Dashboard · For Your CPA",
                          prev_tab="Payment Log", next_tab="Settings")
 
     parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
@@ -540,7 +551,7 @@ def build_dashboard_tab(wb):
         ws.cell(row=4, column=c).fill = parchment_fill
     ws.merge_cells("A4:L4")
     c4 = ws["A4"]
-    c4.value = "Auto-calculated — watch who crosses the $600 threshold in real time"
+    c4.value = "📄 FOR YOUR CPA — print this tab. Watches who crosses the $600 threshold in real time."
     c4.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
     c4.alignment = Alignment(horizontal="left", vertical="center", indent=1)
     ws.row_dimensions[4].height = 18
@@ -625,7 +636,7 @@ def build_dashboard_tab(wb):
         "C6:C55",
         FormulaRule(
             formula=['C6="YES"'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(bold=True),
         ),
     )
@@ -633,7 +644,7 @@ def build_dashboard_tab(wb):
         "C6:C55",
         FormulaRule(
             formula=['C6="no"'],
-            fill=PatternFill("solid", fgColor="EDEDED"),
+            fill=PatternFill("solid", fgColor=COLOR_FORMULA_TINT),
         ),
     )
     # v2.3 — corp-exemption status (over $600 but S-Corp/C-Corp): info-grade
@@ -641,21 +652,21 @@ def build_dashboard_tab(wb):
         "C6:C55",
         FormulaRule(
             formula=['C6="exempt (corp)"'],
-            fill=PatternFill("solid", fgColor="E0E7FF"),
+            fill=PatternFill("solid", fgColor=STATE_INFO_FILL),
         ),
     )
     ws.conditional_formatting.add(
         "E6:E55",
         FormulaRule(
             formula=['E6="✓ Ready"'],
-            fill=PatternFill("solid", fgColor="C7EFCF"),
+            fill=PatternFill("solid", fgColor=STATE_GOOD_FILL),
         ),
     )
     ws.conditional_formatting.add(
         "E6:E55",
         FormulaRule(
             formula=['E6="⚠ Need W-9"'],
-            fill=PatternFill("solid", fgColor="FFF3BF"),
+            fill=PatternFill("solid", fgColor=STATE_WARN_FILL),
         ),
     )
 
@@ -820,22 +831,28 @@ def build_settings_tab(wb):
         ws.row_dimensions[idx].height = 16
 
 
-def main():
+def build_workbook(out_path, variant):
     wb = Workbook()
-    build_start_tab(wb)
-    build_contractors_tab(wb)
-    build_log_tab(wb)
+    build_start_tab(wb, variant)
+    build_contractors_tab(wb, variant)
+    build_log_tab(wb, variant)
     build_dashboard_tab(wb)
     build_settings_tab(wb)
 
-    wb.properties.title = "1099-NEC Contractor Tracker — The STR Ledger"
+    suffix = f" ({variant.upper()})"
+    wb.properties.title = f"1099-NEC Contractor Tracker{suffix} — The STR Ledger"
     wb.properties.creator = "The STR Ledger"
     wb.properties.company = "The STR Ledger"
-    wb.properties.description = "1099-NEC threshold tracker for STR hosts paying contractors (v2.2)."
+    wb.properties.description = "1099-NEC threshold tracker for STR hosts paying contractors (v2.3)."
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(OUT)
-    print(f"Saved: {OUT}")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(out_path)
+    print(f"Saved: {out_path.name}")
+
+
+def main():
+    build_workbook(DEMO_OUT, "demo")
+    build_workbook(BLANK_OUT, "blank")
 
 
 if __name__ == "__main__":

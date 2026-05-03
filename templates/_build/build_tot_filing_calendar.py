@@ -28,8 +28,7 @@ from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
+from brand_config import (COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
     COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -37,6 +36,7 @@ from brand_config import (
     pseudo_button, compact_header_band, brand_footer,
     set_col_widths, apply_style, input_cell_style, formula_cell_style,
     header_row_style,
+    STATE_BAD_FILL,
 )
 
 SKU = "LGL-002"
@@ -134,11 +134,11 @@ def build_start_tab(wb, variant):
             ws.cell(row=r, column=c).fill = navy_fill
     ws.merge_cells("A2:F2")
     c = ws["A2"]; c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.merge_cells("A4:L4")
     c = ws["A4"]; c.value = "TOT Filing Calendar"
-    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 48
     ws.merge_cells("A5:L5")
@@ -427,7 +427,7 @@ def build_revenue_matrix_tab(wb, variant):
     total_row = last_row + 2
     ws.row_dimensions[last_row + 1].height = 8
     a = ws.cell(row=total_row, column=1, value="PORTFOLIO TOTAL (Gross + Cleaning)")
-    a.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    a.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     a.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     a.alignment = Alignment(horizontal="right", vertical="center", indent=1)
     ws.merge_cells(start_row=total_row, start_column=1,
@@ -436,7 +436,7 @@ def build_revenue_matrix_tab(wb, variant):
         col_letter = get_column_letter(col)
         c = ws.cell(row=total_row, column=col,
                      value=f"=SUM({col_letter}6:{col_letter}{last_row})")
-        c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+        c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
         c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
         c.number_format = '"$"#,##0'
         c.alignment = Alignment(horizontal="right", vertical="center", indent=1)
@@ -560,7 +560,7 @@ def build_tot_calculator_tab(wb, variant):
     total_row = last_row + 2
     ws.row_dimensions[last_row + 1].height = 8
     a = ws.cell(row=total_row, column=1, value="TOTAL — $ HOST OWES YTD")
-    a.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    a.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     a.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     a.alignment = Alignment(horizontal="right", vertical="center", indent=1)
     ws.merge_cells(start_row=total_row, start_column=1,
@@ -571,7 +571,7 @@ def build_tot_calculator_tab(wb, variant):
         )
     c = ws.cell(row=total_row, column=8,
                   value=f"=SUM(H7:H{last_row})")
-    c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     c.number_format = '"$"#,##0.00'
     c.alignment = Alignment(horizontal="right", vertical="center", indent=1)
@@ -707,7 +707,7 @@ def build_filing_list_tab(wb, variant):
         f"A6:F{last_row}",
         FormulaRule(
             formula=[f'AND($C6-TODAY()<7,$C6>=TODAY(),$E6<>"Filed",$E6<>"Paid",$E6<>"N/A")'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(name=FONT_BODY, size=11, bold=True, color=COLOR_ERROR),
         ),
     )
@@ -724,7 +724,7 @@ def build_filing_list_tab(wb, variant):
         f"A6:F{last_row}",
         FormulaRule(
             formula=[f'AND($C6<TODAY(),$E6<>"Filed",$E6<>"Paid",$E6<>"N/A")'],
-            fill=PatternFill("solid", fgColor="F8B4B4"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(name=FONT_BODY, size=11, bold=True, color=COLOR_ERROR),
         ),
     )

@@ -31,8 +31,7 @@ from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
+from brand_config import (COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
     COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -41,6 +40,7 @@ from brand_config import (
     compact_header_band, brand_footer,
     set_col_widths, apply_style, input_cell_style, formula_cell_style,
     header_row_style,
+    COLOR_WHITE,
 )
 
 BASE = Path(__file__).resolve().parent.parent
@@ -150,11 +150,11 @@ def build_start_tab(wb, variant):
             ws.cell(row=r, column=c).fill = navy_fill
     ws.merge_cells("A2:F2")
     c = ws["A2"]; c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.merge_cells("A4:L4")
     c = ws["A4"]; c.value = "Depreciation Tracker"
-    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 48
     ws.merge_cells("A5:L5")
@@ -719,7 +719,7 @@ def build_form_4562_worksheet_tab(wb, variant):
     def banner(row, text):
         ws.merge_cells(f"A{row}:C{row}")
         c = ws.cell(row=row, column=1, value=text)
-        c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+        c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
         c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
         c.alignment = Alignment(horizontal="left", vertical="center", indent=1)
         ws.row_dimensions[row].height = 22
@@ -942,7 +942,7 @@ def build_settings_tab(wb, variant):
     for col, h in enumerate(headers, start=1):
         cell = ws.cell(row=21, column=col, value=h)
         apply_style(cell, header_row_style())
-        cell.font = Font(name=FONT_BODY, size=9, bold=True, color="FFFFFF")
+        cell.font = Font(name=FONT_BODY, size=9, bold=True, color=COLOR_WHITE)
     ws.row_dimensions[21].height = 22
 
     # Rows 22-27 — one per MACRS class

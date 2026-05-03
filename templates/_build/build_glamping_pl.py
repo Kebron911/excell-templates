@@ -22,8 +22,7 @@ from openpyxl.utils.cell import column_index_from_string
 from openpyxl.chart import BarChart, Reference
 from openpyxl.chart.label import DataLabelList
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -31,6 +30,7 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, add_upgrade_banner, apply_style,
     pseudo_button, compact_header_band, brand_footer, style_chart,
+    STATE_BAD_FILL, STATE_GOOD_FILL,
 )
 
 BASE = Path(__file__).resolve().parent.parent
@@ -642,12 +642,12 @@ def build_expenses_tab(wb, variant):
     ws.conditional_formatting.add(
         f"B{noi_row}:N{noi_row}",
         CellIsRule(operator="lessThan", formula=["0"],
-                   fill=PatternFill("solid", fgColor="FFCCCC")),
+                   fill=PatternFill("solid", fgColor=STATE_BAD_FILL)),
     )
     ws.conditional_formatting.add(
         f"B{noi_row}:N{noi_row}",
         CellIsRule(operator="greaterThan", formula=["0"],
-                   fill=PatternFill("solid", fgColor="C7EFCF")),
+                   fill=PatternFill("solid", fgColor=STATE_GOOD_FILL)),
     )
 
     ws.freeze_panes = "B6"

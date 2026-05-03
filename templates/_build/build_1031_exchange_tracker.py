@@ -28,8 +28,7 @@ from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_ACCENT, COLOR_SECONDARY, COLOR_TEXT, COLOR_MUTED,
+from brand_config import (COLOR_PRIMARY, COLOR_ACCENT, COLOR_SECONDARY, COLOR_TEXT, COLOR_MUTED,
     COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT, COLOR_NAVY_TINT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -37,6 +36,7 @@ from brand_config import (
     pseudo_button, compact_header_band, apply_brand_header, brand_footer,
     set_col_widths, apply_style, input_cell_style, formula_cell_style,
     header_row_style,
+    COLOR_WHITE,
 )
 
 SKU = "ACQ-011"
@@ -75,7 +75,7 @@ def _apply_countdown_cf(ws, cell_range):
             operator="lessThan",
             formula=["7"],
             fill=PatternFill("solid", fgColor=COLOR_ERROR),
-            font=Font(name=FONT_HEAD, size=12, bold=True, color="FFFFFF"),
+            font=Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_WHITE),
         ),
     )
     # Gold — warning (7 to 21 inclusive)
@@ -118,12 +118,12 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "1031 Exchange Tracker"
-    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 48
     ws.merge_cells("A5:L5")
@@ -250,7 +250,7 @@ def build_start_tab(wb, variant):
         "in place before sale closing. Miss the 45-day ID or 180-day closing window by ONE "
         "DAY and the entire deferral fails — you owe full tax on the gain."
     )
-    c.font = Font(name=FONT_HEAD, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_HEAD, size=11, bold=True, color=COLOR_WHITE)
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     ws.row_dimensions[17].height = 22
     ws.row_dimensions[18].height = 22
@@ -763,7 +763,7 @@ def build_replacement_tab(wb, variant):
         apply_style(c, formula_cell_style())
         c.number_format = fmt
         if r == 22:
-            c.font = Font(name=FONT_HEAD, size=14, bold=True, color="F6EFE2")
+            c.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_BG_LIGHT)
             c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
         if r == 19:
             c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_ERROR)
@@ -887,7 +887,7 @@ def build_carryover_tab(wb, variant):
         apply_style(c, formula_cell_style())
         c.number_format = fmt
         if r == 12:
-            c.font = Font(name=FONT_HEAD, size=14, bold=True, color="F6EFE2")
+            c.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_BG_LIGHT)
             c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
         ws.row_dimensions[r].height = 20
 
@@ -1045,7 +1045,7 @@ def build_settings_tab(wb, variant):
         "gain is taxable. The QI holds proceeds in escrow and transfers them to the replacement closing. "
         "This workbook tracks the timeline; the QI executes the exchange."
     )
-    c.font = Font(name=FONT_HEAD, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_HEAD, size=11, bold=True, color=COLOR_WHITE)
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
 
     # Disclaimer block (rows 17-19)

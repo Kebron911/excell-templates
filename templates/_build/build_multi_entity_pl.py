@@ -20,8 +20,7 @@ from openpyxl.worksheet.page import PageMargins
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT, COLOR_NAVY_TINT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -29,6 +28,7 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, apply_style,
     pseudo_button, compact_header_band, brand_footer,
+    COLOR_WHITE, STATE_BAD_FILL, STATE_GOOD_FILL,
 )
 
 SKU = "FIN-006"
@@ -206,7 +206,7 @@ def _section_band(ws, row, label, max_col=14):
     ws.merge_cells(f"A{row}:{last}{row}")
     c = ws[f"A{row}"]
     c.value = label
-    c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[row].height = 24
@@ -232,13 +232,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Multi-Entity Consolidated P&L"
-    c.font = Font(name=FONT_HEAD, size=30, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=30, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
 
@@ -335,7 +335,7 @@ def build_start_tab(wb, variant):
         "Hand-off ready. Print Consolidated P&L + K-1 Worksheet for your CPA — "
         f"questions to {BRAND_EMAIL}."
     )
-    c.font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    c.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     c.fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     ws.row_dimensions[27].height = 32
@@ -481,7 +481,7 @@ def build_per_entity_pl_tab(wb, variant):
         ws.merge_cells(f"A{start}:N{start}")
         title_cell = ws[f"A{start}"]
         title_cell.value = f"=IF('Entity Setup'!A{6 + s_idx}=\"\",\"(Entity slot {s_idx + 1} — empty)\",\"ENTITY: \"&'Entity Setup'!A{6 + s_idx})"
-        title_cell.font = Font(name=FONT_HEAD, size=13, bold=True, color="F6EFE2")
+        title_cell.font = Font(name=FONT_HEAD, size=13, bold=True, color=COLOR_BG_LIGHT)
         title_cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
         title_cell.alignment = Alignment(horizontal="left", vertical="center", indent=2)
         ws.row_dimensions[start].height = 26
@@ -598,12 +598,12 @@ def build_per_entity_pl_tab(wb, variant):
         ws.conditional_formatting.add(
             f"B{noi_row}:N{noi_row}",
             CellIsRule(operator="lessThan", formula=["0"],
-                       fill=PatternFill("solid", fgColor="FFCCCC")),
+                       fill=PatternFill("solid", fgColor=STATE_BAD_FILL)),
         )
         ws.conditional_formatting.add(
             f"B{noi_row}:N{noi_row}",
             CellIsRule(operator="greaterThan", formula=["0"],
-                       fill=PatternFill("solid", fgColor="C7EFCF")),
+                       fill=PatternFill("solid", fgColor=STATE_GOOD_FILL)),
         )
 
     ws.freeze_panes = "B6"
@@ -823,7 +823,7 @@ def build_consolidated_pl_tab(wb, variant):
     ws.merge_cells("A9:B9")
     c = ws["A9"]
     c.value = "EXPENSES"
-    c.font = Font(name=FONT_HEAD, size=11, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=11, bold=True, color=COLOR_BG_LIGHT)
     c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[9].height = 22
@@ -904,7 +904,7 @@ def build_consolidated_pl_tab(wb, variant):
     # Row 25: CONSOLIDATED NOI
     # Display = pre-elim NOI (since symmetric intercompany activity nets to 0).
     ws.cell(row=25, column=1, value="CONSOLIDATED NOI").font = Font(
-        name=FONT_HEAD, size=14, bold=True, color="F6EFE2"
+        name=FONT_HEAD, size=14, bold=True, color=COLOR_BG_LIGHT
     )
     ws.cell(row=25, column=1).fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     ws.cell(row=25, column=1).alignment = Alignment(
@@ -914,14 +914,14 @@ def build_consolidated_pl_tab(wb, variant):
     apply_style(cell, formula_cell_style())
     cell.number_format = '"$"#,##0'
     cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
-    cell.font = Font(name=FONT_HEAD, size=14, bold=True, color="F6EFE2")
+    cell.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_BG_LIGHT)
     cell.alignment = Alignment(horizontal="right", vertical="center", indent=1)
     ws.row_dimensions[25].height = 30
 
     ws.conditional_formatting.add(
         "B25",
         CellIsRule(operator="lessThan", formula=["0"],
-                   fill=PatternFill("solid", fgColor="FFCCCC")),
+                   fill=PatternFill("solid", fgColor=STATE_BAD_FILL)),
     )
 
     # Right-side note column D
@@ -1028,7 +1028,7 @@ def build_member_distributions_tab(wb, variant):
     # Total distributions row 17 (under 10 members ending at row 15 — adjust)
     total_row = 6 + MEMBER_CAP + 1  # row 17
     ws.cell(row=total_row, column=1, value="TOTAL DISTRIBUTIONS").font = Font(
-        name=FONT_HEAD, size=12, bold=True, color="F6EFE2"
+        name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT
     )
     ws.cell(row=total_row, column=1).fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     ws.cell(row=total_row, column=1).alignment = Alignment(
@@ -1043,7 +1043,7 @@ def build_member_distributions_tab(wb, variant):
         apply_style(cell, formula_cell_style())
         cell.number_format = '"$"#,##0'
         cell.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
-        cell.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+        cell.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     ws.row_dimensions[total_row].height = 24
 
     # Note: Start tab references N12 (which is row 12, member row #7).

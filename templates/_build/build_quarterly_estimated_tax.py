@@ -24,8 +24,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.utils.cell import column_index_from_string
 from openpyxl.chart import BarChart, Reference
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
+from brand_config import (COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
     COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -33,12 +32,24 @@ from brand_config import (
     pseudo_button, compact_header_band, brand_footer, style_chart,
     set_col_widths, apply_style, input_cell_style, formula_cell_style,
     header_row_style,
+    STATE_BAD_FILL,
 )
 
-OUT = Path(__file__).resolve().parent.parent / "_masters" / "TAX-005-quarterly-estimated-tax.xlsx"
-
 SKU = "TAX-005"
-VERSION_LINE = f"{SKU} · v2.2 · Free updates forever"
+NAME = "quarterly-estimated-tax"
+VERSION_LINE = f"{SKU} · v2.3 · Free updates forever"
+BASE = Path(__file__).resolve().parent.parent
+DEMO_OUT = BASE / "_masters" / f"{SKU}-{NAME}-DEMO.xlsx"
+BLANK_OUT = BASE / "_masters" / f"{SKU}-{NAME}-BLANK.xlsx"
+
+# Reference-data freshness stamp (per suite-wide Theme 4: hosts edit
+# locally when laws change; this date tells them when their copy was current).
+RATES_AS_OF = "2026-01-01"
+
+
+def _val(variant, demo_value):
+    """Return demo_value when building DEMO, None for BLANK."""
+    return demo_value if variant == "demo" else None
 
 # IRS quarterly periods (NOT calendar quarters)
 QUARTERS = ["Q1 (Jan-Mar)", "Q2 (Apr-May)", "Q3 (Jun-Aug)", "Q4 (Sep-Dec)"]
@@ -102,7 +113,7 @@ def add_dropdown(ws, cell_range, options):
     ws.add_data_validation(dv)
 
 
-def build_start_tab(wb):
+def build_start_tab(wb, variant):
     ws = wb.active
     ws.title = "Start"
     ws.sheet_properties.tabColor = COLOR_PRIMARY
@@ -116,19 +127,36 @@ def build_start_tab(wb):
             ws.cell(row=r, column=c).fill = navy_fill
     ws.merge_cells("A2:F2")
     c = ws["A2"]; c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.merge_cells("A4:L4")
     c = ws["A4"]; c.value = "Quarterly Estimated Tax"
-    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 48
     ws.merge_cells("A5:L5")
     c = ws["A5"]; c.value = "Stop guessing what you owe."
     c.font = Font(name=FONT_HEAD, size=14, italic=True, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
+
+    # Row 6: VERDICT cell — single declarative answer (suite Theme 1).
+    # Falls back to a setup nudge when the customer hasn't entered numbers yet.
+    ws.merge_cells("A6:L6")
+    c = ws["A6"]
+    c.value = (
+        '=IF(SUM(\'Quarterly P&L\'!B11:E11)=0,'
+        '"\U0001F4CA  Fill Settings + Quarterly P&L to see your verdict.",'
+        '"→  Next voucher = "&TEXT(IFERROR(INDEX(\'Payment Schedule\'!E6:E9,'
+        'MATCH("",\'Payment Schedule\'!F6:F9,0)),0),"$#,##0")'
+        '&"  ·  "&\'Estimated Tax\'!B27)'
+    )
+    c.font = Font(name=FONT_HEAD, size=16, bold=True, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    c.fill = navy_fill
+    ws.row_dimensions[6].height = 32
+
     ws.merge_cells("A7:L7")
-    c = ws["A7"]; c.value = f"{SKU} · v2.2"
+    c = ws["A7"]; c.value = f"{SKU} · v2.3 · {variant.upper()}"
     c.font = Font(name=FONT_MONO, size=9, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
 
@@ -298,7 +326,7 @@ def build_start_tab(wb):
     ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
-def build_quarterly_pl_tab(wb):
+def build_quarterly_pl_tab(wb, variant):
     """Tab 1 — Quarterly P&L matrix. 4 quarter columns × line items."""
     ws = wb.create_sheet("Quarterly P&L")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
@@ -348,7 +376,7 @@ def build_quarterly_pl_tab(wb):
         a.font = bold
         a.alignment = Alignment(horizontal="right", vertical="center", indent=1)
         for col, v in enumerate(vals, start=2):
-            cell = ws.cell(row=r, column=col, value=v)
+            cell = ws.cell(row=r, column=col, value=_val(variant, v))
             apply_style(cell, input_cell_style())
             cell.number_format = '"$"#,##0;[Red]("$"#,##0)'
         # YTD column F = SUM(B:E)
@@ -387,7 +415,7 @@ def build_quarterly_pl_tab(wb):
         a.font = bold
         a.alignment = Alignment(horizontal="right", vertical="center", indent=1)
         for col, v in enumerate(vals, start=2):
-            cell = ws.cell(row=r, column=col, value=v)
+            cell = ws.cell(row=r, column=col, value=_val(variant, v))
             apply_style(cell, input_cell_style())
             cell.number_format = '"$"#,##0'
         f = ws.cell(row=r, column=6, value=f"=SUM(B{r}:E{r})")
@@ -418,14 +446,14 @@ def build_quarterly_pl_tab(wb):
     net_row = sub_row + 2
     ws.row_dimensions[sub_row + 1].height = 8
     a = ws.cell(row=net_row, column=1, value="NET PROFIT (Income − Expenses)")
-    a.font = Font(name=FONT_HEAD, size=14, bold=True, color="F6EFE2")
+    a.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_BG_LIGHT)
     a.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     a.alignment = Alignment(horizontal="right", vertical="center", indent=1)
     for col in range(2, 7):
         col_letter = get_column_letter(col)
         c = ws.cell(row=net_row, column=col,
                      value=f"={col_letter}11-{col_letter}{sub_row}")
-        c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+        c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
         c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
         c.number_format = '"$"#,##0;[Red]("$"#,##0)'
         c.alignment = Alignment(horizontal="right", vertical="center", indent=1)
@@ -449,7 +477,7 @@ def build_quarterly_pl_tab(wb):
         CellIsRule(
             operator="lessThan",
             formula=["0"],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_ERROR),
         ),
     )
@@ -661,10 +689,10 @@ def build_estimated_tax_tab(wb, net_row_in_pl):
 
 
 def build_payment_schedule_tab(wb):
-    """Tab 3 — Payment Schedule. 4 vouchers with due dates."""
+    """Tab 3 — Payment Schedule / CPA Hand-off page."""
     ws = wb.create_sheet("Payment Schedule")
-    ws.sheet_properties.tabColor = COLOR_ACCENT
-    compact_header_band(ws, "Payment Schedule",
+    ws.sheet_properties.tabColor = COLOR_ACCENT  # gold = CPA hand-off
+    compact_header_band(ws, "Payment Schedule · For Your CPA",
                          prev_tab="Estimated Tax", next_tab="Settings")
 
     parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
@@ -672,7 +700,7 @@ def build_payment_schedule_tab(wb):
         ws.cell(row=4, column=c).fill = parchment_fill
     ws.merge_cells("A4:L4")
     c4 = ws["A4"]
-    c4.value = "Quarterly voucher amounts and IRS due dates (Form 1040-ES)."
+    c4.value = "📄 FOR YOUR CPA — print this tab. Quarterly voucher amounts and IRS due dates (Form 1040-ES)."
     c4.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
     c4.alignment = Alignment(horizontal="left", vertical="center", indent=1)
     ws.row_dimensions[4].height = 18
@@ -729,7 +757,7 @@ def build_payment_schedule_tab(wb):
         "C6:C9",
         FormulaRule(
             formula=['AND(C6<TODAY(),F6<>"Paid")'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(bold=True, color=COLOR_ERROR),
         ),
     )
@@ -737,7 +765,7 @@ def build_payment_schedule_tab(wb):
     # YTD totals row 11
     ws.row_dimensions[10].height = 8
     a = ws.cell(row=11, column=1, value="YTD")
-    a.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    a.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     a.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     a.alignment = Alignment(horizontal="left", vertical="center", indent=1)
     for col in [2, 3]:
@@ -746,7 +774,7 @@ def build_payment_schedule_tab(wb):
     for col, formula in [(4, "=SUM(D6:D9)"), (5, "=SUM(E6:E9)"),
                           (7, "=SUM(G6:G9)")]:
         c = ws.cell(row=11, column=col, value=formula)
-        c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+        c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
         c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
         c.number_format = '"$"#,##0'
         c.alignment = Alignment(horizontal="right", vertical="center", indent=1)
@@ -780,7 +808,7 @@ def build_payment_schedule_tab(wb):
     ws.page_setup.fitToHeight = 1
 
 
-def build_settings_tab(wb):
+def build_settings_tab(wb, variant):
     ws = wb.create_sheet("Settings")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
     compact_header_band(ws, "Settings",
@@ -806,16 +834,20 @@ def build_settings_tab(wb):
     bold_right = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
     italic_muted = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_MUTED)
 
-    # Settings inputs
+    # Settings inputs.
+    # Rows 5-8 carry sensible structural defaults (year, schedule, filing
+    # status) in BOTH variants — a blank tax year would break the Quarterly
+    # P&L's date math. Rows 9-12 are customer-specific dollars and are only
+    # populated in the DEMO variant.
     fields = [
-        (5,  "Active tax year:",                                   2026,                 "0"),
-        (6,  "Schedule classification:",                           "Schedule E (passive)", None),
-        (7,  "Substantial services? (Y/N — drives Schedule C):",   "N",                  None),
-        (8,  "Filing status:",                                     "MFJ",                None),
-        (9,  "Prior-year AGI:",                                    148000,               '"$"#,##0'),
-        (10, "Prior-year total tax (Form 1040 Line 24):",          14200,                '"$"#,##0'),
-        (11, "Other YTD income (memo, e.g., spouse W-2):",         88000,                '"$"#,##0'),
-        (12, "YTD W-2 withholding (spouse, this year):",           8000,                 '"$"#,##0'),
+        (5,  "Active tax year:",                                   2026,                                  "0"),
+        (6,  "Schedule classification:",                           "Schedule E (passive)",                None),
+        (7,  "Substantial services? (Y/N — drives Schedule C):",   "N",                                   None),
+        (8,  "Filing status:",                                     "MFJ",                                 None),
+        (9,  "Prior-year AGI:",                                    _val(variant, 148000),                 '"$"#,##0'),
+        (10, "Prior-year total tax (Form 1040 Line 24):",          _val(variant, 14200),                  '"$"#,##0'),
+        (11, "Other YTD income (memo, e.g., spouse W-2):",         _val(variant, 88000),                  '"$"#,##0'),
+        (12, "YTD W-2 withholding (spouse, this year):",           _val(variant, 8000),                   '"$"#,##0'),
     ]
     for r, label, val, fmt in fields:
         a = ws.cell(row=r, column=1, value=label)
@@ -844,7 +876,18 @@ def build_settings_tab(wb):
     ws.cell(row=18, column=5, value="MFS").font = bold_right
     ws.cell(row=18, column=6, value=STD_DEDUCTION_2026["MFS"]).number_format = '"$"#,##0'
 
-    # Brackets reference (rows 20+)
+    # Brackets reference (rows 19-20+).
+    # Row 19: freshness stamp (suite Theme 4) — IRS publishes new brackets
+    # each November. Customers should bump RATES_AS_OF and the values below
+    # when their tax year rolls over. Without this, the workbook silently
+    # uses last year's brackets and quietly miscalculates by ~3-5%.
+    a = ws.cell(row=19, column=1,
+                 value=f"📅 Brackets + standard deduction as of {RATES_AS_OF} — edit me each Nov when IRS publishes new figures.")
+    a.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_MUTED)
+    ws.merge_cells("A19:F19")
+    a.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+    ws.row_dimensions[19].height = 18
+
     a = ws.cell(row=20, column=1,
                  value="2026 Federal Income Tax Brackets (reference)")
     a.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_PRIMARY)
@@ -905,28 +948,34 @@ def build_settings_tab(wb):
         ws.row_dimensions[r].height = 16
 
 
-def main():
+def build_workbook(out_path, variant):
     wb = Workbook()
-    build_start_tab(wb)
-    net_row = build_quarterly_pl_tab(wb)
+    build_start_tab(wb, variant)
+    net_row = build_quarterly_pl_tab(wb, variant)
     build_estimated_tax_tab(wb, net_row)
     build_payment_schedule_tab(wb)
-    build_settings_tab(wb)
+    build_settings_tab(wb, variant)
 
     # Fix Start tab card 1 — net_row reference. Originally hardcoded to F25.
     start_ws = wb["Start"]
     start_ws["A33"].value = f"='Quarterly P&L'!F{net_row}"
 
-    wb.properties.title = "Quarterly Estimated Tax Calculator — The STR Ledger"
+    suffix = f" ({variant.upper()})"
+    wb.properties.title = f"Quarterly Estimated Tax Calculator{suffix} — The STR Ledger"
     wb.properties.creator = BRAND_NAME
     wb.properties.company = BRAND_NAME
     wb.properties.description = (
         "IRS-compliant quarterly estimated tax tracker for STR hosts."
     )
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(OUT)
-    print(f"Saved: {OUT.name}")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(out_path)
+    print(f"Saved: {out_path.name}")
+
+
+def main():
+    build_workbook(DEMO_OUT, "demo")
+    build_workbook(BLANK_OUT, "blank")
 
 
 if __name__ == "__main__":

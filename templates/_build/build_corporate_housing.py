@@ -29,8 +29,7 @@ from openpyxl.utils.cell import column_index_from_string
 from openpyxl.chart import BarChart, Reference
 from openpyxl.chart.label import DataLabelList
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT, COLOR_NAVY_TINT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -38,6 +37,9 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, add_upgrade_banner, apply_style,
     pseudo_button, compact_header_band, brand_footer, style_chart,
+    COLOR_FORMULA_TINT, STATE_GOOD_FILL, STATE_WARN_FILL,
+    STATE_BAD_FILL,
+    STATE_INFO_FILL,
 )
 
 SKU = "SPC-002"
@@ -165,13 +167,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "Corporate Housing & Travel-Nurse Tracker"
-    c.font = Font(name=FONT_HEAD, size=28, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=28, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
 
@@ -437,12 +439,12 @@ def build_tenants_tab(wb, variant):
 
     # Conditional formatting on Status
     status_colors = [
-        ("Active",      "C7EFCF"),
-        ("Approved",    "FFF3BF"),
-        ("Lead",        "E0E7FF"),
-        ("Application", "FFE4CC"),
-        ("Move-out",    "FFD6D6"),
-        ("Past",        "EDEDED"),
+        ("Active",      STATE_GOOD_FILL),
+        ("Approved",    STATE_WARN_FILL),
+        ("Lead",        STATE_INFO_FILL),
+        ("Application", STATE_WARN_FILL),
+        ("Move-out",    STATE_BAD_FILL),
+        ("Past",        COLOR_FORMULA_TINT),
     ]
     for status, color in status_colors:
         ws.conditional_formatting.add(
@@ -578,7 +580,7 @@ def build_lease_calendar_tab(wb, variant):
         grid_range,
         FormulaRule(
             formula=['LEN(B6)>0'],
-            fill=PatternFill("solid", fgColor="C7EFCF"),
+            fill=PatternFill("solid", fgColor=STATE_GOOD_FILL),
             font=Font(name=FONT_BODY, size=9, bold=True, color=COLOR_PRIMARY),
         ),
     )
@@ -587,7 +589,7 @@ def build_lease_calendar_tab(wb, variant):
         grid_range,
         FormulaRule(
             formula=['AND(LEN(B6)=0,LEN($A6)>0)'],
-            fill=PatternFill("solid", fgColor="FFD6D6"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
         ),
     )
 
@@ -928,12 +930,12 @@ def build_pipeline_tab(wb, variant):
     ws.conditional_formatting.add(
         "I6:I10",
         CellIsRule(operator="greaterThanOrEqual", formula=["0.25"],
-                    fill=PatternFill("solid", fgColor="C7EFCF")),
+                    fill=PatternFill("solid", fgColor=STATE_GOOD_FILL)),
     )
     ws.conditional_formatting.add(
         "I6:I10",
         CellIsRule(operator="lessThan", formula=["0.10"],
-                    fill=PatternFill("solid", fgColor="FFD6D6")),
+                    fill=PatternFill("solid", fgColor=STATE_BAD_FILL)),
     )
 
     ws.print_area = "A1:I22"

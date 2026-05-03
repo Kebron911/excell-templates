@@ -27,8 +27,7 @@ from openpyxl.utils.cell import column_index_from_string
 from openpyxl.chart import BarChart, LineChart, Reference
 from openpyxl.chart.label import DataLabelList
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -36,6 +35,7 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, add_upgrade_banner, apply_style,
     pseudo_button, compact_header_band, brand_footer, style_chart,
+    STATE_BAD_FILL, STATE_GOOD_FILL,
 )
 
 BASE = Path(__file__).resolve().parent.parent
@@ -187,13 +187,13 @@ def build_start_tab(wb, variant):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
     ws.merge_cells("A4:L4")
     c = ws["A4"]
     c.value = "12-Month Cash Flow Forecast"
-    c.font = Font(name=FONT_HEAD, size=34, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=34, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 46
 
@@ -852,8 +852,8 @@ def build_cash_flow_forecast_tab(wb, portfolio_revenue_row):
     # Conditional formatting:
     #   Cumulative cash row red where < 0 (per brief — primary risk indicator)
     #   NET monthly row also flagged where < 0
-    red_fill = PatternFill("solid", fgColor="FFCCCC")
-    green_fill = PatternFill("solid", fgColor="C7EFCF")
+    red_fill = PatternFill("solid", fgColor=STATE_BAD_FILL)
+    green_fill = PatternFill("solid", fgColor=STATE_GOOD_FILL)
     ws.conditional_formatting.add(
         "B11:M11",
         CellIsRule(operator="lessThan", formula=["0"], fill=red_fill),

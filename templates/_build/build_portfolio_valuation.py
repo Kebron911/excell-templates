@@ -24,8 +24,7 @@ from openpyxl.utils.cell import column_index_from_string
 from openpyxl.chart import PieChart, Reference
 from openpyxl.chart.label import DataLabelList
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -33,6 +32,7 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, apply_style,
     pseudo_button, compact_header_band, brand_footer, style_chart,
+    COLOR_WHITE,
 )
 
 SKU = "STR-002"
@@ -86,7 +86,7 @@ def _section_band(ws, row, label):
     ws.merge_cells(f"A{row}:L{row}")
     c = ws[f"A{row}"]
     c.value = label
-    c.font = Font(name=FONT_HEAD, size=12, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT)
     c.fill = PatternFill("solid", fgColor=COLOR_PRIMARY)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.row_dimensions[row].height = 24
@@ -146,13 +146,13 @@ def build_start_tab(wb, variant):
 
     # Brand wordmark row 2 (write BEFORE merging)
     ws["A2"] = BRAND_NAME
-    ws["A2"].font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    ws["A2"].font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     ws["A2"].alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.merge_cells("A2:F2")
 
     # Title row 4 (write BEFORE merging)
     ws["A4"] = "Portfolio Valuation Model"
-    ws["A4"].font = Font(name=FONT_HEAD, size=30, bold=True, color="F6EFE2")
+    ws["A4"].font = Font(name=FONT_HEAD, size=30, bold=True, color=COLOR_BG_LIGHT)
     ws["A4"].alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 44
     ws.merge_cells("A4:L4")
@@ -228,7 +228,7 @@ def build_start_tab(wb, variant):
         f"Free updates forever at {BRAND_DOMAIN}."
     )
     ws["A29"] = cta
-    ws["A29"].font = Font(name=FONT_BODY, size=11, bold=True, color="FFFFFF")
+    ws["A29"].font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_WHITE)
     ws["A29"].fill = PatternFill("solid", fgColor=COLOR_ACCENT)
     ws["A29"].alignment = Alignment(
         horizontal="center", vertical="center", wrap_text=True
@@ -451,7 +451,7 @@ def build_per_property_tab(wb, variant):
     totals_row = last_data + 1  # 17
     ws.cell(row=totals_row, column=1).value = "PORTFOLIO TOTAL"
     ws.cell(row=totals_row, column=1).font = Font(
-        name=FONT_HEAD, size=12, bold=True, color="F6EFE2"
+        name=FONT_HEAD, size=12, bold=True, color=COLOR_BG_LIGHT
     )
     ws.cell(row=totals_row, column=1).fill = PatternFill(
         "solid", fgColor=COLOR_PRIMARY
@@ -484,7 +484,7 @@ def build_per_property_tab(wb, variant):
     )
     ws.cell(row=totals_row, column=13).number_format = '"$"#,##0'
     ws.cell(row=totals_row, column=13).font = Font(
-        name=FONT_BODY, size=11, bold=True, color="F6EFE2"
+        name=FONT_BODY, size=11, bold=True, color=COLOR_BG_LIGHT
     )
     ws.cell(row=totals_row, column=13).alignment = Alignment(
         horizontal="right", vertical="center"
@@ -508,7 +508,7 @@ def build_per_property_tab(wb, variant):
     )
     ws.cell(row=totals_row, column=15).number_format = "0.0%"
     ws.cell(row=totals_row, column=15).font = Font(
-        name=FONT_BODY, size=11, bold=True, color="F6EFE2"
+        name=FONT_BODY, size=11, bold=True, color=COLOR_BG_LIGHT
     )
     ws.cell(row=totals_row, column=15).alignment = Alignment(
         horizontal="center", vertical="center"

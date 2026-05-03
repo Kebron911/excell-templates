@@ -26,8 +26,7 @@ from openpyxl.utils.cell import column_index_from_string
 from openpyxl.chart import BarChart, DoughnutChart, Reference
 from openpyxl.chart.label import DataLabelList
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
+from brand_config import (COLOR_PRIMARY, COLOR_ACCENT, COLOR_TEXT, COLOR_MUTED,
     COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -35,11 +34,21 @@ from brand_config import (
     pseudo_button, compact_header_band, brand_footer, style_chart,
     set_col_widths, apply_style, input_cell_style, formula_cell_style,
     header_row_style,
+    STATE_BAD_FILL,
+    STATE_WARN_FILL,
 )
 
-OUT = Path(__file__).resolve().parent.parent / "_masters" / "TAX-007-per-diem-meal-tracker.xlsx"
 SKU = "TAX-007"
-VERSION_LINE = f"{SKU} · v2.2 · Free updates forever"
+NAME = "per-diem-meal-tracker"
+BASE = Path(__file__).resolve().parent.parent
+DEMO_OUT = BASE / "_masters" / f"{SKU}-{NAME}-DEMO.xlsx"
+BLANK_OUT = BASE / "_masters" / f"{SKU}-{NAME}-BLANK.xlsx"
+VERSION_LINE = f"{SKU} · v2.3 · Free updates forever"
+RATES_AS_OF = "2026-01-01"  # GSA publishes new M&IE rates each Oct
+
+
+def _val(variant, demo_value):
+    return demo_value if variant == "demo" else None
 
 # 2026 GSA M&IE rates (illustrative defaults — editable in Settings)
 M_IE_HIGH = 80   # high-cost cities (NYC, SF, etc.)
@@ -91,7 +100,7 @@ def add_dropdown(ws, cell_range, formula1):
     ws.add_data_validation(dv)
 
 
-def build_start_tab(wb):
+def build_start_tab(wb, variant):
     ws = wb.active
     ws.title = "Start"
     ws.sheet_properties.tabColor = COLOR_PRIMARY
@@ -105,11 +114,11 @@ def build_start_tab(wb):
             ws.cell(row=r, column=c).fill = navy_fill
     ws.merge_cells("A2:F2")
     c = ws["A2"]; c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
     ws.merge_cells("A4:L4")
     c = ws["A4"]; c.value = "Per-Diem Meal Tracker"
-    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 48
     ws.merge_cells("A5:L5")
@@ -117,7 +126,7 @@ def build_start_tab(wb):
     c.font = Font(name=FONT_HEAD, size=14, italic=True, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.merge_cells("A7:L7")
-    c = ws["A7"]; c.value = f"{SKU} · v2.2"
+    c = ws["A7"]; c.value = f"{SKU} · v2.3 · {variant.upper()}"
     c.font = Font(name=FONT_MONO, size=9, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
 
@@ -279,7 +288,7 @@ def build_start_tab(wb):
     ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
-def build_meals_log_tab(wb):
+def build_meals_log_tab(wb, variant):
     ws = wb.create_sheet("Meals Log")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
     compact_header_band(ws, "Meals Log",
@@ -312,10 +321,11 @@ def build_meals_log_tab(wb):
         ("I", 9), ("J", 9), ("K", 11), ("L", 7), ("M", 10),
     ])
 
-    # Rows 6-2005
+    # Rows 6-2005 — DEMO populates samples; BLANK starts empty
+    meals = MEALS_SAMPLES if variant == "demo" else []
     for i in range(6, 2006):
         sample_idx = i - 6
-        sample = MEALS_SAMPLES[sample_idx] if sample_idx < len(MEALS_SAMPLES) else None
+        sample = meals[sample_idx] if sample_idx < len(meals) else None
 
         if sample:
             (date_val, prop, location, restaurant, attendees, purpose,
@@ -391,7 +401,7 @@ def build_meals_log_tab(wb):
         "L6:L2005",
         FormulaRule(
             formula=['L6=0'],
-            fill=PatternFill("solid", fgColor="FFCCCC"),
+            fill=PatternFill("solid", fgColor=STATE_BAD_FILL),
             font=Font(bold=True, color=COLOR_ERROR),
         ),
     )
@@ -399,7 +409,7 @@ def build_meals_log_tab(wb):
         "J6:J2005",
         FormulaRule(
             formula=['AND(I6>=75,J6<>"Y")'],
-            fill=PatternFill("solid", fgColor="FFE4B0"),
+            fill=PatternFill("solid", fgColor=STATE_WARN_FILL),
             font=Font(bold=True, color=COLOR_ERROR),
         ),
     )
@@ -416,7 +426,7 @@ def build_meals_log_tab(wb):
     ws.page_margins = PageMargins(left=0.4, right=0.4, top=0.5, bottom=0.5)
 
 
-def build_per_diem_log_tab(wb):
+def build_per_diem_log_tab(wb, variant):
     ws = wb.create_sheet("Per-Diem Log")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
     compact_header_band(ws, "Per-Diem Log",
@@ -446,9 +456,10 @@ def build_per_diem_log_tab(wb):
         ("F", 14), ("G", 14), ("H", 12),
     ])
 
+    trips = PER_DIEM_SAMPLES if variant == "demo" else []
     for i in range(6, 106):  # 100-row capacity
         sample_idx = i - 6
-        sample = PER_DIEM_SAMPLES[sample_idx] if sample_idx < len(PER_DIEM_SAMPLES) else None
+        sample = trips[sample_idx] if sample_idx < len(trips) else None
 
         if sample:
             (date_val, location, full_days, partial_days, m_ie) = sample
@@ -517,9 +528,10 @@ def build_per_diem_log_tab(wb):
 
 
 def build_monthly_summary_tab(wb):
+    """Tab — Monthly Summary / CPA Hand-off page."""
     ws = wb.create_sheet("Monthly Summary")
-    ws.sheet_properties.tabColor = COLOR_BG_LIGHT
-    compact_header_band(ws, "Monthly Summary",
+    ws.sheet_properties.tabColor = COLOR_ACCENT  # gold = CPA hand-off
+    compact_header_band(ws, "Monthly Summary · For Your CPA",
                          prev_tab="Per-Diem Log", next_tab="Settings")
 
     parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
@@ -527,7 +539,7 @@ def build_monthly_summary_tab(wb):
         ws.cell(row=4, column=c).fill = parchment_fill
     ws.merge_cells("A4:L4")
     c4 = ws["A4"]
-    c4.value = "Auto-aggregated from Meals Log + Per-Diem Log."
+    c4.value = "📄 FOR YOUR CPA — print this tab. Auto-aggregated from Meals Log + Per-Diem Log."
     c4.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
     c4.alignment = Alignment(horizontal="left", vertical="center", indent=1)
     ws.row_dimensions[4].height = 18
@@ -606,7 +618,7 @@ def build_monthly_summary_tab(wb):
     ws.row_dimensions[18].height = 8
 
     # YTD row 19
-    ytd_gold = PatternFill("solid", fgColor="FFE9B0")
+    ytd_gold = PatternFill("solid", fgColor=STATE_WARN_FILL)
     ytd_font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
     a19 = ws.cell(row=19, column=1, value="YTD Total")
     a19.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_PRIMARY)
@@ -701,6 +713,20 @@ def build_settings_tab(wb):
     b.number_format = '"$"#,##0'
     ws.row_dimensions[7].height = 18
 
+    # Freshness stamp (suite Theme 4) — GSA publishes new M&IE rates every Oct
+    # for the federal fiscal year starting Oct 1. Customer should bump B6+B7
+    # then; without this, deductions silently use last year's rate.
+    ws.merge_cells("A8:E8")
+    c8_note = ws["A8"]
+    c8_note.value = (
+        f"📅 GSA M&IE rates as of {RATES_AS_OF} — GSA publishes new rates "
+        f"each October (gsa.gov/perdiem); edit B6 + B7 then."
+    )
+    c8_note.font = italic_muted
+    c8_note.alignment = Alignment(horizontal="left", vertical="center",
+                                    wrap_text=True, indent=1)
+    ws.row_dimensions[8].height = 20
+
     # Purposes column (E10 header, E11+ rows for dropdown source)
     e10 = ws.cell(row=10, column=5, value="Purpose list (Meals Log dropdown source)")
     e10.font = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_PRIMARY)
@@ -751,22 +777,28 @@ def build_settings_tab(wb):
         ws.row_dimensions[idx].height = 16
 
 
-def main():
+def build_workbook(out_path, variant):
     wb = Workbook()
-    build_start_tab(wb)
-    build_meals_log_tab(wb)
-    build_per_diem_log_tab(wb)
+    build_start_tab(wb, variant)
+    build_meals_log_tab(wb, variant)
+    build_per_diem_log_tab(wb, variant)
     build_monthly_summary_tab(wb)
     build_settings_tab(wb)
 
-    wb.properties.title = "Per-Diem Meal Tracker — The STR Ledger"
+    suffix = f" ({variant.upper()})"
+    wb.properties.title = f"Per-Diem Meal Tracker{suffix} — The STR Ledger"
     wb.properties.creator = BRAND_NAME
     wb.properties.company = BRAND_NAME
     wb.properties.description = "IRS Pub 463-compliant meal deduction tracker for STR hosts."
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(OUT)
-    print(f"Saved: {OUT.name}")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(out_path)
+    print(f"Saved: {out_path.name}")
+
+
+def main():
+    build_workbook(DEMO_OUT, "demo")
+    build_workbook(BLANK_OUT, "blank")
 
 
 if __name__ == "__main__":

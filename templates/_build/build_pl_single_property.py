@@ -13,7 +13,9 @@ Critical fixes vs v1 (per skill str-tax-context.md §"Active tax year"):
 - Schedule C/E selector on Settings + dependent Schedule routing footnote
 - Pre-startup-cost callout on Start tab (IRC §195)
 
-Generates BOTH Lite (Etsy) and Full (Gumroad) variants from shared code.
+Generates BOTH DEMO and BLANK variants from shared code (per the suite-wide
+customer-eye theme: pre-populated demo data converts 5x better than empty cells,
+but customers still need a clean copy to drop their own data into).
 """
 from datetime import datetime
 from pathlib import Path
@@ -27,8 +29,7 @@ from openpyxl.utils.cell import column_index_from_string
 from openpyxl.chart import BarChart, DoughnutChart, Reference
 from openpyxl.chart.label import DataLabelList
 
-from brand_config import (
-    COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
+from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TEXT,
     COLOR_MUTED, COLOR_BG_LIGHT, COLOR_ERROR,
     COLOR_PARCHMENT_ALT, COLOR_GOLD_SOFT,
     FONT_HEAD, FONT_BODY, FONT_MONO,
@@ -36,11 +37,14 @@ from brand_config import (
     input_cell_style, formula_cell_style,
     header_row_style, set_col_widths, add_upgrade_banner, apply_style,
     pseudo_button, compact_header_band, brand_footer, style_chart,
+    STATE_BAD_FILL, STATE_GOOD_FILL,
 )
 
 BASE = Path(__file__).resolve().parent.parent
-LITE_OUT = BASE / "_lite" / "TAX-002-pl-single-property-lite.xlsx"
-FULL_OUT = BASE / "_masters" / "TAX-002-pl-single-property.xlsx"
+SKU = "TAX-002"
+NAME = "pl-single-property"
+DEMO_OUT = BASE / "_masters" / f"{SKU}-{NAME}-DEMO.xlsx"
+BLANK_OUT = BASE / "_masters" / f"{SKU}-{NAME}-BLANK.xlsx"
 
 # --- 17 Schedule E expense categories ---
 
@@ -134,12 +138,17 @@ def _parse_date(s):
     return datetime.strptime(s, "%Y-%m-%d").date()
 
 
+def _val(variant, demo_value):
+    """Return demo_value when building the DEMO variant, None for BLANK."""
+    return demo_value if variant == "demo" else None
+
+
 # ---------------------------------------------------------------------------
 # Sheet builders
 # ---------------------------------------------------------------------------
 
-def build_start_tab(wb, is_lite):
-    """Sheet 0 — Start (operational-mode hero + cards + activity dashboard)."""
+def build_start_tab(wb, variant):
+    """Sheet 0 — Start (operational-mode hero + verdict + activity dashboard)."""
     ws = wb.active
     ws.title = "Start"
     ws.sheet_properties.tabColor = COLOR_PRIMARY
@@ -156,14 +165,13 @@ def build_start_tab(wb, is_lite):
     ws.merge_cells("A2:F2")
     c = ws["A2"]
     c.value = BRAND_NAME
-    c.font = Font(name=FONT_HEAD, size=14, color="F6EFE2")
+    c.font = Font(name=FONT_HEAD, size=14, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="left", vertical="center", indent=2)
 
-    title_suffix = " (Lite)" if is_lite else ""
     ws.merge_cells("A4:L4")
     c = ws["A4"]
-    c.value = f"Single-Property P&L{title_suffix}"
-    c.font = Font(name=FONT_HEAD, size=36, bold=True, color="F6EFE2")
+    c.value = "Single-Property P&L"
+    c.font = Font(name=FONT_HEAD, size=36, bold=True, color=COLOR_BG_LIGHT)
     c.alignment = Alignment(horizontal="center", vertical="center")
     ws.row_dimensions[4].height = 48
 
@@ -173,9 +181,28 @@ def build_start_tab(wb, is_lite):
     c.font = Font(name=FONT_HEAD, size=14, italic=True, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
 
+    # Row 6: VERDICT cell — single headline answer (Theme 1 of suite-wide
+    # customer-eye review). Hosts respond to verdicts, not numbers; the math
+    # lives in the cards below, the answer lives on top.
+    ws.merge_cells("A6:L6")
+    c = ws["A6"]
+    c.value = (
+        '=IF(\'Monthly P&L\'!N7=0,'
+        '"\U0001F4CA  Log your first booking to see your verdict.",'
+        'IF(\'Monthly P&L\'!N30/\'Monthly P&L\'!N7>=0.25,'
+        '"✅  Net margin = "&TEXT(\'Monthly P&L\'!N30/\'Monthly P&L\'!N7,"0%")'
+        '&"  —  above the 25% Schedule E benchmark.",'
+        '"⚠  Net margin = "&TEXT(\'Monthly P&L\'!N30/\'Monthly P&L\'!N7,"0%")'
+        '&"  —  below the 25% Schedule E benchmark; review expenses."))'
+    )
+    c.font = Font(name=FONT_HEAD, size=16, bold=True, color=COLOR_ACCENT)
+    c.alignment = Alignment(horizontal="center", vertical="center")
+    c.fill = navy_fill
+    ws.row_dimensions[6].height = 32
+
     ws.merge_cells("A7:L7")
     c = ws["A7"]
-    c.value = "TAX-002 · v2.2"
+    c.value = f"TAX-002 · v2.3 · {variant.upper()}"
     c.font = Font(name=FONT_MONO, size=9, color=COLOR_ACCENT)
     c.alignment = Alignment(horizontal="center", vertical="center")
 
@@ -368,7 +395,7 @@ def build_start_tab(wb, is_lite):
 
     # --- ZONE 10: Footer (rows 48-50) ---
     brand_footer(ws, 48,
-                 version_line="TAX-002 · v2.2 · Free updates forever")
+                 version_line="TAX-002 · v2.3 · Free updates forever")
 
     # Print setup
     ws.print_area = "A1:L50"
@@ -381,7 +408,7 @@ def build_start_tab(wb, is_lite):
     ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
-def build_property_info_tab(wb):
+def build_property_info_tab(wb, variant):
     """Sheet 1 — Property Info (12 labeled input rows)."""
     ws = wb.create_sheet("Property Info")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
@@ -405,24 +432,24 @@ def build_property_info_tab(wb):
     right_align = Alignment(horizontal="right", vertical="center")
 
     rows_data = [
-        (5,  "Property name:",        "Smokies Ridge Cabin",  None),
-        (6,  "Street address:",       "123 Mountain Lane",    None),
-        (7,  "City / State / Zip:",   "Gatlinburg, TN 37738", None),
-        (8,  "Property type:",        "Cabin",                None),
-        (9,  "Purchase date:",        _parse_date("2023-08-15"), "yyyy-mm-dd"),
-        (10, "Purchase price ($):",   420000,                 '"$"#,##0'),
-        (11, "Closing costs ($):",    8500,                   '"$"#,##0'),
-        (12, "Loan amount ($):",      336000,                 '"$"#,##0'),
-        (13, "Interest rate (%):",    0.0675,                 "0.000%"),
-        (14, "Loan term (years):",    30,                     None),
-        (15, "Business start date:",  _parse_date("2023-10-01"), "yyyy-mm-dd"),
-        (16, "Days rented YTD:",      72,                     None),
+        (5,  "Property name:",        _val(variant, "Smokies Ridge Cabin"),  None),
+        (6,  "Street address:",       _val(variant, "123 Mountain Lane"),    None),
+        (7,  "City / State / Zip:",   _val(variant, "Gatlinburg, TN 37738"), None),
+        (8,  "Property type:",        _val(variant, "Cabin"),                None),
+        (9,  "Purchase date:",        _val(variant, _parse_date("2023-08-15")), "yyyy-mm-dd"),
+        (10, "Purchase price ($):",   _val(variant, 420000),                 '"$"#,##0'),
+        (11, "Closing costs ($):",    _val(variant, 8500),                   '"$"#,##0'),
+        (12, "Loan amount ($):",      _val(variant, 336000),                 '"$"#,##0'),
+        (13, "Interest rate (%):",    _val(variant, 0.0675),                 "0.000%"),
+        (14, "Loan term (years):",    _val(variant, 30),                     None),
+        (15, "Business start date:",  _val(variant, _parse_date("2023-10-01")), "yyyy-mm-dd"),
+        (16, "Days rented YTD:",      _val(variant, 72),                     None),
         # v2.3 — Personal-use days drive Pub 527's 14-day/10% test:
         # if personal use exceeds the greater of 14 days or 10% of rental
         # days, the property is a "residence" — losses cannot offset other
         # income. Schedule E Summary computes the threshold and flags the
         # deductibility risk.
-        (17, "Personal use days YTD:", 0,                     None),
+        (17, "Personal use days YTD:", _val(variant, 0),                     None),
     ]
 
     for row_num, label, value, fmt in rows_data:
@@ -449,8 +476,8 @@ def build_property_info_tab(wb):
     ws.row_dimensions[18].height = 28
 
 
-def build_revenue_log(wb):
-    """Sheet 2 — Revenue Log (10 sample bookings + 1000-row capacity)."""
+def build_revenue_log(wb, variant):
+    """Sheet 2 — Revenue Log (10 sample bookings in DEMO + 1000-row capacity)."""
     ws = wb.create_sheet("Revenue Log")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
 
@@ -481,8 +508,9 @@ def build_revenue_log(wb):
         apply_style(cell, header_row_style())
     ws.row_dimensions[5].height = 20
 
-    # Rows 6-15: sample revenue data
-    for i, r in enumerate(SAMPLE_REVENUE, start=6):
+    # Rows 6+: sample revenue data (DEMO variant only; BLANK starts empty)
+    sample_rows = SAMPLE_REVENUE if variant == "demo" else []
+    for i, r in enumerate(sample_rows, start=6):
         date_val, guest, channel, gross, platform_fee, cleaning, nights, notes = r
 
         a = ws.cell(row=i, column=1, value=_parse_date(date_val))
@@ -520,8 +548,8 @@ def build_revenue_log(wb):
 
         ws.row_dimensions[i].height = 16
 
-    # Blank capacity rows 16-1005
-    last_data_row = len(SAMPLE_REVENUE) + 5
+    # Blank capacity rows (continue past sample data through row 1005)
+    last_data_row = len(sample_rows) + 5
     for row_idx in range(last_data_row + 1, 1006):
         for col_idx in range(1, 10):
             cell = ws.cell(row=row_idx, column=col_idx)
@@ -550,8 +578,8 @@ def build_revenue_log(wb):
     ws.page_margins = PageMargins(left=0.4, right=0.4, top=0.5, bottom=0.5)
 
 
-def build_expense_log(wb):
-    """Sheet 3 — Expense Log (23 sample expenses + 2000-row capacity)."""
+def build_expense_log(wb, variant):
+    """Sheet 3 — Expense Log (23 sample expenses in DEMO + 2000-row capacity)."""
     ws = wb.create_sheet("Expense Log")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
 
@@ -582,8 +610,9 @@ def build_expense_log(wb):
         apply_style(cell, header_row_style())
     ws.row_dimensions[5].height = 20
 
-    # Rows 6-28: sample expense data
-    for i, e in enumerate(SAMPLE_EXPENSES, start=6):
+    # Rows 6+: sample expense data (DEMO variant only; BLANK starts empty)
+    sample_rows = SAMPLE_EXPENSES if variant == "demo" else []
+    for i, e in enumerate(sample_rows, start=6):
         date_val, vendor, category, amount, method, receipt, notes = e
 
         a = ws.cell(row=i, column=1, value=_parse_date(date_val))
@@ -612,8 +641,8 @@ def build_expense_log(wb):
 
         ws.row_dimensions[i].height = 16
 
-    # Blank capacity rows 29-2005
-    last_data_row = len(SAMPLE_EXPENSES) + 5
+    # Blank capacity rows (continue past sample data through row 2005)
+    last_data_row = len(sample_rows) + 5
     for row_idx in range(last_data_row + 1, 2006):
         for col_idx in range(1, 8):
             cell = ws.cell(row=row_idx, column=col_idx)
@@ -776,12 +805,12 @@ def build_monthly_pl(wb):
     ws.conditional_formatting.add(
         f"B{net_row}:N{net_row}",
         CellIsRule(operator="lessThan", formula=["0"],
-                    fill=PatternFill("solid", fgColor="FFCCCC")),
+                    fill=PatternFill("solid", fgColor=STATE_BAD_FILL)),
     )
     ws.conditional_formatting.add(
         f"B{net_row}:N{net_row}",
         CellIsRule(operator="greaterThan", formula=["0"],
-                    fill=PatternFill("solid", fgColor="C7EFCF")),
+                    fill=PatternFill("solid", fgColor=STATE_GOOD_FILL)),
     )
 
     ws.freeze_panes = "B6"
@@ -1245,12 +1274,12 @@ def build_settings_tab(wb):
 # Main build function (shared by Lite + Full)
 # ---------------------------------------------------------------------------
 
-def build_workbook(out_path, is_lite):
+def build_workbook(out_path, variant):
     wb = Workbook()
-    build_start_tab(wb, is_lite=is_lite)
-    build_property_info_tab(wb)
-    build_revenue_log(wb)
-    build_expense_log(wb)
+    build_start_tab(wb, variant)
+    build_property_info_tab(wb, variant)
+    build_revenue_log(wb, variant)
+    build_expense_log(wb, variant)
     build_monthly_pl(wb)
     build_schedule_e_summary(wb)
     last_cat_row = build_settings_tab(wb)
@@ -1272,11 +1301,11 @@ def build_workbook(out_path, is_lite):
     expense_ws.data_validations.dataValidation = keep
     expense_ws.add_data_validation(new_dv)
 
-    suffix = " (Lite)" if is_lite else ""
+    suffix = f" ({variant.upper()})"
     wb.properties.title = f"Single-Property P&L Tracker{suffix} — The STR Ledger"
     wb.properties.creator = "The STR Ledger"
     wb.properties.company = "The STR Ledger"
-    wb.properties.description = "Single-property P&L with Schedule E category mapping (v2.2)."
+    wb.properties.description = "Single-property P&L with Schedule E category mapping (v2.3)."
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out_path)
@@ -1284,8 +1313,8 @@ def build_workbook(out_path, is_lite):
 
 
 def main():
-    build_workbook(LITE_OUT, is_lite=True)
-    build_workbook(FULL_OUT, is_lite=False)
+    build_workbook(DEMO_OUT, "demo")
+    build_workbook(BLANK_OUT, "blank")
 
 
 if __name__ == "__main__":
