@@ -17,7 +17,7 @@
 **Sub-overlay (y:400):** `Lease math · Stress test · MTR fallback.` · Inter 400 Regular, 26pt, Graphite `#2B2B2B`.
 **Brand strip (y:1760–2000):** Muted Gold band, full width, `Instant Download · 14-Day Refund · Lifetime Updates` Inter 600 Semibold 22pt Harbor Navy, centered y:1862, tracking 0.02em. Wordmark "The STR Ledger." in Zone 1 (Cormorant 38pt parchment art, gold period) x:60 y:60, plus `thestrledger.com` mono 14pt parchment tracked 0.15em x:1940 y:82.
 **SKU watermark:** `ACQ-003 · v1.0` JetBrains Mono 11pt Muted Gold tracked 0.20em, x:1940 y:140.
-**Reference asset paths:** `brand/assets/logo-horizontal-reverse.png`; MacBook mockup via Vista Create `minimal laptop mockup`; Start tab from `templates/_masters/ACQ-003-rental-arbitrage-analyzer.xlsx` (build pending — placeholder rendered tab acceptable until master ships).
+**Reference asset paths:** `brand/assets/logo-horizontal-reverse.png`; MacBook mockup via Vista Create `minimal laptop mockup`; Start tab from `templates/_masters/ACQ-003-rental-arbitrage-analyzer-DEMO.xlsx` (build pending — placeholder rendered tab acceptable until master ships).
 **One-line designer note:** The two-pill stack is the differentiator vs ACQ-001. If the Year 2 pill loses legibility at 240×240 thumb, drop the Y1 row entirely and float the Y2 verdict pill alone — Year 2 is the search-stopping moment.
 
 ## Photo 2 — Workbook screenshot (Stress Test tab)
@@ -29,7 +29,7 @@
 **Sub-overlay (y:390):** `Stress-test the rent hike before you sign.` · Inter 400 Italic, 22pt, Graphite.
 **Brand strip:** Identical Zone 1 and Zone 6 to Photo 1.
 **SKU watermark:** Identical placement.
-**Reference asset paths:** `templates/_masters/ACQ-003-rental-arbitrage-analyzer.xlsx` Stress Test tab.
+**Reference asset paths:** `templates/_masters/ACQ-003-rental-arbitrage-analyzer-DEMO.xlsx` Stress Test tab.
 **One-line designer note:** Clay Rose appears only as the WORST row's verdict text (not fill, not row tint) — `brand-decisions.md` §4.2 (3% max). The PASS verdict is the most important word on this surface; it is what the customer needs to know they will see.
 
 ## Photo 3 — What's inside (8-tab strip + Landlord Pitch white-label callout)

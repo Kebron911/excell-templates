@@ -17,7 +17,7 @@
 **Sub-overlay (y: 380):** `Cash-on-cash · DSCR · Cap rate · Verdict.` · Inter 400 Regular, 26pt, Graphite `#2B2B2B`.
 **Brand strip (y: 1760–2000):** Muted Gold band, full width, with `Instant Download · 14-Day Refund · Lifetime Updates` in Inter 600 Semibold, 22pt, Harbor Navy, centered y:1862, letter-spacing 0.02em. Wordmark "The STR Ledger." in Zone 1 top strip (Cormorant 38pt, parchment art, gold period), x:60 y:60, plus `thestrledger.com` mono label right-aligned x:1940 y:82, parchment, JetBrains Mono 14pt, tracking 0.15em.
 **SKU watermark:** `ACQ-001 · v1.0` JetBrains Mono 11pt, Muted Gold, tracking 0.20em, top-right of Zone 1 strip at x:1940 y:140 (under the domain label).
-**Reference asset paths:** `brand/assets/logo-horizontal-reverse.png` (or fallback wordmark per canva-specs §Asset 3 Element 1.1); MacBook mockup via Vista Create `minimal laptop mockup`; Start tab screenshot from `templates/_masters/ACQ-001-str-deal-analyzer-lite.xlsx` (build pending — placeholder rendered tab acceptable until master ships).
+**Reference asset paths:** `brand/assets/logo-horizontal-reverse.png` (or fallback wordmark per canva-specs §Asset 3 Element 1.1); MacBook mockup via Vista Create `minimal laptop mockup`; Start tab screenshot from `templates/_lite/ACQ-001-str-deal-analyzer-lite.xlsx` (build pending — placeholder rendered tab acceptable until master ships).
 **One-line designer note:** The "DEAL" pill must read at 240×240 thumb size — if it shrinks below 12px-equivalent on the laptop screen, scale the pill larger and crop the rest of the workbook chrome away. Verdict is the visual hero, not the laptop.
 
 ## Photo 2 — Workbook screenshot (Verdict tab)
@@ -29,7 +29,7 @@
 **Sub-overlay (y: 390):** `Cited benchmarks. Not vibes.` · Inter 400 Italic, 22pt, Graphite.
 **Brand strip:** Same gold trust strip as Photo 1. Wordmark + domain top strip identical.
 **SKU watermark:** Identical placement to Photo 1.
-**Reference asset paths:** `templates/_masters/ACQ-001-str-deal-analyzer-lite.xlsx` Verdict tab; brand wordmark same as Photo 1.
+**Reference asset paths:** `templates/_lite/ACQ-001-str-deal-analyzer-lite.xlsx` Verdict tab; brand wordmark same as Photo 1.
 **One-line designer note:** Do NOT recolor the screenshot — the workbook itself is on-brand (Harbor Navy header rows, Parchment alt banding, Muted Gold verdict). Crop tightly; no Excel ribbon, no gridlines outside the data range.
 
 ## Photo 3 — What's inside (6-tab strip)

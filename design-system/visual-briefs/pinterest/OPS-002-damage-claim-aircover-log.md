@@ -103,7 +103,7 @@
 **Dollar-delta strip (y:1100–1300):** Centered Harbor Navy block 760×160px, x:120 y:1110. Inside: `+$1,400 RECOVERED PER $3,000 CLAIM` JetBrains Mono Bold 28pt Parchment, tracking 0.18em, centered (500, 1170). Below in Inter 400 Italic 18pt Parchment Alt: `Same workbook. Same incident. Different submission.` (500, 1230).
 **Brand mark:** Parchment footer y:1340–1500. Wordmark + URL identical to Pin 1 (Harbor Navy text on Parchment).
 **Shape elements:** 1px Parchment Alt vertical divider at x:500 between panels. 1.5px Muted Gold horizontal rule at y:1100 (top of dollar strip). 1.5px Muted Gold horizontal rule at y:1300 (bottom of dollar strip).
-**Reference asset paths:** Claim Packet screenshot from `templates/_masters/OPS-002-damage-claim-aircover-log.xlsx` (build pending — placeholder rendered tab acceptable). iPhone screenshot mockups via Vista Create `iphone screenshot mockup`.
+**Reference asset paths:** Claim Packet screenshot from `templates/_masters/OPS-002-damage-claim-aircover-log-DEMO.xlsx` (build pending — placeholder rendered tab acceptable). iPhone screenshot mockups via Vista Create `iphone screenshot mockup`.
 
 **Designer note:** The OPS-002 brief's Variant-B contrast (per task SKU note) lives on this pin. The 31% / 78% split must be unmistakable at thumbnail — both Clay Rose and Muted Gold readable at 240×360. If they collapse to similar tonal weight, the recovery-gap claim dies. Test in greyscale before sign-off.
 

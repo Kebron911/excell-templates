@@ -2,7 +2,7 @@
 
 Implements templates/_briefs/TAX-007-per-diem-meal-tracker.md.
 
-Generates templates/_masters/TAX-007-per-diem-meal-tracker.xlsx.
+Generates templates/_masters/TAX-007-per-diem-meal-tracker-DEMO.xlsx and -BLANK.xlsx.
 
 Tabs:
   0  Start             — operational hero + activity cards + primary CTA

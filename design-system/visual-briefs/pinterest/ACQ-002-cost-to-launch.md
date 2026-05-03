@@ -50,7 +50,7 @@
 **Number/data callout:** TOTAL `$145,300` Cormorant 500 24pt Harbor Navy with Muted Gold `$`, right side row 06; per-row samples JetBrains Mono 16pt Graphite
 **Brand mark:** Same — wordmark y:1340, URL y:1290, SKU watermark top-right
 **Shape elements:** Six rows separated by 1px Parchment Alt hairline. Row 04 numeral `04` Clay Rose `#B5725E` — single warmth accent (single character, 26pt, ≪3% surface). Two gold rules y:430, y:1020. The TOTAL row (06) gets a 2px Muted Gold underline 720×2px x:120–840 below it (y:1000) to mark "this is the answer."
-**Reference assets:** Six-tab structure from `templates/_masters/ACQ-002-cost-to-launch.xlsx`; sample numbers from listing §"Why this pays for itself."
+**Reference assets:** Six-tab structure from `templates/_masters/ACQ-002-cost-to-launch-DEMO.xlsx`; sample numbers from listing §"Why this pays for itself."
 **Designer note:** Row 04 (90-DAY RESERVE) is the line every other cost-to-launch resource forgets. Mark it with the Clay Rose numeral and nothing else. Resist any "DON'T FORGET" sidebar — the Clay Rose itself IS the call-out. White space is the brand.
 
 ## Pin 3 — Before: $5K? $50K? After: $145,300, Itemized. (Before-after · Variant A)
@@ -68,7 +68,7 @@
 **Number/data callout:** `$145,300` Cormorant 500, 88pt, Muted Gold, centered AFTER block y:660 with parchment-shaded mono `$`
 **Brand mark:** Same — wordmark y:1340, URL y:1290, SKU watermark top-right
 **Shape elements:** Vertical split at x:500 with 1px Graphite hairline. Three strikethrough lines in BEFORE (2px Graphite, full numeral width). Itemization in AFTER — no boxes, mono carries the list. Two gold rules y:430, AFTER y:760.
-**Reference assets:** Sample property breakdown from `templates/_masters/ACQ-002-cost-to-launch.xlsx`.
+**Reference assets:** Sample property breakdown from `templates/_masters/ACQ-002-cost-to-launch-DEMO.xlsx`.
 **Designer note:** The BEFORE strikethroughs must be unmissable — 2px minimum, full numeral width. The AFTER mono itemization is the "evidence" that earns the headline number. If the itemization feels cramped at 13pt, drop to 4 lines and absorb BUFFER into LAUNCH — but keep RESERVE on its own line, always.
 
 ## Pin 4 — 8 Furnishing Zones · 120 Items · Low / Mid / High (Infographic · Variant B)
@@ -86,7 +86,7 @@
 **Number/data callout:** Per-zone item counts JetBrains Mono 14pt Graphite (`18 items` etc.); 8 zone numerals `01`–`08` JetBrains Mono Bold 22pt Muted Gold
 **Brand mark:** Same — wordmark y:1340, URL y:1290, SKU watermark top-right
 **Shape elements:** 4×2 grid of 220×210 cells, 16px gutters, 4px corner radius, 1px Parchment Alt borders. Cell 05 (Outdoor) gets 1.5px Clay Rose border (single accent, ≤3% surface). Two gold rules y:430, y:1000.
-**Reference assets:** Zone names + counts from `templates/_masters/ACQ-002-cost-to-launch.xlsx` Furnish & Setup tab.
+**Reference assets:** Zone names + counts from `templates/_masters/ACQ-002-cost-to-launch-DEMO.xlsx` Furnish & Setup tab.
 **Designer note:** No icons in cells per `design-system/README.md` iconography rule — type alone. The grid is the visual: 8 × 1 mono numeral + 8 × 1 Cormorant zone name, breathing in identical cells. Cell 05's Clay Rose border is the only color exception. Resist coloring the cells by zone — that breaks the editorial discipline.
 
 ---

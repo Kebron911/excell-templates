@@ -2,7 +2,7 @@
 
 Implements templates/_briefs/TAX-005-quarterly-estimated-tax.md.
 
-Generates templates/_masters/TAX-005-quarterly-estimated-tax.xlsx.
+Generates templates/_masters/TAX-005-quarterly-estimated-tax-DEMO.xlsx and -BLANK.xlsx.
 
 Tabs:
   0  Start              — operational hero + activity cards + primary CTA

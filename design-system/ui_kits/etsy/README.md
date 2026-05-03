@@ -12,7 +12,7 @@ Hi-fi recreation of the **@thestrledger** Etsy shop — built against Etsy's cur
 
 Listing copy lifted from `Kebron911/excell-templates` repo:
 - `copy/etsy-listings/TAX-001-mileage-log.md`
-- `copy/etsy-listings/TAX-002-single-property-pl-lite.md`
+- `copy/etsy-listings/TAX-002-pl-single-property-lite.md`
 - `copy/etsy-listings/TAX-003-1099-nec-tracker.md`
 - `copy/etsy-listings/OPS-001-turnover-checklist.md`
 - `copy/etsy-listings/GST-001-welcome-book.md`

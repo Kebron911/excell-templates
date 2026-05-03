@@ -32,7 +32,7 @@
 **Number/data callout:** `67%` Cormorant 500 Medium, 144pt, Harbor Navy with Muted Gold `%`, centered in gauge y:820
 **Brand mark:** Wordmark centered y:1340, mono URL centered y:1290, SKU watermark `MKT-001 · v1.0` JetBrains Mono 11pt Muted Gold tracked 0.20em top-right x:940 y:60
 **Shape elements:** Score-gauge ring centered x:500 y:780 r:200px. Outer track Parchment Alt 6px stroke. Inner arc Harbor Navy 6px stroke from 12 o'clock clockwise 240°. Two 48px × 1px gold rules (y:200, y:1200).
-**Reference assets:** Gauge styling — replicates `templates/_masters/MKT-001-listing-seo-audit.xlsx` Score tab donut. Methodology citation reference: listing description "Methodology page" copy.
+**Reference assets:** Gauge styling — replicates `templates/_masters/MKT-001-listing-seo-audit-DEMO.xlsx` Score tab donut. Methodology citation reference: listing description "Methodology page" copy.
 **Designer note:** The gauge is the icon of this entire SKU — at 240×240 thumb the `67%` must still be the loudest element, and the partial-fill arc must still read as "not full." If the navy arc looks too close to the parchment-alt track at small size, thicken the navy stroke to 8px and lighten the track to 1px.
 
 ## Pin 2 — The 5 Categories That Decide Your Search Rank (Tip-list · Variant B)
@@ -50,7 +50,7 @@
 **Number/data callout:** Five weight badges `15% / 20% / 30% / 20% / 15%` in JetBrains Mono Bold 22pt Parchment on Harbor Navy fill
 **Brand mark:** Same — wordmark y:1340, URL y:1290, SKU watermark top-right
 **Shape elements:** Five filled badges x:120 each row, 60×40px, Harbor Navy `#12304E`, 4px corner radius. Row 03 badge same shape but with 1.5px Clay Rose `#B5725E` border (single accent surface for Variant B). Two gold rules y:430, y:1080. Optional 1px Parchment Alt hairline below each row at +60px from row top.
-**Reference assets:** Weights from `templates/_masters/MKT-001-listing-seo-audit.xlsx` Methodology tab.
+**Reference assets:** Weights from `templates/_masters/MKT-001-listing-seo-audit-DEMO.xlsx` Methodology tab.
 **Designer note:** The Photos = 30% row is the "aha." Make sure the eye lands on row 03 first by giving it the Clay Rose border (don't fill — border only, ≤3% surface budget). Resist adding icons to category names — `design-system/README.md` iconography rule: type carries this surface alone.
 
 ## Pin 3 — Before: 30 Open Tabs of Tips. After: One Score, Three Fixes. (Before-after · Variant A)
@@ -68,7 +68,7 @@
 **Number/data callout:** `67%` Cormorant 500, 120pt, Muted Gold `#C9A24B`, centered in AFTER block y:660
 **Brand mark:** Same — wordmark y:1340, URL y:1290, SKU watermark `MKT-001 · v1.0` top-right
 **Shape elements:** Vertical split at x:500 y:540–1000 with 1px Graphite hairline divider. Eight 90×40px tab rectangles (parchment fill, 1px Graphite border, 2px corner radius) in BEFORE block. Three fixes as monoaspaced text, no bullets, no boxes — let the mono carry the list feel. Two gold rules y:430, AFTER y:980.
-**Reference assets:** Top-3-fixes copy from `templates/_masters/MKT-001-listing-seo-audit.xlsx` Action Plan tab.
+**Reference assets:** Top-3-fixes copy from `templates/_masters/MKT-001-listing-seo-audit-DEMO.xlsx` Action Plan tab.
 **Designer note:** The eight browser tabs in BEFORE must look messy — varied widths (within 80–110px), slight vertical jitter (±4px), some tabs slightly overlapping. The AFTER side stays surgically clean. The contrast in tidiness IS the message. Don't auto-align the BEFORE tabs.
 
 ## Pin 4 — Title 50 Chars · 25 Photos · Response <1hr · Instant Book On (Infographic · Variant B)
@@ -86,7 +86,7 @@
 **Number/data callout:** Four target values `50 CHARS`, `≥25 PHOTOS`, `<1 HR`, `INSTANT BOOK ON` — JetBrains Mono Bold, 36pt, Muted Gold `#C9A24B`
 **Brand mark:** Same — wordmark y:1340, URL y:1290, SKU watermark top-right
 **Shape elements:** Four full-width criterion bars y:560–940 with 1px Parchment Alt dividers between. Four 240×16px progress tracks at right-third — three Harbor Navy fill, bar 4 Clay Rose fill (single accent). Two gold rules y:430, y:1020.
-**Reference assets:** Criteria + thresholds from `templates/_masters/MKT-001-listing-seo-audit.xlsx` Methodology tab.
+**Reference assets:** Criteria + thresholds from `templates/_masters/MKT-001-listing-seo-audit-DEMO.xlsx` Methodology tab.
 **Designer note:** Three of the four criteria are platform/algo signals; bar 4 (Instant Book) is the toggle a host can flip in literally one click. Clay Rose on its progress bar visually marks "the easy one" — don't extend Clay Rose anywhere else on the pin. Total Clay Rose surface ~240×16 = 3,840 px² of 1,500,000 = 0.26%, well under the §4.2 budget.
 
 ---

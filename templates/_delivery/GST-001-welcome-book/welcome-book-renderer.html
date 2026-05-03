@@ -980,18 +980,10 @@ function setupDropZone(element, onDataReady) {
   });
 }
 
-async function loadDemoData(url, onDataReady) {
-  if (url === "demo-data.json") {
-    const el = document.getElementById("embedded-demo");
-    if (el) { onDataReady(parseDemoData(JSON.parse(el.textContent)), "demo-data.json (embedded)"); return; }
-  }
-  const r = await fetch(url);
-  if (!r.ok) {
-    alert(`Couldn't load demo data from ${url}`);
-    return;
-  }
-  const json = await r.json();
-  onDataReady(parseDemoData(json), "demo-data.json");
+function loadDemoData(onDataReady) {
+  const el = document.getElementById("embedded-demo");
+  if (!el) { alert("Embedded demo data missing from this build."); return; }
+  onDataReady(parseDemoData(JSON.parse(el.textContent)), "demo-data (embedded)");
 }
 
 // App state --------------------------------------------------
@@ -1086,7 +1078,7 @@ function renderLanding() {
     };
     setupDropZone(el.querySelector("#drop-zone"), onDataReady);
     el.querySelector("#demo-btn").addEventListener("click", () =>
-      loadDemoData("demo-data.json", onDataReady)
+      loadDemoData(onDataReady)
     );
   }, 0);
   return el;

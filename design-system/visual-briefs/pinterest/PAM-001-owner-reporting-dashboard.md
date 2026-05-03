@@ -62,7 +62,7 @@ At y:580 below the mockup (500, 580) centered: `WHITE-LABEL · ONE PAGE · PRINT
 **BOTTOM HALF — BEFORE (y:840–1320):** `BEFORE` JetBrains Mono Bold 18pt Clay Rose tracking 0.30em, top-left (40, 860). Background Clay Rose tinted Parchment Alt (8% Clay Rose overlay). Chaotic generic Excel grid mockup 880×400px x:60 y:900 — visible: 8 columns × 12 rows of cluttered grey cells, three highlighted in Clay Rose marking errors, comment-balloon icons in margins. 30% opacity overall. Bottom of half (500, 1280) centered: `4 HRS RECONCILIATION · MANUAL FORMAT · OWNER QUESTIONS` JetBrains Mono Bold 14pt Clay Rose tracking 0.22em.
 **Brand mark:** Parchment footer y:1340–1500. Identical to Pin 1.
 **Shape elements:** 1.5px Muted Gold horizontal rule at y:680 (the seam). 1.5px Harbor Navy outer border around the AFTER mockup. 1px Parchment Alt outer border around the BEFORE grid (faded).
-**Reference asset paths:** Owner Statement preview from `templates/_masters/PAM-001-owner-reporting-dashboard.xlsx` (build pending). Generic Excel grid via Vista Create.
+**Reference asset paths:** Owner Statement preview from `templates/_masters/PAM-001-owner-reporting-dashboard-DEMO.xlsx` (build pending). Generic Excel grid via Vista Create.
 
 **Designer note:** The AFTER must look polished enough that a property manager looks at it and thinks "I'd send that to a client." If the statement looks like a placeholder, the white-label promise dies. Logo placeholder rectangle should feel intentional (Inter 400 Italic, light Graphite) not lazy.
 
@@ -90,7 +90,7 @@ At y:580 below the mockup (500, 580) centered: `WHITE-LABEL · ONE PAGE · PRINT
 **Closing line (y:1200–1300):** `Owner Reporting Dashboard. $197.` Cormorant 400 Italic 28pt Harbor Navy, centered (500, 1240), gold terminal period.
 **Brand mark:** Parchment footer y:1340–1500. Identical to Pin 1.
 **Shape elements:** 1px Parchment Alt rules between fee-model rows. 1.5px Harbor Navy outer border around the table. Row 4 has a 4px Muted Gold left edge to call out the iconic "hybrid" model. Two 48px gold rules (y:420, y:1180) — only pin in the set with two; justified by the closer.
-**Reference asset paths:** Fee-model formulas from `templates/_masters/PAM-001-owner-reporting-dashboard.xlsx` Calculator tab (build pending).
+**Reference asset paths:** Fee-model formulas from `templates/_masters/PAM-001-owner-reporting-dashboard-DEMO.xlsx` Calculator tab (build pending).
 
 **Designer note:** Row 4 (HYBRID) is the differentiator — that's the row PMs read first, because it's the model that breaks every other template. The 4px Muted Gold left-edge highlight on row 4 must read at thumbnail; if it disappears, increase the row's background fill from 12% to 20% Muted Gold-soft. The fee table IS the proof.
 

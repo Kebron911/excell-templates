@@ -32,7 +32,7 @@
 **Number/data callout:** Timeline tick `Y2 ↑` JetBrains Mono 13pt Clay Rose `#B5725E` tracked 0.30em — the rhetorical pointer
 **Brand mark:** Wordmark centered y:1340, mono URL y:1290, SKU watermark `ACQ-003 · v1.0` JetBrains Mono 11pt Muted Gold tracked 0.20em top-right x:940 y:60
 **Shape elements:** Mini-timeline at y:580: 1px Graphite horizontal line x:300–700 with two 6×6px circular tick marks at x:340 (Harbor Navy fill) and x:660 (Clay Rose fill, slightly larger 8×8px). The Clay Rose tick is the entire Variant A warmth allowance on this pin. One 48px gold rule y:1040.
-**Reference assets:** Year-2 escalator math from `templates/_masters/ACQ-003-rental-arbitrage-analyzer.xlsx` Stress Test tab.
+**Reference assets:** Year-2 escalator math from `templates/_masters/ACQ-003-rental-arbitrage-analyzer-DEMO.xlsx` Stress Test tab.
 **Designer note:** This pin's punch is `Year 2` in italic + the Clay Rose `Y2 ↑` tick — they answer each other across 350px of vertical space. If the timeline reads as "decorative" instead of "rhetorical," shrink it tighter (x:380–620) and lift it closer to the quote (y:600). The italic must do the heavy lifting, not the timeline.
 
 ## Pin 2 — The Arbitrage Spreadsheet That Runs Year 2 Math. (Tip-list · Variant B)
@@ -50,7 +50,7 @@
 **Number/data callout:** Eight tab numerals `01`–`08` JetBrains Mono Bold 22pt Muted Gold; price line `$47` in mono 13pt Graphite
 **Brand mark:** Same — wordmark y:1340, URL y:1290, SKU watermark top-right
 **Shape elements:** 2×4 grid of 412×200 cells (with 16px gutters), 4px corner radius, 1px Parchment Alt `#EFE5D0` borders. Cell 05 1.5px Clay Rose border (single accent). Two gold rules y:430, y:1000.
-**Reference assets:** Tab structure from `templates/_masters/ACQ-003-rental-arbitrage-analyzer.xlsx`.
+**Reference assets:** Tab structure from `templates/_masters/ACQ-003-rental-arbitrage-analyzer-DEMO.xlsx`.
 **Designer note:** The eight tabs are the proof; cell 05's Clay Rose border tells the eye where the differentiating tab lives without needing a "DIFFERENTIATOR" label. Don't add icons; type carries the cell. Stress Test as the single warm-bordered tab on Variant B is the visual answer to Variant A's "Y2 ↑" tick on Pin 1 — the set echoes.
 
 ## Pin 3 — The MTR Fallback Math Most Operators Skip. (Infographic · Variant A)
@@ -71,7 +71,7 @@
 **Number/data callout:** Cash-flow row — `+$1,400` Cormorant 500 64pt Muted Gold (STR) / `−$400` Cormorant 500 64pt Clay Rose (MTR) — the two numbers are the punch
 **Brand mark:** Same — wordmark y:1340, URL y:1290, SKU watermark top-right
 **Shape elements:** Two-column comparison table x:80–920 y:540–940. Vertical 1px Parchment Alt divider x:500. Row 2 Parchment Alt fill band. Three rows separated by 1px Parchment Alt hairlines. Two gold rules y:440, y:1000. Clay Rose appears as the negative cash-flow figure only — single character cluster, ≪3% surface, satisfies §4.2.
-**Reference assets:** Sample MTR rates per `templates/_masters/ACQ-003-rental-arbitrage-analyzer.xlsx` MTR Fallback tab.
+**Reference assets:** Sample MTR rates per `templates/_masters/ACQ-003-rental-arbitrage-analyzer-DEMO.xlsx` MTR Fallback tab.
 **Designer note:** The `−$400` in Clay Rose is the only place red-adjacent color appears in this set's analytical pin. Don't soften — the negative is the truth, and the editorial point is "MTR isn't perfect, but you'll know." If the negative reads as a mistake at thumb size, add a small leading minus dash in the same Clay Rose to clarify it's a negative number, not lost rendering.
 
 ## Pin 4 — Walk into the Landlord Meeting with a Proposal, Not a Request. (Before-after · Variant B)
@@ -89,7 +89,7 @@
 **Number/data callout:** None — the differentiator here is the printable artifact itself (white-label proposal). Mono price `$47` in footer.
 **Brand mark:** Same — wordmark y:1340, URL y:1290, SKU watermark `ACQ-003 · v1.0` top-right
 **Shape elements:** Vertical split at x:500 with 1px Graphite hairline. AFTER block: 280×340 mock proposal doc with 1.5px Clay Rose border, parchment fill, Parchment Alt 4px drop-shadow. The Clay Rose border is the only Variant B warmth surface on this pin (≪3% — 280+340+340+280 px linear × 1.5 = ~1,860 px²).
-**Reference assets:** Landlord pitch tab from `templates/_masters/ACQ-003-rental-arbitrage-analyzer.xlsx`.
+**Reference assets:** Landlord pitch tab from `templates/_masters/ACQ-003-rental-arbitrage-analyzer-DEMO.xlsx`.
 **Designer note:** The white-label proposal is THE differentiator vs every other arbitrage spreadsheet. Make sure `[YOUR LOGO]` is unmistakably a placeholder — it must feel like the operator brings their own brand. The Clay Rose border on the doc is editorially perfect: warmth (the in-person meeting) + structure (the printable). Don't fill the doc Clay Rose; border only.
 
 ---

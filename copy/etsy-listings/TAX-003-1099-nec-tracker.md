@@ -9,11 +9,11 @@
 **Category path:** Digital Downloads > Other Digital Downloads > Business & Office
 
 **Files to attach on Etsy (5):**
-1. `templates/_masters/TAX-003-1099-nec-tracker.xlsx`
-2. `templates/_delivery/_shared/etsy-upgrade-insert.pdf`
-3. `templates/_delivery/TAX-003-1099-nec-tracker/TAX-003-howto.pdf`
-4. `templates/_delivery/TAX-003-1099-nec-tracker/TAX-003-license.pdf`
-5. (optional) preview PDF
+1. `templates/_masters/TAX-003-1099-nec-tracker-DEMO.xlsx` — filled sample
+2. `templates/_masters/TAX-003-1099-nec-tracker-BLANK.xlsx` — clean starter
+3. `templates/_delivery/_shared/etsy-upgrade-insert.pdf`
+4. `templates/_delivery/TAX-003-1099-nec-tracker/TAX-003-howto.pdf`
+5. `templates/_delivery/TAX-003-1099-nec-tracker/TAX-003-license.pdf`
 
 ---
 

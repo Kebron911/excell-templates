@@ -17,7 +17,7 @@
 **Sub-overlay (y:400):** `Optimistic. Conservative. The spread is the conversation.` · Inter 400 Italic, 24pt, Graphite `#2B2B2B`.
 **Brand strip (y:1760–2000):** Muted Gold band, full width, `Instant Download · 14-Day Refund · Lifetime Updates` Inter 600 Semibold 22pt Harbor Navy, centered y:1862, tracking 0.02em. Wordmark "The STR Ledger." in Zone 1 (Cormorant 38pt parchment art, gold period) x:60 y:60, plus `thestrledger.com` mono 14pt parchment tracked 0.15em x:1940 y:82.
 **SKU watermark:** `STR-001 · v1.0` JetBrains Mono 11pt Muted Gold tracked 0.20em, x:1940 y:140.
-**Reference asset paths:** `brand/assets/logo-horizontal-reverse.png`; MacBook mockup via Vista Create `minimal laptop mockup` (smaller than other SKUs); Start tab from `templates/_masters/STR-001-escape-the-w2-planner-lite.xlsx` (build pending).
+**Reference asset paths:** `brand/assets/logo-horizontal-reverse.png`; MacBook mockup via Vista Create `minimal laptop mockup` (smaller than other SKUs); Start tab from `templates/_lite/STR-001-escape-the-w2-planner-lite.xlsx` (build pending).
 **One-line designer note:** This cover deliberately breaks the laptop-dominant pattern of the other Etsy hero photos. The two dates are the entire emotional argument. If at thumb size they don't read, kill the laptop entirely and let the dates and rule fill the bottom band. Do NOT sub in any "freedom" / "9-to-5" copy — listing §6.2 explicit prohibition.
 
 ## Photo 2 — Workbook screenshot (Start tab — four critical numbers)
@@ -29,7 +29,7 @@
 **Sub-overlay (y:400):** `Optimistic and conservative — both, every time.` · Inter 400 Italic, 22pt, Graphite.
 **Brand strip:** Identical Zone 1 and Zone 6 to Photo 1.
 **SKU watermark:** Identical placement.
-**Reference asset paths:** `templates/_masters/STR-001-escape-the-w2-planner-lite.xlsx` Start tab.
+**Reference asset paths:** `templates/_lite/STR-001-escape-the-w2-planner-lite.xlsx` Start tab.
 **One-line designer note:** The 2×2 grid must read at thumb — the four labels are the customer's fears in order of weight (properties → cash → healthcare → income). If anything competes with the four big figures, kill it. The spread number at bottom is secondary, not primary.
 
 ## Photo 3 — What's inside (Lite 3-tab strip + Full upgrade card)

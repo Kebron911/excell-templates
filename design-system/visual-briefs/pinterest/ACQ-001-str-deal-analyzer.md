@@ -89,7 +89,7 @@ Column headers above row 1 at y:480: blank · `Y1` (x:520) · `STABILIZED` (x:74
 **Verdict band (y:1140–1260):** Centered Muted Gold-soft band 800×120px x:100 y:1140. Inside (500, 1200) centered: `✅ DEAL — 10.0% CoC · 1.41 DSCR` JetBrains Mono Bold 24pt Harbor Navy tracking 0.18em.
 **Brand mark:** Parchment footer y:1300–1500. Identical to Pin 1.
 **Shape elements:** 1px Parchment Alt rules between metric rows. 1.5px Harbor Navy outer border around the table. 1.5px Muted Gold border around the verdict band.
-**Reference asset paths:** Verdict tab reference from `templates/_masters/ACQ-001-str-deal-analyzer-lite.xlsx` (build pending; placeholder values acceptable).
+**Reference asset paths:** Verdict tab reference from `templates/_lite/ACQ-001-str-deal-analyzer-lite.xlsx` (build pending; placeholder values acceptable).
 
 **Designer note:** The Y1 vs Stabilized two-column visual is the proof that this workbook handles the thing other templates skip. Y1 numbers must appear muted (Graphite), Stabilized must appear gold — the visual asymmetry IS the message. If Y1 reads as the same weight as Stabilized, the differentiator dies.
 
@@ -113,7 +113,7 @@ Column headers above row 1 at y:480: blank · `Y1` (x:520) · `STABILIZED` (x:74
 **Verdict band (y:1140–1260):** Centered Harbor Navy block 800×120px x:100 y:1140. Inside (500, 1200): `LITE $27 · FULL $47 · ONE PRINTABLE PAGE` JetBrains Mono Bold 22pt Parchment tracking 0.20em.
 **Brand mark:** Parchment footer y:1300–1500. Identical to Pin 1.
 **Shape elements:** 1px Parchment Alt vertical divider at x:500 between BEFORE/AFTER. 1.5px Muted Gold rule at y:1140 above the verdict band.
-**Reference asset paths:** Verdict tab screenshot from `templates/_masters/ACQ-001-str-deal-analyzer-lite.xlsx`. Zillow tab + AirDNA paywall mockups via Vista Create `browser tab mockup` (use generic UI to avoid trademark issues).
+**Reference asset paths:** Verdict tab screenshot from `templates/_lite/ACQ-001-str-deal-analyzer-lite.xlsx`. Zillow tab + AirDNA paywall mockups via Vista Create `browser tab mockup` (use generic UI to avoid trademark issues).
 
 **Designer note:** The DEAL pill on the AFTER side carries the iconic ACQ-001 visual — same pill family as Pin 2 but only one verdict shown here (the winner). Don't include PASS or MARGINAL on this pin; the pin is about resolution, not the choice. Verify the chaos→DEAL transition reads at 240×360 thumb.
 

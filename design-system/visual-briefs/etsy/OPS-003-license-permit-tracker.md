@@ -17,7 +17,7 @@
 **Sub-overlay (y:420):** `Multi-city · Auto-countdown · CPA-grade.` · Inter 400 Regular, 24pt, Graphite `#2B2B2B`.
 **Brand strip (y:1760–2000):** Muted Gold band, full width, `Instant Download · 14-Day Refund · Lifetime Updates` Inter 600 Semibold 22pt Harbor Navy, centered y:1862, tracking 0.02em. Wordmark "The STR Ledger." in Zone 1 (Cormorant 38pt parchment art, gold period) x:60 y:60, plus `thestrledger.com` mono 14pt parchment tracked 0.15em x:1940 y:82.
 **SKU watermark:** `OPS-003 · v1.0` JetBrains Mono 11pt Muted Gold tracked 0.20em, x:1940 y:140.
-**Reference asset paths:** `brand/assets/logo-horizontal-reverse.png`; MacBook mockup via Vista Create `minimal laptop mockup`; Renewal Calendar tab from `templates/_masters/OPS-003-license-permit-tracker.xlsx` (build pending — placeholder rendered tab acceptable until master ships).
+**Reference asset paths:** `brand/assets/logo-horizontal-reverse.png`; MacBook mockup via Vista Create `minimal laptop mockup`; Renewal Calendar tab from `templates/_masters/OPS-003-license-permit-tracker-DEMO.xlsx` (build pending — placeholder rendered tab acceptable until master ships).
 **One-line designer note:** Clay Rose at this size violates the 3% rule unless tightly controlled — keep the `$750` numeral and nothing else in Clay Rose, with all surrounding chrome in navy/parchment. The fine figure is the entire emotional payload of this cover. Verify Nashville $750 + 30-day figures per listing fact-check directive before render.
 
 ## Photo 2 — Workbook screenshot (Renewal Calendar)
@@ -29,7 +29,7 @@
 **Sub-overlay (y:390):** `Conditional formatting does the worrying for you.` · Inter 400 Italic, 22pt, Graphite.
 **Brand strip:** Identical Zone 1 and Zone 6 to Photo 1.
 **SKU watermark:** Identical placement.
-**Reference asset paths:** `templates/_masters/OPS-003-license-permit-tracker.xlsx` Renewal Calendar tab.
+**Reference asset paths:** `templates/_masters/OPS-003-license-permit-tracker-DEMO.xlsx` Renewal Calendar tab.
 **One-line designer note:** Clay Rose tints sit at 12% opacity max — solid Clay Rose blocks would break §4.2. The OPERATING WHILE EXPIRED chip is the only text-only Clay Rose moment on this surface and it must read at thumb size.
 
 ## Photo 3 — What's inside (6-tab strip + Permit Discovery callout)

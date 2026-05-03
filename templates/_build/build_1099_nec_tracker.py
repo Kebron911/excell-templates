@@ -10,7 +10,7 @@ and the YTD totals are deliberately rolling. Dates are still parsed to
 real datetime objects (good hygiene; lets users build their own date
 pivots without surprises).
 
-Generates templates/_masters/TAX-003-1099-nec-tracker.xlsx.
+Generates templates/_masters/TAX-003-1099-nec-tracker-DEMO.xlsx and -BLANK.xlsx.
 """
 from datetime import datetime
 from pathlib import Path

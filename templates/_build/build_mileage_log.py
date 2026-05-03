@@ -4,7 +4,7 @@ Implements templates/_briefs/TAX-001-mileage-log-spec.md with the v2.2
 visual + interaction language set by the Welcome Book v2.2 — operational
 mode (recurring data entry; no completion %).
 
-Generates templates/_masters/TAX-001-mileage-log.xlsx.
+Generates templates/_masters/TAX-001-mileage-log-DEMO.xlsx and -BLANK.xlsx.
 
 Usage:
     python build_mileage_log.py

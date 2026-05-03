@@ -10,7 +10,7 @@ Special case: the Printable Checklist tab is print-optimized (cleaner
 hands the printout to the host). Navigation chrome lives ABOVE the print
 area so it doesn't waste ink on every printout.
 
-Generates templates/_masters/OPS-001-turnover-checklist.xlsx.
+Generates templates/_masters/OPS-001-turnover-checklist-DEMO.xlsx and -BLANK.xlsx.
 """
 from datetime import datetime
 from pathlib import Path

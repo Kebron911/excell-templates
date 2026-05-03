@@ -32,7 +32,7 @@
 **Number/data callout:** `$3,840` · JetBrains Mono Bold, 64pt, Muted Gold `#C9A24B`, inline within line 3 of headline
 **Brand mark:** Wordmark centered x:500 y:1340; mono URL centered y:1290; SKU watermark `REV-001 · v1.0` JetBrains Mono 11pt Muted Gold tracking 0.20em, top-right x:940 y:60
 **Shape elements:** Two 48px × 1px gold rules `#C9A24B` (y:170, y:1040). No fills, no boxes — quote-card breathes on parchment.
-**Reference assets:** `brand/assets/wordmark-on-parchment.svg`; SKU-derived figure from `templates/_masters/REV-001-cleaning-fee-optimizer.xlsx` Strategies tab (Bundled annual delta cell). No screenshot here — quote-card is type-only.
+**Reference assets:** `brand/assets/wordmark-on-parchment.svg`; SKU-derived figure from `templates/_masters/REV-001-cleaning-fee-optimizer-DEMO.xlsx` Strategies tab (Bundled annual delta cell). No screenshot here — quote-card is type-only.
 **Designer note:** The `$3,840` is the make-or-break thumbnail signal. At 240×240 thumb, the dollar number must still be the loudest element — bigger optical weight than the word "cleaning". If Cormorant 76pt makes the number recede, scale the JetBrains Mono digit pair to 72pt and tighten kerning.
 
 ## Pin 2 — Bundle, Partial, or Pass-Through? Run the Math (Tip-list · Variant B)
@@ -50,7 +50,7 @@
 **Number/data callout:** Three deltas in JetBrains Mono 18pt Graphite (`+$0`, `+$2,140`, `+$3,840`); row numerals JetBrains Mono Bold 36pt Muted Gold (rows 1–2) and Clay Rose `#B5725E` (row 3 only)
 **Brand mark:** Same as Pin 1 — wordmark centered y:1340, mono URL y:1290, SKU watermark top-right
 **Shape elements:** 48px × 1px gold rules at y:450 and y:1080. Optional: 1px Parchment Alt `#EFE5D0` hairline divider between rows at y:683, y:833 (very subtle, alt-row anchor)
-**Reference assets:** Strategy figures from `templates/_masters/REV-001-cleaning-fee-optimizer.xlsx` Strategies tab.
+**Reference assets:** Strategy figures from `templates/_masters/REV-001-cleaning-fee-optimizer-DEMO.xlsx` Strategies tab.
 **Designer note:** The `+$3,840` row is the answer the workbook gives — it must read first when the eye lands. Set its row title `Fully Bundled.` slightly heavier (Cormorant 600) than the other two row titles; do not enlarge font size. Visual weight by weight, not by scale.
 
 ## Pin 3 — Before: Pricing Notes. After: +$3,840 a Year. (Before-after · Variant A)
@@ -68,7 +68,7 @@
 **Number/data callout:** `+$3,840` Cormorant 500, 88pt, Muted Gold `#C9A24B`, centered in navy AFTER block at y:680
 **Brand mark:** Same — wordmark centered y:1340, URL y:1290, SKU watermark top-right `REV-001 · v1.0`
 **Shape elements:** Vertical split at x:500 y:540–1000 (1px Graphite hairline divider). Parchment Alt left block (`#EFE5D0`), Harbor Navy right block (`#12304E`). Two gold 48px rules (y:430, AFTER block y:800).
-**Reference assets:** None (illustrative). Number sourced from `templates/_masters/REV-001-cleaning-fee-optimizer.xlsx` demo.
+**Reference assets:** None (illustrative). Number sourced from `templates/_masters/REV-001-cleaning-fee-optimizer-DEMO.xlsx` demo.
 **Designer note:** The strikethrough text on the BEFORE side must read messily — don't auto-align. Slight rotation (-1° to +1°) on each line sells the "Notes app" feel. The AFTER block stays rigorously centered. The contrast in tidiness IS the message.
 
 ## Pin 4 — Cleaning Fee Ratio: 0% / 15% / 30% — Where Are You? (Infographic · Variant B)
@@ -86,7 +86,7 @@
 **Number/data callout:** Band labels `0–15%`, `15–30%`, `30%+` JetBrains Mono Bold, 32pt, hex per band as above
 **Brand mark:** Same — wordmark y:1340, URL y:1290, SKU watermark `REV-001 · v1.0` top-right
 **Shape elements:** Three solid bands x:80–360 / 360–640 / 640–920 at y:620–740 in Harbor Navy / Muted Gold / Clay Rose. 1px Parchment vertical dividers at x:360, x:640. The "▼ MOST HOSTS" tick at x:760 y:580 is the only typographic ornament. Two gold rules y:440, y:880.
-**Reference assets:** Ratio thresholds from `templates/_masters/REV-001-cleaning-fee-optimizer.xlsx` Strategies tab. Penalty band copy from listing/description text.
+**Reference assets:** Ratio thresholds from `templates/_masters/REV-001-cleaning-fee-optimizer-DEMO.xlsx` Strategies tab. Penalty band copy from listing/description text.
 **Designer note:** Clay Rose appears here as the penalty-band fill — this is the only pin in the set where it occupies a full surface. Total Clay Rose surface across the 4-pin set must stay ≤3% per `brand-decisions.md` §4.2 — keep band 3 at ~280×120 = 33,600 px² out of 1,500,000 px² total = 2.2%, within budget. Do not extend Clay Rose into the supporting lines.
 
 ---

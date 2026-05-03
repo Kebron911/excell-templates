@@ -17,7 +17,7 @@
 **Sub-overlay (y: 400):** `120 line items · 6 tabs · 30 minutes.` · Inter 400 Regular, 26pt, Graphite.
 **Brand strip (y:1760–2000):** Muted Gold trust strip, `Instant Download · 14-Day Refund · Lifetime Updates`, Inter 600 22pt navy, tracking 0.02em. Wordmark "The STR Ledger." in Zone 1 (Cormorant 38pt parchment art, gold period) x:60 y:60, with `thestrledger.com` mono 14pt parchment tracked 0.15em x:1940 y:82.
 **SKU watermark:** `ACQ-002 · v1.0` JetBrains Mono 11pt Muted Gold tracking 0.20em, x:1940 y:140.
-**Reference asset paths:** `brand/assets/logo-horizontal-reverse.png`; MacBook mockup via Vista Create `minimal laptop mockup`; Start tab from `templates/_masters/ACQ-002-cost-to-launch.xlsx` (build pending).
+**Reference asset paths:** `brand/assets/logo-horizontal-reverse.png`; MacBook mockup via Vista Create `minimal laptop mockup`; Start tab from `templates/_masters/ACQ-002-cost-to-launch-DEMO.xlsx` (build pending).
 **One-line designer note:** The dollar number `$145,300` must read crisply at 240×240 thumb — if it goes sub-12px-equivalent on the laptop screen, kill the laptop chrome and float the number on parchment with a thin gold rule above it.
 
 ## Photo 2 — Workbook screenshot (Furnish & Setup tab)
@@ -29,7 +29,7 @@
 **Sub-overlay (y: 390):** `Saves you 200 trips to Amazon.` · Inter 400 Italic, 22pt, Graphite.
 **Brand strip:** Identical to Photo 1.
 **SKU watermark:** Identical.
-**Reference asset paths:** `templates/_masters/ACQ-002-cost-to-launch.xlsx` Furnish & Setup tab.
+**Reference asset paths:** `templates/_masters/ACQ-002-cost-to-launch-DEMO.xlsx` Furnish & Setup tab.
 **One-line designer note:** Crop must show at least three zone banners — proves the 8-zone structure visually. Don't lean on one zone.
 
 ## Photo 3 — What's inside (6-tab strip + "Did you forget?" sidebar)

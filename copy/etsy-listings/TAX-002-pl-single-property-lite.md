@@ -2,14 +2,14 @@
 
 **SKU:** TAX-002 (Lite for Etsy; Full version on Gumroad at $47)
 
-**Status:** Ready to publish. Brief + spec committed. Excel build pending (Task 13b). Delivery assets complete. Awaiting Etsy upload (Task 15).
+**Status:** ⚠ BLOCKED — Lite Excel file `templates/_lite/TAX-002-pl-single-property-lite.xlsx` was deleted in current working tree and not yet rebuilt. Decide: (a) rebuild Lite from current Full master, or (b) retire Lite tier and sell Full at $27 on Etsy. Brief + spec committed. Delivery assets `.md` sources committed (PDFs pending build).
 
 **Pricing:** $27 Etsy Lite · $47 own-site Full · $97 Multi-Property Master (Phase 2+)
 
 **Category path:** Digital Downloads > Other Digital Downloads > Business & Office
 
-**Files to attach on Etsy (5):**
-1. `templates/_lite/TAX-002-pl-single-property-lite.xlsx` (Lite variant — Etsy only)
+**Files to attach on Etsy (5):** *(pending decision above — current paths assume Lite is rebuilt)*
+1. `templates/_lite/TAX-002-pl-single-property-lite.xlsx` (Lite variant — Etsy only — **NOT YET BUILT**)
 2. `templates/_delivery/_shared/etsy-upgrade-insert.pdf`
 3. `templates/_delivery/TAX-002-pl-single-property/TAX-002-howto.pdf`
 4. `templates/_delivery/TAX-002-pl-single-property/TAX-002-license.pdf`
