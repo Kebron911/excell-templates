@@ -9,11 +9,11 @@
 **Category path:** Digital Downloads > Other Digital Downloads > Business & Office
 
 **Files to attach on Etsy (5):**
-1. `templates/_masters/TAX-001-mileage-log.xlsx`
-2. `templates/_delivery/_shared/etsy-upgrade-insert.pdf` (shared — from Task 10)
-3. `templates/_delivery/TAX-001-mileage-log/TAX-001-howto.pdf`
-4. `templates/_delivery/TAX-001-mileage-log/TAX-001-license.pdf`
-5. (optional) preview PDF
+1. `templates/_masters/TAX-001-mileage-log-DEMO.xlsx` — filled sample
+2. `templates/_masters/TAX-001-mileage-log-BLANK.xlsx` — clean starter
+3. `templates/_delivery/_shared/etsy-upgrade-insert.pdf` (shared — from Task 10)
+4. `templates/_delivery/TAX-001-mileage-log/TAX-001-howto.pdf`
+5. `templates/_delivery/TAX-001-mileage-log/TAX-001-license.pdf`
 
 ---
 

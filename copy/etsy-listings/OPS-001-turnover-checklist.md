@@ -141,11 +141,11 @@ See `templates/_delivery/OPS-001-turnover-checklist/thumbnails.md` for the 5-ima
 
 ## Files to attach on Etsy (up to 5)
 
-1. `templates/_masters/OPS-001-turnover-checklist.xlsx` — master editable file (pending Task 8 part B)
-2. `templates/_delivery/_shared/etsy-upgrade-insert.pdf` — shared buyer companion PDF (from Task 10)
-3. `templates/_delivery/OPS-001-turnover-checklist/OPS-001-howto.pdf` — how-to guide (Daniel builds in Vista Create)
-4. `templates/_delivery/OPS-001-turnover-checklist/OPS-001-license.pdf` — 1-page license (Daniel builds in Vista Create)
-5. `templates/_delivery/OPS-001-turnover-checklist/printable-checklist.pdf` — export of the Printable Checklist tab as standalone PDF (5-min task; Daniel exports from xlsx)
+1. `templates/_masters/OPS-001-turnover-checklist-DEMO.xlsx` — filled sample
+2. `templates/_masters/OPS-001-turnover-checklist-BLANK.xlsx` — clean starter
+3. `templates/_delivery/_shared/etsy-upgrade-insert.pdf` — shared buyer companion PDF (from Task 10)
+4. `templates/_delivery/OPS-001-turnover-checklist/OPS-001-howto.pdf` — how-to guide (Daniel builds in Vista Create)
+5. `templates/_delivery/OPS-001-turnover-checklist/OPS-001-license.pdf` — 1-page license (Daniel builds in Vista Create)
 
 ---
 

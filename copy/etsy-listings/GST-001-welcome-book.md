@@ -8,12 +8,12 @@
 
 **Category path on Etsy:** Digital Downloads > Other Digital Downloads > Business & Office
 
-**Files to attach on Etsy (5):**
-1. `templates/_masters/GST-001-welcome-book.xlsx`
-2. `templates/_delivery/_shared/etsy-upgrade-insert.pdf` (shared buyer companion — from Task 10)
-3. `templates/_delivery/GST-001-welcome-book/GST-001-howto.pdf`
-4. `templates/_delivery/GST-001-welcome-book/GST-001-license.pdf`
-5. (optional) `templates/_delivery/GST-001-welcome-book/preview.pdf`
+**Files to attach on Etsy (5):** *(see canonical file list at "Files attached to Etsy listing" section below)*
+1. `templates/_masters/GST-001-welcome-book-DEMO.xlsx` — filled sample
+2. `templates/_masters/GST-001-welcome-book-BLANK.xlsx` — clean starter
+3. `templates/_delivery/GST-001-welcome-book/GST-001-sample-output.pdf` — 3-page preview PDF (built from DEMO)
+4. `templates/_delivery/_shared/etsy-upgrade-insert.pdf` (shared buyer companion — from Task 10)
+5. `templates/_delivery/GST-001-welcome-book/GST-001-license.pdf`
 
 ---
 
