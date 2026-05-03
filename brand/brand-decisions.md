@@ -37,7 +37,7 @@ This file is the single source of truth for every brand value. When any draft re
 
 - Use on: Etsy banner, hub homepage, email signature, letterhead, Amazon book cover, podcast intros, About pages
 - 7 words, book-title cadence
-- Covers all 72 templates across the catalog (tax, ops, guest, pricing, marketing, legal, team, strategic)
+- Covers all 65 templates across the catalog (tax, ops, guest, pricing, marketing, legal, team, acquisition, strategic)
 
 ### Campaign taglines (seasonal / surface-specific)
 
@@ -45,7 +45,7 @@ This file is the single source of truth for every brand value. When any draft re
 |---|---|---|
 | Tax season | *Close your year before April does.* | Dec 15 – Apr 15 funnel, Pinterest Q1 pins, Tax Season Bundle, Schedule E/C listings |
 | Operations | *Turnover chaos has a spreadsheet.* | Cleaner Turnover Checklist, Maintenance CRM, supply inventory listings, ops content |
-| Guest experience | *Welcome books that earn 5-stars.* | Welcome Book, House Rules, Local Recs, Check-in/out listings |
+| Guest experience | *Welcome books that earn 5-stars.* | Welcome Book, House Rules, Pet Policy listings |
 
 Additional campaign taglines may be written per launch; they must (1) match the voice rules in §6, (2) be under 10 words, (3) reference an outcome or tension, never a feature.
 

@@ -1215,7 +1215,7 @@ function renderEditorialTheme(d, root) {
   root.innerHTML = `
   <section class="page" data-page="1">
     <div class="masthead">
-      <div class="sku">THE STR LEDGER · GST-001 · GUEST EDITION</div>
+      <div class="sku">GUEST EDITION</div>
       <div class="title">Welcome to ${orDash(P.B8)}.</div>
       <div class="sub">A few notes to make your stay effortless.</div>
     </div>
@@ -1304,7 +1304,7 @@ function renderHotelTheme(d, root) {
   root.innerHTML = `
   <section class="page" data-page="1">
     <div class="cover">
-      <div class="cover-mark">THE STR LEDGER</div>
+      <div class="cover-mark">${orDash(P.B9 || "GUEST EDITION").toUpperCase()}</div>
       <div class="cover-body">
         <div class="cover-pre">The house at</div>
         <div class="cover-name">${orDash(P.B8)}</div>
@@ -1437,7 +1437,7 @@ function renderMagazineTheme(d, root) {
   root.innerHTML = `
   <section class="page" data-page="1">
     <div class="hero">
-      <div class="hero-mono">THE STR LEDGER · GUEST EDITION</div>
+      <div class="hero-mono">GUEST EDITION</div>
       <div class="hero-title">Welcome to<br>${orDash(P.B8)}.</div>
       <div class="hero-sub">A few notes to make your stay effortless.</div>
       <div class="hero-pagenum">PAGE 1 OF 3</div>

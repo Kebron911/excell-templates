@@ -12,7 +12,7 @@ This is the working design system for **The STR Ledger**, a brand that sells bus
 
 The STR Ledger is a multi-storefront product catalog (Etsy, Gumroad, and a forthcoming hub at `thestrledger.com`) wrapped around a **tax-and-financial beachhead** for STR hosts. The brand ships:
 
-- **Excel templates** — mileage logs, Schedule E workbooks, depreciation trackers, 1099-NEC trackers, per-property P&L workbooks, cleaner turnover checklists, guest welcome books (72 SKUs planned).
+- **Excel templates** — mileage logs, Schedule E workbooks, depreciation trackers, 1099-NEC trackers, per-property P&L workbooks, cleaner turnover checklists, guest welcome books (65 SKUs planned).
 - **A blog** at `blog.thestrledger.com` (Ghost) — SEO-driven posts like "47 Airbnb Tax Deductions Most Hosts Miss."
 - **An email-nurture funnel** — lead magnet → $17 tripwire (Mileage Log) → $97 core (Schedule E Workbook) → $147–$297 bundles.
 - **A social/Pinterest ecosystem** — 30-pin launch catalog, Instagram at `@thestrledger`, Facebook group ("Inner Circle").

@@ -107,9 +107,11 @@ Sarah is **not** meaningfully on TikTok, LinkedIn, Reddit (primary), or Twitter/
 | 5 | The Vault | $1,497 (or $997 launch) | Lifetime, all templates |
 | 6 | Membership / DFY | $37/mo, $297/yr, $1.5–3K per DFY | Recurring + services |
 
-### 3.2 — Complete template catalog (72 candidates across 10 categories)
+### 3.2 — Complete template catalog (65 templates across 10 categories)
 
 All templates are Excel-native. Individual design will happen iteratively with user input; this spec establishes the universe, not the specs of each template.
+
+> SKU numbers below are stable identifiers — gaps (e.g., #29, #39, #44, #45, #56, #65, #66) are intentional. Those SKUs were retired from the catalog on 2026-05-02 (Subject-to acquisition tracker, HOA/condo fee tracker, Local recommendations template, Check-in/out instructions builder, Photo-performance A/B tracker, SOP library index, VA task tracker). Existing template briefs cross-reference SKU numbers, so numbering is preserved with gaps rather than re-sequenced.
 
 **📊 A. Financial / Accounting (20 templates)**
 1. Multi-property master P&L dashboard — T3
@@ -133,7 +135,7 @@ All templates are Excel-native. Individual design will happen iteratively with u
 19. Multi-entity (LLC-per-property) consolidated P&L — T3
 20. Partnership distribution tracker — T3
 
-**🏠 B. Acquisition / Underwriting (12 templates)**
+**🏠 B. Acquisition / Underwriting (11 templates)**
 21. STR deal analyzer (single property) — T2
 22. 3-property side-by-side comparison — T2
 23. AirDNA data integrator — T3
@@ -142,27 +144,23 @@ All templates are Excel-native. Individual design will happen iteratively with u
 26. 5-year pro-forma builder — T3
 27. BRRRR-to-STR refi math — T3
 28. Seller-finance offer calculator — T2
-29. Subject-to acquisition tracker — T3
 30. 1031 exchange tracker (STR → STR) — T3
 31. Cost-to-launch calculator (all-in Year 1) — T2
 32. STR vs LTR yield comparison — T2
 
-**🧹 C. Operations / Daily Management (9 templates)**
+**🧹 C. Operations / Daily Management (8 templates)**
 33. Turnover checklist + cleaner scorecard — T1
 34. Cleaning cost per-turnover tracker — T1
 35. Supply inventory + par-level restock calculator — T2
 36. Damage claim + Aircover log — T2
 37. Maintenance log + vendor CRM — T2
 38. Utility usage + trend tracker — T1
-39. HOA/condo fee tracker — T1
 40. Insurance policy tracker (expiration alerts) — T1
 41. License/permit/STR-regulation tracker by city — T2
 
-**👋 D. Guest Experience (5 templates — the Etsy traffic gateway)**
+**👋 D. Guest Experience (3 templates — the Etsy traffic gateway)**
 42. Welcome book template ⭐ — T1 (Trojan horse on Etsy)
 43. House rules builder — T1
-44. Local recommendations template — T1
-45. Check-in/out instructions builder — T1
 46. Pet policy document — T0/T1
 
 **💰 E. Pricing / Revenue Management (6 templates)**
@@ -173,11 +171,10 @@ All templates are Excel-native. Individual design will happen iteratively with u
 51. Holiday/event pricing calendar — T1
 52. PriceLabs/Wheelhouse/Beyond ROI comparison — T2
 
-**📣 F. Marketing / Growth (4 templates)**
+**📣 F. Marketing / Growth (3 templates)**
 53. Listing SEO audit + scoring — T2
 54. Review response tracker + template library — T1
 55. Referral source + repeat guest CRM — T2
-56. Photo-performance A/B tracker — T2
 
 **⚖️ G. Legal / Compliance / Risk (4 templates)**
 57. STR license renewal calendar — T1
@@ -185,13 +182,11 @@ All templates are Excel-native. Individual design will happen iteratively with u
 59. Guest screening log + ban list — T1
 60. Insurance claim log — T1
 
-**👥 H. Team / Co-hosting / Scaling (6 templates — Pro Pam)**
+**👥 H. Team / Co-hosting / Scaling (4 templates — Pro Pam)**
 61. Cleaner CRM + payroll — T3
 62. Owner reporting dashboard — T3
 63. Commission/split calculator for co-hosts — T3
 64. Multi-owner consolidated reporting — T4
-65. SOP library index — T2
-66. VA task tracker — T2
 
 **📈 I. Strategic / Exit Planning (3 templates)**
 67. Portfolio valuation model — T3
@@ -212,7 +207,7 @@ All templates are Excel-native. Individual design will happen iteratively with u
 | **Portfolio Bundle** ⭐ | 32 | ~$900 | $397 | 56% | **Sarah (hero)** |
 | Tax Season Bundle (seasonal) | 8 | ~$350 | $147 | 58% | Sarah + Pam |
 | Pro Manager Bundle | 24 | ~$1,800 | $797 | 56% | Pam |
-| **The Vault** | All 72+ | ~$3,500+ | $1,497 | 57% | All-in buyers |
+| **The Vault** | All 65+ | ~$3,500+ | $1,497 | 57% | All-in buyers |
 
 **Bundle laddering rule:** every bundle has a clear upgrade path. One-click "pay the difference" upgrades on order-confirmation pages.
 
