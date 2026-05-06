@@ -1,0 +1,100 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import data from '@/data/lodging-tax-by-state.json';
+import type { LodgingTaxData } from '@/data/lodging-tax-by-state.schema';
+import { formatPercent } from '@/lib/format';
+import { buildWebApplication } from '@/lib/seo';
+
+const entries = Object.entries(data as LodgingTaxData)
+  .map(([code, e]) => ({ code, ...e }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Lodging Tax by State',
+    description: 'State-by-state short-term rental lodging tax rates with source citations and verification dates. Free, sortable index of all 50 states + DC.',
+    toolPath: '/lodging-tax',
+  }),
+];
+---
+
+<Layout
+  title="Lodging Tax by State — STR Host Tools"
+  description="State-by-state short-term rental lodging tax rates. All 50 states + DC. Sourced from each state's Department of Revenue, verified annually."
+  path="/lodging-tax"
+  jsonLd={jsonLd}
+>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-9 pb-7">
+      <header>
+        <h1 class="text-h1 font-serif text-navy leading-tight max-w-3xl">
+          Lodging Tax by State<span class="period-gold">.</span>
+        </h1>
+        <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+          State-level short-term rental lodging tax rates. Click a state for the calculator, source citation, and verification date.
+        </p>
+      </header>
+
+      <div class="mt-7 surface-calc bg-white overflow-x-auto">
+        <table class="w-full border-collapse text-small">
+          <thead class="border-b border-rule-strong">
+            <tr class="text-left text-navy">
+              <th class="px-4 py-3 font-semibold">State</th>
+              <th class="px-4 py-3 font-semibold text-right">State rate</th>
+              <th class="px-4 py-3 font-semibold text-right">Local add-on</th>
+              <th class="px-4 py-3 font-semibold">Platforms collect</th>
+              <th class="px-4 py-3 font-semibold">Verified</th>
+            </tr>
+          </thead>
+          <tbody>
+            {entries.map((e) => (
+              <tr class="border-b border-rule hover:bg-parchment-alt transition-colors duration-fast">
+                <td class="px-4 py-3">
+                  <a
+                    href={`/lodging-tax/${e.code}`}
+                    class="text-navy no-underline hover:underline hover:decoration-gold underline-offset-2 font-medium"
+                  >
+                    {e.name}
+                  </a>
+                </td>
+                <td class="px-4 py-3 font-mono text-right text-ink-1">{formatPercent(e.stateRate)}</td>
+                <td class="px-4 py-3 font-mono text-right text-ink-1">
+                  {e.localAddOnRange[0] === e.localAddOnRange[1]
+                    ? formatPercent(e.localAddOnRange[0])
+                    : `${formatPercent(e.localAddOnRange[0])} – ${formatPercent(e.localAddOnRange[1])}`}
+                </td>
+                <td class="px-4 py-3 text-ink-2">
+                  {e.platformCollects.length === 0
+                    ? '—'
+                    : e.platformCollects.map((p) => p === 'airbnb' ? 'Airbnb' : 'Vrbo').join(', ')}
+                </td>
+                <td class="px-4 py-3 font-mono text-ink-3">{e.lastVerified}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p class="mt-5 text-caption text-ink-3 leading-snug max-w-2xl">
+        <strong>Disclaimer:</strong> rates change. Verify with each state's Department of Revenue before filing. The "platforms collect" column reflects best-known automatic collection for state-level tax — local taxes may still be your responsibility regardless.
+      </p>
+
+      <AdSlot location="in-content" />
+
+      <EmailCaptureCard
+        magnet="str-host-income-report-2026"
+        toolSlug="lodging-tax-index"
+      />
+
+      <STRLedgerCTA tool="lodging-tax" />
+
+      <AdSlot location="footer" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="math" />
+  </article>
+</Layout>

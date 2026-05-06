@@ -1,7 +1,7 @@
 # STATE
 
-**Current phase:** 3 — Lodging-tax system (not started)
-**Last completed phase:** 2 — Six standalone calculators (2026-05-06)
+**Current phase:** 4 — Site pages + SEO surface (not started)
+**Last completed phase:** 3 — Lodging-tax system (2026-05-06)
 **Last update:** 2026-05-06
 
 ---
@@ -28,13 +28,22 @@
 
 ---
 
-## Phase 3 progress (not started)
+## Phase 3 progress (complete)
 
-- [ ] Task 15 — Lodging-tax data file (50 states JSON + schema)
-- [ ] Task 16 — Lodging-tax calculator logic + island
-- [ ] Task 17 — Programmatic state pages (`/lodging-tax/[state]`)
-- [ ] Task 18 — Lodging-tax index (`/lodging-tax/`)
-- [ ] Task 19 — Per-state narrative MDX content collection
+- [x] Task 15 — Lodging-tax data file (50 states + DC JSON + schema) — _this commit_
+- [x] Task 16 — Lodging-tax calculator logic + island (TDD, 5 assertions) — _this commit_
+- [x] Task 17 — Programmatic state pages (`/lodging-tax/[state]`, 51 routes) — _this commit_
+- [x] Task 18 — Lodging-tax index (`/lodging-tax/`, sortable table) — _this commit_
+- [x] Task 19 — Per-state narrative MDX content collection (TX/CA/FL/NY/CO + README) — _this commit_
+
+---
+
+## Phase 4 progress (not started)
+
+- [ ] Task 20 — Landing page (real, replacing Phase 1 throwaway)
+- [ ] Task 21 — About + Contact + Lead-magnet pages
+- [ ] Task 22 — Sitemap + robots.txt
+- [ ] Task 23 — OG image generator (Satori)
 
 ---
 
@@ -49,6 +58,8 @@
 - **2026-05-06 (P2)** — Extracted `Field`/`Row`/`Actions` to `src/components/calculators/ui.tsx` after Task 9; refactored AirbnbFeeCalculator onto them. All 6 calculators consume the shared helpers so visual rhythm stays consistent.
 - **2026-05-06 (P2 Task 13)** — Break-even calculator returns `feasible: false` when cleaning + fees + variable costs exceed nightly revenue, with `breakEvenNights = Infinity`. Island renders an "Not feasible at this ADR" notice instead of "∞ nights" — friendly UX over math literal.
 - **2026-05-06 (P2 Task 14)** — Co-host split owner share clamps at 0 when fixed cohost fees exceed net revenue. Math could go negative but display shows 0 + a coaching note that the structure isn't sustainable. Cohost effective % is computed and displayed inline so percent-vs-flat comparison is one glance.
+- **2026-05-06 (P3 Task 17)** — Programmatic per-state pages render via `getStaticPaths` over `lodging-tax-by-state.json`. When a per-state MDX narrative exists in the `states` content collection, the page renders that; otherwise it falls back to an auto-generated section using `entry.notes`, `entry.platformCollects`, and `entry.sourceUrl`. This means all 51 routes work from day one even though only 5 are hand-authored.
+- **2026-05-06 (P3 Task 18)** — Index page renders a sortable table by state name. Table columns: state link, state rate, local add-on range, platforms-collect, last-verified. Mobile gets horizontal scroll on the table since 5 columns of state-tax data don't reflow cleanly into a card grid.
 
 ## Deviations log
 
