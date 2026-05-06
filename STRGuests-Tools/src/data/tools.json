@@ -1,0 +1,51 @@
+{
+  "house-rules-pdf": {
+    "shortName": "House rules",
+    "name": "House Rules PDF Generator",
+    "path": "/house-rules-pdf",
+    "tagline": "Branded printable house rules in 60 seconds.",
+    "kind": "pdf"
+  },
+  "welcome-book": {
+    "shortName": "Welcome book",
+    "name": "Welcome Book Builder",
+    "path": "/welcome-book",
+    "tagline": "Multi-page guidebook PDF with photos, wifi, and local picks.",
+    "kind": "pdf"
+  },
+  "wifi-sign": {
+    "shortName": "Wi-Fi sign",
+    "name": "Wi-Fi Sign Generator",
+    "path": "/wifi-sign",
+    "tagline": "Frame-ready wifi card with multiple design templates.",
+    "kind": "pdf"
+  },
+  "check-in-instructions": {
+    "shortName": "Check-in",
+    "name": "Check-in Instructions PDF",
+    "path": "/check-in-instructions",
+    "tagline": "Step-by-step arrival guide with photos and door codes.",
+    "kind": "pdf"
+  },
+  "listing-description": {
+    "shortName": "Listing",
+    "name": "Listing Description Generator",
+    "path": "/listing-description",
+    "tagline": "AI-written Airbnb listing copy in your voice.",
+    "kind": "ai"
+  },
+  "review-response": {
+    "shortName": "Reviews",
+    "name": "Review Response Generator",
+    "path": "/review-response",
+    "tagline": "Thoughtful replies for 5-star, 4-star, and bad reviews.",
+    "kind": "ai"
+  },
+  "guest-messages": {
+    "shortName": "Messages",
+    "name": "Guest Message Templates",
+    "path": "/guest-messages",
+    "tagline": "Booking, pre-arrival, mid-stay, and post-checkout templates.",
+    "kind": "ai"
+  }
+}
