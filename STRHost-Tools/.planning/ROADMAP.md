@@ -92,5 +92,5 @@ Phase grouping of the 29 atomic tasks from [implementation plan](../docs/superpo
 | 2 — Calculators | complete | 2026-05-06 | 2026-05-06 |
 | 3 — Lodging-tax | complete | 2026-05-06 | 2026-05-06 |
 | 4 — Site pages | complete | 2026-05-06 | 2026-05-06 |
-| 5 — Analytics + E2E | not-started | — | — |
+| 5 — Analytics + E2E | complete | 2026-05-06 | 2026-05-06 |
 | 6 — CI/CD + deploy | not-started | — | — |
