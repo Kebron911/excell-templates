@@ -1,0 +1,39 @@
+## How it works
+
+Break-even occupancy is the floor — the booked-nights or occupancy-rate threshold below which the property loses money each month.
+
+The math:
+
+- **Monthly fixed costs** = mortgage + insurance + property-tax/12 + HOA + utilities + other fixed
+- **Net per night** = ADR × (1 − platform fee rate) − cleaning per turnover − variable per night
+- **Break-even nights** = monthly costs ÷ net per night
+- **Break-even occupancy** = break-even nights ÷ 30
+
+If `net per night ≤ 0` — meaning cleaning + fees + variable costs exceed your nightly rate — the property cannot break even at any occupancy. The calculator flags this as "not feasible at this ADR" instead of showing infinite nights.
+
+This calculator is for the **floor**. The [profit calculator](/profit-calculator) shows the full P&L; the [RevPAR calculator](/revpar-calculator) shows the comparable trio. Use them together: break-even tells you what you need; profit tells you what you'd make above that.
+
+## How to use this calculator
+
+1. **Enter monthly fixed costs** — every dollar that hits the bank account whether or not anyone books. Mortgage, insurance, HOA, utilities, "other fixed" (subscriptions, software, fixed cleaning retainer if any).
+2. **Enter property tax annually** — the calculator divides by 12 internally. Most counties bill annually or semi-annually.
+3. **Enter per-night economics** — your average daily rate, the platform fee rate (0.03 for Airbnb host-only, 0.05 for Vrbo, 0 if you're direct booking), cleaning per turnover, and variable per night (supplies, restocks).
+4. **Read the floor** — break-even nights tells you the minimum monthly bookings; break-even occupancy tells you the same number as a percentage.
+5. **If the result says "not feasible"** — the math doesn't work at your current ADR. Raise nightly rate, raise minimum-night stay (which spreads cleaning across more nights), or rethink the deal.
+
+## Frequently asked questions
+
+**Why divide by 30?**
+This calculator assumes a 30-day month for simplicity. For seasonal analysis, run it multiple times — your break-even occupancy in low season might be 70% while high season is 40%. Same costs, different "available nights," different feasibility.
+
+**Should I include my own labor in fixed costs?**
+Only if you're paying yourself. If you self-clean and self-manage, your labor is what the profit calculator's "management fee rate" handles. For break-even, focus on actual cash outflows.
+
+**What if I have multiple properties?**
+Run break-even per property. Portfolio break-even doesn't generalize cleanly — one property might subsidize another, and you want to know which is which.
+
+**My break-even is 35 nights — does that mean I'm broken?**
+Means the deal can't break even in a 30-day month at your current ADR. The fix is one of: raise ADR, lower fixed costs (refinance, shop insurance), or raise minimum-night stay so cleaning spreads across more nights.
+
+**Why is my net per night negative?**
+Because cleaning + fees + variable costs are eating more than 100% of nightly revenue. This happens with very short stays (1-night minimums plus high cleaning fees) or very low ADRs in expensive markets. Raise the minimum-night, raise ADR, or both.
