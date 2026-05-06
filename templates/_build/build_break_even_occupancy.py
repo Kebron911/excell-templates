@@ -30,7 +30,13 @@ from brand_config import (COLOR_PRIMARY, COLOR_SECONDARY, COLOR_ACCENT, COLOR_TE
 SKU = "FIN-002"
 NAME = "break-even-occupancy"
 BASE = Path(__file__).resolve().parent.parent
-OUT = BASE / "_masters" / f"{SKU}-{NAME}.xlsx"
+DEMO_OUT = BASE / "_masters" / f"{SKU}-{NAME}-DEMO.xlsx"
+BLANK_OUT = BASE / "_masters" / f"{SKU}-{NAME}-BLANK.xlsx"
+
+
+def _val(variant, demo_value):
+    """Return demo_value when building DEMO; None for BLANK (empty input cell)."""
+    return demo_value if variant == "demo" else None
 
 # ---------------------------------------------------------------------------
 # Sample inputs (the workbook ships with these as the demo; buyer overwrites)
@@ -68,7 +74,7 @@ SAMPLE = {
 # Sheet builders
 # ---------------------------------------------------------------------------
 
-def build_start_tab(wb):
+def build_start_tab(wb, variant):
     ws = wb.active
     ws.title = "Start"
     ws.sheet_properties.tabColor = COLOR_PRIMARY
@@ -155,7 +161,7 @@ def build_start_tab(wb):
     c.font = Font(name=FONT_BODY, size=12, bold=True, color=COLOR_TEXT)
     c.alignment = Alignment(horizontal="right", vertical="center", indent=1)
 
-    cell = ws.cell(row=18, column=7, value=SAMPLE["current_occupancy"])
+    cell = ws.cell(row=18, column=7, value=_val(variant, SAMPLE["current_occupancy"]))
     apply_style(cell, input_cell_style())
     cell.number_format = "0%"
     cell.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_PRIMARY)
@@ -228,7 +234,7 @@ def build_start_tab(wb):
     ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
-def build_calculator_tab(wb):
+def build_calculator_tab(wb, variant):
     ws = wb.create_sheet("Calculator")
     ws.sheet_properties.tabColor = COLOR_SECONDARY
 
@@ -257,18 +263,18 @@ def build_calculator_tab(wb):
     _section_band(ws, 6, "REVENUE ASSUMPTIONS")
 
     rev_fields = [
-        (7,  "Property name:",                         SAMPLE["property_name"],   None,
+        (7,  "Property name:",                         _val(variant, SAMPLE["property_name"]),   None,
             "(used in Start tab headline)"),
-        (8,  "Property name (alias for headline ref):", SAMPLE["property_name"],   None, ""),
-        (9,  "ADR — Avg nightly rate ($):",            SAMPLE["adr"],             '"$"#,##0.00',
+        (8,  "Property name (alias for headline ref):", _val(variant, SAMPLE["property_name"]),   None, ""),
+        (9,  "ADR — Avg nightly rate ($):",            _val(variant, SAMPLE["adr"]),             '"$"#,##0.00',
             "Net of platform commission applied below"),
-        (10, "Cleaning fee charged to guest ($):",     SAMPLE["cleaning_charged"], '"$"#,##0.00',
+        (10, "Cleaning fee charged to guest ($):",     _val(variant, SAMPLE["cleaning_charged"]), '"$"#,##0.00',
             "What guest pays — the host can keep the spread vs. cleaning_paid"),
-        (11, "Avg length of stay (nights):",           SAMPLE["avg_los"],         "0.0",
+        (11, "Avg length of stay (nights):",           _val(variant, SAMPLE["avg_los"]),         "0.0",
             "1.5-7 typical; affects per-night variable cost"),
-        (12, "Available nights/year:",                  SAMPLE["available_nights"], "0",
+        (12, "Available nights/year:",                  _val(variant, SAMPLE["available_nights"]), "0",
             "365 minus blocked (personal use, maintenance, owner stays)"),
-        (13, "Platform commission (%):",                SAMPLE["platform_pct"],   "0.0%",
+        (13, "Platform commission (%):",                _val(variant, SAMPLE["platform_pct"]),   "0.0%",
             "Airbnb 15%, VRBO 8%, direct 0-3%"),
     ]
     # Note: row 8 is the property name we reference from the Start tab — set it
@@ -277,17 +283,17 @@ def build_calculator_tab(wb):
     # and row 7 doesn't exist — let me consolidate.
     # Re-write rev_fields cleanly without the duplicate row 8.
     rev_fields = [
-        (7,  "Property name:",                         SAMPLE["property_name"],   None,
+        (7,  "Property name:",                         _val(variant, SAMPLE["property_name"]),   None,
             "(used in Start tab headline)"),
-        (9,  "ADR — Avg nightly rate ($):",            SAMPLE["adr"],             '"$"#,##0.00',
+        (9,  "ADR — Avg nightly rate ($):",            _val(variant, SAMPLE["adr"]),             '"$"#,##0.00',
             "Gross nightly rate (commission applied below)"),
-        (10, "Cleaning fee charged to guest ($):",     SAMPLE["cleaning_charged"], '"$"#,##0.00',
+        (10, "Cleaning fee charged to guest ($):",     _val(variant, SAMPLE["cleaning_charged"]), '"$"#,##0.00',
             "What guest pays — host nets the spread vs. cleaning paid"),
-        (11, "Avg length of stay (nights):",           SAMPLE["avg_los"],         "0.0",
+        (11, "Avg length of stay (nights):",           _val(variant, SAMPLE["avg_los"]),         "0.0",
             "1.5-7 typical; affects per-night variable cost"),
-        (12, "Available nights/year:",                  SAMPLE["available_nights"], "0",
+        (12, "Available nights/year:",                  _val(variant, SAMPLE["available_nights"]), "0",
             "365 minus blocked (personal use, maintenance, owner stays)"),
-        (13, "Platform commission (%):",                SAMPLE["platform_pct"],   "0.0%",
+        (13, "Platform commission (%):",                _val(variant, SAMPLE["platform_pct"]),   "0.0%",
             "Airbnb 15%, VRBO 8%, direct 0-3%"),
     ]
     for row, label, value, fmt, note in rev_fields:
@@ -308,16 +314,16 @@ def build_calculator_tab(wb):
     _section_band(ws, 15, "ANNUAL FIXED COSTS")
 
     fixed_fields = [
-        (16, "Mortgage interest (annual, $):",  SAMPLE["mortgage_interest"], '"$"#,##0', "Interest only — principal is excluded from break-even"),
-        (17, "Property tax (annual, $):",       SAMPLE["property_tax"],      '"$"#,##0', ""),
-        (18, "Insurance (annual, $):",          SAMPLE["insurance"],         '"$"#,##0', "Including STR rider"),
-        (19, "HOA / Condo fees (annual, $):",   SAMPLE["hoa"],               '"$"#,##0', ""),
-        (20, "Utilities (annual, $):",          SAMPLE["utilities"],         '"$"#,##0', "Electric, gas, water, trash combined"),
-        (21, "Internet (annual, $):",           SAMPLE["internet"],          '"$"#,##0', ""),
-        (22, "PMS / Software (annual, $):",     SAMPLE["software"],          '"$"#,##0', "Hospitable, Hostfully, OwnerRez, etc."),
-        (23, "Marketing / photos (annual, $):", SAMPLE["marketing"],         '"$"#,##0', "Photo refresh, listing fees"),
-        (24, "Other fixed #1 (annual, $):",     SAMPLE["other_fixed_1"],     '"$"#,##0', "Label this if used"),
-        (25, "Other fixed #2 (annual, $):",     SAMPLE["other_fixed_2"],     '"$"#,##0', ""),
+        (16, "Mortgage interest (annual, $):",  _val(variant, SAMPLE["mortgage_interest"]), '"$"#,##0', "Interest only — principal is excluded from break-even"),
+        (17, "Property tax (annual, $):",       _val(variant, SAMPLE["property_tax"]),      '"$"#,##0', ""),
+        (18, "Insurance (annual, $):",          _val(variant, SAMPLE["insurance"]),         '"$"#,##0', "Including STR rider"),
+        (19, "HOA / Condo fees (annual, $):",   _val(variant, SAMPLE["hoa"]),               '"$"#,##0', ""),
+        (20, "Utilities (annual, $):",          _val(variant, SAMPLE["utilities"]),         '"$"#,##0', "Electric, gas, water, trash combined"),
+        (21, "Internet (annual, $):",           _val(variant, SAMPLE["internet"]),          '"$"#,##0', ""),
+        (22, "PMS / Software (annual, $):",     _val(variant, SAMPLE["software"]),          '"$"#,##0', "Hospitable, Hostfully, OwnerRez, etc."),
+        (23, "Marketing / photos (annual, $):", _val(variant, SAMPLE["marketing"]),         '"$"#,##0', "Photo refresh, listing fees"),
+        (24, "Other fixed #1 (annual, $):",     _val(variant, SAMPLE["other_fixed_1"]),     '"$"#,##0', "Label this if used"),
+        (25, "Other fixed #2 (annual, $):",     _val(variant, SAMPLE["other_fixed_2"]),     '"$"#,##0', ""),
     ]
     for row, label, value, fmt, note in fixed_fields:
         _input_row(ws, row, label, value, fmt, note)
@@ -326,10 +332,10 @@ def build_calculator_tab(wb):
     _section_band(ws, 28, "PER-TURNOVER VARIABLE COSTS")
 
     var_fields = [
-        (29, "Cleaning paid to cleaner ($/turnover):", SAMPLE["cleaning_paid"],     '"$"#,##0', ""),
-        (30, "Supplies ($/turnover):",                  SAMPLE["supplies"],          '"$"#,##0', "Toiletries, paper, coffee top-ups"),
-        (31, "Maintenance reserve ($/turnover):",       SAMPLE["maintenance_reserve"],'"$"#,##0', "Per-booking allocation; 5-8% of revenue typical"),
-        (32, "Other variable ($/turnover):",            SAMPLE["other_variable"],   '"$"#,##0', ""),
+        (29, "Cleaning paid to cleaner ($/turnover):", _val(variant, SAMPLE["cleaning_paid"]),     '"$"#,##0', ""),
+        (30, "Supplies ($/turnover):",                  _val(variant, SAMPLE["supplies"]),          '"$"#,##0', "Toiletries, paper, coffee top-ups"),
+        (31, "Maintenance reserve ($/turnover):",       _val(variant, SAMPLE["maintenance_reserve"]),'"$"#,##0', "Per-booking allocation; 5-8% of revenue typical"),
+        (32, "Other variable ($/turnover):",            _val(variant, SAMPLE["other_variable"]),   '"$"#,##0', ""),
     ]
     for row, label, value, fmt, note in var_fields:
         _input_row(ws, row, label, value, fmt, note)
@@ -412,7 +418,7 @@ def build_calculator_tab(wb):
     ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
 
 
-def build_sensitivity_tab(wb):
+def build_sensitivity_tab(wb, variant):
     ws = wb.create_sheet("Sensitivity")
     ws.sheet_properties.tabColor = COLOR_ACCENT
 
@@ -609,13 +615,14 @@ def _output_row(ws, row, label, formula, fmt, note, emphasize=False):
     ws.row_dimensions[row].height = 22 if emphasize else 18
 
 
-def main():
+def build_workbook(out_path, variant):
     wb = Workbook()
-    build_start_tab(wb)
-    build_calculator_tab(wb)
-    build_sensitivity_tab(wb)
+    build_start_tab(wb, variant)
+    build_calculator_tab(wb, variant)
+    build_sensitivity_tab(wb, variant)
 
-    wb.properties.title = "Break-even Occupancy Calculator — The STR Ledger"
+    suffix = f" ({variant.upper()})"
+    wb.properties.title = f"Break-even Occupancy Calculator{suffix} — The STR Ledger"
     wb.properties.creator = "The STR Ledger"
     wb.properties.company = "The STR Ledger"
     wb.properties.description = (
@@ -623,9 +630,14 @@ def main():
         "headline answer + sensitivity grid."
     )
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    wb.save(OUT)
-    print(f"Saved: {OUT}")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    wb.save(out_path)
+    print(f"Saved: {out_path}")
+
+
+def main():
+    build_workbook(DEMO_OUT, "demo")
+    build_workbook(BLANK_OUT, "blank")
 
 
 if __name__ == "__main__":

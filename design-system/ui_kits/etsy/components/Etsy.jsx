@@ -114,14 +114,18 @@ function Announcement() {
 
 function ShopNav({ active = "all" }) {
   const items = [
-    { k: "all", label: "All items", count: 7 },
-    { k: "tax", label: "Tax templates", count: 3 },
-    { k: "ops", label: "Operations", count: 2 },
-    { k: "guest", label: "Guest experience", count: 1 },
-    { k: "bundle", label: "Bundles", count: 1 },
-    { k: "reviews", label: "Reviews (287)" },
+    { k: "all", label: "All items", count: 52 },
+    { k: "tax", label: "Tax", count: 11 },
+    { k: "fin", label: "Financials", count: 5 },
+    { k: "acq", label: "Acquisitions", count: 9 },
+    { k: "rev", label: "Revenue", count: 5 },
+    { k: "ops", label: "Operations", count: 5 },
+    { k: "lgl", label: "Legal", count: 4 },
+    { k: "guest", label: "Guest", count: 3 },
+    { k: "pam", label: "Mgmt", count: 3 },
+    { k: "more", label: "More" },
+    { k: "reviews", label: "Reviews (1,687)" },
     { k: "about", label: "About" },
-    { k: "policies", label: "Policies" },
   ];
   return (
     <nav style={{ borderBottom: "1px solid " + ETSY.rule }}>
@@ -168,10 +172,10 @@ function ListingThumb({ sku, cat, title, subtitle, price, strike, tint = "parchm
   );
 }
 
-function ListingCard({ sku, cat, title, subtitle, etsyTitle, price, strike, reviews, fav, tint }) {
+function ListingCard({ sku, cat, title, subtitle, etsyTitle, price, strike, reviews, fav, tint, href = "listing.html", badge }) {
   const [h, setH] = useState(false);
   return (
-    <a href="listing.html" onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
+    <a href={href} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{
       textDecoration: "none", color: ETSY.text, display: "block",
       transform: h ? "translateY(-2px)" : "none", transition: "transform 200ms",
     }}>
@@ -182,13 +186,13 @@ function ListingCard({ sku, cat, title, subtitle, etsyTitle, price, strike, revi
           width: 34, height: 34, borderRadius: "50%", background: "rgba(255,255,255,0.95)",
           border: 0, cursor: "pointer", fontSize: 16,
         }}>♡</button>
-        {strike && (
+        {badge && (
           <div style={{
             position: "absolute", bottom: 10, left: 10,
             background: ETSY.orange, color: "white",
             padding: "4px 10px", fontSize: 11, fontWeight: 700,
             fontFamily: "Helvetica, Arial, sans-serif",
-          }}>Bestseller</div>
+          }}>{badge}</div>
         )}
       </div>
       <div style={{ padding: "12px 4px" }}>

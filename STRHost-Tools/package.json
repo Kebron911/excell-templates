@@ -16,11 +16,11 @@
     "lint": "eslint --ext .ts,.tsx,.astro src tests"
   },
   "dependencies": {
-    "@astrojs/mdx": "^3.1.0",
-    "@astrojs/react": "^3.6.0",
-    "@astrojs/sitemap": "^3.1.6",
-    "@astrojs/tailwind": "^5.1.0",
-    "astro": "^4.15.0",
+    "@astrojs/mdx": "^5.0.4",
+    "@astrojs/react": "^5.0.4",
+    "@astrojs/sitemap": "^3.7.2",
+    "@astrojs/tailwind": "^6.0.2",
+    "astro": "^6.2.2",
     "astro-seo": "^0.8.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

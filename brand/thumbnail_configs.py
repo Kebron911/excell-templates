@@ -1,0 +1,973 @@
+"""Per-SKU thumbnail configs — Zone 2/4/5 swap data.
+
+Each SKU contributes a config consumed by brand/_render_assets.py
+to generate hero thumbnails (`thumb-1.png` per Etsy spec).
+
+Richer thumbnails (#2-5) for each SKU follow the briefs in
+`templates/_delivery/<sku>/thumbnails.md` and are typically built in
+Vista Create with real screenshots / device mockups. The hero thumbnail
+generated here is publishable on Etsy as the primary listing image.
+"""
+
+# Each entry => {category, headline, sub_headline, badge_primary}
+LAUNCH_WAVE = {
+    "GST-001-welcome-book": {
+        "category": "GUEST EXPERIENCE",
+        "headline": "Welcome Book for Serious Airbnb Hosts",
+        "sub_headline": "Editable Excel + PDF · 9 sections · Instant download",
+        "badge_primary": "EDITABLE EXCEL + PDF",
+    },
+    "OPS-001-turnover-checklist": {
+        "category": "OPERATIONS",
+        "headline": "The Cleaner Turnover Checklist",
+        "sub_headline": "Hand it to your cleaner. Score it after every turn.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "TAX-001-mileage-log": {
+        "category": "TAX & ACCOUNTING",
+        "headline": "STR Mileage Log — IRS-Ready",
+        "sub_headline": "Auto-applies the IRS rate. Schedule E export built in.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "TAX-002-pl-single-property": {
+        "category": "TAX & ACCOUNTING",
+        "headline": "Single-Property P&L Tracker",
+        "sub_headline": "Formula-tight. Schedule E-ready. One property, fully accounted.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "TAX-003-1099-nec-tracker": {
+        "category": "TAX & ACCOUNTING",
+        "headline": "1099-NEC Contractor Tracker",
+        "sub_headline": "Auto-flags vendors over $600. January-ready in one tab.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+}
+
+# Phase 2 — next 7 SKUs to ship after first-payment lands.
+# Each gets a hero thumbnail (`thumb-1.png`) so listings are publishable
+# the moment the SKU enters the launch queue.
+PHASE_2 = {
+    "ACQ-001-str-deal-analyzer": {
+        "category": "ACQUISITION",
+        "headline": "STR Deal Analyzer",
+        "sub_headline": "Cash-on-cash, DSCR, cap rate. Underwrite before you offer.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "ACQ-002-cost-to-launch": {
+        "category": "ACQUISITION",
+        "headline": "Cost-to-Launch Calculator",
+        "sub_headline": "120-item furnishing checklist + Y1 ROI. No surprises at month 3.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "ACQ-003-rental-arbitrage-analyzer": {
+        "category": "ACQUISITION",
+        "headline": "Rental Arbitrage Analyzer",
+        "sub_headline": "Master-lease deal calculator with MTR fallback math.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "FIN-001-revpar-dashboard": {
+        "category": "FINANCIAL DASHBOARD",
+        "headline": "RevPAR · ADR · Occupancy",
+        "sub_headline": "The three numbers your portfolio actually runs on.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "MKT-001-listing-seo-audit": {
+        "category": "MARKETING",
+        "headline": "Airbnb Listing SEO Audit",
+        "sub_headline": "25 ranking criteria scored. Search-rank fix list, ranked.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "REV-001-cleaning-fee-optimizer": {
+        "category": "REVENUE OPTIMIZATION",
+        "headline": "Cleaning Fee Optimizer",
+        "sub_headline": "Three strategies, side-by-side. The annual delta in dollars.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "STR-001-escape-the-w2-planner": {
+        "category": "FINANCIAL FREEDOM",
+        "headline": "Escape the W2 Planner",
+        "sub_headline": "Replacement-income math. The quit-date your portfolio earns.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+}
+
+# TAX block expansion — TAX-004 through TAX-013. All have briefs + DEMO +
+# BLANK + delivery folders + listing HTML already; hero thumbnails are the
+# next missing artifact for the full block.
+TAX_BLOCK = {
+    "TAX-004-schedule-e-tax-prep": {
+        "category": "TAX & ACCOUNTING",
+        "headline": "Schedule E Tax-Prep Workbook",
+        "sub_headline": "Hand your CPA a finished Schedule E.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "TAX-005-quarterly-estimated-tax": {
+        "category": "TAX & ACCOUNTING",
+        "headline": "Quarterly Estimated Tax Calculator",
+        "sub_headline": "Stop guessing what you owe in April, June, September, January.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "TAX-006-home-office-allocator": {
+        "category": "TAX & ACCOUNTING",
+        "headline": "Home Office Deduction Allocator",
+        "sub_headline": "Make your home office pay you back. Pub 587, line by line.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "TAX-007-per-diem-meal-tracker": {
+        "category": "TAX & ACCOUNTING",
+        "headline": "Per-Diem Meal Tracker",
+        "sub_headline": "Track meals deductibly. Don't lose another receipt.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "TAX-008-self-employment-tax": {
+        "category": "TAX & ACCOUNTING",
+        "headline": "Self-Employment Tax Calculator",
+        "sub_headline": "Compute SE tax cleanly. Pay less by knowing the rules.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "TAX-009-section-179-planner": {
+        "category": "TAX & ACCOUNTING",
+        "headline": "Section 179 Planner",
+        "sub_headline": "Front-load this year's depreciation. Legally.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "TAX-010-cost-segregation-diy": {
+        "category": "TAX & ACCOUNTING",
+        "headline": "Cost Segregation DIY Workbook",
+        "sub_headline": "Pull 5 years of depreciation into one. IRS-acceptable method.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "TAX-011-multi-property-master-pl": {
+        "category": "PORTFOLIO",
+        "headline": "Multi-Property Master P&L",
+        "sub_headline": "Consolidate LLCs. Asset-by-asset depreciation. CPA-ready.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "TAX-012-schedule-c-tax-prep": {
+        "category": "TAX & ACCOUNTING",
+        "headline": "Schedule C Tax Prep — Active STR",
+        "sub_headline": "For active STRs. SE tax math + QBI safe-harbor checks.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "TAX-013-depreciation-tracker": {
+        "category": "TAX & ACCOUNTING",
+        "headline": "Depreciation Tracker — Full MACRS",
+        "sub_headline": "5/7/15/27.5/39-year asset register. Every asset accounted.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+}
+
+
+# Phase 3 — next 10 SKUs to extend the publishable footprint.
+# ACQ-004..008 round out acquisition. OPS-002..005 round out operations.
+# LGL-001 is a high-search-volume legal beachhead.
+# OPS-002 + OPS-003 are own-site only per their briefs (premium tier).
+PHASE_3 = {
+    "ACQ-004-3-property-side-by-side": {
+        "category": "ACQUISITION",
+        "headline": "3-Property Side-by-Side",
+        "sub_headline": "Underwrite three deals at once. Pick the winner per metric.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "ACQ-005-airdna-data-integrator": {
+        "category": "ACQUISITION",
+        "headline": "AirDNA Data Integrator",
+        "sub_headline": "Translate AirDNA's projection into YOUR actual deal math.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "ACQ-006-rehab-budget-roi": {
+        "category": "ACQUISITION",
+        "headline": "Rehab Budget + ROI",
+        "sub_headline": "Rehab dollars to revenue lift, line by line, contractor by contractor.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "ACQ-007-furniture-setup-budget": {
+        "category": "ACQUISITION",
+        "headline": "Furniture / Setup Budget",
+        "sub_headline": "Every room, every item. Plus the month-1 operating reserve.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "ACQ-008-5-year-pro-forma": {
+        "category": "ACQUISITION",
+        "headline": "5-Year Pro Forma Builder",
+        "sub_headline": "IRR + equity multiple + exit value across three scenarios.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "OPS-002-damage-claim-aircover-log": {
+        "category": "OPERATIONS",
+        "headline": "Damage Claim + AirCover Log",
+        "sub_headline": "Every incident. Photo-evidence linked. Claim-ready packet output.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "OPS-003-license-permit-tracker": {
+        "category": "OPERATIONS",
+        "headline": "License / Permit Tracker",
+        "sub_headline": "Don't lose your listing to a permit that lapsed.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "OPS-004-cleaning-cost-per-turnover": {
+        "category": "OPERATIONS",
+        "headline": "Cleaning Cost per Turnover",
+        "sub_headline": "Know the true cost per turn. Price the cleaning fee right.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "OPS-005-supply-inventory-par-level": {
+        "category": "OPERATIONS",
+        "headline": "Supply Inventory + Par Levels",
+        "sub_headline": "Never run out of TP between guests. Restock list, automated.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "LGL-001-str-license-renewal-calendar": {
+        "category": "LEGAL & COMPLIANCE",
+        "headline": "STR License Renewal Calendar",
+        "sub_headline": "Every renewal date, ahead of you. Not behind.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+}
+
+
+# Phase 4 — next 10 SKUs. Rounds out FIN, GST, REV, MKT tiers.
+PHASE_4 = {
+    "FIN-003-12-month-cash-flow-forecaster": {
+        "category": "FINANCIAL DASHBOARD",
+        "headline": "12-Month Cash Flow Forecaster",
+        "sub_headline": "See the months that go negative — before they happen.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "FIN-004-dscr-tracker": {
+        "category": "FINANCIAL DASHBOARD",
+        "headline": "DSCR Tracker",
+        "sub_headline": "Which properties qualify for refinance. Which are at risk.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "FIN-005-yoy-comparison-workbook": {
+        "category": "FINANCIAL DASHBOARD",
+        "headline": "Year-Over-Year P&L Comparison",
+        "sub_headline": "Did 2026 actually beat 2025 — or did it just feel that way?",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "GST-002-house-rules-builder": {
+        "category": "GUEST EXPERIENCE",
+        "headline": "House Rules Builder",
+        "sub_headline": "25-40 specific, defensible rules. No more blank textarea on Airbnb.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "GST-003-pet-policy-document": {
+        "category": "GUEST EXPERIENCE",
+        "headline": "Pet Policy Document",
+        "sub_headline": "Print-ready pet policy. Fees, breeds, damage rules — covered.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "REV-002-dynamic-pricing-calculator": {
+        "category": "REVENUE OPTIMIZATION",
+        "headline": "Dynamic Pricing Calculator",
+        "sub_headline": "365-day rate suggestions: season + day + event. Sanity-check PriceLabs.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "REV-003-competitor-rate-tracker": {
+        "category": "REVENUE OPTIMIZATION",
+        "headline": "Competitor Rate Tracker",
+        "sub_headline": "Weekly comp-set snapshots. Know when to raise rates first.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "REV-004-min-night-stay-optimizer": {
+        "category": "REVENUE OPTIMIZATION",
+        "headline": "Min-Night-Stay Optimizer",
+        "sub_headline": "2 vs 3 vs 7 nights, side-by-side. Net revenue, not gross.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "MKT-002-review-response-tracker": {
+        "category": "MARKETING",
+        "headline": "Review Response Tracker",
+        "sub_headline": "Every review logged. 8 reply templates. 15 min → 3 min.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "MKT-003-referral-source-repeat-guest-crm": {
+        "category": "MARKETING",
+        "headline": "Referral + Repeat Guest CRM",
+        "sub_headline": "Identify your top-15 LTV guests. Skip the channel fees.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+}
+
+
+# Phase 5 — next 10 SKUs. Brings catalog to 52 of 65.
+# PAM-001 is own-site only (premium tier per brief).
+PHASE_5 = {
+    "ACQ-009-brrrr-to-str-refi": {
+        "category": "ACQUISITION",
+        "headline": "BRRRR-to-STR Refi Math",
+        "sub_headline": "Did the refi return all your cash? Compute it before you close.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "ACQ-010-seller-finance-offer": {
+        "category": "ACQUISITION",
+        "headline": "Seller-Finance Offer Calculator",
+        "sub_headline": "What this deal really costs vs. a bank loan. Side-by-side.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "ACQ-011-1031-exchange-tracker": {
+        "category": "ACQUISITION",
+        "headline": "1031 Exchange Tracker",
+        "sub_headline": "45-day ID. 180-day close. Don't miss the deadline that costs you the deferral.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "LGL-002-tot-filing-calendar": {
+        "category": "LEGAL & COMPLIANCE",
+        "headline": "TOT Filing Calendar",
+        "sub_headline": "Per-jurisdiction lodging tax. What Airbnb remits — and what's still on you.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "OPS-006-maintenance-log-vendor-crm": {
+        "category": "OPERATIONS",
+        "headline": "Maintenance Log + Vendor CRM",
+        "sub_headline": "Every repair, every vendor — one tab away from the next emergency.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "PAM-001-owner-reporting-dashboard": {
+        "category": "PROPERTY MGMT",
+        "headline": "Owner Reporting Dashboard",
+        "sub_headline": "Per-owner monthly P&L. The report your owners actually open and read.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "PAM-002-cleaner-crm-payroll": {
+        "category": "PROPERTY MGMT",
+        "headline": "Cleaner CRM + Payroll",
+        "sub_headline": "Cleaner roster, turnover assignments, payroll, year-end 1099-NEC.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "REV-005-holiday-event-pricing-calendar": {
+        "category": "REVENUE OPTIMIZATION",
+        "headline": "Holiday + Event Pricing Calendar",
+        "sub_headline": "Federal + school + local events. Don't undersell July 4 again.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "STR-002-portfolio-valuation-model": {
+        "category": "FINANCIAL FREEDOM",
+        "headline": "Portfolio Valuation Model",
+        "sub_headline": "Three valuation methods. Total equity. What a buyer would actually pay.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "STR-003-refi-or-sell-decision-matrix": {
+        "category": "FINANCIAL FREEDOM",
+        "headline": "Refi-or-Sell Decision Matrix",
+        "sub_headline": "Hold + refi vs sell vs 1031. 5-year wealth outcome per path.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+}
+
+
+# Phase 6 — final 13 SKUs. Closes the 65-SKU catalog.
+PHASE_6 = {
+    "ACQ-012-str-vs-ltr-yield-comparison": {
+        "category": "ACQUISITION",
+        "headline": "STR vs LTR Yield Comparison",
+        "sub_headline": "Run the math when your city threatens an STR ban.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "FIN-002-break-even-occupancy": {
+        "category": "FINANCIAL DASHBOARD",
+        "headline": "Break-Even Occupancy",
+        "sub_headline": "How empty can it get before you're losing money?",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "FIN-006-multi-entity-consolidated-pl": {
+        "category": "FINANCIAL DASHBOARD",
+        "headline": "Multi-Entity Consolidated P&L",
+        "sub_headline": "5 LLCs. 5 P&Ls. One holding-company view.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "FIN-007-partnership-distribution-tracker": {
+        "category": "FINANCIAL DASHBOARD",
+        "headline": "Partnership Distribution Tracker",
+        "sub_headline": "K-1-ready capital accounts. Per-partner allocations done right.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "LGL-003-guest-screening-log": {
+        "category": "LEGAL & COMPLIANCE",
+        "headline": "Guest Screening + Ban List",
+        "sub_headline": "Banned at property A. Can't book property B. Portfolio-wide.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "LGL-004-insurance-claim-log": {
+        "category": "LEGAL & COMPLIANCE",
+        "headline": "Insurance Claim Log",
+        "sub_headline": "FNOL through settlement. Recovery $ vs deductible. Lessons learned.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "OPS-007-utility-usage-tracker": {
+        "category": "OPERATIONS",
+        "headline": "Utility Usage + Trend Tracker",
+        "sub_headline": "Catch leaks, unmonitored loads, pricing changes — before next month's bill.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "OPS-008-insurance-policy-tracker": {
+        "category": "OPERATIONS",
+        "headline": "Insurance Policy Tracker",
+        "sub_headline": "Every policy. Every renewal date. Every uninsured-exposure gap.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "PAM-003-commission-split-calculator": {
+        "category": "PROPERTY MGMT",
+        "headline": "Commission / Split Calculator",
+        "sub_headline": "Co-host commission math. Per-booking + per-month + year-end 1099.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "PAM-004-multi-owner-consolidated-reporting": {
+        "category": "PROPERTY MGMT",
+        "headline": "Multi-Owner Consolidated Reporting",
+        "sub_headline": "Which owner relationships are worth keeping. Which to fire.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "REV-006-pricing-tool-roi-comparison": {
+        "category": "REVENUE OPTIMIZATION",
+        "headline": "Pricing Tool ROI Comparison",
+        "sub_headline": "Did PriceLabs / Wheelhouse / Beyond actually earn their monthly fee?",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "SPC-001-glamping-unique-stay-pl": {
+        "category": "SPECIALTY OPERATORS",
+        "headline": "Glamping / Unique-Stay P&L",
+        "sub_headline": "Yurts, A-frames, domes, treehouses. Off-grid economics tracked properly.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+    "SPC-002-corporate-housing-travel-nurse-tracker": {
+        "category": "SPECIALTY OPERATORS",
+        "headline": "Corporate Housing / Travel-Nurse",
+        "sub_headline": "30+ day stays. MTR pipeline, monthly recurring revenue, occupancy gaps.",
+        "badge_primary": "EXCEL + GOOGLE SHEETS",
+    },
+}
+
+
+# Thumbnail #5 (includes-card) data per SKU.
+# Each list = 6 short bullets that fit the 1200x900 Clay-Rose card layout.
+# Rendered to `templates/_delivery/<sku>/thumb-5.png` via the same renderer.
+# Hero copy (category / headline / sub_headline) re-uses the LAUNCH_WAVE /
+# PHASE_2 / TAX_BLOCK entries above.
+INCLUDES_CARDS = {
+    "GST-001-welcome-book": [
+        "9 pre-formatted guest sections",
+        "Editable Excel + matching PDF",
+        "Host-only reference tab",
+        "Dropdowns + data validation",
+        "Print, frame, or QR-share",
+        "Lifetime updates included",
+    ],
+    "OPS-001-turnover-checklist": [
+        "Pre-arrival 12-step checklist",
+        "Cleaner scorecard (1-5 per item)",
+        "Damage / restock log",
+        "Photos required column",
+        "Per-property turnover history",
+        "Print or share via mobile",
+    ],
+    "TAX-001-mileage-log": [
+        "1,000-row trip log capacity",
+        "Auto-applies current IRS rate",
+        "Multi-property drop-down",
+        "Schedule E export tab",
+        "Monthly + YTD dashboards",
+        "Audit-defense trip evidence",
+    ],
+    "TAX-002-pl-single-property": [
+        "17 Schedule E expense categories",
+        "Built-in 27.5-yr depreciation",
+        "Monthly P&L matrix",
+        "STR loophole + QBI flags",
+        "CPA hand-off Summary tab",
+        "Schedule E vs C routing",
+    ],
+    "TAX-003-1099-nec-tracker": [
+        "50-contractor directory",
+        "2,000-row payment log",
+        "Auto-flags vendors over $600",
+        "W-9 status traffic light",
+        "1099 prep dashboard",
+        "IRS Pub 1220 reference",
+    ],
+    "ACQ-001-str-deal-analyzer": [
+        "Cash-on-cash + DSCR + cap rate",
+        "Property + financing inputs",
+        "Comp-driven revenue forecast",
+        "OpEx category breakdown",
+        "BUY / WALK / NEGOTIATE verdict",
+        "Underwriting summary print",
+    ],
+    "ACQ-002-cost-to-launch": [
+        "120-item furnishing checklist",
+        "Closing + rehab + setup costs",
+        "Y1 ROI projection",
+        "90-day operating runway",
+        "Furnishing-density benchmark",
+        "Master cost summary print",
+    ],
+    "ACQ-003-rental-arbitrage-analyzer": [
+        "Lease-term cash flow model",
+        "STR + MTR fallback scenarios",
+        "Breakeven occupancy calc",
+        "Setup costs + lease deposit",
+        "Sublet-permission checklist",
+        "Lease-term ROI",
+    ],
+    "FIN-001-revpar-dashboard": [
+        "RevPAR + ADR + occupancy",
+        "Per-property + portfolio rollup",
+        "Quarter-over-quarter momentum",
+        "Comp-vs-self verdict",
+        "WINNING / MIXED / LOSING flags",
+        "Quarterly review tab",
+    ],
+    "MKT-001-listing-seo-audit": [
+        "25 ranking criteria scored",
+        "Title + photos + description",
+        "Pricing rules + calendar audit",
+        "Prioritized fix list",
+        "Re-audit tracker",
+        "Estimated rank lift per fix",
+    ],
+    "REV-001-cleaning-fee-optimizer": [
+        "Three strategies side-by-side",
+        "Annualized $ delta per strategy",
+        "Search-rank impact estimate",
+        "ADR + LOS + cleaning-cost inputs",
+        "Recommendation cell",
+        "Quarterly re-run prompt",
+    ],
+    "STR-001-escape-the-w2-planner": [
+        "Current-state household math",
+        "Target replacement income",
+        "Years-to-quit calculator",
+        "Healthcare-bridge math",
+        "Cash-buffer requirement",
+        "3-scenario stress test",
+    ],
+    "TAX-004-schedule-e-tax-prep": [
+        "All 17 Schedule E categories",
+        "Multi-channel revenue rollup",
+        "Built-in depreciation tab",
+        "Schedule E Summary print",
+        "STR loophole + QBI flags",
+        "Year-end archive ritual",
+    ],
+    "TAX-005-quarterly-estimated-tax": [
+        "Annual income forecast",
+        "Q1 / Q2 / Q3 / Q4 schedule",
+        "SE tax routing (E vs C)",
+        "Safe-harbor check (100/110/90%)",
+        "Already-paid tracking column",
+        "Form 1040-ES quick-reference",
+    ],
+    "TAX-006-home-office-allocator": [
+        "Simplified vs actual comparison",
+        "Square-footage measurement",
+        "Indirect + direct expense allocator",
+        "Schedule E vs C routing",
+        "Pub 587 audit-defense checklist",
+        "Form 8829 output (Sched C)",
+    ],
+    "TAX-007-per-diem-meal-tracker": [
+        "1,000-row meal log",
+        "Auto-50% deduction calc",
+        "GSA per-diem rates by location",
+        "Travel-day mid-month rule",
+        "Receipt-photo link column",
+        "Pub 463 substantiation check",
+    ],
+    "TAX-008-self-employment-tax": [
+        "Schedule E vs C decision tab",
+        "SE tax 12.4% + 2.9% breakdown",
+        "50% above-the-line deduction",
+        "Solo 401(k) / SEP IRA worksheet",
+        "Additional Medicare flag",
+        "Stacks with quarterly tax tool",
+    ],
+    "TAX-009-section-179-planner": [
+        "50-asset inventory",
+        "§179 vs bonus vs SL comparison",
+        "Annual cap tracker",
+        "Heavy SUV (≥6,000 lb GVWR) tab",
+        "Form 4562 output",
+        "Eligibility decision walkthrough",
+    ],
+    "TAX-010-cost-segregation-diy": [
+        "5/7/15/27.5-yr component splits",
+        "Per-component % of basis",
+        "Bonus depreciation overlay",
+        "Year-1 deduction comparison",
+        "Form 3115 catch-up path",
+        "Photo + measurement checklist",
+    ],
+    "TAX-011-multi-property-master-pl": [
+        "Per-property revenue + expense logs",
+        "Shared-expense allocator",
+        "Per-LLC Schedule E rollup",
+        "Asset register across portfolio",
+        "Year-end print pack",
+        "Bundles with Portfolio Master",
+    ],
+    "TAX-012-schedule-c-tax-prep": [
+        "Schedule C confirmation tab",
+        "26 Schedule C expense categories",
+        "Hospitality services worksheet",
+        "Vehicle qualified-business-use",
+        "QBI 250-hour log",
+        "SE tax preview",
+    ],
+    "TAX-013-depreciation-tracker": [
+        "200-asset master register",
+        "Year-by-year MACRS schedule",
+        "5/7/15/27.5/39-year buckets",
+        "Listed property (Form 4562 Pt V)",
+        "Disposition recapture math",
+        "Form 4562 output line-by-line",
+    ],
+    # ----- Phase 3 -----
+    "ACQ-004-3-property-side-by-side": [
+        "3 properties, 3 columns of math",
+        "NOI / cash-on-cash / cap rate",
+        "Winner-per-metric highlight strip",
+        "Break-even vs payoff timeline",
+        "Side-by-side OpEx comparison",
+        "BUY / WALK / NEGOTIATE per deal",
+    ],
+    "ACQ-005-airdna-data-integrator": [
+        "AirDNA CSV paste-in tab",
+        "Property-quality adjustment (above/below market)",
+        "Translates RevPAR to YOUR deal math",
+        "Comp-set sanity-check tab",
+        "Underwriting-model pass-through",
+        "Reconciliation log per assumption",
+    ],
+    "ACQ-006-rehab-budget-roi": [
+        "Line-item budget (200-row capacity)",
+        "Estimate / actual / variance columns",
+        "Contractor + payment status tracking",
+        "Contingency burn-down",
+        "$ rehab → $ revenue lift estimator",
+        "Pre-launch ROI projection",
+    ],
+    "ACQ-007-furniture-setup-budget": [
+        "Room-by-room item walkthrough",
+        "Cost benchmarks per item",
+        "Estimate vs actual tracking",
+        "7-yr MACRS class flag (TAX-013 link)",
+        "Month-1 operating reserve line",
+        "Master shopping-list export",
+    ],
+    "ACQ-008-5-year-pro-forma": [
+        "5-year revenue + expense projection",
+        "Debt amortization schedule",
+        "IRR + equity multiple",
+        "Year-5 exit value",
+        "Conservative / base / aggressive",
+        "Cumulative cash flow + payback",
+    ],
+    "OPS-002-damage-claim-aircover-log": [
+        "Per-incident log with photos",
+        "Claim status tracker",
+        "AirCover vs supplemental insurance",
+        "Pre-stay vs post-stay comparison",
+        "Claim-ready packet output",
+        "Recovery-rate dashboard",
+    ],
+    "OPS-003-license-permit-tracker": [
+        "Per-property permit register",
+        "Renewal-date countdown",
+        "Multi-jurisdiction support",
+        "Document-link column",
+        "Auto-flag expiring permits",
+        "Penalty-per-jurisdiction reference",
+    ],
+    "OPS-004-cleaning-cost-per-turnover": [
+        "Per-turn cost log",
+        "Cleaner + hours + supplies tracking",
+        "$ per turn + $ per night roll-up",
+        "Per-property + portfolio comparison",
+        "Feeds REV-001 cleaning-fee optimizer",
+        "Outlier-cleaner flag",
+    ],
+    "OPS-005-supply-inventory-par-level": [
+        "Per-property supply inventory",
+        "Par-level threshold per item",
+        "Below-par auto-flag",
+        "Single restock list output",
+        "Supplier + lead-time tracking",
+        "Bulk-vs-individual cost-compare",
+    ],
+    "LGL-001-str-license-renewal-calendar": [
+        "Per-property license register",
+        "All deadlines on one calendar",
+        "Countdown to next renewal",
+        "Multi-jurisdiction tracking",
+        "Document-link column",
+        "Penalty + grace-period reference",
+    ],
+    # ----- Phase 4 -----
+    "FIN-003-12-month-cash-flow-forecaster": [
+        "12-month forward forecast",
+        "Confirmed bookings + seasonal projection",
+        "Recurring + one-off expense schedule",
+        "Quarterly tax payment line",
+        "Negative-cash-flow month flag",
+        "Per-property + portfolio rollup",
+    ],
+    "FIN-004-dscr-tracker": [
+        "Per-property DSCR computation",
+        "Portfolio-wide DSCR rollup",
+        "Refinance-eligibility flag (≥1.20)",
+        "10% occupancy-drop sensitivity",
+        "Loan-shopping comparison tab",
+        "DSCR lender print-ready summary",
+    ],
+    "FIN-005-yoy-comparison-workbook": [
+        "Side-by-side prior vs current year",
+        "Per-property + portfolio comparison",
+        "Revenue change % per property",
+        "Expense category drift detection",
+        "Top-3 favorable + unfavorable movers",
+        "Year-end review print",
+    ],
+    "GST-002-house-rules-builder": [
+        "Wizard-style 6-section walkthrough",
+        "25-40 rules across 6 categories",
+        "Print-ready and listing-ready outputs",
+        "Defensible, jurisdiction-aware framing",
+        "Editable for property specifics",
+        "Bonus: rule-violation log tab",
+    ],
+    "GST-003-pet-policy-document": [
+        "4-section pet-policy wizard",
+        "Weight / breed / count limits",
+        "Pet fee + damage-rule clauses",
+        "Service-animal exception language",
+        "Designated-areas mapping",
+        "One-page print + Airbnb paste-ready",
+    ],
+    "REV-002-dynamic-pricing-calculator": [
+        "365-day suggested rate per night",
+        "4-season multiplier",
+        "Day-of-week multiplier",
+        "Event-lift overrides (concerts, holidays)",
+        "Pricing CSV export for Airbnb / VRBO",
+        "Sanity-check PriceLabs / Wheelhouse",
+    ],
+    "REV-003-competitor-rate-tracker": [
+        "6-10 comp properties per market",
+        "Weekly rate-snapshot log",
+        "Next 4 weekends' rates tracked",
+        "Comp-set average + your-vs-comp delta",
+        "Movement alerts (comps just raised)",
+        "Quarterly trend chart",
+    ],
+    "REV-004-min-night-stay-optimizer": [
+        "2 vs 3 vs 7-night side-by-side",
+        "Avg nightly rate per MNS option",
+        "Expected occupancy per option",
+        "Turnover labor-cost subtraction",
+        "NET revenue (not gross) comparison",
+        "Recommendation cell per property",
+    ],
+    "MKT-002-review-response-tracker": [
+        "Every guest review logged",
+        "Rating + sentiment + content",
+        "Response status tracker",
+        "8 copy-paste reply templates",
+        "Lessons-learned column",
+        "Average response time KPI",
+    ],
+    "MKT-003-referral-source-repeat-guest-crm": [
+        "Per-guest source tracking",
+        "Repeat-stay flag",
+        "Referral-friendly guest flag",
+        "Top-15 LTV guest list",
+        "Year-end outreach template",
+        "Direct-booking conversion log",
+    ],
+    # ----- Phase 5 -----
+    "ACQ-009-brrrr-to-str-refi": [
+        "ARV (after-repair value) calculator",
+        "Refi cash-out at 70-75% LTV",
+        "Cash-left-in (or returned) tracking",
+        "Post-refi DSCR projection",
+        "Capital-recycled metric per BRRRR",
+        "Rinse-and-repeat math for next deal",
+    ],
+    "ACQ-010-seller-finance-offer": [
+        "Seller-finance term modeling",
+        "Monthly payment + total cost",
+        "Side-by-side vs conventional loan",
+        "Cash-flow comparison",
+        "Draft term sheet for seller",
+        "Tax-implication notes",
+    ],
+    "ACQ-011-1031-exchange-tracker": [
+        "45-day ID deadline countdown",
+        "180-day closing deadline countdown",
+        "ID-rules validator (3-prop / 200% / 95%)",
+        "Basis-carryover calculator",
+        "Deferred-gain summary",
+        "Document checklist per phase",
+    ],
+    "LGL-002-tot-filing-calendar": [
+        "Per-property TOT register",
+        "Per-jurisdiction filing cadence",
+        "Airbnb-remitted vs you-remit split",
+        "Monthly revenue × tax rate calc",
+        "Deadline countdown alerts",
+        "Penalty-per-jurisdiction reference",
+    ],
+    "OPS-006-maintenance-log-vendor-crm": [
+        "Chronological work-order log",
+        "Vendor CRM (plumber, HVAC, handyman, electrician)",
+        "Recurring-service schedule",
+        "Photo-evidence link column",
+        "Cost-per-property roll-up",
+        "Emergency-contact quick view",
+    ],
+    "PAM-001-owner-reporting-dashboard": [
+        "Per-owner monthly P&L",
+        "Multi-property rollup per owner",
+        "Commission split visualization",
+        "Cash distribution schedule",
+        "Print-ready owner statement",
+        "Year-end 1099 summary per owner",
+    ],
+    "PAM-002-cleaner-crm-payroll": [
+        "Cleaner roster + certifications",
+        "Performance scorecard per cleaner",
+        "Turnover assignment log",
+        "Payroll calc (hourly + per-turn + bonus)",
+        "Year-end 1099-NEC summary",
+        "Auto-feeds TAX-003 1099 tracker",
+    ],
+    "REV-005-holiday-event-pricing-calendar": [
+        "Federal holidays pre-loaded",
+        "School-break dates by region",
+        "Add local events (concerts, marathons)",
+        "Per-event lift % applied to base rate",
+        "Next 12 events sorted by date",
+        "Rate-bumped verification view",
+    ],
+    "STR-002-portfolio-valuation-model": [
+        "Cap rate × NOI valuation",
+        "Comparable-sales method (per BR/BA)",
+        "Gross rent multiplier method",
+        "Total portfolio equity",
+        "Debt-to-value ratio",
+        "Buyer's-perspective price estimate",
+    ],
+    "STR-003-refi-or-sell-decision-matrix": [
+        "Hold + cash-out refi scenario",
+        "Sell outright scenario",
+        "Sell + 1031 exchange scenario",
+        "5-year wealth outcome per path",
+        "Depreciation recapture + cap gain",
+        "Transaction-cost subtotal per path",
+    ],
+    # ----- Phase 6 -----
+    "ACQ-012-str-vs-ltr-yield-comparison": [
+        "STR side: ADR + occupancy + cleaning",
+        "LTR side: monthly rent + tenant turnover",
+        "All-in yield each model",
+        "Hours-of-work comparison",
+        "Regulation-risk sensitivity",
+        "Recommended path per property",
+    ],
+    "FIN-002-break-even-occupancy": [
+        "Single-property break-even",
+        "Annual fixed + variable cost split",
+        "Headline answer: % occupancy needed",
+        "Sensitivity grid (ADR × occupancy)",
+        "Buffer-margin layer",
+        "Stress-test against 10% revenue drop",
+    ],
+    "FIN-006-multi-entity-consolidated-pl": [
+        "Per-LLC income statement",
+        "Holding-company consolidated rollup",
+        "Intercompany elimination tab",
+        "Member-distribution tracker",
+        "Cap account per member",
+        "Year-end print pack per LLC",
+    ],
+    "FIN-007-partnership-distribution-tracker": [
+        "Capital contributions log",
+        "P&L allocation by ownership %",
+        "Distribution payments tracker",
+        "Ending capital account per partner",
+        "K-1 prep summary per partner",
+        "Year-end tax-prep package",
+    ],
+    "LGL-003-guest-screening-log": [
+        "Per-booking screening checklist",
+        "Verified ID + profile age + reviews",
+        "Screening service used (RoomR / Autohost)",
+        "Portfolio-wide ban list",
+        "Reason-for-ban audit trail",
+        "Cross-property block detection",
+    ],
+    "LGL-004-insurance-claim-log": [
+        "Per-claim record (FNOL → settlement)",
+        "Storm / fire / theft / liability tracking",
+        "Recovery $ vs deductible",
+        "Days-to-settlement KPI",
+        "Lessons-learned column",
+        "Per-property claim history",
+    ],
+    "OPS-007-utility-usage-tracker": [
+        "12-column monthly bill matrix",
+        "Electric / gas / water / internet / trash / propane",
+        "$ per night + $ per month",
+        "YoY trend per utility",
+        "Anomaly flag (>25% jump)",
+        "Leak / load / pricing-change detection",
+    ],
+    "OPS-008-insurance-policy-tracker": [
+        "STR dwelling + umbrella + AirCover register",
+        "Per-policy renewal date + premium",
+        "Expiring-soon flag (60-day window)",
+        "Premium total trending",
+        "Per-policy claim history link",
+        "Uninsured-exposure gap analysis",
+    ],
+    "PAM-003-commission-split-calculator": [
+        "Commission % or flat-fee per booking",
+        "Hybrid models (% + fee)",
+        "Per-month commission owed",
+        "Owner payment tracker",
+        "Year-end 1099-NEC summary",
+        "Multi-property co-host support",
+    ],
+    "PAM-004-multi-owner-consolidated-reporting": [
+        "Per-owner total managed revenue",
+        "Per-owner commission earned",
+        "Per-owner time-allocation log",
+        "Profitability per owner relationship",
+        "Owner-relationship ranking",
+        "Fire vs keep recommendations",
+    ],
+    "REV-006-pricing-tool-roi-comparison": [
+        "60-day A/B test framework",
+        "Pre-test baseline metrics",
+        "Tool-active period revenue",
+        "Tool-inactive period revenue",
+        "Statistical confidence flag",
+        "Decision verdict per tool",
+    ],
+    "SPC-001-glamping-unique-stay-pl": [
+        "Glamping-specific revenue lines",
+        "Off-grid utility costs (propane, generator)",
+        "Heavy seasonality model",
+        "Linen replacement frequency",
+        "Weather-cancellation tracker",
+        "Bonus revenue (firewood, experiences)",
+    ],
+    "SPC-002-corporate-housing-travel-nurse-tracker": [
+        "MTR contract pipeline",
+        "30+ day stay terms",
+        "Monthly recurring revenue calc",
+        "Occupancy gap-day tracking",
+        "Furnished Finder / Blueground source split",
+        "Recovery deposit + utility reimbursement",
+    ],
+}

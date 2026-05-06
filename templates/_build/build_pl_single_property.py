@@ -676,7 +676,7 @@ def build_monthly_pl(wb):
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
 
     compact_header_band(ws, "Monthly P&L",
-                         prev_tab="Expense Log", next_tab="Schedule E Summary")
+                         prev_tab="Expense Log", next_tab="Depreciation")
 
     parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
     for c in range(1, 13):
@@ -827,13 +827,210 @@ def build_monthly_pl(wb):
     ws.page_margins = PageMargins(left=0.4, right=0.4, top=0.5, bottom=0.5)
 
 
+def build_depreciation_tab(wb, variant):
+    """Sheet 5 — Depreciation (straight-line 27.5-yr building, mid-month).
+
+    Provides the Schedule E Line 20 number every single-property host needs.
+    Asset-by-asset (5/7/15-yr) lives in Portfolio Master ($97 own-site).
+    """
+    ws = wb.create_sheet("Depreciation")
+    ws.sheet_properties.tabColor = COLOR_ACCENT
+
+    compact_header_band(ws, "Depreciation",
+                         prev_tab="Monthly P&L", next_tab="Schedule E Summary")
+
+    parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
+    for c in range(1, 13):
+        ws.cell(row=4, column=c).fill = parchment_fill
+    ws.merge_cells("A4:L4")
+    c4 = ws["A4"]
+    c4.value = (
+        "Straight-line, 27.5-yr residential rental, mid-month convention — "
+        "auto-fills Schedule E Line 20"
+    )
+    c4.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_TEXT)
+    c4.alignment = Alignment(horizontal="left", vertical="center", indent=1)
+    ws.row_dimensions[4].height = 18
+
+    set_col_widths(ws, [("A", 42), ("B", 18)])
+
+    # ----- Header + scope note (rows 5-6) -----
+    a5 = ws.cell(
+        row=5, column=1,
+        value="Straight-Line Depreciation Calculator (27.5-Year Residential Rental)",
+    )
+    a5.font = Font(name=FONT_HEAD, size=14, bold=True, color=COLOR_PRIMARY)
+    a5.alignment = Alignment(horizontal="left", vertical="center")
+    ws.row_dimensions[5].height = 24
+
+    ws.merge_cells("A6:B6")
+    c6 = ws["A6"]
+    c6.value = (
+        "Building only. For asset-by-asset (5/7/15-yr) depreciation see "
+        "thestrledger.com/portfolio-master."
+    )
+    c6.font = Font(name=FONT_BODY, size=10, italic=True, color=COLOR_MUTED)
+    c6.alignment = Alignment(horizontal="left", vertical="center",
+                              wrap_text=True, indent=1)
+    ws.row_dimensions[6].height = 22
+
+    bold_right = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_TEXT)
+    right_align = Alignment(horizontal="right", vertical="center")
+    bold_label = Font(name=FONT_BODY, size=11, bold=True, color=COLOR_PRIMARY)
+
+    # ----- Inputs (rows 9-16) -----
+    inputs = [
+        (9,  "Purchase price ($):",                  "='Property Info'!B10",
+         '"$"#,##0', "formula"),
+        (10, "Closing costs (capitalizable, $):",    "='Property Info'!B11",
+         '"$"#,##0', "formula"),
+        (11, "Total cost basis ($):",                "=B9+B10",
+         '"$"#,##0', "formula-bold"),
+        # Land value: input. Demo uses ~18% of $420k purchase = $75,600.
+        (12, "Land value (estimate, $):",            _val(variant, 75600),
+         '"$"#,##0', "input"),
+        (13, "Depreciable basis ($):",               "=B11-B12",
+         '"$"#,##0', "formula-bold"),
+        (14, "In-service date:",                     "='Property Info'!B15",
+         "yyyy-mm-dd", "formula"),
+        (15, "Tax year:",                            "=Settings!$B$5",
+         "0", "formula"),
+        # Prior-year accumulated dep: input. For first year, leave 0.
+        # Demo: in-service 2023-10-01, tax year 2026 → ~2 prior years of
+        # full depreciation + ~3 mo first-year proration. The user typically
+        # pulls this number off their last filed Schedule E. We pre-fill 0
+        # to keep it as an explicit override; the implied-prior helper on
+        # row 25 shows the calculator's estimate.
+        (16, "Prior-year accumulated depreciation ($):", _val(variant, 0),
+         '"$"#,##0', "input"),
+    ]
+    for row, label, value, fmt, kind in inputs:
+        a = ws.cell(row=row, column=1, value=label)
+        a.font = bold_label if kind == "formula-bold" else bold_right
+        a.alignment = right_align
+        ws.row_dimensions[row].height = 18
+
+        b = ws.cell(row=row, column=2, value=value)
+        if kind == "input":
+            apply_style(b, input_cell_style())
+        else:
+            apply_style(b, formula_cell_style())
+            if kind == "formula-bold":
+                b.font = Font(name=FONT_BODY, size=11, bold=True,
+                               italic=True, color=COLOR_PRIMARY)
+        if fmt:
+            b.number_format = fmt
+
+    # spacer
+    ws.row_dimensions[17].height = 8
+    ws.row_dimensions[18].height = 8
+
+    # ----- Outputs (rows 19-26) -----
+    # Row 21 (months in service): for the first calendar year of service
+    # the IRS mid-month convention treats the property as placed in service
+    # mid-month, so months in service = 12 - month + 0.5 (e.g., Oct = 2.5
+    # months for the first year). Subsequent full years = 12.
+    # Row 22 converts that to a proration factor (12 = 1.0 for full year).
+    # Row 23 multiplies basis-derived annual amount by the factor.
+    # Row 25 (implied prior accumulated) lets a customer who didn't track
+    # the number from a prior return get a rough estimate, while still
+    # giving the override input on row 16 the final say.
+    outputs = [
+        (19, "Annual full-year depreciation:",
+         "=B13/27.5",
+         '"$"#,##0.00', "formula"),
+        (20, "Year of in-service date:",
+         "=YEAR(B14)",
+         "0", "formula-muted"),
+        (21, "Months in service this tax year:",
+         "=IF(B15=B20, 12.5-MONTH(B14), IF(B15>B20, 12, 0))",
+         "0.0", "formula-muted"),
+        (22, "Mid-month proration factor:",
+         "=B21/12",
+         "0.000", "formula-muted"),
+        (23, "Current-year depreciation ($):",
+         "=B19*B22",
+         '"$"#,##0.00', "formula-accent"),
+        (24, "Years already depreciated (info):",
+         "=MAX(0, B15-B20-1)",
+         "0", "formula-muted"),
+        (25, "Implied prior accumulated ($, estimate):",
+         "=IF(B15>B20, B19*B24+B19*((12.5-MONTH(B14))/12), 0)",
+         '"$"#,##0.00', "formula-muted"),
+        (26, "Accumulated depreciation through current year ($):",
+         "=B16+B23",
+         '"$"#,##0.00', "formula-bold"),
+    ]
+    for row, label, formula, fmt, kind in outputs:
+        a = ws.cell(row=row, column=1, value=label)
+        if kind == "formula-accent":
+            a.font = Font(name=FONT_HEAD, size=12, bold=True,
+                           color=COLOR_PRIMARY)
+        elif kind == "formula-bold":
+            a.font = bold_label
+        elif kind == "formula-muted":
+            a.font = Font(name=FONT_BODY, size=10, italic=True,
+                           color=COLOR_MUTED)
+        else:
+            a.font = bold_right
+        a.alignment = right_align
+        ws.row_dimensions[row].height = 18 if kind != "formula-accent" else 24
+
+        b = ws.cell(row=row, column=2, value=formula)
+        apply_style(b, formula_cell_style())
+        b.number_format = fmt
+        if kind == "formula-accent":
+            b.font = Font(name=FONT_HEAD, size=14, bold=True,
+                           color=COLOR_PRIMARY)
+            b.fill = PatternFill("solid", fgColor=COLOR_GOLD_SOFT)
+        elif kind == "formula-bold":
+            b.font = Font(name=FONT_BODY, size=11, bold=True,
+                           italic=True, color=COLOR_PRIMARY)
+        elif kind == "formula-muted":
+            b.font = Font(name=FONT_BODY, size=10, italic=True,
+                           color=COLOR_MUTED)
+
+    # ----- Validation guards (rows 28-30) -----
+    italic_muted = Font(name=FONT_BODY, size=9, italic=True, color=COLOR_MUTED)
+    guards = [
+        (28, "If purchase price (B9) is blank, enter it on the Property "
+             "Info tab — it auto-pulls."),
+        (29, "Land value (B12) is your estimate of the LAND-only portion of "
+             "purchase price. The IRS does not let you depreciate land. A "
+             "common starting point is 15–20% of total purchase, but check "
+             "your county tax assessor's land/improvement split for accuracy."),
+        (30, "If this is not your first year of service, enter the prior "
+             "accumulated depreciation in row 16 from your last Schedule E. "
+             "Otherwise the calculator's 'Implied prior' (row 25) is a rough "
+             "estimate, not authoritative."),
+    ]
+    for row, text in guards:
+        ws.merge_cells(f"A{row}:B{row}")
+        c = ws.cell(row=row, column=1, value=text)
+        c.font = italic_muted
+        c.alignment = Alignment(horizontal="left", vertical="center",
+                                 wrap_text=True, indent=1)
+        ws.row_dimensions[row].height = 26
+
+    # Print area: hand to CPA as the depreciation worksheet
+    ws.print_area = "A1:B30"
+    ws.print_title_rows = "1:4"
+    ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
+    ws.page_setup.paperSize = ws.PAPERSIZE_LETTER
+    ws.page_setup.fitToPage = True
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 1
+    ws.page_margins = PageMargins(left=0.5, right=0.5, top=0.5, bottom=0.5)
+
+
 def build_schedule_e_summary(wb):
     """Sheet 5 — Schedule E Summary (IRS line-mapped YTD totals)."""
     ws = wb.create_sheet("Schedule E Summary")
     ws.sheet_properties.tabColor = COLOR_BG_LIGHT
 
     compact_header_band(ws, "Schedule E Summary",
-                         prev_tab="Monthly P&L", next_tab="Settings")
+                         prev_tab="Depreciation", next_tab="Settings")
 
     parchment_fill = PatternFill("solid", fgColor=COLOR_BG_LIGHT)
     for c in range(1, 13):
@@ -895,11 +1092,23 @@ def build_schedule_e_summary(wb):
         row = 12 + idx
         monthly_row = 10 + idx
 
-        a = ws.cell(row=row, column=1, value=cat)
+        # Depreciation (Line 20) is auto-calculated on the Depreciation
+        # tab, not summed from the Expense Log. Override the formula here
+        # so the customer's Schedule E Line 20 always reflects the
+        # 27.5-year straight-line number, regardless of whether they
+        # accidentally enter a "Depreciation" row on the Expense Log.
+        is_depreciation = "Depreciation (Line 20)" in cat
+
+        label = cat
+        if is_depreciation:
+            label = "Depreciation (Line 20) — auto from Depreciation tab"
+        a = ws.cell(row=row, column=1, value=label)
         a.font = Font(name=FONT_BODY, size=11, color=COLOR_TEXT)
         a.alignment = left_align
 
-        b = ws.cell(row=row, column=2, value=f"='Monthly P&L'!N{monthly_row}")
+        formula = ("=Depreciation!B23" if is_depreciation
+                    else f"='Monthly P&L'!N{monthly_row}")
+        b = ws.cell(row=row, column=2, value=formula)
         apply_style(b, formula_cell_style())
         b.number_format = '"$"#,##0'
         ws.row_dimensions[row].height = 16
@@ -1281,6 +1490,7 @@ def build_workbook(out_path, variant):
     build_revenue_log(wb, variant)
     build_expense_log(wb, variant)
     build_monthly_pl(wb)
+    build_depreciation_tab(wb, variant)
     build_schedule_e_summary(wb)
     last_cat_row = build_settings_tab(wb)
 

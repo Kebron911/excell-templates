@@ -2,9 +2,11 @@
 
 **SKU:** TAX-002
 **Category:** Financial / Accounting (master spec §3.2 A #2)
-**Tier:** T2 (Etsy Lite $27 / Gumroad Full $47)
+**Tier:** T2 ($27 Etsy / $47 Gumroad — same workbook, two storefronts)
 **Wave:** 2
 **Campaign tagline:** Close your year before April does.
+
+> **2026-05-03 — Brief revision.** Original brief framed this SKU as "Lite vs Full." That framing is dropped. Why: at MVP both files are identical, and "Lite" on a tax product implies missing pieces — high refund risk. This product is now a single, complete **Single-Property P&L Tracker** with a built-in straight-line depreciation calculator. Upgrade ladder is **scope expansion** (add properties, add LLC consolidation), not "complete the missing parts." Detail in §"Single-property scope" below.
 
 ## Target persona
 
@@ -19,19 +21,32 @@
 
 Single-property profit + loss tracker structured around **IRS Schedule E line items** (lines 3-26):
 - Revenue: rents received + cleaning fees collected from guests
-- Expenses pre-mapped to Schedule E boxes: Advertising (6), Auto/travel (7), Cleaning + maintenance (8), Commissions (9), Insurance (10), Legal + professional (11), Management fees (12), Mortgage interest (13), Other interest (14), Repairs (15), Supplies (16), Taxes (17), Utilities (18), Wages (19), Other — Platform fees (19), Other — Misc (19), Depreciation (20) — placeholder, full depreciation tracker is Phase 2+
+- Expenses pre-mapped to Schedule E boxes: Advertising (6), Auto/travel (7), Cleaning + maintenance (8), Commissions (9), Insurance (10), Legal + professional (11), Management fees (12), Mortgage interest (13), Other interest (14), Repairs (15), Supplies (16), Taxes (17), Utilities (18), Wages (19), Other — Platform fees (19), Other — Misc (19)
+- **Straight-line depreciation calculator** (27.5-year residential rental) with mid-month convention — auto-fills Schedule E Line 20
 - Monthly breakdown + YTD per category
 - Schedule E Summary tab — ready-to-print CPA handoff
 
-## Lite vs Full
+## Single-property scope
 
-**Lite (Etsy $27):** single property, no depreciation detail (placeholder line), no multi-LLC, no multi-property consolidation. Covers ~80% of single-property Sarah needs.
+This SKU is a **complete single-property tax tool**. It is *not* a "Lite" version of anything — it is the right product for the millions of hosts who own one rental.
 
-**Full (Gumroad $47):** identical feature set for MVP; same build, different filename + price. The true Phase 2+ multi-property Full (with depreciation by asset, LLC consolidation, budget vs actual, break-even calc) is out of scope for this launch.
+**What's included (everything a single-property host needs to file Schedule E):**
+- All 17 Schedule E expense categories with dropdown-enforced category integrity
+- Straight-line depreciation on the building (27.5-year residential rental) with mid-month convention for first-year proration
+- Monthly P&L matrix + YTD
+- Schedule E Summary tab with line numbers, ready to hand to CPA
+- Print area set 1-page letter portrait
 
-Welcome-tab upgrade-banner messaging differs slightly: Lite banner is more aggressive ("Upgrade to Multi-Property Master at thestrledger.com/portfolio-master — $97"); Full banner points only to Portfolio Bundle.
+**What requires the Portfolio Master ($97 own-site, Phase 2+):**
+- Multi-property consolidation across LLCs / entities
+- Asset-by-asset depreciation (furniture 5-yr, appliances 5-yr, improvements 15-yr) with bonus-depreciation flags
+- Cost-segregation worksheet
+- Budget vs actual variance analysis
+- Break-even occupancy calculator (also available standalone — FIN-002)
 
-## Sheets / Tabs (7)
+**Etsy ($27) and Gumroad ($47) ship the identical workbook** at MVP. The price delta reflects storefront economics (Etsy's discoverability + lower-AOV audience vs Gumroad's direct-to-list higher willingness-to-pay), not feature difference. Both files include the same upgrade banner pointing at the Portfolio Master.
+
+## Sheets / Tabs (8)
 
 | # | Tab | Role |
 |---|---|---|
@@ -40,8 +55,9 @@ Welcome-tab upgrade-banner messaging differs slightly: Lite banner is more aggre
 | 3 | Revenue Log | One row per booking |
 | 4 | Expense Log | One row per expense (Schedule E-mapped category) |
 | 5 | Monthly P&L | Auto: month × category matrix |
-| 6 | Schedule E Summary | YTD totals mapped to Schedule E line numbers |
-| 7 | Settings | Tax year + category dropdown source |
+| 6 | Depreciation | Straight-line 27.5-yr building depreciation; auto-fills Sched E Line 20 |
+| 7 | Schedule E Summary | YTD totals mapped to Schedule E line numbers |
+| 8 | Settings | Tax year + category dropdown source |
 
 ## Inputs
 
@@ -106,26 +122,26 @@ Expected Schedule E Summary:
 
 ## Upgrade CTA
 
-Prominent Welcome tab upgrade banner: "Need multi-property + depreciation + LLC consolidation? Get the Portfolio P&L Master at thestrledger.com/portfolio-master — $97, or included in the Portfolio Bundle ($397)."
+Prominent Welcome tab upgrade banner: "Multi-property? Add LLC consolidation, asset-by-asset depreciation, and bonus-depreciation tools — Portfolio P&L Master at thestrledger.com/portfolio-master ($97), or save with the Portfolio Bundle ($397)."
 
-## Out-of-scope
+## Out-of-scope (handled by Portfolio Master)
 
-- Multi-property consolidation (Phase 2+ Full)
-- Depreciation by asset (Phase 2+)
-- Multi-LLC
-- Budget vs actual
-- Break-even occupancy calculator (separate SKU)
+- Multi-property consolidation across LLCs / entities
+- Asset-by-asset depreciation (furniture 5-yr, appliances 5-yr, improvements 15-yr) with bonus-depreciation flags
+- Cost-segregation worksheet
+- Budget vs actual variance analysis
+- Break-even occupancy calculator (separate SKU — FIN-002)
 
 ---
 
-## Implementation spec (Lite + Full share 7-tab structure at MVP)
+## Implementation spec (single canonical workbook)
 
 ### Workbook-level
-- Filenames:
-  - Lite (Etsy): `TAX-002-pl-single-property-lite.xlsx` → `templates/_lite/`
-  - Full (Gumroad): `TAX-002-pl-single-property.xlsx` → `templates/_masters/`
-- Build script generates BOTH. Only difference is Welcome tab title + upgrade-banner emphasis.
-- Tab colors: Welcome/Property Info/Revenue Log/Expense Log/Settings = `COLOR_SECONDARY` (Clay Rose); Monthly P&L + Schedule E Summary = `COLOR_ACCENT` (Muted Gold — dashboard emphasis)
+- Filenames (one canonical file, served by both storefronts):
+  - DEMO: `templates/_masters/TAX-002-pl-single-property-DEMO.xlsx`
+  - BLANK: `templates/_masters/TAX-002-pl-single-property-BLANK.xlsx`
+- Build script generates DEMO + BLANK. No separate Lite file. Etsy and Gumroad serve the same BLANK file at different price points.
+- Tab colors: Welcome/Property Info/Revenue Log/Expense Log/Settings = `COLOR_SECONDARY` (Clay Rose); Monthly P&L + Depreciation + Schedule E Summary = `COLOR_ACCENT` (Muted Gold — dashboard emphasis)
 - Default font: Calibri 11pt / Georgia tab titles
 - 17 expense categories (the Schedule E dropdown source):
   1. "Advertising (Line 6)"
@@ -144,18 +160,18 @@ Prominent Welcome tab upgrade banner: "Need multi-property + depreciation + LLC 
   14. "Wages (Line 19)"
   15. "Other — Platform fees (Line 19)"
   16. "Other — Misc (Line 19)"
-  17. "Depreciation (Line 20) — see note"
+  17. "Depreciation (Line 20) — auto from Depreciation tab"
 
 ### Sheet 1 — Welcome
 
-`apply_brand_header(ws, "Single-Property P&L Tracker" + is_lite_suffix, "Close your year before April does.")`. Col A width 95. Freeze A5.
+`apply_brand_header(ws, "Single-Property P&L Tracker", "Close your year before April does.")`. Col A width 95. Freeze A5.
 
 - Row 5: "How this maps to IRS Schedule E" (Georgia 14pt bold primary)
 - Row 6: paragraph (wrap): "Expense categories on the Expense Log match Schedule E Part I line numbers (5-20). The Schedule E Summary tab rolls up YTD totals ready for your CPA to copy into the form. Reference: IRS Publication 527 (Residential Rental Property)."
 - Row 9: "How to use" header
 - Rows 10-15: 6 numbered steps
-- Row 18: italic muted note: "Note: Schedule E Line 20 (Depreciation) — type your YTD depreciation number directly on the Schedule E Summary tab. This Lite version doesn't include a depreciation calculator; for 5/7/15/27.5/39-yr depreciation by asset, see the Portfolio Bundle."
-- Row 20: upgrade banner — Lite version emphasizes "Multi-Property P&L Master ($97)"; Full emphasizes "Portfolio Bundle ($397)". Use COLOR_ACCENT fill, 50-height row. Write both variants in code using `is_lite` flag.
+- Row 18: italic muted note: "Schedule E Line 20 (Depreciation) is auto-calculated on the Depreciation tab — straight-line on the building, 27.5-year residential rental, mid-month convention. For asset-by-asset depreciation (furniture, appliances, improvements) see the Portfolio Master."
+- Row 20: upgrade banner: "Multi-property? Add LLC consolidation, asset-by-asset depreciation, and bonus-depreciation tools — Portfolio P&L Master at thestrledger.com/portfolio-master ($97), or save with the Portfolio Bundle ($397)." Use COLOR_ACCENT fill, 50-height row.
 
 ### Sheet 2 — Property Info
 
@@ -232,7 +248,55 @@ Conditional formatting on net row B30:N30:
 - Positive (>0): green fill `C7EFCF`
 - Negative (<0): red fill `FFCCCC`
 
-### Sheet 6 — Schedule E Summary
+### Sheet 6 — Depreciation
+
+Tab color `COLOR_ACCENT`. Col widths A=42, B=18. Freeze A5.
+
+**Scope (stated on the tab):** Straight-line depreciation on the rental building over 27.5 years (residential rental real property) using the mid-month convention. This is the depreciation almost every single-property host needs. For asset-by-asset depreciation (furniture 5-yr, appliances 5-yr, improvements 15-yr) with bonus depreciation, see Portfolio Master.
+
+**Layout:**
+
+- Row 5: header "Straight-Line Depreciation Calculator (27.5-Year Residential Rental)" — Georgia 14pt bold primary
+- Row 6: italic muted note: "Building only. For asset-by-asset (5/7/15-yr) depreciation see thestrledger.com/portfolio-master."
+
+**Inputs (rows 9–17):**
+
+| Row | Label (col A, bold right) | Value (col B) | Format |
+|---|---|---|---|
+| 9 | Purchase price ($): | `='Property Info'!B10` | "$"#,##0 |
+| 10 | Closing costs (capitalizable, $): | `='Property Info'!B11` | "$"#,##0 |
+| 11 | **Total cost basis ($):** | `=B9+B10` | "$"#,##0 bold |
+| 12 | Land value (estimate, $): | sample `75000` (~18% of purchase price) | "$"#,##0 input style |
+| 13 | **Depreciable basis ($):** | `=B11-B12` | "$"#,##0 bold |
+| 14 | In-service date: | `='Property Info'!B15` | yyyy-mm-dd |
+| 15 | Tax year: | `=YEAR(TODAY())` | 0 |
+| 16 | Prior-year accumulated depreciation ($): | input — `0` for first year, otherwise pull from prior return | "$"#,##0 input style |
+
+**Outputs (rows 19–26):**
+
+| Row | Label | Formula | Format |
+|---|---|---|---|
+| 19 | Annual full-year depreciation: | `=B13/27.5` | "$"#,##0.00 |
+| 20 | Year of in-service date: | `=YEAR(B14)` | 0 |
+| 21 | Months in service this tax year: | `=IF(B15=B20, 12.5-MONTH(B14), IF(B15>B20, 12, 0))` | 0.0 |
+| 22 | First-year mid-month proration factor: | `=IF(B15=B20, B21/12, IF(B15>B20, 1, 0))` | 0.000 |
+| 23 | **Current-year depreciation ($):** | `=B19*B22` | "$"#,##0.00 bold accent |
+| 24 | Years already depreciated (info): | `=MAX(0, B15-B20-1)` | 0 |
+| 25 | Implied prior accumulated (if you didn't override row 16): | `=IF(B15>B20, B19*B24+B19*((12.5-MONTH(B14))/12), 0)` | "$"#,##0.00 muted |
+| 26 | **Accumulated depreciation through current year ($):** | `=B16+B23` | "$"#,##0.00 bold |
+
+Row 23 is the value that flows to Schedule E Line 20.
+
+**Validation guards (row 28+, italic muted):**
+- "If purchase price (B9) is blank, enter it on the Property Info tab — it auto-pulls."
+- "Land value (B12) is your estimate of the *land-only* portion of purchase price. The IRS does not let you depreciate land. A common starting point is 15–20% of total purchase, but check your county tax assessor's land/improvement split for accuracy."
+- "If this is not the first year you've owned the property, enter the prior accumulated depreciation in row 16 from your last Schedule E. Otherwise the calculator's 'Implied prior' (row 25) gives you a quick estimate."
+
+**Print area:** A1:B30, portrait letter — supports CPA hand-off as a depreciation worksheet.
+
+---
+
+### Sheet 7 — Schedule E Summary
 
 Tab color `COLOR_ACCENT`. Col widths A=50, B=16. Print area A1:B<net_row+2>, portrait letter.
 
@@ -243,12 +307,14 @@ Tab color `COLOR_ACCENT`. Col widths A=50, B=16. Print area A1:B<net_row+2>, por
 - Row 11: "EXPENSES (Schedule E Part I)" (bold primary)
 - For idx, cat in enumerate(EXPENSE_CATEGORIES, start=12):
   - Col A: cat (full category string including "(Line X)")
-  - Col B: `='Monthly P&L'!N<monthly_row>` where monthly_row = `10 + (idx - 12)`
+  - Col B:
+    - For category 17 ("Depreciation (Line 20) — auto from Depreciation tab"): `=Depreciation!B23` (current-year depreciation flows in here)
+    - For all other categories: `='Monthly P&L'!N<monthly_row>` where monthly_row = `10 + (idx - 12)`
   - Format currency
 - Row tot_row (= 12 + 17 + 1 = 30): A="Line 26a — Total expenses" (bold error) | B=`=SUM(B12:B28)` currency bold error
 - Row net_row (tot_row+2 = 32): A="Line 26 — Income or (loss)" (Georgia 14pt bold primary) | B=`=B8+B9-B<tot_row>` currency Georgia 14pt bold primary
 
-### Sheet 7 — Settings
+### Sheet 8 — Settings
 
 Col A width 38.
 - Row 5: "Tax year:" (bold right-aligned)

@@ -1,0 +1,82 @@
+GST-001 Welcome Book:
+- DEMO/BLANK: Yes (DEMO_OUT, BLANK_OUT defined)
+- Tabs: 2 + sub-sections (multiple input tabs)
+- Verdict: No verdict cell pattern
+- CPA: No
+- Columns: Guest-facing (check for white-label)
+- Build: GST-001-welcome-book-(DEMO|BLANK).xlsx
+
+OPS-001 Turnover Checklist:
+- DEMO/BLANK: No variant flag
+- Tabs: 6 (Start, Printable Checklist, Turnover Log, Scorecard Dashboard, Cleaner Roster, Supplies Par Levels)
+- Verdict: No (OPS is pure checklist)
+- CPA: No
+- White-label: Pam-facing, check for branding
+- Print area: Yes (Printable Checklist has print area set)
+
+TAX-001 Mileage Log:
+- DEMO/BLANK: No variant flag (MISSING)
+- Tabs: 5 (Start, Mileage Log, Monthly Summary, YTD Dashboard, Settings)
+- Verdict: No (pure log)
+- CPA: No dedicated CPA handoff
+- Print area: Monthly Summary + YTD Dashboard have print areas
+- Columns: Date, Property, Destination, Purpose, Start Odo, End Odo, Miles, Deduction$...
+
+TAX-002 P&L Single Property:
+- DEMO/BLANK: No variant flag (MISSING)
+- Tabs: 7 (Property Info, Revenue Log, Expense Log, Monthly P&L, Schedule E Summary, Settings, Notes)
+- Verdict: Yes (Schedule E Summary should have breakeven calc)
+- CPA: Schedule E Summary is handoff
+- Columns: Revenue (date, channel, guest, revenue, host fee, occ%, nights); Expenses (date, vendor, category, amount, payment method, receipt, notes)
+
+TAX-003 1099-NEC Tracker:
+- DEMO/BLANK: No variant flag (MISSING)
+- Tabs: 5 (Start, Contractors, Payment Log, 1099 Prep Dashboard, Settings)
+- Verdict: No (pure log)
+- CPA: "1099 Prep Dashboard" is handoff
+- Print area: Yes (for tax pros)
+
+TAX-004 Schedule E Tax Prep:
+- DEMO/BLANK: Yes (DEMO_OUT, BLANK_OUT defined)
+- Tabs: 6 (Start, Property Info, Schedule E, Depreciation Reference, Notes, Settings)
+- Verdict: No (checklist-style, not analyzer)
+- CPA: Schedule E is handoff
+- Variant: Yes, uses _val() helper
+
+TAX-005 Quarterly Estimated Tax:
+- DEMO/BLANK: No variant flag (MISSING)
+- Tabs: 5 (Start, Quarterly P&L, Estimated Tax, Payment Schedule, Settings)
+- Verdict: Yes (Estimated Tax calculated & verdict needed)
+- CPA: Payment Schedule is handoff
+- Print area: Yes
+
+TAX-006 Home Office Allocator:
+- DEMO/BLANK: Yes (DEMO_OUT, BLANK_OUT defined)
+- Tabs: 5 (Start, Allocation Input, Results + Breakdown, Form 8829 Map, Settings)
+- Verdict: Yes (allocation % is the verdict)
+- Variant: Yes, uses _val()
+
+TAX-007 Per Diem Meal Tracker:
+- DEMO/BLANK: No variant flag (MISSING)
+- Tabs: 5 (Start, Meals Log, Per-Diem Log, Monthly Summary, Settings)
+- Verdict: No (pure log)
+- CPA: No dedicated handoff
+- Print area: Yes (Monthly Summary for tax time)
+
+TAX-008 Self-Employment Tax:
+- DEMO/BLANK: Yes (DEMO_OUT, BLANK_OUT defined)
+- Tabs: 6 (Start, Income Input, Deductions, SE Tax Result, Settings + Notes)
+- Verdict: Yes (SE tax calculated is verdict)
+- Variant: Yes, uses _val()
+
+TAX-009 Section 179 Planner:
+- DEMO/BLANK: Yes (DEMO_OUT, BLANK_OUT defined)
+- Tabs: 8 (Start, Asset Purchase, Elective Depreciation, Form 4562 Map, Settings, Notes)
+- Verdict: Yes (§179 election calc is verdict)
+- Variant: Yes, uses _val()
+
+TAX-010 Cost Segregation DIY:
+- DEMO/BLANK: Yes (DEMO_OUT, BLANK_OUT defined)
+- Tabs: 8 (Start, Asset Roster, 5-Year/7-Year/15-Year bins, Depreciation Schedule, Form 4562 Map, Settings, Notes)
+- Verdict: Yes (depreciation schedule is verdict)
+- Variant: Yes, uses _val()

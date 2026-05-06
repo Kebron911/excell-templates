@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TOT Filing Calendar — TheSTRLedger on Etsy</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #fff; font-family: Helvetica, Arial, sans-serif; }
+  a { color: inherit; }
+  button:hover { filter: brightness(0.96); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/Etsy.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+function Gallery() {
+  const [i, setI] = useState(0);
+  const thumbs = [
+    { tint: "navy",      kicker: "TOT Filing",            body: "Every jurisdiction, every deadline, on one calendar." },
+    { tint: "parchment", kicker: "Platform vs you",       body: "Airbnb remits in some cities — not all. Surfaces the split." },
+    { tint: "navy",      kicker: "Penalty letter avoided",body: "Miss one monthly TOT and the city writes back. Don't." },
+    { tint: "parchment", kicker: "12-month forward view", body: "Filings sorted by deadline. Red <7 days, gold 7–30." },
+    { tint: "navy",      kicker: "Zero late notices",     body: "Maya, 3-property host · Asheville, NC." },
+  ];
+  const cur = thumbs[i];
+  const bg = cur.tint === "navy" ? "var(--brand-navy)" : "var(--brand-parchment)";
+  const fg = cur.tint === "navy" ? "var(--brand-parchment)" : "var(--brand-navy)";
+  return (
+    <div>
+      <div style={{
+        position: "relative", aspectRatio: "1/1", background: bg, padding: "64px 56px",
+        display: "flex", flexDirection: "column", justifyContent: "center",
+      }}>
+        <div style={{
+          position: "absolute", top: 16, right: 16,
+          background: "rgba(0,0,0,0.55)", color: "#fff",
+          fontSize: 12, fontFamily: "Helvetica, Arial, sans-serif",
+          padding: "4px 10px", borderRadius: 999,
+        }}>{i + 1} / {thumbs.length}</div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, letterSpacing: "0.24em", textTransform: "uppercase", color: "var(--brand-gold)" }}>LGL-002 · Legal & Compliance</div>
+        <div style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 72, lineHeight: 1.02, letterSpacing: "-0.02em", color: fg, marginTop: 20 }}>
+          <span style={{ fontStyle: "italic", fontWeight: 400 }}>The</span><br/>{cur.kicker}<span style={{ color: "var(--brand-gold)" }}>.</span>
+        </div>
+        <div style={{ width: 48, height: 1, background: "var(--brand-gold)", margin: "32px 0" }}/>
+        <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 24, color: cur.tint === "navy" ? "var(--brand-parchment)" : "var(--fg-2)", maxWidth: 460, lineHeight: 1.4 }}>{cur.body}</div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(${thumbs.length}, 1fr)`, gap: 8, marginTop: 8 }}>
+        {thumbs.map((t, idx) => (
+          <button key={idx} onClick={() => setI(idx)} aria-label={`View image ${idx + 1}`} style={{
+            aspectRatio: "1/1", padding: 0, cursor: "pointer", background: "transparent",
+            border: "2px solid " + (idx === i ? "#222" : "transparent"),
+            outline: idx === i ? "none" : "1px solid rgba(0,0,0,0.08)",
+            outlineOffset: -1,
+          }}>
+            <div style={{
+              width: "100%", height: "100%",
+              background: t.tint === "navy" ? "var(--brand-navy)" : "var(--brand-parchment)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontFamily: "var(--font-display)", fontStyle: "italic",
+              color: t.tint === "navy" ? "var(--brand-gold)" : "var(--brand-navy)",
+              fontSize: 22, fontWeight: 500,
+            }}>{idx + 1}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function Detail() {
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: "24px 48px 48px" }}>
+      <div style={{ fontSize: 12, color: ETSY.text3, marginBottom: 14, fontFamily: "Helvetica, Arial, sans-serif" }}>
+        <a href="index.html" style={{ color: ETSY.text3 }}>TheSTRLedger</a> › Digital Downloads › Business & Office › Templates
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1.45fr 1fr", gap: 48, alignItems: "start" }}>
+        <Gallery/>
+        <div>
+          <div style={{ fontFamily: "Helvetica, Arial, sans-serif", fontSize: 12, color: ETSY.text2 }}>
+            <span style={{ fontWeight: 700, color: "#217A42" }}>Star Seller</span> · <a href="index.html" style={{ color: ETSY.text2 }}>TheSTRLedger</a>
+          </div>
+          <h1 style={{ fontFamily: "Helvetica, Arial, sans-serif", fontSize: 16, fontWeight: 500, color: ETSY.text, lineHeight: 1.45, margin: "10px 0 18px" }}>
+            TOT Filing Calendar | Airbnb Transient Occupancy Tax Tracker | STR Tax Calendar Excel | Lodging Tax Deadline Workbook | Multi-Property Multi-Jurisdiction | Instant Download
+          </h1>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+            <span style={{ fontSize: 32, fontWeight: 700, color: ETSY.text, fontFamily: "Helvetica, Arial, sans-serif" }}>$17.00</span>
+            <span style={{ fontSize: 14, color: ETSY.text3, textDecoration: "line-through" }}>$24.00</span>
+            <span style={{ fontSize: 13, color: "#217A42", fontWeight: 600 }}>Sale ends in 5 days</span>
+          </div>
+          <div style={{ fontSize: 12, color: ETSY.text2, marginTop: 4, fontFamily: "Helvetica, Arial, sans-serif" }}>Digital Download</div>
+          <div style={{ fontSize: 13, color: ETSY.text2, marginTop: 8, fontFamily: "Helvetica, Arial, sans-serif" }}>
+            ★★★★★ <a href="#" style={{ color: ETSY.text2 }}>(38 reviews)</a> · 184 favorites
+          </div>
+          <div style={{ marginTop: 20, padding: "14px 18px", background: "#FFF8EB", border: "1px solid #F4DDA2", fontSize: 13, fontFamily: "Helvetica, Arial, sans-serif", color: ETSY.text }}>
+            ⚡ Other people want this. <strong>11 people</strong> have this in their cart.
+          </div>
+          <div style={{ marginTop: 20 }}>
+            <button style={{ width: "100%", padding: "14px 24px", background: ETSY.text, color: "white", border: 0, borderRadius: 22, fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "Helvetica, Arial, sans-serif" }}>Add to cart</button>
+            <button style={{ width: "100%", marginTop: 10, padding: "14px 24px", background: "white", color: ETSY.text, border: "1px solid " + ETSY.text, borderRadius: 22, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "Helvetica, Arial, sans-serif" }}>♡ Add to favorites</button>
+          </div>
+          <div style={{ marginTop: 24, padding: "16px 18px", background: "#F8F8F7", fontSize: 13, fontFamily: "Helvetica, Arial, sans-serif", color: ETSY.text2, lineHeight: 1.6 }}>
+            ✓ Instant download — files available right after purchase<br/>
+            ✓ 14-day refund, no questions asked<br/>
+            ✓ Includes free 2027 update through next January
+          </div>
+
+          <div style={{ marginTop: 32, padding: "28px 24px", background: "var(--brand-navy)", color: "var(--brand-parchment)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.24em", textTransform: "uppercase", color: "var(--brand-gold)" }}>From The STR Ledger</div>
+            <div style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: 20, lineHeight: 1.5, color: "var(--brand-parchment)", marginTop: 12 }}>
+              The first time the city sent me a late-filing penalty letter, it was because I missed one monthly TOT on a single Asheville property — $312 in penalty plus interest, on a filing I would have happily made if I'd remembered it existed. Airbnb remits in some jurisdictions and not others, and that gap is where hosts get caught. This calendar puts every property's filing on one rolling 12-month view so the city never has to write you again<span style={{ color: "var(--brand-gold)" }}>.</span>
+            </div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.24em", textTransform: "uppercase", color: "var(--fg-on-navy-muted)", marginTop: 18 }}>— Emily, founder · host since 2017</div>
+          </div>
+
+          <div style={{ marginTop: 24, padding: "24px 24px", background: "var(--brand-paper)", border: "1px solid var(--rule)" }}>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--brand-gold)", marginBottom: 14 }}>What's in the file</div>
+            <div style={{ fontFamily: "Helvetica, Arial, sans-serif", fontSize: 13, color: ETSY.text2, lineHeight: 1.7 }}>
+              <strong style={{ color: ETSY.text }}>1 ×</strong> editable .xlsx workbook (5 tabs: Start, Revenue Matrix, TOT Calculator, Filing List, Settings) ·{" "}
+              <strong style={{ color: ETSY.text }}>1 ×</strong> matching .pdf (filled 3-property demo) ·{" "}
+              <strong style={{ color: ETSY.text }}>1 ×</strong> setup guide (.pdf, 6 pages) ·{" "}
+              <strong style={{ color: ETSY.text }}>1 ×</strong> jurisdiction rate reference card (platform-remit Y/N flags)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<>
+  <EtsyTopNav cart={2}/>
+  <Detail/>
+</>);
+</script>
+</body>
+</html>
