@@ -7,6 +7,9 @@
 import Layout from '@/components/chrome/Layout.astro';
 import Sidebar from '@/components/chrome/Sidebar.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import { formatCurrency, formatPercent } from '@/lib/format';
 import tools from '@/data/tools.json';
 
@@ -78,6 +81,17 @@ const toolsList = Object.values(tools);
       </div>
 
       <Sidebar current="airbnb-fee-calculator" />
+    </div>
+
+    <div class="mx-auto max-w-6xl px-5 pb-9">
+      <p class="label text-navy">Monetization primitives — verification preview</p>
+      <AdSlot location="in-content" />
+      <EmailCaptureCard
+        magnet="str-host-income-report-2026"
+        toolSlug="phase1-preview"
+      />
+      <STRLedgerCTA tool="profit-calculator" />
+      <AdSlot location="footer" />
     </div>
   </section>
 

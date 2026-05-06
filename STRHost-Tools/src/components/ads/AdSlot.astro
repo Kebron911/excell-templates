@@ -1,0 +1,65 @@
+---
+// AdSlot — pre-AdSense rendered as transparent placeholder; post-approval flips
+// to <ins class="adsbygoogle">. One config flag flips the whole site.
+//
+// Per design spec section 10:
+// - location="in-content"  -> after "How it works", before email capture
+// - location="footer"      -> before related calculators
+// Only TWO instances per page. Never sticky. Never popup. Never exit-intent.
+
+import.meta.env.PUBLIC_ADSENSE_ENABLED;
+
+interface Props {
+  location: 'in-content' | 'footer';
+  /** Per-tool slot ID set in AdSense once approved. */
+  slotId?: string;
+}
+
+const { location, slotId } = Astro.props;
+
+const adsenseEnabled = import.meta.env.PUBLIC_ADSENSE_ENABLED === 'true';
+const adsenseClient = import.meta.env.PUBLIC_ADSENSE_CLIENT ?? '';
+
+const dims = {
+  'in-content': { minHeight: '90px', label: 'In-content ad slot' },
+  footer:       { minHeight: '90px', label: 'Footer ad slot' },
+};
+const { minHeight, label } = dims[location];
+---
+<aside
+  class="ad-slot my-7 print:hidden"
+  data-ad-slot
+  data-location={location}
+  aria-label={label}
+>
+  {adsenseEnabled && slotId && adsenseClient ? (
+    <ins
+      class="adsbygoogle block"
+      style={`display:block; min-height:${minHeight};`}
+      data-ad-client={adsenseClient}
+      data-ad-slot={slotId}
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+    />
+  ) : (
+    <div
+      class="rounded-md border border-dashed border-rule bg-parchment-light px-5 py-4 flex items-center justify-center"
+      style={`min-height:${minHeight};`}
+    >
+      <p class="text-caption text-ink-3 uppercase tracking-widest">
+        Ad slot · {location} · pending AdSense approval
+      </p>
+    </div>
+  )}
+</aside>
+
+{adsenseEnabled && (
+  <script
+    async
+    src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
+    crossorigin="anonymous"
+  />
+  <script is:inline>
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+)}
