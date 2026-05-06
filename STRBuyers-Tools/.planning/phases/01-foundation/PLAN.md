@@ -6,6 +6,8 @@
 
 **Cluster reference:** Layout primitives + monetization primitive contracts come from [STRHost-Tools Phase 1 PLAN](../../../../STRHost-Tools/.planning/phases/01-foundation/PLAN.md). This phase mirrors strhost task-for-task, with two additions in Task 5 (AffiliateBlock + DisclosureBanner) and one accent swap in Task 2 (finance-trust deeper blue).
 
+> **READ BEFORE ANY UI TASK:** [STR Cluster — Style + Layout Guide](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md). This document captures the locked UX patterns for the cluster (wordmark treatment, header coverage, landing layout, sidebar usage, friction discipline). The guide was codified after strhost.tools Phase 1 user feedback — don't re-derive these decisions, replicate them. **Per-site delta for strbuyers.tools:** brand name reads `STR Buyers`·*tools*, accent is finance-trust deeper blue.
+
 **Requirements satisfied:** R5 (brand layer), R6 (monetization primitives + AffiliateBlock + DisclosureBanner), R7 (SEO library), partial R3 (URL state + format)
 
 **Acceptance for the phase:**
@@ -25,6 +27,8 @@
 
 **Acceptance:** `pnpm install` resolves; `pnpm dev` serves default page; `pnpm typecheck` zero errors. Commit: `chore: bootstrap astro+tailwind+vitest+playwright project`.
 
+**⚠ Cross-platform alias config** (per [Cluster Style Guide §10](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md#10-cross-platform-viteastro-path-alias)): both `vitest.config.ts` and `astro.config.mjs` must use `fileURLToPath(new URL('./src', import.meta.url))` for the `@/*` alias. The naive `.pathname` approach breaks on Windows. strhost commit `af20c20` is the reference fix.
+
 ---
 
 ## Task 2 — Brand tokens with finance-trust accent
@@ -38,6 +42,8 @@
 **Acceptance:** Tailwind theme exposes `colors.accent.DEFAULT` as finance-trust blue; numbers render in JetBrains Mono with `tabular-nums`; commit: `feat: brand tokens with finance-trust accent`.
 
 **Frontend-design note:** Apply [frontend-design](skill) — accent must read as "money/trust" without screaming corporate. Test against the AffiliateBlock card style (Task 5) before locking the HEX.
+
+**Cluster note:** the wordmark renders `STR Buyers`·*tools* with `STR Buyers` in the chosen finance-trust accent (NOT navy). Per [Cluster Style Guide §1–§2](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md#1-wordmark) — the wordmark IS the most visible accent surface, so the accent shade has to read as a brand color at 28px serif weight, not just as a UI tint.
 
 ---
 
@@ -53,13 +59,19 @@ Identical to strhost.tools. Commit: `feat: print stylesheet`.
 
 **Source:** lines 441–591 of source plan
 
-**Files:** `src/components/chrome/{Header,Footer,Sidebar,FunnelBand,ClusterFunnelBlock,Layout}.astro`
+**Files:** `src/components/chrome/{Header,Footer,Sidebar,FunnelBand,ClusterFunnelBlock,Layout,Wordmark}.astro`
 
-**Cluster note:** Layout matches strhost.tools chrome. ClusterFunnelBlock is shared across all four cluster sites — `currentCluster` prop hides the matching link. For strbuyers, `currentCluster="acquisition"`.
+**Cluster note:** Layout matches strhost.tools chrome verbatim. Replicate the established UX patterns from [Cluster Style Guide §1, §3, §4, §5, §8](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md):
 
-**Acceptance:** All six chrome components render on a throwaway route; ClusterFunnelBlock shows links to strhost / strops / strguests but hides strbuyers self-link; visual check passes. Commit: `feat: layout primitives — Header, Footer, Sidebar, FunnelBand, ClusterFunnelBlock, Layout`.
+- **Wordmark.astro** — copy [`STRHost-Tools/src/components/chrome/Wordmark.astro`](../../../../STRHost-Tools/src/components/chrome/Wordmark.astro) verbatim, change brand name string only (`STR Host` → `STR Buyers`).
+- **Header** — all 7 calculators visible inline at lg+; hamburger below lg. Compact `navLabels` map (per §3). Wordmark `shrink-0`. Do NOT hide tools behind a "Calculators ▾" dropdown.
+- **Sidebar** — used ONLY on individual tool pages. Do NOT render on the landing.
+- **ClusterFunnelBlock** — `currentCluster="acquisition"`; hides self-link.
+- **Hover/focus states** — card border `rule` → `gold` (or accent), `shadow-card` on hover, focus rings via `shadow-focus`. No scale-up, no bouncy springs.
 
-**Frontend-design note:** Apply [frontend-design](skill) — production craft on type rhythm and hover states; ClusterFunnelBlock copy needs a one-line value prop per sibling site.
+**Acceptance:** All seven chrome components render on a throwaway route; ClusterFunnelBlock shows the other three sites; landing renders no Sidebar; all 7 buyer calculators visible in nav at lg+. Visual check passes. Commit: `feat: layout primitives — Wordmark, Header, Footer, Sidebar, FunnelBand, ClusterFunnelBlock, Layout`.
+
+**Frontend-design note:** Apply [frontend-design](skill) — production craft on type rhythm and hover states. Wordmark hierarchy is **{Brand Name} main** + **.tld trailing**, NOT eyebrow + main (rejected variant in §1).
 
 ---
 
@@ -116,17 +128,25 @@ Identical to strhost.tools. Tests first. Commit: `feat: format library with curr
 
 ## Phase 1 verification
 
-After Task 8, run:
+The throwaway landing should follow [Cluster Style Guide §4 + §6](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md):
 
+- Hero: short headline (Cormorant H1 with accent period), one Inter lede, no buttons
+- Tool grid: 7 buyer-tool placeholders, 3 cols at lg / 2 at sm / 1 below sm, gold-on-hover border + card shadow
+- ClusterFunnelBlock follows the grid
+- Verification preview (AdSlot + EmailCaptureCard + STRLedgerCTA + **AffiliateBlock** + **DisclosureBanner** + AdSlot) collapsed in a `<details>` at page bottom
+
+After Task 8:
 ```bash
 pnpm typecheck
 pnpm test
 pnpm dev
 # Visit http://localhost:4321/ and confirm:
-#   - Header, Footer, FunnelBand, ClusterFunnelBlock render with finance-trust accent
-#   - AdSlot, EmailCaptureCard, STRLedgerCTA placeholders visible
+#   - STR Buyers·tools wordmark in finance-trust accent in Header + Footer
+#   - All 7 buyer-tool placeholders visible in Header nav at lg+
+#   - Tool grid IS the menu (no Sidebar duplicate)
+#   - Verification preview collapsed; expand to see monetization primitives
 #   - AffiliateBlock renders 1-3 vendor cards with FTC inline disclosure
-#   - DisclosureBanner at top of page links to /disclosures (404 expected for now)
+#   - DisclosureBanner at top of page links to /disclosures (404 expected)
 ```
 
 Update `STATE.md`: mark all 8 tasks done, set current phase = 2.

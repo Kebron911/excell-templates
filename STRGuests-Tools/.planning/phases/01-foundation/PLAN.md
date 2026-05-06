@@ -6,6 +6,8 @@
 
 **Cluster reference:** Tasks 3, 4, 6, 7 mirror strhost.tools verbatim (with wordmark + accent swaps). Tasks 9 (PDF base) parallels strops.tools. Tasks 1, 2, 5, 8, 10 are strguests-novel — detailed in the source plan with code blocks.
 
+> **READ BEFORE ANY UI TASK:** [STR Cluster — Style + Layout Guide](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md). This document captures the locked UX patterns for the cluster (wordmark treatment, header coverage, landing layout, sidebar usage, friction discipline). The guide was codified after strhost.tools Phase 1 user feedback — don't re-derive these decisions, replicate them. **Per-site delta for strguests.tools:** brand name reads `STR Guests`·*tools*, accent is hospitality-warm terracotta. Cormorant Garamond gets MORE screen time on this site than siblings (guidebooks suit serif).
+
 **Requirements satisfied:** R5 (brand layer), R6 (monetization primitives + PDF/Pinterest/AI extensions), R7 (SEO library), partial R3 (URL state + format), R8.2 (server schema migration), R10 (AI rate-limit infra)
 
 **Acceptance for the phase:**
@@ -31,6 +33,8 @@
 
 **Cluster note:** mirrors strhost.tools Task 1 with added deps for openai, pdf-lib, express, mysql2, satori, zod.
 
+**⚠ Cross-platform alias config** (per [Cluster Style Guide §10](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md#10-cross-platform-viteastro-path-alias)): both `vitest.config.ts` and `astro.config.mjs` must use `fileURLToPath(new URL('./src', import.meta.url))` for the `@/*` alias. The naive `.pathname` approach breaks on Windows. strhost commit `af20c20` is the reference fix.
+
 ---
 
 ## Task 2 — Brand tokens with hospitality-warm accent
@@ -42,6 +46,8 @@
 **Acceptance:** Tailwind theme exposes `colors.accent.{50,100,500,700,900}` as hospitality-warm scale; numbers in JetBrains Mono with `tabular-nums`. Commit: `feat: brand tokens with hospitality-warm accent`.
 
 **Frontend-design note:** Apply [frontend-design](skill) — accent must read as "hospitable / warm / welcoming" without sliding into kitsch. Cormorant Garamond gets more screen time on this site than siblings (guidebooks suit serif). Test against the welcome book PDF preview when Phase 2 Task 12 lands.
+
+**Cluster note:** the wordmark renders `STR Guests`·*tools* with `STR Guests` in the chosen hospitality-warm terracotta (NOT navy). Per [Cluster Style Guide §1–§2](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md#1-wordmark) — the wordmark IS the most visible accent surface, so the terracotta has to read as a brand color at 28px serif weight, not just as a UI tint.
 
 ---
 
@@ -57,13 +63,19 @@ Commit: `feat: print stylesheet`
 
 **Source:** Task 4 in source plan
 
-**Files:** `src/components/chrome/{Header,Footer,Sidebar,FunnelBand,ClusterFunnelBlock,Layout}.astro`
+**Files:** `src/components/chrome/{Header,Footer,Sidebar,FunnelBand,ClusterFunnelBlock,Layout,Wordmark}.astro`
 
-**Cluster note:** mirrors strhost.tools Task 7. Strguests-specific: ClusterFunnelBlock uses `currentCluster="guest-xp"`; Sidebar has 6 generator placeholder cards.
+**Cluster note:** Replicate strhost.tools UX patterns from [Cluster Style Guide §1, §3, §4, §5, §8](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md):
 
-**Acceptance:** All six chrome components render on a throwaway route; ClusterFunnelBlock shows links to strhost / strbuyers / strops, hides strguests self-link; visual check passes. Commit: `feat: layout primitives`.
+- **Wordmark.astro** — copy [`STRHost-Tools/src/components/chrome/Wordmark.astro`](../../../../STRHost-Tools/src/components/chrome/Wordmark.astro) verbatim, change brand name string only (`STR Host` → `STR Guests`).
+- **Header** — all 7 generators visible inline at lg+; hamburger below lg. Compact `navLabels` map per §3.
+- **Sidebar** — used ONLY on individual generator pages. Do NOT render on the landing.
+- **ClusterFunnelBlock** — `currentCluster="guest-xp"`; hides self-link.
+- **Hover/focus states** — card border `rule` → terracotta accent on hover, `shadow-card`, `shadow-focus` rings.
 
-**Frontend-design note:** Apply [frontend-design](skill) — production craft on type rhythm (extra serif weight here), hover states, and Sidebar's mobile collapse to footer cards.
+**Acceptance:** All seven chrome components render on a throwaway route; all 7 generators visible in nav at lg+; ClusterFunnelBlock shows the other three sites; landing has no Sidebar. Commit: `feat: layout primitives — Wordmark, Header, Footer, Sidebar, FunnelBand, ClusterFunnelBlock, Layout`.
+
+**Frontend-design note:** Apply [frontend-design](skill) — production craft on type rhythm (extra serif weight here, since guidebooks suit serif), hover states, and Sidebar's mobile collapse. Wordmark hierarchy is **{Brand Name} main** + **.tld trailing**, not eyebrow + main (rejected variant in §1).
 
 ---
 
@@ -161,8 +173,14 @@ Commit: `feat: seo library — Schema.org JSON-LD builders incl Article`
 
 ## Phase 1 verification
 
-After Task 10, run:
+The throwaway landing should follow [Cluster Style Guide §4 + §6](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md):
 
+- Hero: short headline (Cormorant H1 with terracotta period), one Inter lede, no buttons
+- Tool grid: 7 generator placeholders, 3 cols at lg / 2 at sm / 1 below sm
+- ClusterFunnelBlock follows the grid
+- Verification preview (AdSlot + EmailCaptureCard + STRLedgerCTA + **PdfDownloadButton** + **PinterestPinButton** + **AiRateLimitNotice** + AdSlot) collapsed in a `<details>` at page bottom
+
+After Task 10:
 ```bash
 pnpm typecheck
 pnpm test
@@ -170,8 +188,10 @@ pnpm dev &           # static site on :4321
 pnpm server:dev &    # express api on :3001
 curl http://localhost:3001/api/health
 # Visit http://localhost:4321/ and confirm:
-#   - Header, Footer, FunnelBand, ClusterFunnelBlock with hospitality-warm accent
-#   - AdSlot, EmailCaptureCard, STRLedgerCTA, PdfDownloadButton, PinterestPinButton, AiRateLimitNotice render
+#   - STR Guests·tools wordmark in hospitality-warm accent in Header + Footer
+#   - All 7 generators visible in Header nav at lg+
+#   - Tool grid IS the menu (no Sidebar duplicate)
+#   - Verification preview collapsed; expand to see PDF/Pinterest/AI primitives
 #   - PdfDownloadButton modal opens + closes-still-downloads pattern works
 ```
 

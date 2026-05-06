@@ -6,6 +6,8 @@
 
 **Cluster reference:** Layout + monetization primitive contracts come from [STRHost-Tools Phase 1 PLAN](../../../../STRHost-Tools/.planning/phases/01-foundation/PLAN.md). This phase mirrors strhost task-for-task, with one accent swap in Task 2 (ops-utility green-gray) and one extra task (Task 9 PDF library base) needed because tools 11 and 16 produce PDFs in Phase 2.
 
+> **READ BEFORE ANY UI TASK:** [STR Cluster — Style + Layout Guide](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md). This document captures the locked UX patterns for the cluster (wordmark treatment, header coverage, landing layout, sidebar usage, friction discipline). The guide was codified after strhost.tools Phase 1 user feedback — don't re-derive these decisions, replicate them. **Per-site delta for strops.tools:** brand name reads `STR Ops`·*tools*, accent is ops-utility green-gray.
+
 **Requirements satisfied:** R5 (brand layer), R6 (monetization primitives + AffiliateCard), R7 (SEO library), partial R3 (URL state + format), R10 (PDF base template)
 
 **Acceptance for the phase:**
@@ -26,6 +28,8 @@
 
 **Acceptance:** `pnpm install` resolves; `pnpm dev` serves default page; `pnpm typecheck` zero errors. `pdf-lib` and `@types/pdf-lib` installed (will be used in Task 9). Commit: `chore: bootstrap astro+tailwind+vitest+playwright+pdflib project`.
 
+**⚠ Cross-platform alias config** (per [Cluster Style Guide §10](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md#10-cross-platform-viteastro-path-alias)): both `vitest.config.ts` and `astro.config.mjs` must use `fileURLToPath(new URL('./src', import.meta.url))` for the `@/*` alias. The naive `.pathname` approach breaks on Windows. strhost commit `af20c20` is the reference fix.
+
 ---
 
 ## Task 2 — Brand tokens — port + ops accent shift
@@ -40,6 +44,8 @@
 
 **Frontend-design note:** Apply [frontend-design](skill) — accent must read as "utility / industrial / get-it-done" without being drab. Test contrast against AffiliateCard surface.
 
+**Cluster note:** the wordmark renders `STR Ops`·*tools* with `STR Ops` in the chosen ops-utility green-gray (NOT navy). Per [Cluster Style Guide §1–§2](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md#1-wordmark) — the wordmark IS the most visible accent surface, so the green has to read as a brand color at 28px serif weight, not just as a UI tint. Test at the chosen shade by mocking the Wordmark component on parchment before locking the HEX.
+
 ---
 
 ## Task 3 — Print stylesheet
@@ -50,17 +56,23 @@ Identical to strhost.tools. Commit: `feat: print stylesheet`.
 
 ---
 
-## Task 4 — Layout primitives — Layout, Header, Footer, Sidebar, FunnelBand, ClusterFunnelBlock
+## Task 4 — Layout primitives — Layout, Header, Footer, Sidebar, FunnelBand, ClusterFunnelBlock, Wordmark
 
 **Source:** lines 188–380 of source plan
 
-**Files:** `src/components/chrome/{Header,Footer,Sidebar,FunnelBand,ClusterFunnelBlock,Layout}.astro`
+**Files:** `src/components/chrome/{Header,Footer,Sidebar,FunnelBand,ClusterFunnelBlock,Layout,Wordmark}.astro`
 
-**Cluster note:** ClusterFunnelBlock is shared across all four cluster sites. For strops, `currentCluster="operations"`.
+**Cluster note:** Replicate strhost.tools UX patterns from [Cluster Style Guide §1, §3, §4, §5, §8](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md):
 
-**Acceptance:** All six chrome components render on a throwaway route; ClusterFunnelBlock shows links to strhost / strbuyers / strguests but hides strops self-link. Commit: `feat: layout primitives`.
+- **Wordmark.astro** — copy [`STRHost-Tools/src/components/chrome/Wordmark.astro`](../../../../STRHost-Tools/src/components/chrome/Wordmark.astro) verbatim, change brand name string only (`STR Host` → `STR Ops`).
+- **Header** — all 7 ops tools visible inline at lg+; hamburger below lg. Compact `navLabels` map per §3.
+- **Sidebar** — used ONLY on individual tool pages. Do NOT render on the landing.
+- **ClusterFunnelBlock** — `currentCluster="operations"`; hides self-link.
+- **Hover/focus states** — card border `rule` → ops accent on hover, `shadow-card`, `shadow-focus` rings. No scale-up, no spring eases.
 
-**Frontend-design note:** Apply [frontend-design](skill) — production craft on type rhythm and hover; ops accent applied to nav highlights and cluster funnel cards.
+**Acceptance:** All seven chrome components render on a throwaway route; all 7 ops tools visible in nav at lg+; ClusterFunnelBlock shows the other three sites; landing has no Sidebar. Commit: `feat: layout primitives — Wordmark, Header, Footer, Sidebar, FunnelBand, ClusterFunnelBlock, Layout`.
+
+**Frontend-design note:** Apply [frontend-design](skill) — production craft on type rhythm and hover. Wordmark hierarchy is **{Brand Name} main** + **.tld trailing**, not eyebrow + main (rejected variant in §1).
 
 ---
 
@@ -132,15 +144,23 @@ Identical to strhost.tools (no Place builder needed; ops doesn't have city pages
 
 ## Phase 1 verification
 
-After Task 9:
+The throwaway landing should follow [Cluster Style Guide §4 + §6](../../../../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md):
 
+- Hero: short headline (Cormorant H1 with accent period), one Inter lede, no buttons
+- Tool grid: 7 ops-tool placeholders, 3 cols at lg / 2 at sm / 1 below sm
+- ClusterFunnelBlock follows the grid
+- Verification preview (AdSlot + EmailCaptureCard + STRLedgerCTA + **AffiliateCard** + **PdfDownloadButton** + AdSlot) collapsed in a `<details>` at page bottom
+
+After Task 9:
 ```bash
 pnpm typecheck
 pnpm test
 pnpm dev
 # Visit http://localhost:4321/ and confirm:
-#   - Header, Footer, FunnelBand, ClusterFunnelBlock with ops accent
-#   - AdSlot, EmailCaptureCard, STRLedgerCTA, AffiliateCard placeholders
+#   - STR Ops·tools wordmark in ops-utility accent in Header + Footer
+#   - All 7 ops-tool placeholders visible in Header nav at lg+
+#   - Tool grid IS the menu (no Sidebar duplicate)
+#   - Verification preview collapsed; expand to see monetization primitives
 #   - Trigger pdf/base test in dev — open downloaded PDF and visually verify chrome
 ```
 
