@@ -1,5 +1,6 @@
 ---
 import tools from '@/data/tools.json';
+import Wordmark from './Wordmark.astro';
 
 const today = new Date();
 const lastUpdated = today.toISOString().slice(0, 10);
@@ -9,9 +10,7 @@ const toolsList = Object.values(tools);
   <div class="mx-auto max-w-6xl px-5 py-8">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8 footer-nav">
       <div>
-        <p class="wordmark text-h3" aria-label="strhost.tools">
-          strhost<span class="text-gold">.</span>tools
-        </p>
+        <Wordmark size="md" theme="parchment" asLink={false} />
         <p class="mt-3 text-small text-parchment max-w-xs leading-snug">
           Free calculators for short-term rental hosts. Built by the team at <a href="https://thestrledger.com" class="underline decoration-gold underline-offset-2 text-parchment hover:text-gold-soft">The STR Ledger</a>.
         </p>
@@ -52,7 +51,7 @@ const toolsList = Object.values(tools);
 
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
       <p class="text-caption text-parchment opacity-70">
-        © {today.getFullYear()} strhost.tools. All rates and figures for informational purposes only — not financial or tax advice.
+        © {today.getFullYear()} STR Host Tools. All rates and figures for informational purposes only — not financial or tax advice.
       </p>
       <p class="text-caption text-parchment opacity-70 font-mono">
         Last updated <time datetime={lastUpdated}>{lastUpdated}</time>

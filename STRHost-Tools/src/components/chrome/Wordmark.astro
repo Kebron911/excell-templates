@@ -1,0 +1,71 @@
+---
+// Wordmark — "STR" eyebrow + "Host Tools" serif. Single component so Header
+// and Footer never drift apart and a future favicon/og-image generator can
+// import the same proportions.
+//
+// "STR" is a small-caps letterspaced eyebrow in gold; "Host Tools" is the
+// main weight in Cormorant Garamond. The treatment reads as editorial /
+// finance-trustworthy — distinct from a sans-only logo dump.
+
+interface Props {
+  /** Visual scale. */
+  size?: 'sm' | 'md' | 'lg';
+  /** Surface the wordmark sits on; controls 'Host Tools' color. */
+  theme?: 'navy' | 'parchment';
+  /** Render as a link to home (default true). When false, plain text. */
+  asLink?: boolean;
+  /** Optional href override (defaults to "/"). */
+  href?: string;
+  /** Class to extend the wrapping element. */
+  class?: string;
+}
+
+const { size = 'md', theme = 'navy', asLink = true, href = '/', class: className = '' } = Astro.props;
+
+const sizes = {
+  sm: { eyebrow: 'text-[10px]', main: 'text-[20px]', gap: 'gap-1.5', track: 'tracking-[0.32em]' },
+  md: { eyebrow: 'text-[11px]', main: 'text-[26px]', gap: 'gap-2',   track: 'tracking-[0.32em]' },
+  lg: { eyebrow: 'text-[13px]', main: 'text-[36px]', gap: 'gap-2.5', track: 'tracking-[0.32em]' },
+};
+
+const themes = {
+  navy:      { main: 'text-navy',     eyebrow: 'text-gold-deep' },
+  parchment: { main: 'text-parchment', eyebrow: 'text-gold' },
+};
+
+const s = sizes[size];
+const t = themes[theme];
+
+const Tag = asLink ? 'a' : 'span';
+const linkProps = asLink
+  ? { href, 'aria-label': 'STR Host Tools — home', class: 'no-underline' }
+  : {};
+---
+<Tag
+  {...linkProps}
+  class:list={[
+    'inline-flex items-baseline',
+    s.gap,
+    className,
+  ]}
+>
+  <span
+    class:list={[
+      'font-sans uppercase font-semibold leading-none',
+      s.eyebrow,
+      s.track,
+      t.eyebrow,
+    ]}
+  >
+    STR
+  </span>
+  <span
+    class:list={[
+      'font-serif font-medium leading-none whitespace-nowrap',
+      s.main,
+      t.main,
+    ]}
+  >
+    Host Tools<span class:list={['ml-0.5', t.eyebrow]}>.</span>
+  </span>
+</Tag>

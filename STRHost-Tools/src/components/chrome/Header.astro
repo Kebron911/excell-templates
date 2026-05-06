@@ -1,5 +1,6 @@
 ---
 import tools from '@/data/tools.json';
+import Wordmark from './Wordmark.astro';
 
 // Compact nav labels — all 7 calculators visible inline at lg+. Header
 // is the primary cross-tool nav once a visitor is deep in a calculator,
@@ -18,9 +19,7 @@ const allTools = Object.entries(tools);
 ---
 <header class="border-b border-rule bg-parchment">
   <div class="mx-auto max-w-6xl px-5 py-5 flex items-center justify-between gap-6">
-    <a href="/" class="wordmark text-h3 text-navy no-underline shrink-0" aria-label="strhost.tools home">
-      strhost<span class="period-gold">.</span>tools
-    </a>
+    <Wordmark size="md" theme="navy" class="shrink-0" />
 
     <nav class="hidden lg:flex items-center gap-6" aria-label="Primary">
       {allTools.map(([key, t]) => (
