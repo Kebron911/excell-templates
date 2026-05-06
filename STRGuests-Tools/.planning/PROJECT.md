@@ -1,6 +1,6 @@
 # strguests.tools — PROJECT
 
-**Status:** Active (planning incomplete — see [MISSING-PLAN.md](MISSING-PLAN.md))
+**Status:** Active
 **Started:** 2026-05-05
 **Owner:** Daniel Harrison
 **Cluster position:** Guest XP (optimizing) — fourth stop in customer journey, **second** in build order
@@ -94,5 +94,5 @@ Guest-XP cluster CTAs lean toward "Welcome Book" SKU + guest-comms templates in 
 ## Source documents
 
 - **Design spec:** [`docs/superpowers/specs/2026-05-05-strguests-tools-design.md`](../docs/superpowers/specs/2026-05-05-strguests-tools-design.md) (18 sections)
-- **Implementation plan:** **MISSING** — see [MISSING-PLAN.md](MISSING-PLAN.md). Plan must be authored before Phase 1 execution begins.
+- **Implementation plan:** [`docs/superpowers/plans/2026-05-05-strguests-tools.md`](../docs/superpowers/plans/2026-05-05-strguests-tools.md) (36 atomic tasks)
 - **Cluster reference:** [`STRHost-Tools/.planning/`](../../STRHost-Tools/.planning/) for shared contracts; [`STROps-Tools/.planning/`](../../STROps-Tools/.planning/) for PDF-library precedent

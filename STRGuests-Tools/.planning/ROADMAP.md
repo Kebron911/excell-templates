@@ -1,8 +1,6 @@
 # strguests.tools — ROADMAP
 
-**Status:** Coarse phases derived from spec; per-task breakdown awaits an implementation plan (see [MISSING-PLAN.md](MISSING-PLAN.md)).
-
-Once the plan is authored, this ROADMAP becomes a task-grouping view of that plan (same shape as the sibling sites' ROADMAPs).
+Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpowers/plans/2026-05-05-strguests-tools.md).
 
 ---
 
@@ -10,18 +8,7 @@ Once the plan is authored, this ROADMAP becomes a task-grouping view of that pla
 
 **Goal:** Bootable Astro + Express dual-target site with hospitality-warm brand tokens, layout primitives, monetization primitives (incl. PdfDownloadButton, PinterestPinButton, AiRateLimitNotice), URL-state, format, SEO, PDF library base, and Express server skeleton.
 
-**Provisional task list (to be expanded in implementation plan):**
-
-1. Bootstrap Astro static + Node.js Express dual-target repo (pnpm workspace)
-2. Brand tokens with hospitality-warm accent
-3. Print stylesheet
-4. Layout primitives (Header, Footer, Sidebar, FunnelBand, ClusterFunnelBlock, Layout)
-5. Monetization primitives (AdSlot, EmailCaptureCard, STRLedgerCTA, **PdfDownloadButton**, **PinterestPinButton**, **AiRateLimitNotice**)
-6. URL-state library (TDD)
-7. Format library (TDD)
-8. SEO library
-9. PDF library base (brand header/footer)
-10. Express server skeleton + MySQL pool + rate-limit table schema
+**Tasks (10):** 1 Bootstrap dual-target repo · 2 Brand tokens (hospitality-warm) · 3 Print stylesheet · 4 Layout primitives · 5 Monetization primitives (AdSlot, EmailCaptureCard, STRLedgerCTA, **PdfDownloadButton**, **PinterestPinButton**, **AiRateLimitNotice**) · 6 URL-state library (TDD) · 7 Format library (TDD) · 8 SEO library · 9 PDF library base (brand header/footer) · 10 Express server skeleton + MySQL pool + schema migration
 
 **Maps to requirements:** R5 (brand), R6 (monetization primitives + PDF/Pinterest/AI extensions), R7 (SEO library), partial R3 (URL state + format), R8.2 (server schema migration), R10 (AI rate-limit infra)
 
@@ -31,33 +18,21 @@ Once the plan is authored, this ROADMAP becomes a task-grouping view of that pla
 
 ## Phase 2 — PDF generators (tools 1–4)
 
-**Goal:** Four client-side PDF generators live, each with live preview pane and PDF download.
+**Goal:** Four client-side PDF generators live, each with live preview pane.
 
-**Provisional tasks:**
-- House rules generator (R1.1)
-- Welcome book builder (R1.2)
-- Wifi sign generator (R1.3)
-- Check-in instructions generator (R1.4)
+**Tasks (5):** 11 House rules · 12 Welcome book · 13 Wifi sign · 14 Check-in instructions · 15 Soft email-gate modal pattern
 
-**Maps to requirements:** R1.1–R1.4, R2 (extended page template), R3.1 (PDF generator UX), R6 (PdfDownloadButton wiring)
+**Maps to requirements:** R1.1–R1.4, R2, R3.1, R6 (PdfDownloadButton + email gate)
 
 ---
 
 ## Phase 3 — AI generators (tools 5–7) + server endpoints
 
-**Goal:** Three AI generators live, backed by Express endpoints with rate limiting + email verification.
+**Goal:** Three AI generators backed by Express endpoints with rate limiting + email verification.
 
-**Provisional tasks:**
-- OpenAI client wrapper + retry/error handling
-- Versioned prompt templates per tool
-- Server endpoints: `/api/generate-listing`, `/api/generate-review`, `/api/generate-message`
-- Email verification flow (token-based)
-- Listing description generator (R1.5)
-- Review response generator (R1.6)
-- Message template generator (R1.7)
-- AiRateLimitNotice wiring
+**Tasks (6):** 16 OpenAI client wrapper · 17 Email verification flow · 18 Rate-limit middleware · 19 Listing description generator (endpoint + UI) · 20 Review response generator · 21 Message template generator
 
-**Maps to requirements:** R1.5–R1.7, R3.2 (AI generator UX), R8.1 (server deploy), R10 (AI safety + cost control)
+**Maps to requirements:** R1.5–R1.7, R3.2, R8.1, R10 (AI safety + cost control)
 
 ---
 
@@ -65,46 +40,29 @@ Once the plan is authored, this ROADMAP becomes a task-grouping view of that pla
 
 **Goal:** ~100 message-template scenario pages with sortable index.
 
-**Provisional tasks:**
-- `templates.json` data file (~100 scenarios)
-- Programmatic `/templates/[scenario]` pages
-- Index page `/templates/` with sort + filter
-- 5 sample MDX narrative files
+**Tasks (3):** 22 `templates.json` data file · 23 `/templates/[scenario]` programmatic pages + 5 sample MDX · 24 `/templates/` index with sort + filter
 
 **Maps to requirements:** R4
 
 ---
 
-## Phase 5 — Pinterest distribution + lead magnet
+## Phase 5 — Pinterest + site pages + SEO surface
 
-**Goal:** Per-output Pinterest pin generation; lead-magnet page; landing/about/contact; sitemap; OG images.
+**Goal:** Per-output Pinterest pin generation; lead magnet; landing/about/contact; sitemap; OG images.
 
-**Provisional tasks:**
-- Pinterest pin generator (Satori → 1000×1500 PNG)
-- PinterestPinButton wiring across generators
-- Lead-magnet page ("STR Guest Communication Playbook 2026")
-- Landing, About, Contact, get-the-pdf
-- Sitemap + robots.txt
-- OG image generation (Satori)
+**Tasks (7):** 25 Pinterest pin generator (Satori) · 26 PinterestPinButton wiring across generators · 27 Lead-magnet page · 28 Landing page · 29 About + Contact · 30 Sitemap + robots · 31 OG images (Satori)
 
-**Maps to requirements:** R6 (Pinterest pin generation), R7 (SEO surface)
+**Maps to requirements:** R6 (Pinterest), R7 (SEO surface)
 
 ---
 
 ## Phase 6 — Analytics + E2E + CI/CD + deploy
 
-**Goal:** GA4 events, Playwright smoke per generator, CI, dual-target deploy (static + Express).
+**Goal:** GA4 events, Playwright smokes, CI, dual-target deploy, release tag.
 
-**Provisional tasks:**
-- GA4 cross-domain + custom events (PDF, copy, pin, AI generation, rate-limit, email-verify)
-- Playwright smoke per generator
-- GitHub Actions CI
-- Hostinger deploy (static)
-- Hostinger deploy (Express server)
-- Pre-launch smoke
-- Final tag v0.1.0
+**Tasks (5):** 32 GA4 cross-domain + custom events · 33 Playwright E2E smokes per generator · 34 GitHub Actions CI · 35 Hostinger deploys (static FTP + server SSH) · 36 Pre-launch smoke + v0.1.0 tag
 
-**Maps to requirements:** R7 (analytics), R8 (build/deploy), R10 (a11y via E2E)
+**Maps to requirements:** R7 (analytics), R8 (build/deploy), R9/R10 (a11y via E2E)
 
 ---
 
@@ -122,11 +80,9 @@ Once the plan is authored, this ROADMAP becomes a task-grouping view of that pla
 
 | Phase | Status | Started | Completed |
 |-------|--------|---------|-----------|
-| 1 — Foundation | blocked-on-plan | — | — |
+| 1 — Foundation | active | 2026-05-05 | — |
 | 2 — PDF generators | not-started | — | — |
 | 3 — AI generators + server | not-started | — | — |
 | 4 — Programmatic templates | not-started | — | — |
-| 5 — Pinterest + lead magnet | not-started | — | — |
+| 5 — Pinterest + site pages | not-started | — | — |
 | 6 — Analytics + CI/CD + deploy | not-started | — | — |
-
-**Phase 1 is blocked on authoring an implementation plan.** See [MISSING-PLAN.md](MISSING-PLAN.md).
