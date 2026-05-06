@@ -1,7 +1,7 @@
 # STATE
 
-**Current phase:** 6 — CI/CD + production deploy (not started)
-**Last completed phase:** 5 — Analytics + E2E (2026-05-06)
+**Current phase:** READY TO SHIP — all 29 tasks complete; awaiting user-driven launch sequence (DNS, secrets, push to main, manual tag)
+**Last completed phase:** 6 — CI/CD + production deploy (2026-05-06)
 **Last update:** 2026-05-06
 
 ---
@@ -54,12 +54,33 @@
 
 ---
 
-## Phase 6 progress (not started)
+## Phase 6 progress (complete — code-side; user-side launch pending)
 
-- [ ] Task 26 — GitHub Actions CI (typecheck + vitest + playwright + build)
-- [ ] Task 27 — Hostinger FTP deploy
-- [ ] Task 28 — Pre-launch smoke (post-deploy)
-- [ ] Task 29 — Final release tag v0.1.0
+- [x] Task 26 — GitHub Actions CI (typecheck + vitest + playwright + build) — _this commit_
+- [x] Task 27 — Hostinger FTP deploy workflow — _this commit_
+- [x] Task 28 — Pre-launch smoke script (19 probes) — _this commit_
+- [ ] Task 29 — **v0.1.0 release tag** — NOT auto-executed; user runs `git tag -a v0.1.0 -m "..."` + `git push origin v0.1.0` after verifying production smoke is green. See README.md "Pre-launch checklist" for the full sequence.
+
+---
+
+## v0.1.0 launch sequence (user-driven)
+
+These steps require user action — code is complete but tagging and configuring infrastructure are durable, externally-visible operations that should be approved by the operator.
+
+1. **Configure GitHub repo secrets** (per README.md):
+   - `HOSTINGER_FTP_HOST`, `HOSTINGER_FTP_USERNAME`, `HOSTINGER_FTP_PASSWORD`
+2. **Configure GitHub repo variables** (optional but recommended for full launch):
+   - `PUBLIC_GA4_ID` (analytics), `PUBLIC_ESP_WEBHOOK` (email capture)
+   - `PUBLIC_ADSENSE_ENABLED` + `PUBLIC_ADSENSE_CLIENT` once AdSense is approved (post-launch)
+3. **Confirm DNS** points strhost.tools to Hostinger.
+4. **Push to main**. CI runs (typecheck → vitest → playwright → build). Required green.
+5. **Watch Deploy workflow** complete. Post-deploy smoke against the live URL must pass all 19 probes.
+6. **Manually verify** production: visit one calculator, confirm URL state + share link + print preview.
+7. **Tag v0.1.0:**
+   ```bash
+   git tag -a v0.1.0 -m "strhost.tools v0.1.0 — initial launch"
+   git push origin v0.1.0
+   ```
 
 ---
 
@@ -82,6 +103,10 @@
 - **2026-05-06 (P4 Task 23)** — OG image generator runs as a `pnpm build` post-step. 1200x630 PNGs for landing + 7 calculators + 51 state pages + 3 site pages = 62 OG images. Output goes to both `public/og/` (dev) and `dist/og/` (prod). Fonts loaded once at script start (Inter SemiBold + Medium, Cormorant Medium); all 62 renders share the same font cache. Slug convention `lodging-tax-<code>.png` matches `seo.ts` `ogImageFor()` URL transform.
 - **2026-05-06 (P5 Task 24)** — GA4 conditional on `PUBLIC_GA4_ID` env var — when unset (dev / pre-launch), no GA4 script ships. When set, the snippet wires `linker` for cross-domain measurement across all 4 cluster sites + thestrledger.com so client_id persists when a user hops from a calculator to a paid SKU. `window.gtag` is exposed globally so calculator islands' existing `window.gtag?.('event', ...)` calls work without modification.
 - **2026-05-06 (P5 Task 25)** — 7 Playwright E2E spec files (~16 test cases). Each calculator gets: load + heading visible, key input change → URL persists after debounce, URL-state seeding on direct navigation. Lodging-tax suite additionally asserts the index has 51 rows + tests both MDX-narrative state (TX) and template-fallback state (AL). Co-host split tests the mode toggle. Break-even tests the "Not feasible" branch via querystring scenario. Tests use `page.getByLabel` and `page.getByRole` for accessibility-anchored selectors — if labels regress, tests catch it.
+- **2026-05-06 (P6 Task 26)** — CI workflow uses Ubuntu + pnpm + Node 20. Build runs with `PUBLIC_ADSENSE_ENABLED=false` so CI doesn't generate live ad markup; production deploy supplies real env vars via repo vars/secrets. Playwright report uploaded as artifact only on failure (14-day retention) so green runs don't accumulate storage.
+- **2026-05-06 (P6 Task 27)** — Deploy uses `dangerous-clean-slate: true` to ensure stale files are purged on every deploy (e.g., a removed state code in lodging-tax-by-state.json should remove the corresponding HTML route). Concurrency group `deploy-strhost-tools` with `cancel-in-progress: false` prevents two deploys from overlapping if commits land fast.
+- **2026-05-06 (P6 Task 28)** — Smoke script probes 19 routes (4 site pages + 6 standalone calculators + lodging-tax index + 5 sample state pages + sitemap + robots + 3 OG images). All probes run in parallel via `Promise.all`. Exits 1 with a count if any fail; CI marks the deploy red if smoke fails. Local invocation supported via `SMOKE_BASE_URL` env var.
+- **2026-05-06 (P6 Task 29 — DEFERRED to user)** — Tag command (`git tag -a v0.1.0 ... && git push origin v0.1.0`) NOT auto-executed. Tagging is durable, externally visible, and depends on the operator confirming production smoke is green and DNS resolves. README + STATE document the exact command sequence; operator runs at their discretion.
 
 ## Deviations log
 
