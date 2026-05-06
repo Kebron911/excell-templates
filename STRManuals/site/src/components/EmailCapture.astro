@@ -1,0 +1,43 @@
+---
+interface Props {
+  heading?: string;
+  subhead?: string;
+  cta?: string;
+  variant?: 'block' | 'inline';
+}
+const {
+  heading = 'Free: The STR Tax Loophole Explainer',
+  subhead = "The 8-page primer pulled from chapter 1 of the playbook. We'll send one new manual preview every other week.",
+  cta = 'Send me the PDF',
+  variant = 'block',
+} = Astro.props;
+---
+<section
+  class={variant === 'block' ? 'container-page py-16' : ''}
+>
+  <div
+    class="p-10 md:p-12"
+    style="background: var(--color-paper-2); border: 1px solid var(--color-rule);"
+  >
+    <p class="eyebrow mb-3">Free PDF</p>
+    <h2 class="mb-3" style="font-size: 2rem;">{heading}</h2>
+    <p class="measure mb-6" style="color: var(--color-mute);">{subhead}</p>
+    <form
+      action="/api/subscribe"
+      method="POST"
+      class="flex flex-col sm:flex-row gap-3 max-w-2xl"
+    >
+      <input
+        type="email"
+        name="email"
+        required
+        placeholder="your@email.com"
+        class="input-text flex-1"
+      />
+      <button type="submit" class="btn-secondary">
+        {cta} →
+      </button>
+    </form>
+    <p class="text-xs mt-3" style="color: var(--color-mute);">No spam. Unsubscribe in one click.</p>
+  </div>
+</section>

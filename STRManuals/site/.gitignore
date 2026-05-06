@@ -1,0 +1,17 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.local
+.env.production
+.DS_Store
+*.log
+
+# Master PDFs are uploaded via SFTP, never committed
+private/manuals/**/*.pdf
+private/manuals/**/*.zip
+private/free/**/*.pdf
+
+# Local SQLite order log (production lives on Hostinger)
+private/db/*.db
+private/db/*.db-journal

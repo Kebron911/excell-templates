@@ -1,0 +1,59 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import BuyButton from '../components/BuyButton.astro';
+
+const manuals = (await getCollection('manuals')).sort((a, b) => a.data.order - b.data.order);
+const total = manuals.reduce((sum, m) => sum + m.data.price, 0);
+const bundlePrice = 99;
+const savings = total - bundlePrice;
+const totalPages = manuals.reduce((sum, m) => sum + m.data.pages, 0);
+---
+<Base title="The Bundle" description={`All five manuals — ${totalPages} pages — for $${bundlePrice}.`}>
+  <section class="container-page pt-20 pb-12 text-center">
+    <p class="eyebrow mb-6">BUNDLE-01</p>
+    <h1 class="mx-auto measure mb-6">All five manuals.</h1>
+    <p class="mx-auto measure text-lg mb-10" style="color: var(--color-mute);">
+      Every launch manual — taxes, revenue diagnostics, direct bookings, regulation —
+      with all five companion workbooks. Save ${savings}.
+    </p>
+
+    <div class="flex items-baseline justify-center gap-6 mb-10">
+      <span class="price-mono" style="font-size: 3rem;">${bundlePrice}</span>
+      <span class="price-mono text-lg" style="color: var(--color-mute); text-decoration: line-through;">${total}</span>
+    </div>
+
+    <BuyButton price={bundlePrice} label="Buy the bundle" size="large" />
+    <p class="text-xs mt-4" style="color: var(--color-mute);">Instant download · 14-day refund · Free updates within v1</p>
+  </section>
+
+  <section class="container-page py-16" style="border-top: 1px solid var(--color-rule);">
+    <p class="eyebrow mb-8 text-center">What's inside</p>
+    <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      {manuals.map((m) => (
+        <div class="flex gap-5 p-5" style="border: 1px solid var(--color-rule);">
+          <div
+            class="aspect-[3/4] w-24 flex-shrink-0 flex items-center justify-center"
+            style="background: var(--color-paper-2);"
+          >
+            <span class="eyebrow" style="color: var(--color-mute);">{m.data.sku}</span>
+          </div>
+          <div>
+            <p class="eyebrow mb-1">{m.data.sku}</p>
+            <h3 style="font-size: 1.0625rem; line-height: 1.2;">{m.data.title}</h3>
+            <p class="text-xs mt-2" style="color: var(--color-mute);">{m.data.pages} pages · normally ${m.data.price}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="py-16" style="background: var(--color-paper-2); border-top: 1px solid var(--color-rule);">
+    <div class="container-page text-center">
+      <p class="eyebrow mb-4">Total package</p>
+      <p class="text-2xl mb-2">{manuals.length} manuals · {totalPages} pages · 5 companion workbooks</p>
+      <p class="mb-8" style="color: var(--color-mute);">For the price of a decent dinner.</p>
+      <BuyButton price={bundlePrice} label="Buy the bundle" size="large" />
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,54 @@
+---
+import tools from '@/data/tools.json';
+
+const navTools = Object.values(tools).slice(0, 3); // featured trio in nav
+---
+<header class="border-b border-rule bg-parchment">
+  <div class="mx-auto max-w-6xl px-5 py-5 flex items-center justify-between gap-6">
+    <a href="/" class="wordmark text-h3 text-navy no-underline" aria-label="strhost.tools home">
+      strhost<span class="period-gold">.</span>tools
+    </a>
+
+    <nav class="hidden md:flex items-center gap-7" aria-label="Primary">
+      {navTools.map(t => (
+        <a
+          href={t.path}
+          class="text-ui text-ink-2 no-underline hover:text-navy transition-colors duration-std"
+        >
+          {t.shortName}
+        </a>
+      ))}
+      <a
+        href="/lodging-tax"
+        class="text-ui text-ink-2 no-underline hover:text-navy transition-colors duration-std"
+      >
+        Lodging tax
+      </a>
+      <a
+        href="/blog"
+        class="text-ui text-ink-2 no-underline hover:text-navy transition-colors duration-std"
+      >
+        Blog
+      </a>
+    </nav>
+
+    <details class="md:hidden relative">
+      <summary class="list-none cursor-pointer p-2 -mr-2" aria-label="Open menu">
+        <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+          <path d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="1.5" fill="none" />
+        </svg>
+      </summary>
+      <div class="absolute right-0 top-full mt-2 w-56 bg-parchment-light border border-rule rounded-md shadow-lifted py-2 z-10">
+        {Object.values(tools).map(t => (
+          <a
+            href={t.path}
+            class="block px-4 py-2 text-ui text-ink-2 no-underline hover:bg-parchment-alt hover:text-navy"
+          >
+            {t.shortName}
+          </a>
+        ))}
+        <a href="/blog" class="block px-4 py-2 text-ui text-ink-2 no-underline hover:bg-parchment-alt hover:text-navy">Blog</a>
+      </div>
+    </details>
+  </div>
+</header>

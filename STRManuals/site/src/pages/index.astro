@@ -1,0 +1,105 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import ManualCard from '../components/ManualCard.astro';
+import EmailCapture from '../components/EmailCapture.astro';
+
+const manuals = (await getCollection('manuals')).sort((a, b) => a.data.order - b.data.order);
+---
+<Base title="STR Manuals">
+  <!-- Hero -->
+  <section class="container-page pt-24 pb-20 text-center">
+    <p class="eyebrow mb-6">For short-term rental owners</p>
+    <h1 class="mx-auto measure mb-6">
+      Plain-English manuals for short-term rental owners.
+    </h1>
+    <p class="mx-auto measure text-lg mb-10" style="color: var(--color-mute);">
+      One problem. One PDF. Read it in an afternoon.
+    </p>
+    <a href="#library" class="btn-primary">Browse the library ↓</a>
+  </section>
+
+  <!-- Library -->
+  <section id="library" class="container-page py-16">
+    <div class="flex items-baseline justify-between mb-10 pb-4" style="border-bottom: 1px solid var(--color-rule);">
+      <h2>The library</h2>
+      <p class="eyebrow">{manuals.length} manuals · 1 bundle</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {manuals.map((m) => (
+        <ManualCard
+          sku={m.data.sku}
+          title={m.data.title}
+          promise={m.data.promise}
+          price={m.data.price}
+          pages={m.data.pages}
+          cover={m.data.cover}
+          href={`/manuals/${m.id}`}
+        />
+      ))}
+
+      <!-- Bundle card -->
+      <a href="/bundle" class="card no-underline block flex flex-col" style="background: var(--color-ink); color: var(--color-paper); border-color: var(--color-ink);">
+        <div class="aspect-[3/4] mb-4 flex flex-col items-center justify-center text-center" style="border: 1px solid rgba(250,247,242,0.2);">
+          <p class="eyebrow mb-3" style="color: var(--color-paper);">Save $46</p>
+          <p style="font-family: var(--font-display); font-size: 2.5rem; line-height: 1;">All<br/>Five</p>
+        </div>
+        <p class="eyebrow mb-2" style="color: var(--color-paper);">BUNDLE-01</p>
+        <h3 class="mb-2" style="font-size: 1.25rem; line-height: 1.2; color: var(--color-paper);">All Five Manuals</h3>
+        <p class="text-sm mb-4 flex-grow" style="color: rgba(250,247,242,0.7);">Every manual at launch — taxes, revenue diagnostics, direct bookings, regulation. ~174 pages.</p>
+        <p class="text-sm flex justify-between items-baseline pt-3" style="border-top: 1px solid rgba(250,247,242,0.2);">
+          <span class="price-mono" style="font-size: 1rem;">$99</span>
+          <span class="price-mono" style="color: rgba(250,247,242,0.6); font-size: 0.8125rem;">~174 pages</span>
+        </p>
+      </a>
+    </div>
+  </section>
+
+  <!-- Why these exist -->
+  <section class="py-20" style="background: var(--color-paper-2); border-block: 1px solid var(--color-rule);">
+    <div class="container-page">
+      <div class="grid md:grid-cols-2 gap-12 items-start">
+        <div>
+          <p class="eyebrow mb-4">Why these exist</p>
+          <h2>Most STR advice is shaped wrong.</h2>
+        </div>
+        <div class="measure">
+          <p class="mb-4">It's a 4-hour YouTube video that buries the answer. A $2,000 coaching program. A forum thread with 87 conflicting replies.</p>
+          <p class="mb-4">Each manual picks one question, answers it in plain English, and gives you the templates and checklists to act on it tomorrow.</p>
+          <p style="color: var(--color-mute);">Think of them as the chapter you'd actually read — extracted, designed, and sold for the price of a decent dinner.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Email capture -->
+  <EmailCapture />
+
+  <!-- Cluster cross-promo -->
+  <section class="container-page py-16">
+    <p class="eyebrow mb-6">Also in the ecosystem</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-3 text-sm">
+      <a href="https://thestrledger.com" class="flex justify-between py-3 hover:underline" style="border-bottom: 1px solid var(--color-rule);">
+        <span>Excel workbooks for hosts</span>
+        <span style="color: var(--color-mute);">thestrledger.com →</span>
+      </a>
+      <a href="https://strhost.tools" class="flex justify-between py-3 hover:underline" style="border-bottom: 1px solid var(--color-rule);">
+        <span>Free calculators</span>
+        <span style="color: var(--color-mute);">strhost.tools →</span>
+      </a>
+      <a href="https://strops.tools" class="flex justify-between py-3 hover:underline" style="border-bottom: 1px solid var(--color-rule);">
+        <span>Operations templates</span>
+        <span style="color: var(--color-mute);">strops.tools →</span>
+      </a>
+      <a href="https://strguests.tools" class="flex justify-between py-3 hover:underline" style="border-bottom: 1px solid var(--color-rule);">
+        <span>Guest-facing AI generators</span>
+        <span style="color: var(--color-mute);">strguests.tools →</span>
+      </a>
+      <a href="https://strbuyers.tools" class="flex justify-between py-3 hover:underline" style="border-bottom: 1px solid var(--color-rule);">
+        <span>Pre-purchase underwriting</span>
+        <span style="color: var(--color-mute);">strbuyers.tools →</span>
+      </a>
+    </div>
+  </section>
+</Base>

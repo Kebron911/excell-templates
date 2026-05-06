@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Thanks for your purchase" description="Your manual is ready to download.">
+  <section class="container-page py-24">
+    <div class="max-w-2xl mx-auto text-center">
+      <p class="eyebrow mb-6">Order confirmed</p>
+      <h1 class="mb-6">Thank you.</h1>
+      <p class="text-lg mb-10" style="color: var(--color-mute);">
+        Your download link is on its way to your inbox. You can also grab it below — the
+        link expires in 24 hours, but you can re-request anytime from
+        <a href="/downloads" class="underline">/downloads</a>.
+      </p>
+
+      <div class="p-8 mb-12" style="background: var(--color-paper-2); border: 1px solid var(--color-rule);">
+        <p class="eyebrow mb-3">Your manual</p>
+        <h3 class="mb-4" id="manual-title">Loading...</h3>
+        <a href="#" class="btn-primary" id="download-link">Download PDF →</a>
+      </div>
+
+      <div class="text-left">
+        <p class="eyebrow mb-4">What's next</p>
+        <ul class="space-y-4">
+          <li class="p-5" style="border: 1px solid var(--color-rule);">
+            <p class="font-medium mb-2">Open the companion workbook.</p>
+            <p class="text-sm" style="color: var(--color-mute);">
+              The PDF references a fillable Excel/Sheets template. Link is on the last page.
+            </p>
+          </li>
+          <li class="p-5" style="border: 1px solid var(--color-rule);">
+            <p class="font-medium mb-2">Block 60 minutes this week.</p>
+            <p class="text-sm" style="color: var(--color-mute);">
+              These manuals are designed to be read in one sitting. Don't bookmark it for "later."
+            </p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>

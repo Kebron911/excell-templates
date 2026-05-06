@@ -1,0 +1,27 @@
+---
+import tools from '@/data/tools.json';
+
+interface Props {
+  current: keyof typeof tools;
+}
+
+const { current } = Astro.props;
+const others = Object.entries(tools).filter(([key]) => key !== current).slice(0, 6);
+---
+<aside class="related-calculators" aria-label="Related calculators">
+  <p class="label text-navy">Related calculators</p>
+
+  <ul class="mt-4 space-y-3">
+    {others.map(([key, t]) => (
+      <li>
+        <a
+          href={t.path}
+          class="block group rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-gold hover:shadow-card transition-all duration-std"
+        >
+          <p class="text-ui text-navy group-hover:text-navy-tint font-semibold">{t.shortName}</p>
+          <p class="mt-1 text-caption text-ink-2 leading-snug">{t.tagline}</p>
+        </a>
+      </li>
+    ))}
+  </ul>
+</aside>

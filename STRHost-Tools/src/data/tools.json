@@ -1,0 +1,58 @@
+{
+  "airbnb-fee-calculator": {
+    "name": "Airbnb fee calculator",
+    "shortName": "Fee calculator",
+    "tagline": "What Airbnb really takes from your booking.",
+    "path": "/airbnb-fee-calculator",
+    "primaryKeyword": "airbnb fee calculator",
+    "category": "fees"
+  },
+  "profit-calculator": {
+    "name": "STR profitability calculator",
+    "shortName": "Profit calculator",
+    "tagline": "Turn ADR + occupancy + costs into monthly cash flow.",
+    "path": "/profit-calculator",
+    "primaryKeyword": "airbnb profit calculator",
+    "category": "profit"
+  },
+  "cleaning-fee-calculator": {
+    "name": "Cleaning fee calculator",
+    "shortName": "Cleaning fee",
+    "tagline": "Set a cleaning fee that covers the work without losing the booking.",
+    "path": "/cleaning-fee-calculator",
+    "primaryKeyword": "airbnb cleaning fee calculator",
+    "category": "fees"
+  },
+  "revpar-calculator": {
+    "name": "Occupancy + ADR + RevPAR calculator",
+    "shortName": "RevPAR",
+    "tagline": "Three numbers, one tool. The hospitality math behind every deal.",
+    "path": "/revpar-calculator",
+    "primaryKeyword": "revpar calculator",
+    "category": "profit"
+  },
+  "break-even-calculator": {
+    "name": "Break-even occupancy calculator",
+    "shortName": "Break-even",
+    "tagline": "What occupancy do you need to keep the lights on?",
+    "path": "/break-even-calculator",
+    "primaryKeyword": "airbnb break even calculator",
+    "category": "profit"
+  },
+  "cohost-split-calculator": {
+    "name": "Co-host split calculator",
+    "shortName": "Co-host split",
+    "tagline": "Fair, transparent revenue splits between co-hosts and owners.",
+    "path": "/cohost-split-calculator",
+    "primaryKeyword": "airbnb cohost split",
+    "category": "ops"
+  },
+  "lodging-tax": {
+    "name": "Lodging tax calculator",
+    "shortName": "Lodging tax",
+    "tagline": "State-by-state hotel occupancy and lodging tax rates.",
+    "path": "/lodging-tax",
+    "primaryKeyword": "airbnb lodging tax",
+    "category": "tax"
+  }
+}

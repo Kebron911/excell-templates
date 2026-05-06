@@ -1,0 +1,84 @@
+---
+export const prerender = false;
+import Base from '../layouts/Base.astro';
+const confirmed = Astro.url.searchParams.get('confirmed') === '1';
+---
+<Base
+  title="Free: The STR Tax Loophole Explainer"
+  description="Get the 8-page primer pulled from chapter 1 of the playbook. Free."
+>
+  <section class="container-page pt-20 pb-16">
+    <div class="grid md:grid-cols-2 gap-12 items-center max-w-5xl mx-auto">
+      <div
+        class="aspect-[3/4] flex items-center justify-center"
+        style="background: var(--color-paper-2); border: 1px solid var(--color-rule);"
+      >
+        <div class="text-center p-8">
+          <p class="eyebrow mb-4">Free PDF · 8 pages</p>
+          <p style="font-family: var(--font-display); font-size: 2rem; line-height: 1.1;">The STR<br/>Tax Loophole<br/>Explainer</p>
+        </div>
+      </div>
+
+      <div>
+        {confirmed ? (
+          <>
+            <p class="eyebrow mb-4" style="color: var(--color-accent-2);">Check your inbox</p>
+            <h1 class="mb-6">It's on the way.</h1>
+            <p class="text-lg mb-6" style="color: var(--color-mute);">
+              The PDF lands in your inbox in the next few minutes. If you don't see it,
+              check Promotions or Spam — and drag it to Primary so the next four
+              emails show up.
+            </p>
+            <div class="p-6 mb-6" style="background: var(--color-paper-2); border: 1px solid var(--color-rule);">
+              <p class="font-medium mb-2">What's next:</p>
+              <ul class="space-y-2 text-sm" style="color: var(--color-mute);">
+                <li>— Day 0: The 8-page explainer (you just got this)</li>
+                <li>— Day 2: The "what counts as 7 days" trap</li>
+                <li>— Day 4: Material participation, the actual gate</li>
+                <li>— Day 7: A 48-hour subscriber-only price on the playbook</li>
+              </ul>
+            </div>
+            <a href="/" class="text-sm underline">← Back to the library</a>
+          </>
+        ) : (
+          <>
+            <p class="eyebrow mb-4">Free preview</p>
+            <h1 class="mb-6">The STR Tax Loophole Explainer.</h1>
+            <p class="text-lg mb-6" style="color: var(--color-mute);">
+              The 8-page primer pulled from chapter 1 of the playbook. Plain-English on
+              what the loophole actually is, who can use it, and the three-question test
+              for whether it applies to you.
+            </p>
+            <ul class="space-y-2 mb-8 text-base">
+              <li class="flex gap-3"><span style="color: var(--color-accent);">—</span> The 7-day rule, in two paragraphs</li>
+              <li class="flex gap-3"><span style="color: var(--color-accent);">—</span> Whether your property qualifies (flowchart)</li>
+              <li class="flex gap-3"><span style="color: var(--color-accent);">—</span> The three mistakes that disqualify hosts</li>
+              <li class="flex gap-3"><span style="color: var(--color-accent);">—</span> What to do before tax season starts</li>
+            </ul>
+
+            <form action="/api/subscribe" method="POST" class="flex flex-col gap-3 max-w-md">
+              <input
+                type="hidden"
+                name="landing_page"
+                value="strmanuals.com/free"
+              />
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="your@email.com"
+                class="input-text"
+              />
+              <button type="submit" class="btn-secondary">
+                Send me the PDF →
+              </button>
+            </form>
+            <p class="text-xs mt-3" style="color: var(--color-mute);">
+              You'll also get one new manual preview every other week. Unsubscribe in one click.
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  </section>
+</Base>

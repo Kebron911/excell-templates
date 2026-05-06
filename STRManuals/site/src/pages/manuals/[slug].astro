@@ -1,0 +1,162 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import BuyButton from '../../components/BuyButton.astro';
+
+export async function getStaticPaths() {
+  const manuals = await getCollection('manuals');
+  return manuals.map((m) => ({ params: { slug: m.id }, props: { manual: m } }));
+}
+
+const { manual } = Astro.props;
+const { Content } = await render(manual);
+const d = manual.data;
+const all = (await getCollection('manuals')).sort((a, b) => a.data.order - b.data.order);
+const related = all.filter((m) => m.id !== manual.id).slice(0, 2);
+---
+<Base title={d.title} description={d.promise}>
+  <!-- Hero / above fold -->
+  <section class="container-page pt-12 pb-16">
+    <div class="grid md:grid-cols-2 gap-12 items-start">
+      <div
+        class="aspect-[3/4] flex items-center justify-center"
+        style="background: var(--color-paper-2); border: 1px solid var(--color-rule);"
+      >
+        {d.cover ? (
+          <img src={d.cover} alt={`Cover of ${d.title}`} class="w-full h-full object-cover" />
+        ) : (
+          <div class="text-center p-8">
+            <p class="eyebrow mb-3">{d.sku}</p>
+            <p style="font-family: var(--font-display); font-size: 2rem; line-height: 1.1;">{d.title}</p>
+          </div>
+        )}
+      </div>
+
+      <div>
+        <p class="eyebrow mb-3">{d.sku}</p>
+        <h1 class="mb-5">{d.title}</h1>
+        <p class="text-lg mb-8" style="color: var(--color-mute);">{d.promise}</p>
+        <div class="flex items-baseline gap-6 mb-8 pb-8" style="border-bottom: 1px solid var(--color-rule);">
+          <span class="price-mono" style="font-size: 1.75rem;">${d.price}</span>
+          <span class="price-mono text-sm" style="color: var(--color-mute);">{d.pages} pages</span>
+        </div>
+        <BuyButton price={d.price} stripePriceId={d.stripePriceId} size="large" />
+        <p class="text-xs mt-4" style="color: var(--color-mute);">Instant download · 14-day refund · Free updates within v1</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who it's for -->
+  <section class="container-page py-12" style="border-top: 1px solid var(--color-rule);">
+    <div class="grid md:grid-cols-3 gap-12">
+      <div>
+        <p class="eyebrow mb-4">Who it's for</p>
+      </div>
+      <ul class="md:col-span-2 space-y-3 text-base">
+        {d.whoFor.map((w) => (
+          <li class="flex gap-3">
+            <span style="color: var(--color-accent);">—</span>
+            <span>{w}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Table of contents -->
+  <section class="container-page py-12" style="border-top: 1px solid var(--color-rule);">
+    <div class="grid md:grid-cols-3 gap-12">
+      <div>
+        <p class="eyebrow mb-4">What's inside</p>
+        <p class="text-sm" style="color: var(--color-mute);">{d.toc.length} chapters · {d.pages} pages</p>
+      </div>
+      <ol class="md:col-span-2 space-y-2 list-none counter-reset:toc">
+        {d.toc.map((chapter, i) => (
+          <li class="flex gap-4 py-2" style="border-bottom: 1px solid var(--color-rule);">
+            <span class="price-mono text-sm" style="color: var(--color-mute); min-width: 2rem;">{String(i + 1).padStart(2, '0')}</span>
+            <span class="text-base">{chapter}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- Companion asset -->
+  {d.companion && (
+    <section class="container-page py-12" style="border-top: 1px solid var(--color-rule);">
+      <div class="p-8" style="background: var(--color-paper-2); border: 1px solid var(--color-rule);">
+        <p class="eyebrow mb-3">Includes companion asset</p>
+        <h3 class="mb-2">{d.companion.name}</h3>
+        <p class="text-sm" style="color: var(--color-mute);">A fillable workbook keyed to this manual. Opens in Excel and Google Sheets.</p>
+      </div>
+    </section>
+  )}
+
+  <!-- MDX content -->
+  <section class="container-page py-12" style="border-top: 1px solid var(--color-rule);">
+    <div class="grid md:grid-cols-3 gap-12">
+      <div>
+        <p class="eyebrow mb-4">From the author</p>
+      </div>
+      <div class="md:col-span-2 measure prose-styled">
+        <Content />
+      </div>
+    </div>
+  </section>
+
+  <!-- Disclaimer -->
+  {d.legalDisclaimer && (
+    <section class="container-page py-8">
+      <div class="p-6 text-sm" style="border-left: 3px solid var(--color-accent); background: var(--color-paper-2); color: var(--color-mute);">
+        <strong style="color: var(--color-ink);">A note on tax and legal content.</strong>
+        This manual is plain-English education, not professional advice. Every taxpayer's situation is different. Consult a CPA or attorney before making filings or financial decisions based on it.
+      </div>
+    </section>
+  )}
+
+  <!-- FAQ -->
+  {d.faq && d.faq.length > 0 && (
+    <section class="container-page py-12" style="border-top: 1px solid var(--color-rule);">
+      <div class="grid md:grid-cols-3 gap-12">
+        <div>
+          <p class="eyebrow mb-4">Questions</p>
+        </div>
+        <div class="md:col-span-2">
+          {d.faq.map((item) => (
+            <details class="py-4" style="border-bottom: 1px solid var(--color-rule);">
+              <summary class="cursor-pointer font-medium" style="font-size: 1.0625rem;">{item.q}</summary>
+              <p class="mt-3 text-base" style="color: var(--color-mute);">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Sticky-ish bottom buy -->
+  <section class="container-page py-12 text-center" style="border-top: 1px solid var(--color-rule);">
+    <p class="eyebrow mb-4">{d.sku}</p>
+    <h2 class="mb-6">{d.title}</h2>
+    <BuyButton price={d.price} stripePriceId={d.stripePriceId} size="large" />
+  </section>
+
+  <!-- Related -->
+  <section class="container-page py-16" style="border-top: 1px solid var(--color-rule);">
+    <p class="eyebrow mb-6">Related manuals</p>
+    <div class="grid md:grid-cols-2 gap-6">
+      {related.map((r) => (
+        <a href={`/manuals/${r.id}`} class="card no-underline block">
+          <p class="eyebrow mb-2">{r.data.sku}</p>
+          <h3 class="mb-2" style="font-size: 1.25rem;">{r.data.title}</h3>
+          <p class="text-sm" style="color: var(--color-mute);">{r.data.promise}</p>
+          <p class="price-mono text-sm mt-4">${r.data.price} · {r.data.pages} pages</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .prose-styled p { margin-bottom: 1rem; }
+  .prose-styled strong { color: var(--color-ink); }
+</style>

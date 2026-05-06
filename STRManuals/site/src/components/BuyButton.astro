@@ -1,0 +1,20 @@
+---
+interface Props {
+  price: number;
+  stripePriceId?: string;
+  label?: string;
+  size?: 'default' | 'large';
+}
+const { price, stripePriceId, label = 'Buy', size = 'default' } = Astro.props;
+const href = stripePriceId ? `/api/checkout?price=${stripePriceId}` : '#';
+const padding = size === 'large' ? '1rem 2rem' : '0.75rem 1.5rem';
+const fontSize = size === 'large' ? '1.0625rem' : '1rem';
+---
+<a
+  href={href}
+  class="btn-primary"
+  style={`padding: ${padding}; font-size: ${fontSize};`}
+  data-stripe-price={stripePriceId}
+>
+  {label} <span class="price-mono">— ${price}</span>
+</a>

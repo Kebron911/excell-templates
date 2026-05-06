@@ -1,0 +1,60 @@
+---
+export const prerender = false;
+import Base from '../layouts/Base.astro';
+const sent = Astro.url.searchParams.get('sent') === '1';
+---
+<Base title="Re-download your manuals" description="Lost your download link? Look it up here.">
+  <section class="container-page py-24">
+    <div class="max-w-xl mx-auto">
+      {sent ? (
+        <>
+          <p class="eyebrow mb-6" style="color: var(--color-accent-2);">Sent</p>
+          <h1 class="mb-6">Check your inbox.</h1>
+          <p class="mb-6 measure" style="color: var(--color-mute);">
+            If we have a record of a purchase under that email, you'll have a fresh
+            set of download links in the next few minutes — one per manual you own.
+          </p>
+          <p class="mb-10 measure" style="color: var(--color-mute);">
+            For privacy reasons we don't tell you whether the email matches an order.
+            If nothing arrives in 10 minutes, the email might not match — in which
+            case email <a href="mailto:hello@strmanuals.com" class="underline">hello@strmanuals.com</a>
+            with your order ID and we'll sort it manually.
+          </p>
+          <a href="/" class="text-sm underline">← Back to the library</a>
+        </>
+      ) : (
+        <>
+          <p class="eyebrow mb-6">Customer downloads</p>
+          <h1 class="mb-6">Lost your link?</h1>
+          <p class="mb-10 measure" style="color: var(--color-mute);">
+            Enter the email you used at checkout. We'll send you a fresh download link
+            for every manual you've purchased.
+          </p>
+
+          <form action="/api/resend-downloads" method="POST" class="space-y-4">
+            <div>
+              <label class="eyebrow block mb-2">Email</label>
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="your@email.com"
+                class="input-text"
+              />
+            </div>
+            <button type="submit" class="btn-primary">Send me my downloads →</button>
+          </form>
+
+          <div class="mt-12 p-6 text-sm" style="background: var(--color-paper-2); border: 1px solid var(--color-rule);">
+            <p class="font-medium mb-2">A note on download links.</p>
+            <p style="color: var(--color-mute);">
+              Each link expires in 24 hours for security, but you can request a fresh
+              one as many times as you need. Files are watermarked with your email
+              and order ID — please don't redistribute.
+            </p>
+          </div>
+        </>
+      )}
+    </div>
+  </section>
+</Base>

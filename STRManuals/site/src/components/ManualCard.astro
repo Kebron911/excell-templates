@@ -1,0 +1,31 @@
+---
+interface Props {
+  sku: string;
+  title: string;
+  promise: string;
+  price: number;
+  pages: number;
+  cover?: string;
+  href: string;
+}
+const { sku, title, promise, price, pages, cover, href } = Astro.props;
+---
+<a href={href} class="card no-underline block flex flex-col">
+  <div
+    class="aspect-[3/4] mb-4 flex items-center justify-center"
+    style="background: var(--color-paper-2); border: 1px solid var(--color-rule);"
+  >
+    {cover ? (
+      <img src={cover} alt={`Cover of ${title}`} class="w-full h-full object-cover" />
+    ) : (
+      <span class="eyebrow" style="color: var(--color-mute);">{sku}</span>
+    )}
+  </div>
+  <p class="eyebrow mb-2">{sku}</p>
+  <h3 class="mb-2" style="font-size: 1.25rem; line-height: 1.2;">{title}</h3>
+  <p class="text-sm mb-4 flex-grow" style="color: var(--color-mute);">{promise}</p>
+  <p class="text-sm flex justify-between items-baseline pt-3" style="border-top: 1px solid var(--color-rule);">
+    <span class="price-mono" style="color: var(--color-ink); font-size: 1rem;">${price}</span>
+    <span class="price-mono" style="color: var(--color-mute); font-size: 0.8125rem;">{pages} pages</span>
+  </p>
+</a>

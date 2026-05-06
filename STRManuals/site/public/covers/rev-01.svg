@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#faf7f2"/>
+  <rect x="40" y="40" width="520" height="720" fill="none" stroke="#1a1612" stroke-width="2"/>
+  <text x="300" y="120" text-anchor="middle" font-family="Inter, sans-serif" font-size="20" font-weight="600" letter-spacing="3" fill="#7a3b2e">REV-01</text>
+  <line x1="200" y1="160" x2="400" y2="160" stroke="#1a1612" stroke-width="1"/>
+  <text x="300" y="320" text-anchor="middle" font-family="Georgia, serif" font-size="58" font-weight="600" fill="#1a1612">Why Are</text>
+  <text x="300" y="390" text-anchor="middle" font-family="Georgia, serif" font-size="58" font-weight="600" fill="#1a1612">My Bookings</text>
+  <text x="300" y="460" text-anchor="middle" font-family="Georgia, serif" font-size="58" font-weight="600" fill="#1a1612">Down?</text>
+  <line x1="200" y1="560" x2="400" y2="560" stroke="#1a1612" stroke-width="1"/>
+  <text x="300" y="610" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" fill="#6b645a">A diagnostic walkthrough</text>
+  <text x="300" y="635" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" fill="#6b645a">for hosts watching their</text>
+  <text x="300" y="660" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" fill="#6b645a">numbers slide</text>
+  <text x="300" y="730" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" letter-spacing="2" fill="#6b645a">STR MANUALS · v1</text>
+</svg>

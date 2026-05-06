@@ -1,0 +1,12 @@
+# Production PDFs live here (one folder per SKU):
+#   private/manuals/str-tax-loophole-playbook/v1.pdf
+#   private/manuals/material-participation-survival-kit/v1.pdf
+#   private/manuals/why-bookings-down/v1.pdf
+#   private/manuals/direct-bookings-starter/v1.pdf
+#   private/manuals/permit-regulation-survival/v1.pdf
+#   private/manuals/str-manuals-bundle/v1.zip
+#
+# Files in /private/ are never served by Astro static; they are read by
+# /api/download.ts at request time, watermarked with pdf-lib, and streamed.
+#
+# Real PDFs are uploaded via SFTP to Hostinger Business — never committed to git.

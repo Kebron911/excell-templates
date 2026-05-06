@@ -1,0 +1,29 @@
+{
+  "name": "strmanuals-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "stubs": "node scripts/generate-stubs.mjs",
+    "test:download": "node scripts/test-download.mjs"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.0.0",
+    "@astrojs/node": "^9.5.5",
+    "@astrojs/sitemap": "^3.2.0",
+    "@tailwindcss/vite": "^4.0.0",
+    "astro": "^5.0.0",
+    "jszip": "^3.10.1",
+    "pdf-lib": "^1.17.1",
+    "stripe": "^22.1.0",
+    "tailwindcss": "^4.0.0"
+  },
+  "devDependencies": {
+    "dotenv": "^17.4.2"
+  }
+}

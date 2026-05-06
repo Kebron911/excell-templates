@@ -1,0 +1,23 @@
+---
+const links = [
+  { href: '/', label: 'Library' },
+  { href: '/about', label: 'About' },
+  { href: '/free', label: 'Free' },
+];
+---
+<header class="border-b" style="border-color: var(--color-rule);">
+  <div class="container-page flex items-center justify-between py-5">
+    <a href="/" class="no-underline whitespace-nowrap flex items-baseline gap-2">
+      <span class="eyebrow">STR</span>
+      <span style="font-family: var(--font-display); font-weight: 600; font-size: 1.375rem; line-height: 1;">Manuals</span>
+    </a>
+    <nav class="flex items-center gap-6">
+      {links.map((link) => (
+        <a href={link.href} class="text-sm hover:underline">{link.label}</a>
+      ))}
+      <a href="/bundle" class="btn-primary text-sm" style="padding: 0.4rem 0.9rem;">
+        Bundle
+      </a>
+    </nav>
+  </div>
+</header>

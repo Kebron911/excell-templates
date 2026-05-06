@@ -1,0 +1,47 @@
+---
+const cluster = [
+  { label: 'Excel workbooks', url: 'https://thestrledger.com', desc: 'Workbooks for hosts' },
+  { label: 'strhost.tools', url: 'https://strhost.tools', desc: 'Free calculators' },
+  { label: 'strops.tools', url: 'https://strops.tools', desc: 'Operations templates' },
+  { label: 'strguests.tools', url: 'https://strguests.tools', desc: 'Guest-facing AI' },
+  { label: 'strbuyers.tools', url: 'https://strbuyers.tools', desc: 'Pre-purchase tools' },
+];
+---
+<footer class="mt-24 border-t" style="border-color: var(--color-rule); background: var(--color-paper-2);">
+  <div class="container-page py-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+      <div>
+        <p class="eyebrow mb-2">In the ecosystem</p>
+        <ul class="space-y-2 text-sm">
+          {cluster.map((s) => (
+            <li>
+              <a href={s.url} class="hover:underline" style="color: var(--color-ink);">{s.label}</a>
+              <span style="color: var(--color-mute);"> — {s.desc}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <p class="eyebrow mb-2">Site</p>
+        <ul class="space-y-2 text-sm">
+          <li><a href="/" class="hover:underline">Library</a></li>
+          <li><a href="/bundle" class="hover:underline">Bundle</a></li>
+          <li><a href="/free" class="hover:underline">Free PDF</a></li>
+          <li><a href="/about" class="hover:underline">About</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="eyebrow mb-2">Policies</p>
+        <ul class="space-y-2 text-sm">
+          <li><a href="/refund" class="hover:underline">Refund policy</a></li>
+          <li><a href="/privacy" class="hover:underline">Privacy</a></li>
+          <li><a href="/downloads" class="hover:underline">Re-download</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="pt-6 text-xs flex justify-between" style="border-top: 1px solid var(--color-rule); color: var(--color-mute);">
+      <p>STR Manuals · Plain-English manuals for short-term rental owners</p>
+      <p>© {new Date().getFullYear()}</p>
+    </div>
+  </div>
+</footer>
