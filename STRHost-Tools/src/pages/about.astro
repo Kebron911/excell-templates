@@ -1,0 +1,67 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+---
+
+<Layout
+  title="About — STR Host Tools"
+  description="Who built STR Host Tools and why. Free calculators for short-term rental hosts, built by The STR Ledger."
+  path="/about"
+>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9 prose">
+      <h1 class="text-h1 font-serif text-navy leading-tight">
+        About<span class="period-gold">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2">
+        Free calculators for the math part of running a short-term rental.
+      </p>
+
+      <h2>Who's behind this</h2>
+      <p>
+        STR Host Tools is built by the team behind <a href="https://thestrledger.com">The STR Ledger</a> — Excel workbooks and PDF guides for serious short-term rental operators.
+      </p>
+      <p>
+        The Ledger is the paid product. This site is the free math layer. Every formula a host needs to make a buy/no-buy decision, set a fair cleaning fee, or model a co-host split — all in one place, no signup, no email gate.
+      </p>
+
+      <h2>Why this exists</h2>
+      <p>
+        Most "Airbnb calculators" on the open web are either bait for a SaaS upsell, locked behind email walls, or last updated in 2019. We got tired of that. So we built one. Then six more. Then we mapped lodging-tax rates for all 50 states and DC.
+      </p>
+      <p>
+        The deal is straightforward: you use the tools for free; we earn a small commission if you eventually buy a Ledger workbook, click an ad, or share the page. No popups, no exit-intent, no sticky banners. The friction stays out of your way.
+      </p>
+
+      <h2>How the calculators work</h2>
+      <p>
+        Each tool ships with the underlying formula written into the page. No mystery rates, no hidden assumptions. URL state means every scenario you build is bookmarkable and shareable. Print stylesheet means you can hand a partner a clean PDF without screenshotting.
+      </p>
+      <p>
+        Tax data is sourced annually from each state's Department of Revenue. We track the verification date on every state page, so you know whether the entry is fresh or due for a re-check.
+      </p>
+
+      <h2>What this is not</h2>
+      <ul>
+        <li>Not a SaaS. No accounts, no dashboards, no subscriptions.</li>
+        <li>Not tax advice. Lodging-tax pages cite the DOR; consult a CPA before filing.</li>
+        <li>Not a competitor to AirDNA, PriceLabs, or Mashvisor. We're the bookkeeping math layer; they're the market data and pricing layer.</li>
+      </ul>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-5">
+      <STRLedgerCTA tool="profit-calculator" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="math" />
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: var(--sp-7); margin-bottom: var(--sp-3); line-height: 1.1; }
+  .prose :global(p) { color: var(--fg-1); margin-bottom: var(--sp-3); line-height: 1.6; }
+  .prose :global(ul) { margin: var(--sp-3) 0 var(--sp-4); padding-left: var(--sp-5); }
+  .prose :global(li) { margin-bottom: var(--sp-2); line-height: 1.55; }
+  .prose :global(a) { color: var(--brand-navy); text-decoration: underline; text-decoration-color: var(--brand-gold); text-underline-offset: 3px; }
+</style>
