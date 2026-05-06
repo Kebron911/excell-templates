@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config';
+import { fileURLToPath } from 'node:url';
 import tailwind from '@astrojs/tailwind';
 import react from '@astrojs/react';
 import mdx from '@astrojs/mdx';
@@ -20,7 +21,7 @@ export default defineConfig({
   },
   vite: {
     resolve: {
-      alias: { '@': new URL('./src', import.meta.url).pathname }
+      alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }
     }
   }
 });

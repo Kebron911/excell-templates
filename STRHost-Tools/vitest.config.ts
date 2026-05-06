@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   test: {
@@ -8,6 +9,6 @@ export default defineConfig({
     exclude: ['tests/e2e/**']
   },
   resolve: {
-    alias: { '@': new URL('./src', import.meta.url).pathname }
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) }
   }
 });
