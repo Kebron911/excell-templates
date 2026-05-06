@@ -88,7 +88,7 @@ Phase grouping of the 29 atomic tasks from [implementation plan](../docs/superpo
 
 | Phase | Status | Started | Completed |
 |-------|--------|---------|-----------|
-| 1 — Foundation | active | 2026-05-05 | — |
+| 1 — Foundation | complete | 2026-05-05 | 2026-05-06 |
 | 2 — Calculators | not-started | — | — |
 | 3 — Lodging-tax | not-started | — | — |
 | 4 — Site pages | not-started | — | — |
