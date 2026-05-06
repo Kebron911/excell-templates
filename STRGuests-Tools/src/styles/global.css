@@ -1,0 +1,105 @@
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    background: var(--bg-1);
+    color: var(--fg-1);
+    font-family: var(--font-body);
+    font-size: var(--t-body-size);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    color: var(--brand-navy);
+    text-wrap: balance;
+  }
+
+  h1 { font-size: var(--t-h1-size); font-weight: var(--t-h1-weight); letter-spacing: var(--t-h1-track); line-height: 1.05; }
+  h2 { font-size: var(--t-h2-size); font-weight: var(--t-h2-weight); letter-spacing: var(--t-h2-track); line-height: 1.1; }
+  h3 { font-size: var(--t-h3-size); font-weight: var(--t-h3-weight); letter-spacing: var(--t-h3-track); line-height: 1.2; }
+  h4 { font-size: 20px;             font-weight: 500;               letter-spacing: 0;                    line-height: 1.3; }
+
+  p { text-wrap: pretty; }
+
+  em {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  /* Numbers — every number on every page (mono + tabular-nums). */
+  .num, .font-mono, code, kbd, samp {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  a {
+    color: var(--brand-navy);
+    text-decoration: underline;
+    text-decoration-color: var(--accent-500);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: color var(--dur-std) var(--ease-std);
+  }
+  a:hover { color: var(--accent-700); }
+
+  /* Generator inputs/outputs use mono numerics by default. */
+  input[type="number"], input[type="tel"], output {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .wordmark {
+    font-family: var(--font-wordmark);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  /* strguests-novel: terracotta period after wordmark/headlines. */
+  .period-accent { color: var(--accent-500); }
+
+  .accent-rule {
+    border: 0;
+    height: 1px;
+    background: var(--accent-500);
+    width: 48px;
+    margin: var(--sp-4) 0;
+  }
+  .accent-rule.full { width: 100%; }
+
+  .label, .eyebrow {
+    font-family: var(--font-body);
+    font-weight: var(--t-label-weight);
+    font-size: var(--t-label-size);
+    letter-spacing: var(--t-label-track);
+    text-transform: uppercase;
+    color: var(--brand-navy);
+  }
+  .eyebrow-accent { color: var(--accent-500); }
+
+  .surface-navy {
+    background: var(--bg-inverse);
+    color: var(--fg-on-navy);
+  }
+  .surface-navy h1, .surface-navy h2, .surface-navy h3, .surface-navy h4 {
+    color: var(--fg-on-navy);
+  }
+  .surface-navy .label, .surface-navy .eyebrow { color: var(--accent-500); }
+
+  .surface-gen {
+    background: var(--bg-gen-surface);
+    border: var(--border-hairline);
+    border-radius: var(--r-3);
+  }
+
+  .prose { max-width: 680px; }
+}
