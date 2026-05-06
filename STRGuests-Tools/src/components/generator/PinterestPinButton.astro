@@ -1,0 +1,84 @@
+---
+// PinterestPinButton — strguests-novel. Generates a 1000×1500 Pinterest-shaped
+// PNG of the host generator's preview state and opens Pinterest's share intent
+// pre-filled with the URL + image.
+//
+// Wiring: each generator page registers a global function on
+// `window.__strguests.generatePinPng[<toolSlug>]` that returns a `Blob` (PNG).
+// The Blob is uploaded to a transient endpoint (`/api/pin-host`) which returns
+// a public URL; that URL is what Pinterest's intent picks up. For Phase 1 the
+// upload step is stubbed — the click dispatches a CustomEvent that pages can
+// inspect. Real upload wiring lands in Phase 5 Task 28.
+
+interface Props {
+  /** Tool slug (matches src/data/tools.json keys). */
+  toolSlug: string;
+  /** Pinterest description / pin text. */
+  description?: string;
+  /** Optional override for button label. */
+  label?: string;
+}
+
+const {
+  toolSlug,
+  description = 'Free guest-XP generator from strguests.tools',
+  label = 'Save to Pinterest',
+} = Astro.props;
+---
+<div class="my-3 print:hidden">
+  <button
+    type="button"
+    class="pin-button inline-flex items-center gap-2 rounded-md border border-rule bg-parchment-light text-navy px-5 py-2.5 text-ui no-underline transition-colors duration-std focus:outline-none focus:shadow-focus hover:bg-parchment-alt"
+    data-pin-button
+    data-tool={toolSlug}
+    data-description={description}
+  >
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <path d="M8 4v6m-1.5-1.5L8 10l1.5-1.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    {label}
+  </button>
+</div>
+
+<script>
+  type PinFn = () => Promise<Blob> | Blob;
+
+  function getPinFn(tool: string): PinFn | undefined {
+    const reg = (window as any).__strguests?.generatePinPng;
+    return reg ? reg[tool] : undefined;
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('button[data-pin-button]').forEach((btn) => {
+    const tool = btn.dataset.tool ?? '';
+    const description = btn.dataset.description ?? '';
+
+    btn.addEventListener('click', async () => {
+      const fn = getPinFn(tool);
+      if (!fn) {
+        console.error(`[PinterestPinButton] No PNG generator registered for "${tool}".`);
+        return;
+      }
+
+      try {
+        const blob = await fn();
+
+        // Phase 1: dispatch event so pages can inspect/upload.
+        // Phase 5 Task 28 swaps this for /api/pin-host upload + intent open.
+        const event = new CustomEvent('strguests:pin-ready', {
+          detail: { tool, description, blob, size: blob.size, type: blob.type },
+        });
+        window.dispatchEvent(event);
+
+        (window as any).gtag?.('event', 'pin_generated', { tool, size: blob.size });
+
+        // Stubbed intent open. Real flow uses uploaded URL.
+        const pageUrl = window.location.href;
+        const intentUrl = `https://www.pinterest.com/pin/create/button/?url=${encodeURIComponent(pageUrl)}&description=${encodeURIComponent(description)}`;
+        window.open(intentUrl, '_blank', 'noopener,noreferrer,width=720,height=620');
+      } catch (err) {
+        console.error('[PinterestPinButton] Generation failed:', err);
+      }
+    });
+  });
+</script>
