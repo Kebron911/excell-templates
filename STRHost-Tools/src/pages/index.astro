@@ -1,23 +1,17 @@
 ---
 // Throwaway landing for Phase 1 verification.
-// Renders Header + Footer + FunnelBand + Sidebar + ClusterFunnelBlock so we
-// can confirm chrome and brand tokens land before calculators arrive in Phase 2.
-// Real landing page lands in Phase 4 Task 20 and replaces this scaffold.
+// Real landing page replaces this in Phase 4 Task 20. The shape here is
+// optimized for friction reduction: visitor lands -> sees all 7 tools at
+// once -> one click -> uses tool -> leaves. No sidebar duplicate, no
+// scroll-hunting, no nav-digging.
 
 import Layout from '@/components/chrome/Layout.astro';
-import Sidebar from '@/components/chrome/Sidebar.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
-import { formatCurrency, formatPercent } from '@/lib/format';
 import tools from '@/data/tools.json';
 
-const sample = {
-  cashFlow: 4_237.5,
-  occupancy: 0.72,
-  adr: 198.5,
-};
 const toolsList = Object.values(tools);
 ---
 
@@ -26,74 +20,64 @@ const toolsList = Object.values(tools);
   description="Free, fast, indexable calculators for short-term rental hosts. Profit, RevPAR, break-even, cleaning fees, lodging tax — built by The STR Ledger."
   path="/"
 >
+  {/* Hero — short, single CTA: pick a calculator. */}
   <section class="bg-parchment">
     <div class="mx-auto max-w-6xl px-5 pt-10 pb-7">
-      <p class="label text-gold-deep">Phase 1 — Foundation preview</p>
-      <h1 class="mt-3 text-h1 font-serif text-navy max-w-3xl">
+      <h1 class="text-h1 font-serif text-navy max-w-3xl leading-tight">
         Free calculators for short-term rental hosts<span class="period-gold">.</span>
       </h1>
       <p class="mt-4 text-lead text-ink-2 max-w-2xl">
-        Seven calculators, fifty state lodging-tax pages, and zero pop-ups.
-        Designed by hosts who got tired of paywalls.
+        Seven calculators. Fifty state lodging-tax pages. Zero pop-ups.
+        Pick one below.
       </p>
-
-      <div class="mt-7 surface-calc max-w-2xl p-6">
-        <p class="label text-navy">Sample numerics — JetBrains Mono with tabular nums</p>
-        <dl class="mt-3 grid grid-cols-3 gap-5">
-          <div>
-            <dt class="text-caption text-ink-3 uppercase tracking-widest">Cash flow / mo</dt>
-            <dd class="mt-1 font-mono text-h3 text-navy">{formatCurrency(sample.cashFlow)}</dd>
-          </div>
-          <div>
-            <dt class="text-caption text-ink-3 uppercase tracking-widest">Occupancy</dt>
-            <dd class="mt-1 font-mono text-h3 text-navy">{formatPercent(sample.occupancy)}</dd>
-          </div>
-          <div>
-            <dt class="text-caption text-ink-3 uppercase tracking-widest">ADR</dt>
-            <dd class="mt-1 font-mono text-h3 text-navy">{formatCurrency(sample.adr)}</dd>
-          </div>
-        </dl>
-      </div>
     </div>
   </section>
 
-  <section class="border-t border-rule bg-parchment-light">
-    <div class="mx-auto max-w-6xl px-5 py-9 grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-9">
-      <div>
-        <p class="label text-navy">All seven calculators</p>
-        <ul class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {toolsList.map(t => (
-            <li>
-              <a
-                href={t.path}
-                class="group block rounded-md border border-rule bg-parchment p-5 no-underline hover:border-gold hover:shadow-card transition-all duration-std"
-              >
-                <p class="font-serif text-h3 text-navy">{t.shortName}</p>
-                <p class="mt-2 text-small text-ink-2 leading-snug">{t.tagline}</p>
-                <p class="mt-3 text-caption text-gold-deep group-hover:text-gold">
-                  Open
-                  <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true"> →</span>
-                </p>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <Sidebar current="airbnb-fee-calculator" />
-    </div>
-
-    <div class="mx-auto max-w-6xl px-5 pb-9">
-      <p class="label text-navy">Monetization primitives — verification preview</p>
-      <AdSlot location="in-content" />
-      <EmailCaptureCard
-        magnet="str-host-income-report-2026"
-        toolSlug="phase1-preview"
-      />
-      <STRLedgerCTA tool="profit-calculator" />
-      <AdSlot location="footer" />
+  {/* Tool picker — the home page IS the menu. 3 columns on desktop so all 7
+      sit above one scroll on a 1080+ display. */}
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {toolsList.map(t => (
+          <li>
+            <a
+              href={t.path}
+              class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-gold hover:shadow-card transition-all duration-std focus:outline-none focus:shadow-focus"
+            >
+              <p class="font-serif text-h3 text-navy leading-snug">{t.shortName}</p>
+              <p class="mt-2 text-small text-ink-2 leading-snug">{t.tagline}</p>
+              <p class="mt-4 text-caption text-gold-deep group-hover:text-gold flex items-center gap-1">
+                Open
+                <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
 
   <ClusterFunnelBlock currentCluster="math" />
+
+  {/* Phase 1 verification preview — collapsed by default so it doesn't
+      compete with the tool picker above. Replaced/removed in Phase 4 Task 20. */}
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 py-7">
+      <details class="rounded-md border border-rule bg-parchment-light p-5">
+        <summary class="cursor-pointer text-ui text-ink-2 hover:text-navy">
+          <span class="label text-gold-deep mr-2">Phase 1 preview</span>
+          <span>Show monetization primitives (AdSlot, EmailCaptureCard, STRLedgerCTA)</span>
+        </summary>
+        <div class="mt-5">
+          <AdSlot location="in-content" />
+          <EmailCaptureCard
+            magnet="str-host-income-report-2026"
+            toolSlug="phase1-preview"
+          />
+          <STRLedgerCTA tool="profit-calculator" />
+          <AdSlot location="footer" />
+        </div>
+      </details>
+    </div>
+  </section>
 </Layout>

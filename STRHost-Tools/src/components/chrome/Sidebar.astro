@@ -12,7 +12,7 @@ const others = Object.entries(tools).filter(([key]) => key !== current).slice(0,
   <p class="label text-navy">Related calculators</p>
 
   <ul class="mt-4 space-y-3">
-    {others.map(([key, t]) => (
+    {others.map(([_key, t]) => (
       <li>
         <a
           href={t.path}
