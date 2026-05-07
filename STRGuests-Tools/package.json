@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node ./scripts/build-og.mjs",
+    "build": "astro build && node ./scripts/build-pins.mjs && node ./scripts/build-og.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "typecheck": "astro check && tsc --noEmit && tsc -p server/tsconfig.json --noEmit",
