@@ -268,7 +268,7 @@ export default function CheckinInstructionsGenerator() {
                   <p className="mt-1 text-ui text-graphite whitespace-pre-line">{input.parking.notes}</p>
                   {parkingImage && (
                     <figure className="mt-4">
-                      <img src={URL.createObjectURL(new Blob([parkingImage.bytes], { type: parkingImage.kind === 'png' ? 'image/png' : 'image/jpeg' }))} alt="Parking" className="max-w-full max-h-[280px] rounded-sm border border-rule" />
+                      <img src={URL.createObjectURL(new Blob([parkingImage.bytes as unknown as BlobPart], { type: parkingImage.kind === 'png' ? 'image/png' : 'image/jpeg' }))} alt="Parking" className="max-w-full max-h-[280px] rounded-sm border border-rule" />
                       {parkingCaption && <figcaption className="mt-1 font-serif italic text-caption text-ink-2">{parkingCaption}</figcaption>}
                     </figure>
                   )}
@@ -293,7 +293,7 @@ export default function CheckinInstructionsGenerator() {
               )}
               {doorImage && (
                 <figure className="mt-4">
-                  <img src={URL.createObjectURL(new Blob([doorImage.bytes], { type: doorImage.kind === 'png' ? 'image/png' : 'image/jpeg' }))} alt="Door / lockbox" className="max-w-full max-h-[320px] rounded-sm border border-rule" />
+                  <img src={URL.createObjectURL(new Blob([doorImage.bytes as unknown as BlobPart], { type: doorImage.kind === 'png' ? 'image/png' : 'image/jpeg' }))} alt="Door / lockbox" className="max-w-full max-h-[320px] rounded-sm border border-rule" />
                   {doorCaption && <figcaption className="mt-1 font-serif italic text-caption text-ink-2">{doorCaption}</figcaption>}
                 </figure>
               )}

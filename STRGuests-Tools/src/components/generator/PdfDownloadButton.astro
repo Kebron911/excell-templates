@@ -110,7 +110,10 @@ const { toolSlug, filename, magnet, label = 'Download PDF' } = Astro.props;
   }
 
   function downloadBytes(bytes: Uint8Array, filename: string) {
-    const blob = new Blob([bytes], { type: 'application/pdf' });
+    // TS 5.5+ types Uint8Array as generic over its buffer; the BlobPart union
+    // wants a non-generic ArrayBufferView. Cast through unknown — runtime
+    // shape is unchanged, this is purely a type-system narrowing.
+    const blob = new Blob([bytes as unknown as BlobPart], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
