@@ -51,9 +51,17 @@ jobs:
           test -d dist/blog/how-to-calculate-airbnb-profitability
           echo "Build output OK"
 
-      # FTP-Deploy-Action requires server-dir to end with `/`. Normalize the
-      # secret here so a user pasting `/public_html` (no trailing slash) — or
-      # one with a stray CR/LF from a copy-paste — still deploys.
+      # Normalize STRHOST_DOC_ROOT for the FTP user's chroot.
+      #
+      # Hostinger's domain-scoped FTP user (e.g. u123.strhost.tools) is
+      # chrooted to /home/<u>/domains/<domain>/. If the secret holds the
+      # SSH-visible absolute path /home/<u>/domains/<domain>/public_html,
+      # the FTP server treats `/home/...` as a path inside the chroot and
+      # creates a deeply nested mirror (took down the first deploy until
+      # we caught it via SSH). Strip that prefix so FTP sees /public_html.
+      #
+      # Also: strip stray CR/LF/whitespace from the secret value, and
+      # ensure trailing slash (FTP-Deploy-Action requires it).
       - name: Normalize server-dir
         id: server_dir
         shell: bash
@@ -61,6 +69,10 @@ jobs:
           RAW_DIR: ${{ secrets.STRHOST_DOC_ROOT }}
         run: |
           DIR=$(printf '%s' "$RAW_DIR" | tr -d '\r\n[:space:]')
+          # Strip leading /home/<user>/domains/<domain>/ if present.
+          DIR=$(printf '%s' "$DIR" | sed -E 's#^/home/[^/]+/domains/[^/]+##')
+          # Ensure leading slash, single trailing slash.
+          [[ "$DIR" != /* ]] && DIR="/$DIR"
           DIR="${DIR%/}/"
           printf 'value=%s\n' "$DIR" >> "$GITHUB_OUTPUT"
 
