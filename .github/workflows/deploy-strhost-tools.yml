@@ -1,0 +1,74 @@
+name: Deploy strhost.tools
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'STRHost-Tools/**'
+      - '.github/workflows/deploy-strhost-tools.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-strhost-tools
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: STRHost-Tools/pnpm-lock.yaml
+
+      - name: Install
+        working-directory: STRHost-Tools
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: STRHost-Tools
+        run: pnpm build
+        env:
+          PUBLIC_GA4_ID: ${{ secrets.STRHOST_GA4_ID }}
+
+      - name: Verify build output
+        working-directory: STRHost-Tools
+        run: |
+          test -f dist/index.html
+          test -f dist/blog/index.html
+          test -d dist/blog/how-to-calculate-airbnb-profitability
+          echo "Build output OK"
+
+      - name: Deploy to Hostinger via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.STRHOST_FTP_HOST }}
+          username: ${{ secrets.STRHOST_FTP_USER }}
+          password: ${{ secrets.STRHOST_FTP_PASS }}
+          port: ${{ secrets.STRHOST_FTP_PORT }}
+          protocol: ftps
+          local-dir: ./STRHost-Tools/dist/
+          server-dir: ${{ secrets.STRHOST_DOC_ROOT }}
+          # Keep these on the server after deploy.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.htaccess
+          # State file caches what we've uploaded so subsequent deploys
+          # only sync changed files (much faster than full re-upload).
+          state-name: .ftp-deploy-sync-state.json
+          dry-run: false
+          log-level: standard
