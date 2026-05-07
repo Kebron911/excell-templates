@@ -94,3 +94,18 @@ Phase grouping of the 29 atomic tasks from [implementation plan](../docs/superpo
 | 4 — Site pages | complete | 2026-05-06 | 2026-05-06 |
 | 5 — Analytics + E2E | complete | 2026-05-06 | 2026-05-06 |
 | 6 — CI/CD + deploy | code-complete | 2026-05-06 | 2026-05-06 |
+| Post-launch — manual | open | 2026-05-07 | — |
+
+---
+
+## Post-launch backlog (manual, not part of any phase)
+
+These tasks need credentials or owner-of-domain auth that the agent can't perform on your behalf. Address whenever convenient.
+
+| ID | Task | Owner action | Notes |
+|----|------|--------------|-------|
+| PL-1 | Submit `https://strhost.tools/sitemap-index.xml` to **Google Search Console** | Sign in at search.google.com/search-console as domain owner; add property; submit sitemap | Re-submit after every major content drop. Sitemap auto-regenerates on each deploy. |
+| PL-2 | Submit same sitemap to **Bing Webmaster Tools** | Sign in at bing.com/webmasters; verify domain via DNS or HTML tag; submit sitemap | Bing's index also feeds DuckDuckGo + Yahoo, worth ~5–8% extra organic. |
+| PL-3 | Lock down `~/Desktop/Claude OS/.secrets/hostinger.env` permissions | Run the `icacls` command from the file header to remove inherited ACLs | Currently inherits SYSTEM/Administrators/user; lock to user-only. |
+| PL-4 | Apply for **Google AdSense** | Apply once content baseline is 10+ pages with traffic | Don't apply too early; AdSense rejects thin sites. Wait 30–60 days post-launch. |
+| PL-5 | Submit blog/calculator URLs to **IndexNow** | One API call per URL; bulk endpoint accepts up to 10,000 URLs | Free, instant indexing signal to Bing/Yandex/Seznam/Naver. Could be wired into the deploy workflow as a post-deploy step. |
