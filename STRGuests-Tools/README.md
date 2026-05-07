@@ -58,6 +58,26 @@ Lifecycle stage: Guest XP (optimizing) — fourth stop in the host lifecycle.
 Accent: hospitality-warm terracotta.
 Wordmark: `STR Guests`·*tools* — terracotta brand name + neutral tld trailing per [Cluster Style Guide §1](../STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md#1-wordmark).
 
-## Phase 1 status
+## Phase status
 
-See [.planning/STATE.md](.planning/STATE.md). Tasks 1–10 ship the bootable dual-target foundation.
+See [.planning/STATE.md](.planning/STATE.md) for the live state. Phases 1–5 ✅ + Phase 3 ✅ + Phase 6 (Tasks 32–35 ✅, Task 36 deferred until live deploy succeeds).
+
+## Deployment
+
+Two workflows live at the repo root under `.github/workflows/`:
+
+- **`strguests-ci.yml`** — runs on every PR + push to main: typecheck, vitest, Playwright smokes.
+- **`strguests-deploy.yml`** — runs on push to main when the GitHub Actions variable `STRGUESTS_DEPLOY_ENABLED == 'true'` AND the secrets below are set.
+
+### First-launch posture (Phase 6, no MySQL)
+
+Per the deploy decision in `.planning/STATE.md`: ship the surface, leave the AI/db features dark. The Express server boots and `/api/health` responds; every DB-backed route returns 503 `rate_limit_unavailable` until MySQL is provisioned. To stand the site up:
+
+1. Create `~/strguests-api/.env` on the Hostinger box from [`infrastructure/hostinger.env.example`](infrastructure/hostinger.env.example). Leave `MYSQL_*` blank.
+2. Configure GitHub Actions secrets: `HOSTINGER_DEPLOY_HOST`, `HOSTINGER_FTP_USER`, `HOSTINGER_FTP_PASSWORD`, `HOSTINGER_FTP_SERVER_DIR`, `HOSTINGER_SSH_USER`, `HOSTINGER_SSH_KEY`, `HOSTINGER_SSH_PORT`, `HOSTINGER_API_DIR`.
+3. Set the `STRGUESTS_DEPLOY_ENABLED` repo variable to `true`.
+4. Push to `main` — the workflow FTPs `dist/` to `public_html/` and rsyncs `server/` to `~/strguests-api/`, then runs [`infrastructure/deploy/server-restart.sh`](infrastructure/deploy/server-restart.sh) over SSH (idempotent: pnpm install --prod, tsc, optional db:migrate, pm2 reload, /api/health smoke).
+
+### Promoting from dark-mode to live
+
+Provision MySQL on Hostinger Business → fill `MYSQL_*` in `~/strguests-api/.env` → restart pm2. The migration runs automatically on the next deploy. Then add `ANTHROPIC_API_KEY` to enable AI generators.

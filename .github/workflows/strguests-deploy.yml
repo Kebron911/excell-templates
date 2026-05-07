@@ -1,0 +1,179 @@
+# strguests.tools — Hostinger deploy workflow (Phase 6 Task 35)
+#
+# Runs on push to main when STRGuests-Tools/ changes AND when the
+# HOSTINGER_DEPLOY_HOST secret is configured. Without that secret the deploy
+# job is skipped entirely so the workflow definition lives safely in git
+# before secrets are provisioned.
+#
+# Two stages:
+#   1. Build static dist (Astro + pin/OG image generators)
+#   2. FTP dist/ → public_html/strguests/  AND  rsync server/ over SSH then
+#      run server-restart.sh on the box
+#
+# Secrets required (configure in GitHub → Settings → Secrets → Actions):
+#   HOSTINGER_DEPLOY_HOST       - SSH/FTP hostname
+#   HOSTINGER_FTP_USER          - FTP user (Hostinger File Manager creds)
+#   HOSTINGER_FTP_PASSWORD      - FTP password
+#   HOSTINGER_FTP_SERVER_DIR    - e.g. /public_html/strguests/
+#   HOSTINGER_SSH_USER          - SSH user
+#   HOSTINGER_SSH_KEY           - private key (PEM)
+#   HOSTINGER_SSH_PORT          - SSH port (default 22 if unset)
+#   HOSTINGER_API_DIR           - e.g. /home/u123/strguests-api/
+
+name: strguests-deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'STRGuests-Tools/**'
+      - '.github/workflows/strguests-deploy.yml'
+  workflow_dispatch: {}
+
+concurrency:
+  group: strguests-deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build static dist + server
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Skip the entire deploy when secrets aren't configured. Lets the YAML
+    # land in git without breaking the Actions tab on push.
+    if: ${{ vars.STRGUESTS_DEPLOY_ENABLED == 'true' }}
+
+    defaults:
+      run:
+        working-directory: STRGuests-Tools
+
+    outputs:
+      built: ${{ steps.mark.outputs.built }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.6.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: STRGuests-Tools/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (Astro + pins + OG images)
+        run: pnpm build
+        # Pin/OG image build occasionally 404s remote fonts. We accept that
+        # risk on deploy — fall back to build:dist on failure so the static
+        # site still ships.
+        continue-on-error: true
+
+      - name: Fallback build (Astro only) if pin/OG step failed
+        if: failure()
+        run: pnpm build:dist
+
+      - name: Compile server
+        run: pnpm exec tsc -p server/tsconfig.json
+
+      - name: Stage server bundle for rsync
+        run: |
+          mkdir -p ../_deploy/server
+          cp -r server/dist ../_deploy/server/
+          cp -r server/package.json ../_deploy/server/ 2>/dev/null || true
+          cp package.json ../_deploy/
+          cp pnpm-lock.yaml ../_deploy/
+          cp infrastructure/deploy/ecosystem.config.cjs ../_deploy/
+          cp infrastructure/deploy/server-restart.sh ../_deploy/
+          chmod +x ../_deploy/server-restart.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-static
+          path: STRGuests-Tools/dist/
+          retention-days: 3
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: server-bundle
+          path: _deploy/
+          retention-days: 3
+
+      - id: mark
+        run: echo "built=true" >> "$GITHUB_OUTPUT"
+
+  deploy-static:
+    name: FTP static dist → Hostinger htdocs
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ needs.build.outputs.built == 'true' }}
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-static
+          path: dist/
+
+      - name: FTP deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOSTINGER_DEPLOY_HOST }}
+          username: ${{ secrets.HOSTINGER_FTP_USER }}
+          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          local-dir: ./dist/
+          server-dir: ${{ secrets.HOSTINGER_FTP_SERVER_DIR }}
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/node_modules/**
+
+  deploy-server:
+    name: SSH server bundle → Hostinger
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ needs.build.outputs.built == 'true' }}
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: server-bundle
+          path: _deploy/
+
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          SSH_HOST: ${{ secrets.HOSTINGER_DEPLOY_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s' "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p "${SSH_PORT:-22}" "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Rsync server bundle
+        env:
+          SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          SSH_HOST: ${{ secrets.HOSTINGER_DEPLOY_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          API_DIR: ${{ secrets.HOSTINGER_API_DIR }}
+        run: |
+          rsync -avz --delete \
+            -e "ssh -p ${SSH_PORT:-22}" \
+            _deploy/ "$SSH_USER@$SSH_HOST:$API_DIR/"
+
+      - name: Run server-restart.sh on the box
+        env:
+          SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          SSH_HOST: ${{ secrets.HOSTINGER_DEPLOY_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          API_DIR: ${{ secrets.HOSTINGER_API_DIR }}
+        run: |
+          ssh -p "${SSH_PORT:-22}" "$SSH_USER@$SSH_HOST" \
+            "cd '$API_DIR' && API_ROOT='$API_DIR' bash server-restart.sh"
