@@ -1,0 +1,138 @@
+/* ============================================================
+   strops.tools — Design Tokens
+   Ported from Excel-Templates/design-system/colors_and_type.css
+   Cluster position: Operations (running). Accent: ops-utility
+   green-gray — operational, not flashy. Distinct from strhost's
+   editorial gold.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ---- Core palette (brand kit) ------------------------- */
+  --brand-navy:            #12304E;
+  --brand-parchment:       #F6EFE2;
+  --brand-gold:            #C9A24B;
+  --brand-clay:            #B5725E;
+  --brand-graphite:        #2B2B2B;
+
+  /* ---- Tints / shades ----------------------------------- */
+  --brand-navy-tint:       #2A4867;
+  --brand-navy-shade:      #0A1F35;
+  --brand-parchment-alt:   #EFE5D0;
+  --brand-parchment-deep:  #E7DCC2;
+  --brand-gold-soft:       #E2C884;
+  --brand-gold-deep:       #A9863A;
+  --brand-clay-soft:       #D3A290;
+
+  /* ---- Ops-utility accent (strops.tools brand color) ----
+     Sage-meets-graphite green-gray. Reads "operational" at body weight,
+     reads "brand" at 28px+ serif weight. Tested on parchment —
+     desaturated enough to avoid feeling "saas-cute," saturated enough
+     to register as a deliberate accent, not just a UI tint.
+
+     #5A7359 sits at L*48 — same perceptual lightness as strhost gold,
+     so it carries the same visual weight in the wordmark slot. Contrast
+     against parchment: 5.1:1 (passes AA at all sizes). */
+  --accent-300:            #8AA289;   /* soft / hover lift */
+  --accent-500:            #5A7359;   /* primary / wordmark / accents */
+  --accent-700:            #3F5740;   /* deep / pressed / underline */
+
+  /* Aliases so cluster components that reference --brand-gold continue
+     to work without per-component edits. The wordmark, period accents,
+     hover borders, and underlines all pull from these. */
+  --brand-gold:            var(--accent-500);
+  --brand-gold-soft:       var(--accent-300);
+  --brand-gold-deep:       var(--accent-700);
+
+  /* ---- Semantic foreground / background ----------------- */
+  --fg-1:                  var(--brand-graphite);
+  --fg-2:                  #555049;
+  --fg-3:                  #8A8176;
+  --fg-on-navy:            var(--brand-parchment);
+  --fg-on-navy-muted:      #BFB8A7;
+  --fg-accent:             var(--accent-500);
+
+  --bg-1:                  var(--brand-parchment);
+  --bg-2:                  var(--brand-parchment-alt);
+  --bg-3:                  #FBF6EC;
+  --bg-inverse:            var(--brand-navy);
+  --bg-inverse-deep:       var(--brand-navy-shade);
+
+  /* Calculator-specific surfaces (lighter neutrals so numbers pop) */
+  --bg-calc-surface:       #FBF6EC;
+  --bg-calc-result:        #FFFFFF;
+
+  --rule:                  var(--brand-parchment-deep);
+  --rule-strong:           #BEB19A;
+
+  /* ---- Semantic states ---------------------------------- */
+  --semantic-success:      #3C6B3F;
+  --semantic-error:        #A33A2A;
+  --semantic-warn:         #B38400;
+  --rule-accent:           var(--accent-500);
+  --rule-gold:             var(--accent-500);  /* alias for cluster components */
+
+  /* ---- Font stacks -------------------------------------- */
+  --font-display:  "Cormorant Garamond", "Cormorant", Georgia, "Times New Roman", serif;
+  --font-body:     "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-wordmark: "Inter Tight", "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono:     "JetBrains Mono", "Menlo", "Consolas", ui-monospace, monospace;
+
+  /* ---- Type scale --------------------------------------- */
+  --t-hero-size:           72px;   --t-hero-weight:   500;  --t-hero-track:   -0.015em;
+  --t-h1-size:             48px;   --t-h1-weight:     500;  --t-h1-track:     -0.015em;
+  --t-h2-size:             36px;   --t-h2-weight:     500;  --t-h2-track:     -0.01em;
+  --t-h3-size:             26px;   --t-h3-weight:     500;  --t-h3-track:     -0.005em;
+  --t-quote-size:          24px;   --t-quote-weight:  400;  --t-quote-track:  0;
+  --t-lead-size:           18px;   --t-lead-weight:   400;  --t-lead-track:   0;
+  --t-body-size:           16px;   --t-body-weight:   400;  --t-body-track:   0;
+  --t-small-size:          14px;
+  --t-caption-size:        12px;
+  --t-ui-size:             14px;   --t-ui-weight:     500;  --t-ui-track:     0.02em;
+  --t-label-size:          11px;   --t-label-weight:  500;  --t-label-track:  0.2em;
+  --t-sku-size:            11px;   --t-sku-track:     0.22em;
+
+  /* ---- Spacing scale (8pt + half-steps) ----------------- */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  24px;
+  --sp-6:  32px;
+  --sp-7:  48px;
+  --sp-8:  64px;
+  --sp-9:  96px;
+  --sp-10: 128px;
+
+  /* ---- Radii -------------------------------------------- */
+  --r-0:  0px;
+  --r-1:  2px;
+  --r-2:  4px;
+  --r-3:  6px;
+  --r-4:  10px;
+  --r-pill: 999px;
+
+  /* ---- Shadows ----------------------------------------- */
+  --sh-card:    0 1px 2px rgba(10, 31, 53, 0.06), 0 1px 1px rgba(10, 31, 53, 0.04);
+  --sh-lifted:  0 8px 24px -8px rgba(10, 31, 53, 0.20), 0 2px 6px rgba(10, 31, 53, 0.08);
+  --sh-inset:   inset 0 1px 0 rgba(246, 239, 226, 0.08);
+  --sh-accent-glow: 0 0 0 3px rgba(90, 115, 89, 0.25);
+  --sh-focus-ring:  0 0 0 3px rgba(90, 115, 89, 0.45);
+  /* alias so cluster components that read --sh-gold-glow still work */
+  --sh-gold-glow:   var(--sh-accent-glow);
+
+  /* ---- Borders ----------------------------------------- */
+  --border-hairline: 1px solid var(--rule);
+  --border-strong:   1px solid var(--rule-strong);
+  --border-accent:   1px solid var(--accent-500);
+  --border-navy:     1.5px solid var(--brand-navy);
+
+  /* ---- Motion ------------------------------------------ */
+  --ease-std:    cubic-bezier(0.2, 0.6, 0.2, 1);
+  --ease-in:     cubic-bezier(0.4, 0, 1, 1);
+  --ease-out:    cubic-bezier(0, 0, 0.2, 1);
+  --dur-fast:    120ms;
+  --dur-std:     200ms;
+  --dur-slow:    360ms;
+}

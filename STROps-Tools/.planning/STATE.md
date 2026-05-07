@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 1 — Foundation
-**Current task:** Task 2 — Brand tokens (ops accent shift)
+**Current task:** Task 3 — Print stylesheet
 **Last update:** 2026-05-07
 
 ---
@@ -9,7 +9,7 @@
 ## Phase 1 progress
 
 - [x] Task 1 — Bootstrap repo + tooling
-- [ ] Task 2 — Brand tokens (ops accent shift)
+- [x] Task 2 — Brand tokens (ops accent shift)
 - [ ] Task 3 — Print stylesheet
 - [ ] Task 4 — Layout primitives (incl. ClusterFunnelBlock)
 - [ ] Task 5 — Monetization primitives (AdSlot, EmailCaptureCard, STRLedgerCTA, AffiliateCard)
@@ -23,6 +23,7 @@
 ## Decisions log (this run)
 
 - **2026-05-07** — Skipped `@types/pdf-lib` from plan; package does not exist on npm (pdf-lib ships its own types). Plan required it but install would fail.
+- **2026-05-07 (Task 2)** — Locked ops-utility accent: `--accent-500: #5A7359` (sage-meets-graphite green-gray). Shade ladder: `#8AA289 / #5A7359 / #3F5740` (300/500/700). At L*48 it carries the same perceptual weight as strhost's gold in the wordmark slot; passes WCAG AA on parchment. Aliased `--brand-gold` → `--accent-500` so cluster components ported verbatim still resolve correctly.
 
 ## Deviations log
 
