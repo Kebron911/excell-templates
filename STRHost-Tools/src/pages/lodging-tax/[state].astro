@@ -8,7 +8,7 @@ import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import LodgingTaxCalculator from '@/components/calculators/LodgingTaxCalculator.tsx';
 import { buildWebApplication, buildFAQPage } from '@/lib/seo';
 import { formatPercent } from '@/lib/format';
-import { getEntry } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import type { LodgingTaxData } from '@/data/lodging-tax-by-state.schema';
 
 export async function getStaticPaths() {
@@ -33,7 +33,7 @@ try {
 } catch {
   narrative = undefined;
 }
-const Narrative = narrative?.render ? (await narrative.render()).Content : null;
+const Narrative = narrative ? (await render(narrative)).Content : null;
 
 const platformsCollect = entry.platformCollects.length > 0
   ? entry.platformCollects.map((p) => p === 'airbnb' ? 'Airbnb' : 'Vrbo').join(' and ')

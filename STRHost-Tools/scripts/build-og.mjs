@@ -44,11 +44,12 @@ async function loadFonts() {
     return res.arrayBuffer();
   }
 
+  // Google Fonts gstatic mirrors. Versioned TTF files; resolved via the
+  // googleapis.com/css2 endpoint and pinned here to avoid runtime CSS parsing.
   const [interSemiBold, interMedium, cormorantMedium] = await Promise.all([
-    fetchFont('https://rsms.me/inter/font-files/Inter-SemiBold.woff'),
-    fetchFont('https://rsms.me/inter/font-files/Inter-Medium.woff'),
-    // Cormorant Garamond Medium 500 — Google Fonts mirror
-    fetchFont('https://fonts.gstatic.com/s/cormorantgaramond/v18/U1roKkeZh-iyDFr_QPKkruE_Op0vJzlQDtEd8mRwroLg.woff'),
+    fetchFont('https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYMZg.ttf'),
+    fetchFont('https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fMZg.ttf'),
+    fetchFont('https://fonts.gstatic.com/s/cormorantgaramond/v21/co3umX5slCNuHLi8bLeY9MK7whWMhyjypVO7abI26QOD_s06GnM.ttf'),
   ]);
 
   return [
@@ -128,6 +129,7 @@ function ogTree({ kicker, title, footer }) {
                 type: 'div',
                 props: {
                   style: {
+                    display: 'flex',
                     fontWeight: 600,
                     fontSize: 16,
                     letterSpacing: 4,
