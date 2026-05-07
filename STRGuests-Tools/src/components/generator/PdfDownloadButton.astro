@@ -88,15 +88,21 @@ const { toolSlug, filename, magnet, label = 'Download PDF' } = Astro.props;
 </div>
 
 <script>
-  // Soft email-gate flow:
-  //   click -> trigger PDF download -> open modal -> {submit | skip | esc}
+  // Soft email-gate flow (shared logic in @/lib/email-gate):
+  //   click -> trigger PDF download -> {gate dismissed? skip modal} -> open modal -> {submit | skip | esc}
   //   - PDF always downloads, regardless of modal interaction.
-  //   - Submit posts to ESP webhook (same payload shape as EmailCaptureCard).
-  //   - Skip / Escape closes the modal silently.
+  //   - Submit posts to ESP webhook via postEmailCapture().
+  //   - Any close path (submit | skip | esc) marks the gate dismissed for
+  //     this tab session, so the visitor isn't re-prompted on every download.
+  //   - Skip / Escape close the modal silently.
+  import {
+    isGateDismissed,
+    markGateDismissed,
+    isValidEmail,
+    postEmailCapture,
+  } from '@/lib/email-gate';
 
   type PdfFn = () => Promise<Uint8Array> | Uint8Array;
-
-  const webhook = (import.meta.env.PUBLIC_ESP_WEBHOOK as string | undefined) ?? '';
 
   function getPdfFn(tool: string): PdfFn | undefined {
     const reg = (window as any).__strguests?.generatePdf;
@@ -117,29 +123,6 @@ const { toolSlug, filename, magnet, label = 'Download PDF' } = Astro.props;
     }, 0);
   }
 
-  async function postCapture(email: string, magnet: string, tool: string) {
-    const payload = {
-      email,
-      magnet,
-      source: 'strguests.tools',
-      tool,
-      utm_source: 'strguests-tools',
-      utm_medium: 'pdf-download',
-      utm_content: tool,
-      ts: Date.now(),
-    };
-    if (!webhook) {
-      console.warn('[PdfDownloadButton] PUBLIC_ESP_WEBHOOK not set; payload:', payload);
-      return;
-    }
-    await fetch(webhook, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      keepalive: true,
-    });
-  }
-
   document.querySelectorAll<HTMLButtonElement>('button[data-pdf-download]').forEach((btn) => {
     const tool = btn.dataset.tool ?? '';
     const filename = btn.dataset.filename ?? `${tool}.pdf`;
@@ -156,7 +139,7 @@ const { toolSlug, filename, magnet, label = 'Download PDF' } = Astro.props;
         const bytes = await fn();
         downloadBytes(bytes, filename);
         (window as any).gtag?.('event', 'pdf_downloaded', { tool, filename });
-        modal?.showModal();
+        if (modal && !isGateDismissed(tool)) modal.showModal();
       } catch (err) {
         console.error('[PdfDownloadButton] Generation failed:', err);
       }
@@ -169,19 +152,20 @@ const { toolSlug, filename, magnet, label = 'Download PDF' } = Astro.props;
 
       form?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = (form.querySelector('input[name="email"]') as HTMLInputElement)?.value?.trim();
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
-        try {
-          await postCapture(email, magnet, tool);
-          (window as any).gtag?.('event', 'email_captured', { tool, magnet });
-        } catch (err) {
-          console.warn('[PdfDownloadButton] capture failed', err);
-        } finally {
-          modal.close();
-        }
+        const email = (form.querySelector('input[name="email"]') as HTMLInputElement)?.value?.trim() ?? '';
+        if (!isValidEmail(email)) return;
+        const ok = await postEmailCapture({ email, magnet, toolSlug: tool });
+        if (ok) (window as any).gtag?.('event', 'email_captured', { tool, magnet });
+        markGateDismissed(tool);
+        modal.close();
       });
 
-      skip?.addEventListener('click', () => modal.close());
+      skip?.addEventListener('click', () => {
+        markGateDismissed(tool);
+        modal.close();
+      });
+
+      modal.addEventListener('close', () => markGateDismissed(tool));
     }
   });
 </script>
