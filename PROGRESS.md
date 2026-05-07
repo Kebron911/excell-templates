@@ -2,7 +2,9 @@
 
 > **Read first.** This is the single performance list for the entire empire — templates, storefronts, marketing, infrastructure, products. Mark items `[x]` as you complete them. Sections are ordered **first-payment first**, then expanding outward.
 >
-> **Last reviewed:** 2026-05-05 (Phase 6 fully closed — 65/65 SKUs + Etsy copy + product-page copy. Manifest 327/327 green. **Lifecycle email layer complete** — all 5 sequences drafted: post-purchase-etsy-buyer, review-request, refund-recovery, win-back, abandoned-cart + 5 bundle cross-sell sequences. Pending: IS-import shape conversion + load to Influencersoft.)
+> **Last reviewed:** 2026-05-07 — `thestrledger.com` shipped (P3.2 complete). 12 product pages + home + 4 lead-magnet opt-ins + legal pack live on Hostinger Business · custom PHP/HTML stack · IS handles checkout (no Stripe code on site). Stack revision: VPS / Ansible / Cloudflare / Ghost / Workspace **all dropped** in favor of Hostinger Business + Hostinger Mail. Day-0 is one config edit away — see P3.4.
+>
+> **2026-05-05** (Phase 6 fully closed — 65/65 SKUs + Etsy copy + product-page copy. Manifest 327/327 green. **Lifecycle email layer complete** — all 5 sequences drafted: post-purchase-etsy-buyer, review-request, refund-recovery, win-back, abandoned-cart + 5 bundle cross-sell sequences. Pending: IS-import shape conversion + load to Influencersoft.)
 > **Source-of-truth audits:** SKU completeness (see "Catalog audit" §P4), workspace audit (Sections P0–P3 below).
 > **Companion docs:**
 > - Master strategy → [docs/superpowers/specs/2026-04-22-str-tax-platform-design.md](docs/superpowers/specs/2026-04-22-str-tax-platform-design.md)
@@ -55,16 +57,17 @@
 
 **Legal pack** — live before any capture or purchase
 
-- [ ] Terms of Service drafted + published at `thestrledger.com/terms` (placeholder static page acceptable pre-P3)
-- [ ] Privacy Policy at `/privacy` — covers IS, Stripe, Etsy, analytics, email list (GDPR/CCPA basics)
-- [ ] Refund Policy at `/refunds` — matches Etsy shop policy + own-site stance
-- [ ] Cookie/consent notice on any page that fires Plausible/GA (Plausible is cookieless — confirm)
-- [ ] All three docs linked from Etsy shop About + IS form footers
+- [x] Terms of Service drafted + published at `thestrledger.com/terms` (live 2026-05-07)
+- [x] Privacy Policy at `/privacy` — covers IS, Stripe, Etsy, analytics, email list, Hostinger (live 2026-05-07)
+- [x] Refund Policy at `/refunds` — 14-day no-questions, matches Etsy shop policy stance (live 2026-05-07)
+- [ ] Cookie/consent notice on any page that fires GA4 (only renders when `ga4_id` configured; if Plausible is chosen instead, no notice needed — Plausible is cookieless)
+- [ ] All three docs linked from Etsy shop About + IS form footers (site footer links them already)
 - [ ] 🚦 "legal pack live"
 
 **Analytics + attribution**
 
-- [ ] Plausible (or GA4) installed on `thestrledger.com` and lead-magnet pages — pulled forward from P3.1
+- [x] GA4 / Plausible tag wiring scaffolded in [`site/public/_inc/head.php`](site/public/_inc/head.php) — renders only when `ga4_id` or `plausible_domain` is set in `_config/config.php`
+- [ ] GA4 property created · `ga4_id` (G-XXXXXXXX) filled in `_config/config.php` and redeployed — *or* Plausible domain configured
 - [ ] UTM convention documented → `ops/utm-conventions.md` (Etsy, A13 PDF, Pinterest, FB, email)
 - [ ] A13 buyer-PDF upgrade links carry `?utm_source=etsy&utm_medium=companion-pdf&utm_campaign=<sku>`
 - [ ] First-touch + last-touch attribution captured to Airtable via W01
@@ -380,43 +383,60 @@ Drafted: [copy/email-sequences/welcome-book-magnet.md](copy/email-sequences/welc
 
 ### P3.1 — Site infrastructure
 
-> Email plumbing, IS instance, and analytics already moved to P0.0 — by the time P3 starts they are already running. This section is the rest of the own-site stack.
+> **Stack revised 2026-05-07** per Daniel: Hostinger Business hosting (LiteSpeed + PHP 8 + Hostinger Mail). **Not** using VPS / Ansible / Cloudflare Tunnel / Ghost / Google Workspace. Custom PHP/HTML site at `thestrledger.com`. Influencersoft handles checkout (no Stripe code on the site itself). Blog skipped for Day-0 launch.
 
-- [ ] **VPS provisioned** (Hetzner CX22 / DO Basic, Ubuntu 24.04) → [user-manual-todo §1.6](ops/user-manual-todo.md)
-- [ ] Ansible hardening + Docker + Cloudflare Tunnel applied (automation queue C1–C4)
-- [ ] Vaultwarden running, credentials imported via `bw` CLI
-- [ ] Migrate Influencersoft instance from staging into production own-site (if it landed elsewhere in P0.0)
-- [ ] **Ghost(Pro)** blog at `blog.thestrledger.com`, Admin API key → Vaultwarden
+- [x] Hostinger Business plan provisioned · `thestrledger.com` resolves to `195.35.15.247` (verified 2026-05-07)
+- [x] FTP + SSH credentials in [`.secrets/hostinger.env`](../../../../../.secrets/hostinger.env) (`STRLEDGER_*` block)
+- [x] `hello@thestrledger.com` mailbox live (Hostinger Mail)
+- [x] MX → `mx1/mx2.hostinger.com`; SPF green (`v=spf1 include:_spf.mail.hostinger.com ~all`); DMARC `p=none` present
+- [ ] mail-tester.com deliverability score ≥9/10 from `hello@thestrledger.com` (DKIM verification)
+- [ ] DMARC `rua=mailto:hello@thestrledger.com` for visibility (cosmetic; not blocking)
+- [ ] Influencersoft account created · sales-page URLs collected (one per Wave-1 SKU minimum)
 
-### P3.2 — Site content (already drafted)
+### P3.2 — Site content (Day-0 site live ✅)
 
-Web UI kit at [design-system/ui_kits/web/](design-system/ui_kits/web/) has 11 HTML templates (landing, 9 product pages, tax-bundle landing, blog).
+Live at `https://thestrledger.com` since 2026-05-07. Source in [`site/`](site/). Deploy via [`site/scripts/deploy.sh`](site/scripts/deploy.sh).
 
-- [ ] Home page deployed (hero + 5 SKUs grid + lead-magnet CTA)
-- [ ] 12 product pages deployed (the ones with copy already drafted)
-- [ ] Tax-bundle landing live
-- [ ] Lead-magnet opt-in pages live (47 deductions, entity flowchart, etsy-buyer)
+- [x] Home page deployed — hero + 12-SKU grid + 47-deductions lead-magnet capture
+- [x] 12 product pages deployed (`/products/{SKU}`): TAX-001, GST-001, OPS-001, TAX-002, TAX-003, TAX-004, GST-002, OPS-002, FIN-001, FIN-003, ACQ-001, LGL-001
+- [x] 4 lead-magnet opt-in pages live (`/free/47-deductions`, `/free/welcome-book`, `/free/etsy-buyer`, `/free/entity-flowchart`)
+- [x] Legal pack live: `/terms`, `/privacy`, `/refunds` · plus `/about`, `/thank-you`, `/404`
+- [x] Pretty URLs · HTTPS canonical · `www`→apex · security headers · 30-day asset cache · gzip
+- [x] Brand-aligned per [design-system v1.1](design-system/) — Cormorant Garamond + Inter + JetBrains Mono, four signatures rendered, palette ratio respected
+- [x] Lead capture wired: posts to IS endpoint when configured, falls back to PHP `mail()` + log
+- [x] Buy buttons wired: per-SKU IS URL when configured, falls back to Etsy shop URL
+- [ ] Tax-bundle landing live (deferred — copy exists at [`copy/product-pages/bundles/`](copy/product-pages/bundles/), ship after Wave-1 sells)
 
-### P3.3 — Blog launch (3 posts ready)
+### P3.3 — Blog launch (deferred per Daniel — skipped for Day-0)
 
-- [ ] [01-airbnb-tax-deductions](copy/blog-posts/) live on Ghost
-- [ ] [02-schedule-e](copy/blog-posts/) live
-- [ ] [03-depreciation](copy/blog-posts/) live
-- [ ] Tax-accuracy review + disclaimer added to each ("not tax advice, consult CPA")
-- [ ] 🚦 "blog post N approved" × 3
-- [ ] Blog → IS opt-in form embedded
+> **Decision 2026-05-07:** Blog skipped at launch. Revisit after first-payment if traffic budget dictates. No Ghost / WordPress provisioning needed.
 
-### P3.4 — Own-site checkout optimization 💰
+- [~] [01-airbnb-tax-deductions](copy/blog-posts/) drafted (deferred deploy)
+- [~] [02-schedule-e](copy/blog-posts/) drafted (deferred deploy)
+- [~] [03-depreciation](copy/blog-posts/) drafted (deferred deploy)
+- [~] Tax-accuracy review + disclaimer added to each ("not tax advice, consult CPA") — pending publication
 
-> Once Stripe checkout is live on `thestrledger.com`, the highest-ROI marketing moves happen at the checkout page itself. Order bumps and abandoned-cart recovery routinely add 10–20% to AOV and 5–10% to CVR. Etsy doesn't permit any of this — own-site is where it lives.
+### P3.4 — Own-site config edits (post-deploy, no rebuild needed) 💰
 
-- [ ] **Order bump** on Stripe checkout — when buyer adds a Wave-1 SKU, offer the most-attached add-on at 30–50% off as a one-click checkbox before pay (e.g., GST-001 buyer sees Mileage Log for $7; TAX-001 buyer sees Cleaning Checklist for $5)
-- [ ] **Post-purchase one-time offer (OTO)** — Stripe success page presents bundle upgrade ("add 4 more SKUs and save 40%") with a 15-minute countdown; declines cannot return
-- [x] **Abandoned-cart sequence drafted** → [copy/email-sequences/abandoned-cart.md](copy/email-sequences/abandoned-cart.md) — Stripe webhook on `checkout.session.expired` / `incomplete` → 3-email IS sequence: 1h friction-finder · 24h use-case-branched pitch (Liquid by SKU prefix) · 72h last-note. **No discount** — own-site discounting trains abandon-then-rebuy behavior. Daniel can override with coupon ladder later if recovery rate < 10%.
-- [ ] **Cart capture on email** — collect email at first checkout step (before payment) so abandoned-cart sequence has a recipient even when the card isn't entered
-- [ ] **Express checkout** enabled in Stripe (Apple Pay / Google Pay / Link) — typically +3–5% CVR on mobile; one config toggle
-- [ ] **Trust badges + money-back guarantee** above the pay button — verify P0.5 assets render on the actual Stripe checkout page (or its hosted alternative)
-- [ ] 🚦 "checkout optimization live"
+> Site is live with placeholder config. Each item below is a one-line edit in [`site/public/_config/config.php`](site/public/_config/config.php) followed by `bash site/scripts/deploy.sh` (only the diff transfers).
+
+- [ ] `is_product_urls['SKU']` filled per Wave-1 SKU as IS sales pages launch — until set, "Buy" buttons fall back to Etsy shop URL
+- [ ] `is_form_endpoint` filled with IS form-submit URL — until set, opt-ins POST to PHP `/submit.php` (logs lead, mails `hello@`, redirects to `/thank-you`)
+- [ ] `is_magnet_tags['*']` per-magnet IS list/tag IDs (so subscribers land in the right segment)
+- [ ] `ga4_id` (or `plausible_domain`) — until set, no analytics tag is rendered
+- [ ] `etsy_shop_url` confirmed live (default placeholder: `https://www.etsy.com/shop/TheSTRLedger`)
+- [ ] `noindex` flipped to `false` for launch (default already `false`; flip to `true` only if you want to deindex during a partial rollback)
+
+### P3.5 — Checkout optimization (deferred — IS handles checkout, not site Stripe)
+
+> **Decision 2026-05-07:** Per Daniel — Stripe is the processor *behind* Influencersoft, not on `thestrledger.com`. The site is catalog + lead capture; checkout happens on IS. Most P3.4-era items (order bumps, OTO, cart capture, Apple/Google Pay) are configured inside IS, not in the site repo. Re-evaluate this section as IS feature-set crystallizes.
+
+- [~] Abandoned-cart sequence drafted → [copy/email-sequences/abandoned-cart.md](copy/email-sequences/abandoned-cart.md) (3-email IS sequence; ship inside IS, not the site)
+- [ ] Order bump configured in IS sales pages
+- [ ] Post-purchase OTO configured in IS
+- [ ] Cart-stage email capture configured in IS
+- [ ] Apple Pay / Google Pay / Link enabled inside IS
+- [ ] Trust badges + money-back guarantee added to IS sales-page templates
 
 ---
 

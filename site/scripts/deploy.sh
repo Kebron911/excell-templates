@@ -70,16 +70,6 @@ else
 fi
 echo "Transport: $TRANSPORT"
 
-# Ensure config.php exists on server
-if [[ "$INIT_REMOTE_CONFIG" == "1" ]]; then
-  echo "--- Ensuring _config/config.php exists on server ---"
-  if [[ "$DRY" == "1" ]]; then
-    echo "[dry-run] would: ssh $SSH_TARGET -- '[ -f $DST_PATH/_config/config.php ] || cp $DST_PATH/_config/config.example.php $DST_PATH/_config/config.php'"
-  else
-    "${SSH[@]}" "$SSH_TARGET" "[ -f '$DST_PATH/_config/config.php' ] || cp '$DST_PATH/_config/config.example.php' '$DST_PATH/_config/config.php'" || true
-  fi
-fi
-
 case "$TRANSPORT" in
   rsync)
     DRY_FLAG=""; [[ "$DRY" == "1" ]] && DRY_FLAG="--dry-run"
@@ -130,5 +120,21 @@ case "$TRANSPORT" in
     fi
     ;;
 esac
+
+# Init step runs AFTER upload so _config/config.example.php is on disk first
+if [[ "$INIT_REMOTE_CONFIG" == "1" ]]; then
+  echo "--- Ensuring _config/config.php exists on server ---"
+  if [[ "$DRY" == "1" ]]; then
+    echo "[dry-run] would: ssh $SSH_TARGET -- '[ -f $DST_PATH/_config/config.php ] || cp $DST_PATH/_config/config.example.php $DST_PATH/_config/config.php'"
+  else
+    "${SSH[@]}" "$SSH_TARGET" "[ -f '$DST_PATH/_config/config.php' ] || cp '$DST_PATH/_config/config.example.php' '$DST_PATH/_config/config.php'" \
+      && echo "config.php ready on server"
+  fi
+fi
+
+# Belt-and-braces: remove the old Coming Soon page if it lingers next to index.php
+if [[ "$DRY" != "1" ]]; then
+  "${SSH[@]}" "$SSH_TARGET" "[ -f '$DST_PATH/index.html' ] && rm '$DST_PATH/index.html' && echo 'removed legacy index.html'" || true
+fi
 
 echo "=== Done. Verify https://thestrledger.com ==="
