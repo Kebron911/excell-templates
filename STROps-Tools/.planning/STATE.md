@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 2 — Seven tools
-**Current task:** Task 14 — Restock calculator
+**Current task:** Task 15 — Damage cost lookup
 **Last update:** 2026-05-07
 
 ---
@@ -12,7 +12,7 @@
 - [x] Task 11 — Cleaner dispatch (PDF)
 - [x] Task 12 — Smart lock codes (deterministic)
 - [x] Task 13 — Linen par calculator
-- [ ] Task 14 — Restock calculator
+- [x] Task 14 — Restock calculator
 - [ ] Task 15 — Damage cost lookup
 - [ ] Task 16 — Maintenance schedule (PDF + .ics)
 

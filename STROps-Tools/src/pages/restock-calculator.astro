@@ -1,0 +1,76 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import AffiliateCard from '@/components/affiliate/AffiliateCard.astro';
+import RestockCalculator from '@/components/calculators/RestockCalculator.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  { question: 'What\'s the math?', answer: 'qty/month = bookings × guests × nights × per-guest-night rate. Yearly is monthly × 12. Round to whole units — you can\'t order half a roll.' },
+  { question: 'Where do I get per-guest-night rates?', answer: 'Walk a property mid-stay and count what\'s gone — TP, dish soap, paper towels. Divide by guest-nights. Use the result as your rate.' },
+  { question: 'Should I add a buffer?', answer: 'Add a 1.2x buffer for the first three months at a new property to absorb seasonal variance. Drop to 1.05x once your data is clean.' },
+  { question: 'Does this account for backups in storage?', answer: 'No — these are reorder quantities, not on-hand inventory. Hold one month\'s reorder as a safety stock, not three.' },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Airbnb Supply Restock Calculator',
+    description: 'Compute monthly and yearly reorder quantities from booking volume and per-guest-night rates.',
+    toolPath: '/restock-calculator',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="Airbnb Supply Restock Calculator — strops.tools"
+  description="Booking volume × consumable burn rate = when to reorder. Free, exportable as TSV."
+  path="/restock-calculator"
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto max-w-6xl px-5 py-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-10">
+    <article class="prose">
+      <p class="label text-accent-deep">Operations · Supplies</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy leading-tight">
+        Restock Calculator<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2">
+        Booking volume times consumable burn rate equals when to reorder. Paste your items, get a monthly reorder list, copy as TSV into your spreadsheet.
+      </p>
+
+      <RestockCalculator client:load />
+
+      <AdSlot location="in-content" />
+
+      <h2 class="mt-9 font-serif text-h2 text-navy">How it works</h2>
+      <p class="mt-3 text-body text-ink-2">
+        For each item: <code>monthly_qty = bookings_per_month × avg_guests × avg_nights × per_guest_night</code>. Yearly is monthly × 12. Numbers are whole units (rounded), because suppliers don't sell half-rolls.
+      </p>
+
+      <EmailCaptureCard magnet="supply-par-pdf" toolSlug="restock-calculator" />
+
+      <STRLedgerCTA tool="restock-calculator" />
+
+      <AffiliateCard vendor="hospitable" tool="restock-calculator" />
+
+      <h2 class="mt-7 font-serif text-h2 text-navy">FAQ</h2>
+      <div class="mt-3 space-y-4">
+        {faqs.map(f => (
+          <div>
+            <h3 class="font-serif text-h3 text-navy">{f.question}</h3>
+            <p class="mt-1 text-body text-ink-2">{f.answer}</p>
+          </div>
+        ))}
+      </div>
+
+      <AdSlot location="footer" />
+    </article>
+
+    <Sidebar current="restock-calculator" />
+  </div>
+
+  <ClusterFunnelBlock currentCluster="operations" />
+</Layout>
