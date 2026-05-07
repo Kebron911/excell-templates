@@ -1,0 +1,141 @@
+---
+export const prerender = false;
+
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { marked } from 'marked';
+
+const SLUG_TO_FILE: Record<string, { file: string; sku: string; title: string; tagline: string }> = {
+  'tax-01': {
+    file: 'TAX-01-str-tax-loophole-playbook.md',
+    sku: 'TAX-01',
+    title: 'The STR Tax Loophole Playbook',
+    tagline: 'Plain-English on the short-term rental tax strategy — who qualifies, how to document it, and where it goes wrong.',
+  },
+  'tax-02': {
+    file: 'TAX-02-material-participation-survival-kit.md',
+    sku: 'TAX-02',
+    title: 'Material Participation Survival Kit',
+    tagline: 'The 100-hour test, the 500-hour test, and the log that holds up under audit.',
+  },
+  'rev-01': {
+    file: 'REV-01-why-are-my-bookings-down.md',
+    sku: 'REV-01',
+    title: 'Why Are My Bookings Down?',
+    tagline: 'A diagnostic walkthrough for hosts watching their numbers slide.',
+  },
+  'rev-02': {
+    file: 'REV-02-direct-bookings-starter.md',
+    sku: 'REV-02',
+    title: 'Direct Bookings Starter',
+    tagline: 'The OTA-to-direct migration playbook — without burning your Airbnb listing.',
+  },
+  'lgl-01': {
+    file: 'LGL-01-permit-regulation-survival-guide.md',
+    sku: 'LGL-01',
+    title: 'STR Permit & Regulation Survival Guide',
+    tagline: "A reusable framework for researching any city's STR rules in one afternoon.",
+  },
+  'free': {
+    file: 'FREE-str-tax-loophole-explainer.md',
+    sku: 'FREE',
+    title: 'The STR Tax Loophole Explainer',
+    tagline: 'The 8-page primer pulled from chapter 1 of the playbook.',
+  },
+};
+
+const slug = Astro.params.slug || '';
+const meta = SLUG_TO_FILE[slug];
+
+if (!meta) {
+  return new Response('Unknown manual slug', { status: 404 });
+}
+
+const path = resolve(process.cwd(), '..', 'manuscripts', meta.file);
+let raw = '';
+try {
+  raw = await readFile(path, 'utf-8');
+} catch {
+  return new Response(`Manuscript not found at ${path}`, { status: 404 });
+}
+
+// Each manuscript starts with a title H1 + meta block (working-manuscript notes,
+// author, target length, companion). The first --- divider closes that block.
+// We strip everything before and including that first ---, then drop any leftover
+// H1 that names the manual (its title lives on the cover).
+//
+// Several manuscripts also have a short "## Front matter" structural-plan block
+// and a "## Chapter outline" table — these were authoring scaffolds, not content
+// for the printed PDF. We strip them too.
+const dividerIdx = raw.indexOf('\n---\n');
+const afterMeta = dividerIdx >= 0 ? raw.slice(dividerIdx + 5) : raw;
+
+let usefulMd = afterMeta;
+
+// Strip "## Front matter" section (authoring scaffold, not for print)
+usefulMd = usefulMd.replace(/^##\s+Front matter[\s\S]*?(?=\n---\n|\n## )/m, '');
+
+// Strip "## Chapter outline" section (the markdown table summarizing chapters)
+usefulMd = usefulMd.replace(/^##\s+Chapter outline[\s\S]*?(?=\n---\n|\n## |\n# )/m, '');
+
+// Strip "## A note on" intro sections that are purely meta (TAX-02 has one
+// linking back to TAX-01) — keep the rest intact
+// (Optional — leaving in by default; uncomment if too noisy in print)
+// usefulMd = usefulMd.replace(/^##\s+A note on[\s\S]*?(?=\n---\n|\n## |\n# )/m, '');
+
+// Strip stale --- dividers that may now be back-to-back from the deletions
+usefulMd = usefulMd.replace(/(\n---\n\s*){2,}/g, '\n---\n');
+
+// Drop any leftover top-level H1 that names the manual (the cover handles it).
+// This catches "# The STR Tax Loophole Explainer" or similar that some
+// manuscripts leave at the top of body content.
+usefulMd = usefulMd.replace(/^#\s+(?!Chapter\b)[^\n]+\n/m, '');
+
+// Marked configuration
+marked.setOptions({
+  gfm: true,
+  breaks: false,
+});
+
+const html = marked.parse(usefulMd) as string;
+
+// Split: front matter is everything up to the first chapter H1.
+// In our manuscripts, real chapters are always "# Chapter N — Title", so we
+// look for the first H1 containing "Chapter".
+const chapterMatch = html.match(/<h1[^>]*>Chapter\b/);
+const firstChapterIdx = chapterMatch ? chapterMatch.index! : html.indexOf('<h1');
+
+const frontHtml = firstChapterIdx > 0 ? html.slice(0, firstChapterIdx) : '';
+const chaptersHtml = firstChapterIdx >= 0 ? html.slice(firstChapterIdx) : html;
+
+const wrappedFront = frontHtml ? `<div class="front-matter">${frontHtml}</div>` : '';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{meta.title} — STR Manuals</title>
+    <link rel="stylesheet" href="/print.css" />
+    <style>
+      /* Inline cover-specific overrides (loaded after print.css for cascade) */
+    </style>
+  </head>
+  <body>
+    <!-- Cover page -->
+    <section class="cover">
+      <div class="cover-frame"></div>
+      <p class="cover-sku">{meta.sku}</p>
+      <hr class="cover-rule-top" />
+      <h1 class="cover-title">{meta.title}</h1>
+      <p class="cover-tagline">{meta.tagline}</p>
+      <hr class="cover-rule-bottom" />
+      <p class="cover-imprint">STR Manuals · v1 · 2026</p>
+    </section>
+
+    <!-- Front matter: disclaimer, about, table of contents -->
+    <Fragment set:html={wrappedFront} />
+
+    <!-- Chapters and back matter -->
+    <Fragment set:html={chaptersHtml} />
+  </body>
+</html>

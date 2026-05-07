@@ -1,0 +1,129 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import PdfDownloadButton from '@/components/generator/PdfDownloadButton.astro';
+import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import CheckinInstructionsGenerator from '@/components/generators/CheckinInstructionsGenerator.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import tools from '@/data/tools.json';
+
+const tool = tools['check-in-instructions'];
+const path = tool.path;
+
+const webApp = buildWebApplication({
+  name: tool.name,
+  description: tool.tagline,
+  toolPath: path,
+});
+const faq = buildFAQPage([
+  {
+    question: 'What image formats are supported for door / parking photos?',
+    answer: 'PNG and JPG. Files are read in-browser and embedded directly into the PDF — nothing is uploaded.',
+  },
+  {
+    question: 'Is there a max image size?',
+    answer: 'Practically a few MB. Big images make big PDFs. HEIC (iPhone Live Photos) is not supported — convert to JPG first.',
+  },
+  {
+    question: 'Does this also generate a Wi-Fi QR code?',
+    answer: 'Not on this generator. The Wi-Fi page here has credential tiles only. Use the Wi-Fi Sign Generator for a scannable QR.',
+  },
+  {
+    question: 'Can I attach a digital signature line?',
+    answer: 'Not yet. The Welcome Book Builder has a cover-page host signature; this generator focuses on operational arrival info.',
+  },
+]);
+---
+<Layout
+  title={`${tool.name} — strguests.tools`}
+  description={tool.tagline}
+  path={path}
+  jsonLd={[webApp, faq]}
+>
+  <article class="generator-page mx-auto max-w-6xl px-5 py-8">
+    <header>
+      <p class="label text-[color:var(--accent-700)]">Free generator · No signup</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">
+        Check-in Instructions PDF<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2 max-w-2xl leading-snug">
+        {tool.tagline} Photos and credentials embed directly in your browser
+        — nothing uploaded.
+      </p>
+    </header>
+
+    <section class="mt-7">
+      <CheckinInstructionsGenerator client:load />
+    </section>
+
+    <div class="mt-5 flex flex-wrap gap-3">
+      <PdfDownloadButton
+        toolSlug="check-in-instructions"
+        filename="check-in-instructions"
+        magnet="check-in-instructions"
+        label="Download PDF"
+      />
+      <PinterestPinButton toolSlug="check-in-instructions" description="Free Airbnb check-in instructions PDF — multi-page guide with photos" />
+    </div>
+
+    <AdSlot location="in-content" />
+
+    <section class="mt-9 prose">
+      <h2 class="font-serif text-h2 text-navy">The clearer the instructions, the smoother the arrival</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        Most "where do we park?" messages happen between 9pm and midnight, when guests are tired,
+        the host is asleep, and the booking platform's auto-translate is butchering the door
+        code. A printable PDF — sent in the booking confirmation, then opened on the guest's
+        phone at the door — pre-empts most of it.
+      </p>
+    </section>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">How to use the printable</h2>
+      <ul class="mt-4 space-y-3 text-body text-graphite leading-relaxed">
+        <li><strong class="text-navy">Send the PDF in the pre-arrival message.</strong> Most platforms attach PDFs in the booking confirmation thread.</li>
+        <li><strong class="text-navy">One photo is worth ten lines.</strong> A 30-second iPhone shot of the lockbox saves you an arrival-night message exchange.</li>
+        <li><strong class="text-navy">Keep door codes in section 3, not on the cover.</strong> Cover screenshots get shared more freely than mid-document content.</li>
+        <li><strong class="text-navy">Re-generate per booking if codes rotate.</strong> Generate a per-booking PDF and attach to the confirmation.</li>
+      </ul>
+    </section>
+
+    <EmailCaptureCard
+      magnet="check-in-instructions"
+      toolSlug="check-in-instructions"
+      headline="Get the arrival-flow checklist"
+      blurb="A one-page checklist for everything you need to send guests before arrival — what platform to send each piece on, when, and how to follow up if they don't acknowledge."
+      cta="Email me the checklist"
+    />
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">Frequently asked</h2>
+      <dl class="mt-4 space-y-5">
+        <div>
+          <dt class="font-serif text-h3 text-navy">What image formats?</dt>
+          <dd class="mt-1 text-body text-graphite leading-relaxed">PNG and JPG. Read in-browser, embedded directly into the PDF.</dd>
+        </div>
+        <div>
+          <dt class="font-serif text-h3 text-navy">Max image size?</dt>
+          <dd class="mt-1 text-body text-graphite leading-relaxed">A few MB. HEIC isn't supported — convert to JPG first.</dd>
+        </div>
+        <div>
+          <dt class="font-serif text-h3 text-navy">Does it generate a Wi-Fi QR?</dt>
+          <dd class="mt-1 text-body text-graphite leading-relaxed">No — for a scannable QR, use the <a href="/wifi-sign" class="text-[color:var(--accent-700)]">Wi-Fi Sign Generator</a>.</dd>
+        </div>
+      </dl>
+    </section>
+
+    <STRLedgerCTA tool="check-in-instructions" />
+
+    <AdSlot location="footer" />
+
+    <Sidebar current="check-in-instructions" />
+  </article>
+
+  <ClusterFunnelBlock currentCluster="guest-xp" />
+</Layout>

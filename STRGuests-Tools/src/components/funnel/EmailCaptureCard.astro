@@ -1,0 +1,119 @@
+---
+// EmailCaptureCard — inline content-styled card. Posts to ESP webhook from
+// the static client. UTM-tagged by tool slug.
+//
+// One per page. Inline placement only — no popup, no exit-intent, no sticky.
+// Reads as content, not as an ad break.
+
+interface Props {
+  /** ESP magnet identifier — tags the subscription on the ESP side. */
+  magnet: string;
+  /** Tool slug, embedded in UTM source/content for attribution. */
+  toolSlug?: string;
+  headline?: string;
+  blurb?: string;
+  cta?: string;
+}
+
+const {
+  magnet,
+  toolSlug = 'unknown',
+  headline = 'Free Welcome Book template — fill in once, print forever',
+  blurb = "We'll email you the editable Welcome Book master template. Branded printable, 8 sections, no signup gymnastics.",
+  cta = 'Email me the template',
+} = Astro.props;
+---
+<aside
+  class="email-capture-card my-7 rounded-md border border-rule bg-parchment-light p-5 print:hidden"
+  aria-label="Get free guest-XP templates by email"
+>
+  <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+    <div class="flex-1 min-w-0">
+      <p class="font-serif text-h3 text-navy leading-snug">{headline}</p>
+      <p class="mt-1 text-small text-ink-2 leading-snug">{blurb}</p>
+    </div>
+
+    <form
+      class="flex flex-col sm:flex-row gap-2 sm:w-auto sm:items-stretch"
+      data-email-capture
+      data-magnet={magnet}
+      data-tool={toolSlug}
+      method="post"
+      novalidate
+    >
+      <label class="sr-only" for={`email-${magnet}`}>Email address</label>
+      <input
+        id={`email-${magnet}`}
+        name="email"
+        type="email"
+        required
+        autocomplete="email"
+        placeholder="you@yourdomain.com"
+        class="rounded-md border border-rule bg-parchment px-4 py-2 text-ui text-navy placeholder:text-ink-3 focus:outline-none focus:border-[color:var(--accent-500)] focus:shadow-focus"
+      />
+      <button
+        type="submit"
+        class="rounded-md bg-navy text-parchment px-5 py-2 text-ui hover:bg-navy-tint transition-colors duration-std focus:outline-none focus:shadow-focus"
+      >
+        {cta}
+      </button>
+    </form>
+  </div>
+  <p
+    class="mt-3 text-caption text-ink-3 leading-snug"
+    data-email-capture-status
+    role="status"
+    aria-live="polite"
+  >
+    No spam. One template per email. Unsubscribe anytime.
+  </p>
+</aside>
+
+<script>
+  const webhook = (import.meta.env.PUBLIC_ESP_WEBHOOK as string | undefined) ?? '';
+
+  document.querySelectorAll<HTMLFormElement>('form[data-email-capture]').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = form.querySelector<HTMLInputElement>('input[name="email"]');
+      const status = form.parentElement?.querySelector<HTMLElement>('[data-email-capture-status]');
+      const email = input?.value?.trim();
+      const magnet = form.dataset.magnet ?? '';
+      const tool = form.dataset.tool ?? '';
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (status) status.textContent = 'Please enter a valid email.';
+        return;
+      }
+
+      const payload = {
+        email,
+        magnet,
+        source: 'strguests.tools',
+        tool,
+        utm_source: 'strguests-tools',
+        utm_medium: 'email-capture',
+        utm_content: tool,
+        ts: Date.now(),
+      };
+
+      try {
+        if (webhook) {
+          await fetch(webhook, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            keepalive: true,
+          });
+        } else {
+          console.warn('[EmailCaptureCard] PUBLIC_ESP_WEBHOOK not set; payload:', payload);
+        }
+        (window as any).gtag?.('event', 'email_captured', { tool, magnet });
+        if (status) status.textContent = 'Got it. Watch your inbox.';
+        if (input) input.value = '';
+      } catch (err) {
+        if (status) status.textContent = 'Something went sideways. Try again in a minute.';
+      }
+    });
+  });
+</script>

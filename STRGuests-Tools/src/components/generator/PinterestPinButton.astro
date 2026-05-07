@@ -1,0 +1,81 @@
+---
+// PinterestPinButton — opens Pinterest's create-pin intent pre-filled with
+// the page URL, description, and the canonical 1000×1500 pin built at
+// `pnpm build` time by scripts/build-pins.mjs.
+//
+// Phase 1 had a placeholder that dispatched a CustomEvent and called a
+// `window.__strguests.generatePinPng` registry. Phase 5 Task 26 replaces
+// that with the real flow: each generator has a corresponding
+// /pins/<slug>.png produced by Satori at build time. The intent's `media`
+// parameter pre-loads that pin so the user only has to confirm the save.
+//
+// Per-generator dynamic state pins (a pin that reflects the current form
+// state) are deferred — that would require a runtime image upload
+// endpoint, which strguests.tools doesn't operate.
+
+interface Props {
+  /** Tool slug (matches src/data/tools.json keys). Used to look up the pin PNG. */
+  toolSlug: string;
+  /** Pinterest description / pin text. */
+  description?: string;
+  /** Optional override for the pin image path (defaults to /pins/<slug>.png). */
+  pinPath?: string;
+  /** Optional override for button label. */
+  label?: string;
+}
+
+const {
+  toolSlug,
+  description = 'Free guest-XP generator from strguests.tools',
+  pinPath,
+  label = 'Save to Pinterest',
+} = Astro.props;
+
+const resolvedPinPath = pinPath ?? `/pins/${toolSlug}.png`;
+---
+<div class="my-3 print:hidden">
+  <button
+    type="button"
+    class="pin-button inline-flex items-center gap-2 rounded-md border border-rule bg-parchment-light text-navy px-5 py-2.5 text-ui no-underline transition-colors duration-std focus:outline-none focus:shadow-focus hover:bg-parchment-alt"
+    data-pin-button
+    data-tool={toolSlug}
+    data-description={description}
+    data-pin-path={resolvedPinPath}
+  >
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+      <path d="M8 4v6m-1.5-1.5L8 10l1.5-1.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    {label}
+  </button>
+</div>
+
+<script>
+  // Open Pinterest's create-pin intent pre-filled with:
+  //   - url           = current page URL (the link the pin saves)
+  //   - description   = the pin caption
+  //   - media         = absolute URL to the pre-built pin PNG
+  //
+  // `media` requires an absolute URL; we resolve relative to the current
+  // origin at click time so the same component works in dev and prod.
+
+  document.querySelectorAll<HTMLButtonElement>('button[data-pin-button]').forEach((btn) => {
+    const tool = btn.dataset.tool ?? '';
+    const description = btn.dataset.description ?? '';
+    const pinPath = btn.dataset.pinPath ?? `/pins/${tool}.png`;
+
+    btn.addEventListener('click', () => {
+      const pageUrl = window.location.href;
+      const mediaUrl = new URL(pinPath, window.location.origin).toString();
+      const intentUrl =
+        'https://www.pinterest.com/pin/create/button/' +
+        `?url=${encodeURIComponent(pageUrl)}` +
+        `&description=${encodeURIComponent(description)}` +
+        `&media=${encodeURIComponent(mediaUrl)}`;
+
+      (window as any).gtag?.('event', 'pin_intent_opened', { tool, mediaUrl });
+
+      window.open(intentUrl, '_blank', 'noopener,noreferrer,width=720,height=620');
+    });
+  });
+</script>

@@ -1,0 +1,171 @@
+---
+// PdfDownloadButton — strguests-novel. Triggers PDF generation for the host
+// page, optionally surfaces a soft email-capture modal, and ALWAYS downloads
+// the PDF (closing the modal "skips" capture but keeps the download going).
+//
+// Per spec §10 (PDF download flow): soft gate. PDF arrives no matter what.
+// "Skip and download" copy is non-negotiable. Modal closes on Escape.
+//
+// Wiring: each generator page registers a global function on
+// `window.__strguests.generatePdf[<toolSlug>]` that returns a `Uint8Array`
+// (pdf-lib bytes). This component listens for the click, calls that fn,
+// triggers download via Blob/URL, and shows the email modal in parallel.
+//
+// The MAGNET id ties the email capture to the same magnet system as
+// EmailCaptureCard so a host downloading the welcome book PDF lands in the
+// "welcome-book-pdf" segment on the ESP side.
+
+interface Props {
+  /** Tool slug (matches src/data/tools.json keys). */
+  toolSlug: string;
+  /** Filename for the downloaded PDF (no extension; .pdf appended). */
+  filename: string;
+  /** Email magnet identifier on the ESP. */
+  magnet: string;
+  /** Optional override for button label. */
+  label?: string;
+}
+
+const { toolSlug, filename, magnet, label = 'Download PDF' } = Astro.props;
+---
+<div class="my-7 print:hidden">
+  <button
+    type="button"
+    class="inline-flex items-center gap-2 rounded-md text-parchment px-5 py-2.5 text-ui no-underline transition-colors duration-std focus:outline-none focus:shadow-focus hover:opacity-90"
+    style="background: var(--accent-500);"
+    data-pdf-download
+    data-tool={toolSlug}
+    data-filename={filename}
+    data-magnet={magnet}
+  >
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M8 1v9m0 0l-3-3m3 3l3-3M2 13h12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    {label}
+  </button>
+
+  <dialog
+    class="rounded-md border border-rule bg-parchment-light p-6 max-w-md backdrop:bg-navy/60"
+    data-pdf-modal
+    data-tool={toolSlug}
+    data-magnet={magnet}
+    aria-labelledby={`pdf-modal-title-${toolSlug}`}
+  >
+    <p id={`pdf-modal-title-${toolSlug}`} class="font-serif text-h3 text-navy">
+      Want updates when we ship more guest-XP tools?
+    </p>
+    <p class="mt-2 text-small text-ink-2 leading-snug">
+      Your PDF is downloading either way. If you want a heads-up when we ship the next
+      generator, drop your email below.
+    </p>
+    <form class="mt-4 flex flex-col gap-2" data-pdf-modal-form>
+      <input
+        type="email"
+        name="email"
+        autocomplete="email"
+        required
+        placeholder="you@yourdomain.com"
+        class="rounded-md border border-rule bg-parchment px-4 py-2 text-ui text-navy placeholder:text-ink-3 focus:outline-none focus:border-[color:var(--accent-500)] focus:shadow-focus"
+      />
+      <div class="flex flex-col sm:flex-row gap-2 sm:justify-end">
+        <button
+          type="button"
+          class="rounded-md border border-rule bg-parchment text-navy px-4 py-2 text-ui hover:bg-parchment-alt transition-colors duration-std"
+          data-pdf-modal-skip
+        >
+          Skip and download
+        </button>
+        <button
+          type="submit"
+          class="rounded-md text-parchment px-5 py-2 text-ui transition-colors duration-std hover:opacity-90"
+          style="background: var(--accent-500);"
+        >
+          Email me when it ships
+        </button>
+      </div>
+    </form>
+  </dialog>
+</div>
+
+<script>
+  // Soft email-gate flow (shared logic in @/lib/email-gate):
+  //   click -> trigger PDF download -> {gate dismissed? skip modal} -> open modal -> {submit | skip | esc}
+  //   - PDF always downloads, regardless of modal interaction.
+  //   - Submit posts to ESP webhook via postEmailCapture().
+  //   - Any close path (submit | skip | esc) marks the gate dismissed for
+  //     this tab session, so the visitor isn't re-prompted on every download.
+  //   - Skip / Escape close the modal silently.
+  import {
+    isGateDismissed,
+    markGateDismissed,
+    isValidEmail,
+    postEmailCapture,
+  } from '@/lib/email-gate';
+
+  type PdfFn = () => Promise<Uint8Array> | Uint8Array;
+
+  function getPdfFn(tool: string): PdfFn | undefined {
+    const reg = (window as any).__strguests?.generatePdf;
+    return reg ? reg[tool] : undefined;
+  }
+
+  function downloadBytes(bytes: Uint8Array, filename: string) {
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 0);
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('button[data-pdf-download]').forEach((btn) => {
+    const tool = btn.dataset.tool ?? '';
+    const filename = btn.dataset.filename ?? `${tool}.pdf`;
+    const modal = document.querySelector<HTMLDialogElement>(`dialog[data-pdf-modal][data-tool="${tool}"]`);
+
+    btn.addEventListener('click', async () => {
+      const fn = getPdfFn(tool);
+      if (!fn) {
+        console.error(`[PdfDownloadButton] No generator registered for "${tool}".`);
+        return;
+      }
+
+      try {
+        const bytes = await fn();
+        downloadBytes(bytes, filename);
+        (window as any).gtag?.('event', 'pdf_downloaded', { tool, filename });
+        if (modal && !isGateDismissed(tool)) modal.showModal();
+      } catch (err) {
+        console.error('[PdfDownloadButton] Generation failed:', err);
+      }
+    });
+
+    if (modal) {
+      const form = modal.querySelector<HTMLFormElement>('form[data-pdf-modal-form]');
+      const skip = modal.querySelector<HTMLButtonElement>('button[data-pdf-modal-skip]');
+      const magnet = modal.dataset.magnet ?? '';
+
+      form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = (form.querySelector('input[name="email"]') as HTMLInputElement)?.value?.trim() ?? '';
+        if (!isValidEmail(email)) return;
+        const ok = await postEmailCapture({ email, magnet, toolSlug: tool });
+        if (ok) (window as any).gtag?.('event', 'email_captured', { tool, magnet });
+        markGateDismissed(tool);
+        modal.close();
+      });
+
+      skip?.addEventListener('click', () => {
+        markGateDismissed(tool);
+        modal.close();
+      });
+
+      modal.addEventListener('close', () => markGateDismissed(tool));
+    }
+  });
+</script>

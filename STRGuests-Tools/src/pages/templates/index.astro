@@ -1,0 +1,102 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import TemplateIndex from '@/components/templates/TemplateIndex.tsx';
+import { buildWebApplication } from '@/lib/seo';
+import templatesData from '@/data/templates.json';
+
+interface TemplateEntry {
+  name: string;
+  category: string;
+  scenario: string;
+  exampleInput: string;
+  exampleOutput: string;
+  lastVerified: string;
+}
+
+interface TemplatesFile {
+  categories: string[];
+  templates: Record<string, TemplateEntry>;
+}
+
+const data = templatesData as unknown as TemplatesFile;
+
+const rows = Object.entries(data.templates).map(([key, t]) => ({
+  key,
+  name: t.name,
+  category: t.category,
+  scenario: t.scenario,
+  lastVerified: t.lastVerified,
+}));
+
+const path = '/templates/';
+const webAppLd = buildWebApplication({
+  name: 'Airbnb Message Templates Library',
+  description: 'Browse 26 hand-written Airbnb host message templates across pre-arrival, check-in, mid-stay, problem-resolution, and more — searchable, filterable, with example inputs and outputs.',
+  toolPath: path,
+});
+---
+<Layout
+  title="Airbnb Message Templates — strguests.tools"
+  description="26 hand-written Airbnb host message templates across 10 scenario categories. Searchable, filterable, with example inputs and outputs."
+  path={path}
+  jsonLd={[webAppLd]}
+>
+  <article class="mx-auto max-w-5xl px-5 py-8">
+    <header>
+      <p class="label text-[color:var(--accent-700)]">Free library · No signup</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">
+        Airbnb Message Templates<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2 max-w-2xl leading-snug">
+        Hand-written templates for the moments that matter most: arrival, problems,
+        cancellations, anniversaries. Pick one to start, customize for your property,
+        send.
+      </p>
+    </header>
+
+    <section class="mt-7">
+      <TemplateIndex
+        client:load
+        templates={rows}
+        categories={data.categories}
+      />
+    </section>
+
+    <AdSlot location="in-content" />
+
+    <section class="mt-9 prose">
+      <h2 class="font-serif text-h2 text-navy">Why these templates work</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        The templates here were written for the messages hosts actually send — not the
+        platform's stock placeholders, not generic SaaS copy. Every example output runs
+        60–600 words, uses standard mustache placeholders for property-specific values,
+        and was verified against host-coaching guidance current as of the
+        <code>lastVerified</code> date on each entry.
+      </p>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        Want one customized for your property automatically? The
+        <a href="/guest-messages" class="text-[color:var(--accent-700)]">Guest Message Generator</a>
+        wraps these templates with an AI rewrite that swaps placeholders, adjusts tone,
+        and matches your property's voice — free, with a soft email gate.
+      </p>
+    </section>
+
+    <EmailCaptureCard
+      magnet="message-template-bundle"
+      toolSlug="guest-messages"
+      headline="Get the full Guest Message Template Pack"
+      blurb="Drop your email and we'll send you the editable bundle the day the AI generator ships — including templates we don't surface on the public site yet."
+      cta="Email me the template pack"
+    />
+
+    <STRLedgerCTA tool="guest-messages" />
+
+    <AdSlot location="footer" />
+  </article>
+
+  <ClusterFunnelBlock currentCluster="guest-xp" />
+</Layout>

@@ -15,3 +15,6 @@ private/free/**/*.pdf
 # Local SQLite order log (production lives on Hostinger)
 private/db/*.db
 private/db/*.db-journal
+
+# Transient PDF design-pass screenshots (regenerated on demand)
+private/screenshots/

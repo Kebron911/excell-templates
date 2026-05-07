@@ -10,7 +10,14 @@
     "preview": "astro preview",
     "astro": "astro",
     "stubs": "node scripts/generate-stubs.mjs",
-    "test:download": "node scripts/test-download.mjs"
+    "test:download": "node scripts/test-download.mjs",
+    "pdf:all": "node scripts/build-pdf.mjs",
+    "pdf:tax-01": "node scripts/build-pdf.mjs tax-01",
+    "pdf:tax-02": "node scripts/build-pdf.mjs tax-02",
+    "pdf:rev-01": "node scripts/build-pdf.mjs rev-01",
+    "pdf:rev-02": "node scripts/build-pdf.mjs rev-02",
+    "pdf:lgl-01": "node scripts/build-pdf.mjs lgl-01",
+    "pdf:free": "node scripts/build-pdf.mjs free"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.0",

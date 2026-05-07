@@ -57,6 +57,26 @@ const lds = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     {lds.map(ld => (
       <script is:inline type="application/ld+json" set:html={JSON.stringify(ld)} />
     ))}
+
+    {/* GA4 — only emitted when PUBLIC_GA4_ID is set. Cross-domain linker
+        wires attribution across the four-site STR cluster + The STR Ledger
+        so a visitor who hops from a calculator to a paid SKU keeps the
+        same client_id (per cluster funnel mechanic in spec section 18). */}
+    {import.meta.env.PUBLIC_GA4_ID && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${import.meta.env.PUBLIC_GA4_ID}`} />
+        <script is:inline set:html={`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', '${import.meta.env.PUBLIC_GA4_ID}', {
+            linker: { domains: ['strhost.tools', 'thestrledger.com', 'strbuyers.tools', 'strops.tools', 'strguests.tools'] },
+            send_page_view: true
+          });
+        `} />
+      </>
+    )}
   </head>
   <body class="min-h-screen flex flex-col">
     <Header />

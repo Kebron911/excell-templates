@@ -1,0 +1,52 @@
+## How it works
+
+The profitability calculator models a short-term rental's monthly P&L from three sides: **revenue**, **variable costs**, and **fixed costs**.
+
+**Revenue** is straightforward — your average daily rate (ADR) multiplied by nights booked. Across a multi-month window, both numbers compound.
+
+**Variable costs** scale with bookings:
+
+- **Cleaning** — per turnover (one turnover = one stay)
+- **Supplies** — toiletries, paper goods, coffee, etc., per night booked
+- **Utilities** — electricity, gas, water, internet, per month in the window
+- **Platform fees** — Airbnb host fee, Vrbo subscription, channel manager — total over the window
+
+**Fixed costs** scale with time, not bookings:
+
+- **Mortgage** — principal + interest, per month
+- **Insurance** — STR-specific liability, per month
+- **Property tax** — entered annually; the calculator prorates it to your window via `propertyTax × (months / 12)`
+- **HOA fees** — per month
+- **Management fee** — a percentage of gross revenue (0 if self-managed)
+
+**Net profit** = revenue − variable costs − fixed costs.
+**Profit margin** = net profit / revenue.
+
+This is a real cash-flow view, not a tax view. Depreciation, mortgage principal vs. interest splits, and capital improvements aren't modeled here — those belong in your tax workbook.
+
+## How to use this calculator
+
+1. **Set your window** — start with `Months in window = 1` for a single-month snapshot, or use `12` for an annual view.
+2. **Enter revenue inputs** — ADR and nights booked. Combined, they give you gross revenue for the window.
+3. **Itemize variable costs** — turnovers (one per stay), cleaning per turnover, supplies per night, utilities and platform fees for the window.
+4. **Itemize fixed costs** — mortgage, insurance, property tax (annual), HOA, management fee rate.
+5. **Read the result panel** — gross revenue, total variable, total fixed, net profit, margin.
+6. **Iterate** — adjust ADR or occupancy assumptions to see what gets you to a target profit.
+7. **Save the scenario** — every change updates the URL. Bookmark or share.
+
+## Frequently asked questions
+
+**Should I include my own labor as a cost?**
+If you self-manage and self-clean, no. Set management fee rate = 0 and cleaning per turnover = your actual cleaning supplies cost. The "profit" you see is your real take-home for your time. If you want to value your time, set a reasonable management fee rate (10–20%) and net profit becomes "what's left after paying yourself."
+
+**How do I model multiple properties?**
+Run the calculator once per property. The numbers don't combine cleanly because mortgage and tax differ per property.
+
+**What about depreciation?**
+Not modeled — depreciation is a tax concept, not a cash-flow concept. For tax planning, see [The STR Ledger's depreciation tracker](https://thestrledger.com/products/depreciation-tracker).
+
+**Why is my margin so low?**
+STR margins typically run 15–35% net. If you're under 10%, the usual culprits are: mortgage too high relative to ADR, occupancy assumption too aggressive, or hidden costs (capex, vacancy reserve) you haven't itemized.
+
+**Is this tax advice?**
+No. This is a cash-flow model. For tax planning — material participation, cost segregation, Schedule E vs. Schedule C — consult a CPA. The STR Ledger has [a tax loophole playbook](https://thestrledger.com) with the framework, but the calculator is just math.

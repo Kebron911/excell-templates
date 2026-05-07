@@ -1,0 +1,171 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import LodgingTaxCalculator from '@/components/calculators/LodgingTaxCalculator.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import { formatPercent } from '@/lib/format';
+import { getEntry } from 'astro:content';
+import type { LodgingTaxData } from '@/data/lodging-tax-by-state.schema';
+
+export async function getStaticPaths() {
+  const data = (await import('@/data/lodging-tax-by-state.json')).default as LodgingTaxData;
+  return Object.entries(data).map(([code, entry]) => ({
+    params: { state: code },
+    props: { code, entry },
+  }));
+}
+
+interface Props {
+  code: string;
+  entry: LodgingTaxData[string];
+}
+
+const { code, entry } = Astro.props as Props;
+
+// Optional narrative MDX from content collection (5 launch states have this; rest fall back).
+let narrative: Awaited<ReturnType<typeof getEntry>> | undefined;
+try {
+  narrative = await getEntry('states', code);
+} catch {
+  narrative = undefined;
+}
+const Narrative = narrative?.render ? (await narrative.render()).Content : null;
+
+const platformsCollect = entry.platformCollects.length > 0
+  ? entry.platformCollects.map((p) => p === 'airbnb' ? 'Airbnb' : 'Vrbo').join(' and ')
+  : 'no platforms';
+
+const faqs = [
+  {
+    question: `What is the ${entry.name} state lodging tax rate?`,
+    answer: `${formatPercent(entry.stateRate)} statewide. ${entry.notes}`,
+  },
+  {
+    question: `Do Airbnb and Vrbo collect ${entry.name} lodging tax for me?`,
+    answer:
+      entry.platformCollects.length > 0
+        ? `${platformsCollect} collect and remit lodging tax in most cases. Local taxes may still be your responsibility — verify with the state DOR.`
+        : `No major platforms are listed as automatic collectors for ${entry.name}. Hosts are typically responsible for collection and remittance.`,
+  },
+  {
+    question: `What's the local add-on range in ${entry.name}?`,
+    answer:
+      entry.localAddOnRange[0] === entry.localAddOnRange[1]
+        ? `Local add-on is ${formatPercent(entry.localAddOnRange[0])}.`
+        : `Cities and counties may add ${formatPercent(entry.localAddOnRange[0])} to ${formatPercent(entry.localAddOnRange[1])} on top of the state rate.`,
+  },
+  {
+    question: `Where can I see the official source?`,
+    answer: `The authoritative source is the ${entry.name} Department of Revenue at ${entry.sourceUrl}. Always verify before filing.`,
+  },
+  {
+    question: `When was this last verified?`,
+    answer: `Last verified ${entry.lastVerified}. Lodging-tax rates are reviewed annually; entries older than 12 months are flagged for re-verification.`,
+  },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: `${entry.name} Lodging Tax Calculator`,
+    description: `${entry.name} short-term rental lodging tax: ${formatPercent(entry.stateRate)} state plus local add-ons up to ${formatPercent(entry.localAddOnRange[1])}. Free calculator and source links.`,
+    toolPath: `/lodging-tax/${code}`,
+  }),
+  buildFAQPage(faqs),
+];
+---
+
+<Layout
+  title={`${entry.name} Lodging Tax Calculator — STR Host Tools`}
+  description={`${entry.name} short-term rental lodging tax: ${formatPercent(entry.stateRate)} state plus local add-ons. Free calculator with source links and verification date.`}
+  path={`/lodging-tax/${code}`}
+  jsonLd={jsonLd}
+>
+  <article class="calculator-page bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-9 pb-7 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-9">
+      <div class="min-w-0">
+        <header>
+          <p class="label text-gold-deep">
+            <a href="/lodging-tax" class="no-underline hover:text-gold">← All states</a>
+          </p>
+          <h1 class="mt-2 text-h1 font-serif text-navy leading-tight">
+            {entry.name} Lodging Tax Calculator<span class="period-gold">.</span>
+          </h1>
+          <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+            State rate <span class="font-mono">{formatPercent(entry.stateRate)}</span>. Local add-ons <span class="font-mono">{formatPercent(entry.localAddOnRange[0])} – {formatPercent(entry.localAddOnRange[1])}</span>.
+          </p>
+        </header>
+
+        <div class="mt-7">
+          <LodgingTaxCalculator
+            client:load
+            stateCode={code}
+            stateRate={entry.stateRate}
+            localMin={entry.localAddOnRange[0]}
+            localMax={entry.localAddOnRange[1]}
+            stateName={entry.name}
+            sourceUrl={entry.sourceUrl}
+            lastVerified={entry.lastVerified}
+          />
+        </div>
+
+        <AdSlot location="in-content" />
+
+        <div class="prose mt-7 max-w-2xl">
+          {Narrative ? (
+            <Narrative />
+          ) : (
+            <>
+              <h2>How {entry.name} lodging tax works</h2>
+              <p>
+                {entry.notes} Platforms that collect on your behalf: <strong>{entry.platformCollects.length ? platformsCollect : 'none on record'}</strong>.
+                Always check directly with the
+                {' '}<a href={entry.sourceUrl} target="_blank" rel="noopener">{entry.name} Department of Revenue</a>{' '}
+                before filing — rates and rules change.
+                Last verified <span class="font-mono">{entry.lastVerified}</span>.
+              </p>
+
+              <h2>How to use this calculator</h2>
+              <ol>
+                <li>Enter the booking subtotal (nightly × nights + cleaning fee).</li>
+                <li>Enter the local add-on rate that applies to your address. The range above shows what city/county rates exist statewide.</li>
+                <li>Read the effective rate, tax dollars, and guest total. Click <strong>Print</strong> for a clean PDF, or <strong>Copy share link</strong> to send the scenario to a partner.</li>
+              </ol>
+
+              <p class="text-caption text-ink-3 italic">
+                This is informational, not tax advice. Confirm with a CPA before filing.
+              </p>
+            </>
+          )}
+        </div>
+
+        <EmailCaptureCard
+          magnet="str-host-income-report-2026"
+          toolSlug={`lodging-tax-${code}`}
+        />
+
+        <STRLedgerCTA tool="lodging-tax" />
+
+        <AdSlot location="footer" />
+      </div>
+
+      <Sidebar current="lodging-tax" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="math" />
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: var(--sp-7); margin-bottom: var(--sp-3); line-height: 1.1; }
+  .prose :global(h3) { font-family: var(--font-display); font-size: var(--t-h3-size); color: var(--brand-navy); margin-top: var(--sp-5); margin-bottom: var(--sp-2); }
+  .prose :global(p) { color: var(--fg-1); margin-bottom: var(--sp-3); line-height: 1.6; }
+  .prose :global(ol), .prose :global(ul) { margin: var(--sp-3) 0 var(--sp-4); padding-left: var(--sp-5); }
+  .prose :global(li) { margin-bottom: var(--sp-2); line-height: 1.55; }
+  .prose :global(strong) { color: var(--brand-navy); font-weight: 600; }
+  .prose :global(code) { font-family: var(--font-mono); font-size: 0.9em; background: var(--bg-2); padding: 0 0.3em; border-radius: var(--r-1); }
+  .prose :global(a) { color: var(--brand-navy); text-decoration: underline; text-decoration-color: var(--brand-gold); text-underline-offset: 3px; }
+</style>

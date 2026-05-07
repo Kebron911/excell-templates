@@ -1,0 +1,90 @@
+---
+title: "How to Calculate Airbnb Profitability: A 2026 Guide for STR Hosts"
+description: "The honest math behind Airbnb profit. Revenue minus host fees, cleaning, utilities, mortgage, taxes, and a real reserve for capex. With the formulas, the gotchas, and a calculator."
+datePublished: "2026-05-07"
+dateModified: "2026-05-07"
+author: "The STR Ledger"
+category: "math"
+keyword: "airbnb profit calculator"
+relatedTools:
+  - profit-calculator
+  - airbnb-fee-calculator
+  - break-even-calculator
+readMinutes: 9
+---
+
+Most Airbnb "profit calculators" online are revenue calculators in a bow tie. They take a nightly rate, an occupancy guess, and call the result *profit*. It is not. Profit is what survives after the host fee, the cleaner, the utility bill, the mortgage, the property tax, the lodging tax you forgot to remit, and the reserve for the day the HVAC dies in July.
+
+Here is the actual math, the line items most spreadsheets skip, and how to use the [profit calculator](/profit-calculator) to model your listing in five minutes.
+
+## The honest profit formula
+
+```
+Net Profit = Gross Revenue
+           − Platform host fee
+           − Payment processing
+           − Cleaning cost (paid to cleaner, not collected from guest)
+           − Variable supplies (toiletries, coffee, paper)
+           − Utilities (electric, water, gas, internet, streaming)
+           − Mortgage interest + principal
+           − Property tax + insurance
+           − HOA / management fees
+           − Repairs + maintenance reserve (1–3% of property value/yr)
+           − Capex reserve (HVAC, roof, water heater)
+           − Lodging tax remittance shortfall (if any)
+           − Income tax on net rental income
+```
+
+Gross revenue is the easy line. Everything below it is where margin lives or dies.
+
+## The seven costs hosts routinely miscount
+
+**1. The Airbnb host service fee.** Most hosts on the standard split pay 3% of the booking subtotal. If you're on the *host-only* fee structure (mandatory in some regions), it climbs to ~14–16%. The [Airbnb fee calculator](/airbnb-fee-calculator) breaks this down by booking value.
+
+**2. Cleaning, paid versus collected.** Hosts charge a cleaning fee, then pay a cleaner. The two numbers are rarely identical. If you charge $120 and pay $150 (because turnovers are 3 hours, not 2), you eat $30 per booking. We wrote a separate piece on [how to set the right cleaning fee](/cleaning-fee-calculator).
+
+**3. Utilities at occupancy, not at vacancy.** Electricity in a Phoenix rental in August at 80% occupancy is not the same bill as a vacant one. Budget for 1.3–1.6× your residential baseline.
+
+**4. Lodging tax pass-through gaps.** In some counties Airbnb collects state sales tax but **not** the county tourist development tax. If you're in one of those gaps and don't register, you owe back taxes plus penalty. Our [50-state lodging tax index](/lodging-tax) flags which states have full platform collection and which don't.
+
+**5. Capex reserves.** A short-term rental cycles tenants every 2–4 nights instead of every 12 months. Your appliances, furniture, paint, and HVAC will not last as long as a long-term rental. Budget 1–3% of property value per year. Skip this and one $9,000 HVAC bill erases a profitable quarter.
+
+**6. Mortgage interest only — not the whole P&I.** For tax purposes, only the *interest* portion of your mortgage is deductible. For *cash* profit, the full P&I leaves your account. Confusing the two is the most common reason hosts feel "profitable on paper, broke at the bank."
+
+**7. Income tax on net rental income.** What your CPA reports as Schedule E income, the IRS taxes at your marginal rate. A $20,000 net rental year at a 24% bracket means you keep $15,200, not $20,000.
+
+## How to use the profit calculator
+
+The [profit calculator](/profit-calculator) wires these line items together. Five-minute walkthrough:
+
+1. **Revenue inputs.** Average nightly rate, occupancy %, nights per month. The calc multiplies these out.
+2. **Host fee.** Toggle between standard split (3%) and host-only (~15%).
+3. **Operating expenses.** Cleaning paid, supplies, utilities, internet — monthly numbers.
+4. **Fixed costs.** Mortgage P&I, property tax, insurance, HOA — monthly.
+5. **Reserves.** Set repairs/maintenance and capex as a % of revenue or a flat dollar number.
+6. **Output.** Monthly net profit, annual net profit, profit margin %, and a break-even occupancy line. The URL holds your scenario — bookmark it, share with a partner, send to your CPA.
+
+## Two scenarios that look profitable but aren't
+
+**The "ADR mirage."** A host advertises $295 ADR and 18 nights/month booked. Gross is $5,310/mo. Subtract $1,400 cleaning paid, $850 utilities/supplies, $2,400 P&I, $250 insurance/tax, and $300 reserve. Net is $110/mo. The ADR was real. The profit was a rounding error.
+
+**The "free-and-clear cash trap."** Owner has the property paid off. Gross $4,200/mo, expenses $1,500, net $2,700. Looks great — until they realize the *opportunity cost* of $400,000 of equity earning ~$13,500/yr in rental profit is a 3.4% cash-on-equity yield. A T-bill yields more. STR is a labor-and-risk business; if your equity-on-equity yield is below market, you are paying yourself to be a property manager.
+
+## Where strhost.tools fits in your stack
+
+This site is the **math layer**. Once you know the numbers, the rest of the cluster takes over:
+
+- **Acquisition.** Before you buy the next property, run [strbuyers.tools](https://strbuyers.tools) — DSCR, market score, comp analysis. Different math, same discipline.
+- **Operations.** Once it's live, [strops.tools](https://strops.tools) handles turnover, dispatch, and smart-lock workflows.
+- **Guest experience.** [strguests.tools](https://strguests.tools) generates house rules, welcome books, and AI-replied messages so your reviews drive the next booking.
+- **The system of record.** [The STR Ledger](https://thestrledger.com) is where all of the above gets tracked, P&L'd, and tax-prepped — the Excel templates and ops systems built specifically for STR hosts.
+
+## FAQ
+
+**What's a healthy net profit margin for an Airbnb?** 25–40% on a property bought right and run well. Below 15% means the property either has too much leverage, too little ADR, or too much cleaning friction. Above 50% usually means a missing line item — most often capex reserves.
+
+**Can I use this calculator for a long-term rental?** You can, but the cleaning, supplies, and utilities lines will overstate cost. Long-term rentals run on a different set of unit economics.
+
+**Does the calculator save my scenario?** Every input is stored in the URL. Bookmark the URL, send it to a partner, or open it again in 90 days to see how reality compared to the model.
+
+**What if I have no mortgage?** Set P&I to zero. The model still works — and the "opportunity cost" reading at the bottom becomes more useful, not less.

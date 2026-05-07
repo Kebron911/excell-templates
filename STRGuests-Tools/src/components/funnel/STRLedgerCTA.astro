@@ -1,0 +1,108 @@
+---
+// STRLedgerCTA — one per page, copy varies by generator, deep-links to the
+// matching SKU on thestrledger.com with UTM tracking. Below the fold,
+// after value has been delivered. Single button, single link, no carousel.
+
+interface Props {
+  /** Generator slug (matches keys in src/data/tools.json). */
+  tool: string;
+  headline?: string;
+  blurb?: string;
+  cta?: string;
+  skuPath?: string;
+}
+
+const { tool, headline, blurb, cta, skuPath } = Astro.props;
+
+// Per-generator copy + STR Ledger SKU mapping. Editable as the catalog evolves.
+const defaults: Record<string, { headline: string; blurb: string; cta: string; skuPath: string }> = {
+  'house-rules-pdf': {
+    headline: 'Track guest violations and damage incidents.',
+    blurb: 'The STR Ledger Incident Log workbook captures rule violations, severity, and resolution — auditable for your platform.',
+    cta: 'See the incident log',
+    skuPath: '/products/incident-log',
+  },
+  'welcome-book': {
+    headline: 'A welcome book is the start, the bookkeeping is the rest.',
+    blurb: 'The STR Ledger P&L workbook tracks revenue and expenses for the property your welcome book represents.',
+    cta: 'See the P&L workbook',
+    skuPath: '/products/p-and-l-single-property',
+  },
+  'wifi-sign': {
+    headline: 'Wi-Fi sign signed, sealed, posted — now track the bill.',
+    blurb: 'The STR Ledger Utility Tracker captures internet, electric, and gas spend across every property.',
+    cta: 'See the utility tracker',
+    skuPath: '/products/utility-tracker',
+  },
+  'check-in-instructions': {
+    headline: 'Track every check-in: smooth, late, or "where is the door?".',
+    blurb: 'The STR Ledger Booking Log captures check-in time, check-out time, and incidents per stay.',
+    cta: 'See the booking log',
+    skuPath: '/products/booking-log',
+  },
+  'listing-description': {
+    headline: 'Words sell the listing — numbers run the business.',
+    blurb: 'The STR Ledger P&L workbook turns your AI-written listing into a tracked revenue line.',
+    cta: 'See the P&L workbook',
+    skuPath: '/products/p-and-l-single-property',
+  },
+  'review-response': {
+    headline: 'Track review trends month-by-month.',
+    blurb: 'The STR Ledger Review Tracker logs star averages, response rates, and the issues that recur.',
+    cta: 'See the review tracker',
+    skuPath: '/products/review-tracker',
+  },
+  'guest-messages': {
+    headline: 'Templates handle the words — workbooks track the work.',
+    blurb: 'The STR Ledger Booking Log captures every stay so you can see which messages drive 5-star reviews.',
+    cta: 'See the booking log',
+    skuPath: '/products/booking-log',
+  },
+};
+
+const fallback = {
+  headline: 'Track every property in The STR Ledger.',
+  blurb: 'Excel templates and PDFs that turn guest-XP work into your monthly bookkeeping rhythm.',
+  cta: 'Browse The STR Ledger',
+  skuPath: '/',
+};
+
+const conf = defaults[tool] ?? fallback;
+const finalHeadline = headline ?? conf.headline;
+const finalBlurb = blurb ?? conf.blurb;
+const finalCta = cta ?? conf.cta;
+const finalSkuPath = skuPath ?? conf.skuPath;
+
+const href = `https://thestrledger.com${finalSkuPath}?utm_source=strguests-tools&utm_medium=cta&utm_content=${encodeURIComponent(tool)}`;
+---
+<aside class="str-ledger-cta my-7 print:hidden" aria-label="Related product on The STR Ledger">
+  <div class="rounded-md surface-navy p-6">
+    <p class="label text-[color:var(--accent-500)]">From The STR Ledger</p>
+    <p class="mt-3 font-serif text-h3 text-parchment max-w-2xl leading-snug">
+      {finalHeadline}
+    </p>
+    <p class="mt-3 text-small text-parchment opacity-90 max-w-2xl leading-snug">
+      {finalBlurb}
+    </p>
+    <a
+      href={href}
+      class="mt-5 inline-flex items-center gap-2 rounded-md text-navy px-5 py-2.5 text-ui no-underline transition-colors duration-std focus:outline-none focus:shadow-focus"
+      style="background: var(--accent-500);"
+      data-str-ledger-cta
+      data-tool={tool}
+    >
+      {finalCta}
+      <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</aside>
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>('a[data-str-ledger-cta]').forEach((a) => {
+    a.addEventListener('click', () => {
+      (window as any).gtag?.('event', 'str_ledger_cta_clicked', {
+        tool: a.dataset.tool,
+      });
+    });
+  });
+</script>

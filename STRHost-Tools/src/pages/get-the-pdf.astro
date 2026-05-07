@@ -1,0 +1,65 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+---
+
+<Layout
+  title="STR Host Income Report 2026 — Free PDF"
+  description="The STR Host Income Report 2026 — average ADR, RevPAR, occupancy, and host-fee data across 50 states. Free PDF, drops Q4 2026."
+  path="/get-the-pdf"
+>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9">
+      <p class="label text-gold-deep">Coming Q4 2026 · Free PDF</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy leading-tight">
+        STR Host Income Report 2026<span class="period-gold">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2">
+        Average ADR, RevPAR, occupancy, and host-fee data across 50 states. Compiled annually, free, no upsell.
+      </p>
+
+      <div class="mt-7 surface-calc bg-white p-6">
+        <h2 class="font-serif text-h3 text-navy">What's inside</h2>
+        <ul class="mt-3 space-y-2 text-body text-ink-1">
+          <li class="flex gap-3 items-baseline">
+            <span class="text-gold font-mono shrink-0">→</span>
+            <span><strong class="text-navy">State-by-state ADR + RevPAR</strong> — median, top quartile, bottom quartile</span>
+          </li>
+          <li class="flex gap-3 items-baseline">
+            <span class="text-gold font-mono shrink-0">→</span>
+            <span><strong class="text-navy">Occupancy benchmarks</strong> — by season, by property type</span>
+          </li>
+          <li class="flex gap-3 items-baseline">
+            <span class="text-gold font-mono shrink-0">→</span>
+            <span><strong class="text-navy">Host-fee data</strong> — average cleaning fees, host service fees, lodging tax stacks</span>
+          </li>
+          <li class="flex gap-3 items-baseline">
+            <span class="text-gold font-mono shrink-0">→</span>
+            <span><strong class="text-navy">Year-over-year deltas</strong> — what moved 2025 → 2026</span>
+          </li>
+          <li class="flex gap-3 items-baseline">
+            <span class="text-gold font-mono shrink-0">→</span>
+            <span><strong class="text-navy">Source citations</strong> — every number traceable to AirDNA, public DOR data, or first-party Ledger surveys</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="mt-7">
+        <EmailCaptureCard
+          magnet="str-host-income-report-2026"
+          toolSlug="get-the-pdf"
+          headline="Email me when the report ships"
+          blurb="One email when the PDF lands. We won't spam you, sell your data, or auto-enroll you in anything."
+          cta="Notify me"
+        />
+      </div>
+
+      <p class="mt-7 text-caption text-ink-3 leading-snug max-w-prose">
+        Why free? Because the math should be free. The Ledger sells workbooks for hosts who want to track these numbers themselves, monthly. The annual report is the appetizer; the workbooks are the meal.
+      </p>
+    </div>
+
+    <ClusterFunnelBlock currentCluster="math" />
+  </article>
+</Layout>

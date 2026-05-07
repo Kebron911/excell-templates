@@ -1,0 +1,56 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+---
+
+<Layout
+  title="Contact — STR Host Tools"
+  description="Contact STR Host Tools. Bug reports, calculator requests, and partnership inquiries welcome."
+  path="/contact"
+>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9 prose">
+      <h1 class="text-h1 font-serif text-navy leading-tight">
+        Contact<span class="period-gold">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2">
+        Found a bug? Have a calculator you wish existed? Want to syndicate a tool? Email is the way.
+      </p>
+
+      <h2>Email</h2>
+      <p>
+        <a href="mailto:hello@strhost.tools" class="font-mono">hello@strhost.tools</a>
+      </p>
+
+      <h2>What works well in an email</h2>
+      <ul>
+        <li><strong>Bug reports</strong> — include the page URL (the URL contains your inputs, so we can reproduce immediately), what you expected, what you saw.</li>
+        <li><strong>Calculator requests</strong> — what's the host problem you're trying to solve? We've got a backlog list and prioritize by host volume.</li>
+        <li><strong>Lodging-tax corrections</strong> — if a state rate is wrong or out of date, point us at the DOR source and we'll re-verify within the week.</li>
+        <li><strong>Embed / syndication</strong> — yes, we plan to ship embeddable widget versions; reach out if you want early access.</li>
+      </ul>
+
+      <h2>What doesn't work</h2>
+      <ul>
+        <li><strong>Tax advice questions</strong> — we can't answer "do I need to charge X tax in city Y?" That's a CPA's job. We can help you find the source.</li>
+        <li><strong>SEO / link partnerships</strong> — we don't do paid backlink swaps.</li>
+        <li><strong>Cold sales pitches</strong> — pass.</li>
+      </ul>
+
+      <p>
+        Response time: usually within a week. Faster on bugs and lodging-tax corrections.
+      </p>
+    </div>
+
+    <ClusterFunnelBlock currentCluster="math" />
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: var(--sp-7); margin-bottom: var(--sp-3); line-height: 1.1; }
+  .prose :global(p) { color: var(--fg-1); margin-bottom: var(--sp-3); line-height: 1.6; }
+  .prose :global(ul) { margin: var(--sp-3) 0 var(--sp-4); padding-left: var(--sp-5); }
+  .prose :global(li) { margin-bottom: var(--sp-2); line-height: 1.55; }
+  .prose :global(strong) { color: var(--brand-navy); font-weight: 600; }
+  .prose :global(a) { color: var(--brand-navy); text-decoration: underline; text-decoration-color: var(--brand-gold); text-underline-offset: 3px; }
+</style>

@@ -1,0 +1,175 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import tools from '@/data/tools.json';
+
+const toolsList = Object.values(tools);
+const pdfTools = toolsList.filter((t: any) => t.kind === 'pdf');
+const aiTools = toolsList.filter((t: any) => t.kind === 'ai');
+---
+
+<Layout
+  title="STR Guests Tools — Free generators for hosts to delight guests"
+  description="Seven free generators for Airbnb and Vrbo hosts: house rules, welcome books, wifi signs, check-in PDFs, AI listing descriptions, review responses, and message templates. Plus a 26-template Airbnb message library. No signup."
+  path="/"
+>
+  {/* Hero — short, single CTA: pick a generator. */}
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-12 pb-9">
+      <p class="label text-[color:var(--accent-700)]">Built by The STR Ledger</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy max-w-3xl leading-tight">
+        Free tools for hosts to delight guests<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2 max-w-2xl">
+        Four PDF generators, three AI generators, and a 26-template message library.
+        Browser-side, no signup, soft email gate that downloads either way.
+      </p>
+    </div>
+  </section>
+
+  {/* PDF tools section */}
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <p class="label text-[color:var(--accent-700)]">PDF generators</p>
+      <h2 class="mt-2 font-serif text-h2 text-navy">Branded printables, in your browser.</h2>
+      <ul class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {pdfTools.map((t: any) => (
+          <li>
+            <a
+              href={t.path}
+              class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-[color:var(--accent-500)] hover:shadow-card transition-all duration-std focus:outline-none focus:shadow-focus"
+            >
+              <p class="font-serif text-h3 text-navy leading-snug">{t.shortName}</p>
+              <p class="mt-2 text-small text-ink-2 leading-snug">{t.tagline}</p>
+              <p class="mt-4 text-caption text-[color:var(--accent-700)] group-hover:text-[color:var(--accent-500)] flex items-center gap-1">
+                Open
+                <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  {/* AI tools section */}
+  <section class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <p class="label text-[color:var(--accent-700)]">AI generators</p>
+      <h2 class="mt-2 font-serif text-h2 text-navy">Words written for you, by you.</h2>
+      <p class="mt-3 text-body text-ink-2 max-w-2xl leading-snug">
+        Listing descriptions, review responses, and guest messages. Rate-limited
+        so we can keep them free; verify your email for higher daily quota.
+      </p>
+      <ul class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {aiTools.map((t: any) => (
+          <li>
+            <a
+              href={t.path}
+              class="group block h-full rounded-md border border-rule bg-parchment-light p-5 no-underline hover:border-[color:var(--accent-500)] hover:shadow-card transition-all duration-std focus:outline-none focus:shadow-focus"
+            >
+              <p class="font-serif text-h3 text-navy leading-snug">{t.shortName}</p>
+              <p class="mt-2 text-small text-ink-2 leading-snug">{t.tagline}</p>
+              <p class="mt-4 text-caption text-[color:var(--accent-700)] group-hover:text-[color:var(--accent-500)] flex items-center gap-1">
+                Open
+                <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  {/* Templates library surface */}
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-7 items-center">
+        <div>
+          <p class="label text-[color:var(--accent-700)]">Message templates · 10 categories</p>
+          <p class="mt-3 font-serif text-h2 text-navy leading-tight">
+            What do you say to <span class="italic">that</span> guest?
+          </p>
+          <p class="mt-3 text-body text-ink-2 leading-snug">
+            26 hand-written Airbnb host messages for the moments that matter — late
+            checkout requests, neighbor noise complaints, host-cancellation apologies,
+            anniversary acknowledgments. Searchable, filterable, with example inputs
+            and outputs.
+          </p>
+          <a
+            href="/templates/"
+            class="mt-5 inline-flex items-center gap-2 text-ui text-navy no-underline hover:text-[color:var(--accent-700)] group"
+          >
+            Browse the template library
+            <span class="text-[color:var(--accent-500)] inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="rounded-md border border-rule bg-parchment p-5">
+          <p class="label text-navy">Sample categories</p>
+          <ul class="mt-3 grid grid-cols-2 gap-2 text-small">
+            <li><a href="/templates/?cat=problem-resolution" class="text-navy no-underline hover:underline hover:decoration-[color:var(--accent-500)] underline-offset-2">Problem resolution</a></li>
+            <li><a href="/templates/?cat=cancellation" class="text-navy no-underline hover:underline hover:decoration-[color:var(--accent-500)] underline-offset-2">Cancellation</a></li>
+            <li><a href="/templates/?cat=check-in" class="text-navy no-underline hover:underline hover:decoration-[color:var(--accent-500)] underline-offset-2">Check-in</a></li>
+            <li><a href="/templates/?cat=review-request" class="text-navy no-underline hover:underline hover:decoration-[color:var(--accent-500)] underline-offset-2">Review request</a></li>
+            <li><a href="/templates/?cat=special-occasion" class="text-navy no-underline hover:underline hover:decoration-[color:var(--accent-500)] underline-offset-2">Special occasion</a></li>
+            <li><a href="/templates/?cat=repeat-guest" class="text-navy no-underline hover:underline hover:decoration-[color:var(--accent-500)] underline-offset-2">Repeat guest</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Why this exists — short, no fluff */}
+  <section class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9 grid grid-cols-1 md:grid-cols-3 gap-7">
+      <div>
+        <p class="label text-[color:var(--accent-700)]">In your browser</p>
+        <p class="mt-3 font-serif text-h3 text-navy leading-snug">Nothing uploaded.</p>
+        <p class="mt-2 text-small text-ink-2 leading-snug">
+          PDF generation runs entirely client-side via pdf-lib. Your property
+          details never leave your laptop.
+        </p>
+      </div>
+      <div>
+        <p class="label text-[color:var(--accent-700)]">Soft email gate</p>
+        <p class="mt-3 font-serif text-h3 text-navy leading-snug">PDF arrives anyway.</p>
+        <p class="mt-2 text-small text-ink-2 leading-snug">
+          We ask for your email after the download starts, never before. Skip
+          and download — the PDF still ships.
+        </p>
+      </div>
+      <div>
+        <p class="label text-[color:var(--accent-700)]">No popups, ever</p>
+        <p class="mt-3 font-serif text-h3 text-navy leading-snug">No exit-intent.</p>
+        <p class="mt-2 text-small text-ink-2 leading-snug">
+          No newsletter modals, no sticky ads, no exit-intent. Use the tool,
+          leave when you're done.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* Lead magnet */}
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <EmailCaptureCard
+        magnet="message-template-bundle"
+        toolSlug="landing"
+        headline="Get the full Guest Message Template Pack"
+        blurb="One email gets you the editable bundle of all 26 templates the day the AI generator ships. No spam."
+        cta="Email me when it ships"
+      />
+    </div>
+  </section>
+
+  {/* STR Ledger funnel */}
+  <section class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <STRLedgerCTA tool="welcome-book" />
+    </div>
+  </section>
+
+  <ClusterFunnelBlock currentCluster="guest-xp" />
+</Layout>

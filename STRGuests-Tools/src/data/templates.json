@@ -1,0 +1,234 @@
+{
+  "$schema": "./templates.schema.json",
+  "categories": [
+    "pre-arrival",
+    "check-in",
+    "mid-stay",
+    "check-out",
+    "post-checkout",
+    "problem-resolution",
+    "review-request",
+    "repeat-guest",
+    "cancellation",
+    "special-occasion"
+  ],
+  "templates": {
+    "pre-arrival-confirmation": {
+      "name": "Pre-arrival confirmation",
+      "category": "pre-arrival",
+      "scenario": "Confirm reservation 5–7 days before arrival; set expectations for check-in flow.",
+      "exampleInput": "5-night stay, family of 4, arriving Friday at 4pm",
+      "exampleOutput": "Hi {{guestFirstName}} — {{hostName}} here. We're looking forward to hosting you and your family at {{propertyName}} from {{checkIn}} to {{checkOut}}. A few notes ahead of arrival: we offer self check-in starting at 4pm with a code I'll send the morning of your arrival. There's parking for two cars in the gravel drive, and the property is fully stocked with linens, towels, and basic toiletries. If you have any questions before you head out, message me here — I usually respond within an hour during the day. Looking forward to having you!",
+      "lastVerified": "2026-05-06"
+    },
+    "pre-arrival-directions": {
+      "name": "Pre-arrival directions and arrival window",
+      "category": "pre-arrival",
+      "scenario": "Send detailed driving directions plus parking/arrival window 24–48 hours before check-in.",
+      "exampleInput": "Cabin in rural area, GPS sometimes drops the wrong pin",
+      "exampleOutput": "Hi {{guestFirstName}} — quick heads-up before tomorrow. GPS apps sometimes route to the wrong driveway around our area, so here are the directions that actually work: take {{exitName}} off the highway, follow {{roadName}} for about 4 miles, then turn left at the white mailbox marked {{mailboxNumber}}. The driveway is gravel and bends right; the cabin will be on your left. If you hit pavement again, you've gone too far. Check-in window is 4pm–9pm. If you're running outside that window, message me and I'll keep the porch light on.",
+      "lastVerified": "2026-05-06"
+    },
+    "pre-arrival-grocery-question": {
+      "name": "Pre-arrival grocery / supply question response",
+      "category": "pre-arrival",
+      "scenario": "Guest asks what's stocked vs what they should bring.",
+      "exampleInput": "Guest asking if they need to bring coffee, paper towels, dish soap",
+      "exampleOutput": "Great question. The kitchen is stocked with the basics: salt, pepper, olive oil, coffee, sugar, dish soap, paper towels, and a small starter pack of trash bags. Coffee maker is a standard drip — filters and ground coffee are in the cabinet above it. We don't stock pantry items beyond that, so you'll want to plan a quick grocery stop. The closest grocery is {{groceryName}}, about {{groceryDistance}} from the property; they're open until {{groceryClose}} most nights.",
+      "lastVerified": "2026-05-06"
+    },
+
+    "check-in-self-instructions": {
+      "name": "Self check-in instructions",
+      "category": "check-in",
+      "scenario": "Day-of-arrival self check-in code + door instructions.",
+      "exampleInput": "Lockbox on porch column, code 4815",
+      "exampleOutput": "Hi {{guestFirstName}} — welcome day! Quick check-in walkthrough: the lockbox is on the porch column to the right of the front door. The code is {{doorCode}}. Pop the box open, the front door key is inside, and after you let yourself in, please put the key back in the lockbox so it's secure. Wi-Fi network is {{wifiSsid}}, password {{wifiPassword}}. There's a printed welcome book on the kitchen counter with everything else you'll need. Make yourself at home — message me here if anything's not as expected.",
+      "lastVerified": "2026-05-06"
+    },
+    "check-in-late-arrival": {
+      "name": "Late arrival accommodation",
+      "category": "check-in",
+      "scenario": "Guest arriving outside the standard check-in window.",
+      "exampleInput": "Flight delayed, guest arriving at 11pm instead of 6pm",
+      "exampleOutput": "Sorry to hear about the flight delay — happens to the best of us. No problem on the late arrival; the self check-in works the same after dark. I'll leave the porch light on for you. The lockbox code is {{doorCode}}; key inside, door's straight ahead from the porch. Wi-Fi is {{wifiSsid}} / {{wifiPassword}}. There's a small basket on the kitchen counter with bottled water and a couple of snacks since you'll be arriving past most stores' closing times. Safe travels — see you in the morning if I'm around.",
+      "lastVerified": "2026-05-06"
+    },
+    "check-in-early-arrival-request": {
+      "name": "Early check-in request response",
+      "category": "check-in",
+      "scenario": "Guest requesting to arrive before standard 4pm check-in.",
+      "exampleInput": "Guest asking to drop bags at noon",
+      "exampleOutput": "Hi {{guestFirstName}} — happy to help where I can. We turn the property over between checkouts and our standard check-in is 4pm so the cleaners have time to do a proper job. If you'd like to drop bags before that, you're welcome to leave them on the covered porch starting at noon — the property won't be ready to enter until 4, but the porch is fine for a few suitcases. If you need a guaranteed earlier check-in, the next available date with no prior booking is {{earliestEarlyDate}}.",
+      "lastVerified": "2026-05-06"
+    },
+
+    "mid-stay-checkin": {
+      "name": "Mid-stay check-in (low-touch)",
+      "category": "mid-stay",
+      "scenario": "Light-touch message 24 hours into a 3+ night stay.",
+      "exampleInput": "Day 2 of a 4-night stay",
+      "exampleOutput": "Hey {{guestFirstName}} — just a quick check-in to make sure everything's working as expected. Wi-Fi behaving, hot water running, no surprises? No need to reply if all is well. If something's off, message me here and I'll get on it.",
+      "lastVerified": "2026-05-06"
+    },
+    "mid-stay-recommendation-request": {
+      "name": "Mid-stay local recommendation request",
+      "category": "mid-stay",
+      "scenario": "Guest asks for restaurant / activity recommendations during their stay.",
+      "exampleInput": "Asking for dinner recommendations for a date night",
+      "exampleOutput": "Great timing — there's actually a printed local guide tucked into the welcome book on the kitchen counter with our top picks. For a date-night dinner specifically, two I always recommend: {{restaurantOne}} on {{streetOne}} (small place, reservations help, food is excellent) or {{restaurantTwo}} (more casual, great cocktail program, no reservations needed). If you go to either, mention you're staying at {{propertyName}} — they know us.",
+      "lastVerified": "2026-05-06"
+    },
+
+    "check-out-reminder": {
+      "name": "Check-out reminder + instructions",
+      "category": "check-out",
+      "scenario": "Sent the night before checkout to set expectations on departure tasks.",
+      "exampleInput": "Standard 11am checkout, leaves Saturday",
+      "exampleOutput": "Hi {{guestFirstName}} — hope the stay's been good. Quick checkout reminder for tomorrow: checkout is at 11am. Before you head out, the only asks are to start the dishwasher if there are dirty dishes, drop used towels in the bathroom, and lock the front door behind you. The cleaning fee covers everything else, so no need to strip beds or take out trash unless you'd like to. If you've enjoyed the stay, a review goes a long way for hosts on this platform — completely up to you. Safe travels home!",
+      "lastVerified": "2026-05-06"
+    },
+    "check-out-late-checkout-request": {
+      "name": "Late checkout request response",
+      "category": "check-out",
+      "scenario": "Guest asks to check out 1–3 hours past the standard time.",
+      "exampleInput": "Asking for 2pm checkout instead of 11am",
+      "exampleOutput": "Let me check the calendar… we have another guest arriving the same day, so a 2pm checkout would push our cleaners hard. The latest I can offer for tomorrow is {{latestCheckout}}. If you need until 2pm, I can offer that as a paid late-checkout for {{lateCheckoutFee}} — just let me know which works.",
+      "lastVerified": "2026-05-06"
+    },
+    "check-out-after-departure": {
+      "name": "After-departure thank you",
+      "category": "check-out",
+      "scenario": "Sent within 1 hour of guest checking out — soft close.",
+      "exampleInput": "Standard checkout, no issues",
+      "exampleOutput": "Thanks for staying at {{propertyName}}, {{guestFirstName}}. Hope the trip was everything you wanted. If anything stood out — good or bad — I'd love to hear about it; that's how the place keeps getting better. Safe travels!",
+      "lastVerified": "2026-05-06"
+    },
+
+    "post-checkout-thank-you": {
+      "name": "Post-checkout thank you (longer form)",
+      "category": "post-checkout",
+      "scenario": "24–48 hours after checkout. Establishes goodwill before review request.",
+      "exampleInput": "Family of 4, 5-night stay",
+      "exampleOutput": "Hi {{guestFirstName}} — hope you and the family had a smooth trip home. Thanks again for choosing {{propertyName}} for your stay. It's not lost on me that you had a lot of options for the trip and you picked our place — we appreciate it. If you have a few minutes in the next day or two, a review on the platform is the single most helpful thing for a small host like us. No pressure if you're slammed with work — either way, we'd love to host you again sometime.",
+      "lastVerified": "2026-05-06"
+    },
+    "post-checkout-rebook-discount": {
+      "name": "Post-checkout direct rebook offer",
+      "category": "post-checkout",
+      "scenario": "Offer a direct-booking discount for a return stay (off-platform).",
+      "exampleInput": "Guest mentioned wanting to come back next year",
+      "exampleOutput": "Glad you mentioned coming back — that means a lot. We do offer a small discount for returning guests who book directly: {{returningGuestRate}} off the nightly rate, no platform fees. If you ever want to plan a return trip, just message me here or email {{hostEmail}} and I'll send dates and a direct-booking link. No rush, no expiry.",
+      "lastVerified": "2026-05-06"
+    },
+
+    "problem-resolution-noise": {
+      "name": "Problem resolution: neighbor noise complaint",
+      "category": "problem-resolution",
+      "scenario": "Neighbor complains about guest noise; address the guest directly.",
+      "exampleInput": "Neighbor texted at 11pm about loud music from rear deck",
+      "exampleOutput": "Hi {{guestFirstName}} — quick heads-up: I just got a message from the neighbor about music coming from the back deck. No issue with you having a good time, but quiet hours kick in at 10pm in this neighborhood and the houses are closer than they look. Could you bring it inside or knock the volume down for the rest of the night? Appreciate it — and the rest of the stay we're good as long as it's reasonable.",
+      "lastVerified": "2026-05-06"
+    },
+    "problem-resolution-broken-item": {
+      "name": "Problem resolution: broken item, no charge",
+      "category": "problem-resolution",
+      "scenario": "Guest reports breaking something minor (glass, mug). Reassure them no charge.",
+      "exampleInput": "Guest broke a wine glass, apologizing",
+      "exampleOutput": "Don't worry about the wine glass — we keep a stack of them for exactly this reason. Wine glasses break, that's part of what they're for. Just sweep up what you can and toss it in the trash; the cleaners will check for stray pieces on turnover. Thanks for letting me know rather than hiding it; that's a class move.",
+      "lastVerified": "2026-05-06"
+    },
+    "problem-resolution-amenity-broken": {
+      "name": "Problem resolution: amenity broken (escalation)",
+      "category": "problem-resolution",
+      "scenario": "Major amenity (hot tub, AC, hot water) breaks during stay.",
+      "exampleInput": "Hot water heater out on day 2 of 4-night stay",
+      "exampleOutput": "Sincerely sorry about the hot water — that's a significant ding on the stay and you have every right to be frustrated. I have a plumber coming first thing in the morning ({{techArrivalTime}}); my best estimate is repair complete by {{repairCompleteEstimate}}. In the meantime, the {{neighborGym}} is open until {{gymCloseTime}} and they sell day passes for guests of {{propertyName}} — I've already let them know. I'll refund {{partialRefundAmount}} for the affected nights regardless of how the repair goes. Again — sorry. I'll update you as soon as I have a status from the plumber.",
+      "lastVerified": "2026-05-06"
+    },
+
+    "review-request-soft": {
+      "name": "Review request — soft, low-pressure",
+      "category": "review-request",
+      "scenario": "Lightweight review nudge sent 2–3 days post-checkout. Reads as gratitude, not solicitation.",
+      "exampleInput": "Stay went smoothly, no issues",
+      "exampleOutput": "Hi {{guestFirstName}} — one quick favor if you have a minute: a short review on the platform helps small hosts more than you'd think. The booking site rewards listings with steady reviews, which keeps the rates competitive for future guests. Doesn't have to be long — even a sentence or two is gold. Either way, thanks again for staying with us.",
+      "lastVerified": "2026-05-06"
+    },
+    "review-request-after-positive-feedback": {
+      "name": "Review request — after guest sent positive private feedback",
+      "category": "review-request",
+      "scenario": "Guest privately said the stay was great; convert that into a public review.",
+      "exampleInput": "Guest texted 'Loved the place!' at checkout",
+      "exampleOutput": "Thanks for the kind words at checkout — really appreciated. If you have a minute and felt the same about the stay overall, would you be open to leaving a review on the platform? It's the single biggest help for hosts at our scale. Same words you used in our chat would be perfect.",
+      "lastVerified": "2026-05-06"
+    },
+
+    "repeat-guest-welcome-back": {
+      "name": "Repeat guest — welcome back",
+      "category": "repeat-guest",
+      "scenario": "Guest who has stayed before is booking again. Acknowledge it; small upgrade.",
+      "exampleInput": "Second booking from same guest, 8 months apart",
+      "exampleOutput": "Welcome back, {{guestFirstName}} — happy to see your name in the calendar again. As a returning guest, I've left a small thank-you on the kitchen counter (a bottle of {{repeatGuestWelcome}}) and added an early check-in for free if you can use it: {{earlyCheckInTime}} instead of 4pm. Same self check-in flow as before. Let me know if anything's changed for the trip or if you need anything different from last time.",
+      "lastVerified": "2026-05-06"
+    },
+    "repeat-guest-block-dates-request": {
+      "name": "Repeat guest — block-date / direct booking inquiry",
+      "category": "repeat-guest",
+      "scenario": "Repeat guest asks if they can book the property for a block of dates directly.",
+      "exampleInput": "Wants the property for a 14-night stretch in shoulder season",
+      "exampleOutput": "Happy to help with the longer block. For 14+ nights, I can offer a {{longStayDiscount}} discount off the nightly rate booked directly — saves us both the platform fees. Send me the exact dates and I'll check the calendar and send a direct-booking link with a 50% deposit to hold it. Email is {{hostEmail}} if that's easier than messaging here.",
+      "lastVerified": "2026-05-06"
+    },
+
+    "cancellation-host-initiated-emergency": {
+      "name": "Cancellation: host-initiated, emergency",
+      "category": "cancellation",
+      "scenario": "Host has to cancel due to emergency (plumbing failure, family situation).",
+      "exampleInput": "Burst pipe day before guest arrival",
+      "exampleOutput": "{{guestFirstName}} — I'm sincerely sorry: a pipe burst at the property overnight and there's water damage in the kitchen and downstairs bath. I cannot in good conscience host you tomorrow as planned, and I'm cancelling the reservation now to free your refund and free your dates to book elsewhere. The platform will process a full refund within {{refundDays}} days. If you can't find another property in the area, I have a friend with a similar place at {{neighborProperty}} — I called and they have your dates open if you want to reach out: {{neighborContact}}. Again, deeply sorry to do this last-minute.",
+      "lastVerified": "2026-05-06"
+    },
+    "cancellation-guest-initiated-flexible": {
+      "name": "Cancellation: guest-initiated, within flexible window",
+      "category": "cancellation",
+      "scenario": "Guest cancels within the flexible-cancellation window. Gracious response.",
+      "exampleInput": "Cancellation 14 days before arrival, flexible policy applies",
+      "exampleOutput": "Got it — completely understand things come up. The platform should process your full refund within the next {{refundDays}} days. Whenever the plans firm up, the property is here and I'd be happy to host another time. No hard feelings; safe travels with whatever's pulling you another direction.",
+      "lastVerified": "2026-05-06"
+    },
+    "cancellation-guest-initiated-strict": {
+      "name": "Cancellation: guest-initiated, outside flexible window",
+      "category": "cancellation",
+      "scenario": "Guest cancels after the flexible window. Acknowledge the platform's policy without being cold.",
+      "exampleInput": "Cancellation 4 days before arrival, strict policy",
+      "exampleOutput": "Sorry to hear plans changed. I do want to be straightforward: the platform's strict policy applies for cancellations within 7 days, which means I'm not able to refund the stay through the platform at this point. What I can offer instead is to credit the full amount toward a future booking at {{propertyName}} within the next 12 months — same rate, no penalty. Let me know if that works and I'll set it aside.",
+      "lastVerified": "2026-05-06"
+    },
+
+    "special-occasion-anniversary": {
+      "name": "Special occasion: anniversary",
+      "category": "special-occasion",
+      "scenario": "Guest mentions an anniversary in booking notes; acknowledge with a small gesture.",
+      "exampleInput": "Guest noted '15-year anniversary trip' in booking",
+      "exampleOutput": "Hi {{guestFirstName}} — saw the anniversary note in your booking. Fifteen years is a big one — congratulations to you both. I left a small bottle of {{anniversaryWelcome}} and two glasses on the counter for you. The {{viewSpot}} is the best spot on the property for a quiet evening if the weather cooperates. Whatever you decide to do with the trip, I hope it's a great one.",
+      "lastVerified": "2026-05-06"
+    },
+    "special-occasion-birthday": {
+      "name": "Special occasion: birthday",
+      "category": "special-occasion",
+      "scenario": "Guest is celebrating a birthday during their stay.",
+      "exampleInput": "Friend group of 4 for someone's 40th",
+      "exampleOutput": "Hi {{guestFirstName}} — hear there's a birthday in the group while you're staying with us. Happy early {{birthdayPersonName}}! I left a small note and a card on the kitchen counter, and the {{birthdaySpot}} is set up for a low-key celebration if you want to use it. If you're heading out for dinner, my standing recommendation for a birthday in the area is {{birthdayDinnerSpot}} — call ahead, mention {{propertyName}}.",
+      "lastVerified": "2026-05-06"
+    },
+    "special-occasion-honeymoon": {
+      "name": "Special occasion: honeymoon",
+      "category": "special-occasion",
+      "scenario": "Guests mention they're on their honeymoon.",
+      "exampleInput": "Newlywed couple, 5-night honeymoon",
+      "exampleOutput": "Hi {{guestFirstName}} — congratulations to you both. Honeymooners get the small thank-you treatment on us: a bottle of {{honeymoonWelcome}} and a hand-written note on the kitchen counter. We've also flagged your stay with the cleaners so the bedroom turn includes the linen swap on day 3 (just leave used towels in the bathroom that morning). Have an unforgettable trip — and message me if you want a recommendation for a quiet dinner spot.",
+      "lastVerified": "2026-05-06"
+    }
+  }
+}

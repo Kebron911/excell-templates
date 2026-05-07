@@ -1,0 +1,110 @@
+---
+// AiRateLimitNotice — strguests-novel. Renders the current OpenAI rate-limit
+// state for the visitor on AI generator pages (#5 listing, #6 reviews,
+// #7 messages). Reads "helpful guidance, not punishment" — soft framing.
+//
+// State: 5 generations / hour / IP unverified, 50 / day / verified email.
+// When the visitor exceeds limits, the component shows the email-verify CTA
+// and disables the underlying form via a CustomEvent the page can listen to.
+//
+// Endpoint: GET /api/rate-limit-status?tool=<slug>
+//   -> { tier: 'unverified' | 'verified', remaining: number, resetAt: ISO,
+//        limit: number }
+// Phase 1: stubbed to a placeholder when the endpoint isn't reachable.
+
+interface Props {
+  /** Tool slug (e.g. 'listing-description'). */
+  toolSlug: string;
+  /** Server endpoint base URL — defaults to Express on :3001 in dev. */
+  apiBase?: string;
+}
+
+const {
+  toolSlug,
+  apiBase = (import.meta.env.PUBLIC_API_BASE as string | undefined) ?? '',
+} = Astro.props;
+---
+<aside
+  class="ai-rate-limit-notice my-5 rounded-md border border-rule bg-parchment-light p-4 print:hidden"
+  data-rate-limit-notice
+  data-tool={toolSlug}
+  data-api-base={apiBase}
+  aria-live="polite"
+>
+  <p class="text-small text-ink-2 leading-snug" data-rate-limit-text>
+    Loading your generation budget…
+  </p>
+  <a
+    href="/verify-email"
+    class="mt-2 inline-block text-caption text-[color:var(--accent-700)] hover:text-[color:var(--accent-500)] hidden"
+    data-rate-limit-verify
+  >
+    Verify your email to unlock 50 generations/day →
+  </a>
+</aside>
+
+<script>
+  type RateLimitStatus = {
+    tier: 'unverified' | 'verified';
+    remaining: number;
+    limit: number;
+    resetAt: string; // ISO
+  };
+
+  function fmtReset(iso: string): string {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return 'soon';
+    const minutes = Math.max(0, Math.round((d.getTime() - Date.now()) / 60000));
+    if (minutes < 1) return 'in under a minute';
+    if (minutes < 60) return `in ${minutes} min`;
+    const hours = Math.round(minutes / 60);
+    if (hours < 24) return `in ${hours}h`;
+    return d.toLocaleString();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-rate-limit-notice]').forEach(async (el) => {
+    const tool = el.dataset.tool ?? '';
+    const apiBase = el.dataset.apiBase ?? '';
+    const text = el.querySelector<HTMLElement>('[data-rate-limit-text]');
+    const verify = el.querySelector<HTMLElement>('[data-rate-limit-verify]');
+
+    try {
+      const url = `${apiBase}/api/rate-limit-status?tool=${encodeURIComponent(tool)}`;
+      const res = await fetch(url, { credentials: 'include' });
+      if (!res.ok) throw new Error(`status-${res.status}`);
+      const status: RateLimitStatus = await res.json();
+
+      const blocked = status.remaining <= 0;
+      const reset = fmtReset(status.resetAt);
+
+      if (text) {
+        if (blocked) {
+          text.textContent = status.tier === 'verified'
+            ? `You've used all ${status.limit} generations for today. Resets ${reset}.`
+            : `You've used all ${status.limit} free generations this hour. Verify your email for 50/day.`;
+        } else {
+          text.textContent = `${status.remaining} of ${status.limit} ${status.tier === 'verified' ? 'daily' : 'hourly'} generations remaining.`;
+        }
+      }
+
+      if (verify) {
+        if (status.tier === 'unverified' && (blocked || status.remaining <= 2)) {
+          verify.classList.remove('hidden');
+        } else {
+          verify.classList.add('hidden');
+        }
+      }
+
+      // Page listens for this to enable/disable submit buttons.
+      window.dispatchEvent(new CustomEvent('strguests:rate-limit', {
+        detail: { tool, ...status, blocked },
+      }));
+    } catch (err) {
+      // Stubbed fallback — Phase 1 ships before /api/rate-limit-status exists.
+      if (text) {
+        text.textContent = 'Generation budget unavailable — server starting up.';
+      }
+      console.warn('[AiRateLimitNotice] status fetch failed:', err);
+    }
+  });
+</script>

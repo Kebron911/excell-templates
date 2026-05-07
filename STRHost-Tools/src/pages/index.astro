@@ -1,13 +1,6 @@
 ---
-// Throwaway landing for Phase 1 verification.
-// Real landing page replaces this in Phase 4 Task 20. The shape here is
-// optimized for friction reduction: visitor lands -> sees all 7 tools at
-// once -> one click -> uses tool -> leaves. No sidebar duplicate, no
-// scroll-hunting, no nav-digging.
-
 import Layout from '@/components/chrome/Layout.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import tools from '@/data/tools.json';
@@ -16,24 +9,25 @@ const toolsList = Object.values(tools);
 ---
 
 <Layout
-  title="strhost.tools — Free calculators for short-term rental hosts"
-  description="Free, fast, indexable calculators for short-term rental hosts. Profit, RevPAR, break-even, cleaning fees, lodging tax — built by The STR Ledger."
+  title="STR Host Tools — Free calculators for short-term rental hosts"
+  description="Seven free calculators for Airbnb and Vrbo hosts: fees, profit, cleaning fees, RevPAR, break-even, co-host split, and lodging tax for all 50 states. No signup, no popups."
   path="/"
 >
   {/* Hero — short, single CTA: pick a calculator. */}
   <section class="bg-parchment">
-    <div class="mx-auto max-w-6xl px-5 pt-10 pb-7">
-      <h1 class="text-h1 font-serif text-navy max-w-3xl leading-tight">
-        Free calculators for short-term rental hosts<span class="period-gold">.</span>
+    <div class="mx-auto max-w-6xl px-5 pt-12 pb-9">
+      <p class="label text-gold-deep">Built by The STR Ledger</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy max-w-3xl leading-tight">
+        Free tools for short-term rental hosts<span class="period-gold">.</span>
       </h1>
       <p class="mt-4 text-lead text-ink-2 max-w-2xl">
         Seven calculators. Fifty state lodging-tax pages. Zero pop-ups.
-        Pick one below.
+        No signup. Pick one below.
       </p>
     </div>
   </section>
 
-  {/* Tool picker — the home page IS the menu. 3 columns on desktop so all 7
+  {/* Tool picker — the home page IS the menu. 3 columns at lg so all 7
       sit above one scroll on a 1080+ display. */}
   <section class="bg-parchment-light border-t border-rule">
     <div class="mx-auto max-w-6xl px-5 py-9">
@@ -57,27 +51,84 @@ const toolsList = Object.values(tools);
     </div>
   </section>
 
-  <ClusterFunnelBlock currentCluster="math" />
-
-  {/* Phase 1 verification preview — collapsed by default so it doesn't
-      compete with the tool picker above. Replaced/removed in Phase 4 Task 20. */}
-  <section class="bg-parchment">
-    <div class="mx-auto max-w-6xl px-5 py-7">
-      <details class="rounded-md border border-rule bg-parchment-light p-5">
-        <summary class="cursor-pointer text-ui text-ink-2 hover:text-navy">
-          <span class="label text-gold-deep mr-2">Phase 1 preview</span>
-          <span>Show monetization primitives (AdSlot, EmailCaptureCard, STRLedgerCTA)</span>
-        </summary>
-        <div class="mt-5">
-          <AdSlot location="in-content" />
-          <EmailCaptureCard
-            magnet="str-host-income-report-2026"
-            toolSlug="phase1-preview"
-          />
-          <STRLedgerCTA tool="profit-calculator" />
-          <AdSlot location="footer" />
-        </div>
-      </details>
+  {/* Why this exists — short, no fluff */}
+  <section class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9 grid grid-cols-1 md:grid-cols-3 gap-7">
+      <div>
+        <p class="label text-gold-deep">Honest math</p>
+        <p class="mt-3 font-serif text-h3 text-navy leading-snug">No mystery rates.</p>
+        <p class="mt-2 text-small text-ink-2 leading-snug">
+          Every formula is documented on the page. No hidden assumptions, no "premium" calculator behind an email gate.
+        </p>
+      </div>
+      <div>
+        <p class="label text-gold-deep">Indexable & shareable</p>
+        <p class="mt-3 font-serif text-h3 text-navy leading-snug">URL state, every input.</p>
+        <p class="mt-2 text-small text-ink-2 leading-snug">
+          Every input lives in the URL. Bookmark a scenario, share it with a partner, send it to your CPA.
+        </p>
+      </div>
+      <div>
+        <p class="label text-gold-deep">No friction</p>
+        <p class="mt-3 font-serif text-h3 text-navy leading-snug">Pop-up free, forever.</p>
+        <p class="mt-2 text-small text-ink-2 leading-snug">
+          No exit-intent. No newsletter modals. No sticky ads. Use the calculator, leave when you're done.
+        </p>
+      </div>
     </div>
   </section>
+
+  {/* State tax surface */}
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-7 items-center">
+        <div>
+          <p class="label text-gold-deep">Lodging tax — 50 states + DC</p>
+          <p class="mt-3 font-serif text-h2 text-navy leading-tight">
+            What's the lodging tax in <span class="italic">your</span> state?
+          </p>
+          <p class="mt-3 text-body text-ink-2 leading-snug">
+            Every state's transient lodging tax rate, the local add-on range, which platforms collect for you, and the source citation. Sourced annually from each state's Department of Revenue.
+          </p>
+          <a
+            href="/lodging-tax"
+            class="mt-5 inline-flex items-center gap-2 text-ui text-navy no-underline hover:text-navy-tint group"
+          >
+            See the 50-state index
+            <span class="text-gold inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="rounded-md border border-rule bg-parchment p-5">
+          <p class="label text-navy">Sample states</p>
+          <ul class="mt-3 grid grid-cols-2 gap-2 font-mono text-small">
+            <li><a href="/lodging-tax/tx" class="text-navy no-underline hover:underline hover:decoration-gold underline-offset-2">Texas <span class="text-ink-3">6.0%</span></a></li>
+            <li><a href="/lodging-tax/ca" class="text-navy no-underline hover:underline hover:decoration-gold underline-offset-2">California <span class="text-ink-3">0.0%</span></a></li>
+            <li><a href="/lodging-tax/fl" class="text-navy no-underline hover:underline hover:decoration-gold underline-offset-2">Florida <span class="text-ink-3">6.0%</span></a></li>
+            <li><a href="/lodging-tax/ny" class="text-navy no-underline hover:underline hover:decoration-gold underline-offset-2">New York <span class="text-ink-3">4.0%</span></a></li>
+            <li><a href="/lodging-tax/co" class="text-navy no-underline hover:underline hover:decoration-gold underline-offset-2">Colorado <span class="text-ink-3">2.9%</span></a></li>
+            <li><a href="/lodging-tax/hi" class="text-navy no-underline hover:underline hover:decoration-gold underline-offset-2">Hawaii <span class="text-ink-3">10.25%</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Lead magnet — soft, content-styled */}
+  <section class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <EmailCaptureCard
+        magnet="str-host-income-report-2026"
+        toolSlug="landing"
+      />
+    </div>
+  </section>
+
+  {/* STR Ledger funnel */}
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <STRLedgerCTA tool="profit-calculator" />
+    </div>
+  </section>
+
+  <ClusterFunnelBlock currentCluster="math" />
 </Layout>

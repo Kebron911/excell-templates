@@ -1,0 +1,46 @@
+## How it works
+
+Co-host arrangements run two ways: **percent of net** (cohost takes a fraction of revenue after pass-through costs) or **flat fees** (cohost charges a per-booking fee plus optional per-night fee). This calculator handles both with a mode toggle.
+
+The math:
+
+**Both modes:**
+- `Gross revenue = ADR × nights booked`
+- `Net revenue = Gross − pass-through costs` (cleaning, supplies, anything the cohost shouldn't earn on)
+
+**Percent mode:**
+- `Cohost share = Net × cohost percent`
+- `Owner share = Net − cohost share`
+
+**Flat mode:**
+- `Cohost share = (per-booking fee × bookings) + (per-night fee × nights booked)`
+- `Owner share = max(0, Net − cohost share)`
+
+The owner clamp at 0 prevents a slow month from showing a negative owner share when fixed cohost fees exceed net revenue. (In practice that means renegotiate, but the math doesn't lie.)
+
+## How to use this calculator
+
+1. **Pick a mode** — Percent of net (most common) or Flat fees (popular for high-volume cohosts).
+2. **Enter revenue inputs** — ADR, nights booked in the window, and pass-through costs (cleaning, supplies, lodging tax if you want to settle on net of tax).
+3. **Enter cohost terms** — either the percent (typically 0.15–0.30) or the flat per-booking + per-night fees.
+4. **Read the split** — gross, net, cohost share with effective %, owner share with effective %.
+5. **Use the URL** — every change updates the URL. Send the link to your cohost (or owner) for an aligned conversation.
+
+This is for **modeling** the split, not invoicing. For ongoing reconciliation across multiple months, use The STR Ledger's [commission split tracker](https://thestrledger.com/products/commission-split-calculator).
+
+## Frequently asked questions
+
+**What's a fair cohost percentage?**
+Industry typical is 20–25% of net for full management (listings, comms, dispatch, vendor coordination). Lower (10–15%) for "just the comms" arrangements. Higher (25–30%) for properties needing significant operational lift. Anything over 30% should come with very specific scope deliverables.
+
+**Should the split be on gross or net?**
+Net (gross minus pass-through costs) is the fair structure. A cohost shouldn't earn on the cleaning fee the guest paid that goes straight to the cleaner. If your contract is on gross, the cohost is double-dipping on cleaning.
+
+**Why can owner share clamp to 0?**
+If you're in flat-fee mode and the cohost charges $50/booking + $5/night with 8 bookings and 20 nights, the cohost is owed $500 — but if your net revenue is only $400, the calculator clamps owner share at 0 instead of showing -$100. The math says you'd owe the cohost out of pocket. That's a sign the flat-fee structure isn't sustainable at this volume; renegotiate.
+
+**Does this handle multiple cohosts or tiered splits?**
+No. For tiered or multi-party splits, use The STR Ledger's [commission split workbook](https://thestrledger.com/products/commission-split-calculator) — it handles tiers, bonuses, performance kickers, and reconciliation across periods.
+
+**What about lodging tax in the split?**
+Treat lodging tax as a pass-through cost (it doesn't belong in net revenue, since you're remitting it to the state). Include it in the "pass-through costs" input.
