@@ -1,0 +1,61 @@
+{
+  "vendors": {
+    "visio": {
+      "name": "Visio Lending",
+      "category": "lender",
+      "tagline": "DSCR loans for STR investors. No tax returns required.",
+      "url": "https://visiolending.com",
+      "disclosure": "We earn a referral fee if you fund a loan through this link.",
+      "logo": null
+    },
+    "kiavi": {
+      "name": "Kiavi",
+      "category": "lender",
+      "tagline": "DSCR loans + bridge loans for rental investors.",
+      "url": "https://kiavi.com",
+      "disclosure": "We earn a referral fee if you fund a loan through this link.",
+      "logo": null
+    },
+    "airdna": {
+      "name": "AirDNA",
+      "category": "data",
+      "tagline": "STR market data, comps, and revenue forecasts by ZIP.",
+      "url": "https://airdna.co",
+      "disclosure": "We earn a commission on AirDNA subscriptions through this link.",
+      "logo": null
+    },
+    "pricelabs": {
+      "name": "PriceLabs",
+      "category": "data",
+      "tagline": "Dynamic pricing + market intel for short-term rentals.",
+      "url": "https://pricelabs.co",
+      "disclosure": "We earn a commission on PriceLabs subscriptions through this link.",
+      "logo": null
+    },
+    "proper": {
+      "name": "Proper Insurance",
+      "category": "insurance",
+      "tagline": "Short-term rental insurance built for STR hosts.",
+      "url": "https://proper.insure",
+      "disclosure": "We earn a referral fee if you bind a policy through this link.",
+      "logo": null
+    },
+    "stage": {
+      "name": "Stage by Hand",
+      "category": "furniture",
+      "tagline": "Turnkey furniture packages for STR properties.",
+      "url": "https://stagebyhand.com",
+      "disclosure": "We earn a commission on Stage purchases through this link.",
+      "logo": null
+    }
+  },
+  "byTool": {
+    "dscr-calculator": ["visio", "kiavi"],
+    "down-payment-calculator": ["visio", "kiavi"],
+    "comp-analyzer": ["airdna", "pricelabs"],
+    "market-score": ["airdna"],
+    "cash-on-cash": ["visio", "airdna"],
+    "year-1-cash-needs": ["proper", "stage"],
+    "furnishing-budget": ["stage"]
+  }
+}

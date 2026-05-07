@@ -1,0 +1,63 @@
+---
+// Wordmark — "STR Buyers" as the main brand identity, "tools" as the small
+// trailing category descriptor with a trust-blue period accent. Per cluster
+// style guide §1, hierarchy is {Brand Name} main + .tld trailing — NOT
+// eyebrow + main. The wordmark is the most visible accent surface, so the
+// finance-trust blue has to read as a brand color at 28px serif weight.
+
+interface Props {
+  size?: 'sm' | 'md' | 'lg';
+  theme?: 'navy' | 'parchment';
+  asLink?: boolean;
+  href?: string;
+  class?: string;
+}
+
+const { size = 'md', theme = 'navy', asLink = true, href = '/', class: className = '' } = Astro.props;
+
+const sizes = {
+  sm: { main: 'text-[20px]', tail: 'text-[10px]', track: 'tracking-[0.28em]' },
+  md: { main: 'text-[28px]', tail: 'text-[12px]', track: 'tracking-[0.28em]' },
+  lg: { main: 'text-[40px]', tail: 'text-[14px]', track: 'tracking-[0.28em]' },
+};
+
+const themes = {
+  navy:      { main: 'text-[color:var(--accent-700)]', tail: 'text-ink-3',           dot: 'text-[color:var(--accent-500)]' },
+  parchment: { main: 'text-[color:var(--accent-500)]', tail: 'text-parchment opacity-70', dot: 'text-parchment' },
+};
+
+const s = sizes[size];
+const t = themes[theme];
+
+const Tag = asLink ? 'a' : 'span';
+const linkProps = asLink
+  ? { href, 'aria-label': 'STR Buyers Tools — home', class: 'no-underline' }
+  : {};
+---
+<Tag
+  {...linkProps}
+  class:list={[
+    'inline-flex items-baseline gap-1',
+    className,
+  ]}
+>
+  <span
+    class:list={[
+      'font-serif font-medium leading-none whitespace-nowrap',
+      s.main,
+      t.main,
+    ]}
+  >
+    STR Buyers
+  </span>
+  <span
+    class:list={[
+      'font-sans uppercase font-semibold leading-none',
+      s.tail,
+      s.track,
+    ]}
+    aria-hidden="true"
+  >
+    <span class={t.dot}>.</span><span class={t.tail}>tools</span>
+  </span>
+</Tag>

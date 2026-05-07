@@ -1,0 +1,68 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
+import tools from '@/data/tools.json';
+
+const toolEntries = Object.entries(tools).map(([slug, t]) => ({ slug, ...t }));
+---
+
+<Layout
+  title="STR Buyers Tools — pre-purchase calculators for STR investors"
+  description="Free pre-purchase tools for short-term rental investors: DSCR, down payment, comp analyzer, market score, cash-on-cash, year-1 cash needs, furnishing budget."
+  path="/"
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-12 pb-9">
+      <p class="label text-[color:var(--accent-700)]">Built by The STR Ledger</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy max-w-3xl leading-tight">
+        Free tools for STR property buyers<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2 max-w-2xl">
+        Seven pre-purchase calculators. 200+ city pages. No popups, no signup, no pretending DSCR ratios are simple.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {toolEntries.map((t) => (
+          <li>
+            <a
+              href={t.path}
+              class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-[color:var(--accent-500)] hover:shadow-card transition-all duration-std focus:outline-none focus:shadow-focus"
+            >
+              <p class="font-serif text-h3 text-navy leading-snug">{t.shortName}</p>
+              <p class="mt-2 text-small text-ink-2 leading-snug">{t.tagline}</p>
+              <p class="mt-4 text-caption text-[color:var(--accent-700)] flex items-center gap-1">
+                Open
+                <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <ClusterFunnelBlock currentCluster="acquisition" />
+
+  <section class="mx-auto max-w-6xl px-5 py-9">
+    <details>
+      <summary class="cursor-pointer text-small text-ink-2 hover:text-navy">
+        Phase 1 verification — show monetization primitives
+      </summary>
+      <div class="mt-5 space-y-3">
+        <AdSlot location="in-content" />
+        <EmailCaptureCard magnet="strbuyers-checklist" toolSlug="landing" />
+        <STRLedgerCTA tool="dscr-calculator" />
+        <AffiliateBlock tool="dscr-calculator" />
+        <AdSlot location="footer" />
+      </div>
+    </details>
+  </section>
+</Layout>

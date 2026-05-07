@@ -89,7 +89,7 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 
 | Phase | Status | Started | Completed |
 |-------|--------|---------|-----------|
-| 1 — Foundation | active | 2026-05-05 | — |
+| 1 — Foundation | complete | 2026-05-05 | 2026-05-06 |
 | 2 — Seven calculators | not-started | — | — |
 | 3 — City pages + disclosures | not-started | — | — |
 | 4 — Server + site pages | not-started | — | — |

@@ -1,0 +1,90 @@
+---
+// AffiliateBlock — strbuyers-novel. Renders 1–3 vendor cards from
+// `affiliates.json` for the given tool slug. Reads as content (vendor
+// recommendation), not as an ad. Inline FTC disclosure visible inline
+// per regulatory requirement.
+//
+// Wiring: each card is an <a> that fires a fetch to /api/click before
+// allowing default navigation (real endpoint comes Phase 4 Task 25;
+// stubbed for now). Vendor data is per-row in src/data/affiliates.json.
+
+import affiliates from '@/data/affiliates.json';
+
+interface Props {
+  /** Tool slug — used to look up which vendors apply. */
+  tool: string;
+  /** Optional override for headline. */
+  headline?: string;
+  /** Max vendors to surface. Default 3. */
+  limit?: number;
+}
+
+const { tool, headline = 'Vendors STR investors actually use', limit = 3 } = Astro.props;
+
+const vendorIds = (affiliates.byTool as Record<string, string[]>)[tool] ?? [];
+const cards = vendorIds
+  .slice(0, limit)
+  .map((id) => ({ id, ...(affiliates.vendors as Record<string, any>)[id] }))
+  .filter((v) => v && v.name);
+---
+{cards.length > 0 && (
+  <aside class="affiliate-block my-7 print:hidden" aria-label="Vendor recommendations">
+    <div class="rounded-md border border-rule bg-parchment-light p-5">
+      <p class="label text-[color:var(--accent-700)]">{headline}</p>
+      <p class="mt-2 text-caption text-ink-3 leading-snug">
+        Affiliate disclosure: links below are paid partnerships. Going through them helps fund this site at no cost to you.
+      </p>
+
+      <ul class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {cards.map((v) => (
+          <li>
+            <a
+              class="affiliate-card block group rounded-md border border-rule bg-parchment p-4 no-underline hover:border-[color:var(--accent-500)] hover:shadow-card transition-all duration-std h-full"
+              href={v.url}
+              data-affiliate-card
+              data-vendor={v.id}
+              data-tool={tool}
+              data-category={v.category}
+              rel="sponsored noopener"
+              target="_blank"
+            >
+              <p class="text-ui text-navy group-hover:text-[color:var(--accent-700)] font-semibold">{v.name}</p>
+              <p class="mt-1 text-caption text-[color:var(--accent-700)] uppercase tracking-widest">{v.category}</p>
+              <p class="mt-2 text-small text-ink-2 leading-snug">{v.tagline}</p>
+              <p class="mt-3 text-caption text-ink-2 italic leading-snug">{v.disclosure}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </aside>
+)}
+
+<script>
+  // Click logging — POST to /api/click with vendor + tool + UTM.
+  // Real endpoint lands in Phase 4 Task 25. Until then, log and proceed.
+  document.querySelectorAll<HTMLAnchorElement>('a[data-affiliate-card]').forEach((card) => {
+    card.addEventListener('click', () => {
+      const payload = {
+        vendor: card.dataset.vendor,
+        tool: card.dataset.tool,
+        category: card.dataset.category,
+        utm_source: 'strbuyers-tools',
+        utm_medium: 'affiliate',
+        utm_content: card.dataset.tool,
+        ts: Date.now(),
+      };
+      try {
+        fetch('/api/click', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          keepalive: true,
+        }).catch(() => {});
+      } catch {
+        /* swallow — stubbed endpoint */
+      }
+      (window as any).gtag?.('event', 'affiliate_click', payload);
+    });
+  });
+</script>

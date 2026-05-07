@@ -1,0 +1,51 @@
+{
+  "dscr-calculator": {
+    "shortName": "DSCR loan",
+    "name": "STR Mortgage Qualifier (DSCR Loan)",
+    "path": "/dscr-calculator",
+    "tagline": "Will lenders fund this STR? Run the DSCR check.",
+    "kind": "finance"
+  },
+  "down-payment-calculator": {
+    "shortName": "Down payment",
+    "name": "Down Payment Calculator",
+    "path": "/down-payment-calculator",
+    "tagline": "By loan type — conventional, DSCR, second-home, FHA.",
+    "kind": "finance"
+  },
+  "comp-analyzer": {
+    "shortName": "Comp analyzer",
+    "name": "Comp Analyzer",
+    "path": "/comp-analyzer",
+    "tagline": "Paste 3 listings. Get the spread.",
+    "kind": "research"
+  },
+  "market-score": {
+    "shortName": "Market score",
+    "name": "Market Score Tool",
+    "path": "/market-score",
+    "tagline": "Is Airbnb profitable in this city? Quick score.",
+    "kind": "research"
+  },
+  "cash-on-cash": {
+    "shortName": "Cash-on-cash",
+    "name": "Cash-on-Cash Return Calculator",
+    "path": "/cash-on-cash",
+    "tagline": "What does your cash actually earn?",
+    "kind": "finance"
+  },
+  "year-1-cash-needs": {
+    "shortName": "Year-1 cash",
+    "name": "Year-1 Cash Needs Calculator",
+    "path": "/year-1-cash-needs",
+    "tagline": "Down payment + closing + furnishing + reserves.",
+    "kind": "finance"
+  },
+  "furnishing-budget": {
+    "shortName": "Furnishing",
+    "name": "Furnishing Budget Calculator",
+    "path": "/furnishing-budget",
+    "tagline": "Studio to 4-bedroom. By tier.",
+    "kind": "finance"
+  }
+}

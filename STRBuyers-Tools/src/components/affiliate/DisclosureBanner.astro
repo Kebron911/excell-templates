@@ -1,0 +1,21 @@
+---
+// DisclosureBanner — strbuyers-novel. Top-of-page regulatory chrome that
+// links to /disclosures (page itself comes Phase 3 Task 22). Small, clear,
+// non-disruptive. Visible on every page that hosts an AffiliateBlock.
+---
+<aside
+  class="disclosure-banner border-b border-rule bg-parchment-alt print:hidden"
+  aria-label="Affiliate disclosure"
+>
+  <div class="mx-auto max-w-6xl px-5 py-2 flex flex-wrap items-center justify-between gap-2">
+    <p class="text-caption text-ink-2 leading-snug">
+      Some links on this site are paid partnerships. We never recommend a vendor we wouldn't use ourselves.
+    </p>
+    <a
+      href="/disclosures"
+      class="text-caption text-[color:var(--accent-700)] underline-offset-2 hover:underline whitespace-nowrap"
+    >
+      Read the disclosures →
+    </a>
+  </div>
+</aside>

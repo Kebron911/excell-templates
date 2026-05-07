@@ -1,0 +1,59 @@
+---
+import tools from '@/data/tools.json';
+import Wordmark from './Wordmark.astro';
+
+// Compact nav labels — all 7 buyer calculators visible inline at lg+.
+const navLabels: Record<string, string> = {
+  'dscr-calculator': 'DSCR',
+  'down-payment-calculator': 'Down pmt',
+  'comp-analyzer': 'Comps',
+  'market-score': 'Market',
+  'cash-on-cash': 'CoC',
+  'year-1-cash-needs': 'Year-1',
+  'furnishing-budget': 'Furnishing',
+};
+
+const allTools = Object.entries(tools);
+---
+<header class="border-b border-rule bg-parchment">
+  <div class="mx-auto max-w-6xl px-5 py-5 flex items-center justify-between gap-6">
+    <Wordmark size="md" theme="navy" class="shrink-0" />
+
+    <nav class="hidden lg:flex items-center gap-6" aria-label="Primary">
+      {allTools.map(([key, t]) => (
+        <a
+          href={t.path}
+          class="text-ui text-ink-2 no-underline hover:text-[color:var(--accent-700)] transition-colors duration-std whitespace-nowrap"
+        >
+          {navLabels[key] ?? t.shortName}
+        </a>
+      ))}
+      <a
+        href="/cities"
+        class="text-ui text-ink-2 no-underline hover:text-[color:var(--accent-700)] transition-colors duration-std"
+      >
+        Cities
+      </a>
+    </nav>
+
+    <details class="lg:hidden relative">
+      <summary class="list-none cursor-pointer p-2 -mr-2" aria-label="Open menu">
+        <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+          <path d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="1.5" fill="none" />
+        </svg>
+      </summary>
+      <div class="absolute right-0 top-full mt-2 w-60 bg-parchment-light border border-rule rounded-md shadow-lifted py-2 z-10">
+        {allTools.map(([_key, t]) => (
+          <a
+            href={t.path}
+            class="block px-4 py-2 text-ui text-ink-2 no-underline hover:bg-parchment-alt hover:text-[color:var(--accent-700)]"
+          >
+            {t.shortName}
+          </a>
+        ))}
+        <hr class="my-2 border-rule" />
+        <a href="/cities" class="block px-4 py-2 text-ui text-ink-2 no-underline hover:bg-parchment-alt hover:text-[color:var(--accent-700)]">Cities</a>
+      </div>
+    </details>
+  </div>
+</header>
