@@ -5,6 +5,7 @@ import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import ProfitCalculator from '@/components/calculators/ProfitCalculator.tsx';
 import { Content as ToolCopy } from '@/content/tools/profit-calculator.mdx';
 import { buildWebApplication, buildFAQPage } from '@/lib/seo';
@@ -78,6 +79,8 @@ const jsonLd = [
         <div class="prose mt-7 max-w-2xl">
           <ToolCopy />
         </div>
+
+        <RelatedPosts toolKey="profit-calculator" />
 
         <EmailCaptureCard
           magnet="str-host-income-report-2026"

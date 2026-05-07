@@ -4,6 +4,7 @@ import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import data from '@/data/lodging-tax-by-state.json';
 import type { LodgingTaxData } from '@/data/lodging-tax-by-state.schema';
 import { formatPercent } from '@/lib/format';
@@ -84,6 +85,8 @@ const jsonLd = [
       </p>
 
       <AdSlot location="in-content" />
+
+      <RelatedPosts toolKey="lodging-tax" variant="section" />
 
       <EmailCaptureCard
         magnet="str-host-income-report-2026"
