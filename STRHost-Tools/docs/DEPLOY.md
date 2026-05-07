@@ -14,7 +14,7 @@ Go to **GitHub → repo → Settings → Secrets and variables → Actions → N
 | `STRHOST_FTP_USER` | `STRHOST_FTP_USER=` | full hPanel FTP username |
 | `STRHOST_FTP_PASS` | `STRHOST_FTP_PASS=` | the FTP password (not your hPanel password) |
 | `STRHOST_FTP_PORT` | `STRHOST_FTP_PORT=` | typically `21` (FTPS explicit) |
-| `STRHOST_DOC_ROOT` | `STRHOST_DOC_ROOT=` | e.g. `/public_html/` or `/domains/strhost.tools/public_html/` — must end with `/` |
+| `STRHOST_DOC_ROOT` | `STRHOST_DOC_ROOT=` | Either `/public_html/` (FTP-chroot view) or the SSH-style absolute `/home/<user>/domains/<domain>/public_html/`. The workflow strips the `/home/.../domains/<domain>/` prefix automatically — but the FTP user is chrooted to the domain dir, so the FTP-relative form is the canonical one. |
 | `STRHOST_GA4_ID` | (optional) | `G-XXXXXXXXXX`. Omit and the script tag is skipped at build time. |
 
 After adding all six, the next push to `main` will trigger a deploy automatically.
@@ -43,13 +43,21 @@ After the workflow finishes:
 - `https://strhost.tools/blog/how-to-calculate-airbnb-profitability` — should return 200
 - `https://strhost.tools/sitemap-index.xml` — should now include the 6 blog post URLs
 
-If `/blog` is still 404 after a successful run, the most likely cause is `STRHOST_DOC_ROOT` pointing to the wrong directory. Verify with:
+If `/blog` is still 404 after a successful run, two things to check:
+
+1. **LiteSpeed cache.** Hostinger caches static files aggressively. If `/blog` was a 404 before the deploy and is still 404 after, hPanel → LiteSpeed Cache → **Purge All**.
+2. **Wrong-path nesting.** SSH in and verify files actually landed in the served doc root:
 
 ```bash
-# Connect via SFTP or hPanel File Manager and confirm
-# strhost.tools is being served from this exact path:
-ls -la /public_html/blog/
+ssh -i ~/.ssh/hostinger_ed25519 -p 65002 u470667024@<host>
+ls -la /home/u470667024/domains/strhost.tools/public_html/blog/
+# Should show 6 post directories + index.html.
+# If instead you see /home/u470667024/domains/strhost.tools/home/u470667024/...
+# then the FTP user's chroot is creating a nested clone.
+# Fix: simplify STRHOST_DOC_ROOT secret to /public_html/ (no /home prefix).
 ```
+
+The first deploy actually hit this — files landed at the deeply nested mirror path. Caught via SSH, recovered via `rsync` from wrong-path → real path. Workflow now strips the `/home/.../domains/<domain>/` prefix as a guardrail.
 
 ## Rollback
 
