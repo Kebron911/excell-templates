@@ -73,7 +73,7 @@ export async function drawHeader(
   const helvBold = await doc.embedFont(StandardFonts.HelveticaBold);
   const helv = await doc.embedFont(StandardFonts.Helvetica);
 
-  const { width, height } = page.getSize();
+  const { height } = page.getSize();
   const marginX = 48;
   const topY = height - 56;
 
@@ -118,13 +118,7 @@ export function drawFooter(page: PDFPage, opts: DrawFooterOptions = {}): void {
   const { brandFooter = true, generatedDate } = opts;
   if (!brandFooter) return;
 
-  // StandardFonts must be embedded synchronously through the doc, but pdf-lib
-  // exposes the font reference through page.doc. We fetch (or embed) lazily.
   const doc = page.doc;
-  const fontKey = 'Helvetica';
-  const existing = doc.context.indirectObjects;
-  // Find an embedded Helvetica or embed one. For simplicity, we always embed —
-  // pdf-lib dedupes Standard14 fonts internally.
   const font = doc.embedStandardFont(StandardFonts.Helvetica);
 
   const date = generatedDate ?? new Date().toISOString().slice(0, 10);
@@ -140,8 +134,4 @@ export function drawFooter(page: PDFPage, opts: DrawFooterOptions = {}): void {
     font,
     color: COLORS.ink2,
   });
-
-  // Discourage "unused-binding" complaint for indirectObjects diagnostic line above.
-  void existing;
-  void fontKey;
 }
