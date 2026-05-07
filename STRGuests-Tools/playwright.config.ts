@@ -13,10 +13,14 @@ export default defineConfig({
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } }
   ],
+  globalSetup: './tests/e2e/global-setup.ts',
   webServer: {
-    command: 'pnpm build && pnpm preview --host 127.0.0.1 --port 4321',
-    url: 'http://localhost:4321',
+    // Pins + OG images aren't needed for smoke tests — skip them so a
+    // remote-font-CDN flake doesn't break E2E. globalSetup builds dist
+    // first; this command only previews the prebuilt output.
+    command: 'pnpm exec astro preview --host 127.0.0.1 --port 4321',
+    url: 'http://127.0.0.1:4321',
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000
+    timeout: 60_000
   }
 });
