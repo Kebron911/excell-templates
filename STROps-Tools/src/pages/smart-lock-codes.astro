@@ -1,0 +1,86 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import AffiliateCard from '@/components/affiliate/AffiliateCard.astro';
+import SmartLockCodes from '@/components/calculators/SmartLockCodes.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  { question: 'Are these codes random?', answer: 'No — they are deterministic. Same booking ID + same secret always produces the same code. That is the point: you can regenerate the code if your records get lost.' },
+  { question: 'How is the code generated?', answer: 'HMAC-SHA-256 of the booking ID, keyed by your host secret, then taken modulo 10^digits. Cryptographically strong; reproducible.' },
+  { question: 'Where does my secret live?', answer: 'In the URL as a query param — same as every other input on the site. Bookmark privately. Rotate the secret if a tab leaks.' },
+  { question: 'Can different properties share a secret?', answer: 'Yes — if the booking IDs are unique across properties. If not, prefix the booking ID with the property ID before generating.' },
+  { question: 'Why deterministic over random?', answer: 'Random codes need a database. Deterministic codes give you the same result on any device with the same inputs — useful when your laptop dies and you need to regenerate from your phone.' },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Airbnb Smart Lock Code Generator',
+    description: 'Deterministic per-booking smart-lock codes via HMAC-SHA-256.',
+    toolPath: '/smart-lock-codes',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="Airbnb Smart Lock Code Generator — strops.tools"
+  description="Deterministic per-booking smart-lock codes. Same input, same code, every time. No database, no signup."
+  path="/smart-lock-codes"
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto max-w-6xl px-5 py-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-10">
+    <article class="prose">
+      <p class="label text-accent-deep">Operations · Access</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy leading-tight">
+        Smart Lock Code Generator<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2">
+        Deterministic per-booking codes via HMAC-SHA-256. Same booking ID and secret always produce the same code — regenerate from any device, no database required.
+      </p>
+
+      <SmartLockCodes client:load />
+
+      <AdSlot location="in-content" />
+
+      <h2 class="mt-9 font-serif text-h2 text-navy">How it works</h2>
+      <p class="mt-3 text-body text-ink-2">
+        We HMAC-SHA-256 the booking ID using your host secret, treat the first 8 bytes as a 63-bit integer, and take it modulo 10<sup>digits</sup>. Output is zero-padded to your chosen digit length (4–8). Browser-side via <code>crypto.subtle</code> — your secret never leaves the page.
+      </p>
+
+      <h2 class="mt-7 font-serif text-h2 text-navy">When to use deterministic codes</h2>
+      <ul class="mt-3 text-body text-ink-2 list-disc pl-5 space-y-1">
+        <li>You manage 1–10 doors and don't need a PMS-integrated lock platform.</li>
+        <li>You want a paper trail without standing up a database.</li>
+        <li>You need to regenerate a code mid-stay because the guest forgot it.</li>
+      </ul>
+
+      <EmailCaptureCard magnet="cleaner-sop-pdf" toolSlug="smart-lock-codes" />
+
+      <STRLedgerCTA tool="smart-lock-codes" />
+
+      <AffiliateCard vendor="august" tool="smart-lock-codes" />
+      <AffiliateCard vendor="schlage" tool="smart-lock-codes" />
+      <AffiliateCard vendor="remotelock" tool="smart-lock-codes" />
+
+      <h2 class="mt-7 font-serif text-h2 text-navy">FAQ</h2>
+      <div class="mt-3 space-y-4">
+        {faqs.map(f => (
+          <div>
+            <h3 class="font-serif text-h3 text-navy">{f.question}</h3>
+            <p class="mt-1 text-body text-ink-2">{f.answer}</p>
+          </div>
+        ))}
+      </div>
+
+      <AdSlot location="footer" />
+    </article>
+
+    <Sidebar current="smart-lock-codes" />
+  </div>
+
+  <ClusterFunnelBlock currentCluster="operations" />
+</Layout>

@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 2 — Seven tools
-**Current task:** Task 12 — Smart lock codes (deterministic)
+**Current task:** Task 13 — Linen par calculator
 **Last update:** 2026-05-07
 
 ---
@@ -10,7 +10,7 @@
 
 - [x] Task 10 — Turnover scheduler
 - [x] Task 11 — Cleaner dispatch (PDF)
-- [ ] Task 12 — Smart lock codes (deterministic)
+- [x] Task 12 — Smart lock codes (deterministic)
 - [ ] Task 13 — Linen par calculator
 - [ ] Task 14 — Restock calculator
 - [ ] Task 15 — Damage cost lookup
