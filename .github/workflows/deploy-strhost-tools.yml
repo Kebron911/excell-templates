@@ -98,3 +98,13 @@ jobs:
           state-name: .ftp-deploy-sync-state.json
           dry-run: false
           log-level: standard
+
+      # Notify Bing/Yandex/Seznam/Naver via IndexNow. Free, instant
+      # indexing signal. Google doesn't participate but submits to GSC
+      # are a separate (manual) step — see ROADMAP PL-1.
+      #
+      # Soft-failure: if IndexNow is down or rejects, we don't want to
+      # mark the whole deploy as failed (the site still works).
+      - name: Notify IndexNow
+        continue-on-error: true
+        run: node STRHost-Tools/scripts/indexnow-submit.mjs
