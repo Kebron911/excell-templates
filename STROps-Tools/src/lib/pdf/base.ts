@@ -236,3 +236,84 @@ export function drawFooter(
     color: COLORS.ink2,
   });
 }
+
+// ---------------------------------------------------------------------------
+// Multi-page helpers — Phase 2 tools (cleaner-dispatch, maintenance-schedule)
+// build their own page layouts but reuse the brand chrome.
+// ---------------------------------------------------------------------------
+
+/** Letter page geometry, in PDF points. */
+export const PAGE = { width: 612, height: 792 } as const;
+
+/** Standard outer margin (matches header/footer drawers). */
+export const MARGIN = 48;
+
+/**
+ * Y coordinate at which a body row should start drawing on a fresh branded
+ * page (just below the header block).
+ */
+export const BODY_TOP_Y = PAGE.height - 48 - 32 - 18 - 6 - 36;
+
+export interface CreateBrandedDocResult {
+  doc: PDFDocument;
+}
+
+/**
+ * Open a fresh branded PDFDocument with strops metadata set. Caller adds
+ * pages via `addBrandedPage` and finalizes with `await doc.save()`.
+ *
+ * Use this when you need multi-page layout control. For a one-page PDF
+ * with title + subtitle, prefer `createBasePdf`.
+ */
+export async function createBrandedDoc(opts: {
+  title: string;
+  author?: string;
+  subject?: string;
+  keywords?: string[];
+}): Promise<CreateBrandedDocResult> {
+  const doc = await PDFDocument.create();
+  doc.setTitle(opts.title);
+  doc.setAuthor(opts.author ?? BRAND.author);
+  doc.setProducer(BRAND.producer);
+  doc.setCreator(BRAND.creator);
+  if (opts.subject) doc.setSubject(opts.subject);
+  if (opts.keywords && opts.keywords.length > 0) doc.setKeywords(opts.keywords);
+  doc.setCreationDate(new Date());
+  doc.setModificationDate(new Date());
+  return { doc };
+}
+
+/**
+ * Add a Letter page to `doc`, draw the brand header (title + optional
+ * subtitle), and return the page plus the Y coordinate where the body should
+ * start. Footer pagination is applied during `decorateFooters` once the total
+ * page count is known.
+ */
+export async function addBrandedPage(
+  doc: PDFDocument,
+  opts: { title: string; subtitle?: string },
+): Promise<{ page: ReturnType<PDFDocument['addPage']>; bodyTopY: number }> {
+  const page = doc.addPage([PAGE.width, PAGE.height]);
+  await drawHeader(doc, page, opts);
+  return { page, bodyTopY: BODY_TOP_Y };
+}
+
+/**
+ * Walk every page in `doc` and draw the brand footer with correct
+ * `Page N of M` numbering. Call after all body content is laid out and
+ * before `doc.save()`.
+ */
+export function decorateFooters(
+  doc: PDFDocument,
+  opts: { generatedDate?: string } = {},
+): void {
+  const pages = doc.getPages();
+  const total = pages.length;
+  for (let i = 0; i < total; i++) {
+    drawFooter(doc, pages[i], {
+      generatedDate: opts.generatedDate,
+      pageNumber: i + 1,
+      totalPages: total,
+    });
+  }
+}

@@ -1,0 +1,84 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import AffiliateCard from '@/components/affiliate/AffiliateCard.astro';
+import CleanerDispatch from '@/components/calculators/CleanerDispatch.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  { question: 'How are cleaners assigned?', answer: 'Round-robin: turnover #1 to cleaner #1, #2 to #2, then back to #1. Order matters — sort cleaners by who you trust with the trickier properties first.' },
+  { question: 'Why one SMS per turnover?', answer: 'Cleaners answer SMS, not email. One short message per job, with the address, date, and bedroom count, fits one SMS segment for most addresses.' },
+  { question: 'Can I customize the SMS template?', answer: 'Right now the template is fixed. The PDF is yours to mark up — paste the SMS into your PMS auto-message templates if you want.' },
+  { question: 'Is the dispatch saved anywhere?', answer: 'No. Inputs round-trip through your URL only. Bookmark or send the share link to keep a copy.' },
+  { question: 'Can I print this?', answer: 'Yes — and the PDF download is the recommended path for tape-on-the-laundry-room-wall use.' },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Airbnb Cleaner Dispatch Generator',
+    description: 'Generate cleaner assignments and SMS templates from your turnover list. Branded PDF download.',
+    toolPath: '/cleaner-dispatch',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="Airbnb Cleaner Dispatch Generator — strops.tools"
+  description="Generate cleaner assignments and per-cleaner SMS templates from your turnover list. Free PDF download."
+  path="/cleaner-dispatch"
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto max-w-6xl px-5 py-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-10">
+    <article class="prose">
+      <p class="label text-accent-deep">Operations · Cleaner ops</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy leading-tight">
+        Airbnb Cleaner Dispatch Generator<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2">
+        List your turnovers, list your cleaners, get round-robin assignments and one ready-to-send SMS per job. Download a branded dispatch PDF for the laundry-room wall.
+      </p>
+
+      <CleanerDispatch client:load />
+
+      <AdSlot location="in-content" />
+
+      <h2 class="mt-9 font-serif text-h2 text-navy">How it works</h2>
+      <p class="mt-3 text-body text-ink-2">
+        We assign turnovers to cleaners in round-robin order — turnover N goes to cleaner <code>N % len(cleaners)</code>. The SMS template is fixed and short on purpose: cleaners read it on a phone between properties, so address + date + bedroom count fits in a single SMS segment.
+      </p>
+
+      <h2 class="mt-7 font-serif text-h2 text-navy">When to use this</h2>
+      <ul class="mt-3 text-body text-ink-2 list-disc pl-5 space-y-1">
+        <li>Mondays and Fridays — the heavy turnover days for vacation markets.</li>
+        <li>When you onboard a new cleaner and need to seed her with three jobs to test her work rhythm.</li>
+        <li>When a regular cleaner cancels and you need to redistribute the day's workload fast.</li>
+      </ul>
+
+      <EmailCaptureCard magnet="cleaner-sop-pdf" toolSlug="cleaner-dispatch" />
+
+      <STRLedgerCTA tool="cleaner-dispatch" />
+
+      <AffiliateCard vendor="turno" tool="cleaner-dispatch" />
+
+      <h2 class="mt-7 font-serif text-h2 text-navy">FAQ</h2>
+      <div class="mt-3 space-y-4">
+        {faqs.map(f => (
+          <div>
+            <h3 class="font-serif text-h3 text-navy">{f.question}</h3>
+            <p class="mt-1 text-body text-ink-2">{f.answer}</p>
+          </div>
+        ))}
+      </div>
+
+      <AdSlot location="footer" />
+    </article>
+
+    <Sidebar current="cleaner-dispatch" />
+  </div>
+
+  <ClusterFunnelBlock currentCluster="operations" />
+</Layout>
