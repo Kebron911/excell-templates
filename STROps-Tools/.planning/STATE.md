@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 1 — Foundation
-**Current task:** Task 8 — SEO library
+**Current task:** Task 9 — PDF library base
 **Last update:** 2026-05-07
 
 ---
@@ -15,7 +15,7 @@
 - [x] Task 5 — Monetization primitives (AdSlot, EmailCaptureCard, STRLedgerCTA, AffiliateCard)
 - [x] Task 6 — URL state library (TDD)
 - [x] Task 7 — Format library (TDD)
-- [ ] Task 8 — SEO library
+- [x] Task 8 — SEO library
 - [ ] Task 9 — PDF library — base setup with brand header/footer
 
 ---
