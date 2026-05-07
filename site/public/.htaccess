@@ -9,6 +9,11 @@ RewriteRule ^products/([A-Z]{3}-[0-9]{3})/?$ product.php?sku=$1 [L,QSA]
 # /free/MAGNET             → free.php?id=MAGNET
 RewriteRule ^free/([a-z0-9-]+)/?$ free.php?id=$1 [L,QSA]
 
+# /bundles                 → bundles.php (catalog)
+# /bundles/{slug}          → bundle.php?id={slug}
+RewriteRule ^bundles/?$                  bundles.php          [L]
+RewriteRule ^bundles/([a-z0-9-]+)/?$     bundle.php?id=$1     [L,QSA]
+
 # Bare extensionless paths for legal + thank-you + about
 RewriteRule ^terms/?$       terms.php       [L]
 RewriteRule ^privacy/?$     privacy.php     [L]

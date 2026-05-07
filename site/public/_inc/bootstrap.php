@@ -9,6 +9,7 @@ $cfgFile = file_exists($STRL_ROOT . '/_config/config.php')
 $CONFIG   = require $cfgFile;
 $PRODUCTS = require $STRL_ROOT . '/_data/products.php';
 $MAGNETS  = require $STRL_ROOT . '/_data/magnets.php';
+$BUNDLES  = require $STRL_ROOT . '/_data/bundles.php';
 
 if (!function_exists('cfg')) {
     function cfg($k, $d = null) { global $CONFIG; return $CONFIG[$k] ?? $d; }
@@ -22,10 +23,16 @@ if (!function_exists('cfg')) {
         global $CONFIG;
         return !empty($CONFIG['is_product_urls'][$sku] ?? '');
     }
+    function is_bundle_url_for($sku) {
+        global $CONFIG;
+        $u = $CONFIG['is_bundle_urls'][$sku] ?? '';
+        return $u !== '' ? $u : ($CONFIG['etsy_shop_url'] ?? '#');
+    }
     function has_is_endpoint() {
         global $CONFIG;
         return !empty($CONFIG['is_form_endpoint']);
     }
     function product($sku) { global $PRODUCTS; return $PRODUCTS[$sku] ?? null; }
     function magnet($id)   { global $MAGNETS;  return $MAGNETS[$id] ?? null; }
+    function bundle($id)   { global $BUNDLES;  return $BUNDLES[$id] ?? null; }
 }

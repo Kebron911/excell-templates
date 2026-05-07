@@ -22,6 +22,15 @@ return [
         'ACQ-001' => '', 'LGL-001' => '',
     ],
 
+    // Influencersoft sales pages per bundle. Empty string = falls back to etsy_shop_url.
+    'is_bundle_urls' => [
+        'BUNDLE-01' => '',  // First-Year Host  ($97)
+        'BUNDLE-02' => '',  // Aspiring Host    ($97)
+        'BUNDLE-03' => '',  // Year-2 Operator  ($147)
+        'BUNDLE-04' => '',  // Portfolio        ($397)
+        'BUNDLE-05' => '',  // Pro Manager      ($497)
+    ],
+
     // Influencersoft form endpoint for lead-magnet opt-ins.
     // Until set, forms POST to /submit.php which mails support_email.
     'is_form_endpoint' => '',
