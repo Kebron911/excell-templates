@@ -52,14 +52,17 @@ jobs:
           echo "Build output OK"
 
       # FTP-Deploy-Action requires server-dir to end with `/`. Normalize the
-      # secret here so a user pasting `/public_html` (no trailing slash) still
-      # works.
+      # secret here so a user pasting `/public_html` (no trailing slash) — or
+      # one with a stray CR/LF from a copy-paste — still deploys.
       - name: Normalize server-dir
         id: server_dir
+        shell: bash
+        env:
+          RAW_DIR: ${{ secrets.STRHOST_DOC_ROOT }}
         run: |
-          DIR="${{ secrets.STRHOST_DOC_ROOT }}"
-          [[ "$DIR" != */ ]] && DIR="$DIR/"
-          echo "value=$DIR" >> "$GITHUB_OUTPUT"
+          DIR=$(printf '%s' "$RAW_DIR" | tr -d '\r\n[:space:]')
+          DIR="${DIR%/}/"
+          printf 'value=%s\n' "$DIR" >> "$GITHUB_OUTPUT"
 
       - name: Deploy to Hostinger via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
