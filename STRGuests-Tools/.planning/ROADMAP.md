@@ -85,4 +85,4 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 | 3 — AI generators + server | complete (code-only — live key deferred to Phase 6) | 2026-05-07 | 2026-05-07 |
 | 4 — Programmatic templates | complete | 2026-05-06 | 2026-05-06 |
 | 5 — Pinterest + site pages | complete | 2026-05-06 | 2026-05-06 |
-| 6 — Analytics + CI/CD + deploy | not-started | — | — |
+| 6 — Analytics + CI/CD + deploy | code complete (Tasks 32–35); Task 36 deferred until live deploy | 2026-05-07 | — |
