@@ -1,0 +1,26 @@
+{
+  "presets": [
+    { "id": "no-smoking",         "label": "No smoking anywhere on the property",                       "default": true  },
+    { "id": "no-parties",         "label": "No parties or events",                                       "default": true  },
+    { "id": "quiet-hours",        "label": "Quiet hours: 10pm — 8am",                                    "default": true  },
+    { "id": "max-occupancy",      "label": "Max occupancy as listed; no extra unregistered guests",     "default": true  },
+    { "id": "shoes-off",          "label": "Please remove shoes inside",                                 "default": false },
+    { "id": "pets-allowed",       "label": "Pets allowed — please clean up after them",                  "default": false },
+    { "id": "no-pets",            "label": "No pets, please",                                            "default": false },
+    { "id": "no-extra-guests",    "label": "Day visitors must be approved in advance",                   "default": false },
+    { "id": "trash-day",          "label": "Trash day is Wednesday — please bring bins to curb",         "default": false },
+    { "id": "lock-up",            "label": "Please lock all doors and windows when leaving",             "default": true  },
+    { "id": "thermostat",         "label": "Keep thermostat between 65°F and 78°F",                      "default": false },
+    { "id": "report-damage",      "label": "Report any damage or maintenance issues right away",         "default": true  },
+    { "id": "pool-rules",         "label": "Use the pool at your own risk; children must be supervised", "default": false },
+    { "id": "hot-tub-rules",      "label": "Hot tub: rinse off before use; no glass nearby",             "default": false },
+    { "id": "fire-pit",           "label": "Extinguish the fire pit completely before bed",              "default": false },
+    { "id": "kitchen-clean",      "label": "Please leave the kitchen as clean as you found it",          "default": false },
+    { "id": "wifi-fair-use",      "label": "Wi-Fi is for personal use; no torrents or illegal downloads","default": false },
+    { "id": "no-commercial-use",  "label": "Property is for personal use only — no filming or events",   "default": false },
+    { "id": "respect-neighbors",  "label": "Respect the neighbors — they share the street with us",     "default": true  },
+    { "id": "checkout-time",      "label": "Check out by 11am unless late checkout is approved",         "default": true  },
+    { "id": "lights-off",         "label": "Turn off lights and unplug small appliances at checkout",   "default": false },
+    { "id": "linen-handling",     "label": "Leave used towels in the bathroom; we'll handle the rest",  "default": false }
+  ]
+}
