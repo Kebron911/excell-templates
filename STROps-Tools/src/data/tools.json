@@ -1,0 +1,58 @@
+{
+  "turnover-scheduler": {
+    "name": "Turnover scheduler",
+    "shortName": "Turnover scheduler",
+    "tagline": "Spot the impossible checkout/checkin gap before the cleaner does.",
+    "path": "/turnover-scheduler",
+    "primaryKeyword": "airbnb turnover scheduler",
+    "category": "ops"
+  },
+  "cleaner-dispatch": {
+    "name": "Cleaner dispatch generator",
+    "shortName": "Cleaner dispatch",
+    "tagline": "Per-property assignments + SMS templates the cleaner can read on her phone.",
+    "path": "/cleaner-dispatch",
+    "primaryKeyword": "airbnb cleaner sms template",
+    "category": "ops"
+  },
+  "smart-lock-codes": {
+    "name": "Smart lock code rotator",
+    "shortName": "Smart lock codes",
+    "tagline": "Deterministic rolling codes per booking — same input, same code, every time.",
+    "path": "/smart-lock-codes",
+    "primaryKeyword": "airbnb smart lock code generator",
+    "category": "ops"
+  },
+  "linen-par": {
+    "name": "Linen par calculator",
+    "shortName": "Linen par",
+    "tagline": "How many sheet sets and towel sets per property to never run out.",
+    "path": "/linen-par",
+    "primaryKeyword": "airbnb linen par calculator",
+    "category": "supplies"
+  },
+  "restock-calculator": {
+    "name": "Restock alert calculator",
+    "shortName": "Restock",
+    "tagline": "Booking volume × consumable burn rate = when to reorder.",
+    "path": "/restock-calculator",
+    "primaryKeyword": "airbnb supply restock calculator",
+    "category": "supplies"
+  },
+  "damage-cost-lookup": {
+    "name": "Damage cost lookup",
+    "shortName": "Damage cost",
+    "tagline": "What it actually costs to replace a mattress, repaint a wall, swap a TV.",
+    "path": "/damage-cost-lookup",
+    "primaryKeyword": "cost to replace mattress in airbnb",
+    "category": "ops"
+  },
+  "maintenance-schedule": {
+    "name": "Maintenance schedule generator",
+    "shortName": "Maintenance",
+    "tagline": "HVAC, smoke detectors, deep clean — the recurring tasks an STR forgets.",
+    "path": "/maintenance-schedule",
+    "primaryKeyword": "airbnb maintenance schedule",
+    "category": "ops"
+  }
+}
