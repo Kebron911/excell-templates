@@ -1,0 +1,312 @@
+{
+  "hvac-filter-change": {
+    "name": "HVAC filter change",
+    "cadenceDays": 60,
+    "season": "all",
+    "estimatedCostUsd": [15, 40],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Reduced airflow, higher utility bills, dust complaints from guests, premature HVAC failure.",
+    "sourceUrls": ["https://www.energystar.gov/products/heating_cooling/maintenance"],
+    "lastVerified": "2026-05-01"
+  },
+  "ac-tune-up": {
+    "name": "AC tune-up (pro)",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [80, 200],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Mid-summer breakdown during peak booking window. Loss of one weekend ~ $800–2000 revenue.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "furnace-tune-up": {
+    "name": "Furnace tune-up (pro)",
+    "cadenceDays": 365,
+    "season": "fall",
+    "estimatedCostUsd": [100, 250],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Cold-snap breakdown, no-heat one-star reviews, CO risk on aging gas units.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "mini-split-clean": {
+    "name": "Mini-split filter + coil clean",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [0, 60],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Musty smell complaints, mildew on the blower wheel, drip-pan overflow staining the wall.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "duct-vent-clean": {
+    "name": "Duct + supply vent vacuum",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [200, 600],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Dust blow-back on every cycle; 'dusty room' is a top-five cleanliness complaint on Airbnb.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "smoke-detector-test": {
+    "name": "Smoke + CO detector test",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [0, 30],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Liability exposure, code violation, worst-case life safety.",
+    "sourceUrls": ["https://www.nfpa.org/Public-Education/Staying-safe/Safety-equipment/Smoke-alarms"],
+    "lastVerified": "2026-05-01"
+  },
+  "smoke-detector-battery": {
+    "name": "Smoke + CO detector battery swap",
+    "cadenceDays": 365,
+    "season": "fall",
+    "estimatedCostUsd": [10, 40],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "3 a.m. low-battery chirps wake guests — instant one-star sleep-quality review. Safety risk if battery fails between guests.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "fire-extinguisher-check": {
+    "name": "Fire extinguisher inspection",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [0, 50],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Code violation. Liability if expired during incident.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "gfci-test": {
+    "name": "GFCI outlet test (kitchen + bath)",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [0, 0],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "GFCI outlets degrade silently — 1-in-5 fail the trip test after 5 years. Failed GFCI in a wet area is a shock-hazard liability.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "radon-test": {
+    "name": "Radon level test",
+    "cadenceDays": 730,
+    "season": "winter",
+    "estimatedCostUsd": [25, 200],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Long-term tenant + guest health exposure; some markets require disclosure on every booking.",
+    "sourceUrls": ["https://www.epa.gov/radon"],
+    "lastVerified": "2026-05-01"
+  },
+  "deep-clean": {
+    "name": "Deep clean (between long stays)",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [150, 400],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Cleanliness reviews drop. Below 4.7 average and you lose Superhost.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "carpet-deep-clean": {
+    "name": "Carpet steam clean (whole house)",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [200, 500],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Visible traffic lanes, lingering pet/odor complaints, premature carpet replacement (cuts lifespan from 7 yr to ~4 yr).",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "tile-grout-reseal": {
+    "name": "Tile grout re-seal (showers + floors)",
+    "cadenceDays": 730,
+    "season": "summer",
+    "estimatedCostUsd": [50, 250],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Mildew creeps into porous grout — guests photograph it and Airbnb refunds for cleanliness.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "gutter-clean": {
+    "name": "Gutter cleaning",
+    "cadenceDays": 180,
+    "season": "fall",
+    "estimatedCostUsd": [100, 250],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Ice dams in cold climates, foundation water damage, soffit rot.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "chimney-sweep": {
+    "name": "Chimney sweep",
+    "cadenceDays": 365,
+    "season": "fall",
+    "estimatedCostUsd": [150, 350],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Creosote fire risk. Insurance won't cover damage if maintenance log is empty.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "dryer-vent-clean": {
+    "name": "Dryer vent cleaning",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [80, 200],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Major fire hazard (~3000 home fires/year per FEMA). Dryer takes 2–3 cycles to dry one load.",
+    "sourceUrls": ["https://www.usfa.fema.gov/prevention/home-fires/at-home/clothes-dryer.html"],
+    "lastVerified": "2026-05-01"
+  },
+  "fridge-coil-clean": {
+    "name": "Refrigerator coil vacuum",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [0, 30],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Compressor works harder, electricity bill creeps up, fridge dies 3 years early.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "dishwasher-clean": {
+    "name": "Dishwasher filter + seal clean",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [0, 25],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Cloudy glassware, stink complaints from guests, premature pump-motor failure.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "garbage-disposal-flush": {
+    "name": "Garbage disposal flush + sharpen",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [0, 20],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Smell. Guests notice on day one of a stay. Replacing a corroded disposal is ~$200 + plumber visit.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "oven-self-clean": {
+    "name": "Oven self-clean cycle",
+    "cadenceDays": 180,
+    "season": "all",
+    "estimatedCostUsd": [0, 0],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Burnt-food smell on first guest cook. Carbon buildup on the heating element shortens its life.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "range-hood-filter": {
+    "name": "Range hood filter degrease",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [0, 30],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Greasy filter pulls less air, leaves cooking smells in the unit between turnovers.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "water-heater-flush": {
+    "name": "Water heater flush",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [0, 150],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Sediment buildup → reduced capacity → shorter showers → guest complaints.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "supply-line-check": {
+    "name": "Washing-machine + dishwasher supply line inspection",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [0, 60],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Burst supply line is the #1 cause of catastrophic STR water damage — five-figure claim, weeks offline.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "sump-pump-test": {
+    "name": "Sump pump test",
+    "cadenceDays": 180,
+    "season": "spring",
+    "estimatedCostUsd": [0, 0],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Pump dies between heavy rains and you don't know until the basement floods. Two minutes of testing prevents a $10k cleanup.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "outdoor-faucet-winterize": {
+    "name": "Outdoor faucet winterize",
+    "cadenceDays": 365,
+    "season": "fall",
+    "estimatedCostUsd": [0, 30],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Frozen pipe burst inside the wall. Insurance often denies if winterization wasn't done.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "pressure-wash-deck": {
+    "name": "Pressure-wash deck / siding",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [150, 400],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Algae buildup, deck-board rot, curb-appeal hits in listing photos.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "deck-stain-seal": {
+    "name": "Deck stain + seal",
+    "cadenceDays": 730,
+    "season": "summer",
+    "estimatedCostUsd": [200, 600],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Bare-wood weathering ages the deck 3x faster — re-deck is $5–15k.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "roof-inspection": {
+    "name": "Roof inspection (visual + flashing)",
+    "cadenceDays": 365,
+    "season": "fall",
+    "estimatedCostUsd": [0, 250],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Missed shingle damage → leak above guest bedroom → emergency tarp + ceiling repair + booking refunds.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "window-screen-repair": {
+    "name": "Window screen repair / wash",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [0, 100],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Bug ingress + photographable cosmetic flaw in summer listing photos.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "pest-control-quarterly": {
+    "name": "Pest control treatment",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [60, 150],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "One ant trail in the kitchen = guaranteed cleanliness 1-star and a full refund. Pre-emption is cheaper than recovery.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "snow-blower-service": {
+    "name": "Snow blower / generator service",
+    "cadenceDays": 365,
+    "season": "fall",
+    "estimatedCostUsd": [50, 200],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Equipment doesn't start the morning of the first storm — driveway not cleared, guest can't access property.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  }
+}

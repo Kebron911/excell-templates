@@ -10,10 +10,10 @@ import { buildSchedulePdf } from '@/lib/pdf/maintenance-schedule';
 import { buildIcs, downloadIcs } from '@/lib/calendar/ics';
 import { downloadBytes } from '@/lib/pdf/download';
 import { parse, createDebouncedReplaceState } from '@/lib/url-state';
-import seed from '@/data/maintenance-tasks-seed.json';
+import tasks from '@/data/tasks.json';
 import type { TaskCatalog } from '@/lib/types';
 
-const catalog = seed as TaskCatalog;
+const catalog = tasks as TaskCatalog;
 
 type State = {
   startDate: string;

@@ -211,7 +211,7 @@ After all tasks: update STATE.md (phase 3 complete, current phase = 4, current t
 
 ## Tasks checklist
 
-- [ ] Task 17 — Maintenance data expansion (`tasks.json`)
+- [x] Task 17 — Maintenance data expansion (`tasks.json`)
 - [ ] Task 18 — Maintenance programmatic pages
 - [ ] Task 19 — Maintenance index
 - [ ] Task 20 — Maintenance MDX collection (5 samples)

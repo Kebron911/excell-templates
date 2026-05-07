@@ -1,8 +1,21 @@
 # STATE
 
 **Current phase:** 3 — Programmatic pages (maintenance + replacement)
-**Current task:** Not yet started (Task 17: Maintenance data tasks.json)
+**Current task:** In progress — Task 18 (Maintenance programmatic pages)
 **Last update:** 2026-05-07
+
+---
+
+## Phase 3 progress
+
+- [x] Task 17 — Maintenance data expansion (tasks.json, 30 entries)
+- [ ] Task 18 — Maintenance programmatic pages
+- [ ] Task 19 — Maintenance index
+- [ ] Task 20 — Maintenance MDX collection (5 samples)
+- [ ] Task 21 — Replacement data expansion (items.json, ~50 entries)
+- [ ] Task 22 — Replacement programmatic pages
+- [ ] Task 23 — Replacement index
+- [ ] Task 24 — Replacement MDX collection (5 samples)
 
 ---
 
@@ -44,6 +57,9 @@
 - **2026-05-07 (Phase 2 PDF base extension)** — Phase 1 `src/lib/pdf/base.ts` exports `createBasePdf` (single-page) but Tasks 11/16 need multi-page control. Added `createBrandedDoc`, `addBrandedPage`, `decorateFooters`, plus `PAGE`/`MARGIN`/`BODY_TOP_Y` constants — additive, didn't break existing `createBasePdf` API. Phase 1 base test still green.
 - **2026-05-07 (Phase 2 lead magnets)** — EmailCaptureCard `magnet` prop receives explicit slugs per source plan: `cleaner-sop-pdf` (turnover, cleaner-dispatch, smart-lock-codes), `supply-par-pdf` (linen-par, restock-calculator), `maintenance-checklist-pdf` (damage-cost-lookup, maintenance-schedule). Phase 4 Task 25 will canonicalize the tool→magnet map via `tools.json`.
 - **2026-05-07 (Phase 2 ESP gate)** — Per source brief: ops audience prefers direct download over email-gated download. Cleaner-dispatch and maintenance-schedule expose PDF/ICS download buttons with no email gate. EmailCaptureCard remains as a separate inline funnel surface.
+- **2026-05-07 (Phase 3 Task 17 — data shape)** — `tasks.json` introduced as the canonical maintenance catalog (30 entries). Phase 2 `maintenance-tasks-seed.json` retained as-is so `tests/calc/maintenance-schedule.test.ts` keeps its small, deterministic fixture (we don't want test runtime tied to catalog growth). `MaintenanceSchedule.tsx` migrated to `tasks.json`. Schema unchanged.
+- **2026-05-07 (Phase 3 MDX strategy)** — Sister project `STRGuests-Tools` (Astro 6 too) uses `import.meta.glob('/src/content/<scope>/*.mdx', { eager: true })` for narrative-slot MDX rather than Astro Content Collections. Adopting same pattern for `/maintenance/[slug].astro` and `/replace/[slug].astro` — zero collection-config overhead, dev/build perf identical at this catalog size, and consistent with cluster.
+- **2026-05-07 (Phase 3 typecheck baseline)** — Phase 2 shipped with 5 pre-existing `ts(2352)` JSON-tuple-narrowing errors + 1 unused-import warning. Logged in `.planning/phases/03-programmatic-pages/deferred-items.md`. Out of scope per scope-boundary rule (pre-existing in main, unrelated to Phase 3 routes). Phase 3 work doesn't introduce new typecheck errors.
 
 ## Deviations log
 
