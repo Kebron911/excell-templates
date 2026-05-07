@@ -11,15 +11,22 @@
 
 import express from 'express';
 import type { Request, Response } from 'express';
+import { makeVerifyEmailRouter } from './routes/verify-email.js';
+import { makeRateLimitStatusRouter } from './routes/rate-limit-status.js';
 
 const app = express();
 
 app.use(express.json({ limit: '256kb' }));
+app.set('trust proxy', true);
 
 // Health check — used by post-deploy smoke + uptime probes.
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', service: 'strguests-api', ts: new Date().toISOString() });
 });
+
+// Phase 3 — AI infra routes.
+app.use(makeRateLimitStatusRouter());
+app.use(makeVerifyEmailRouter());
 
 // Catch-all 404 for /api/* so unknown endpoints don't fall through to a
 // generic Express 404 page.
