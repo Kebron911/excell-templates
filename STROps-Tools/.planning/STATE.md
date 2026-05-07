@@ -1,14 +1,14 @@
 # STATE
 
 **Current phase:** 1 — Foundation
-**Current task:** Not yet started (Task 1: Bootstrap repo + tooling)
-**Last update:** 2026-05-05
+**Current task:** Task 2 — Brand tokens (ops accent shift)
+**Last update:** 2026-05-07
 
 ---
 
 ## Phase 1 progress
 
-- [ ] Task 1 — Bootstrap repo + tooling
+- [x] Task 1 — Bootstrap repo + tooling
 - [ ] Task 2 — Brand tokens (ops accent shift)
 - [ ] Task 3 — Print stylesheet
 - [ ] Task 4 — Layout primitives (incl. ClusterFunnelBlock)
@@ -22,11 +22,11 @@
 
 ## Decisions log (this run)
 
-_None yet._
+- **2026-05-07** — Skipped `@types/pdf-lib` from plan; package does not exist on npm (pdf-lib ships its own types). Plan required it but install would fail.
 
 ## Deviations log
 
-_None yet._
+- **Task 1 / 2026-05-07** — Plan listed `@types/pdf-lib` as install target. That package is not published. pdf-lib ships its own `.d.ts` declarations, so no extra types pkg is needed. Logged as Rule 3 (blocking issue, fix inline).
 
 ## Open questions blocking current work
 
