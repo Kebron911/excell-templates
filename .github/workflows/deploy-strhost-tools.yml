@@ -51,6 +51,16 @@ jobs:
           test -d dist/blog/how-to-calculate-airbnb-profitability
           echo "Build output OK"
 
+      # FTP-Deploy-Action requires server-dir to end with `/`. Normalize the
+      # secret here so a user pasting `/public_html` (no trailing slash) still
+      # works.
+      - name: Normalize server-dir
+        id: server_dir
+        run: |
+          DIR="${{ secrets.STRHOST_DOC_ROOT }}"
+          [[ "$DIR" != */ ]] && DIR="$DIR/"
+          echo "value=$DIR" >> "$GITHUB_OUTPUT"
+
       - name: Deploy to Hostinger via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -60,7 +70,7 @@ jobs:
           port: ${{ secrets.STRHOST_FTP_PORT }}
           protocol: ftps
           local-dir: ./STRHost-Tools/dist/
-          server-dir: ${{ secrets.STRHOST_DOC_ROOT }}
+          server-dir: ${{ steps.server_dir.outputs.value }}
           # Keep these on the server after deploy.
           exclude: |
             **/.git*
