@@ -6,6 +6,7 @@ import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import PdfDownloadButton from '@/components/generator/PdfDownloadButton.astro';
+import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
 import WelcomeBookForm from '@/components/generator/WelcomeBookForm.tsx';
 import { Content as ToolCopy } from '@/content/tools/welcome-book.mdx';
 import { buildWebApplication, buildFAQPage } from '@/lib/seo';
@@ -69,11 +70,17 @@ const jsonLd = [
           <WelcomeBookForm client:load />
         </div>
 
-        <PdfDownloadButton
-          toolSlug="welcome-book"
-          filename="welcome-book"
-          magnet="welcome-book-pdf"
-        />
+        <div class="flex flex-wrap gap-3 items-center">
+          <PdfDownloadButton
+            toolSlug="welcome-book"
+            filename="welcome-book"
+            magnet="welcome-book-pdf"
+          />
+          <PinterestPinButton
+            toolSlug="welcome-book"
+            description="Free Airbnb welcome book builder. Multi-page PDF: cover, sections, local picks, emergency contacts. No signup. strguests.tools"
+          />
+        </div>
 
         <AdSlot location="in-content" />
 

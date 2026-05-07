@@ -6,6 +6,7 @@ import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import PdfDownloadButton from '@/components/generator/PdfDownloadButton.astro';
+import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
 import WifiSignForm from '@/components/generator/WifiSignForm.tsx';
 import { Content as ToolCopy } from '@/content/tools/wifi-sign.mdx';
 import { buildWebApplication, buildFAQPage } from '@/lib/seo';
@@ -69,11 +70,17 @@ const jsonLd = [
           <WifiSignForm client:load />
         </div>
 
-        <PdfDownloadButton
-          toolSlug="wifi-sign"
-          filename="wifi-sign"
-          magnet="wifi-sign-pdf"
-        />
+        <div class="flex flex-wrap gap-3 items-center">
+          <PdfDownloadButton
+            toolSlug="wifi-sign"
+            filename="wifi-sign"
+            magnet="wifi-sign-pdf"
+          />
+          <PinterestPinButton
+            toolSlug="wifi-sign"
+            description="Free Airbnb Wi-Fi sign generator. Frame-ready printable PDF, three design templates. No signup. strguests.tools"
+          />
+        </div>
 
         <AdSlot location="in-content" />
 

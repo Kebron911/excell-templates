@@ -4,6 +4,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { buildWifiSignPdf, type WifiSignInput, type WifiSignTemplate } from '@/lib/pdf/wifi-sign';
+import { buildPinPng } from '@/lib/pin';
 
 const DEFAULTS: WifiSignInput = {
   propertyName: 'Cedar Cottage',
@@ -25,11 +26,25 @@ export default function WifiSignForm() {
   const lastUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const w = window as unknown as { __strguests?: { generatePdf: Record<string, () => Promise<Uint8Array>> } };
-    if (!w.__strguests) w.__strguests = { generatePdf: {} };
+    const w = window as unknown as {
+      __strguests?: {
+        generatePdf: Record<string, () => Promise<Uint8Array>>;
+        generatePinPng?: Record<string, () => Promise<Blob>>;
+      };
+    };
+    if (!w.__strguests) w.__strguests = { generatePdf: {}, generatePinPng: {} };
+    if (!w.__strguests.generatePinPng) w.__strguests.generatePinPng = {};
     w.__strguests.generatePdf['wifi-sign'] = () => buildWifiSignPdf(input);
+    w.__strguests.generatePinPng['wifi-sign'] = () =>
+      buildPinPng({
+        toolSlug: 'wifi-sign',
+        toolName: 'Wi-Fi Sign Generator',
+        propertyName: input.propertyName,
+        tagline: 'Frame-ready Wi-Fi card. Three design templates.',
+      });
     return () => {
       delete w.__strguests?.generatePdf['wifi-sign'];
+      delete w.__strguests?.generatePinPng?.['wifi-sign'];
     };
   }, [input]);
 

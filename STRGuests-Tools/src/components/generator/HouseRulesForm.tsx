@@ -9,6 +9,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { buildHouseRulesPdf, type HouseRulesInput } from '@/lib/pdf/house-rules';
+import { buildPinPng } from '@/lib/pin';
 
 const DEFAULTS: HouseRulesInput = {
   propertyName: 'Cedar Cottage',
@@ -34,13 +35,27 @@ export default function HouseRulesForm() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const lastUrlRef = useRef<string | null>(null);
 
-  // Register the global generator function for PdfDownloadButton.
+  // Register the global generator + pin functions for PdfDownloadButton + PinterestPinButton.
   useEffect(() => {
-    const w = window as unknown as { __strguests?: { generatePdf: Record<string, () => Promise<Uint8Array>> } };
-    if (!w.__strguests) w.__strguests = { generatePdf: {} };
+    const w = window as unknown as {
+      __strguests?: {
+        generatePdf: Record<string, () => Promise<Uint8Array>>;
+        generatePinPng?: Record<string, () => Promise<Blob>>;
+      };
+    };
+    if (!w.__strguests) w.__strguests = { generatePdf: {}, generatePinPng: {} };
+    if (!w.__strguests.generatePinPng) w.__strguests.generatePinPng = {};
     w.__strguests.generatePdf['house-rules-pdf'] = () => buildHouseRulesPdf(input);
+    w.__strguests.generatePinPng['house-rules-pdf'] = () =>
+      buildPinPng({
+        toolSlug: 'house-rules-pdf',
+        toolName: 'Airbnb House Rules PDF',
+        propertyName: input.propertyName,
+        tagline: 'Free, branded, printable in 60 seconds.',
+      });
     return () => {
       delete w.__strguests?.generatePdf['house-rules-pdf'];
+      delete w.__strguests?.generatePinPng?.['house-rules-pdf'];
     };
   }, [input]);
 

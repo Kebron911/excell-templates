@@ -8,6 +8,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { buildCheckInPdf, type CheckInInput, type CheckInStep } from '@/lib/pdf/check-in';
+import { buildPinPng } from '@/lib/pin';
 
 const DEFAULTS: CheckInInput = {
   propertyName: 'Cedar Cottage',
@@ -40,11 +41,25 @@ export default function CheckInForm() {
   const lastUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const w = window as unknown as { __strguests?: { generatePdf: Record<string, () => Promise<Uint8Array>> } };
-    if (!w.__strguests) w.__strguests = { generatePdf: {} };
+    const w = window as unknown as {
+      __strguests?: {
+        generatePdf: Record<string, () => Promise<Uint8Array>>;
+        generatePinPng?: Record<string, () => Promise<Blob>>;
+      };
+    };
+    if (!w.__strguests) w.__strguests = { generatePdf: {}, generatePinPng: {} };
+    if (!w.__strguests.generatePinPng) w.__strguests.generatePinPng = {};
     w.__strguests.generatePdf['check-in-instructions'] = () => buildCheckInPdf(input);
+    w.__strguests.generatePinPng['check-in-instructions'] = () =>
+      buildPinPng({
+        toolSlug: 'check-in-instructions',
+        toolName: 'Check-in Instructions PDF',
+        propertyName: input.propertyName,
+        tagline: 'Door codes, parking, photos, Wi-Fi — all in one printable.',
+      });
     return () => {
       delete w.__strguests?.generatePdf['check-in-instructions'];
+      delete w.__strguests?.generatePinPng?.['check-in-instructions'];
     };
   }, [input]);
 

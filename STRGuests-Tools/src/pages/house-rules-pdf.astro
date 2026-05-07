@@ -6,6 +6,7 @@ import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import PdfDownloadButton from '@/components/generator/PdfDownloadButton.astro';
+import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
 import HouseRulesForm from '@/components/generator/HouseRulesForm.tsx';
 import { Content as ToolCopy } from '@/content/tools/house-rules-pdf.mdx';
 import { buildWebApplication, buildFAQPage } from '@/lib/seo';
@@ -69,11 +70,17 @@ const jsonLd = [
           <HouseRulesForm client:load />
         </div>
 
-        <PdfDownloadButton
-          toolSlug="house-rules-pdf"
-          filename="house-rules"
-          magnet="house-rules-pdf"
-        />
+        <div class="flex flex-wrap gap-3 items-center">
+          <PdfDownloadButton
+            toolSlug="house-rules-pdf"
+            filename="house-rules"
+            magnet="house-rules-pdf"
+          />
+          <PinterestPinButton
+            toolSlug="house-rules-pdf"
+            description="Free Airbnb house rules PDF generator. Branded printable, checkbox list, signature line. No signup. strguests.tools"
+          />
+        </div>
 
         <AdSlot location="in-content" />
 

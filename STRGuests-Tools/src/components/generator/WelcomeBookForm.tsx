@@ -7,6 +7,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { buildWelcomeBookPdf, type WelcomeBookInput } from '@/lib/pdf/welcome-book';
+import { buildPinPng } from '@/lib/pin';
 
 const DEFAULTS: WelcomeBookInput = {
   propertyName: 'Cedar Cottage',
@@ -42,11 +43,25 @@ export default function WelcomeBookForm() {
   const lastUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const w = window as unknown as { __strguests?: { generatePdf: Record<string, () => Promise<Uint8Array>> } };
-    if (!w.__strguests) w.__strguests = { generatePdf: {} };
+    const w = window as unknown as {
+      __strguests?: {
+        generatePdf: Record<string, () => Promise<Uint8Array>>;
+        generatePinPng?: Record<string, () => Promise<Blob>>;
+      };
+    };
+    if (!w.__strguests) w.__strguests = { generatePdf: {}, generatePinPng: {} };
+    if (!w.__strguests.generatePinPng) w.__strguests.generatePinPng = {};
     w.__strguests.generatePdf['welcome-book'] = () => buildWelcomeBookPdf(input);
+    w.__strguests.generatePinPng['welcome-book'] = () =>
+      buildPinPng({
+        toolSlug: 'welcome-book',
+        toolName: 'Welcome Book Builder',
+        propertyName: input.propertyName,
+        tagline: 'Multi-page PDF guidebook with photos, Wi-Fi, and local picks.',
+      });
     return () => {
       delete w.__strguests?.generatePdf['welcome-book'];
+      delete w.__strguests?.generatePinPng?.['welcome-book'];
     };
   }, [input]);
 

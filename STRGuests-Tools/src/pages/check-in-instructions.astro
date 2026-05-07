@@ -6,6 +6,7 @@ import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import PdfDownloadButton from '@/components/generator/PdfDownloadButton.astro';
+import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
 import CheckInForm from '@/components/generator/CheckInForm.tsx';
 import { Content as ToolCopy } from '@/content/tools/check-in-instructions.mdx';
 import { buildWebApplication, buildFAQPage } from '@/lib/seo';
@@ -69,11 +70,17 @@ const jsonLd = [
           <CheckInForm client:load />
         </div>
 
-        <PdfDownloadButton
-          toolSlug="check-in-instructions"
-          filename="check-in-instructions"
-          magnet="check-in-pdf"
-        />
+        <div class="flex flex-wrap gap-3 items-center">
+          <PdfDownloadButton
+            toolSlug="check-in-instructions"
+            filename="check-in-instructions"
+            magnet="check-in-pdf"
+          />
+          <PinterestPinButton
+            toolSlug="check-in-instructions"
+            description="Free Airbnb check-in instructions PDF. Door codes, parking, photos, Wi-Fi tail page. No signup. strguests.tools"
+          />
+        </div>
 
         <AdSlot location="in-content" />
 
