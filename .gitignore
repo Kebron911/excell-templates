@@ -38,6 +38,14 @@ credentials.json
 dist/
 build/
 
+# Deploy staging (per-project ad-hoc deploy artifacts)
+.deploy-*/
+*-deploy.tar.gz
+
+# Playwright run artifacts at repo root (per-project rules also exclude them)
+test-results/
+playwright-report/
+
 # Logs
 *.log
 logs/

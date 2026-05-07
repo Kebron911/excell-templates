@@ -1,8 +1,8 @@
 # STATE
 
-**Current phase:** 6 — Analytics + E2E + CI/CD + deploy (Phase 3 still deferred — blocked on OPENAI_API_KEY)
-**Current task:** Not yet started (Task 32: GA4 cross-domain + custom events)
-**Last update:** 2026-05-06
+**Current phase:** 6 — Analytics + E2E + CI/CD + deploy — **complete (2026-05-07)**. Phase 3 still deferred — blocked on OPENAI_API_KEY.
+**Current task:** Released as `strguests-tools-v0.1.0`. Live at https://strguests.tools.
+**Last update:** 2026-05-07
 
 ---
 
@@ -55,6 +55,16 @@
 - [x] Task 31 — OG image generator (Satori, 1200×630) — scripts/build-og.mjs
 
 `pnpm build` chains: `astro build && node ./scripts/build-pins.mjs && node ./scripts/build-og.mjs`. Total static output per build ≈ 37 OGs + 9 pins + sitemap-index.xml.
+
+## Phase 6 progress (complete — 2026-05-07)
+
+- [x] Task 32 — GA4 cross-domain + custom events (regression test in tests/analytics.test.ts)
+- [x] Task 33 — Playwright E2E smokes per generator (13 tests in tests/e2e/smoke.spec.ts)
+- [x] Task 34 — GitHub Actions CI (.github/workflows/strguests-tools.yml — typecheck/vitest + build/E2E)
+- [x] Task 35 — Hostinger deploy (Express + dist/ as Node.js Web App at /home/u470667024/domains/strguests.tools/nodejs/)
+- [x] Task 36 — Pre-launch smoke + v0.1.0 tag (`strguests-tools-v0.1.0`, all 35 routes verified live)
+
+Architecture deviation from plan: Phase 6 deploys the Express server (Path 2) instead of pure-static dist/ as originally drafted. Justification: Path 2 single-process model means Phase 3's AI generators slot in without re-architecting the deploy. Live at https://strguests.tools serving dist/ + /api/health from one Node 20 process behind Passenger.
 
 ---
 
