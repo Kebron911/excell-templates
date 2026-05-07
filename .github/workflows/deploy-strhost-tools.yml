@@ -76,6 +76,9 @@ jobs:
           DIR="${DIR%/}/"
           printf 'value=%s\n' "$DIR" >> "$GITHUB_OUTPUT"
 
+      # If Hostinger FTPS times out (rare; once in ~10 deploys observed
+      # 2026-05-07), re-run the failed job from the Actions tab —
+      # wrapping a uses-block in retry adds more YAML than it saves.
       - name: Deploy to Hostinger via FTPS
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
