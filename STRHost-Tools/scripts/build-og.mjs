@@ -128,6 +128,7 @@ function ogTree({ kicker, title, footer }) {
                 type: 'div',
                 props: {
                   style: {
+                    display: 'flex',
                     fontWeight: 600,
                     fontSize: 16,
                     letterSpacing: 4,
@@ -235,6 +236,51 @@ async function main() {
         footer: `Verified ${entry.lastVerified}`,
       }, fonts),
     );
+  }
+
+  // Blog index + per-post OG. Posts source: src/content/posts/*.mdx —
+  // we read frontmatter manually (gray-matter would be a dep just for
+  // this; we already grep for `title:` and `description:` lines).
+  const postsDir = path.join(root, 'src', 'content', 'posts');
+  let postFiles = [];
+  try {
+    postFiles = (await fs.readdir(postsDir)).filter((f) => f.endsWith('.mdx'));
+  } catch {
+    // Posts directory missing — skip blog OG.
+  }
+
+  if (postFiles.length > 0) {
+    renders.push(
+      render('blog', {
+        kicker: 'The Ledger Notebook',
+        title: 'STR math, written down.',
+        footer: 'Calculator-paired guides for hosts',
+      }, fonts),
+    );
+
+    for (const file of postFiles) {
+      const slug = file.replace(/\.mdx$/, '');
+      const src = await fs.readFile(path.join(postsDir, file), 'utf8');
+      // Grab frontmatter title — quoted string after `title:`.
+      const titleMatch = src.match(/^title:\s*"([^"]+)"/m);
+      const categoryMatch = src.match(/^category:\s*"([^"]+)"/m);
+      const readMatch = src.match(/^readMinutes:\s*(\d+)/m);
+      if (!titleMatch) continue;
+      const categoryLabel = {
+        math: 'STR Math',
+        operations: 'STR Operations',
+        tax: 'STR Tax',
+        'guest-xp': 'Guest XP',
+        acquisition: 'Acquisition',
+      }[categoryMatch?.[1]] ?? 'The Ledger Notebook';
+      renders.push(
+        render(`blog-${slug}`, {
+          kicker: categoryLabel,
+          title: titleMatch[1],
+          footer: readMatch ? `${readMatch[1]} min read · strhost.tools/blog` : 'strhost.tools/blog',
+        }, fonts),
+      );
+    }
   }
 
   // Site pages
