@@ -1,0 +1,43 @@
+## How it works
+
+Builds a printable PDF that walks guests through arrival: a summary card with door
+code, parking, and your phone, then numbered steps with optional photos, then a tail
+page with Wi-Fi credentials. Photos stay in your browser — nothing is uploaded.
+
+## How to use this generator
+
+1. Fill in the property name, optional address, door code, parking, and host phone.
+2. Add Wi-Fi credentials (these go on the last page, so guests find them once they're
+   inside).
+3. Add arrival steps — usually 3 to 6. Be specific. "Lockbox is mounted on the right
+   wall, painted to match the trim" beats "find the lockbox."
+4. Optionally attach a photo to each step. JPEG or PNG. Files stay client-side.
+5. Click **Download PDF** when the preview looks right.
+
+## Why arrival photos matter
+
+Hosts who include 1–2 arrival photos report a measurable drop in "where is the
+lockbox?" texts. The first 30 minutes of a stay are when guests are most stressed —
+clear visuals reduce that friction more than any amount of polish elsewhere.
+
+## FAQ
+
+### Are photos uploaded to a server?
+
+No. Photo files are read in your browser via the FileReader API and embedded directly
+into the PDF. They never leave your device.
+
+### What photo formats are supported?
+
+JPEG (.jpg, .jpeg) and PNG. HEIC files (typical iPhone exports) need to be converted
+first — most macOS and iOS apps will export to JPEG when saving.
+
+### How big can the PDF get?
+
+Each photo adds 100KB–500KB depending on size. A typical check-in PDF with 5 steps
+and 2 photos lands around 1MB. Email attachment-friendly.
+
+### Can I send this PDF to guests automatically?
+
+Not from this tool — there's no automation layer. Save the PDF and attach it to your
+booking platform's pre-arrival message, or upload to your guidebook software.
