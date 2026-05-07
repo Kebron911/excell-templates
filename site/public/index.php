@@ -55,7 +55,7 @@ include __DIR__ . '/_inc/header.php';
         <?php if (!empty($p['badge'])): ?><span class="badge"><?= e($p['badge']) ?></span><?php endif; ?>
         <div class="card-cta">
           <a href="/products/<?= e($sku) ?>">See inside →</a>
-          <a href="<?= e(is_url_for($sku)) ?>" class="btn btn-primary">Buy <?= e($p['price']) ?></a>
+          <a href="<?= e(is_url_for($sku)) ?>" class="btn btn-primary">Buy now</a>
         </div>
       </article>
 <?php endforeach; ?>
@@ -63,7 +63,7 @@ include __DIR__ . '/_inc/header.php';
   </div>
 </section>
 
-<section class="capture" id="bundles">
+<section class="capture">
   <div class="wrap">
     <p class="eyebrow">Free guide</p>
     <h2>The 47 Airbnb deductions your CPA forgets to ask about<span class="period-gold">.</span></h2>
