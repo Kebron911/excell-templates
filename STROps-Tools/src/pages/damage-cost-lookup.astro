@@ -1,0 +1,79 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import AffiliateCard from '@/components/affiliate/AffiliateCard.astro';
+import DamageCostLookup from '@/components/calculators/DamageCostLookup.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  { question: 'Where do these prices come from?', answer: 'Hand-compiled from current retailer pricing for STR-typical durability tiers — not insurance replacement-cost data. Updated quarterly.' },
+  { question: 'Why a range, not a single number?', answer: 'Low end is "fast replacement, IKEA / Amazon basics tier." High end is "guest-facing nice, will outlive a year of turnovers." Pick the tier that matches your nightly rate.' },
+  { question: 'How do I use this with Airbnb Resolution Center?', answer: 'Submit a claim with the high end of the range plus a receipt. Resolution Center adjusts down based on age — that\'s why lifespan matters.' },
+  { question: 'Item not in the list?', answer: 'Phase 3 expands the catalog to ~50 items. Email us if you need a specific one urgently and we\'ll prioritize it.' },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Airbnb Damage Cost Lookup',
+    description: 'Replacement cost ranges for common Airbnb damage items.',
+    toolPath: '/damage-cost-lookup',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="Airbnb Damage Cost Lookup — strops.tools"
+  description="Replacement cost ranges for common Airbnb damage items: mattresses, TVs, sofas, paint, drywall."
+  path="/damage-cost-lookup"
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto max-w-6xl px-5 py-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-10">
+    <article class="prose">
+      <p class="label text-accent-deep">Operations · Damage</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy leading-tight">
+        Damage Cost Lookup<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2">
+        What it actually costs to replace a mattress, repaint a wall, or swap a TV. Search by item or category. Click a row for brand recs and a per-item guide.
+      </p>
+
+      <DamageCostLookup client:load />
+
+      <AdSlot location="in-content" />
+
+      <h2 class="mt-9 font-serif text-h2 text-navy">How to use this when filing a claim</h2>
+      <ol class="mt-3 text-body text-ink-2 list-decimal pl-5 space-y-1">
+        <li>Look up the item, note the high end of the range.</li>
+        <li>Pull a receipt or photo a comparable retailer listing.</li>
+        <li>File the Resolution Center claim within 14 days of guest checkout.</li>
+        <li>Expect Airbnb to adjust down based on lifespan — the lifespan column is what they use.</li>
+      </ol>
+
+      <EmailCaptureCard magnet="maintenance-checklist-pdf" toolSlug="damage-cost-lookup" />
+
+      <STRLedgerCTA tool="damage-cost-lookup" />
+
+      <AffiliateCard vendor="ownerrez" tool="damage-cost-lookup" />
+
+      <h2 class="mt-7 font-serif text-h2 text-navy">FAQ</h2>
+      <div class="mt-3 space-y-4">
+        {faqs.map(f => (
+          <div>
+            <h3 class="font-serif text-h3 text-navy">{f.question}</h3>
+            <p class="mt-1 text-body text-ink-2">{f.answer}</p>
+          </div>
+        ))}
+      </div>
+
+      <AdSlot location="footer" />
+    </article>
+
+    <Sidebar current="damage-cost-lookup" />
+  </div>
+
+  <ClusterFunnelBlock currentCluster="operations" />
+</Layout>

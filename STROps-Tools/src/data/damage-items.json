@@ -1,0 +1,146 @@
+{
+  "queen-mattress": {
+    "name": "Queen mattress",
+    "category": "bedroom",
+    "costRange": [350, 1500],
+    "lifespanYears": 8,
+    "brandRecs": ["Tuft & Needle", "Saatva", "DreamCloud"],
+    "sourceUrls": ["https://www.consumerreports.org/mattresses/"],
+    "lastVerified": "2026-05-01"
+  },
+  "king-mattress": {
+    "name": "King mattress",
+    "category": "bedroom",
+    "costRange": [500, 2200],
+    "lifespanYears": 8,
+    "brandRecs": ["Tuft & Needle", "Saatva", "Helix"],
+    "sourceUrls": ["https://www.consumerreports.org/mattresses/"],
+    "lastVerified": "2026-05-01"
+  },
+  "sofa": {
+    "name": "Sofa (3-seat)",
+    "category": "living",
+    "costRange": [600, 3500],
+    "lifespanYears": 7,
+    "brandRecs": ["Article", "West Elm", "IKEA"],
+    "sourceUrls": ["https://www.wirecutter.com/reviews/best-couches/"],
+    "lastVerified": "2026-05-01"
+  },
+  "55in-tv": {
+    "name": "55-inch TV",
+    "category": "electronics",
+    "costRange": [350, 1200],
+    "lifespanYears": 6,
+    "brandRecs": ["TCL", "Hisense", "LG"],
+    "sourceUrls": ["https://www.rtings.com/tv"],
+    "lastVerified": "2026-05-01"
+  },
+  "65in-tv": {
+    "name": "65-inch TV",
+    "category": "electronics",
+    "costRange": [500, 2000],
+    "lifespanYears": 6,
+    "brandRecs": ["Hisense", "LG", "Sony"],
+    "sourceUrls": ["https://www.rtings.com/tv"],
+    "lastVerified": "2026-05-01"
+  },
+  "table-lamp": {
+    "name": "Table lamp",
+    "category": "living",
+    "costRange": [40, 250],
+    "lifespanYears": 8,
+    "brandRecs": ["IKEA", "Target Threshold", "West Elm"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "wall-paint-room": {
+    "name": "Wall repaint (one room)",
+    "category": "utility",
+    "costRange": [200, 600],
+    "lifespanYears": 5,
+    "brandRecs": ["Sherwin-Williams", "Benjamin Moore"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "drywall-repair-small": {
+    "name": "Drywall repair (small hole)",
+    "category": "utility",
+    "costRange": [80, 300],
+    "lifespanYears": 30,
+    "brandRecs": [],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "carpet-cleaning-room": {
+    "name": "Carpet deep-clean (one room)",
+    "category": "utility",
+    "costRange": [50, 200],
+    "lifespanYears": 1,
+    "brandRecs": ["Stanley Steemer", "Local cleaner"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "dining-chair": {
+    "name": "Dining chair",
+    "category": "kitchen",
+    "costRange": [60, 300],
+    "lifespanYears": 8,
+    "brandRecs": ["IKEA", "Article", "Target"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "coffee-maker": {
+    "name": "Coffee maker",
+    "category": "kitchen",
+    "costRange": [40, 250],
+    "lifespanYears": 4,
+    "brandRecs": ["Cuisinart", "Breville", "Mr. Coffee"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "toaster": {
+    "name": "Toaster",
+    "category": "kitchen",
+    "costRange": [25, 150],
+    "lifespanYears": 5,
+    "brandRecs": ["Hamilton Beach", "Cuisinart", "Breville"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "shower-curtain": {
+    "name": "Shower curtain + liner",
+    "category": "bathroom",
+    "costRange": [25, 80],
+    "lifespanYears": 2,
+    "brandRecs": ["Amazon Basics", "Target"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "bath-mat": {
+    "name": "Bath mat",
+    "category": "bathroom",
+    "costRange": [15, 60],
+    "lifespanYears": 2,
+    "brandRecs": ["Amazon Basics", "Target"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "patio-chair": {
+    "name": "Patio chair",
+    "category": "outdoor",
+    "costRange": [80, 400],
+    "lifespanYears": 5,
+    "brandRecs": ["IKEA", "Yardbird", "Polywood"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "grill": {
+    "name": "Outdoor grill",
+    "category": "outdoor",
+    "costRange": [200, 1500],
+    "lifespanYears": 7,
+    "brandRecs": ["Weber", "Char-Broil", "Traeger"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  }
+}
