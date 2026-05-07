@@ -1,0 +1,71 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+---
+
+<Layout
+  title="Contact — strguests.tools"
+  description="Email us with bug reports, tool requests, or partnership ideas."
+  path="/contact"
+>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9">
+      <header>
+        <p class="label text-[color:var(--accent-700)]">Contact</p>
+        <h1 class="mt-3 text-h1 font-serif text-navy leading-tight">
+          Drop us a line<span class="period-gold">.</span>
+        </h1>
+        <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+          Bug reports, tool requests, partnership ideas — all welcome. No form, no AI chatbot, no
+          ticketing system. Just email.
+        </p>
+      </header>
+
+      <section class="mt-7">
+        <a
+          href="mailto:hello@strguests.tools?subject=strguests.tools%20%E2%80%94"
+          class="inline-flex items-center gap-2 rounded-md text-parchment px-5 py-3 text-ui no-underline transition-colors duration-std hover:opacity-90"
+          style="background: var(--accent-500);"
+        >
+          hello@strguests.tools
+        </a>
+      </section>
+
+      <section class="prose mt-9 max-w-2xl">
+        <h2>Common reasons hosts reach out</h2>
+
+        <h3>Bug report</h3>
+        <p>
+          Subject: <code>Bug:</code> + 1-line description. Attach a screenshot if possible. We
+          triage daily; most bugs ship a fix within 48 hours.
+        </p>
+
+        <h3>Tool request</h3>
+        <p>
+          Subject: <code>Tool:</code> + the workflow you wish were faster. We pick a few requests
+          per quarter and build them into the next release.
+        </p>
+
+        <h3>Embed or syndication</h3>
+        <p>
+          Subject: <code>Embed:</code> + your site or platform. We're happy to provide
+          embeddable widgets and free PDF templates for STR-adjacent blogs and host communities.
+        </p>
+
+        <h3>Press, partnership, affiliate</h3>
+        <p>
+          Subject: <code>Partnership:</code> + a one-line ask. Replies usually within a week.
+        </p>
+      </section>
+    </div>
+
+    <ClusterFunnelBlock currentCluster="guest-xp" />
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: 1.6rem; margin-bottom: 0.6rem; }
+  .prose :global(h3) { font-family: var(--font-display); font-size: var(--t-h3-size); color: var(--brand-navy); margin-top: 1.2rem; margin-bottom: 0.4rem; }
+  .prose :global(p) { margin-bottom: 0.9rem; line-height: 1.65; color: var(--ink-2); }
+  .prose :global(code) { background: var(--bg-2); padding: 0 0.35em; border-radius: 3px; font-family: var(--font-mono); font-size: 0.9em; }
+</style>

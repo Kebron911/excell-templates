@@ -1,0 +1,139 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import tools from '@/data/tools.json';
+import templates from '@/data/templates.json';
+import { buildOrganization } from '@/lib/seo';
+
+const toolEntries = Object.entries(tools).map(([slug, t]) => ({ slug, ...t }));
+const pdfTools = toolEntries.filter((t) => t.kind === 'pdf');
+const aiTools = toolEntries.filter((t) => t.kind === 'ai');
+
+const jsonLd = [buildOrganization()];
+---
+
+<Layout
+  title="STR Guests Tools — free tools to delight your guests"
+  description="Free Airbnb host tools: house rules PDF, welcome book builder, Wi-Fi sign, check-in instructions, and 100+ message templates. No signup, no popups."
+  path="/"
+  jsonLd={jsonLd}
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-12 pb-9">
+      <p class="label text-[color:var(--accent-700)]">Built by The STR Ledger</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy max-w-3xl leading-tight">
+        Free tools to delight your guests<span class="period-gold">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2 max-w-2xl">
+        Branded printables and message templates for short-term rental hosts.
+        Built in your browser. No signup. No watermarks.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <p class="label text-[color:var(--accent-700)] mb-4">PDF generators</p>
+      <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+        {pdfTools.map((t) => (
+          <li>
+            <a
+              href={t.path}
+              class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-[color:var(--accent-500)] hover:shadow-card transition-all duration-std focus:outline-none focus:shadow-focus"
+            >
+              <p class="font-serif text-h3 text-navy leading-snug">{t.shortName}</p>
+              <p class="mt-2 text-small text-ink-2 leading-snug">{t.tagline}</p>
+              <p class="mt-4 text-caption text-[color:var(--accent-700)] flex items-center gap-1">
+                Open
+                <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <p class="label text-[color:var(--accent-700)] mb-4">AI generators · coming soon</p>
+      <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {aiTools.map((t) => (
+          <li>
+            <div
+              class="block h-full rounded-md border border-rule border-dashed bg-parchment-alt/50 p-5 cursor-not-allowed opacity-75"
+              aria-disabled="true"
+            >
+              <p class="font-serif text-h3 text-navy leading-snug">{t.shortName}</p>
+              <p class="mt-2 text-small text-ink-2 leading-snug">{t.tagline}</p>
+              <p class="mt-4 text-caption text-ink-3">Coming soon</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-7 items-center">
+      <div>
+        <p class="label text-[color:var(--accent-700)]">Message library</p>
+        <p class="mt-3 font-serif text-h2 text-navy leading-tight">
+          {templates.length}+ ready-to-send Airbnb message templates<span class="period-gold">.</span>
+        </p>
+        <p class="mt-3 text-body text-ink-2 max-w-2xl">
+          Booking confirmations, pre-arrival logistics, mid-stay check-ins, post-checkout follow-ups, and the difficult conversations
+          (refunds, noise complaints, broken items, evacuations). Filter by category, audience, or tone.
+        </p>
+      </div>
+      <a
+        href="/templates/"
+        class="self-start rounded-md text-parchment px-5 py-2.5 text-ui no-underline transition-colors duration-std hover:opacity-90 inline-flex items-center gap-2"
+        style="background: var(--accent-500);"
+      >
+        Browse templates
+      </a>
+    </div>
+  </section>
+
+  <section class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9 grid grid-cols-1 md:grid-cols-3 gap-7">
+      <div>
+        <p class="label text-[color:var(--accent-700)]">Honest tooling</p>
+        <p class="mt-3 font-serif text-h3 text-navy leading-snug">No watermarks.</p>
+        <p class="mt-2 text-small text-ink-2 leading-snug">
+          Every PDF is yours, branded as yours. We add a footer line ("Generated · strguests.tools") only if you want it.
+        </p>
+      </div>
+      <div>
+        <p class="label text-[color:var(--accent-700)]">Built in your browser</p>
+        <p class="mt-3 font-serif text-h3 text-navy leading-snug">Your data stays put.</p>
+        <p class="mt-2 text-small text-ink-2 leading-snug">
+          PDF generation runs client-side. Property addresses, Wi-Fi passwords, and arrival photos never leave your device.
+        </p>
+      </div>
+      <div>
+        <p class="label text-[color:var(--accent-700)]">Soft email gate</p>
+        <p class="mt-3 font-serif text-h3 text-navy leading-snug">Download first. Always.</p>
+        <p class="mt-2 text-small text-ink-2 leading-snug">
+          We surface a newsletter signup after you download. The PDF arrives no matter what — even if you skip the email.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <AdSlot location="footer" />
+
+  <section class="bg-parchment-alt border-t border-rule">
+    <div class="mx-auto max-w-3xl px-5 py-9">
+      <EmailCaptureCard
+        magnet="strguests-newsletter"
+        toolSlug="landing"
+      />
+    </div>
+  </section>
+
+  <ClusterFunnelBlock currentCluster="guest-xp" />
+</Layout>
