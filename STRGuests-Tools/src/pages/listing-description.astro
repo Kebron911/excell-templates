@@ -1,0 +1,134 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
+import AiRateLimitNotice from '@/components/generator/AiRateLimitNotice.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import ListingDescriptionGenerator from '@/components/generators/ListingDescriptionGenerator.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import tools from '@/data/tools.json';
+
+const tool = tools['listing-description'];
+const path = tool.path;
+
+const webApp = buildWebApplication({
+  name: tool.name,
+  description: tool.tagline,
+  toolPath: path,
+});
+const faq = buildFAQPage([
+  {
+    question: 'Does the AI know my real property?',
+    answer:
+      "No — the AI only sees the fields you fill in. It can't browse Airbnb, see your photos, or pull prior reviews. Your output reflects exactly the inputs you gave it.",
+  },
+  {
+    question: 'How many generations do I get?',
+    answer:
+      '5 per hour without an email; 50 per day after you verify an email. The rate limit keeps the tool free without burning through API budget on bulk-spam.',
+  },
+  {
+    question: 'Can I edit the result?',
+    answer:
+      'Yes — copy the output, paste it into your listing, and tighten anything that does not sound like you. The AI is a first draft, not a final voice.',
+  },
+  {
+    question: 'Will Airbnb penalize AI-generated copy?',
+    answer:
+      "Airbnb's content policy targets misleading claims and stuffed keywords, not AI tooling. As long as your listing accurately describes the property, AI-assisted copy is fine.",
+  },
+]);
+---
+<Layout
+  title={`${tool.name} — strguests.tools`}
+  description={tool.tagline}
+  path={path}
+  jsonLd={[webApp, faq]}
+>
+  <article class="generator-page mx-auto max-w-6xl px-5 py-8">
+    <header>
+      <p class="label text-[color:var(--accent-700)]">AI generator · Free with email</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">
+        Listing Description Generator<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2 max-w-2xl leading-snug">
+        {tool.tagline} Tell us about the property, pick a tone, and get a draft you can paste into
+        Airbnb in 30 seconds. 5 free generations an hour; 50/day after email verify.
+      </p>
+    </header>
+
+    <AiRateLimitNotice toolSlug="listing-description" />
+
+    <section class="mt-7">
+      <ListingDescriptionGenerator client:load />
+    </section>
+
+    <div class="mt-5 flex flex-wrap gap-3">
+      <PinterestPinButton toolSlug="listing-description" description="Free Airbnb listing description generator" />
+    </div>
+
+    <AdSlot location="in-content" />
+
+    <section class="mt-9 prose">
+      <h2 class="font-serif text-h2 text-navy">What makes a listing description convert</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        The opening line earns the click. Most hosts waste it on "welcome to our home" filler when
+        they could lead with one specific, sensory detail no other listing has — the wood-burning
+        stove, the lake-facing deck, the espresso machine that actually works. The AI follows the
+        same rule: feed it real features, get back a description that earns attention.
+      </p>
+    </section>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">Three rules the AI follows</h2>
+      <ul class="mt-4 space-y-3 text-body text-graphite leading-relaxed">
+        <li><strong class="text-navy">No invented features.</strong> If you don't list a hot tub, the AI won't either.</li>
+        <li><strong class="text-navy">No clichés.</strong> "Home away from home" and "nestled" are explicitly banned in the system prompt.</li>
+        <li><strong class="text-navy">Lead with what's different.</strong> The first sentence is the only sentence most travelers read on mobile.</li>
+      </ul>
+    </section>
+
+    <EmailCaptureCard
+      magnet="ai-tools-launch"
+      toolSlug="listing-description"
+      headline="Get the full AI generator pack"
+      blurb="Listing copy, review responses, and message templates — all three AI tools in one launch alert."
+      cta="Notify me at launch"
+    />
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">Frequently asked</h2>
+      <dl class="mt-4 space-y-5">
+        <div>
+          <dt class="font-serif text-h3 text-navy">Does the AI see my actual listing?</dt>
+          <dd class="mt-1 text-body text-graphite leading-relaxed">
+            No. It only sees the fields you fill in. The output reflects your inputs verbatim.
+          </dd>
+        </div>
+        <div>
+          <dt class="font-serif text-h3 text-navy">Can I run this in bulk?</dt>
+          <dd class="mt-1 text-body text-graphite leading-relaxed">
+            One property at a time. Bulk generation is intentionally not supported on the free tier.
+          </dd>
+        </div>
+        <div>
+          <dt class="font-serif text-h3 text-navy">Which AI is behind this?</dt>
+          <dd class="mt-1 text-body text-graphite leading-relaxed">
+            Claude haiku from Anthropic. Cheap, fast, and good at sticking to instructions about voice and length.
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <STRLedgerCTA tool="listing-description" />
+
+    <AdSlot location="footer" />
+
+    <Sidebar current="listing-description" />
+  </article>
+
+  <ClusterFunnelBlock currentCluster="guest-xp" />
+</Layout>
