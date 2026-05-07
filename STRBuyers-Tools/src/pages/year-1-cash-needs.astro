@@ -1,0 +1,47 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
+import Year1CashCalculator from '@/components/calculators/Year1CashCalculator.tsx';
+import { Content as ToolCopy } from '@/content/tools/year-1-cash-needs.mdx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import tools from '@/data/tools.json';
+
+const tool = tools['year-1-cash-needs'];
+const faqs = [
+  { question: 'How many months of reserves do lenders want?', answer: 'Most DSCR lenders require 6 months of PITIA in reserves. Conventional investment loans often require 6–12 months. Plan for the higher end so you have flexibility post-closing.' },
+  { question: 'How much for closing costs?', answer: 'Plan for 2.5–4% of purchase price. Title, lender fees, prepaids, prorations, and inspections add up. Closer to 4% for higher-cost areas with title insurance premiums.' },
+  { question: 'What\'s the right furnishing budget?', answer: 'Use the furnishing budget calculator. Mid-tier 2br lands around $20k; basic 2br around $11k; luxury 2br around $40k+.' },
+];
+const jsonLd = [
+  buildWebApplication({ name: 'Year-1 Cash Needs Calculator', description: 'Free year-1 cash needs calculator for STR property purchase.', toolPath: tool.path }),
+  buildFAQPage(faqs),
+];
+---
+<Layout title="STR Year-1 Cash Needs — strbuyers.tools" description="Free year-1 cash needs calculator. Down + closing + furnishing + reserves — total cash needed before closing day." path="/year-1-cash-needs" jsonLd={jsonLd}>
+  <article class="calculator-page bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-9 pb-7 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-9">
+      <div class="min-w-0">
+        <header><h1 class="text-h1 font-serif text-navy leading-tight">Year-1 Cash Needs<span class="period-accent">.</span></h1><p class="mt-3 text-lead text-ink-2 max-w-2xl">All-in cash before bookings start covering the bills.</p></header>
+        <div class="mt-7"><Year1CashCalculator client:load /></div>
+        <AdSlot location="in-content" />
+        <AffiliateBlock tool="year-1-cash-needs" headline="Things you'll need before closing" />
+        <div class="prose mt-7 max-w-2xl"><ToolCopy /></div>
+        <EmailCaptureCard magnet="strbuyers-checklist" toolSlug="year-1-cash-needs" />
+        <STRLedgerCTA tool="year-1-cash-needs" />
+        <AdSlot location="footer" />
+      </div>
+      <Sidebar current="year-1-cash-needs" />
+    </div>
+    <ClusterFunnelBlock currentCluster="acquisition" />
+  </article>
+</Layout>
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: 1.6rem; margin-bottom: 0.6rem; }
+  .prose :global(h3) { font-family: var(--font-display); color: var(--brand-navy); margin-top: 1.2rem; margin-bottom: 0.4rem; font-size: var(--t-h3-size); }
+  .prose :global(p) { margin-bottom: 0.9rem; line-height: 1.65; color: var(--ink-2); }
+</style>

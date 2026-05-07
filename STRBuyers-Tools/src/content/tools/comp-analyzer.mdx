@@ -1,0 +1,51 @@
+## How comp analysis works
+
+Three comparable listings is the minimum sample size that gives you a real signal.
+One comp is anecdote. Two comps could both be wrong in the same direction. Three
+comps with a tight spread give you confidence; three comps with a wide spread tell
+you there's hidden variance worth investigating.
+
+The math is simple per-listing:
+
+```
+booked nights = 365 × occupancy %
+annual rent   = booked nights × nightly rate
+cleaning rev  = (booked nights / 3) × cleaning fee   ← assumes 3-night avg stay
+annual gross  = annual rent + cleaning rev
+```
+
+The summary shows average, max-min spread, and a label.
+
+## How to read the spread
+
+- **Tight (under 15%)** — comps agree, the projected revenue is reliable
+- **Moderate (15–30%)** — average is a reasonable midpoint, but understand what
+  drives the difference (location, amenities, season)
+- **Wide (over 30%)** — at least one outlier. Don't trust the average until you've
+  identified what's different about the high or low listing
+
+## How to use this calculator
+
+1. Find 3 comparable listings on Airbnb/Vrbo (same bed count, same area).
+2. Pull each listing's nightly rate, occupancy estimate (AirDNA / PriceLabs), and
+   cleaning fee.
+3. Enter all three. The shareable URL captures every input.
+
+## FAQ
+
+### How do I get occupancy data?
+
+AirDNA and PriceLabs publish occupancy by ZIP and listing. AirDNA has a free comp
+viewer with rough numbers; their Pro tier is needed for serious comp work.
+
+### What if my comps have very different sizes?
+
+Don't compare a 2-bed to a 4-bed and expect the spread to be tight. Match comps on
+bedroom count, bathroom count, and amenity tier (hot tub, pool, view) before running
+the calculator.
+
+### Why divide booked nights by 3 for cleaning?
+
+US average stay length is ~3 nights. If your market trends shorter (urban) or longer
+(beach/mountain), adjust your cleaning-fee inputs accordingly — bump the cleaning
+fee for shorter stays or scale down occupancy effect.

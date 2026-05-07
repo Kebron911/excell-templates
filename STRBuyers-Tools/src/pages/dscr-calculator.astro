@@ -1,0 +1,58 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
+import DscrCalculator from '@/components/calculators/DscrCalculator.tsx';
+import { Content as ToolCopy } from '@/content/tools/dscr-calculator.mdx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import tools from '@/data/tools.json';
+
+const tool = tools['dscr-calculator'];
+
+const faqs = [
+  { question: 'What is DSCR?', answer: 'Debt Service Coverage Ratio — monthly gross rental income divided by monthly PITIA payment. Lenders use it to determine whether the property can pay for itself.' },
+  { question: 'What ratio do DSCR lenders require?', answer: 'Most STR DSCR lenders want 1.0 minimum to fund. 1.25+ unlocks the best rates and full LTV; below 1.0 is possible at higher rates or with more down.' },
+  { question: 'How is "monthly rent" determined?', answer: 'Lenders typically use either the appraiser\'s 1007 form (long-term comparable rent) or a third-party STR data source like AirDNA. STR-specific lenders increasingly accept STR projections.' },
+  { question: 'Does PITIA include HOA fees?', answer: 'Yes — PITIA = Principal + Interest + Taxes + Insurance + Association/HOA dues. Skip HOA if your property is fee-simple.' },
+];
+
+const jsonLd = [
+  buildWebApplication({ name: 'STR DSCR Loan Calculator', description: 'Free DSCR calculator for STR investors. See if a property qualifies for DSCR financing.', toolPath: tool.path }),
+  buildFAQPage(faqs),
+];
+---
+<Layout title="STR DSCR Loan Calculator — strbuyers.tools" description="Free DSCR loan calculator for short-term rental investors. Enter expected rent and PITIA — see your DSCR ratio and lender tier instantly." path="/dscr-calculator" jsonLd={jsonLd}>
+  <article class="calculator-page bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-9 pb-7 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-9">
+      <div class="min-w-0">
+        <header>
+          <h1 class="text-h1 font-serif text-navy leading-tight">STR DSCR Loan Calculator<span class="period-accent">.</span></h1>
+          <p class="mt-3 text-lead text-ink-2 max-w-2xl">Will the property pay for itself? Run the DSCR check before you submit an offer.</p>
+        </header>
+
+        <div class="mt-7"><DscrCalculator client:load /></div>
+
+        <AdSlot location="in-content" />
+        <AffiliateBlock tool="dscr-calculator" headline="DSCR lenders we've vetted" />
+
+        <div class="prose mt-7 max-w-2xl"><ToolCopy /></div>
+
+        <EmailCaptureCard magnet="strbuyers-checklist" toolSlug="dscr-calculator" />
+        <STRLedgerCTA tool="dscr-calculator" />
+        <AdSlot location="footer" />
+      </div>
+      <Sidebar current="dscr-calculator" />
+    </div>
+    <ClusterFunnelBlock currentCluster="acquisition" />
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: 1.6rem; margin-bottom: 0.6rem; }
+  .prose :global(h3) { font-family: var(--font-display); color: var(--brand-navy); margin-top: 1.2rem; margin-bottom: 0.4rem; font-size: var(--t-h3-size); }
+  .prose :global(p) { margin-bottom: 0.9rem; line-height: 1.65; color: var(--ink-2); }
+</style>

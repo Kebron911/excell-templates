@@ -5,6 +5,8 @@
     "paths": {
       "@/*": ["src/*"]
     },
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
     "types": ["astro/client", "vitest/globals"]
   },
   "include": ["src", "tests", "scripts", "*.ts", "*.mjs"],

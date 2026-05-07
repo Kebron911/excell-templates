@@ -1,0 +1,57 @@
+## How DSCR works
+
+DSCR — Debt Service Coverage Ratio — is the metric DSCR lenders use to qualify a loan
+based on the property's cash flow rather than the borrower's personal income. The
+math is simple:
+
+```
+DSCR = monthly rent / monthly PITIA
+```
+
+Where PITIA = Principal + Interest + Taxes + Insurance + Association dues.
+
+A DSCR of 1.0 means the property exactly covers its debt service. 1.25+ is what
+lenders consider a strong asset; below 1.0 means the property doesn't fully cover
+itself, and the borrower has to make up the gap with a larger down payment or accept
+a rate hit.
+
+## How to use this calculator
+
+1. Enter your **expected monthly gross rent**. For STRs, lenders typically accept either
+   the appraiser's 1007 form (long-term comparable rent) or an STR data source like
+   AirDNA. Use whichever matches your lender's underwriting policy.
+2. Enter your **monthly PITIA payment**. If you haven't locked a rate, model two
+   scenarios — a base rate and a rate 50 bps higher — to see how sensitive the DSCR
+   is to financing terms.
+3. The calculator returns the ratio + a lender-tier label.
+
+## What lenders actually do
+
+Most STR DSCR lenders we've worked with publish minimum DSCRs in the 0.75–1.0 range
+but adjust pricing based on tier:
+
+- **DSCR ≥ 1.25** — best rate, full 75–80% LTV
+- **DSCR 1.00–1.24** — qualifying, expect 25–50 bps add-on, sometimes 5% LTV haircut
+- **DSCR 0.75–1.00** — case-by-case, larger down required, full rate add-ons
+- **DSCR < 0.75** — pass
+
+## FAQ
+
+### Should I use long-term or STR projections for "rent"?
+
+Depends on the lender. The most STR-friendly lenders (Visio, Kiavi, Lima One) accept
+short-term-rental projections from AirDNA or similar — but they discount the projection
+~10–20% for underwriting. Other lenders only use the 1007 form's long-term rent.
+Ask up front; the answer drives whether the property pencils.
+
+### What goes into PITIA?
+
+Principal + Interest from the loan amortization schedule, plus annual property taxes
+divided by 12, plus annual insurance divided by 12, plus monthly HOA/Association dues
+if applicable. Get a real quote from your lender before relying on the number.
+
+### Does AirCover or platform fees count?
+
+No. PITIA is mortgage-side only. Booking platform fees, cleaning, supplies, and
+property management are operating expenses tracked separately in cash-on-cash and
+NOI calculations.

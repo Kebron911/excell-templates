@@ -1,0 +1,50 @@
+## How market scoring works
+
+Investors evaluate STR markets along four dimensions: how much you can charge per
+night (ADR), how often the unit books (occupancy), whether you're allowed to
+operate (regulation), and how much competition you'll face (saturation).
+
+This tool compresses all four into a single 0–100 score, weighted to reflect
+real-world deal-killers:
+
+- **ADR** — 30 points, scaled $80 (0 pts) → $400+ (30 pts)
+- **Occupancy** — 30 points, scaled 30% (0 pts) → 75%+ (30 pts)
+- **Regulation** — 20 points (allowed = 20, restrictive = 10, banned = 0 + score zeroed)
+- **Saturation** — 20 points (low = 20, medium = 12, high = 4)
+
+If regulation is banned, the score is forced to 0 — no amount of ADR rescues a market
+where you can't legally operate.
+
+## How to use this calculator
+
+1. Pull the **median ADR** for the market from AirDNA / PriceLabs (use median, not
+   mean — STR markets have long right tails).
+2. Pull the **annual occupancy** from the same source. Most data tools express it
+   as a decimal (0.62 = 62%).
+3. Categorize **regulation** based on the city/county ordinance.
+4. Estimate **saturation** based on year-over-year listing growth + cap on growth.
+
+## Reading the label
+
+- **Strong (70+)** — high-ADR, high-occupancy, allowed, low-medium saturation. Worth
+  underwriting deals here.
+- **Mixed (50–69)** — depends entirely on the property. Some neighborhoods score high
+  while the market overall is mid-tier.
+- **Marginal (30–49)** — at least two factors working against you. Possible but every
+  property has to outperform the median.
+- **Avoid (under 30, or banned)** — the math doesn't work for new entrants.
+
+## FAQ
+
+### What if my market is hot but saturation is high?
+
+That's a "mixed" market by design — high occupancy lifts the score, but high
+saturation pulls it down. Investigate whether the saturation is at unit count or
+permit cap; permit-capped markets often hold ADR better than uncapped ones.
+
+### Should I use this instead of AirDNA's MarketScore?
+
+This is a complement, not a substitute. AirDNA's score weights more heavily on
+revenue per available rental (RevPAR). Use both. They tend to agree on extremes
+(strong markets, banned markets) and diverge on mid-tier — that divergence is where
+deeper diligence is most valuable.

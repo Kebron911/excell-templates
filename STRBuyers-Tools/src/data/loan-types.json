@@ -1,0 +1,30 @@
+{
+  "conventional-investment": {
+    "label": "Conventional (investment)",
+    "minDownPct": 0.25,
+    "rateEstimatePct": 0.072,
+    "termYears": 30,
+    "note": "Fannie/Freddie investment-property loan. Hardest qualification — lender weighs personal DTI."
+  },
+  "dscr": {
+    "label": "DSCR loan",
+    "minDownPct": 0.20,
+    "rateEstimatePct": 0.078,
+    "termYears": 30,
+    "note": "No personal income or DTI check — qualified by property cash flow alone. Slightly higher rate."
+  },
+  "second-home": {
+    "label": "Second home",
+    "minDownPct": 0.10,
+    "rateEstimatePct": 0.068,
+    "termYears": 30,
+    "note": "Lowest down for non-primary. Property must be reasonable distance from primary residence and used as second home."
+  },
+  "fha-primary": {
+    "label": "FHA (primary residence only)",
+    "minDownPct": 0.035,
+    "rateEstimatePct": 0.066,
+    "termYears": 30,
+    "note": "Only viable if you live in the property. House-hack scenarios where you STR a portion of your primary."
+  }
+}
