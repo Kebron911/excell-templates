@@ -1,0 +1,72 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+
+const path = '/verify-email';
+---
+<Layout
+  title="Verify your email — strguests.tools"
+  description="Confirm your email to unlock 50 AI generations a day on strguests.tools."
+  path={path}
+  noIndex={true}
+>
+  <article class="mx-auto max-w-xl px-5 py-12">
+    <header>
+      <p class="label text-[color:var(--accent-700)]">Email verification</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">
+        Almost there<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2 leading-snug" data-verify-status>
+        Confirming your email…
+      </p>
+    </header>
+
+    <div class="mt-8" data-verify-actions>
+      <a href="/" class="inline-flex items-center gap-2 rounded-md text-parchment px-5 py-2.5 text-ui no-underline hover:opacity-90"
+        style="background: var(--accent-500);">
+        Back to strguests.tools
+      </a>
+    </div>
+  </article>
+
+  <ClusterFunnelBlock currentCluster="guest-xp" />
+
+  <script>
+    type ConfirmResponse = { ok: true; email: string } | { ok?: false; error: string };
+
+    const apiBase = (import.meta.env.PUBLIC_API_BASE as string | undefined) ?? '';
+    const status = document.querySelector<HTMLElement>('[data-verify-status]');
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('t');
+
+    async function run() {
+      if (!status) return;
+      if (!token) {
+        status.textContent =
+          'No verification token in this link. Check the email we sent you and click the button there.';
+        return;
+      }
+      try {
+        const res = await fetch(`${apiBase}/api/verify-email/confirm?t=${encodeURIComponent(token)}`, {
+          credentials: 'include',
+        });
+        const body: ConfirmResponse = await res.json();
+        if (res.ok && 'email' in body && body.email) {
+          status.innerHTML =
+            'Email verified. You now get <strong>50 AI generations per day</strong>. ' +
+            'Head back to any AI generator and the rate-limit notice will reflect your new budget.';
+          (window as any).gtag?.('event', 'email_verified', { email_domain: body.email.split('@')[1] ?? '' });
+        } else if (res.status === 410) {
+          status.textContent = 'This link expired. Request a new one and try again within 24 hours.';
+        } else {
+          status.textContent = 'We could not confirm this link. Request a new one and try again.';
+        }
+      } catch (err) {
+        status.textContent = 'Network error. Try again in a minute.';
+        console.warn('[verify-email] confirm failed:', err);
+      }
+    }
+
+    void run();
+  </script>
+</Layout>

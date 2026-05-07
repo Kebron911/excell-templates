@@ -157,4 +157,10 @@ const categoryLabel = entry.category.replace(/-/g, ' ');
   </article>
 
   <ClusterFunnelBlock currentCluster="guest-xp" />
+
+  <script is:inline define:vars={{ scenario, category: entry.category }}>
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'template_scenario_viewed', { scenario: scenario, category: category });
+    }
+  </script>
 </Layout>

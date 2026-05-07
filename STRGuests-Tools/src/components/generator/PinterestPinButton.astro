@@ -73,7 +73,10 @@ const resolvedPinPath = pinPath ?? `/pins/${toolSlug}.png`;
         `&description=${encodeURIComponent(description)}` +
         `&media=${encodeURIComponent(mediaUrl)}`;
 
+      // pin_intent_opened = the truthful event (we don't generate; we open Pinterest's intent).
+      // pin_generated = the spec contract event from REQUIREMENTS.md R7. Emit both.
       (window as any).gtag?.('event', 'pin_intent_opened', { tool, mediaUrl });
+      (window as any).gtag?.('event', 'pin_generated', { tool, mediaUrl });
 
       window.open(intentUrl, '_blank', 'noopener,noreferrer,width=720,height=620');
     });
