@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 1 — Foundation
-**Current task:** Task 3 — Print stylesheet
+**Current task:** Task 4 — Layout primitives
 **Last update:** 2026-05-07
 
 ---
@@ -10,7 +10,7 @@
 
 - [x] Task 1 — Bootstrap repo + tooling
 - [x] Task 2 — Brand tokens (ops accent shift)
-- [ ] Task 3 — Print stylesheet
+- [x] Task 3 — Print stylesheet
 - [ ] Task 4 — Layout primitives (incl. ClusterFunnelBlock)
 - [ ] Task 5 — Monetization primitives (AdSlot, EmailCaptureCard, STRLedgerCTA, AffiliateCard)
 - [ ] Task 6 — URL state library (TDD)
