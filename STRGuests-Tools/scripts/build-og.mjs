@@ -46,11 +46,15 @@ async function fetchFont(url) {
   return res.arrayBuffer();
 }
 
+// Pinned to @fontsource v5 woff files on jsDelivr — stable URLs that don't
+// rotate with font version bumps (unlike gstatic.com) or path moves (rsms.me).
+const FS = 'https://cdn.jsdelivr.net/npm/@fontsource';
+
 async function loadFonts() {
   const [interSemiBold, interMedium, cormorantMedium] = await Promise.all([
-    fetchFont('https://rsms.me/inter/font-files/Inter-SemiBold.woff'),
-    fetchFont('https://rsms.me/inter/font-files/Inter-Medium.woff'),
-    fetchFont('https://fonts.gstatic.com/s/cormorantgaramond/v18/U1roKkeZh-iyDFr_QPKkruE_Op0vJzlQDtEd8mRwroLg.woff'),
+    fetchFont(`${FS}/inter@5/files/inter-latin-600-normal.woff`),
+    fetchFont(`${FS}/inter@5/files/inter-latin-500-normal.woff`),
+    fetchFont(`${FS}/cormorant-garamond@5/files/cormorant-garamond-latin-500-normal.woff`),
   ]);
   return [
     { name: 'Inter', data: interSemiBold, weight: 600, style: 'normal' },
@@ -122,6 +126,7 @@ function ogTree({ kicker, title, footer }) {
                 type: 'div',
                 props: {
                   style: {
+                    display: 'flex',
                     fontWeight: 600,
                     fontSize: 16,
                     letterSpacing: 4,
