@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 1 — Foundation
-**Current task:** Task 6 — URL state library (TDD)
+**Current task:** Task 7 — Format library (TDD)
 **Last update:** 2026-05-07
 
 ---
@@ -13,7 +13,7 @@
 - [x] Task 3 — Print stylesheet
 - [x] Task 4 — Layout primitives (incl. ClusterFunnelBlock)
 - [x] Task 5 — Monetization primitives (AdSlot, EmailCaptureCard, STRLedgerCTA, AffiliateCard)
-- [ ] Task 6 — URL state library (TDD)
+- [x] Task 6 — URL state library (TDD)
 - [ ] Task 7 — Format library (TDD)
 - [ ] Task 8 — SEO library
 - [ ] Task 9 — PDF library — base setup with brand header/footer
