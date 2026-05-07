@@ -1,0 +1,4 @@
+public/_config/config.php
+.deploy-cache/
+*.log
+.DS_Store

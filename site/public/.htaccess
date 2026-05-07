@@ -1,0 +1,63 @@
+# The STR Ledger — webroot
+
+# ---------- Pretty URLs ----------
+RewriteEngine On
+
+# /products/SKU            → product.php?sku=SKU
+RewriteRule ^products/([A-Z]{3}-[0-9]{3})/?$ product.php?sku=$1 [L,QSA]
+
+# /free/MAGNET             → free.php?id=MAGNET
+RewriteRule ^free/([a-z0-9-]+)/?$ free.php?id=$1 [L,QSA]
+
+# Bare extensionless paths for legal + thank-you + about
+RewriteRule ^terms/?$       terms.php       [L]
+RewriteRule ^privacy/?$     privacy.php     [L]
+RewriteRule ^refunds/?$     refunds.php     [L]
+RewriteRule ^thank-you/?$   thank-you.php   [L,QSA]
+RewriteRule ^about/?$       about.php       [L]
+
+# ---------- Trailing-slash policy: strip ----------
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} ^(.+)/$
+RewriteRule ^ %1 [R=301,L]
+
+# ---------- HTTPS canonical ----------
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# www → apex
+RewriteCond %{HTTP_HOST} ^www\.thestrledger\.com$ [NC]
+RewriteRule ^(.*)$ https://thestrledger.com/$1 [R=301,L]
+
+# ---------- 404 ----------
+ErrorDocument 404 /404.php
+
+# ---------- Security headers ----------
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+  Header always set Strict-Transport-Security "max-age=15552000; includeSubDomains"
+</IfModule>
+
+# ---------- Caching ----------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/x-icon "access plus 30 days"
+  ExpiresByType font/woff2 "access plus 30 days"
+</IfModule>
+
+# ---------- Compression ----------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json text/xml
+</IfModule>
+
+# ---------- Hide dotfiles ----------
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
