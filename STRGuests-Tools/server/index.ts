@@ -15,6 +15,7 @@ import { makeVerifyEmailRouter } from './routes/verify-email.js';
 import { makeRateLimitStatusRouter } from './routes/rate-limit-status.js';
 import { makeGenerateListingRouter } from './routes/generate-listing.js';
 import { makeGenerateReviewRouter } from './routes/generate-review.js';
+import { makeGenerateMessageRouter } from './routes/generate-message.js';
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use(makeRateLimitStatusRouter());
 app.use(makeVerifyEmailRouter());
 app.use(makeGenerateListingRouter());
 app.use(makeGenerateReviewRouter());
+app.use(makeGenerateMessageRouter());
 
 // Catch-all 404 for /api/* so unknown endpoints don't fall through to a
 // generic Express 404 page.

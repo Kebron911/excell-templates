@@ -1,0 +1,116 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
+import AiRateLimitNotice from '@/components/generator/AiRateLimitNotice.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import MessageTemplateGenerator from '@/components/generators/MessageTemplateGenerator.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import tools from '@/data/tools.json';
+
+const tool = tools['guest-messages'];
+const path = tool.path;
+
+const webApp = buildWebApplication({
+  name: tool.name,
+  description: tool.tagline,
+  toolPath: path,
+});
+const faq = buildFAQPage([
+  {
+    question: 'Why are placeholders in double-curly braces?',
+    answer:
+      "That's Mustache syntax — Hospitable, Hostfully, Guesty, OwnerRez, and most other PMS platforms recognize it natively. Drop the output into a template field and the placeholders fill in per booking.",
+  },
+  {
+    question: 'What if my PMS uses different placeholder syntax?',
+    answer:
+      "Find-and-replace handles it. {{guestFirstName}} becomes [first_name] in some platforms or %guest_first% in others. The variable names are the same.",
+  },
+  {
+    question: 'Can I share these across properties?',
+    answer:
+      "Yes — that's the point. Generate once per scenario, paste into your master template, and every property uses the same wording.",
+  },
+  {
+    question: 'How long should each message be?',
+    answer:
+      "The AI caps each at ~140 words. Guests skim on mobile, especially during the booking flow. Brevity is hospitality.",
+  },
+]);
+---
+<Layout
+  title={`${tool.name} — strguests.tools`}
+  description={tool.tagline}
+  path={path}
+  jsonLd={[webApp, faq]}
+>
+  <article class="generator-page mx-auto max-w-6xl px-5 py-8">
+    <header>
+      <p class="label text-[color:var(--accent-700)]">AI generator · Free with email</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">
+        Guest Message Templates<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2 max-w-2xl leading-snug">
+        {tool.tagline} Eight scenarios — booking confirmation through refund-request reply.
+        Output uses Mustache placeholders so it drops into Hospitable, Hostfully, Guesty,
+        OwnerRez, and most other PMS template fields.
+      </p>
+    </header>
+
+    <AiRateLimitNotice toolSlug="guest-messages" />
+
+    <section class="mt-7">
+      <MessageTemplateGenerator client:load />
+    </section>
+
+    <div class="mt-5 flex flex-wrap gap-3">
+      <PinterestPinButton toolSlug="guest-messages" description="Free Airbnb guest message template generator" />
+    </div>
+
+    <AdSlot location="in-content" />
+
+    <section class="mt-9 prose">
+      <h2 class="font-serif text-h2 text-navy">Why scripted messages aren't lazy</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        Hosts who improvise every message either burn out or send increasingly terse one-liners.
+        A template field with {`{{guestFirstName}}`} and {`{{checkInDate}}`} placeholders gives
+        you space to write one good message per scenario, then reuse it forever. The AI is
+        tuned to write the kind of template that doesn't <em>feel</em> templated.
+      </p>
+    </section>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">Eight scenarios, one workflow</h2>
+      <ul class="mt-4 space-y-3 text-body text-graphite leading-relaxed">
+        <li><strong class="text-navy">Booking confirmation.</strong> Sent immediately after booking. Set expectations for what arrives next.</li>
+        <li><strong class="text-navy">Pre-arrival.</strong> Three days out. Arrival window, parking, where the welcome book lives.</li>
+        <li><strong class="text-navy">Mid-stay.</strong> Day 2. Light touch — offer help if anything is off.</li>
+        <li><strong class="text-navy">Post-checkout.</strong> Within 12 hours. Thank, ask for review, mention rebook discount.</li>
+        <li><strong class="text-navy">Late checkout reply.</strong> Granting or declining; reference cleaner schedule when declining.</li>
+        <li><strong class="text-navy">Noise complaint reply.</strong> Acknowledge, name what changed, do not blame other guests.</li>
+        <li><strong class="text-navy">Broken item reply.</strong> Thank for telling you, direct to Resolution Center.</li>
+        <li><strong class="text-navy">Refund request reply.</strong> Empathetic, neutral, redirected to platform.</li>
+      </ul>
+    </section>
+
+    <EmailCaptureCard
+      magnet="ai-tools-launch"
+      toolSlug="guest-messages"
+      headline="Get the full AI generator pack"
+      blurb="Listing copy, review responses, and the full guest-message library — all three AI tools, one launch alert."
+      cta="Notify me at launch"
+    />
+
+    <STRLedgerCTA tool="guest-messages" />
+
+    <AdSlot location="footer" />
+
+    <Sidebar current="guest-messages" />
+  </article>
+
+  <ClusterFunnelBlock currentCluster="guest-xp" />
+</Layout>
