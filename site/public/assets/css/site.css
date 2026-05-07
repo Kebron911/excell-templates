@@ -75,10 +75,10 @@ section.tight{padding:64px 0}
 .wordmark .name{font-weight:500;font-size:28px;letter-spacing:-0.01em}
 .wordmark .dot{color:var(--brand-gold)}
 .site-nav{display:flex;gap:28px;margin-left:auto;align-items:center}
-.site-nav a{font-family:var(--font-body);font-size:14px;font-weight:500;
+.site-nav a:not(.btn){font-family:var(--font-body);font-size:14px;font-weight:500;
   color:var(--brand-navy);text-decoration:none;border-bottom:1px solid transparent;
   padding-bottom:2px}
-.site-nav a:hover,.site-nav a.active{border-bottom-color:var(--brand-gold)}
+.site-nav a:not(.btn):hover,.site-nav a:not(.btn).active{border-bottom-color:var(--brand-gold)}
 
 /* ---------- Buttons ---------- */
 .btn{display:inline-block;font-family:var(--font-body);font-weight:500;letter-spacing:0.02em;
@@ -121,7 +121,7 @@ section.tight{padding:64px 0}
 .card .price .currency{font-size:18px;color:var(--brand-gold);margin-right:2px}
 .card p{margin:0;color:var(--fg-2);font-size:15px;line-height:1.55}
 .card .card-cta{margin-top:auto;display:flex;justify-content:space-between;align-items:center}
-.card .card-cta a{font-family:var(--font-body);font-size:13px;font-weight:600;
+.card .card-cta a:not(.btn){font-family:var(--font-body);font-size:13px;font-weight:600;
   color:var(--brand-navy);text-decoration:none;border-bottom:1px solid var(--brand-gold);
   padding-bottom:2px}
 .card .badge{display:inline-block;font-family:var(--font-mono);font-size:10px;
@@ -136,7 +136,7 @@ section.tight{padding:64px 0}
 .surface-navy{background:var(--bg-inverse);color:var(--fg-on-navy)}
 .surface-navy h1,.surface-navy h2,.surface-navy h3,.surface-navy h4{color:var(--fg-on-navy)}
 .surface-navy .eyebrow{color:var(--brand-gold)}
-.surface-navy a{color:var(--brand-parchment);text-decoration-color:var(--brand-gold)}
+.surface-navy a:not(.btn){color:var(--brand-parchment);text-decoration-color:var(--brand-gold)}
 .surface-parchment-alt{background:var(--bg-2)}
 
 /* ---------- Lead capture ---------- */
