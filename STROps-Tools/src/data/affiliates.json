@@ -1,0 +1,74 @@
+{
+  "august": {
+    "name": "August Smart Lock",
+    "category": "smart-lock",
+    "url": "https://august.com",
+    "blurb": "Wi-Fi smart lock with rolling guest codes. We use it for unattended check-ins on three properties.",
+    "linkText": "See August on August.com",
+    "ftcDisclosure": "We earn a small commission if you buy through this link. We only recommend gear we actually use."
+  },
+  "schlage": {
+    "name": "Schlage Encode",
+    "category": "smart-lock",
+    "url": "https://www.schlage.com",
+    "blurb": "Battery smart lock, no hub required. Solid choice for Airbnb hosts who don't want to deal with Z-Wave hubs.",
+    "linkText": "See Schlage Encode on schlage.com",
+    "ftcDisclosure": "We earn a small commission if you buy through this link. We only recommend gear we actually use."
+  },
+  "remotelock": {
+    "name": "RemoteLock",
+    "category": "smart-lock",
+    "url": "https://www.remotelock.com",
+    "blurb": "PMS-integrated smart locks for hosts running 5+ properties. Pricier but worth it at scale.",
+    "linkText": "See RemoteLock at remotelock.com",
+    "ftcDisclosure": "We earn a small commission if you buy through this link. We only recommend gear we actually use."
+  },
+  "minut": {
+    "name": "Minut",
+    "category": "noise-monitor",
+    "url": "https://www.minut.com",
+    "blurb": "Privacy-friendly noise + occupancy monitor. Doesn't record audio — just decibel events.",
+    "linkText": "See Minut at minut.com",
+    "ftcDisclosure": "We earn a small commission if you buy through this link. We only recommend gear we actually use."
+  },
+  "noiseaware": {
+    "name": "NoiseAware",
+    "category": "noise-monitor",
+    "url": "https://noiseaware.com",
+    "blurb": "Indoor + outdoor noise monitors built specifically for short-term rentals.",
+    "linkText": "See NoiseAware at noiseaware.com",
+    "ftcDisclosure": "We earn a small commission if you buy through this link. We only recommend gear we actually use."
+  },
+  "hostfully": {
+    "name": "Hostfully",
+    "category": "pms",
+    "url": "https://www.hostfully.com",
+    "blurb": "Property management platform built for hosts running 5–50 units. Strong on automation and digital guest books.",
+    "linkText": "See Hostfully at hostfully.com",
+    "ftcDisclosure": "We earn a small commission if you sign up through this link. We only recommend tools we'd use ourselves."
+  },
+  "hospitable": {
+    "name": "Hospitable",
+    "category": "pms",
+    "url": "https://hospitable.com",
+    "blurb": "Auto-messaging + channel manager. Cleaner UX than the legacy PMS options for 1–10 unit hosts.",
+    "linkText": "See Hospitable at hospitable.com",
+    "ftcDisclosure": "We earn a small commission if you sign up through this link. We only recommend tools we'd use ourselves."
+  },
+  "ownerrez": {
+    "name": "OwnerRez",
+    "category": "pms",
+    "url": "https://www.ownerrez.com",
+    "blurb": "Most powerful direct-booking PMS on the market. Steeper learning curve, deeper feature set.",
+    "linkText": "See OwnerRez at ownerrez.com",
+    "ftcDisclosure": "We earn a small commission if you sign up through this link. We only recommend tools we'd use ourselves."
+  },
+  "turno": {
+    "name": "Turno",
+    "category": "cleaning-marketplace",
+    "url": "https://turno.com",
+    "blurb": "Find vetted Airbnb cleaners, auto-schedule turnovers from your calendar, run paid background-checks. Backup roster for our network.",
+    "linkText": "See Turno at turno.com",
+    "ftcDisclosure": "We earn a small commission if you sign up through this link. We only recommend tools we'd use ourselves."
+  }
+}

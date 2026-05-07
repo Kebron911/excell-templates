@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 1 — Foundation
-**Current task:** Task 5 — Monetization primitives
+**Current task:** Task 6 — URL state library (TDD)
 **Last update:** 2026-05-07
 
 ---
@@ -12,7 +12,7 @@
 - [x] Task 2 — Brand tokens (ops accent shift)
 - [x] Task 3 — Print stylesheet
 - [x] Task 4 — Layout primitives (incl. ClusterFunnelBlock)
-- [ ] Task 5 — Monetization primitives (AdSlot, EmailCaptureCard, STRLedgerCTA, AffiliateCard)
+- [x] Task 5 — Monetization primitives (AdSlot, EmailCaptureCard, STRLedgerCTA, AffiliateCard)
 - [ ] Task 6 — URL state library (TDD)
 - [ ] Task 7 — Format library (TDD)
 - [ ] Task 8 — SEO library

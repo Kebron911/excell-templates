@@ -1,0 +1,73 @@
+---
+// AffiliateCard — soft, after-value placement. Renders single vendor card
+// with inline FTC disclosure (no top-of-page banner; that's strbuyers.tools'
+// pattern). The ops audience hates being sold to — this reads as "we use this,
+// here's why," not as a paid placement.
+//
+// Logging: clicks emit GA4 + console.log. No /api/click server in strops
+// (logging is GA4-only per Phase 1 plan).
+
+import affiliates from '@/data/affiliates.json';
+
+interface Props {
+  /** Vendor key in src/data/affiliates.json */
+  vendor: keyof typeof affiliates;
+  /** Tool slug (matches keys in src/data/tools.json), used for GA4 attribution */
+  tool: string;
+}
+
+const { vendor, tool } = Astro.props;
+const v = affiliates[vendor];
+
+if (!v) {
+  throw new Error(`AffiliateCard: unknown vendor "${vendor}". See src/data/affiliates.json.`);
+}
+
+const href = `${v.url}?utm_source=strops-tools&utm_medium=affiliate&utm_content=${encodeURIComponent(tool)}`;
+---
+<aside
+  class="affiliate-card my-7 rounded-md border border-rule bg-parchment-light p-5 print:hidden"
+  aria-label={`Recommended: ${v.name}`}
+>
+  <div class="flex flex-col gap-3">
+    <div class="flex items-baseline justify-between gap-3">
+      <p class="label text-accent-deep">We use this</p>
+      <p class="text-caption text-ink-3 uppercase tracking-widest">{v.category.replace(/-/g, ' ')}</p>
+    </div>
+
+    <p class="font-serif text-h3 text-navy leading-snug">{v.name}</p>
+    <p class="text-small text-ink-2 leading-snug max-w-2xl">{v.blurb}</p>
+
+    <div class="mt-1">
+      <a
+        href={href}
+        rel="sponsored noopener"
+        target="_blank"
+        class="inline-flex items-center gap-2 text-ui text-navy no-underline hover:text-accent-deep group focus:outline-none focus:shadow-focus rounded-sm"
+        data-affiliate-link
+        data-vendor={vendor}
+        data-tool={tool}
+      >
+        {v.linkText}
+        <span class="text-accent inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+      </a>
+    </div>
+
+    <p class="mt-2 text-caption text-ink-3 leading-snug border-t border-rule pt-2">
+      <span class="label text-ink-3 mr-1">Disclosure</span>
+      {v.ftcDisclosure}
+    </p>
+  </div>
+</aside>
+
+<script>
+  // No /api/click server in strops — logging is GA4-only per Phase 1 plan.
+  document.querySelectorAll<HTMLAnchorElement>('a[data-affiliate-link]').forEach((a) => {
+    a.addEventListener('click', () => {
+      const vendor = a.dataset.vendor ?? 'unknown';
+      const tool = a.dataset.tool ?? 'unknown';
+      console.log('[AffiliateCard] click', { vendor, tool, href: a.href });
+      (window as any).gtag?.('event', 'affiliate_clicked', { vendor, tool });
+    });
+  });
+</script>
