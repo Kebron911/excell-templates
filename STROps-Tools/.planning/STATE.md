@@ -1,7 +1,7 @@
 # STATE
 
-**Current phase:** 2 — Seven tools
-**Current task:** Task 16 — Maintenance schedule (PDF + .ics)
+**Current phase:** 3 — Programmatic pages (maintenance + replacement)
+**Current task:** Not yet started (Task 17: Maintenance data tasks.json)
 **Last update:** 2026-05-07
 
 ---
@@ -14,7 +14,9 @@
 - [x] Task 13 — Linen par calculator
 - [x] Task 14 — Restock calculator
 - [x] Task 15 — Damage cost lookup
-- [ ] Task 16 — Maintenance schedule (PDF + .ics)
+- [x] Task 16 — Maintenance schedule (PDF + .ics)
+
+**Phase 2 complete: 7/7 tasks. 2026-05-07.**
 
 ---
 
@@ -38,6 +40,10 @@
 
 - **2026-05-07** — Skipped `@types/pdf-lib` from plan; package does not exist on npm (pdf-lib ships its own types). Plan required it but install would fail.
 - **2026-05-07 (Task 2)** — Locked ops-utility accent: `--accent-500: #5A7359` (sage-meets-graphite green-gray). Shade ladder: `#8AA289 / #5A7359 / #3F5740` (300/500/700). At L*48 it carries the same perceptual weight as strhost's gold in the wordmark slot; passes WCAG AA on parchment. Aliased `--brand-gold` → `--accent-500` so cluster components ported verbatim still resolve correctly.
+- **2026-05-07 (Phase 2 routing)** — Source plan/spec used flat tool paths (`/turnover-scheduler`, `/linen-par`, etc.) which match existing `src/data/tools.json`. User brief mentioned `/tools/{slug}/` but landing + data already wire flat paths; kept flat to avoid breaking the landing tool grid. Slug `linen-par` (not `linen-par-calculator`) matches both data and source plan.
+- **2026-05-07 (Phase 2 PDF base extension)** — Phase 1 `src/lib/pdf/base.ts` exports `createBasePdf` (single-page) but Tasks 11/16 need multi-page control. Added `createBrandedDoc`, `addBrandedPage`, `decorateFooters`, plus `PAGE`/`MARGIN`/`BODY_TOP_Y` constants — additive, didn't break existing `createBasePdf` API. Phase 1 base test still green.
+- **2026-05-07 (Phase 2 lead magnets)** — EmailCaptureCard `magnet` prop receives explicit slugs per source plan: `cleaner-sop-pdf` (turnover, cleaner-dispatch, smart-lock-codes), `supply-par-pdf` (linen-par, restock-calculator), `maintenance-checklist-pdf` (damage-cost-lookup, maintenance-schedule). Phase 4 Task 25 will canonicalize the tool→magnet map via `tools.json`.
+- **2026-05-07 (Phase 2 ESP gate)** — Per source brief: ops audience prefers direct download over email-gated download. Cleaner-dispatch and maintenance-schedule expose PDF/ICS download buttons with no email gate. EmailCaptureCard remains as a separate inline funnel surface.
 
 ## Deviations log
 

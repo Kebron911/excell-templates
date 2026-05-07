@@ -91,8 +91,8 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 | Phase | Status | Started | Completed |
 |-------|--------|---------|-----------|
 | 1 — Foundation | completed | 2026-05-05 | 2026-05-07 |
-| 2 — Seven tools | active | 2026-05-07 | — |
-| 3 — Programmatic pages | not-started | — | — |
+| 2 — Seven tools | completed | 2026-05-07 | 2026-05-07 |
+| 3 — Programmatic pages | active | 2026-05-07 | — |
 | 4 — Site pages + lead magnets | not-started | — | — |
 | 5 — Analytics + E2E | not-started | — | — |
 | 6 — CI/CD + deploy | not-started | — | — |
