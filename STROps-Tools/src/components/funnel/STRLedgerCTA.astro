@@ -1,0 +1,99 @@
+---
+// STRLedgerCTA — one per page, copy varies by tool, deep-links to the
+// matching SKU on thestrledger.com with UTM tracking.
+
+interface Props {
+  tool: string;
+  headline?: string;
+  blurb?: string;
+  cta?: string;
+  skuPath?: string;
+}
+
+const { tool, headline, blurb, cta, skuPath } = Astro.props;
+
+const defaults: Record<string, { headline: string; blurb: string; cta: string; skuPath: string }> = {
+  'turnover-scheduler': {
+    headline: 'Turnovers scheduled — track the cleaning cost.',
+    blurb: 'The STR Ledger Cleaning Cost workbook captures cleaner fees, supply restocks, and per-stay margin.',
+    cta: 'See the cleaning workbook',
+    skuPath: '/products/cleaning-workbook',
+  },
+  'cleaner-dispatch': {
+    headline: 'SOPs hand to cleaners. Workbooks hand to your accountant.',
+    blurb: 'The STR Ledger Booking Log captures cleaning incidents and turnover quality per stay.',
+    cta: 'See the booking log',
+    skuPath: '/products/booking-log',
+  },
+  'smart-lock-codes': {
+    headline: 'Codes rotate. Bookings flow. Track them both.',
+    blurb: 'The STR Ledger Booking Log keeps the audit trail for every check-in code and stay.',
+    cta: 'See the booking log',
+    skuPath: '/products/booking-log',
+  },
+  'linen-par': {
+    headline: 'Linen par set — track the spend.',
+    blurb: 'The STR Ledger Supply Tracker logs every linen replacement and laundry expense.',
+    cta: 'See the supply tracker',
+    skuPath: '/products/supply-tracker',
+  },
+  'restock-alert': {
+    headline: 'Restock alerts trigger. Track the spend.',
+    blurb: 'The STR Ledger Supply Tracker captures consumable spend by month and SKU.',
+    cta: 'See the supply tracker',
+    skuPath: '/products/supply-tracker',
+  },
+  'damage-cost': {
+    headline: 'Damage cost looked up. Now log the incident.',
+    blurb: 'The STR Ledger Incident Log captures every damage incident, severity, and resolution.',
+    cta: 'See the incident log',
+    skuPath: '/products/incident-log',
+  },
+  'maintenance-schedule': {
+    headline: 'Schedule generated. Track the work.',
+    blurb: 'The STR Ledger Maintenance Tracker logs every service task, vendor, and cost.',
+    cta: 'See the maintenance tracker',
+    skuPath: '/products/maintenance-tracker',
+  },
+};
+
+const fallback = {
+  headline: 'Track every property in The STR Ledger.',
+  blurb: 'Excel templates and PDFs that turn ops work into your monthly bookkeeping rhythm.',
+  cta: 'Browse The STR Ledger',
+  skuPath: '/',
+};
+
+const conf = defaults[tool] ?? fallback;
+const finalHeadline = headline ?? conf.headline;
+const finalBlurb = blurb ?? conf.blurb;
+const finalCta = cta ?? conf.cta;
+const finalSkuPath = skuPath ?? conf.skuPath;
+
+const href = `https://thestrledger.com${finalSkuPath}?utm_source=strops-tools&utm_medium=cta&utm_content=${encodeURIComponent(tool)}`;
+---
+<aside class="str-ledger-cta my-7 print:hidden" aria-label="Related product on The STR Ledger">
+  <div class="rounded-md surface-navy p-6">
+    <p class="label text-[color:var(--accent-500)]">From The STR Ledger</p>
+    <p class="mt-3 font-serif text-h3 text-parchment max-w-2xl leading-snug">{finalHeadline}</p>
+    <p class="mt-3 text-small text-parchment opacity-90 max-w-2xl leading-snug">{finalBlurb}</p>
+    <a
+      href={href}
+      class="mt-5 inline-flex items-center gap-2 rounded-md text-navy px-5 py-2.5 text-ui no-underline transition-colors duration-std focus:outline-none focus:shadow-focus"
+      style="background: var(--accent-500);"
+      data-str-ledger-cta
+      data-tool={tool}
+    >
+      {finalCta}
+      <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</aside>
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>('a[data-str-ledger-cta]').forEach((a) => {
+    a.addEventListener('click', () => {
+      (window as any).gtag?.('event', 'str_ledger_cta_clicked', { tool: a.dataset.tool });
+    });
+  });
+</script>

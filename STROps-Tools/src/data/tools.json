@@ -1,0 +1,51 @@
+{
+  "turnover-scheduler": {
+    "shortName": "Turnover",
+    "name": "Turnover Scheduler",
+    "path": "/turnover-scheduler",
+    "tagline": "Multi-property checkout-to-checkin gap, in one view.",
+    "kind": "ops"
+  },
+  "cleaner-dispatch": {
+    "shortName": "Cleaner",
+    "name": "Cleaner Dispatch Generator",
+    "path": "/cleaner-dispatch",
+    "tagline": "Assignments + SMS templates + branded SOP PDF.",
+    "kind": "ops"
+  },
+  "smart-lock-codes": {
+    "shortName": "Lock codes",
+    "name": "Smart Lock Code Rotator",
+    "path": "/smart-lock-codes",
+    "tagline": "Rolling codes per booking. No code reuse.",
+    "kind": "ops"
+  },
+  "linen-par": {
+    "shortName": "Linen par",
+    "name": "Linen Par Calculator",
+    "path": "/linen-par",
+    "tagline": "Sheet and towel sets per property — 3-deep par.",
+    "kind": "ops"
+  },
+  "restock-alert": {
+    "shortName": "Restock",
+    "name": "Restock Alert Calculator",
+    "path": "/restock-alert",
+    "tagline": "Booking volume × consumable rate = order date.",
+    "kind": "ops"
+  },
+  "damage-cost": {
+    "shortName": "Damage cost",
+    "name": "Damage Cost Lookup",
+    "path": "/damage-cost",
+    "tagline": "Replace mattress, repaint, replace TV — by city.",
+    "kind": "ops"
+  },
+  "maintenance-schedule": {
+    "shortName": "Maintenance",
+    "name": "Maintenance Schedule Generator",
+    "path": "/maintenance-schedule",
+    "tagline": "HVAC, smoke detector, deep clean — printable PDF.",
+    "kind": "ops"
+  }
+}

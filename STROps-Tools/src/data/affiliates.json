@@ -1,0 +1,69 @@
+{
+  "vendors": {
+    "august": {
+      "name": "August",
+      "category": "smart-lock",
+      "tagline": "Wi-Fi smart lock with rolling code support.",
+      "url": "https://august.com",
+      "disclosure": "We earn a commission on August purchases through this link."
+    },
+    "remotelock": {
+      "name": "RemoteLock",
+      "category": "smart-lock",
+      "tagline": "Cloud-managed smart locks for STR portfolios.",
+      "url": "https://remotelock.com",
+      "disclosure": "We earn a commission on RemoteLock subscriptions through this link."
+    },
+    "minut": {
+      "name": "Minut",
+      "category": "noise-monitor",
+      "tagline": "Noise + occupancy monitor with privacy-first sensor.",
+      "url": "https://minut.com",
+      "disclosure": "We earn a commission on Minut purchases through this link."
+    },
+    "noiseaware": {
+      "name": "NoiseAware",
+      "category": "noise-monitor",
+      "tagline": "Decibel + party detection sensor for STRs.",
+      "url": "https://noiseaware.io",
+      "disclosure": "We earn a commission on NoiseAware purchases through this link."
+    },
+    "hostfully": {
+      "name": "Hostfully",
+      "category": "pms",
+      "tagline": "Property-management software with full-stack ops.",
+      "url": "https://hostfully.com",
+      "disclosure": "We earn a commission on Hostfully subscriptions through this link."
+    },
+    "hospitable": {
+      "name": "Hospitable",
+      "category": "pms",
+      "tagline": "Auto-messaging + smart pricing for short-term rentals.",
+      "url": "https://hospitable.com",
+      "disclosure": "We earn a commission on Hospitable subscriptions through this link."
+    },
+    "ownerrez": {
+      "name": "OwnerRez",
+      "category": "pms",
+      "tagline": "Direct-booking-friendly property-management system.",
+      "url": "https://ownerrez.com",
+      "disclosure": "We earn a commission on OwnerRez subscriptions through this link."
+    },
+    "turno": {
+      "name": "Turno",
+      "category": "cleaning",
+      "tagline": "Cleaner marketplace + scheduling + payment automation.",
+      "url": "https://turno.com",
+      "disclosure": "We earn a commission on Turno usage through this link."
+    }
+  },
+  "byTool": {
+    "turnover-scheduler": ["turno", "hospitable"],
+    "cleaner-dispatch": ["turno"],
+    "smart-lock-codes": ["august", "remotelock"],
+    "linen-par": [],
+    "restock-alert": [],
+    "damage-cost": [],
+    "maintenance-schedule": ["minut", "noiseaware"]
+  }
+}
