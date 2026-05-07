@@ -1,12 +1,12 @@
 # STATE
 
-**Current phase:** 2 — Seven generators (PDF + AI)
-**Current task:** Not yet started (Task 11: PDF generator #1 — house rules)
+**Current phase:** 3 — AI generators + server endpoints
+**Current task:** Not yet started (Task 16: OpenAI client wrapper) — blocked on OpenAI API key
 **Last update:** 2026-05-06
 
 ---
 
-## Phase 1 progress (complete)
+## Phase 1 progress (complete — 2026-05-06)
 
 - [x] Task 1 — Bootstrap dual-target repo (Astro static + Express)
 - [x] Task 2 — Brand tokens with hospitality-warm accent
@@ -19,45 +19,81 @@
 - [x] Task 9 — PDF library base (brand header/footer)
 - [x] Task 10 — Express server skeleton + MySQL pool + schema migration
 
+## Phase 2 progress (complete — 2026-05-06)
+
+- [x] Task 11 — House rules PDF generator (vertical slice — pattern validated)
+- [x] Task 12 — Welcome book builder (5-section multi-page)
+- [x] Task 13 — Wi-Fi sign generator (3 templates + QR)
+- [x] Task 14 — Check-in instructions PDF (multi-page + image upload)
+- [x] Task 15 — Soft email-gate module (extracted shared logic)
+
+## Phase 3 progress (not started — blocked)
+
+- [ ] Task 16 — OpenAI client wrapper (TDD) — **blocked on OPENAI_API_KEY**
+- [ ] Task 17 — Email verification flow
+- [ ] Task 18 — Rate-limit middleware
+- [ ] Task 19 — Listing description generator (endpoint + UI)
+- [ ] Task 20 — Review response generator (endpoint + UI)
+- [ ] Task 21 — Message template generator (endpoint + UI)
+
 ---
 
-## Decisions log (Phase 1)
+## Decisions log
 
+### Phase 1
 - **Accent palette = terracotta (#C8684C primary).** Reads as "hospitable / warm / welcoming" without sliding into orange or kitsch. 50/100/500/700/900 ramp exposed as `colors.accent.*` in Tailwind + shipped as CSS custom properties (`--accent-500` etc.) so non-Tailwind contexts (PDF, OG image) consume the same tokens.
 - **Tailwind utility approach for accent.** Used `text-[color:var(--accent-500)]` arbitrary-value form rather than minting `text-terracotta-500` aliases — avoids drift if the accent ever moves and keeps CSS tokens as single source of truth.
-- **Wordmark hierarchy: Brand-name primary + .tld trailing.** Per Cluster Style Guide §1. Cormorant Garamond medium @ 28px reads as editorial-finance + welcoming. Eyebrow + main rejected variant explicitly avoided.
-- **Generator-vs-calculator naming.** All component classes / labels / data-* attrs renamed `calculator` → `generator` (`.surface-gen`, `.related-generators`, `.generator-page`, `.generator-preview`).
-- **Soft email-gate is non-negotiable.** PdfDownloadButton triggers download FIRST, then opens the email modal. "Skip and download" copy ships verbatim; modal closes on Escape. PDF arrives no matter what.
+- **Wordmark hierarchy: Brand-name primary + .tld trailing.** Per Cluster Style Guide §1. Cormorant Garamond medium @ 28px reads as editorial-finance + welcoming.
+- **Generator-vs-calculator naming.** All component classes / labels / data-* attrs renamed `calculator` → `generator`.
+- **Soft email-gate is non-negotiable.** PdfDownloadButton triggers download FIRST, then opens the email modal. PDF arrives no matter what.
 - **Pinterest pin pipeline split for Phase 1.** PinterestPinButton dispatches a `strguests:pin-ready` CustomEvent and opens the Pinterest intent with the page URL. Real `/api/pin-host` upload + uploaded-URL intent lands in Phase 5 Task 28.
-- **Rate-limit UI reads as guidance.** AiRateLimitNotice displays "X of Y generations remaining" rather than red error styling; the verify-email CTA only appears when the visitor is at ≤ 2 unverified generations.
-- **MySQL schema choices.** `ip_hash` (sha256(IP+IP_HASH_SALT)) instead of raw IPs; `prompt_hash` instead of raw prompt content in `generation_logs` — keeps log table small + privacy-respecting; utf8mb4_unicode_ci across the board.
+- **Rate-limit UI reads as guidance.** AiRateLimitNotice displays "X of Y generations remaining" rather than red error styling.
+- **MySQL schema choices.** `ip_hash` (sha256(IP+IP_HASH_SALT)) instead of raw IPs; `prompt_hash` instead of raw prompt content in `generation_logs`.
 - **db.query parameterization is enforced at compile + runtime.** No string-concat path; tests assert via mocked `mysql2/promise` AND a source-scan regex.
 - **`@` alias must use `fileURLToPath(new URL('./src', import.meta.url))`** in both vitest.config.ts and astro.config.mjs (cluster-style-guide §10) — the naive `.pathname` approach breaks on Windows.
-- **`/api/click` endpoint is NOT in this project.** strhost/strbuyers have it; strguests doesn't (no affiliate click tracking — strguests monetizes via PDF + AI generators + email list, not affiliate hops).
+- **No `/api/click` endpoint** (deliberate omission vs strhost/strbuyers — strguests monetizes via PDF + AI generators + email list, not affiliate hops).
 
-## Deviations log (Phase 1)
+### Phase 2
+- **Option-1 PDF API adaptation locked.** Plan code blocks called `createBaseDoc({ subtitle, toolSlug })` / `drawHeader({ toolSlug })`; adapted to Phase 1 base.ts API (subtitle on drawHeader only, no toolSlug — visual output unaffected, dead-weight argument avoided).
+- **Each PDF builder hooks into `window.__strguests.generatePdf[<slug>]`.** No changes required to PdfDownloadButton when adding a new generator — the registry pattern is the contract. Dispose on island unmount.
+- **Vertical-slice approach paid off.** Task 11 (house rules) validated the form-island + PDF-builder + page-wiring pattern; Tasks 12–14 followed the template with deltas (multi-page, QR, image upload).
+- **`brandFooter:false` is supported on every PDF builder** so hosts who want a fully unbranded printable can post-edit the PDF — discoverable via the source plan, not a UI toggle in Phase 2.
+- **Wi-Fi QR rendered navy (#12304E) on white.** Brand consistency with the rest of the cluster — reads cleanly on parchment-tinted paper.
+- **Image embed routed by `kind` discriminator** (`'png' | 'jpg'`) so callers don't have to call doc.embedPng vs doc.embedJpg directly. HEIC explicitly unsupported (form rejects, doc clarifies).
+- **Email-gate module extracted as PURE logic** (no DOM in `email-gate.ts`). Modal markup stays in `PdfDownloadButton.astro`; only the post + dismissal flag + email validator are shared.
+- **Per-toolSlug session dismissal.** A visitor dismissing the house-rules modal still sees it on welcome-book — different magnets, different reasons to capture.
 
-_None._ Plan was followed verbatim.
+## Deviations log
 
-## Open questions blocking Phase 2 / Phase 3
+_None._ Phase 1 and Phase 2 followed the plan verbatim with the option-1 API adaptation noted above.
 
-- **OpenAI API key** — needed to wire Task 16 (AI generator endpoint) against the real API. Stub-only OK for Phase 2 PDF tools; must resolve before Phase 3.
-- **MySQL on Hostinger Business** — Task 10 schema is in place but the `pnpm db:migrate` run against a real Hostinger Business MySQL instance is unverified. Must confirm sufficient connection-pool quota before Phase 3 server deploy (Task 33).
-- **Cleaner SOP / welcome book authorship.** Master-template content is open: host-authored, Daniel-authored, or AI-drafted-then-edited? Affects Phase 5 Task 30 lead-magnet PDF.
+## Open questions blocking Phase 3 / Phase 5
+
+- **OpenAI API key** — required for Task 16 (OpenAI client wrapper). Hard blocker on Phase 3. Spec also notes Claude (claude-haiku-4-5) as a potentially cheaper alternative — open question to resolve before Task 16 starts.
+- **MySQL on Hostinger Business** — Task 10 schema is in place but `pnpm db:migrate` against a real Hostinger Business MySQL instance is unverified. Must confirm sufficient connection-pool quota before Phase 3 server deploy.
+- **Cleaner SOP / welcome book master content authorship** — Phase 5 Task 27 lead-magnet PDF question. Self-authored vs Daniel vs AI draft.
+- **PDF co-branding default** — should `brandFooter:true` stay the default forever, or should we offer a UI toggle? Open product question — default stays for now.
+- **Pinterest account / API credentials** — Phase 5 Task 25 (pin generator) and Task 26 (button wiring) depend on a real Pinterest account + image upload endpoint.
 
 ## Cluster sequencing
 
-Per the strategic build order: strhost.tools first (✅ Phase 6 complete), **strguests.tools second (Phase 1 ✅)**, strops.tools third, strbuyers.tools fourth.
+Per the strategic build order: strhost.tools first (✅ Phase 6 complete), **strguests.tools second (Phase 1 ✅, Phase 2 ✅)**, strops.tools third, strbuyers.tools fourth.
 
-## Phase 1 verification (run before Phase 2)
+## Phase 1 + 2 verification (run before Phase 3)
 
 ```bash
 pnpm install
 pnpm typecheck    # astro check + tsc + server tsconfig — zero errors
-pnpm test         # vitest: format, url-state, pdf/base, server/db
+pnpm test         # vitest: format, url-state, pdf/base, pdf/house-rules,
+                  #         pdf/welcome-book, pdf/wifi-sign, pdf/checkin,
+                  #         email-gate, server/db
 pnpm dev &        # Astro on :4321
 pnpm server:dev & # Express on :3001
 curl http://localhost:3001/api/health    # {"status":"ok",...}
 ```
 
-Visit `http://localhost:4321/` once a throwaway landing route exists (Phase 2 Task 11).
+Visit each generator page in dev:
+- `/house-rules-pdf` — checkbox toggle + custom rules + download
+- `/welcome-book` — 5-section toggle + multi-page nav preview
+- `/wifi-sign` — 3-template radio + live QR preview
+- `/check-in-instructions` — image upload + multi-page nav preview
