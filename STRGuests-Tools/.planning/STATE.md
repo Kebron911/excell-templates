@@ -1,8 +1,8 @@
 # STATE
 
-**Current phase:** 6 — Analytics + E2E + CI/CD + deploy (Phase 3 still deferred — blocked on OPENAI_API_KEY)
+**Current phase:** 6 — Analytics + E2E + CI/CD + deploy (code-only)
 **Current task:** Not yet started (Task 32: GA4 cross-domain + custom events)
-**Last update:** 2026-05-06
+**Last update:** 2026-05-07
 
 ---
 
@@ -27,14 +27,19 @@
 - [x] Task 14 — Check-in instructions PDF (multi-page + image upload)
 - [x] Task 15 — Soft email-gate module (extracted shared logic)
 
-## Phase 3 progress (deferred — blocked on OPENAI_API_KEY)
+## Phase 3 progress (complete — 2026-05-07, code-only — live key deferred to Phase 6 deploy)
 
-- [ ] Task 16 — OpenAI client wrapper (TDD) — **blocked on OPENAI_API_KEY**
-- [ ] Task 17 — Email verification flow
-- [ ] Task 18 — Rate-limit middleware
-- [ ] Task 19 — Listing description generator (endpoint + UI)
-- [ ] Task 20 — Review response generator (endpoint + UI)
-- [ ] Task 21 — Message template generator (endpoint + UI)
+- [x] Task 16 — Anthropic client wrapper (TDD) — `claude-haiku-4-5` default
+- [x] Task 17 — Email verification flow + IP hashing
+- [x] Task 18 — Rate-limit middleware + status endpoint
+- [x] Task 19 — Listing description generator (endpoint + UI)
+- [x] Task 20 — Review response generator (endpoint + UI)
+- [x] Task 21 — Message template generator (endpoint + UI)
+
+**Phase 3 verification:** 61 vitest assertions green
+(`tests/server/{ai,middleware,routes,email-verify,ip-hash}/...`).
+Mocked Anthropic SDK + mocked db for all server tests; first live generation
+will happen at Phase 6 deploy when `ANTHROPIC_API_KEY` is set on Hostinger.
 
 ## Phase 4 progress (complete — 2026-05-06)
 
@@ -59,6 +64,17 @@
 ---
 
 ## Decisions log
+
+### Phase 3
+- **AI provider locked = Anthropic Claude haiku-4-5.** Closes spec §13's open question. Cheaper than GPT-4o-mini per token, matches CLAUDE.md guidance, and the wrapper isolates the SDK behind `generate(promptId, vars)` so a future swap to OpenAI is a one-file change. `ANTHROPIC_MODEL` env var allows runtime override (e.g. claude-sonnet-4-6 for higher-stakes flows) without redeployment.
+- **Mocked tests, no live key during Phase 3.** Phase 3 ships code + tests against a mocked Anthropic SDK. First live generation happens at Phase 6 deploy when `ANTHROPIC_API_KEY` is set on Hostinger. The wrapper throws `AiConfigError` (→ 503 `ai_unconfigured`) at call-time, not import-time, so dev/test/build all run without the key.
+- **Mock SMTP for email-verify.** `/api/verify-email` logs `[email-verify] would send to <masked>` in dev; real provider (Resend/Mailgun) wired in Phase 6 deploy. The HMAC token + DB row persist correctly so the confirm flow is testable end-to-end.
+- **Cookie-based verified-email session.** Signed `sg_verified` cookie (HMAC of email, 30d, httpOnly, sameSite=lax) set by `/api/verify-email/confirm`. Rate-limit middleware reads this to bump tier from `unverified` (5/hr) to `verified` (50/day) without any extra round trips.
+- **Mustache placeholders preserved in message generator output.** Phase 4's `templates.json` already established `{{guestFirstName}}` etc. as the variable contract. The system prompt for the message generator instructs the model to emit those placeholders verbatim so output drops directly into a host's PMS template field (Hospitable, Hostfully, Guesty, OwnerRez all recognize Mustache).
+- **Shared `_generation-pipeline.ts`.** Validate → rate-limit consume → generate → log → respond is identical for all three AI tools. Each route is a one-liner: `r.post(path, makeGenerateHandler(toolSlug, promptId))`.
+- **Fail-closed in production, fail-open in dev for rate-limit DB outages.** A DB-down state in prod returns 503 `rate_limit_unavailable` rather than letting unbounded calls through; in dev the middleware passes through so feature work isn't blocked by a missing local MySQL.
+- **`generation_logs` stores `prompt_hash`, never raw prompt content.** sha256(JSON.stringify(parsed.data)) — useful for spotting duplicate-spam without storing PII or running up the log table size.
+- **Listing prompt forbids clichés.** "Home away from home", "your home base", "nestled" are explicitly banned in the system prompt — the AI is more useful as a starting point than as a cliché-machine.
 
 ### Phase 1
 - **Accent palette = terracotta (#C8684C primary).** Reads as "hospitable / warm / welcoming" without sliding into orange or kitsch. 50/100/500/700/900 ramp exposed as `colors.accent.*` in Tailwind + shipped as CSS custom properties (`--accent-500` etc.) so non-Tailwind contexts (PDF, OG image) consume the same tokens.
@@ -104,17 +120,24 @@
 
 _None._ Phase 1 and Phase 2 followed the plan verbatim with the option-1 API adaptation noted above.
 
-## Open questions blocking Phase 3 / Phase 5
+## Open questions blocking Phase 6 deploy
 
-- **OpenAI API key** — required for Task 16 (OpenAI client wrapper). Hard blocker on Phase 3. Spec also notes Claude (claude-haiku-4-5) as a potentially cheaper alternative — open question to resolve before Task 16 starts.
-- **MySQL on Hostinger Business** — Task 10 schema is in place but `pnpm db:migrate` against a real Hostinger Business MySQL instance is unverified. Must confirm sufficient connection-pool quota before Phase 3 server deploy.
+- **`ANTHROPIC_API_KEY` on Hostinger** — required for live AI generators. Phase 3 ships behind a mocked SDK; first live generation happens at deploy. `claude-haiku-4-5` is the default; `ANTHROPIC_MODEL` env var allows runtime override.
+- **MySQL on Hostinger Business** — Task 10 schema is in place but `pnpm db:migrate` against a real Hostinger Business MySQL instance is unverified. Must confirm sufficient connection-pool quota before Phase 6 deploy.
+- **SMTP provider for email-verify** — Phase 3 logs `[email-verify] would send to <masked>` instead of sending. Phase 6 picks Resend / Mailgun / SES and wires `sendVerificationEmail()`.
 - **Cleaner SOP / welcome book master content authorship** — Phase 5 Task 27 lead-magnet PDF question. Self-authored vs Daniel vs AI draft.
 - **PDF co-branding default** — should `brandFooter:true` stay the default forever, or should we offer a UI toggle? Open product question — default stays for now.
 - **Pinterest account / API credentials** — Phase 5 Task 25 (pin generator) and Task 26 (button wiring) depend on a real Pinterest account + image upload endpoint.
 
+## Pre-existing issues (out of Phase 3 scope)
+
+- `src/lib/pdf/wifi-sign.ts` uses a → glyph that pdf-lib's WinAnsi font can't encode — `tests/pdf/wifi-sign.test.ts` fails. Pre-existing in Phase 2 Task 13; logged for Phase 6 cleanup.
+- `src/components/generator/PdfDownloadButton.astro:113`, `src/components/generators/CheckinInstructionsGenerator.tsx`, and `src/lib/pdf/base.ts:125` produce 4 typescript errors with the current mysql2/@types/node combo (Uint8Array → BlobPart, private indirectObjects access). All pre-existing in Phase 1/2 — not introduced by Phase 3.
+- `server/lib/db.ts` `execute(sql, params: unknown[])` overload mismatch with mysql2's tightened `ExecuteValues` type — pre-existing Phase 1 issue.
+
 ## Cluster sequencing
 
-Per the strategic build order: strhost.tools first (✅ Phase 6 complete), **strguests.tools second (Phase 1 ✅, Phase 2 ✅)**, strops.tools third, strbuyers.tools fourth.
+Per the strategic build order: strhost.tools first (✅ Phase 6 complete), **strguests.tools second (Phases 1 ✅, 2 ✅, 3 ✅, 4 ✅, 5 ✅ — only Phase 6 deploy remains)**, strops.tools third, strbuyers.tools fourth.
 
 ## Phase 1 + 2 verification (run before Phase 3)
 
