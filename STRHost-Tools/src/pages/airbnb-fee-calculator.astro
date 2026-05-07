@@ -5,6 +5,7 @@ import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import AirbnbFeeCalculator from '@/components/calculators/AirbnbFeeCalculator.tsx';
 import { Content as ToolCopy } from '@/content/tools/airbnb-fee-calculator.mdx';
 import { buildWebApplication, buildFAQPage } from '@/lib/seo';
@@ -82,6 +83,8 @@ const jsonLd = [
         <div class="prose mt-7 max-w-2xl">
           <ToolCopy />
         </div>
+
+        <RelatedPosts toolKey="airbnb-fee-calculator" />
 
         {/* 5. Email capture */}
         <EmailCaptureCard

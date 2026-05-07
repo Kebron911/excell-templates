@@ -5,6 +5,7 @@ import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import CleaningFeeCalculator from '@/components/calculators/CleaningFeeCalculator.tsx';
 import { Content as ToolCopy } from '@/content/tools/cleaning-fee-calculator.mdx';
 import { buildWebApplication, buildFAQPage } from '@/lib/seo';
@@ -78,6 +79,8 @@ const jsonLd = [
         <div class="prose mt-7 max-w-2xl">
           <ToolCopy />
         </div>
+
+        <RelatedPosts toolKey="cleaning-fee-calculator" />
 
         <EmailCaptureCard
           magnet="str-host-income-report-2026"

@@ -1,0 +1,67 @@
+---
+// RelatedPosts — surfaces blog posts that reference a given tool via
+// their frontmatter `relatedTools` array. Drop on any tool page to drive
+// internal-link equity from the high-traffic tool to the deeper guide.
+
+import { getCollection } from 'astro:content';
+
+interface Props {
+  /** Tool key as it appears in tools.json and post frontmatter relatedTools (e.g. "profit-calculator"). */
+  toolKey: string;
+  /** Heading style — "compact" inside calculator pages, "section" for standalone use. */
+  variant?: 'compact' | 'section';
+}
+
+const { toolKey, variant = 'compact' } = Astro.props;
+
+const all = await getCollection('posts');
+
+// Rank: posts where toolKey is the FIRST entry in relatedTools are
+// primary deep-dives; rank them above posts that only mention this tool
+// secondarily. Within a tier, newer posts win.
+const related = all
+  .filter((p) => Array.isArray(p.data.relatedTools) && p.data.relatedTools.includes(toolKey))
+  .map((p) => ({
+    slug: p.id.replace(/\.mdx$/, ''),
+    title: p.data.title,
+    description: p.data.description,
+    readMinutes: p.data.readMinutes,
+    rank: p.data.relatedTools.indexOf(toolKey),
+    datePublished: p.data.datePublished,
+  }))
+  .sort((a, b) => {
+    if (a.rank !== b.rank) return a.rank - b.rank;
+    return a.datePublished < b.datePublished ? 1 : -1;
+  })
+  .slice(0, 2);
+
+if (related.length === 0) return null;
+---
+
+<section
+  class:list={[
+    'related-posts',
+    'rounded-md border border-rule bg-parchment-alt',
+    variant === 'section' ? 'p-6 my-9' : 'p-5 mt-7',
+  ]}
+  aria-label="Related guides"
+>
+  <p class="label text-gold-deep">{related.length === 1 ? 'Read the deep-dive' : 'Read the deep-dives'}</p>
+  <ul class:list={['mt-3 space-y-3', related.length > 1 && 'grid grid-cols-1 md:grid-cols-2 gap-3 space-y-0']}>
+    {related.map((post) => (
+      <li>
+        <a
+          href={`/blog/${post.slug}`}
+          class="group block rounded-md border border-rule bg-parchment p-4 no-underline hover:border-gold hover:shadow-card transition-all duration-std"
+        >
+          <p class="font-serif text-h3 text-navy leading-snug group-hover:text-navy-tint">{post.title}</p>
+          <p class="mt-1 text-caption text-ink-2 leading-snug">{post.description}</p>
+          <p class="mt-3 text-caption text-gold-deep group-hover:text-gold flex items-center gap-1">
+            Read · <span class="font-mono">{post.readMinutes} min</span>
+            <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+          </p>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>
