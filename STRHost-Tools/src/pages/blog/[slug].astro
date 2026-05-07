@@ -10,15 +10,33 @@ import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const all = await getCollection('posts');
-  return all.map((post) => ({
+  // Sort newest-first so prev = older post, next = newer post —
+  // matches reader expectation of moving "back through history".
+  const sorted = [...all].sort((a, b) =>
+    a.data.datePublished < b.data.datePublished ? 1 : -1,
+  );
+  return sorted.map((post, i) => ({
     params: { slug: post.id.replace(/\.mdx$/, '') },
-    props: { post },
+    props: {
+      post,
+      newer: i > 0 ? sorted[i - 1] : null,
+      older: i < sorted.length - 1 ? sorted[i + 1] : null,
+    },
   }));
 }
 
-const { post } = Astro.props;
+const { post, newer, older } = Astro.props;
 const slug = post.id.replace(/\.mdx$/, '');
 const { Content } = await render(post);
+
+const navLink = (p: typeof newer) =>
+  p && {
+    slug: p.id.replace(/\.mdx$/, ''),
+    title: p.data.title,
+    readMinutes: p.data.readMinutes,
+  };
+const newerLink = navLink(newer);
+const olderLink = navLink(older);
 
 const toolMap = tools as Record<string, { path: string; shortName: string; tagline: string }>;
 const related = (post.data.relatedTools ?? [])
@@ -97,6 +115,34 @@ const articleLd = buildArticle({
           ))}
         </ul>
       </div>
+    )}
+
+    {(newerLink || olderLink) && (
+      <nav class="mx-auto max-w-3xl px-5 mt-9" aria-label="Other posts">
+        <p class="label text-navy">Keep reading</p>
+        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+          {newerLink ? (
+            <a
+              href={`/blog/${newerLink.slug}`}
+              class="group block rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-gold hover:shadow-card transition-all duration-std"
+            >
+              <p class="text-caption text-gold-deep">← Newer</p>
+              <p class="mt-1 font-serif text-h3 text-navy leading-snug group-hover:text-navy-tint">{newerLink.title}</p>
+              <p class="mt-2 text-caption text-ink-3 font-mono">{newerLink.readMinutes} min read</p>
+            </a>
+          ) : <span aria-hidden="true" />}
+          {olderLink ? (
+            <a
+              href={`/blog/${olderLink.slug}`}
+              class="group block rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-gold hover:shadow-card transition-all duration-std md:text-right"
+            >
+              <p class="text-caption text-gold-deep">Older →</p>
+              <p class="mt-1 font-serif text-h3 text-navy leading-snug group-hover:text-navy-tint">{olderLink.title}</p>
+              <p class="mt-2 text-caption text-ink-3 font-mono">{olderLink.readMinutes} min read</p>
+            </a>
+          ) : <span aria-hidden="true" />}
+        </div>
+      </nav>
     )}
 
     <div class="mx-auto max-w-3xl px-5 mt-9">
