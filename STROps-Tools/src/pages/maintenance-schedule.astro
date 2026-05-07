@@ -1,0 +1,84 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import AffiliateCard from '@/components/affiliate/AffiliateCard.astro';
+import MaintenanceSchedule from '@/components/calculators/MaintenanceSchedule.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  { question: 'What does the .ics file do?', answer: 'It is a standard calendar file. Open it in Google Calendar, Apple Calendar, or Outlook and every maintenance task lands on its scheduled date as a 1-hour event at 9am.' },
+  { question: 'Why does HVAC matter?', answer: 'No HVAC = no filter changes, no AC tune-ups. We hide those tasks from the schedule when you uncheck "Has HVAC".' },
+  { question: 'How big is the seed catalog?', answer: 'Phase 2 ships 10 representative tasks. Phase 3 expands to ~30 with deep informational pages per task.' },
+  { question: 'Can I customize cadence?', answer: 'Not yet — cadences come from the catalog. If a task should be more or less frequent for your property, edit the resulting calendar after import.' },
+  { question: 'Does the PDF include cost estimates?', answer: 'Phase 2 PDF shows date + task + cadence. Phase 3 will add cost-range column and skill-level (DIY vs pro) flags.' },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Airbnb Maintenance Schedule Generator',
+    description: 'Generate an annual maintenance calendar for short-term rental properties. PDF + .ics export.',
+    toolPath: '/maintenance-schedule',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="Airbnb Maintenance Schedule Generator — strops.tools"
+  description="HVAC, smoke detectors, deep clean, gutters — the recurring tasks an STR forgets. Free PDF + calendar export."
+  path="/maintenance-schedule"
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto max-w-6xl px-5 py-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-10">
+    <article class="prose">
+      <p class="label text-accent-deep">Operations · Maintenance</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy leading-tight">
+        Maintenance Schedule Generator<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2">
+        HVAC, smoke detectors, deep clean, gutters, dryer-vent. The recurring tasks an STR forgets — until they break mid-July. Pick your traits, get a calendar, send it to your handyman.
+      </p>
+
+      <MaintenanceSchedule client:load />
+
+      <AdSlot location="in-content" />
+
+      <h2 class="mt-9 font-serif text-h2 text-navy">How it works</h2>
+      <p class="mt-3 text-body text-ink-2">
+        We walk the catalog, gate tasks by property traits (no HVAC = no filter changes), and emit one event per cadence interval over your chosen horizon. Output: an in-page table, a branded PDF, and an RFC-5545 .ics file ready to import into any calendar app.
+      </p>
+
+      <h2 class="mt-7 font-serif text-h2 text-navy">When to run this</h2>
+      <ul class="mt-3 text-body text-ink-2 list-disc pl-5 space-y-1">
+        <li>Once at property purchase — generate the year, send the .ics to your handyman.</li>
+        <li>Every January — regenerate for the new year and replace the prior calendar entries.</li>
+        <li>After a system upgrade (new HVAC, new water heater) — cadences may change.</li>
+      </ul>
+
+      <EmailCaptureCard magnet="maintenance-checklist-pdf" toolSlug="maintenance-schedule" />
+
+      <STRLedgerCTA tool="maintenance-schedule" />
+
+      <AffiliateCard vendor="ownerrez" tool="maintenance-schedule" />
+
+      <h2 class="mt-7 font-serif text-h2 text-navy">FAQ</h2>
+      <div class="mt-3 space-y-4">
+        {faqs.map(f => (
+          <div>
+            <h3 class="font-serif text-h3 text-navy">{f.question}</h3>
+            <p class="mt-1 text-body text-ink-2">{f.answer}</p>
+          </div>
+        ))}
+      </div>
+
+      <AdSlot location="footer" />
+    </article>
+
+    <Sidebar current="maintenance-schedule" />
+  </div>
+
+  <ClusterFunnelBlock currentCluster="operations" />
+</Layout>

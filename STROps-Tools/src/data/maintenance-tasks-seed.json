@@ -1,0 +1,102 @@
+{
+  "hvac-filter-change": {
+    "name": "HVAC filter change",
+    "cadenceDays": 60,
+    "season": "all",
+    "estimatedCostUsd": [15, 40],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Reduced airflow, higher utility bills, dust complaints from guests, premature HVAC failure.",
+    "sourceUrls": ["https://www.energystar.gov/products/heating_cooling/maintenance"],
+    "lastVerified": "2026-05-01"
+  },
+  "ac-tune-up": {
+    "name": "AC tune-up (pro)",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [80, 200],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Mid-summer breakdown during peak booking window. Loss of one weekend ≈ $800–2000 revenue.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "smoke-detector-test": {
+    "name": "Smoke + CO detector test",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [0, 30],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Liability exposure, code violation, worst-case life safety.",
+    "sourceUrls": ["https://www.nfpa.org/Public-Education/Staying-safe/Safety-equipment/Smoke-alarms"],
+    "lastVerified": "2026-05-01"
+  },
+  "deep-clean": {
+    "name": "Deep clean (between long stays)",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [150, 400],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Cleanliness reviews drop. Below 4.7 average and you lose Superhost.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "gutter-clean": {
+    "name": "Gutter cleaning",
+    "cadenceDays": 180,
+    "season": "fall",
+    "estimatedCostUsd": [100, 250],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Ice dams in cold climates, foundation water damage, soffit rot.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "chimney-sweep": {
+    "name": "Chimney sweep",
+    "cadenceDays": 365,
+    "season": "fall",
+    "estimatedCostUsd": [150, 350],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Creosote fire risk. Insurance won't cover damage if maintenance log is empty.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "dryer-vent-clean": {
+    "name": "Dryer vent cleaning",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [80, 200],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Major fire hazard (~3000 home fires/year per FEMA). Dryer takes 2–3 cycles to dry one load.",
+    "sourceUrls": ["https://www.usfa.fema.gov/prevention/home-fires/at-home/clothes-dryer.html"],
+    "lastVerified": "2026-05-01"
+  },
+  "pressure-wash-deck": {
+    "name": "Pressure-wash deck / siding",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [150, 400],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Algae buildup, deck-board rot, curb-appeal hits in listing photos.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "water-heater-flush": {
+    "name": "Water heater flush",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [0, 150],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Sediment buildup → reduced capacity → shorter showers → guest complaints.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "fire-extinguisher-check": {
+    "name": "Fire extinguisher inspection",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [0, 50],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Code violation. Liability if expired during incident.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  }
+}
