@@ -82,9 +82,7 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 |-------|--------|---------|-----------|
 | 1 — Foundation | complete | 2026-05-05 | 2026-05-06 |
 | 2 — PDF generators | complete | 2026-05-06 | 2026-05-06 |
-| 3 — AI generators + server | deferred | — | — |
+| 3 — AI generators + server | deferred (blocked on OPENAI_API_KEY) | — | — |
 | 4 — Programmatic templates | complete | 2026-05-06 | 2026-05-06 |
-| 3 — AI generators + server | not-started | — | — |
-| 4 — Programmatic templates | not-started | — | — |
 | 5 — Pinterest + site pages | not-started | — | — |
 | 6 — Analytics + CI/CD + deploy | not-started | — | — |
