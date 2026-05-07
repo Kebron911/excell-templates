@@ -4,8 +4,31 @@ import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import tools from '@/data/tools.json';
+import { getCollection } from 'astro:content';
 
 const toolsList = Object.values(tools);
+
+// Latest 3 blog posts for the "from the notebook" surface — drives
+// pageviews/session and gives crawl bots more on-page links to /blog/*.
+const latestPosts = (await getCollection('posts'))
+  .map((p) => ({
+    slug: p.id.replace(/\.mdx$/, ''),
+    title: p.data.title,
+    description: p.data.description,
+    datePublished: p.data.datePublished,
+    readMinutes: p.data.readMinutes,
+    category: p.data.category,
+  }))
+  .sort((a, b) => (a.datePublished < b.datePublished ? 1 : -1))
+  .slice(0, 3);
+
+const categoryLabels: Record<string, string> = {
+  math: 'Math',
+  operations: 'Operations',
+  tax: 'Tax',
+  'guest-xp': 'Guest XP',
+  acquisition: 'Acquisition',
+};
 ---
 
 <Layout
@@ -113,8 +136,62 @@ const toolsList = Object.values(tools);
     </div>
   </section>
 
-  {/* Lead magnet — soft, content-styled */}
+  {/* From the notebook — surfaces latest blog posts for landing-page
+      visitors. Increases pageviews/session and gives crawl bots more
+      links to /blog/* from the highest-PageRank page on the site. */}
   <section class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <p class="label text-gold-deep">From the notebook</p>
+          <p class="mt-3 font-serif text-h2 text-navy leading-tight">
+            Pair the calculator with the math<span class="period-gold">.</span>
+          </p>
+        </div>
+        <a
+          href="/blog"
+          class="hidden sm:inline-flex items-center gap-1 text-ui text-navy no-underline hover:text-navy-tint group whitespace-nowrap"
+        >
+          All posts
+          <span class="text-gold inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+        </a>
+      </div>
+
+      <ul class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        {latestPosts.map((post) => (
+          <li>
+            <a
+              href={`/blog/${post.slug}`}
+              class="group block h-full rounded-md border border-rule bg-parchment-light p-5 no-underline hover:border-gold hover:shadow-card transition-all duration-std focus:outline-none focus:shadow-focus"
+            >
+              <div class="flex items-center gap-2 text-caption text-ink-3">
+                <span class="label text-gold-deep">{categoryLabels[post.category] ?? post.category}</span>
+                <span aria-hidden="true">·</span>
+                <span class="font-mono">{post.readMinutes} min</span>
+              </div>
+              <p class="mt-3 font-serif text-h3 text-navy leading-snug group-hover:text-navy-tint">{post.title}</p>
+              <p class="mt-2 text-small text-ink-2 leading-snug">{post.description}</p>
+              <p class="mt-4 text-caption text-gold-deep group-hover:text-gold flex items-center gap-1">
+                Read
+                <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <a
+        href="/blog"
+        class="mt-5 sm:hidden inline-flex items-center gap-1 text-ui text-navy no-underline hover:text-navy-tint group"
+      >
+        All posts
+        <span class="text-gold inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+
+  {/* Lead magnet — soft, content-styled */}
+  <section class="bg-parchment-alt border-t border-rule">
     <div class="mx-auto max-w-6xl px-5 py-9">
       <EmailCaptureCard
         magnet="str-host-income-report-2026"
