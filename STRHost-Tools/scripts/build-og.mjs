@@ -44,11 +44,11 @@ async function loadFonts() {
     return res.arrayBuffer();
   }
 
+  // Fontsource on jsdelivr — stable CDN, versioned URLs, won't drift like rsms.me did.
   const [interSemiBold, interMedium, cormorantMedium] = await Promise.all([
-    fetchFont('https://rsms.me/inter/font-files/Inter-SemiBold.woff'),
-    fetchFont('https://rsms.me/inter/font-files/Inter-Medium.woff'),
-    // Cormorant Garamond Medium 500 — Google Fonts mirror
-    fetchFont('https://fonts.gstatic.com/s/cormorantgaramond/v18/U1roKkeZh-iyDFr_QPKkruE_Op0vJzlQDtEd8mRwroLg.woff'),
+    fetchFont('https://cdn.jsdelivr.net/npm/@fontsource/inter@5/files/inter-latin-600-normal.woff'),
+    fetchFont('https://cdn.jsdelivr.net/npm/@fontsource/inter@5/files/inter-latin-500-normal.woff'),
+    fetchFont('https://cdn.jsdelivr.net/npm/@fontsource/cormorant-garamond@5/files/cormorant-garamond-latin-500-normal.woff'),
   ]);
 
   return [
@@ -177,7 +177,13 @@ async function render(slug, opts, fonts) {
 }
 
 async function main() {
-  const fonts = await loadFonts();
+  let fonts;
+  try {
+    fonts = await loadFonts();
+  } catch (err) {
+    console.warn(`OG image generation skipped — font fetch failed: ${err.message}`);
+    return;
+  }
 
   const tools = JSON.parse(
     await fs.readFile(path.join(root, 'src', 'data', 'tools.json'), 'utf8'),
@@ -254,11 +260,16 @@ async function main() {
     }, fonts),
   );
 
-  const slugs = await Promise.all(renders);
-  console.log(`OG images built: ${slugs.length} files in dist/og/ and public/og/`);
+  try {
+    const slugs = await Promise.all(renders);
+    console.log(`OG images built: ${slugs.length} files in dist/og/ and public/og/`);
+  } catch (err) {
+    console.warn(`OG image generation skipped — render failed: ${err.message}`);
+  }
 }
 
 main().catch((err) => {
-  console.error('OG build failed:', err);
-  process.exit(1);
+  // Never block the build — OG images are post-build polish, not critical path.
+  console.warn('OG build skipped:', err.message);
+  process.exit(0);
 });
