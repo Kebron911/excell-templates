@@ -135,6 +135,10 @@ $tarMB = [math]::Round((Get-Item -LiteralPath $tarball).Length / 1MB, 1)
 Write-Host "    Tarball : $tarball ($tarMB MB)"
 
 # ----- Remote command -----------------------------------------------------
+# NOTE: Hostinger CageFS hides Node/npm from the SSH user. We cannot
+# `npm install` over SSH. Deps are installed by hPanel's "Run NPM Install"
+# button (or auto on package.json change). This script only ships files +
+# requests a Passenger restart. See README for the manual hPanel cutover.
 $remoteTar = "$appRoot/__deploy/$releaseId.tar.gz"
 $remoteCmd = @"
 set -euo pipefail
@@ -144,12 +148,12 @@ if [ -d '$appRoot/dist' ]; then
   rm -rf '$appRoot/__deploy/dist.previous'
   mv '$appRoot/dist' '$appRoot/__deploy/dist.previous'
 fi
+echo '--> snapshotting current package files'
+[ -f '$appRoot/package.json' ]      && cp '$appRoot/package.json'      '$appRoot/__deploy/package.json.previous'      || true
+[ -f '$appRoot/package-lock.json' ] && cp '$appRoot/package-lock.json' '$appRoot/__deploy/package-lock.json.previous' || true
 echo '--> extracting release'
 tar -xzf '$remoteTar' -C '$appRoot'
-echo '--> installing prod deps'
-cd '$appRoot' && npm ci --omit=dev
-echo '--> requesting passenger restart'
-touch '$appRoot/tmp/restart.txt'
+echo '--> NOT touching tmp/restart.txt (manual hPanel restart required after deps + startup file)'
 echo '--> done'
 "@
 
@@ -175,12 +179,16 @@ $sshArgs = @(
     '-i', $sshKey,
     '-p', $sshPort,
     '-o', 'StrictHostKeyChecking=accept-new',
+    '-o', 'BatchMode=yes',
+    '-o', 'ConnectTimeout=15',
     "$sshUser@$sshHost"
 )
 $scpArgs = @(
     '-i', $sshKey,
     '-P', $sshPort,
-    '-o', 'StrictHostKeyChecking=accept-new'
+    '-o', 'StrictHostKeyChecking=accept-new',
+    '-o', 'BatchMode=yes',
+    '-o', 'ConnectTimeout=15'
 )
 
 Write-Host ''
@@ -192,11 +200,34 @@ Write-Host '==> Uploading tarball' -ForegroundColor Cyan
 & scp @scpArgs $tarball "${sshUser}@${sshHost}:$remoteTar"
 if ($LASTEXITCODE -ne 0) { throw 'scp upload failed' }
 
-Write-Host '==> Running remote install + restart' -ForegroundColor Cyan
-$remoteCmd | & ssh @sshArgs 'bash -s'
+Write-Host '==> Running remote extract + restart' -ForegroundColor Cyan
+# Encode the remote command as base64 to dodge PowerShell's UTF-8-with-BOM
+# pipe encoding (which prepends U+FEFF to bash stdin and breaks the first line).
+$cmdBytes = [System.Text.Encoding]::UTF8.GetBytes($remoteCmd)
+$cmdB64   = [Convert]::ToBase64String($cmdBytes)
+& ssh @sshArgs "echo $cmdB64 | base64 -d | bash"
 if ($LASTEXITCODE -ne 0) { throw 'remote deploy failed' }
 
 Write-Host ''
-Write-Host "==> Deployed $releaseId" -ForegroundColor Green
-Write-Host '    Smoke test : curl -I https://strmanuals.com/'
-Write-Host "    Rollback   : ssh -i `"$sshKey`" -p $sshPort $sshUser@$sshHost \`"rm -rf '$appRoot/dist' && mv '$appRoot/__deploy/dist.previous' '$appRoot/dist' && touch '$appRoot/tmp/restart.txt'\`""
+Write-Host "==> Files uploaded for $releaseId" -ForegroundColor Green
+Write-Host ''
+Write-Host 'Manual hPanel steps (one-time for first SSR cutover):' -ForegroundColor Yellow
+Write-Host '  1. hPanel -> Hosting -> strmanuals.com -> Node.js'
+Write-Host '  2. Set Application startup file = ./dist/server/entry.mjs'
+Write-Host '  3. Add env vars (Stripe, n8n, HMAC) — see infrastructure/hostinger/README.md'
+Write-Host '  4. Click "Run NPM Install"  (this is the only place npm runs — CageFS blocks SSH npm)'
+Write-Host '  5. Click "Restart Application"'
+Write-Host ''
+Write-Host 'Smoke tests after hPanel cutover:'
+Write-Host '  curl -I https://strmanuals.com/'
+Write-Host '  curl -I https://strmanuals.com/manuals/tax-01'
+Write-Host '  curl https://strmanuals.com/healthz'
+Write-Host ''
+Write-Host 'Rollback to placeholder:' -ForegroundColor Magenta
+Write-Host "  ssh -i `"$sshKey`" -p $sshPort $sshUser@$sshHost 'bash -s' << 'EOF'"
+Write-Host "  cd '$appRoot'"
+Write-Host '  mv dist __deploy/dist.failed 2>/dev/null || true'
+Write-Host '  cp __deploy/package.json.previous package.json 2>/dev/null'
+Write-Host '  cp __deploy/package-lock.json.previous package-lock.json 2>/dev/null'
+Write-Host '  touch tmp/restart.txt'
+Write-Host '  EOF'

@@ -1,61 +1,104 @@
 # Hostinger deploy scripts
 
-Deploys the STR portfolio to its Hostinger Business hosting account.
+Deploys the STR portfolio to a Hostinger Business hosting account.
 Credentials live in `.secrets/hostinger.env` (outside this repo).
+
+## Hostinger constraints worth knowing
+
+- **CageFS jails the SSH user.** `node` and `npm` are NOT on the SSH PATH,
+  even though Passenger runs Node 20 internally to serve the app. You
+  cannot `npm install` over SSH. Deps install via hPanel → Node.js →
+  **Run NPM Install** (or auto on `package.json` change).
+- Node.js Web Apps live at `/home/<USER>/domains/<DOMAIN>/nodejs/`.
+- Restart is triggered by `touch tmp/restart.txt` (Passenger).
+- Logs: `console.log` (stdout) and `stderr.log` in the app root.
 
 ## STRManuals (Node.js Web App, SSR)
 
-`deploy-strmanuals.ps1` — packages the Astro SSR build and pushes it to the
-Hostinger Node.js app at `strmanuals.com`.
+`deploy-strmanuals.ps1` ships the Astro SSR build. It does **not** install
+deps and does **not** flip the app startup file — those are one-time
+hPanel actions for the first SSR cutover.
 
-### Prerequisites (one-time)
+### First-cutover workflow
 
-- Stripe + n8n + HMAC env vars populated in **hPanel → Node.js → Environment**:
-  `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLIC_KEY`,
-  `DOWNLOAD_HMAC_SECRET`, `N8N_WEBHOOK_URL`, `N8N_WEBHOOK_AUTH`, `SITE_URL`.
-- Node.js Web App startup file set to `./dist/server/entry.mjs`.
-- SSH key at the path stored in `STRMANUALS_SSH_KEY_PATH` (default
-  `~/.ssh/hostinger_ed25519`).
+1. Run the script: `pwsh ./deploy-strmanuals.ps1 -Execute`
+   - Builds, packages `dist/`, `package.json`, `package-lock.json`,
+     `private/` into a tarball, SCPs it, extracts, snapshots the prior
+     `dist/` and package files into `__deploy/*.previous`, touches
+     `tmp/restart.txt`.
+2. **In hPanel → Hosting → `strmanuals.com` → Node.js:**
+   - Application startup file: `./dist/server/entry.mjs`
+   - Add env vars (mirror from `.secrets/hostinger.env`):
+     `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLIC_KEY`,
+     `DOWNLOAD_HMAC_SECRET`, `N8N_WEBHOOK_URL`, `N8N_WEBHOOK_AUTH`,
+     `SITE_URL=https://strmanuals.com`
+   - Click **Run NPM Install** (installs prod deps).
+   - Click **Restart Application**.
+3. Smoke test:
+   ```bash
+   curl -I https://strmanuals.com/
+   curl -I https://strmanuals.com/manuals/tax-01
+   curl    https://strmanuals.com/healthz
+   ```
+
+### Subsequent deploys
+
+After the cutover the workflow is just:
+
+```powershell
+pwsh ./infrastructure/hostinger/deploy-strmanuals.ps1 -Execute
+```
+
+If `package.json` / `package-lock.json` changed, click **Run NPM Install**
+in hPanel afterwards. If only `dist/` changed, the Passenger restart from
+`tmp/restart.txt` is sufficient.
 
 ### Usage
 
 ```powershell
-# 1. Plan only (default, dry-run)
+# Plan only (default, dry-run)
 pwsh ./infrastructure/hostinger/deploy-strmanuals.ps1
 
-# 2. Push it
+# Push it
 pwsh ./infrastructure/hostinger/deploy-strmanuals.ps1 -Execute
 
-# 3. Re-push without rebuilding
+# Re-push without rebuilding
 pwsh ./infrastructure/hostinger/deploy-strmanuals.ps1 -SkipBuild -Execute
 ```
 
-### What it does
+### Rollback to placeholder
 
-1. `npm run build` (skip with `-SkipBuild`).
-2. Stages `dist/`, `package.json`, `package-lock.json`, `private/` into a tarball.
-3. SCPs the tarball to `$STRMANUALS_NODE_APP_ROOT/__deploy/`.
-4. Backs up the live `dist/` to `__deploy/dist.previous/`.
-5. Extracts the new release into the app root.
-6. Runs `npm ci --omit=dev` on the server.
-7. Touches `tmp/restart.txt` to trigger a Passenger restart.
-
-### Smoke test after deploy
+If a deploy breaks the site, the script always snapshots the prior state
+into `__deploy/`. Restore via SSH:
 
 ```bash
-curl -I https://strmanuals.com/
-curl -I https://strmanuals.com/manuals/tax-01
-curl -X POST https://strmanuals.com/api/subscribe -d '{"email":"smoke@test"}' -H 'content-type: application/json'
+ssh -i ~/.ssh/hostinger_ed25519 -p 65002 u470667024@195.35.15.247
+cd /home/u470667024/domains/strmanuals.com/nodejs
+mv dist __deploy/dist.failed
+cp __deploy/package.json.previous      package.json
+cp __deploy/package-lock.json.previous package-lock.json
+touch tmp/restart.txt
 ```
 
-### Rollback
+The placeholder `server.js` + `public/index.html` are NOT touched by the
+deploy script; they stay on the server and will resume serving once the
+package files are restored to a CJS-compatible shape.
 
-```bash
-ssh -i ~/.ssh/hostinger_ed25519 -p 65002 u470667024@195.35.15.247 \
-  "rm -rf $APP_ROOT/dist && mv $APP_ROOT/__deploy/dist.previous $APP_ROOT/dist && touch $APP_ROOT/tmp/restart.txt"
-```
+### Known gotcha (caused a 13-min outage on 2026-05-07)
+
+The first deploy attempt uploaded the SSR `package.json` (which has
+`"type": "module"`) WITHOUT flipping the Hostinger startup file. Passenger
+restarted with the existing CJS `server.js` — Node treated it as ESM
+because of `"type":"module"` and crashed with
+`ReferenceError: require is not defined`. Site went 503 until rollback.
+
+**Mitigation in the script:** package files are snapshotted to
+`__deploy/*.previous` before extract, so rollback is one `cp + touch`.
+
+**Real fix:** flip the hPanel startup file to `dist/server/entry.mjs`
+BEFORE the first SSR deploy, or in immediate sequence after.
 
 ## STRBuyers / STROps (static placeholders)
 
-Not implemented yet — both subfolders contain only planning docs.
-Static FTP push will go in this folder once a site exists to deploy.
+Not implemented — both subfolders contain only planning docs. Static FTP
+push will be added here once a site exists to deploy.
