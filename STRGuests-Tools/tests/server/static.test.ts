@@ -25,6 +25,7 @@ beforeAll(async () => {
   writeFileSync(join(fixture, 'about', 'index.html'), '<!doctype html><title>about</title>');
 
   process.env.STATIC_DIR = fixture;
+  process.env.NO_LISTEN = '1';
 
   const { app } = await import('../../server/index');
   await new Promise<void>((resolve) => {

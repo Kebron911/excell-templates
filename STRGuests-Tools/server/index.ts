@@ -48,11 +48,9 @@ if (existsSync(staticDir)) {
 
 const port = Number(process.env.PORT ?? 3001);
 
-// Don't listen when imported by tests — only when run directly.
-const isMain = import.meta.url === `file://${process.argv[1]}`
-  || (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/')));
-
-if (isMain) {
+// Tests set NO_LISTEN=1 to import `app` and call listen() with their own
+// ephemeral port. Anything else (dev, prod, smoke) listens.
+if (process.env.NO_LISTEN !== '1') {
   app.listen(port, () => {
     console.log(`[strguests-api] listening on :${port}`);
   });
