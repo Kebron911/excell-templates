@@ -86,12 +86,13 @@ jobs:
           protocol: ftps
           local-dir: ./STRHost-Tools/dist/
           server-dir: ${{ steps.server_dir.outputs.value }}
-          # Keep these on the server after deploy.
+          # Keep these on the server after deploy. Note: .htaccess IS
+          # deployed (it's in public/.htaccess and we want our cache rules
+          # applied on every deploy).
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
-            **/.htaccess
           # State file caches what we've uploaded so subsequent deploys
           # only sync changed files (much faster than full re-upload).
           state-name: .ftp-deploy-sync-state.json
