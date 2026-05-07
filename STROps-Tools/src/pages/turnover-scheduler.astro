@@ -1,0 +1,95 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import AffiliateCard from '@/components/affiliate/AffiliateCard.astro';
+import TurnoverScheduler from '@/components/calculators/TurnoverScheduler.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  { question: 'What is a turnover gap?', answer: 'The hours between one guest checking out and the next checking in — your window for cleaning, restocking, and inspection.' },
+  { question: 'Why does same-day turnover matter?', answer: 'Same-day turnovers compress every operational task into 4–6 hours. Tracking them helps you decide whether to staff up or block the night.' },
+  { question: 'What does a "tight" turnover mean?', answer: 'A turnover gap shorter than the minimum hours you set — flagged so you can act early.' },
+  { question: 'Are bookings stored?', answer: 'No. All inputs live in your URL only — nothing is sent to a server.' },
+  { question: 'Can I print this?', answer: 'Yes. The print stylesheet shows just the inputs and the schedule.' },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Airbnb Turnover Scheduler',
+    description: 'Spot tight turnovers and booking conflicts across multiple Airbnb properties.',
+    toolPath: '/turnover-scheduler',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="Airbnb Turnover Scheduler — strops.tools"
+  description="Spot tight turnovers and conflicts across multiple Airbnb properties. Free, paste-friendly, URL-shareable."
+  path="/turnover-scheduler"
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto max-w-6xl px-5 py-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-10">
+    <article class="prose">
+      <p class="label text-accent-deep">Operations · Turnover</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy leading-tight">
+        Airbnb Turnover Scheduler<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2">
+        Paste your bookings, set a minimum turnover window, and see every tight changeover and overlap at a glance.
+      </p>
+
+      <TurnoverScheduler client:load />
+
+      <AdSlot location="in-content" />
+
+      <h2 class="mt-9 font-serif text-h2 text-navy">How it works</h2>
+      <p class="mt-3 text-body text-ink-2">
+        Each booking gets a check-out time of 11:00 UTC and the next a check-in of 15:00 UTC. We sort per-property,
+        compute the gap in hours, and flag any below your "turnover hours required" threshold. A same-property
+        check-in before the previous check-out is reported as a conflict.
+      </p>
+
+      <h2 class="mt-7 font-serif text-h2 text-navy">How to use this tool</h2>
+      <ol class="mt-3 text-body text-ink-2 list-decimal pl-5 space-y-1">
+        <li>Set your minimum turnover window (default 4 hours).</li>
+        <li>Paste bookings — one per line: <code>propertyId,bookingId,checkIn,checkOut</code>.</li>
+        <li>Watch the table update live.</li>
+        <li>Copy the share link to send the schedule to a partner or cleaner manager.</li>
+      </ol>
+
+      <EmailCaptureCard magnet="cleaner-sop-pdf" toolSlug="turnover-scheduler" />
+
+      <STRLedgerCTA tool="turnover-scheduler" />
+
+      <AffiliateCard vendor="turno" tool="turnover-scheduler" />
+
+      <h2 class="mt-7 font-serif text-h2 text-navy">FAQ</h2>
+      <div class="mt-3 space-y-4">
+        {faqs.map(f => (
+          <div>
+            <h3 class="font-serif text-h3 text-navy">{f.question}</h3>
+            <p class="mt-1 text-body text-ink-2">{f.answer}</p>
+          </div>
+        ))}
+      </div>
+
+      <details class="mt-9 print:hidden">
+        <summary class="cursor-pointer">
+          <span class="label text-accent-deep">Phase 1 verification preview</span>
+          <span class="text-ui text-ink-2 ml-2">Show monetization primitives</span>
+        </summary>
+        <div class="mt-4 space-y-5">
+          <AdSlot location="footer" />
+        </div>
+      </details>
+    </article>
+
+    <Sidebar current="turnover-scheduler" />
+  </div>
+
+  <ClusterFunnelBlock currentCluster="operations" />
+</Layout>

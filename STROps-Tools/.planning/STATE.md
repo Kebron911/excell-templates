@@ -1,8 +1,20 @@
 # STATE
 
 **Current phase:** 2 — Seven tools
-**Current task:** Not yet started (Task 10: Turnover scheduler)
+**Current task:** Task 11 — Cleaner dispatch (PDF)
 **Last update:** 2026-05-07
+
+---
+
+## Phase 2 progress
+
+- [x] Task 10 — Turnover scheduler
+- [ ] Task 11 — Cleaner dispatch (PDF)
+- [ ] Task 12 — Smart lock codes (deterministic)
+- [ ] Task 13 — Linen par calculator
+- [ ] Task 14 — Restock calculator
+- [ ] Task 15 — Damage cost lookup
+- [ ] Task 16 — Maintenance schedule (PDF + .ics)
 
 ---
 
