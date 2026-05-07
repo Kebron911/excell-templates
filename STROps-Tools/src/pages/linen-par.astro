@@ -1,0 +1,76 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import AffiliateCard from '@/components/affiliate/AffiliateCard.astro';
+import LinenParCalculator from '@/components/calculators/LinenParCalculator.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  { question: 'Why three sheet sets per bed?', answer: 'One is on the bed, one is in the wash, one is clean in the closet — so a same-day turnover never blocks on laundry.' },
+  { question: 'Why 2.5 towel sets per bath?', answer: 'Per-guest math: bath towel + hand towel + washcloth = one set. The half-set covers hand-towel rotation in the powder room.' },
+  { question: 'How does king share work?', answer: 'It splits your total sheet count between king and queen sizes so you order the right ratio at restock time. 0.5 means half king, half queen.' },
+  { question: 'Should I order extras above par?', answer: 'For new properties, yes — add 20% your first year while you measure actual loss/damage. After that, replace at par.' },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Airbnb Linen Par Calculator',
+    description: 'Calculate sheet and towel par levels for short-term rental properties.',
+    toolPath: '/linen-par',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="Airbnb Linen Par Calculator — strops.tools"
+  description="How many sheet sets and towel sets per Airbnb property to never run out. Free, URL-shareable."
+  path="/linen-par"
+  jsonLd={jsonLd}
+>
+  <div class="mx-auto max-w-6xl px-5 py-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-10">
+    <article class="prose">
+      <p class="label text-accent-deep">Operations · Supplies</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy leading-tight">
+        Linen Par Calculator<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2">
+        Sheets per bed, towels per bath, king/queen mix. Order the right par level so a same-day turnover never blocks on laundry.
+      </p>
+
+      <LinenParCalculator client:load />
+
+      <AdSlot location="in-content" />
+
+      <h2 class="mt-9 font-serif text-h2 text-navy">How it works</h2>
+      <p class="mt-3 text-body text-ink-2">
+        Sheet sets = bedrooms × sets per bed. Towel sets = bathrooms × towels per bath. King share splits sheet count between king and queen sizes (rounded up to king for safety).
+      </p>
+
+      <EmailCaptureCard magnet="supply-par-pdf" toolSlug="linen-par" />
+
+      <STRLedgerCTA tool="linen-par" />
+
+      <AffiliateCard vendor="hospitable" tool="linen-par" />
+
+      <h2 class="mt-7 font-serif text-h2 text-navy">FAQ</h2>
+      <div class="mt-3 space-y-4">
+        {faqs.map(f => (
+          <div>
+            <h3 class="font-serif text-h3 text-navy">{f.question}</h3>
+            <p class="mt-1 text-body text-ink-2">{f.answer}</p>
+          </div>
+        ))}
+      </div>
+
+      <AdSlot location="footer" />
+    </article>
+
+    <Sidebar current="linen-par" />
+  </div>
+
+  <ClusterFunnelBlock currentCluster="operations" />
+</Layout>
