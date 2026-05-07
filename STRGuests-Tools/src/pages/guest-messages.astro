@@ -1,0 +1,47 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import tools from '@/data/tools.json';
+
+const tool = tools['guest-messages'];
+---
+<Layout
+  title={`${tool.name} — strguests.tools`}
+  description={`${tool.tagline} The AI version is launching soon — meanwhile, browse 26 free templates.`}
+  path={tool.path}
+>
+  <section class="mx-auto max-w-3xl px-5 py-10">
+    <p class="label text-[color:var(--accent-700)] uppercase tracking-widest">AI version launching soon</p>
+    <h1 class="mt-2 font-serif text-h1 text-navy">
+      {tool.name}<span class="period-accent">.</span>
+    </h1>
+    <p class="mt-4 text-ui text-graphite max-w-2xl">{tool.tagline}</p>
+
+    <div class="mt-7 rounded-md border border-rule bg-parchment-alt p-5 text-small text-ink-2 leading-snug">
+      <p>
+        The personalized AI generator (paste your booking, get a tone-matched message) is shipping
+        next. Until then,
+        <a class="text-[color:var(--accent-700)] font-medium" href="/templates/">26 free message templates</a>
+        cover the most-asked scenarios — late checkout, broken item, refund request, anniversary,
+        international guest, and more.
+      </p>
+    </div>
+
+    <div class="mt-7">
+      <a
+        href="/templates/"
+        class="inline-block rounded-md bg-navy text-parchment px-6 py-3 text-ui no-underline hover:bg-navy-tint transition-colors duration-std"
+      >
+        Browse 26 free templates →
+      </a>
+    </div>
+
+    <EmailCaptureCard
+      magnet="guest-messages-waitlist"
+      toolSlug="guest-messages"
+      headline="Get notified when the AI Guest Message Generator goes live"
+      blurb="One email when we ship — no drip sequence, no upsell."
+      cta="Notify me"
+    />
+  </section>
+</Layout>

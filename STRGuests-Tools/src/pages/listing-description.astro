@@ -1,0 +1,43 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import tools from '@/data/tools.json';
+
+const tool = tools['listing-description'];
+---
+<Layout
+  title={`${tool.name} — strguests.tools`}
+  description={`${tool.tagline} Launching soon.`}
+  path={tool.path}
+>
+  <section class="mx-auto max-w-3xl px-5 py-10">
+    <p class="label text-[color:var(--accent-700)] uppercase tracking-widest">Launching soon</p>
+    <h1 class="mt-2 font-serif text-h1 text-navy">
+      {tool.name}<span class="period-accent">.</span>
+    </h1>
+    <p class="mt-4 text-ui text-graphite max-w-2xl">{tool.tagline}</p>
+
+    <div class="mt-7 rounded-md border border-rule bg-parchment-alt p-5 text-small text-ink-2 leading-snug">
+      <p>
+        We're building this in public. The Listing Description Generator turns a few facts about
+        your property — bedrooms, location, vibe, must-mention amenities — into a Airbnb-ready
+        listing in your voice. Five style toggles (warm / direct / luxe / family / retreat).
+      </p>
+      <p class="mt-3">
+        While you wait, our four ready-to-use generators are live and free:
+        <a class="text-[color:var(--accent-700)]" href="/house-rules-pdf/">House Rules</a>,
+        <a class="text-[color:var(--accent-700)]" href="/welcome-book/">Welcome Book</a>,
+        <a class="text-[color:var(--accent-700)]" href="/wifi-sign/">Wi-Fi Sign</a>, and
+        <a class="text-[color:var(--accent-700)]" href="/check-in-instructions/">Check-in Instructions</a>.
+      </p>
+    </div>
+
+    <EmailCaptureCard
+      magnet="listing-description-waitlist"
+      toolSlug="listing-description"
+      headline="Get notified when the Listing Description Generator goes live"
+      blurb="One email when we ship — no drip sequence, no upsell."
+      cta="Notify me"
+    />
+  </section>
+</Layout>

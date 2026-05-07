@@ -1,0 +1,85 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+
+const lastUpdated = '2026-05-07';
+---
+<Layout
+  title="Terms of Use — strguests.tools"
+  description="The terms under which you can use strguests.tools and the content it generates."
+  path="/terms"
+>
+  <article class="mx-auto max-w-3xl px-5 py-12 prose">
+    <header>
+      <p class="label text-[color:var(--accent-700)]">Legal</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">
+        Terms of Use<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-small text-ink-3 font-mono">Last updated <time datetime={lastUpdated}>{lastUpdated}</time></p>
+    </header>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">The site</h2>
+      <p class="mt-3 text-ui text-graphite leading-relaxed">
+        strguests.tools is a free site that generates printable hosting documents and message
+        templates for short-term rental hosts. The PDFs you generate are yours — use them in your
+        property, share them with guests, modify them, print them. We don't claim copyright over
+        anything you produce with our tools.
+      </p>
+    </section>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">Not legal or financial advice</h2>
+      <p class="mt-3 text-ui text-graphite leading-relaxed">
+        Anything generated here is for informational purposes only. House rules, welcome books,
+        message templates — none of it is a substitute for a real lawyer, real accountant, or a
+        proper rental agreement. Local short-term rental law varies wildly. Do your own due
+        diligence.
+      </p>
+    </section>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">Acceptable use</h2>
+      <ul class="mt-3 ml-6 list-disc text-ui text-graphite space-y-2">
+        <li>You may use the generators for your own properties or properties you manage.</li>
+        <li>You may not use the AI generators (when they ship) to produce harmful, deceptive, or illegal content.</li>
+        <li>You may not scrape, mirror, or rate-limit-bypass the site.</li>
+        <li>You may not pretend the site or its outputs are something they're not (e.g., a binding rental contract).</li>
+      </ul>
+    </section>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">No warranty</h2>
+      <p class="mt-3 text-ui text-graphite leading-relaxed">
+        The site is provided "as is." We do our best to keep it working but make no guarantees
+        about uptime, accuracy, or fitness for any particular purpose. If a generator misbehaves
+        or produces nonsense, that's a known risk of free software — please email us so we can fix
+        it.
+      </p>
+    </section>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">Limit of liability</h2>
+      <p class="mt-3 text-ui text-graphite leading-relaxed">
+        To the maximum extent allowed by law, the operators of strguests.tools are not liable for
+        any damages — direct, indirect, incidental, or consequential — arising from use of the
+        site or its outputs. If you suffer a loss because a generated document didn't say what you
+        wanted, that's between you and the situation, not us.
+      </p>
+    </section>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">Changes</h2>
+      <p class="mt-3 text-ui text-graphite leading-relaxed">
+        We may update these terms; if so we'll bump the "Last updated" date above. Continued use
+        after a change means you accept the new terms.
+      </p>
+    </section>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">Contact</h2>
+      <p class="mt-3 text-ui text-graphite leading-relaxed">
+        Questions: <a class="text-[color:var(--accent-700)]" href="mailto:hello@strguests.tools">hello@strguests.tools</a>.
+      </p>
+    </section>
+  </article>
+</Layout>

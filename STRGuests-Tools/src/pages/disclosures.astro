@@ -1,0 +1,67 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+
+const lastUpdated = '2026-05-07';
+---
+<Layout
+  title="Affiliate Disclosures — strguests.tools"
+  description="How strguests.tools uses affiliate links and the relationships behind any tool we recommend."
+  path="/disclosures"
+>
+  <article class="mx-auto max-w-3xl px-5 py-12 prose">
+    <header>
+      <p class="label text-[color:var(--accent-700)]">Legal</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">
+        Affiliate Disclosures<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-small text-ink-3 font-mono">Last updated <time datetime={lastUpdated}>{lastUpdated}</time></p>
+    </header>
+
+    <section class="mt-9">
+      <p class="text-ui text-graphite leading-relaxed">
+        strguests.tools is a free site supported in part by affiliate revenue. When we link to a
+        third-party tool (guidebook software, design tools, printing services), some of those
+        links pay us a commission if you sign up or buy. <strong>This never costs you extra</strong>,
+        and it doesn't change which tools we recommend.
+      </p>
+    </section>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">Our recommendation rule</h2>
+      <p class="mt-3 text-ui text-graphite leading-relaxed">
+        We only recommend tools we'd happily use ourselves on a real listing. If a tool is the
+        right fit but doesn't have an affiliate program, we still link to it (just plain). If a
+        tool offers a generous commission but we don't think it's the best option, we don't
+        recommend it.
+      </p>
+    </section>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">Categories with affiliate relationships</h2>
+      <ul class="mt-3 ml-6 list-disc text-ui text-graphite space-y-2">
+        <li><strong>Digital guidebook software</strong> — Touch Stay, Hostfully Guidebook, YourWelcome</li>
+        <li><strong>Design tools</strong> — Canva Pro</li>
+        <li><strong>Print services</strong> — Printful, Printify (planned)</li>
+        <li><strong>Sister product</strong> — <a class="text-[color:var(--accent-700)]" href="https://thestrledger.com">The STR Ledger</a> (Excel templates) is operated by the same team — purchases there fund this free site.</li>
+      </ul>
+    </section>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">FTC compliance</h2>
+      <p class="mt-3 text-ui text-graphite leading-relaxed">
+        Per the U.S. Federal Trade Commission's endorsement guidelines, this disclosure is
+        intended to make our material connection to the products above clear. If you spot an
+        affiliated link that isn't visibly tagged on a content page, please email us — we'll fix
+        the labeling.
+      </p>
+    </section>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">Contact</h2>
+      <p class="mt-3 text-ui text-graphite leading-relaxed">
+        Questions about a specific recommendation:
+        <a class="text-[color:var(--accent-700)]" href="mailto:hello@strguests.tools">hello@strguests.tools</a>.
+      </p>
+    </section>
+  </article>
+</Layout>

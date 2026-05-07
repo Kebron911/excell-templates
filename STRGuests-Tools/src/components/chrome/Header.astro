@@ -30,12 +30,6 @@ const allTools = Object.entries(tools);
           {navLabels[key] ?? t.shortName}
         </a>
       ))}
-      <a
-        href="/blog"
-        class="text-ui text-ink-2 no-underline hover:text-[color:var(--accent-700)] transition-colors duration-std"
-      >
-        Blog
-      </a>
     </nav>
 
     <details class="lg:hidden relative">
@@ -53,8 +47,6 @@ const allTools = Object.entries(tools);
             {t.shortName}
           </a>
         ))}
-        <hr class="my-2 border-rule" />
-        <a href="/blog" class="block px-4 py-2 text-ui text-ink-2 no-underline hover:bg-parchment-alt hover:text-[color:var(--accent-700)]">Blog</a>
       </div>
     </details>
   </div>
