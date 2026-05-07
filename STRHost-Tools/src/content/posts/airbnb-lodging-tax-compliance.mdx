@@ -1,0 +1,113 @@
+---
+title: "Airbnb Lodging Tax Compliance: A State-by-State Primer for STR Hosts"
+description: "Lodging tax is the most-ignored line item in short-term rental P&Ls. The platform doesn't always collect it. The penalties for missing it compound. Here's how the system actually works in 2026."
+datePublished: "2026-05-07"
+dateModified: "2026-05-07"
+author: "The STR Ledger"
+category: "tax"
+keyword: "airbnb lodging tax"
+relatedTools:
+  - lodging-tax
+  - profit-calculator
+readMinutes: 9
+---
+
+A common belief among short-term rental hosts: "Airbnb collects the lodging tax for me." A more accurate version: "Airbnb collects *some* of the lodging tax in *some* jurisdictions, and the host is responsible for the gap." The gap is where audits live.
+
+This piece walks through how the lodging-tax stack actually works, why it varies so much state to state, and how to figure out exactly what you owe — without reading 50 state DOR websites.
+
+## The three layers of US lodging tax
+
+Lodging tax in the United States is rarely a single number. In most states, it stacks:
+
+```
+Total lodging tax = State sales tax / transient tax
+                  + County tax (sales surtax + tourism development tax)
+                  + City tax (occupancy tax + special tourism tax)
+                  + Special district tax (resort tax, downtown improvement tax)
+```
+
+A booking in Orlando might owe 6% (state) + 0.5% (county surtax) + 6% (Orange County TDT) = 12.5%. A booking in a Denver mountain town might owe 2.9% (state) + 0.9% (county) + 5% (city OL tax) + 2% (resort district) = 10.8%. A booking in unincorporated rural Tennessee may owe just the state rate.
+
+The [50-state lodging tax index](/lodging-tax) breaks each state into the rate, the local add-on range, and which platforms collect.
+
+## What "platform collects and remits" actually means
+
+"Marketplace facilitator" laws — passed by every US state at this point — require platforms like Airbnb and Vrbo to collect *some* taxes on hosts' behalf. The catch: the laws define which taxes, and they don't always cover the whole stack.
+
+Three patterns exist:
+
+**1. Full pass-through.** Platform collects state + county + city. Host has nothing to do other than verify on each payout. Examples: Texas, Florida (most counties), Hawaii's TAT.
+
+**2. Partial pass-through.** Platform collects state-level taxes but not local add-ons. Host has to register with the city or county, collect the local portion themselves, and remit. Examples: parts of Colorado, parts of California (city tax often not pass-through), Tennessee's local hotel-occupancy where Airbnb may not have an agreement with that county.
+
+**3. No pass-through.** Platform collects nothing; host responsible for the entire stack. Rare in 2026, but still exists for some county-level taxes in newer regulations.
+
+## How to figure out what your jurisdiction does
+
+Three steps that work in any state:
+
+1. **Look at the [state page on strhost.tools](/lodging-tax)** for the state-level snapshot — rate, range, source URL, last verified date.
+2. **Open a recent payout in your Airbnb / Vrbo dashboard** and read the tax line itemization. Compare what the platform collected against the rate the state DOR publishes for your specific city/county. Any gap is your responsibility.
+3. **Call your county tourism office or city tax office directly.** They can tell you in 5 minutes whether you need a separate registration. They will not tell you you don't need to register if you do.
+
+## What it costs to ignore lodging tax
+
+The economics here are not subtle:
+
+- Most state and local tax authorities can go back **3 years** for unfiled returns.
+- Penalties typically range from **5–25% of unremitted tax** per year, plus interest at the state's statutory rate (often 6–10% annually).
+- Some jurisdictions apply a **per-month late-filing fee** ($25–$100/mo) on top of the percentage penalty.
+- If unregistered, some jurisdictions disallow common deductions, raising the effective rate.
+
+A host running a $90,000/yr STR in a market with a 12% lodging tax stack, where 6% is platform-collected and 6% is the host's responsibility but not collected, is sitting on roughly **$5,400/yr of unremitted tax**. Times three years, plus 15% penalties and interest, lands around **$19,000–$22,000** of liability. That is a year's profit for many properties.
+
+## The "Airbnb sent me a 1099, doesn't the IRS handle this?" mistake
+
+Federal income tax (1099-K, Schedule E or C) and state/local lodging tax are entirely separate systems. Filing your federal return does nothing to satisfy state lodging tax obligations. The IRS does not coordinate with the Florida Department of Revenue, the Hawaii Department of Taxation, or the City of San Diego Treasurer.
+
+Each state has its own filing cadence (monthly, quarterly, or annual), its own forms, and its own auditor.
+
+## Five jurisdictions where hosts most often slip
+
+These are not the highest-rate states; they are the states where the *gap between platform-collected and host-owed* is widest in 2026:
+
+1. **Tennessee** — state sales + state hotel-motel is platform-collected; many county and city taxes are not.
+2. **Colorado** — state and county are pass-through; city occupancy tax (Denver, Boulder, Steamboat) often is not.
+3. **California** — state has no lodging tax, but city Transient Occupancy Taxes (San Diego, LA, SF, Anaheim) are typically the host's responsibility.
+4. **North Carolina** — state sales tax is collected, but county occupancy tax often runs through a different filing.
+5. **Texas** — state hotel occupancy tax is pass-through, but city and venue district taxes (Austin, Houston, Galveston) often are not.
+
+In these markets especially, a quarterly check that the platform-collected portion matches the full statutory stack for your address is worth the 30 minutes it takes.
+
+## A simple compliance checklist
+
+Once a year, do all five:
+
+1. **Pull your last 12 months of payouts.** Look at the tax line on each.
+2. **Compute the statutory total** for your address using the [lodging tax index](/lodging-tax) plus your county/city websites.
+3. **Identify the gap.** If the platform collected the full stack, you're fine. If not, you owe the gap.
+4. **If a gap exists, register with the city/county.** This is usually a 1-page form and a small annual fee.
+5. **Set up automatic monthly or quarterly remittance.** A direct-deposit ACH that pulls the gap each cycle is the only system that won't fail.
+
+## Where this fits in the cluster
+
+Lodging tax sits inside the broader STR finance picture:
+
+- The math of profitability depends on the gap being properly accounted for. The [profit calculator](/profit-calculator) has a lodging tax line; if you're in a partial-pass-through state, fill it in.
+- The [50-state lodging tax index](/lodging-tax) is the source-of-truth for rates and platform coverage.
+- For property selection — *before* you buy a property in a market — verify the lodging-tax stack on [strbuyers.tools](https://strbuyers.tools) so the rate is baked into your underwriting.
+- Operations and guest-facing systems live on [strops.tools](https://strops.tools) and [strguests.tools](https://strguests.tools).
+- The full P&L, including monthly and quarterly tax remittance tracking, runs through the workbooks at [The STR Ledger](https://thestrledger.com).
+
+## FAQ
+
+**Is lodging tax deductible on my federal return?** Lodging tax that you collect from the guest and remit is not deductible — it's pass-through. Lodging tax you eat (because you didn't collect enough from the guest) is generally a deductible operating expense.
+
+**What if my city doesn't have an STR registration program?** You may still owe city occupancy tax under a general lodging or transient-housing ordinance. Check with the city treasurer; absence of an STR-specific program does not mean absence of tax.
+
+**Does Airbnb's tax line on my payout show me the full picture?** Only the portion Airbnb collects. Anything outside Airbnb's collection agreement does not appear in your payout itemization. This is why the gap analysis matters.
+
+**Should I include the lodging tax line on the calculator I use for break-even?** Yes — and only the portion you actually owe out of pocket. Pass-through tax is invisible to your business; gap tax is real expense.
+
+*Not tax advice. Always verify with a CPA who handles short-term rental clients.*

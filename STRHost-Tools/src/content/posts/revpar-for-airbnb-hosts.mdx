@@ -1,0 +1,98 @@
+---
+title: "RevPAR for Airbnb Hosts: Why It Matters More Than ADR"
+description: "RevPAR is the hotel industry's go-to performance metric — and the single best one-number summary of an STR listing's revenue health. The formula, why it beats ADR, and how to use it to spot pricing problems before they show up in your bank account."
+datePublished: "2026-05-07"
+dateModified: "2026-05-07"
+author: "The STR Ledger"
+category: "math"
+keyword: "revpar calculator"
+relatedTools:
+  - revpar-calculator
+  - profit-calculator
+  - break-even-calculator
+readMinutes: 7
+---
+
+Hotels track three revenue numbers obsessively: ADR, Occupancy, and RevPAR. Most STR hosts track only ADR — which is why most STR hosts get blindsided by their year-end P&L.
+
+RevPAR (revenue per available room — or for STR, *per available night*) is the metric that catches problems ADR misses. It rewards you for booked nights, penalizes you for empty calendar, and gives you a single number you can chart over time and compare against any benchmark.
+
+## The RevPAR formula
+
+```
+RevPAR = ADR × Occupancy
+       = Total room revenue ÷ Available nights
+```
+
+Either form works; they produce the same number. The [RevPAR calculator](/revpar-calculator) handles both directions — input ADR + occupancy, or input revenue + nights.
+
+Worked example: a listing with $220 ADR and 68% occupancy has RevPAR of $149.60. A second listing at $260 ADR and 54% occupancy has RevPAR of $140.40. Listing #1 wins, even though listing #2 has a higher headline rate.
+
+## Why ADR alone misleads
+
+ADR tells you what a *booked* night earns. It says nothing about how many nights are booked. A listing can have a great ADR and a terrible business — high price per stay, high cleaning friction, high empty calendar.
+
+Three failure modes ADR hides:
+
+**1. The "we raised prices and revenue went down" trap.** Host raises ADR from $210 to $245. Occupancy falls from 71% to 56%. ADR up 17%. RevPAR ($149.10 → $137.20) down 8%. Without RevPAR, the host sees the ADR win and never investigates the lost revenue.
+
+**2. The minimum-stay miscalibration.** Adding a 3-night minimum can lift ADR (longer stays often book at slightly higher per-night rates) while crushing occupancy in markets that price-shop short trips. RevPAR is the tie-breaker.
+
+**3. The seasonality blur.** A 3-month peak at $400 ADR and 90% occupancy plus a 9-month off-season at $130 ADR and 30% occupancy. Annual ADR averaged out looks unimpressive. Annual RevPAR tells you exactly what the property is producing per available night across the whole year.
+
+## RevPAR vs. its newer cousins
+
+Two related metrics circulate in STR analyst circles:
+
+**TRevPAR (Total Revenue per Available Room)** — adds cleaning fees, pet fees, extra-guest fees to the numerator. Useful when fees are a meaningful slice of revenue (often the case in 4+ bedroom homes).
+
+**GOPPAR (Gross Operating Profit per Available Room)** — replaces revenue with profit. The most expensive number to compute (you need full opex), but the most honest measure of property performance.
+
+Most hosts should chart RevPAR weekly and compute TRevPAR/GOPPAR quarterly. Tracking GOPPAR monthly is a workbook job; the [STR Ledger templates](https://thestrledger.com) handle it without spreadsheet pain.
+
+## Benchmarking: what's a "good" RevPAR?
+
+There is no universal answer because it scales with property type and market. Useful framing:
+
+- **Compare to comps, not to a global number.** RevPAR for a 1BR Manhattan condo and a 4BR Smokies cabin live in different universes.
+- **Compare to your own break-even.** Required RevPAR = break-even occupancy × ADR. If your break-even occupancy is 60% and ADR is $200, you need RevPAR of $120 just to keep the lights on. Anything above that is real business.
+- **Compare to your trend, weekly.** A RevPAR that is flat year-over-year while the rest of your market is up 10% means you are losing share — even if your ADR is rising.
+
+## RevPAR is a leading indicator
+
+The reason hotels live and die by RevPAR is that it moves *before* P&L moves. A listing whose RevPAR drops $15 in March will have visibly worse cash flow in May (when the March bookings settle). Charting RevPAR weekly gives you a 4–8 week head start on identifying problems.
+
+Three actions to take when RevPAR drops:
+
+1. **Check comps.** Did three new listings open in your radius? Did a hotel run a flash sale? Did the market shift?
+2. **Check the minimum-stay rule.** Is it filtering out the booking length most of your demand wants?
+3. **Check pricing automation.** If you use a dynamic pricer, has it over-indexed on weekend rates and starved Tuesday-Wednesday occupancy?
+
+## RevPAR and the cluster
+
+RevPAR is the *outcome* metric. Driving it requires the rest of the system:
+
+- **Acquisition** — the property has to have been bought right. Bad RevPAR potential at purchase compounds for the life of the loan. [strbuyers.tools](https://strbuyers.tools) handles the pre-buy analysis.
+- **Operations** — turnovers that run late lose nights, which crushes occupancy, which crushes RevPAR. [strops.tools](https://strops.tools) keeps the operational engine running.
+- **Guest experience** — five-star reviews drive search ranking, which drives bookings, which drives RevPAR. [strguests.tools](https://strguests.tools) handles the touch-points (welcome books, house rules, AI replies) that turn nice stays into nice reviews.
+- **The math layer** — the [profit calculator](/profit-calculator), [break-even calculator](/break-even-calculator), and [Airbnb fee calculator](/airbnb-fee-calculator) translate RevPAR into actual cash you keep.
+- **The system of record** — [The STR Ledger](https://thestrledger.com) is where the weekly RevPAR chart lives.
+
+## How to use the RevPAR calculator
+
+The [RevPAR calculator](/revpar-calculator) accepts inputs in either direction:
+
+- **Forward mode.** Enter ADR and occupancy, get RevPAR.
+- **Reverse mode.** Enter total revenue and available nights, get RevPAR + implied ADR if you also enter occupancy.
+
+The URL stores your scenario. Build a "this month vs. same month last year" comparison by opening two browser tabs with different URL params. Send the link to your business partner. Drop it into your spreadsheet as a manual data point or use it to spot-check a PMS dashboard.
+
+## FAQ
+
+**Should I include cleaning fees in the RevPAR numerator?** Strict definition says no — that's TRevPAR. For STR hosts whose cleaning fee is a meaningful portion of revenue, computing both is useful. A property with high TRevPAR but moderate RevPAR is one whose business model leans on the cleaning fee.
+
+**What about blocked nights?** Hotel-style RevPAR uses *available* nights. If you block your calendar for personal use, exclude those nights from the denominator — otherwise you'll punish your own operating performance for time off.
+
+**Daily, weekly, or monthly RevPAR?** Monthly for accounting. Weekly for management. Daily is noise unless you operate at scale.
+
+**Can RevPAR be higher than ADR?** No. RevPAR = ADR × occupancy, and occupancy is always between 0 and 1.

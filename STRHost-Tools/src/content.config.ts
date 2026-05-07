@@ -14,4 +14,19 @@ const tools = defineCollection({
   loader: glob({ pattern: '**/*.mdx', base: './src/content/tools' }),
 });
 
-export const collections = { states, tools };
+const posts = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/posts' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    datePublished: z.string(),
+    dateModified: z.string().optional(),
+    author: z.string().default('The STR Ledger'),
+    category: z.enum(['math', 'operations', 'tax', 'guest-xp', 'acquisition']),
+    keyword: z.string(),
+    relatedTools: z.array(z.string()).default([]),
+    readMinutes: z.number().int().positive(),
+  }),
+});
+
+export const collections = { states, tools, posts };

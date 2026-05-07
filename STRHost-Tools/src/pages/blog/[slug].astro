@@ -1,0 +1,134 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import tools from '@/data/tools.json';
+import { buildArticle } from '@/lib/seo';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const all = await getCollection('posts');
+  return all.map((post) => ({
+    params: { slug: post.id.replace(/\.mdx$/, '') },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const slug = post.id.replace(/\.mdx$/, '');
+const { Content } = await render(post);
+
+const toolMap = tools as Record<string, { path: string; shortName: string; tagline: string }>;
+const related = (post.data.relatedTools ?? [])
+  .map((key: string) => toolMap[key])
+  .filter(Boolean);
+
+const formatDate = (iso: string) =>
+  new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+
+const categoryLabels: Record<string, string> = {
+  math: 'Math',
+  operations: 'Operations',
+  tax: 'Tax',
+  'guest-xp': 'Guest XP',
+  acquisition: 'Acquisition',
+};
+
+const articleLd = buildArticle({
+  headline: post.data.title,
+  description: post.data.description,
+  slug,
+  datePublished: post.data.datePublished,
+  dateModified: post.data.dateModified ?? post.data.datePublished,
+  authorName: post.data.author,
+});
+---
+
+<Layout
+  title={`${post.data.title} — STR Host Tools`}
+  description={post.data.description}
+  path={`/blog/${slug}`}
+  jsonLd={articleLd}
+>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-7">
+      <p class="label text-gold-deep">
+        <a href="/blog" class="no-underline hover:text-gold">← Back to all posts</a>
+      </p>
+
+      <div class="mt-3 flex items-center gap-3 text-caption text-ink-3">
+        <span class="label text-gold-deep">{categoryLabels[post.data.category] ?? post.data.category}</span>
+        <span aria-hidden="true">·</span>
+        <time datetime={post.data.datePublished} class="font-mono">{formatDate(post.data.datePublished)}</time>
+        <span aria-hidden="true">·</span>
+        <span class="font-mono">{post.data.readMinutes} min read</span>
+      </div>
+
+      <h1 class="mt-3 text-h1 font-serif text-navy leading-tight">
+        {post.data.title}
+      </h1>
+      <p class="mt-4 text-lead text-ink-2">{post.data.description}</p>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-5 prose">
+      <Content />
+    </div>
+
+    <div class="mx-auto max-w-3xl px-5">
+      <AdSlot location="in-content" />
+    </div>
+
+    {related.length > 0 && (
+      <div class="mx-auto max-w-3xl px-5 mt-9">
+        <p class="label text-navy">Calculators in this post</p>
+        <ul class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {related.map((t: any) => (
+            <li>
+              <a
+                href={t.path}
+                class="group block rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-gold hover:shadow-card transition-all duration-std"
+              >
+                <p class="font-serif text-h3 text-navy leading-snug group-hover:text-navy-tint">{t.shortName}</p>
+                <p class="mt-1 text-caption text-ink-2 leading-snug">{t.tagline}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <div class="mx-auto max-w-3xl px-5 mt-9">
+      <EmailCaptureCard
+        magnet="str-host-income-report-2026"
+        toolSlug={`blog-${slug}`}
+      />
+    </div>
+
+    <div class="mx-auto max-w-3xl px-5 mt-7">
+      <STRLedgerCTA tool="profit-calculator" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="math" />
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: var(--sp-7); margin-bottom: var(--sp-3); line-height: 1.15; }
+  .prose :global(h3) { font-family: var(--font-display); font-size: var(--t-h3-size); color: var(--brand-navy); margin-top: var(--sp-5); margin-bottom: var(--sp-2); }
+  .prose :global(p) { color: var(--fg-1); margin-bottom: var(--sp-3); line-height: 1.65; font-size: 1.05rem; }
+  .prose :global(ol), .prose :global(ul) { margin: var(--sp-3) 0 var(--sp-4); padding-left: var(--sp-5); }
+  .prose :global(li) { margin-bottom: var(--sp-2); line-height: 1.6; }
+  .prose :global(strong) { color: var(--brand-navy); font-weight: 600; }
+  .prose :global(em) { color: var(--fg-1); }
+  .prose :global(code) { font-family: var(--font-mono); font-size: 0.9em; background: var(--bg-2); padding: 0 0.3em; border-radius: var(--r-1); }
+  .prose :global(pre) { background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-2); padding: var(--sp-4); overflow-x: auto; margin: var(--sp-4) 0; }
+  .prose :global(pre code) { background: transparent; padding: 0; font-size: 0.92em; line-height: 1.55; }
+  .prose :global(blockquote) { border-left: 3px solid var(--brand-gold); padding-left: var(--sp-4); color: var(--fg-2); font-style: italic; margin: var(--sp-4) 0; }
+  .prose :global(a) { color: var(--brand-navy); text-decoration: underline; text-decoration-color: var(--brand-gold); text-underline-offset: 3px; }
+  .prose :global(table) { width: 100%; border-collapse: collapse; margin: var(--sp-4) 0; font-size: 0.95em; }
+  .prose :global(th), .prose :global(td) { border-bottom: 1px solid var(--rule); text-align: left; padding: 0.5em 0.75em; }
+  .prose :global(th) { font-family: var(--font-display); color: var(--brand-navy); font-weight: 600; background: var(--bg-2); }
+  .prose :global(hr) { border: 0; border-top: 1px solid var(--rule); margin: var(--sp-6) 0; }
+</style>
