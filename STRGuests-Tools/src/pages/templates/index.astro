@@ -1,0 +1,191 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import { templates, CATEGORIES, categoryLabel, type TemplateCategory, type TemplateAudience, type TemplateTone } from '@/lib/templates';
+import { buildWebApplication } from '@/lib/seo';
+
+const url = new URL(Astro.request.url);
+const filterCategory = url.searchParams.get('category') as TemplateCategory | null;
+const filterAudience = url.searchParams.get('audience') as TemplateAudience | null;
+const filterTone = url.searchParams.get('tone') as TemplateTone | null;
+
+let filtered = templates.slice();
+if (filterCategory) filtered = filtered.filter((t) => t.category === filterCategory);
+if (filterAudience) filtered = filtered.filter((t) => t.audience === filterAudience);
+if (filterTone) filtered = filtered.filter((t) => t.tone === filterTone);
+
+filtered.sort((a, b) => a.scenario.localeCompare(b.scenario));
+
+const description = 'Free Airbnb message template library — 100+ scenarios across booking, pre-arrival, mid-stay, post-checkout, and difficult conversations. Copy, customize, send.';
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Airbnb Message Template Library',
+    description,
+    toolPath: '/templates/',
+  }),
+];
+
+function buildHref(updates: Partial<Record<'category' | 'audience' | 'tone', string | null>>): string {
+  const next = new URLSearchParams(url.search);
+  for (const [k, v] of Object.entries(updates)) {
+    if (v === null) next.delete(k);
+    else next.set(k, v as string);
+  }
+  const qs = next.toString();
+  return qs ? `/templates/?${qs}` : '/templates/';
+}
+---
+
+<Layout
+  title="Airbnb Message Template Library — strguests.tools"
+  description={description}
+  path="/templates/"
+  jsonLd={jsonLd}
+>
+  <article class="templates-index bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-9 pb-7">
+      <header>
+        <h1 class="text-h1 font-serif text-navy leading-tight">
+          Airbnb Message Templates<span class="period-gold">.</span>
+        </h1>
+        <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+          {templates.length}+ scenarios for hosts and guests. Copy, customize, send. Filter by category, audience, or tone.
+        </p>
+      </header>
+
+      <section class="mt-7 space-y-3" data-filter-bar>
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-small text-ink-2 mr-2">Category:</span>
+          <a
+            href={buildHref({ category: null })}
+            class={`px-3 py-1.5 rounded-full border text-small no-underline ${!filterCategory ? 'bg-navy text-parchment border-navy' : 'bg-parchment border-rule text-navy hover:border-[color:var(--accent-500)]'}`}
+            data-filter-chip="category"
+            data-value=""
+          >All</a>
+          {CATEGORIES.map((c) => (
+            <a
+              href={buildHref({ category: c.id })}
+              class={`px-3 py-1.5 rounded-full border text-small no-underline ${filterCategory === c.id ? 'bg-navy text-parchment border-navy' : 'bg-parchment border-rule text-navy hover:border-[color:var(--accent-500)]'}`}
+              data-filter-chip="category"
+              data-value={c.id}
+            >{c.label}</a>
+          ))}
+        </div>
+
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-small text-ink-2 mr-2">From:</span>
+          <a href={buildHref({ audience: null })} class={`px-3 py-1.5 rounded-full border text-small no-underline ${!filterAudience ? 'bg-navy text-parchment border-navy' : 'bg-parchment border-rule text-navy hover:border-[color:var(--accent-500)]'}`} data-filter-chip="audience" data-value="">Either</a>
+          <a href={buildHref({ audience: 'host' })} class={`px-3 py-1.5 rounded-full border text-small no-underline ${filterAudience === 'host' ? 'bg-navy text-parchment border-navy' : 'bg-parchment border-rule text-navy hover:border-[color:var(--accent-500)]'}`} data-filter-chip="audience" data-value="host">Host</a>
+          <a href={buildHref({ audience: 'guest' })} class={`px-3 py-1.5 rounded-full border text-small no-underline ${filterAudience === 'guest' ? 'bg-navy text-parchment border-navy' : 'bg-parchment border-rule text-navy hover:border-[color:var(--accent-500)]'}`} data-filter-chip="audience" data-value="guest">Guest</a>
+        </div>
+
+        <div class="flex flex-wrap gap-2 items-center">
+          <span class="text-small text-ink-2 mr-2">Tone:</span>
+          <a href={buildHref({ tone: null })} class={`px-3 py-1.5 rounded-full border text-small no-underline ${!filterTone ? 'bg-navy text-parchment border-navy' : 'bg-parchment border-rule text-navy hover:border-[color:var(--accent-500)]'}`} data-filter-chip="tone" data-value="">Any</a>
+          <a href={buildHref({ tone: 'warm' })} class={`px-3 py-1.5 rounded-full border text-small no-underline ${filterTone === 'warm' ? 'bg-navy text-parchment border-navy' : 'bg-parchment border-rule text-navy hover:border-[color:var(--accent-500)]'}`} data-filter-chip="tone" data-value="warm">Warm</a>
+          <a href={buildHref({ tone: 'neutral' })} class={`px-3 py-1.5 rounded-full border text-small no-underline ${filterTone === 'neutral' ? 'bg-navy text-parchment border-navy' : 'bg-parchment border-rule text-navy hover:border-[color:var(--accent-500)]'}`} data-filter-chip="tone" data-value="neutral">Neutral</a>
+          <a href={buildHref({ tone: 'firm' })} class={`px-3 py-1.5 rounded-full border text-small no-underline ${filterTone === 'firm' ? 'bg-navy text-parchment border-navy' : 'bg-parchment border-rule text-navy hover:border-[color:var(--accent-500)]'}`} data-filter-chip="tone" data-value="firm">Firm</a>
+        </div>
+      </section>
+
+      <p class="mt-5 text-small text-ink-2" data-results-count>
+        Showing {filtered.length} of {templates.length} templates
+      </p>
+
+      <ul class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" data-template-grid>
+        {templates.map((t) => (
+          <li
+            data-template-card
+            data-category={t.category}
+            data-audience={t.audience}
+            data-tone={t.tone}
+            class:list={[
+              filtered.some((f) => f.slug === t.slug) ? '' : 'hidden',
+            ]}
+          >
+            <a
+              href={`/templates/${t.slug}`}
+              class="block h-full rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-[color:var(--accent-500)] hover:shadow-card transition-all duration-std"
+            >
+              <p class="text-ui font-semibold text-navy">{t.scenario}</p>
+              <p class="mt-1 text-caption text-ink-2 leading-snug">{t.shortDescription}</p>
+              <div class="mt-3 flex flex-wrap gap-1.5 text-caption">
+                <span class="px-2 py-0.5 rounded-full bg-parchment border border-rule text-navy">{categoryLabel(t.category)}</span>
+                <span class="px-2 py-0.5 rounded-full bg-parchment border border-rule text-navy">{t.audience}</span>
+                <span class="px-2 py-0.5 rounded-full bg-parchment border border-rule text-navy">{t.tone}</span>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <AdSlot location="in-content" />
+      <EmailCaptureCard magnet="strguests-newsletter" toolSlug="templates-index" />
+      <STRLedgerCTA tool="guest-messages" />
+      <AdSlot location="footer" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="guest-xp" />
+  </article>
+</Layout>
+
+<script>
+  // Progressive enhancement: chips work without JS via href, but JS gives
+  // instant in-page filtering without a navigation roundtrip.
+  type FilterKey = 'category' | 'audience' | 'tone';
+
+  const state: Record<FilterKey, string> = {
+    category: new URL(location.href).searchParams.get('category') ?? '',
+    audience: new URL(location.href).searchParams.get('audience') ?? '',
+    tone: new URL(location.href).searchParams.get('tone') ?? '',
+  };
+
+  const cards = Array.from(document.querySelectorAll<HTMLLIElement>('[data-template-card]'));
+  const counter = document.querySelector<HTMLParagraphElement>('[data-results-count]');
+  const total = cards.length;
+
+  function applyFilters() {
+    let visible = 0;
+    for (const card of cards) {
+      const matches =
+        (!state.category || card.dataset.category === state.category) &&
+        (!state.audience || card.dataset.audience === state.audience) &&
+        (!state.tone || card.dataset.tone === state.tone);
+      card.classList.toggle('hidden', !matches);
+      if (matches) visible += 1;
+    }
+    if (counter) counter.textContent = `Showing ${visible} of ${total} templates`;
+
+    // Update chip styles + URL without reload
+    const params = new URLSearchParams();
+    for (const [k, v] of Object.entries(state)) if (v) params.set(k, v);
+    const next = params.toString() ? `?${params.toString()}` : '/templates/';
+    history.replaceState(null, '', next);
+  }
+
+  document.querySelectorAll<HTMLAnchorElement>('[data-filter-chip]').forEach((chip) => {
+    chip.addEventListener('click', (e) => {
+      e.preventDefault();
+      const key = chip.dataset.filterChip as FilterKey;
+      const value = chip.dataset.value ?? '';
+      state[key] = value;
+
+      // Toggle visual selection
+      document.querySelectorAll<HTMLAnchorElement>(`[data-filter-chip="${key}"]`).forEach((sib) => {
+        const isMatch = (sib.dataset.value ?? '') === value;
+        sib.classList.toggle('bg-navy', isMatch);
+        sib.classList.toggle('text-parchment', isMatch);
+        sib.classList.toggle('border-navy', isMatch);
+        sib.classList.toggle('bg-parchment', !isMatch);
+        sib.classList.toggle('text-navy', !isMatch);
+        sib.classList.toggle('border-rule', !isMatch);
+      });
+
+      applyFilters();
+    });
+  });
+</script>

@@ -1,0 +1,171 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import { templates, categoryLabel, relatedTemplates, type TemplateEntry } from '@/lib/templates';
+import { buildArticle, buildFAQPage } from '@/lib/seo';
+
+export async function getStaticPaths() {
+  return templates.map((t) => ({
+    params: { scenario: t.slug },
+    props: { template: t },
+  }));
+}
+
+interface Props {
+  template: TemplateEntry;
+}
+
+const { template } = Astro.props;
+
+// Optionally pull a long-form MDX overlay if one exists (for top-volume scenarios).
+const overlays = import.meta.glob('@/content/templates/*.mdx');
+const overlayKey = Object.keys(overlays).find((k) => k.endsWith(`/${template.slug}.mdx`));
+const Overlay = overlayKey ? (await overlays[overlayKey]() as { Content: any }).Content : null;
+
+const related = relatedTemplates(template.slug);
+
+const faqs = [
+  {
+    question: `When should I send this ${template.scenario.toLowerCase()} message?`,
+    answer: template.whenToUse ?? `Send this template when the situation matches "${template.scenario}".`,
+  },
+  {
+    question: 'Can I edit the template before sending?',
+    answer:
+      'Yes. Replace the {{variables}} with your details. The template is a starting point — adjust tone and specifics to match your voice.',
+  },
+  {
+    question: 'Do I need to credit strguests.tools?',
+    answer:
+      'No attribution required. Use the template freely in your own host communication.',
+  },
+];
+
+const path = `/templates/${template.slug}`;
+const description = `Free Airbnb message template — ${template.scenario.toLowerCase()}. Copy, customize, and send. ${template.shortDescription}`;
+
+const jsonLd = [
+  buildArticle({
+    headline: template.scenario,
+    description,
+    slug: template.slug,
+    datePublished: '2026-05-06',
+    pathPrefix: 'templates',
+  }),
+  buildFAQPage(faqs),
+];
+---
+
+<Layout
+  title={`${template.scenario} — Airbnb Message Template — strguests.tools`}
+  description={description}
+  path={path}
+  jsonLd={jsonLd}
+>
+  <article class="template-page bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-9 pb-7">
+      <nav class="text-small text-ink-2 mb-3">
+        <a href="/templates/" class="hover:underline">Templates</a>
+        <span class="mx-2">·</span>
+        <a href={`/templates/?category=${template.category}`} class="hover:underline">{categoryLabel(template.category)}</a>
+      </nav>
+
+      <header>
+        <h1 class="text-h1 font-serif text-navy leading-tight">{template.scenario}<span class="period-gold">.</span></h1>
+        <p class="mt-3 text-lead text-ink-2">{template.shortDescription}</p>
+        <div class="mt-4 flex flex-wrap gap-2 text-caption">
+          <span class="px-2.5 py-1 rounded-full bg-parchment-alt border border-rule text-navy">{categoryLabel(template.category)}</span>
+          <span class="px-2.5 py-1 rounded-full bg-parchment-alt border border-rule text-navy">From: {template.audience}</span>
+          <span class="px-2.5 py-1 rounded-full bg-parchment-alt border border-rule text-navy">Tone: {template.tone}</span>
+        </div>
+      </header>
+
+      {template.whenToUse && (
+        <section class="mt-7">
+          <h2 class="text-h3 font-serif text-navy">When to use it</h2>
+          <p class="mt-2 text-body text-ink-2 leading-relaxed">{template.whenToUse}</p>
+        </section>
+      )}
+
+      <section class="mt-7">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-h3 font-serif text-navy">The template</h2>
+          <button
+            type="button"
+            data-copy-template
+            class="text-small px-3 py-1.5 rounded-md border border-rule bg-parchment hover:border-[color:var(--accent-500)] text-navy"
+          >
+            Copy
+          </button>
+        </div>
+        <pre class="rounded-md border border-rule bg-parchment-light p-4 whitespace-pre-wrap text-body text-graphite font-mono text-sm leading-relaxed" data-template-source>{template.template}</pre>
+        {template.variables.length > 0 && (
+          <p class="mt-3 text-small text-ink-2">
+            <span class="text-navy font-semibold">Variables to replace:</span>{' '}
+            {template.variables.map((v) => `{{${v}}}`).join('  ·  ')}
+          </p>
+        )}
+      </section>
+
+      <AdSlot location="in-content" />
+
+      {Overlay && (
+        <section class="prose mt-9 max-w-2xl">
+          <Overlay />
+        </section>
+      )}
+
+      <EmailCaptureCard
+        magnet="strguests-newsletter"
+        toolSlug={`templates-${template.slug}`}
+      />
+
+      <STRLedgerCTA tool="guest-messages" />
+
+      {related.length > 0 && (
+        <section class="mt-9">
+          <h2 class="text-h3 font-serif text-navy mb-3">Related templates</h2>
+          <ul class="space-y-2">
+            {related.map((r) => (
+              <li>
+                <a href={`/templates/${r.slug}`} class="block rounded-md border border-rule bg-parchment-light p-3 no-underline hover:border-[color:var(--accent-500)]">
+                  <p class="text-ui text-navy font-semibold">{r.scenario}</p>
+                  <p class="text-caption text-ink-2 mt-1">{r.shortDescription}</p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <AdSlot location="footer" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="guest-xp" />
+  </article>
+</Layout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('button[data-copy-template]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const source = document.querySelector<HTMLPreElement>('pre[data-template-source]')?.innerText ?? '';
+      try {
+        await navigator.clipboard.writeText(source);
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = orig; }, 1600);
+      } catch {
+        btn.textContent = 'Copy failed';
+      }
+    });
+  });
+</script>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: 1.6rem; margin-bottom: 0.6rem; }
+  .prose :global(h3) { font-family: var(--font-display); color: var(--brand-navy); margin-top: 1.2rem; margin-bottom: 0.4rem; font-size: var(--t-h3-size); }
+  .prose :global(p) { margin-bottom: 0.9rem; line-height: 1.65; color: var(--ink-2); }
+</style>
