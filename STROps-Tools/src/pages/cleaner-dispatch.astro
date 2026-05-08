@@ -1,0 +1,52 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Sidebar from '@components/chrome/Sidebar.astro';
+import CleanerDispatch from '@components/calculators/CleanerDispatch.tsx';
+import AdSlot from '@components/ads/AdSlot.astro';
+import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+import affiliates from '@data/affiliates.json';
+
+const url = 'https://strops.tools/cleaner-dispatch';
+const faqs = [
+  { q: 'How are cleaners assigned?', a: 'Round-robin — turnovers are distributed evenly across the cleaner list in order.' },
+  { q: 'Can I customize the SMS template?', a: 'Not in this version — the template is fixed for consistency. Edit the PDF after download if you need to.' },
+  { q: 'Is the PDF branded?', a: 'Yes — strops.tools header with the ops accent green.' },
+  { q: 'Are cleaner contacts saved?', a: 'No. Everything lives in your URL only.' },
+];
+---
+<Layout title="Airbnb Cleaner Dispatch Generator — strops.tools" description="Round-robin assign turnovers to cleaners, generate SMS templates, and download a branded PDF dispatch sheet." canonical={url}>
+  <Fragment slot="head">
+    <JsonLd data={[
+      webApplicationJsonLd({ name: 'Airbnb Cleaner Dispatch Generator', url, description: 'Assign turnovers to cleaners and generate SMS dispatch templates.' }),
+      faqJsonLd(faqs),
+    ]} />
+  </Fragment>
+  <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">
+    <article class="flex-1 prose">
+      <h1>Cleaner Dispatch Generator</h1>
+      <p class="lead">Round-robin assign your turnovers, draft the SMS, and print or PDF a branded dispatch sheet.</p>
+      <CleanerDispatch client:load />
+      <AdSlot location="in-content" />
+      <h2>How it works</h2>
+      <p>Each turnover is paired with the next cleaner in your roster, cycling through the list. The SMS template fills cleaner name, address, date, and bedroom count. Download the dispatch sheet as a PDF for printing, or copy the SMS lines into your messaging app.</p>
+      <EmailCaptureCard magnet="cleaner-sop" tool="cleaner-dispatch" />
+      <h2>How to use this tool</h2>
+      <ol>
+        <li>Set the dispatch date.</li>
+        <li>List your turnovers — one per line: <code>propertyId,address,bedrooms</code>.</li>
+        <li>List your cleaners — one per line: <code>name,phone</code>.</li>
+        <li>Download the dispatch sheet PDF or copy the SMS templates.</li>
+      </ol>
+      <h2>FAQ</h2>
+      {faqs.map(f => <div><h3>{f.q}</h3><p>{f.a}</p></div>)}
+      <STRLedgerCTA tool="cleaner-dispatch" />
+      <AffiliateCard {...(affiliates as any)['turno']} vendorId="turno" />
+      <AdSlot location="footer" />
+    </article>
+    <Sidebar current="cleaner-dispatch" />
+  </div>
+</Layout>
