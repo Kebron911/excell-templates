@@ -51,39 +51,32 @@ jobs:
           test -f dist/feed.xml
           echo "Build output OK"
 
-      # Same domain-scoped FTP chroot pattern as strhost — strip the
-      # SSH-style /home/<user>/domains/<domain>/ prefix so files land in
-      # /public_html/, not in a deeply-nested mirror inside the chroot.
-      # See docs/CLUSTER-BLOG-STANDARD.md and STRHost-Tools/docs/DEPLOY.md.
-      - name: Normalize server-dir
-        id: server_dir
-        shell: bash
+      # SSH-based deploy. Uses the master Hostinger account
+      # u470667024 + the shared cluster SSH key in secret STR_SSH_KEY.
+      # Sidesteps the per-domain FTP sub-user provisioning that broke
+      # this site's first deploy (the strguests.tools FTP account didn't
+      # exist in hPanel; SSH master always works).
+      - name: Set up SSH key
         env:
-          RAW_DIR: ${{ secrets.STRGUESTS_DOC_ROOT }}
+          SSH_PRIVATE_KEY: ${{ secrets.STR_SSH_KEY }}
         run: |
-          DIR=$(printf '%s' "$RAW_DIR" | tr -d '\r\n[:space:]')
-          DIR=$(printf '%s' "$DIR" | sed -E 's#^/home/[^/]+/domains/[^/]+##')
-          [[ "$DIR" != /* ]] && DIR="/$DIR"
-          DIR="${DIR%/}/"
-          printf 'value=%s\n' "$DIR" >> "$GITHUB_OUTPUT"
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          # Pin host key so MITM is impossible. Hostinger's shared host
+          # key fingerprint is captured here; if it changes, rotate.
+          ssh-keyscan -p 65002 -t ed25519 195.35.15.247 >> ~/.ssh/known_hosts 2>/dev/null
+          chmod 600 ~/.ssh/known_hosts
 
-      - name: Deploy to Hostinger via FTPS
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.STRGUESTS_FTP_HOST }}
-          username: ${{ secrets.STRGUESTS_FTP_USER }}
-          password: ${{ secrets.STRGUESTS_FTP_PASS }}
-          port: ${{ secrets.STRGUESTS_FTP_PORT }}
-          protocol: ftps
-          local-dir: ./STRGuests-Tools/dist/
-          server-dir: ${{ steps.server_dir.outputs.value }}
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-          state-name: .ftp-deploy-sync-state.json
-          dry-run: false
-          log-level: standard
+      - name: Deploy via rsync over SSH
+        run: |
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            -e 'ssh -i ~/.ssh/id_ed25519 -p 65002 -o StrictHostKeyChecking=accept-new' \
+            ./STRGuests-Tools/dist/ \
+            u470667024@195.35.15.247:/home/u470667024/domains/strguests.tools/public_html/
 
       # IndexNow auto-submit — fans out to Bing/Yandex/Seznam/Naver.
       - name: Notify IndexNow
