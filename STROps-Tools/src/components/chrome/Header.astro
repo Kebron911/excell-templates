@@ -1,0 +1,21 @@
+---
+const tools = [
+  { href: '/turnover-scheduler', label: 'Turnover scheduler' },
+  { href: '/cleaner-dispatch', label: 'Cleaner dispatch' },
+  { href: '/smart-lock-codes', label: 'Smart lock codes' },
+  { href: '/linen-par-calculator', label: 'Linen par' },
+  { href: '/restock-calculator', label: 'Restock' },
+  { href: '/damage-cost-lookup', label: 'Damage cost' },
+  { href: '/maintenance-schedule', label: 'Maintenance schedule' },
+];
+---
+<header class="site-header border-b border-rule bg-parchment">
+  <div class="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+    <a href="/" class="font-body font-semibold text-lg tracking-tight">
+      strops<span class="period-gold">.</span>tools
+    </a>
+    <nav aria-label="Tools" class="hidden md:flex gap-6 text-sm">
+      {tools.map(t => <a href={t.href} class="text-ink2 hover:text-ink">{t.label}</a>)}
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,20 @@
+---
+interface Props { current: string; }
+const { current } = Astro.props;
+const all = [
+  { slug: 'turnover-scheduler',     label: 'Turnover scheduler' },
+  { slug: 'cleaner-dispatch',       label: 'Cleaner dispatch' },
+  { slug: 'smart-lock-codes',       label: 'Smart lock codes' },
+  { slug: 'linen-par-calculator',   label: 'Linen par calculator' },
+  { slug: 'restock-calculator',     label: 'Restock calculator' },
+  { slug: 'damage-cost-lookup',     label: 'Damage cost lookup' },
+  { slug: 'maintenance-schedule',   label: 'Maintenance schedule' },
+];
+const others = all.filter(t => t.slug !== current);
+---
+<aside class="sidebar hidden lg:block w-64 shrink-0">
+  <div class="text-label uppercase tracking-widest text-ink3 mb-3">Related tools</div>
+  <ul class="space-y-2 text-sm">
+    {others.map(t => <li><a class="text-ink hover:text-accent" href={`/${t.slug}`}>{t.label}</a></li>)}
+  </ul>
+</aside>

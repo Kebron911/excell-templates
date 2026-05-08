@@ -1,0 +1,26 @@
+---
+interface Props { currentCluster: 'acquisition' | 'math' | 'operations' | 'guest-xp'; }
+const { currentCluster } = Astro.props;
+const clusters = [
+  { id: 'acquisition', href: 'https://strbuyers.tools',  label: 'strbuyers.tools',  blurb: 'Pre-buy underwriting tools.' },
+  { id: 'math',        href: 'https://strhost.tools',    label: 'strhost.tools',    blurb: 'Pricing + profit math.' },
+  { id: 'operations',  href: 'https://strops.tools',     label: 'strops.tools',     blurb: 'Run the property.' },
+  { id: 'guest-xp',    href: 'https://strguests.tools',  label: 'strguests.tools',  blurb: 'Guest experience polish.' },
+];
+const others = clusters.filter(c => c.id !== currentCluster);
+---
+<section class="cluster-funnel border-t border-rule bg-parchment-alt">
+  <div class="mx-auto max-w-6xl px-6 py-10">
+    <div class="text-label uppercase tracking-widest text-ink3 mb-4">The host lifecycle</div>
+    <div class="grid md:grid-cols-3 gap-6">
+      {others.map(c => (
+        <a href={`${c.href}?utm_source=strops-tools&utm_medium=cluster-funnel`}
+           data-cluster={c.id}
+           class="cluster-link block border border-rule bg-parchment p-5 hover:border-accent">
+          <div class="font-semibold">{c.label}</div>
+          <div class="text-ink2 text-sm mt-1">{c.blurb}</div>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
