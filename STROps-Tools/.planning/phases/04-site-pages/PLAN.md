@@ -50,7 +50,7 @@
   - Verify: `pnpm typecheck` 0 errors. `pnpm test` green. `pnpm build` clean.
   - Commit: `feat(strops-tools): tools.json registry with lead-magnet mapping (Phase 4 Task 25)`
 
-- [ ] **Task 26 — Lead magnet pages (3)**
+- [x] **Task 26 — Lead magnet pages (3)**
   - Stub PDF builder script `scripts/build-stub-magnets.mjs` — generates 3 placeholder PDFs via `createBasePdf` into `public/pdf/`.
   - Add `pnpm build:magnets` script to `package.json`.
   - Run script once and commit the PDFs.

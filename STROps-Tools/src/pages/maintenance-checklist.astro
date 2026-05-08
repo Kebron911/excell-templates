@@ -1,0 +1,91 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+---
+
+<Layout
+  title="STR Maintenance Checklist — annual + seasonal recurring tasks (free PDF)"
+  description="Free maintenance checklist for short-term rental hosts. HVAC, smoke detectors, deep clean, fireplace inspection, water heater flush — sequenced by month, by season, by climate. Printable PDF."
+  path="/maintenance-checklist"
+>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9 prose">
+      <p class="label text-accent-deep">Free PDF · STR Maintenance Checklist</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy leading-tight">
+        The recurring tasks an STR forgets until something breaks<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2">
+        HVAC filters, smoke detector batteries, deep clean cadence, fireplace inspection, water heater flush — sequenced by month, by season, by climate, on one printable page.
+      </p>
+
+      <h2>What's in it</h2>
+      <ul>
+        <li><strong>HVAC + filters</strong> — change cadence by climate, filter MERV ratings for STR turnover dust load, when to schedule professional service.</li>
+        <li><strong>Life-safety</strong> — smoke detector batteries, CO detector tests, fire extinguisher pressure check, emergency egress signage.</li>
+        <li><strong>Deep clean cadence</strong> — between-guest vs. quarterly vs. annual deep, what each catches that the turnover skips.</li>
+        <li><strong>Fireplace + chimney</strong> — annual inspection, gas-line check, ash disposal protocol if wood-burning.</li>
+        <li><strong>Plumbing + water heater</strong> — annual flush, pressure-relief test, anode-rod check, low-flow inspection.</li>
+        <li><strong>Exterior</strong> — gutter clear, caulk audit, deck/patio inspection, screen replacement seasonality.</li>
+        <li><strong>Climate variants</strong> — cold-climate items (winterization, heat-tape audit), hot-climate items (A/C coil clean, pool maintenance).</li>
+      </ul>
+
+      <h2>Why operators care</h2>
+      <p>
+        Reactive maintenance is 3–5x more expensive than scheduled. A failed HVAC during a 90°F summer turnover can cost a refund + a one-star review. The checklist standardizes the boring proactive work so the host doesn't get blindsided.
+      </p>
+      <p>
+        Subscribe below for v1 when it ships. Preview release linked below if you want to see the layout first.
+      </p>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-5">
+      <EmailCaptureCard
+        magnet="maintenance-checklist-pdf"
+        toolSlug="maintenance-checklist"
+        headline="Get the Maintenance Checklist when v1 ships"
+        blurb="One email when the full PDF is ready. No newsletter spam."
+        cta="Send me the PDF"
+      />
+    </div>
+
+    <div class="mx-auto max-w-3xl px-5 prose">
+      <h2>Preview release (stub PDF)</h2>
+      <p>
+        Want to see the layout before you subscribe? Download the preview release — abbreviated content, full format.
+      </p>
+      <p>
+        <a
+          href="/pdf/maintenance-checklist-v0.pdf"
+          class="font-mono no-underline border border-rule bg-parchment-light hover:border-accent rounded-md px-4 py-2 inline-block text-navy"
+          download
+        >
+          Download Maintenance-Checklist-preview.pdf →
+        </a>
+      </p>
+
+      <h2>Pairs well with</h2>
+      <ul>
+        <li><a href="/maintenance-schedule">Maintenance schedule generator</a> — same task list, but build a per-property annual schedule with PDF + .ics export.</li>
+        <li><a href="/damage-cost-lookup">Damage cost lookup</a> — what it actually costs to replace items when proactive maintenance fails.</li>
+        <li><a href="/maintenance/">Browse maintenance tasks</a> — deep informational pages on each recurring task.</li>
+      </ul>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-5">
+      <AdSlot location="footer" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="operations" />
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: var(--sp-7); margin-bottom: var(--sp-3); line-height: 1.1; }
+  .prose :global(p) { color: var(--fg-1); margin-bottom: var(--sp-3); line-height: 1.6; }
+  .prose :global(ul) { margin: var(--sp-3) 0 var(--sp-4); padding-left: var(--sp-5); }
+  .prose :global(li) { margin-bottom: var(--sp-2); line-height: 1.55; }
+  .prose :global(strong) { color: var(--brand-navy); font-weight: 600; }
+  .prose :global(a) { color: var(--brand-navy); text-decoration: underline; text-decoration-color: var(--brand-gold); text-underline-offset: 3px; }
+</style>

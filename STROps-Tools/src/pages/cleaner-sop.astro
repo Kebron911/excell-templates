@@ -1,0 +1,90 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+---
+
+<Layout
+  title="STR Cleaner SOP — free printable PDF for short-term rental turnovers"
+  description="Free standard operating procedure for short-term rental cleaners. Step-by-step turnover checklist, room-by-room sequence, supply restock, photo documentation. Printable PDF."
+  path="/cleaner-sop"
+>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9 prose">
+      <p class="label text-accent-deep">Free PDF · STR Cleaner SOP</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy leading-tight">
+        A printable SOP your cleaner can follow turn after turn<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2">
+        Two pages, taped to the laundry-room wall, every cleaner gets it right the first time. No app, no login, no per-property training.
+      </p>
+
+      <h2>What's in it</h2>
+      <ul>
+        <li><strong>Arrival walkthrough</strong> — what to photograph before touching anything (damage docs, missing items).</li>
+        <li><strong>Room-by-room sequence</strong> — the order that minimizes back-and-forth and finishes a 2-bed turnover in 90 minutes.</li>
+        <li><strong>Linen swap rules</strong> — strip, count, restock; per-bed and per-bath par levels at the bottom of the page.</li>
+        <li><strong>Bath + kitchen restock</strong> — toiletries, paper goods, dish soap, sponge — what gets replaced every turn vs. weekly.</li>
+        <li><strong>Damage report path</strong> — when to text the host, when to log it for the next day's review, when to keep cleaning.</li>
+        <li><strong>Final walkthrough</strong> — the 12-item check before leaving and locking up.</li>
+      </ul>
+
+      <h2>Why operators care</h2>
+      <p>
+        Cleaning is the highest-leverage operation in short-term rental hosting. A bad turnover lands a one-star review; a great one is invisible. The SOP standardizes "great" so the host doesn't re-train every new cleaner from scratch.
+      </p>
+      <p>
+        The form below puts you on the list when v1 ships. In the meantime, a preview-release stub is linked below — same layout, abbreviated content — so you can see whether the format will work for your team before subscribing.
+      </p>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-5">
+      <EmailCaptureCard
+        magnet="cleaner-sop-pdf"
+        toolSlug="cleaner-sop"
+        headline="Get the Cleaner SOP when v1 ships"
+        blurb="One email when the full PDF is ready. No newsletter spam."
+        cta="Send me the PDF"
+      />
+    </div>
+
+    <div class="mx-auto max-w-3xl px-5 prose">
+      <h2>Preview release (stub PDF)</h2>
+      <p>
+        Want to see the layout before you subscribe? Download the preview release — abbreviated content, full format.
+      </p>
+      <p>
+        <a
+          href="/pdf/cleaner-sop-v0.pdf"
+          class="font-mono no-underline border border-rule bg-parchment-light hover:border-accent rounded-md px-4 py-2 inline-block text-navy"
+          download
+        >
+          Download Cleaner-SOP-preview.pdf →
+        </a>
+      </p>
+
+      <h2>Pairs well with</h2>
+      <ul>
+        <li><a href="/turnover-scheduler">Turnover scheduler</a> — spot the impossible same-day checkout/checkin gap.</li>
+        <li><a href="/cleaner-dispatch">Cleaner dispatch</a> — auto-generate per-property assignments + SMS templates.</li>
+        <li><a href="/smart-lock-codes">Smart lock codes</a> — deterministic per-booking codes the cleaner uses.</li>
+      </ul>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-5">
+      <AdSlot location="footer" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="operations" />
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: var(--sp-7); margin-bottom: var(--sp-3); line-height: 1.1; }
+  .prose :global(p) { color: var(--fg-1); margin-bottom: var(--sp-3); line-height: 1.6; }
+  .prose :global(ul) { margin: var(--sp-3) 0 var(--sp-4); padding-left: var(--sp-5); }
+  .prose :global(li) { margin-bottom: var(--sp-2); line-height: 1.55; }
+  .prose :global(strong) { color: var(--brand-navy); font-weight: 600; }
+  .prose :global(a) { color: var(--brand-navy); text-decoration: underline; text-decoration-color: var(--brand-gold); text-underline-offset: 3px; }
+</style>
