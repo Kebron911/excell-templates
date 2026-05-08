@@ -1,0 +1,102 @@
+{
+  "hvac-filter-change": {
+    "name": "Replace HVAC filter",
+    "cadenceDays": 60,
+    "season": "all",
+    "estimatedCostUsd": [15, 40],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Reduced airflow, higher energy use, premature blower wear, and worse indoor air quality.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "ac-tune-up": {
+    "name": "AC professional tune-up",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [80, 200],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Compressor failure during peak season — emergency call-out rates and lost nights.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "smoke-detector-test": {
+    "name": "Test smoke + CO detectors",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [0, 20],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Code violation, insurance void, life-safety risk.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "deep-clean": {
+    "name": "Deep clean (between full turnovers)",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [200, 500],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Grime buildup leads to lower review scores; hard surfaces lose finish over time.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "gutter-clean": {
+    "name": "Clean gutters",
+    "cadenceDays": 180,
+    "season": "fall",
+    "estimatedCostUsd": [120, 300],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Water damage to fascia, foundation, or basement.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "chimney-sweep": {
+    "name": "Chimney sweep",
+    "cadenceDays": 365,
+    "season": "fall",
+    "estimatedCostUsd": [150, 350],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Creosote fire risk; insurance non-coverage.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "water-heater-flush": {
+    "name": "Flush water heater",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [0, 150],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Sediment buildup shortens lifespan and reduces hot water capacity.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "dryer-vent-clean": {
+    "name": "Clean dryer vent",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [80, 180],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Lint fire risk; longer dry times shred linens and raise utility bills.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "pest-control": {
+    "name": "Quarterly pest control",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [60, 150],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "One-star reviews, refunds, infestation eradication costs.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "caulk-grout-inspect": {
+    "name": "Inspect & re-caulk bath/kitchen",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [0, 80],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Hidden water damage behind tile; mold remediation later.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  }
+}
