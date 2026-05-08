@@ -1,8 +1,8 @@
 # STATE
 
-**Current phase:** 4 — Site pages, lead magnets, SEO surface (blocked — see below)
+**Current phase:** 6 — CI/CD + production deploy (blocked on Hostinger creds + domain confirm)
 **Current task:** Not yet started
-**Last update:** 2026-05-08 (Phase 5 shipped before Phase 4 — Phase 5 was unblocked, Phase 4 still gated on ESP + vendors)
+**Last update:** 2026-05-08 (Phases 1, 2, 3, 4, 5 shipped — only deploy remains)
 
 ---
 
@@ -27,6 +27,21 @@
 - [x] Task 14 — Restock calculator
 - [x] Task 15 — Damage cost lookup (deep-links to /replace/[item])
 - [x] Task 16 — Maintenance schedule (PDF + .ics)
+
+## Phase 4 progress — COMPLETE ✓
+
+- [x] Task 25 — `tools.json` registry (tool→magnet matchup)
+- [x] Task 26 — Lead magnet pages (Cleaner SOP / Maintenance Checklist / Supply Par-Level)
+- [x] Task 27 — Landing page
+- [x] Task 28 — About + Contact
+- [x] Task 29 — Sitemap + robots.txt
+- [x] Task 30 — OG images via Satori (97 PNGs, jsDelivr fonts, soft-fail pattern)
+
+**ESP wiring stub:** `PUBLIC_ESP_ENDPOINT` env var documented in `.env.example`. Capture forms post to it; build green when unset. ESP decision still pending offline — once chosen, set the env var on Hostinger.
+
+**Affiliate vendor data:** Phase 2 stub `affiliates.json` retained. Vendor confirmations still pending offline — `AffiliateCard` renders with stubs until data updated.
+
+---
 
 ## Phase 5 progress — COMPLETE ✓ (shipped out-of-order; was unblocked while P4 gated)
 
@@ -61,12 +76,14 @@
 - `pnpm typecheck` — exit 0 (1 cosmetic Astro hint, pre-existing)
 - `pnpm test` — exit 0, 34 unit tests across 13 files
 - `pnpm test:e2e` — exit 0, **24 Playwright tests** (17 routes covered)
-- `pnpm build` — exit 0, **91 pages emitted**
-  - 8 Phase 1+2 (7 tools + landing)
+- `pnpm build` — exit 0, **96 pages + 97 OG PNGs emitted**
+  - 13 Phase 1+2+4 (7 tools + landing + about + contact + 3 magnets)
   - 31 maintenance (30 task pages + index)
   - 52 replacement (51 item pages + index)
+  - sitemap-index.xml, robots.txt
+  - `public/og/*.png` 1200×630 per route (Satori, jsDelivr fonts, soft-fail)
 
-27 atomic commits on branch `claude/amazing-bhabha-9754da` (24 P1–P3 tasks + 2 P5 tasks + 1 planning doc commit).
+34 atomic commits on branch `claude/amazing-bhabha-9754da` (24 P1–P3 tasks + 2 P5 + 6 P4 + 2 planning).
 
 ## Decisions log (this run)
 
