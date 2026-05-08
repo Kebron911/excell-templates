@@ -4,6 +4,7 @@ import Sidebar from '@/components/chrome/Sidebar.astro';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import PdfDownloadButton from '@/components/generator/PdfDownloadButton.astro';
 import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
@@ -91,6 +92,8 @@ const faq = buildFAQPage([
         <li><strong class="text-navy">Re-generate per booking if codes rotate.</strong> Generate a per-booking PDF and attach to the confirmation.</li>
       </ul>
     </section>
+
+    <RelatedPosts toolKey="check-in-instructions" />
 
     <EmailCaptureCard
       magnet="check-in-instructions"

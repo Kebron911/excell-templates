@@ -124,6 +124,7 @@ function ogTree({ kicker, title, footer }) {
                 type: 'div',
                 props: {
                   style: {
+                    display: 'flex',
                     fontWeight: 600,
                     fontSize: 16,
                     letterSpacing: 4,
@@ -238,6 +239,62 @@ async function main() {
         fonts,
       ),
     );
+  }
+
+  // Blog index + per-post OG. Reads frontmatter manually (gray-matter
+  // would be a dep just for this; line-grep is fine for stable schema).
+  // Slug convention 'blog-<slug>' matches Layout.astro's ogImageFor()
+  // which converts /blog/foo → blog-foo.
+  const postsDir = path.join(root, 'src', 'content', 'posts');
+  let postFiles = [];
+  try {
+    postFiles = (await fs.readdir(postsDir)).filter((f) => f.endsWith('.mdx'));
+  } catch {
+    // Posts dir missing — skip blog OG.
+  }
+
+  if (postFiles.length > 0) {
+    renders.push(
+      render(
+        'blog',
+        {
+          kicker: 'Field Notes',
+          title: 'Reviews are the strategy.',
+          footer: 'Calculator-paired guides for hosts',
+        },
+        fonts,
+      ),
+    );
+
+    for (const file of postFiles) {
+      const slug = file.replace(/\.mdx$/, '');
+      const src = await fs.readFile(path.join(postsDir, file), 'utf8');
+      const titleMatch = src.match(/^title:\s*"([^"]+)"/m);
+      const categoryMatch = src.match(/^category:\s*"([^"]+)"/m);
+      const readMatch = src.match(/^readMinutes:\s*(\d+)/m);
+      if (!titleMatch) continue;
+      const categoryLabel =
+        {
+          math: 'STR Math',
+          operations: 'STR Operations',
+          tax: 'STR Tax',
+          'guest-xp': 'Guest XP',
+          acquisition: 'Acquisition',
+        }[categoryMatch?.[1]] ?? 'The Notebook';
+      renders.push(
+        render(
+          `blog-${slug}`,
+          {
+            kicker: categoryLabel,
+            title: titleMatch[1],
+            footer: readMatch
+              ? `${readMatch[1]} min read · strguests.tools/blog`
+              : 'strguests.tools/blog',
+          },
+          fonts,
+        ),
+      );
+    }
   }
 
   // Site pages

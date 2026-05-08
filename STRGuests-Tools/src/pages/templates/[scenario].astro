@@ -3,6 +3,7 @@ import Layout from '@/components/chrome/Layout.astro';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import CopyButton from '@/components/templates/CopyButton.tsx';
 import { buildScenarioArticle } from '@/lib/seo';
@@ -142,6 +143,8 @@ const categoryLabel = entry.category.replace(/-/g, ' ');
         </ul>
       </section>
     )}
+
+    <RelatedPosts toolKey="guest-messages" />
 
     <EmailCaptureCard
       magnet="message-template-bundle"

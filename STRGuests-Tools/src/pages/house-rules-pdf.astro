@@ -4,6 +4,7 @@ import Sidebar from '@/components/chrome/Sidebar.astro';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import PdfDownloadButton from '@/components/generator/PdfDownloadButton.astro';
 import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
@@ -95,6 +96,8 @@ const faq = buildFAQPage([
         <li><strong class="text-navy">Don't legalize the language.</strong> "Please don't smoke" reads better than "smoking is strictly prohibited under penalty of forfeiture."</li>
       </ul>
     </section>
+
+    <RelatedPosts toolKey="house-rules-pdf" />
 
     <EmailCaptureCard
       magnet="house-rules-pdf"

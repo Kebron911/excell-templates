@@ -3,6 +3,7 @@ import Layout from '@/components/chrome/Layout.astro';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import TemplateIndex from '@/components/templates/TemplateIndex.tsx';
 import { buildWebApplication } from '@/lib/seo';
@@ -84,6 +85,8 @@ const webAppLd = buildWebApplication({
         and matches your property's voice — free, with a soft email gate.
       </p>
     </section>
+
+    <RelatedPosts toolKey="guest-messages" variant="section" />
 
     <EmailCaptureCard
       magnet="message-template-bundle"
