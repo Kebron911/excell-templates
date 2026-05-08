@@ -5,6 +5,7 @@ import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
 import AdSlot from '@components/ads/AdSlot.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { howToJsonLd, faqJsonLd } from '@lib/seo';
+import { getEntry } from 'astro:content';
 import tasksData from '@data/tasks.json';
 import type { TaskCatalog } from '@lib/types';
 
@@ -17,6 +18,8 @@ export async function getStaticPaths() {
 
 const { task } = Astro.params;
 const t = tasks[task!]!;
+const narrative = await getEntry('maintenance', task!);
+const NarrativeContent = narrative ? (await narrative.render()).Content : null;
 const url = `https://strops.tools/maintenance/${task}/`;
 const monthsNum = t.cadenceDays / 30;
 const months = monthsNum >= 1 ? monthsNum.toFixed(1).replace(/\.0$/, '') : monthsNum.toFixed(2);
@@ -63,36 +66,45 @@ const steps = [
       {t.skillLevel === 'diy' ? ' DIY-friendly.' : ' Best left to a pro.'}
     </p>
 
-    <h2>Why it matters</h2>
-    <p>{t.consequencesOfSkipping}</p>
+    {NarrativeContent ? (
+      <>
+        <NarrativeContent />
+        <AdSlot location="in-content" />
+      </>
+    ) : (
+      <>
+        <h2>Why it matters</h2>
+        <p>{t.consequencesOfSkipping}</p>
 
-    <AdSlot location="in-content" />
+        <AdSlot location="in-content" />
 
-    <h2>Cost</h2>
-    <p>
-      Typical range: ${t.estimatedCostUsd[0]}–${t.estimatedCostUsd[1]}. Climate, property age, and the time
-      since the last completion push the higher end.
-    </p>
+        <h2>Cost</h2>
+        <p>
+          Typical range: ${t.estimatedCostUsd[0]}–${t.estimatedCostUsd[1]}. Climate, property age, and the time
+          since the last completion push the higher end.
+        </p>
 
-    <h2>DIY vs pro</h2>
-    <p>
-      {t.skillLevel === 'diy'
-        ? 'Most operators handle this in 15-30 minutes. Stage supplies once and the task disappears into your cleaner workflow.'
-        : 'Recommend a licensed contractor. One phone call and an annual calendar invite covers the whole year.'}
-    </p>
+        <h2>DIY vs pro</h2>
+        <p>
+          {t.skillLevel === 'diy'
+            ? 'Most operators handle this in 15-30 minutes. Stage supplies once and the task disappears into your cleaner workflow.'
+            : 'Recommend a licensed contractor. One phone call and an annual calendar invite covers the whole year.'}
+        </p>
 
-    <h2>Signs you waited too long</h2>
-    <p>
-      Guest complaints, efficiency drops, or visible degradation. Track these in your operations log so you
-      can tighten cadence next cycle.
-    </p>
+        <h2>Signs you waited too long</h2>
+        <p>
+          Guest complaints, efficiency drops, or visible degradation. Track these in your operations log so you
+          can tighten cadence next cycle.
+        </p>
 
-    <h2>Season</h2>
-    <p>
-      {t.season === 'all'
-        ? 'Year-round task — cadence is the only thing that matters.'
-        : `Best handled in ${t.season}; aligns with weather and guest demand.`}
-    </p>
+        <h2>Season</h2>
+        <p>
+          {t.season === 'all'
+            ? 'Year-round task — cadence is the only thing that matters.'
+            : `Best handled in ${t.season}; aligns with weather and guest demand.`}
+        </p>
+      </>
+    )}
 
     <EmailCaptureCard magnet="maintenance-checklist" tool={`maintenance-${task}`} />
 
