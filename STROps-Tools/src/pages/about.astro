@@ -1,0 +1,74 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+---
+
+<Layout
+  title="About — strops.tools"
+  description="Who built strops.tools and why. Free operational tools for active short-term rental hosts, built by The STR Ledger."
+  path="/about"
+>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9 prose">
+      <h1 class="text-h1 font-serif text-navy leading-tight">
+        About<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2">
+        Free operational tools and printable PDFs for the people running short-term rentals every day.
+      </p>
+
+      <h2>Who's behind this</h2>
+      <p>
+        strops.tools is built by the team behind <a href="https://thestrledger.com">The STR Ledger</a> — Excel workbooks and PDF guides for serious short-term rental operators. The Ledger is the paid product. This site is the free operations layer: the calculators, dispatch generators, code rotators, and printable SOPs a host actually uses on a Tuesday morning.
+      </p>
+      <p>
+        It's the third stop in the host lifecycle: <a href="https://strbuyers.tools">strbuyers.tools</a> (acquisition), <a href="https://strhost.tools">strhost.tools</a> (math), strops.tools (operations), <a href="https://strguests.tools">strguests.tools</a> (guest XP).
+      </p>
+
+      <h2>Why this exists</h2>
+      <p>
+        Most "Airbnb operations apps" are SaaS subscriptions priced per property per month, gated behind email capture, and stuffed with features you'll never use. We got tired of that. So we built one. Then six more. Then we wrote three printable SOPs.
+      </p>
+      <p>
+        The deal is straightforward: you use the tools for free; we earn a small commission if you eventually buy a Ledger workbook, click through to a vetted vendor, or share the page. No popups, no exit-intent, no sticky banners. The friction stays out of your way while you ship the turnover.
+      </p>
+
+      <h2>Operational, not flashy</h2>
+      <p>
+        The brand is intentionally green-gray and editorial — not the SaaS-purple-gradient + 3D-illustration thing the rest of the category does. Operators don't want to be sold to; they want a calculator that works on their phone in the laundry room. Every visual choice on the site flows from that.
+      </p>
+      <p>
+        URL state on every input means every scenario you build is bookmarkable and shareable — text the dispatch link to your cleaner, or hand a printed maintenance schedule to your handyman. Print stylesheet means a clean PDF without screenshotting.
+      </p>
+
+      <h2>What this is not</h2>
+      <ul>
+        <li>Not a SaaS. No accounts, no dashboards, no subscriptions.</li>
+        <li>Not a property management system. We complement Hostfully, Hospitable, OwnerRez — we don't replace them.</li>
+        <li>Not legal or regulatory advice. STR rules vary by city; consult local code before you act.</li>
+        <li>Not a competitor to Turno or TurnoverBnB for cleaner marketplaces. We help you run the cleaner you already have.</li>
+      </ul>
+
+      <h2>Last updated</h2>
+      <p>
+        Site last reviewed 2026-05-08. Tool catalog and per-task data refreshed quarterly.
+      </p>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-5">
+      <STRLedgerCTA tool="turnover-scheduler" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="operations" />
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: var(--sp-7); margin-bottom: var(--sp-3); line-height: 1.1; }
+  .prose :global(p) { color: var(--fg-1); margin-bottom: var(--sp-3); line-height: 1.6; }
+  .prose :global(ul) { margin: var(--sp-3) 0 var(--sp-4); padding-left: var(--sp-5); }
+  .prose :global(li) { margin-bottom: var(--sp-2); line-height: 1.55; }
+  .prose :global(strong) { color: var(--brand-navy); font-weight: 600; }
+  .prose :global(a) { color: var(--brand-navy); text-decoration: underline; text-decoration-color: var(--brand-gold); text-underline-offset: 3px; }
+</style>

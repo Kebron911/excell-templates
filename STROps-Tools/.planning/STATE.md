@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 4 — Site pages, lead magnets, SEO surface
-**Current task:** Task 28 — About + Contact pages
+**Current task:** Task 29 — Sitemap + robots.txt
 **Last update:** 2026-05-07
 
 ---

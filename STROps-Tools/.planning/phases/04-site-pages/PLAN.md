@@ -69,7 +69,7 @@
   - Verify: build clean, landing renders all 7 tools + 3 magnets.
   - Commit: `feat(strops-tools): production landing page (Phase 4 Task 27)`
 
-- [ ] **Task 28 — About + Contact**
+- [x] **Task 28 — About + Contact**
   - `src/pages/about.astro` — operator brand story (who we are, why ops not flashy, what's free, last-updated date). Reuse layout primitives.
   - `src/pages/contact.astro` — `mailto:hello@strops.tools` + bug-report / calculator-request guidance.
   - Verify: build clean, both pages render.
