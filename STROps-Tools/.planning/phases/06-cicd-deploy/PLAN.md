@@ -16,13 +16,13 @@
 
 ---
 
-## Task 33 — GitHub Actions CI
+## Task 33 — GitHub Actions CI ✅
 
-- [ ] Create `.github/workflows/ci-strops-tools.yml` at monorepo root with `paths: STROps-Tools/**` filter (mirrors sister-site convention but separates CI from deploy)
-- [ ] Steps: checkout, pnpm 9, Node 22, install with frozen lockfile in `STROps-Tools/`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm exec playwright install --with-deps chromium`, `pnpm e2e`
-- [ ] Cache: pnpm via `cache-dependency-path: STROps-Tools/pnpm-lock.yaml`; Playwright browsers via `actions/cache` keyed on lockfile
-- [ ] Trigger: PR + push to `main`
-- [ ] Commit: `feat(strops-tools): GitHub Actions CI workflow (Phase 6 Task 33)`
+- [x] Create `.github/workflows/ci-strops-tools.yml` at monorepo root with `paths: STROps-Tools/**` filter (mirrors sister-site convention but separates CI from deploy)
+- [x] Steps: checkout, pnpm 9, Node 22, install with frozen lockfile in `STROps-Tools/`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm exec playwright install --with-deps chromium`, `pnpm e2e`
+- [x] Cache: pnpm via `cache-dependency-path: STROps-Tools/pnpm-lock.yaml`; Playwright browsers via `actions/cache` keyed on lockfile
+- [x] Trigger: PR + push to `main`
+- [x] Commit: `feat(strops-tools): GitHub Actions CI workflow (Phase 6 Task 33)`
 
 **Verify:** YAML parses (no `actionlint` available locally — well-formed YAML + identical-shape to sister sites is the bar).
 
