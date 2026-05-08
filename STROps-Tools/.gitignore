@@ -2,6 +2,9 @@
 dist/
 .astro/
 
+# generated OG images (regenerated via `pnpm build:og` / prebuild hook)
+public/og/
+
 # dependencies
 node_modules/
 

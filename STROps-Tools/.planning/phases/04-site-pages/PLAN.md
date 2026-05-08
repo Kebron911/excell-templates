@@ -81,7 +81,7 @@
   - Verify: `dist/sitemap-index.xml` exists, includes maintenance + replace + tools + magnets + landing + about + contact.
   - Commit: `feat(strops-tools): sitemap + robots.txt (Phase 4 Task 29)`
 
-- [ ] **Task 30 — OG images via Satori**
+- [x] **Task 30 — OG images via Satori**
   - Create `scripts/build-og.mjs` mirroring `STRGuests-Tools/scripts/build-og.mjs` (parchment + ops-utility green-gray accent + "STR Ops.tools" wordmark).
   - Iterate: landing, 7 tools, 3 lead magnets, maintenance index, replace index, about, contact (~15 base routes). Optional: per-maintenance-task and per-replace-item OGs (~80 more) — defer if perf-prohibitive at build time, default OG falls back via `seo.ts`.
   - Add `pnpm build:og` script + `prebuild` hook in `package.json`.
