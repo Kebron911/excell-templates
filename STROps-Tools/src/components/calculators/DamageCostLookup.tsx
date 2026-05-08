@@ -5,7 +5,7 @@
  */
 
 import { useMemo, useState } from 'react';
-import items from '@/data/damage-items.json';
+import items from '@/data/items.json';
 
 type Item = {
   name: string;

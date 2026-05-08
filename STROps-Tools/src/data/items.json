@@ -1,0 +1,515 @@
+{
+  "queen-mattress": {
+    "name": "Queen mattress",
+    "category": "bedroom",
+    "costRange": [350, 1500],
+    "lifespanYears": 8,
+    "brandRecs": ["Tuft & Needle", "Saatva", "DreamCloud"],
+    "sourceUrls": ["https://www.consumerreports.org/mattresses/"],
+    "lastVerified": "2026-05-01"
+  },
+  "king-mattress": {
+    "name": "King mattress",
+    "category": "bedroom",
+    "costRange": [500, 2200],
+    "lifespanYears": 8,
+    "brandRecs": ["Tuft & Needle", "Saatva", "Helix"],
+    "sourceUrls": ["https://www.consumerreports.org/mattresses/"],
+    "lastVerified": "2026-05-01"
+  },
+  "twin-mattress": {
+    "name": "Twin mattress",
+    "category": "bedroom",
+    "costRange": [200, 800],
+    "lifespanYears": 8,
+    "brandRecs": ["Zinus", "Tuft & Needle", "IKEA"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "mattress-topper": {
+    "name": "Mattress topper (queen)",
+    "category": "bedroom",
+    "costRange": [60, 300],
+    "lifespanYears": 3,
+    "brandRecs": ["Linenspa", "Lucid", "Tempur-Pedic"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "mattress-protector": {
+    "name": "Mattress protector",
+    "category": "bedroom",
+    "costRange": [25, 80],
+    "lifespanYears": 3,
+    "brandRecs": ["SafeRest", "Linenspa", "Utopia"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "bed-frame-queen": {
+    "name": "Bed frame (queen, platform)",
+    "category": "bedroom",
+    "costRange": [120, 800],
+    "lifespanYears": 10,
+    "brandRecs": ["Zinus", "Article", "IKEA"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "nightstand": {
+    "name": "Nightstand",
+    "category": "bedroom",
+    "costRange": [80, 400],
+    "lifespanYears": 10,
+    "brandRecs": ["IKEA", "Target Threshold", "Article"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "dresser": {
+    "name": "Dresser (6-drawer)",
+    "category": "bedroom",
+    "costRange": [200, 1200],
+    "lifespanYears": 12,
+    "brandRecs": ["IKEA", "Article", "West Elm"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "sheet-set-queen": {
+    "name": "Sheet set (queen)",
+    "category": "bedroom",
+    "costRange": [40, 200],
+    "lifespanYears": 2,
+    "brandRecs": ["Brooklinen", "Mellanni", "Target Threshold"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "sheet-set-king": {
+    "name": "Sheet set (king)",
+    "category": "bedroom",
+    "costRange": [50, 250],
+    "lifespanYears": 2,
+    "brandRecs": ["Brooklinen", "Mellanni", "Parachute"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "duvet-insert": {
+    "name": "Duvet insert (queen)",
+    "category": "bedroom",
+    "costRange": [60, 300],
+    "lifespanYears": 5,
+    "brandRecs": ["Buffy", "Brooklinen", "IKEA"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "duvet-cover": {
+    "name": "Duvet cover (queen)",
+    "category": "bedroom",
+    "costRange": [40, 180],
+    "lifespanYears": 3,
+    "brandRecs": ["Brooklinen", "Parachute", "Target Casaluna"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "pillow-standard": {
+    "name": "Pillow (standard, set of 2)",
+    "category": "bedroom",
+    "costRange": [30, 150],
+    "lifespanYears": 2,
+    "brandRecs": ["Coop Home Goods", "Beckham", "Casper"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "pillowcase-set": {
+    "name": "Pillowcase set",
+    "category": "bedroom",
+    "costRange": [15, 60],
+    "lifespanYears": 2,
+    "brandRecs": ["Mellanni", "Brooklinen", "Target"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "throw-blanket": {
+    "name": "Throw blanket",
+    "category": "living",
+    "costRange": [25, 150],
+    "lifespanYears": 4,
+    "brandRecs": ["Pendleton", "Target Threshold", "Bearaby"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "sofa": {
+    "name": "Sofa (3-seat)",
+    "category": "living",
+    "costRange": [600, 3500],
+    "lifespanYears": 7,
+    "brandRecs": ["Article", "West Elm", "IKEA"],
+    "sourceUrls": ["https://www.wirecutter.com/reviews/best-couches/"],
+    "lastVerified": "2026-05-01"
+  },
+  "sectional": {
+    "name": "Sectional sofa",
+    "category": "living",
+    "costRange": [1000, 5000],
+    "lifespanYears": 7,
+    "brandRecs": ["Article", "Burrow", "West Elm"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "armchair": {
+    "name": "Armchair / accent chair",
+    "category": "living",
+    "costRange": [200, 1500],
+    "lifespanYears": 8,
+    "brandRecs": ["Article", "Joybird", "IKEA"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "coffee-table": {
+    "name": "Coffee table",
+    "category": "living",
+    "costRange": [120, 800],
+    "lifespanYears": 10,
+    "brandRecs": ["IKEA", "Article", "CB2"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "side-table": {
+    "name": "Side table",
+    "category": "living",
+    "costRange": [60, 400],
+    "lifespanYears": 10,
+    "brandRecs": ["IKEA", "Target Threshold", "Article"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "table-lamp": {
+    "name": "Table lamp",
+    "category": "living",
+    "costRange": [40, 250],
+    "lifespanYears": 8,
+    "brandRecs": ["IKEA", "Target Threshold", "West Elm"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "floor-lamp": {
+    "name": "Floor lamp",
+    "category": "living",
+    "costRange": [60, 350],
+    "lifespanYears": 10,
+    "brandRecs": ["IKEA", "Article", "Target"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "area-rug-8x10": {
+    "name": "Area rug (8x10)",
+    "category": "living",
+    "costRange": [150, 1500],
+    "lifespanYears": 5,
+    "brandRecs": ["Ruggable", "Loloi", "Safavieh"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "throw-pillow": {
+    "name": "Throw pillow (each)",
+    "category": "living",
+    "costRange": [20, 100],
+    "lifespanYears": 3,
+    "brandRecs": ["Target Threshold", "West Elm", "IKEA"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "wall-art-print": {
+    "name": "Wall art (framed print)",
+    "category": "living",
+    "costRange": [40, 400],
+    "lifespanYears": 10,
+    "brandRecs": ["Minted", "Society6", "IKEA"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "decorative-mirror": {
+    "name": "Decorative mirror",
+    "category": "living",
+    "costRange": [60, 500],
+    "lifespanYears": 15,
+    "brandRecs": ["IKEA", "Target", "West Elm"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "55in-tv": {
+    "name": "55-inch TV",
+    "category": "electronics",
+    "costRange": [350, 1200],
+    "lifespanYears": 6,
+    "brandRecs": ["TCL", "Hisense", "LG"],
+    "sourceUrls": ["https://www.rtings.com/tv"],
+    "lastVerified": "2026-05-01"
+  },
+  "65in-tv": {
+    "name": "65-inch TV",
+    "category": "electronics",
+    "costRange": [500, 2000],
+    "lifespanYears": 6,
+    "brandRecs": ["Hisense", "LG", "Sony"],
+    "sourceUrls": ["https://www.rtings.com/tv"],
+    "lastVerified": "2026-05-01"
+  },
+  "sound-bar": {
+    "name": "Sound bar",
+    "category": "electronics",
+    "costRange": [120, 800],
+    "lifespanYears": 7,
+    "brandRecs": ["Vizio", "Sonos Beam", "Bose"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "smart-speaker": {
+    "name": "Smart speaker",
+    "category": "electronics",
+    "costRange": [40, 250],
+    "lifespanYears": 5,
+    "brandRecs": ["Amazon Echo", "Google Nest", "Sonos"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "robot-vacuum": {
+    "name": "Robot vacuum",
+    "category": "electronics",
+    "costRange": [200, 900],
+    "lifespanYears": 4,
+    "brandRecs": ["Roborock", "iRobot Roomba", "Eufy"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "wifi-router": {
+    "name": "Wi-Fi router",
+    "category": "electronics",
+    "costRange": [80, 400],
+    "lifespanYears": 5,
+    "brandRecs": ["TP-Link", "Eero", "Asus"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "cookware-set": {
+    "name": "Cookware set (10-piece)",
+    "category": "kitchen",
+    "costRange": [120, 800],
+    "lifespanYears": 8,
+    "brandRecs": ["Cuisinart", "All-Clad", "T-fal"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "knife-block-set": {
+    "name": "Knife block set",
+    "category": "kitchen",
+    "costRange": [60, 400],
+    "lifespanYears": 10,
+    "brandRecs": ["Henckels", "Wüsthof", "Cuisinart"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "dish-set": {
+    "name": "Dinnerware set (16-pc)",
+    "category": "kitchen",
+    "costRange": [60, 350],
+    "lifespanYears": 5,
+    "brandRecs": ["Corelle", "Mikasa", "IKEA"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "glassware-set": {
+    "name": "Glassware set (12-pc)",
+    "category": "kitchen",
+    "costRange": [25, 150],
+    "lifespanYears": 4,
+    "brandRecs": ["Libbey", "IKEA", "Anchor Hocking"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "mug-set": {
+    "name": "Coffee mug set (6-pc)",
+    "category": "kitchen",
+    "costRange": [20, 120],
+    "lifespanYears": 4,
+    "brandRecs": ["Crate & Barrel", "Target", "IKEA"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "coffee-maker": {
+    "name": "Coffee maker",
+    "category": "kitchen",
+    "costRange": [40, 250],
+    "lifespanYears": 4,
+    "brandRecs": ["Cuisinart", "Breville", "Mr. Coffee"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "kettle-electric": {
+    "name": "Electric kettle",
+    "category": "kitchen",
+    "costRange": [25, 150],
+    "lifespanYears": 5,
+    "brandRecs": ["Cuisinart", "Hamilton Beach", "Breville"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "toaster": {
+    "name": "Toaster",
+    "category": "kitchen",
+    "costRange": [25, 150],
+    "lifespanYears": 5,
+    "brandRecs": ["Hamilton Beach", "Cuisinart", "Breville"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "blender": {
+    "name": "Blender",
+    "category": "kitchen",
+    "costRange": [40, 400],
+    "lifespanYears": 5,
+    "brandRecs": ["Vitamix", "Ninja", "Hamilton Beach"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "dining-chair": {
+    "name": "Dining chair",
+    "category": "kitchen",
+    "costRange": [60, 300],
+    "lifespanYears": 8,
+    "brandRecs": ["IKEA", "Article", "Target"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "dining-table": {
+    "name": "Dining table (6-seat)",
+    "category": "kitchen",
+    "costRange": [300, 2000],
+    "lifespanYears": 12,
+    "brandRecs": ["IKEA", "Article", "West Elm"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "bar-stool": {
+    "name": "Bar stool",
+    "category": "kitchen",
+    "costRange": [60, 400],
+    "lifespanYears": 8,
+    "brandRecs": ["IKEA", "Article", "Target"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "towel-set": {
+    "name": "Bath towel set (6-pc)",
+    "category": "bathroom",
+    "costRange": [40, 200],
+    "lifespanYears": 3,
+    "brandRecs": ["Brooklinen", "Snowe", "Target Threshold"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "hand-towel-set": {
+    "name": "Hand towel set",
+    "category": "bathroom",
+    "costRange": [15, 80],
+    "lifespanYears": 2,
+    "brandRecs": ["Target Threshold", "Brooklinen", "Amazon Basics"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "shower-curtain": {
+    "name": "Shower curtain + liner",
+    "category": "bathroom",
+    "costRange": [25, 80],
+    "lifespanYears": 2,
+    "brandRecs": ["Amazon Basics", "Target"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "bath-mat": {
+    "name": "Bath mat",
+    "category": "bathroom",
+    "costRange": [15, 60],
+    "lifespanYears": 2,
+    "brandRecs": ["Amazon Basics", "Target"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "shower-head": {
+    "name": "Shower head",
+    "category": "bathroom",
+    "costRange": [25, 150],
+    "lifespanYears": 7,
+    "brandRecs": ["Moen", "Speakman", "Delta"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "hair-dryer": {
+    "name": "Hair dryer",
+    "category": "bathroom",
+    "costRange": [30, 250],
+    "lifespanYears": 5,
+    "brandRecs": ["Conair", "Dyson Supersonic", "Revlon"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "scale": {
+    "name": "Bathroom scale",
+    "category": "bathroom",
+    "costRange": [20, 120],
+    "lifespanYears": 7,
+    "brandRecs": ["Renpho", "EatSmart", "Withings"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "wall-paint-room": {
+    "name": "Wall repaint (one room)",
+    "category": "utility",
+    "costRange": [200, 600],
+    "lifespanYears": 5,
+    "brandRecs": ["Sherwin-Williams", "Benjamin Moore"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "drywall-repair-small": {
+    "name": "Drywall repair (small hole)",
+    "category": "utility",
+    "costRange": [80, 300],
+    "lifespanYears": 30,
+    "brandRecs": [],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "carpet-cleaning-room": {
+    "name": "Carpet deep-clean (one room)",
+    "category": "utility",
+    "costRange": [50, 200],
+    "lifespanYears": 1,
+    "brandRecs": ["Stanley Steemer", "Local cleaner"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "patio-chair": {
+    "name": "Patio chair",
+    "category": "outdoor",
+    "costRange": [80, 400],
+    "lifespanYears": 5,
+    "brandRecs": ["IKEA", "Yardbird", "Polywood"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "patio-table": {
+    "name": "Patio dining table",
+    "category": "outdoor",
+    "costRange": [200, 1500],
+    "lifespanYears": 7,
+    "brandRecs": ["Yardbird", "Polywood", "IKEA"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "grill": {
+    "name": "Outdoor grill",
+    "category": "outdoor",
+    "costRange": [200, 1500],
+    "lifespanYears": 7,
+    "brandRecs": ["Weber", "Char-Broil", "Traeger"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  }
+}
