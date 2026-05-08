@@ -1,0 +1,80 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import MaintenanceIndex from '@/components/programmatic/MaintenanceIndex.tsx';
+import { buildWebApplication } from '@/lib/seo';
+import tasksData from '@/data/tasks.json';
+import type { MaintenanceTask } from '@/lib/types';
+
+type TaskJson = Record<string, MaintenanceTask>;
+const tasks = tasksData as unknown as TaskJson;
+
+const rows = Object.entries(tasks).map(([slug, t]) => ({
+  slug,
+  name: t.name,
+  cadenceDays: t.cadenceDays,
+  season: t.season,
+  costLow: t.estimatedCostUsd[0],
+  costHigh: t.estimatedCostUsd[1],
+  skillLevel: t.skillLevel,
+}));
+
+const path = '/maintenance/';
+const jsonLd = buildWebApplication({
+  name: 'STR Maintenance Task Library',
+  description: 'How often to do every recurring STR maintenance task — HVAC, plumbing, exterior, appliances, safety, seasonal. Sortable by cadence, cost, season, and skill level.',
+  toolPath: path,
+});
+---
+<Layout
+  title="STR Maintenance Tasks — strops.tools"
+  description="How often to do every recurring short-term-rental maintenance task. 30 tasks across HVAC, plumbing, exterior, appliances, safety, and seasonal. Sortable."
+  path={path}
+  jsonLd={[jsonLd]}
+>
+  <article class="mx-auto max-w-5xl px-5 py-8">
+    <header>
+      <p class="label text-accent-deep">Free library &middot; No signup</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">
+        STR Maintenance Tasks<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2 max-w-2xl leading-snug">
+        Every task an STR forgets until something breaks. Cadence, cost, skill level, and the cost of skipping it. Click a task for the per-task page; click a header to sort.
+      </p>
+    </header>
+
+    <section class="mt-7">
+      <MaintenanceIndex client:load rows={rows} />
+    </section>
+
+    <AdSlot location="in-content" />
+
+    <section class="mt-9 prose">
+      <h2 class="font-serif text-h2 text-navy">How to use this library</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        Pick a task to see the cost-of-skipping context, the next 4 occurrences from today,
+        and (for high-traffic items) a long-form explainer. To build the full year-long
+        schedule for a property, drop these tasks into the
+        <a href="/maintenance-schedule/" class="text-accent-deep">maintenance schedule generator</a>
+        and download the PDF or .ics calendar export.
+      </p>
+    </section>
+
+    <EmailCaptureCard
+      magnet="maintenance-checklist-pdf"
+      toolSlug="maintenance-schedule"
+      headline="Free: STR Maintenance Checklist (PDF)"
+      blurb="The full task list as a printable PDF. Hand it to a property manager, tape it inside the utility-room door, send it to the cleaner."
+      cta="Send me the checklist"
+    />
+
+    <STRLedgerCTA tool="maintenance-schedule" />
+
+    <AdSlot location="footer" />
+  </article>
+
+  <ClusterFunnelBlock currentCluster="operations" />
+</Layout>
