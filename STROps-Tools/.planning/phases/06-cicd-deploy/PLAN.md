@@ -28,15 +28,15 @@
 
 ---
 
-## Task 34 — Hostinger deploy
+## Task 34 — Hostinger deploy ✅
 
-- [ ] Create `deploy/scripts/deploy-strops.ps1` at `Claude OS\deploy\scripts\` (outside repo per existing convention)
-- [ ] Parses `..\..\.secrets\hostinger.env`, supports `-WhatIf` dry-run + `-VerifyOnly`
-- [ ] Steps: `pnpm build` in `STROps-Tools/` → `ssh rm domains/strops.tools/public_html/default.php` → `scp -r dist/* user@host:domains/strops.tools/public_html/` → HTTPS 200 verify
-- [ ] Optional GA4 / ESP env injection from `hostinger.env` if present (build-time)
-- [ ] Create monorepo deploy workflow `.github/workflows/deploy-strops-tools.yml` mirroring `deploy-strhost-tools.yml` shape (rsync over SSH using `STR_SSH_KEY`)
-- [ ] Document invocation in `STROps-Tools/docs/deploy.md`
-- [ ] Commit: `feat(strops-tools): Hostinger deploy script (Phase 6 Task 34)`
+- [x] Create `deploy/scripts/deploy-strops.ps1` at `Claude OS\deploy\scripts\` (outside repo per existing convention)
+- [x] Parses `..\..\.secrets\hostinger.env`, supports `-WhatIf` dry-run + `-VerifyOnly` + `-SkipBuild` + `-ProjectRoot`
+- [x] Steps: `pnpm build` in `STROps-Tools/` → `ssh rm domains/strops.tools/public_html/default.php` → `scp -r dist/* user@host:domains/strops.tools/public_html/` → HTTPS 200 verify
+- [x] Optional GA4 / ESP env injection from `hostinger.env` if present (build-time)
+- [x] Create monorepo deploy workflow `.github/workflows/deploy-strops-tools.yml` mirroring `deploy-strhost-tools.yml` shape (rsync over SSH using `STR_SSH_KEY`)
+- [x] Document invocation in `STROps-Tools/docs/deploy.md`
+- [x] Commit: `feat(strops-tools): Hostinger deploy script (Phase 6 Task 34)`
 
 **Verify:** `-WhatIf` prints expected actions without touching server; SSH key file exists.
 

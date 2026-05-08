@@ -1,0 +1,96 @@
+name: Deploy strops.tools
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'STROps-Tools/**'
+      - '.github/workflows/deploy-strops-tools.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-strops-tools
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: STROps-Tools/pnpm-lock.yaml
+
+      - name: Install
+        working-directory: STROps-Tools
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: STROps-Tools
+        run: pnpm build
+        env:
+          PUBLIC_GA4_ID: ${{ secrets.STROPS_GA4_ID }}
+          PUBLIC_ESP_WEBHOOK: ${{ secrets.STROPS_ESP_WEBHOOK }}
+
+      - name: Verify build output
+        working-directory: STROps-Tools
+        run: |
+          test -f dist/index.html
+          test -f dist/robots.txt
+          test -d dist/og
+          echo "Build output OK"
+
+      # SSH-based deploy via the master Hostinger account u470667024 +
+      # the shared cluster SSH key in secret STR_SSH_KEY. Same pattern
+      # as strhost-tools / strguests-tools — single key for the whole
+      # cluster, sidesteps per-domain FTP sub-user provisioning.
+      - name: Set up SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STR_SSH_KEY }}
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null && echo "Key parses OK"
+          ssh-keyscan -p 65002 -t ed25519,rsa,ecdsa 195.35.15.247 >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Remove Hostinger default.php (idempotent)
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -p 65002 -o StrictHostKeyChecking=accept-new \
+            u470667024@195.35.15.247 \
+            "rm -f /home/u470667024/domains/strops.tools/public_html/default.php /home/u470667024/domains/strops.tools/public_html/default.php.old.php" || true
+
+      - name: Deploy via rsync over SSH
+        run: |
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            -e 'ssh -i ~/.ssh/id_ed25519 -p 65002 -o StrictHostKeyChecking=accept-new' \
+            ./STROps-Tools/dist/ \
+            u470667024@195.35.15.247:/home/u470667024/domains/strops.tools/public_html/
+
+      - name: Smoke check (HTTPS 200 on landing)
+        run: |
+          set -e
+          for i in 1 2 3 4 5; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "https://strops.tools/" || true)
+            echo "Attempt $i: HTTP $code"
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 5
+          done
+          echo "Smoke check failed"; exit 1
