@@ -1,0 +1,190 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AffiliateCard from '@/components/affiliate/AffiliateCard.astro';
+import { buildArticle, buildWebApplication } from '@/lib/seo';
+import itemsData from '@/data/items.json';
+import type { ReplacementItem } from '@/lib/types';
+
+type ItemJson = Record<string, ReplacementItem>;
+const items = itemsData as unknown as ItemJson;
+
+const narrativeMdx = import.meta.glob<{ default: any }>('/src/content/replacement/*.mdx', { eager: true });
+
+export async function getStaticPaths() {
+  const data = itemsData as unknown as ItemJson;
+  return Object.entries(data).map(([slug, item]) => ({
+    params: { slug },
+    props: { slug, item },
+  }));
+}
+
+interface Props { slug: string; item: ReplacementItem; }
+
+const { slug, item } = Astro.props as Props;
+const Narrative = narrativeMdx[`/src/content/replacement/${slug}.mdx`]?.default;
+const path = `/replace/${slug}`;
+
+// Vendor rotation by category — keep affiliate placements relevant.
+type VendorKey = 'hostfully' | 'hospitable' | 'ownerrez' | 'turno';
+const vendorByCategory: Record<string, VendorKey> = {
+  bedroom: 'hostfully',
+  living: 'hospitable',
+  kitchen: 'turno',
+  bathroom: 'turno',
+  electronics: 'ownerrez',
+  outdoor: 'ownerrez',
+  utility: 'hostfully',
+};
+const vendor: VendorKey = vendorByCategory[item.category] ?? 'hostfully';
+
+const low = item.costRange[0];
+const high = item.costRange[1];
+const mid = Math.round((low + high) / 2);
+const costLabel = `$${low}–$${high}`;
+const midLabel = `$${mid}`;
+
+// Buyer's-eye guidance per category.
+const buyerNotesByCategory: Record<string, string> = {
+  bedroom: 'For STR use, target the mid range. Low-end bedroom items wear out before depreciation kicks in; high-end items get damaged on guest 100 with no extra return on review scores. The sweet spot is durable, washable, and on a 5–8 year replacement cycle.',
+  living: 'Living-room pieces show up in every listing photo. Pick high-contrast neutrals that survive both staging and stains — performance fabric on upholstery is non-negotiable for STR use. Mid-tier durable beats high-tier delicate every time.',
+  kitchen: 'Guests notice kitchenware more than hosts do — chipped plates and dull knives consistently surface in cleanliness reviews. Buy mid-range, replace on a 4-year cycle, and keep a backup set of 6 of every plate/glass/utensil for breakage.',
+  bathroom: 'Bathroom items rotate fast in an STR. Mildew on grout, stains on towels, and a hair dryer that smells like burning are all guaranteed if you skip the 2-year replacement cycle. Buy in bulk; replace half each year.',
+  electronics: 'TVs, sound bars, and speakers age fast in firmware support but slow in physical wear. Buy current-generation mid-tier from a reliable brand — 6 years of firmware updates beats 3 years of premium-tier obsolescence.',
+  outdoor: 'Outdoor gear weathers fast. Aluminum + powder-coat survives 5+ seasons; wicker fades in 2. Polywood is the highest-value outdoor pick if your aesthetic supports it.',
+  utility: 'Repaints, carpet cleans, and drywall fixes are fast-turn cosmetic recoveries. Schedule them between long bookings and pair with the deep clean (every 90 days).',
+};
+const buyerNotes = buyerNotesByCategory[item.category] ?? buyerNotesByCategory.utility;
+
+const lifespanLabel = `${item.lifespanYears} year${item.lifespanYears === 1 ? '' : 's'}`;
+
+const related = Object.entries(items)
+  .filter(([k, i]) => k !== slug && i.category === item.category)
+  .slice(0, 4)
+  .map(([k, i]) => ({
+    key: k,
+    name: i.name,
+    costRange: `$${i.costRange[0]}–$${i.costRange[1]}`,
+  }));
+
+const jsonLd = Narrative
+  ? [buildArticle({ headline: `${item.name} — STR replacement cost`, description: `Replacement cost ${costLabel}; lifespan ${lifespanLabel}.`, slug: `replace-${slug}`, datePublished: item.lastVerified })]
+  : [buildWebApplication({ name: `${item.name} — STR replacement cost`, description: `Replacement cost ${costLabel}; lifespan ${lifespanLabel}.`, toolPath: path })];
+
+const lookupHref = `/damage-cost-lookup/?focus=${encodeURIComponent(slug)}`;
+const layoutTitle = `Cost to replace ${item.name.toLowerCase()} in an Airbnb · strops.tools`;
+const layoutDescription = `Typical replacement cost ${costLabel}. Lifespan ${lifespanLabel}. Brand recs: ${item.brandRecs.join(', ') || 'see page'}.`;
+---
+<Layout title={layoutTitle} description={layoutDescription} path={path} jsonLd={jsonLd}>
+  <article class="mx-auto max-w-3xl px-5 py-8">
+    <header>
+      <p class="label text-accent-deep">
+        <a href="/replace/" class="no-underline hover:underline">Replacement costs</a>
+        <span class="mx-1 text-ink-3" aria-hidden="true">&rsaquo;</span>
+        <span class="capitalize">{item.category}</span>
+      </p>
+      <h1 class="mt-2 font-serif text-h1 text-navy leading-tight">
+        {item.name}<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2 leading-snug">
+        Typical replacement {costLabel}. Lifespan {lifespanLabel}.
+      </p>
+      <p class="mt-1 text-caption text-ink-3 font-mono">
+        Last verified <time datetime={item.lastVerified}>{item.lastVerified}</time>
+      </p>
+    </header>
+
+    <section class="mt-7 grid grid-cols-3 gap-3" aria-labelledby="cost-tier-label">
+      <h2 id="cost-tier-label" class="sr-only">Cost tiers</h2>
+      <div class="rounded-md border border-rule bg-parchment-light p-4">
+        <p class="text-caption text-ink-3 uppercase tracking-widest">Low</p>
+        <p class="mt-1 text-h3 font-serif text-navy num">${low}</p>
+        <p class="mt-1 text-caption text-ink-3 leading-snug">Fast-replace tier — IKEA / Amazon basics.</p>
+      </div>
+      <div class="rounded-md border border-accent bg-parchment-light p-4">
+        <p class="text-caption text-accent-deep uppercase tracking-widest">Mid (recommended)</p>
+        <p class="mt-1 text-h3 font-serif text-navy num">{midLabel}</p>
+        <p class="mt-1 text-caption text-ink-3 leading-snug">STR sweet spot — durable, replaces on cycle.</p>
+      </div>
+      <div class="rounded-md border border-rule bg-parchment-light p-4">
+        <p class="text-caption text-ink-3 uppercase tracking-widest">High</p>
+        <p class="mt-1 text-h3 font-serif text-navy num">${high}</p>
+        <p class="mt-1 text-caption text-ink-3 leading-snug">Guest-facing premium tier.</p>
+      </div>
+    </section>
+
+    <section class="mt-7" aria-labelledby="what-to-look-for">
+      <h2 id="what-to-look-for" class="font-serif text-h2 text-navy">What to look for</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">{buyerNotes}</p>
+    </section>
+
+    {item.brandRecs.length > 0 && (
+      <section class="mt-7" aria-labelledby="brand-recs">
+        <h2 id="brand-recs" class="font-serif text-h2 text-navy">Brand picks for STR use</h2>
+        <ul class="mt-3 list-disc pl-5 space-y-1 text-body text-ink-2">
+          {item.brandRecs.map(b => (<li>{b}</li>))}
+        </ul>
+      </section>
+    )}
+
+    <aside class="mt-8 rounded-md surface-navy p-6 print:hidden">
+      <p class="label" style="color: var(--accent-500);">Look up another item</p>
+      <p class="mt-2 font-serif text-h3 text-parchment leading-snug">
+        Search the full damage-cost catalog — 56 items, sortable by category and cost.
+      </p>
+      <a
+        href={lookupHref}
+        class="mt-4 inline-flex items-center gap-2 rounded-md text-navy px-5 py-2.5 text-ui no-underline hover:opacity-90 transition-opacity duration-std"
+        style="background: var(--accent-500);"
+      >
+        Open the cost lookup tool <span aria-hidden="true">&rarr;</span>
+      </a>
+    </aside>
+
+    {Narrative && (
+      <section class="mt-9 prose">
+        <Narrative />
+      </section>
+    )}
+
+    <AffiliateCard vendor={vendor} tool="damage-cost-lookup" />
+
+    <AdSlot location="in-content" />
+
+    {related.length > 0 && (
+      <section class="mt-9" aria-labelledby="related-label">
+        <h2 id="related-label" class="label text-navy">More <span class="capitalize">{item.category}</span> replacements</h2>
+        <ul class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 list-none p-0">
+          {related.map(r => (
+            <li>
+              <a
+                href={`/replace/${r.key}`}
+                class="block group rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-accent hover:shadow-card transition-all duration-std"
+              >
+                <p class="text-ui text-navy group-hover:text-accent-deep font-semibold">{r.name}</p>
+                <p class="mt-1 text-caption text-ink-2 leading-snug">{r.costRange}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <EmailCaptureCard
+      magnet="maintenance-checklist-pdf"
+      toolSlug="damage-cost-lookup"
+      headline="Free: STR Damage Cost Reference (PDF)"
+      blurb="The full cost catalog plus the resolution-center playbook for filing claims with Airbnb. Ops-tested."
+      cta="Send me the reference"
+    />
+
+    <STRLedgerCTA tool="damage-cost-lookup" />
+
+    <AdSlot location="footer" />
+  </article>
+
+  <ClusterFunnelBlock currentCluster="operations" />
+</Layout>

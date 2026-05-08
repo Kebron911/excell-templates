@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 3 — Programmatic pages (maintenance + replacement)
-**Current task:** In progress — Task 22 (Replacement programmatic pages)
+**Current task:** In progress — Task 23 (Replacement index)
 **Last update:** 2026-05-07
 
 ---
@@ -13,7 +13,7 @@
 - [x] Task 19 — Maintenance index
 - [x] Task 20 — Maintenance MDX collection (5 samples)
 - [x] Task 21 — Replacement data expansion (items.json, 56 entries)
-- [ ] Task 22 — Replacement programmatic pages
+- [x] Task 22 — Replacement programmatic pages (56 routes)
 - [ ] Task 23 — Replacement index
 - [ ] Task 24 — Replacement MDX collection (5 samples)
 
