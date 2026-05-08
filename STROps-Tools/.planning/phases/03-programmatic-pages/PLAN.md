@@ -217,5 +217,5 @@ After all tasks: update STATE.md (phase 3 complete, current phase = 4, current t
 - [x] Task 20 — Maintenance MDX collection (5 samples)
 - [x] Task 21 — Replacement data expansion (`items.json`)
 - [x] Task 22 — Replacement programmatic pages
-- [ ] Task 23 — Replacement index
+- [x] Task 23 — Replacement index
 - [ ] Task 24 — Replacement MDX collection (5 samples)

@@ -1,0 +1,85 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import ReplacementIndex from '@/components/programmatic/ReplacementIndex.tsx';
+import { buildWebApplication } from '@/lib/seo';
+import itemsData from '@/data/items.json';
+import type { ReplacementItem } from '@/lib/types';
+
+type ItemJson = Record<string, ReplacementItem>;
+const items = itemsData as unknown as ItemJson;
+
+const rows = Object.entries(items).map(([slug, i]) => ({
+  slug,
+  name: i.name,
+  category: i.category,
+  costLow: i.costRange[0],
+  costHigh: i.costRange[1],
+  lifespanYears: i.lifespanYears,
+}));
+
+const path = '/replace/';
+const jsonLd = buildWebApplication({
+  name: 'STR Replacement Cost Reference',
+  description: 'What it costs to replace common short-term rental items: mattresses, sofas, TVs, linens, kitchenware, electronics. Sortable by category, cost, and lifespan.',
+  toolPath: path,
+});
+---
+<Layout
+  title="STR Replacement Costs — strops.tools"
+  description="What it costs to replace common short-term rental items. 56 items across bedroom, living, kitchen, bathroom, electronics, outdoor, and utility. Sortable."
+  path={path}
+  jsonLd={[jsonLd]}
+>
+  <article class="mx-auto max-w-5xl px-5 py-8">
+    <header>
+      <p class="label text-accent-deep">Free reference &middot; No signup</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">
+        STR Replacement Costs<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2 max-w-2xl leading-snug">
+        What it costs to replace what guests break, age, or stain. Click an item for cost-tier breakdown and brand picks; click a header to sort.
+      </p>
+    </header>
+
+    <section class="mt-7">
+      <ReplacementIndex client:load rows={rows} />
+    </section>
+
+    <AdSlot location="in-content" />
+
+    <section class="mt-9 prose">
+      <h2 class="font-serif text-h2 text-navy">How to use this reference</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        For every item, the per-page entry shows three cost tiers (low / mid / high) plus
+        STR-specific brand picks. Use the
+        <a href="/damage-cost-lookup/" class="text-accent-deep">damage cost lookup tool</a>
+        when you're filing a guest damage claim with Airbnb's Resolution Center — it lets you
+        search and filter the same data for the claim deadline.
+      </p>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        Replacement timing matters: Airbnb adjusts claim payouts based on the lifespan
+        column. A mattress with a documented 8-year lifespan that's 6 years old when ruined
+        will get reimbursed at roughly 25% of the high tier. Document install dates on every
+        capital item — your maintenance log is your claim evidence.
+      </p>
+    </section>
+
+    <EmailCaptureCard
+      magnet="maintenance-checklist-pdf"
+      toolSlug="damage-cost-lookup"
+      headline="Free: STR Damage Cost Reference (PDF)"
+      blurb="The full cost catalog plus the resolution-center playbook for filing claims with Airbnb. Ops-tested."
+      cta="Send me the reference"
+    />
+
+    <STRLedgerCTA tool="damage-cost-lookup" />
+
+    <AdSlot location="footer" />
+  </article>
+
+  <ClusterFunnelBlock currentCluster="operations" />
+</Layout>
