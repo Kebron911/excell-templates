@@ -1,0 +1,183 @@
+# Cluster Blog Standard
+
+**Status:** active. Reference implementation: [STRHost-Tools](../STRHost-Tools).
+
+This doc defines how `/blog` is built across the four-site STR cluster (strhost / strguests / strbuyers / strops). One standard, one mental model, one set of muscle memory across sites.
+
+If you're building a sister site's blog, read this doc and copy the strhost-tools shape — don't invent a parallel structure.
+
+---
+
+## Why a standard
+
+Each site in the cluster has different tools and a different brand voice, but the **mechanics of a blog are the same**: posts as MDX, listing page, post template, RSS, OG images, internal linking to tools, cross-site links to the other cluster sites, deploy + IndexNow + sitemap submission. Re-deciding any of this per site is wasted effort.
+
+When all four sites share the same blog conventions, three things follow:
+1. A reader who hops cluster→cluster sees the same UX.
+2. Cross-linking from blog to blog works without per-site special cases.
+3. Updating a pattern (e.g. switching to MDX v3, adding tag pages) takes one change applied four times, not four ground-up rewrites.
+
+---
+
+## Required surfaces
+
+Every cluster site's blog must ship these. Names and paths are normative.
+
+| Surface | Path | Notes |
+|---|---|---|
+| Blog index | `/blog/` | Lists all posts newest-first. Has RSS subscribe link in hero. |
+| Post template | `/blog/<slug>/` | Renders one MDX post. Article JSON-LD, prev/next nav, tool deep-links, email capture, STR Ledger CTA, cluster funnel band. |
+| RSS feed | `/feed.xml` | Generated from posts collection. Autodiscovery `<link>` in `<head>` of every page. Visible footer link. |
+| Sitemap inclusion | `/sitemap-0.xml` | Astro sitemap integration picks up `/blog/*` automatically. |
+| OG images | `/og/blog.png`, `/og/blog-<slug>.png` | One per route. Built by `scripts/build-og.mjs` reading frontmatter. |
+| IndexNow verification | `/<key>.txt` | Filename = key. Required for IndexNow auto-submission. |
+| Homepage notebook surface | `/` | Latest 3 posts in a "From the notebook" section before the lead magnet. |
+| Tool-page deep links | `/<tool>/` | `RelatedPosts` component renders 1–2 cards per tool, ranked by `relatedTools` index. |
+
+---
+
+## Required files
+
+```
+src/
+├── content.config.ts              # declares 'posts' collection (see schema below)
+├── content/
+│   └── posts/
+│       └── *.mdx                  # the posts themselves
+├── components/
+│   └── funnel/
+│       └── RelatedPosts.astro     # tool→blog deep-link component
+└── pages/
+    ├── blog/
+    │   ├── index.astro            # listing page
+    │   └── [slug].astro           # post template (Article LD, prev/next, related tools)
+    └── feed.xml.ts                # RSS feed
+public/
+├── .htaccess                      # cache rules + trailing-slash + LSCache opt-out for HTML
+└── <indexnow-key>.txt             # IndexNow verification (filename matches the key)
+scripts/
+├── build-og.mjs                   # extends to render OG for blog routes (frontmatter-driven)
+└── indexnow-submit.mjs            # post-deploy IndexNow ping
+```
+
+A `.github/workflows/deploy-<site>-tools.yml` runs the deploy + IndexNow on every push to `main`.
+
+---
+
+## Content collection schema
+
+Posts use this exact frontmatter contract — sister sites are free to extend, never to remove:
+
+```ts
+// content.config.ts
+const posts = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/posts' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    datePublished: z.string(),         // ISO date YYYY-MM-DD
+    dateModified: z.string().optional(),
+    author: z.string().default('The STR Ledger'),
+    category: z.enum([
+      'math',           // strhost.tools
+      'operations',     // strops.tools
+      'tax',            // strhost.tools
+      'guest-xp',       // strguests.tools
+      'acquisition',    // strbuyers.tools
+    ]),
+    keyword: z.string(),                // primary SEO target
+    relatedTools: z.array(z.string()).default([]),  // matches keys in src/data/tools.json
+    readMinutes: z.number().int().positive(),
+  }),
+});
+```
+
+The `category` enum is shared across the whole cluster. A guest-xp post on strhost.tools would be unusual but valid — it just means cross-cluster syndication is straightforward.
+
+The `relatedTools` array drives:
+- `RelatedPosts` cards on tool pages (which posts to show)
+- "Calculators in this post" cards on the post page
+
+Rank-0 entry = primary deep-dive. Subsequent entries = secondary related tools.
+
+---
+
+## RelatedPosts ranking
+
+```
+Posts where toolKey is the FIRST relatedTools entry  →  rank 0  →  shown first
+Posts where toolKey is the SECOND relatedTools entry →  rank 1  →  shown after rank 0
+…
+Within a rank tier, newer post wins.
+```
+
+Component picks the top 2.
+
+---
+
+## Cross-site link contract
+
+Every post body should naturally link to:
+- 1+ on-site calculators (relatedTools maps these to the structured cards too)
+- All 4 sister cluster sites: `thestrledger.com`, `strbuyers.tools`, `strops.tools`, `strguests.tools` — replace the current site's own host with itself
+- 1+ specific blog post on another site if a topical link exists (e.g. a strhost.tools post on lodging tax can link to a strbuyers.tools post on market selection)
+
+The cluster funnel band at the bottom of the post handles cluster discovery automatically — but in-body links carry more SEO weight than card links.
+
+---
+
+## Per-site customization points
+
+When applying this standard to a new sister site, only these change:
+
+| Customization | Where | Example values |
+|---|---|---|
+| Site name | `Layout.astro` site_name meta + RSS feed `<title>` | `strhost.tools`, `strguests.tools` |
+| Brand voice in copy | Blog post bodies | strhost = editorial-finance; strguests = warm hospitality; strops = utility-ops; strbuyers = analyst |
+| Default category | Post template heading mapping | strhost defaults to `math`; strguests to `guest-xp`; etc. |
+| Cluster identifier | `ClusterFunnelBlock` `currentCluster` prop | `math`, `guest-xp`, `operations`, `acquisition` |
+| RSS title + description | `feed.xml.ts` | site-specific copy |
+| OG image fallback brand colors | `scripts/build-og.mjs` BRAND const | each site's palette |
+| Tools that posts can link to | `relatedTools` values | matches that site's `data/tools.json` keys |
+
+Everything else — schema, paths, component contracts, deploy + IndexNow + RSS mechanics — is identical.
+
+---
+
+## Deploy + indexing
+
+Every cluster site's deploy workflow runs the same post-build pipeline:
+
+1. `pnpm build` → static site + sitemap + 50–80 OG PNGs
+2. FTPS upload to Hostinger doc root (chroot-corrected per [DEPLOY.md](../STRHost-Tools/docs/DEPLOY.md))
+3. POST sitemap URLs to IndexNow → Bing/Yandex/Seznam/Naver (Google needs manual GSC submission per ROADMAP PL-1)
+4. Soft-fail on IndexNow → site stays live even if API hiccups
+
+Per-site GitHub secrets follow the pattern `<SITE>_FTP_HOST`, `<SITE>_FTP_USER`, `<SITE>_FTP_PASS`, `<SITE>_FTP_PORT`, `<SITE>_DOC_ROOT`. Single source of truth: `~/Desktop/Claude OS/.secrets/hostinger.env`.
+
+---
+
+## Anti-patterns
+
+Do not:
+
+- **Build a separate "blog only" deploy.** The site builds and deploys atomically; blog is just more pages.
+- **Use a CMS.** Posts are MDX in the repo. Editorial review = git PR. Saves auth, hosting, sync, drift, security surface.
+- **Re-implement RelatedPosts.** Copy `src/components/funnel/RelatedPosts.astro` from strhost-tools verbatim. The ranking algorithm is non-obvious and worth keeping uniform.
+- **Skip IndexNow.** Free, fast indexing is the highest-leverage post-deploy step. Wire it from day one.
+- **Use one OG image for all blog posts.** Each post gets its own `blog-<slug>.png` driven by frontmatter. Unique previews compound social shares.
+- **Make the blog its own subdomain.** `blog.example.com` splits authority and breaks internal-link equity.
+
+---
+
+## Site state
+
+| Site | Status | Blog applied? | Notes |
+|---|---|---|---|
+| strhost.tools | live | ✅ 2026-05-07 | reference implementation |
+| strguests.tools | live | ✅ 2026-05-07 | applied per this standard |
+| strbuyers.tools | placeholder | — | apply when site is built |
+| strops.tools | placeholder | — | apply when site is built |
+| thestrledger.com | live (separate) | — | brand site; blog optional |
+
+When `strbuyers.tools` or `strops.tools` are built, they MUST follow this standard. The doc layout, file paths, schema, and workflow are not optional details.

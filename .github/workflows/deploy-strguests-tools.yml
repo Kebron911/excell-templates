@@ -1,0 +1,91 @@
+name: Deploy strguests.tools
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'STRGuests-Tools/**'
+      - '.github/workflows/deploy-strguests-tools.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-strguests-tools
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: STRGuests-Tools/pnpm-lock.yaml
+
+      - name: Install
+        working-directory: STRGuests-Tools
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: STRGuests-Tools
+        run: pnpm build
+        env:
+          PUBLIC_GA4_ID: ${{ secrets.STRGUESTS_GA4_ID }}
+
+      - name: Verify build output
+        working-directory: STRGuests-Tools
+        run: |
+          test -f dist/index.html
+          test -f dist/blog/index.html
+          test -f dist/feed.xml
+          echo "Build output OK"
+
+      # Same domain-scoped FTP chroot pattern as strhost — strip the
+      # SSH-style /home/<user>/domains/<domain>/ prefix so files land in
+      # /public_html/, not in a deeply-nested mirror inside the chroot.
+      # See docs/CLUSTER-BLOG-STANDARD.md and STRHost-Tools/docs/DEPLOY.md.
+      - name: Normalize server-dir
+        id: server_dir
+        shell: bash
+        env:
+          RAW_DIR: ${{ secrets.STRGUESTS_DOC_ROOT }}
+        run: |
+          DIR=$(printf '%s' "$RAW_DIR" | tr -d '\r\n[:space:]')
+          DIR=$(printf '%s' "$DIR" | sed -E 's#^/home/[^/]+/domains/[^/]+##')
+          [[ "$DIR" != /* ]] && DIR="/$DIR"
+          DIR="${DIR%/}/"
+          printf 'value=%s\n' "$DIR" >> "$GITHUB_OUTPUT"
+
+      - name: Deploy to Hostinger via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.STRGUESTS_FTP_HOST }}
+          username: ${{ secrets.STRGUESTS_FTP_USER }}
+          password: ${{ secrets.STRGUESTS_FTP_PASS }}
+          port: ${{ secrets.STRGUESTS_FTP_PORT }}
+          protocol: ftps
+          local-dir: ./STRGuests-Tools/dist/
+          server-dir: ${{ steps.server_dir.outputs.value }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+          state-name: .ftp-deploy-sync-state.json
+          dry-run: false
+          log-level: standard
+
+      # IndexNow auto-submit — fans out to Bing/Yandex/Seznam/Naver.
+      - name: Notify IndexNow
+        continue-on-error: true
+        run: node STRGuests-Tools/scripts/indexnow-submit.mjs

@@ -51,6 +51,9 @@ const lds = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     {/* Favicon — placeholder svg until brand asset arrives */}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
+    {/* RSS autodiscovery — feed readers pick this up from any page. */}
+    <link rel="alternate" type="application/rss+xml" title="STR Guests Tools — Blog" href="/feed.xml" />
+
     {/* JSON-LD */}
     <script is:inline type="application/ld+json" set:html={JSON.stringify(orgLd)} />
     {lds.map(ld => (
