@@ -59,7 +59,7 @@
   - Verify: `pnpm build` produces all 3 routes; PDFs accessible via `dist/pdf/*.pdf`.
   - Commit: `feat(strops-tools): lead magnet pages — cleaner SOP, supply par, maintenance checklist (Phase 4 Task 26)`
 
-- [ ] **Task 27 — Production landing page**
+- [x] **Task 27 — Production landing page**
   - Replace existing throwaway landing at `src/pages/index.astro` (currently has Phase 1 verification preview).
   - Hero per Cluster Style Guide §4: short Cormorant H1 with accent period, one Inter lede, no CTA buttons in hero.
   - 7-tool grid (3 col lg / 2 sm / 1 xs) consuming `tools.json`.
