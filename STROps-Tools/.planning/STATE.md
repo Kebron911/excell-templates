@@ -1,7 +1,7 @@
 # STATE
 
-**Current phase:** 3 — Programmatic pages (maintenance + replacement)
-**Current task:** In progress — Task 24 (Replacement MDX collection)
+**Current phase:** 4 — Site pages, lead magnets, SEO surface
+**Current task:** Not yet started (Task 25: tools.json registry)
 **Last update:** 2026-05-07
 
 ---
@@ -15,7 +15,9 @@
 - [x] Task 21 — Replacement data expansion (items.json, 56 entries)
 - [x] Task 22 — Replacement programmatic pages (56 routes)
 - [x] Task 23 — Replacement index
-- [ ] Task 24 — Replacement MDX collection (5 samples)
+- [x] Task 24 — Replacement MDX collection (5 samples)
+
+**Phase 3 complete: 8/8 tasks. 2026-05-07.**
 
 ---
 
