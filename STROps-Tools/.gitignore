@@ -1,0 +1,22 @@
+# build outputs
+dist/
+.astro/
+
+# deps
+node_modules/
+
+# testing
+playwright-report/
+test-results/
+coverage/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# editor
+.DS_Store
+.vscode/
+.idea/
+*.log

@@ -1,0 +1,46 @@
+{
+  "name": "strops-tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "typecheck": "astro check && tsc --noEmit",
+    "lint": "echo \"lint placeholder\""
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^3.1.5",
+    "@astrojs/react": "^3.6.2",
+    "@astrojs/sitemap": "^3.2.1",
+    "@astrojs/tailwind": "^5.1.2",
+    "astro": "^4.16.0",
+    "ics": "^3.8.1",
+    "pdf-lib": "^1.17.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@playwright/test": "^1.47.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/node": "^22.7.0",
+    "@types/react": "^18.3.10",
+    "@types/react-dom": "^18.3.0",
+    "@vitest/ui": "^2.1.1",
+    "autoprefixer": "^10.4.20",
+    "playwright": "^1.47.0",
+    "postcss": "^8.4.47",
+    "satori": "^0.11.0",
+    "sharp": "^0.33.5",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.1"
+  },
+  "packageManager": "pnpm@10.0.0"
+}
