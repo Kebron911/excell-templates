@@ -1,0 +1,114 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import AdSlot from '@components/ads/AdSlot.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import { howToJsonLd, faqJsonLd } from '@lib/seo';
+import { getEntry } from 'astro:content';
+import itemsData from '@data/items.json';
+import type { ItemCatalog } from '@lib/types';
+
+const items = itemsData as unknown as ItemCatalog;
+
+export async function getStaticPaths() {
+  const data = (await import('@data/items.json')).default as unknown as ItemCatalog;
+  return Object.keys(data).map((slug) => ({ params: { item: slug } }));
+}
+
+const { item } = Astro.params;
+const it = items[item!]!;
+const url = `https://strops.tools/replace/${item}/`;
+const lowerName = it.name.toLowerCase();
+const narrative = await getEntry('replacement', item!);
+const NarrativeContent = narrative ? (await narrative.render()).Content : null;
+
+const faqs = [
+  {
+    q: `How much does it cost to replace a ${lowerName} in a rental?`,
+    a: `Typical range $${it.costRange[0]}–$${it.costRange[1]} depending on brand and quality tier.`,
+  },
+  {
+    q: `How long does a ${lowerName} last in a short-term rental?`,
+    a: `~${it.lifespanYears} years under high-turnover use; expect the lower end if you host more than 200 guest-nights a year.`,
+  },
+  {
+    q: 'Which brands hold up best in STR conditions?',
+    a: `Operators we trust use ${it.brandRecs.join(', ')}.`,
+  },
+];
+
+const steps = [
+  { name: 'Confirm the spec', text: 'Match the size, voltage, or capacity of what you are replacing.' },
+  { name: 'Order one tier above retail-grade', text: 'STR turnover is harder than typical residential use.' },
+  { name: 'Log it in your capex tracker', text: 'Date, cost, and expected lifespan — drives accurate depreciation.' },
+];
+---
+<Layout
+  title={`Cost to replace a ${lowerName} in a rental`}
+  description={`Replacement cost, lifespan, and brand recommendations for ${lowerName} in a short-term rental.`}
+  canonical={url}
+>
+  <Fragment slot="head">
+    <JsonLd data={[
+      howToJsonLd({ name: `Replace a ${lowerName} in an STR`, description: 'Replacement steps and capex hygiene.', steps }),
+      faqJsonLd(faqs),
+    ]} />
+  </Fragment>
+  <article class="prose mx-auto max-w-3xl px-6 py-10">
+    <h1>Cost to replace a {lowerName} in a short-term rental</h1>
+    <p class="lead">
+      ${it.costRange[0]}–${it.costRange[1]} typical range. {it.lifespanYears}-year lifespan under STR conditions.
+    </p>
+
+    {NarrativeContent ? (
+      <>
+        <NarrativeContent />
+        <AdSlot location="in-content" />
+      </>
+    ) : (
+      <>
+        <h2>Cost range</h2>
+        <p>
+          ${it.costRange[0]} on the low end gets you a serviceable retail-grade option;
+          ${it.costRange[1]} buys an STR-grade unit that survives the third year.
+        </p>
+
+        <AdSlot location="in-content" />
+
+        <h2>Lifespan in an STR</h2>
+        <p>
+          ~{it.lifespanYears} years. STR-grade abuse cuts residential lifespans by 20-40% — high turnover,
+          variable users, and constant cleaning chemicals add up.
+        </p>
+
+        <h2>Brands we trust</h2>
+        <ul>
+          {it.brandRecs.map((b) => <li>{b}</li>)}
+        </ul>
+
+        <h2>How to replace</h2>
+        <ol>
+          {steps.map((s) => <li><strong>{s.name}.</strong> {s.text}</li>)}
+        </ol>
+
+        <h2>Category</h2>
+        <p>{it.category} — file the receipt under that category in your capex log.</p>
+      </>
+    )}
+
+    <EmailCaptureCard magnet="maintenance-checklist" tool={`replace-${item}`} />
+
+    <h2>FAQ</h2>
+    {faqs.map((f) => (
+      <div>
+        <h3>{f.q}</h3>
+        <p>{f.a}</p>
+      </div>
+    ))}
+
+    <STRLedgerCTA tool="damage-cost-lookup" />
+
+    <p class="text-ink3 text-xs">Last verified {it.lastVerified}.</p>
+  </article>
+</Layout>
