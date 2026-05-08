@@ -1,0 +1,93 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import tasksData from '@data/tasks.json';
+import type { TaskCatalog } from '@lib/types';
+
+const tasks = tasksData as unknown as TaskCatalog;
+const list = Object.entries(tasks).sort(([, a], [, b]) => a.cadenceDays - b.cadenceDays);
+const url = 'https://strops.tools/maintenance/';
+---
+<Layout
+  title="Airbnb maintenance schedule by task"
+  description="How often to perform every maintenance task in a short-term rental, with costs and consequences."
+  canonical={url}
+>
+  <article class="prose mx-auto max-w-4xl px-6 py-10">
+    <h1>Maintenance index</h1>
+    <p class="lead">
+      {list.length} tasks every active operator should track. Sorted by cadence (most frequent first).
+      Click any column header to re-sort.
+    </p>
+
+    <table class="w-full text-sm" data-sortable>
+      <thead>
+        <tr class="text-ink3 text-left">
+          <th><button type="button" data-sort="name" class="font-semibold underline-offset-4 hover:underline">Task</button></th>
+          <th><button type="button" data-sort="cadenceDays" class="font-semibold underline-offset-4 hover:underline">Every</button></th>
+          <th><button type="button" data-sort="cost" class="font-semibold underline-offset-4 hover:underline">Cost</button></th>
+          <th><button type="button" data-sort="skill" class="font-semibold underline-offset-4 hover:underline">Skill</button></th>
+          <th><button type="button" data-sort="season" class="font-semibold underline-offset-4 hover:underline">Season</button></th>
+        </tr>
+      </thead>
+      <tbody>
+        {list.map(([slug, t]) => (
+          <tr
+            class="border-t border-rule"
+            data-name={t.name}
+            data-cadence={t.cadenceDays}
+            data-cost={t.estimatedCostUsd[0]}
+            data-skill={t.skillLevel}
+            data-season={t.season}
+          >
+            <td><a href={`/maintenance/${slug}/`} class="underline decoration-accent underline-offset-4">{t.name}</a></td>
+            <td class="num">{t.cadenceDays}d</td>
+            <td class="num">${t.estimatedCostUsd[0]}–${t.estimatedCostUsd[1]}</td>
+            <td>{t.skillLevel}</td>
+            <td>{t.season}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </article>
+
+  <script>
+    type Key = 'name' | 'cadenceDays' | 'cost' | 'skill' | 'season';
+    const table = document.querySelector<HTMLTableElement>('table[data-sortable]');
+    if (table) {
+      const tbody = table.querySelector('tbody')!;
+      const baseRows = Array.from(tbody.querySelectorAll<HTMLTableRowElement>('tr'));
+      let activeKey: Key | null = null;
+      let asc = true;
+
+      function valueOf(row: HTMLTableRowElement, key: Key): string | number {
+        if (key === 'cadenceDays') return Number(row.dataset.cadence);
+        if (key === 'cost') return Number(row.dataset.cost);
+        if (key === 'name') return row.dataset.name ?? '';
+        if (key === 'skill') return row.dataset.skill ?? '';
+        if (key === 'season') return row.dataset.season ?? '';
+        return '';
+      }
+
+      table.querySelectorAll<HTMLButtonElement>('button[data-sort]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.sort as Key;
+          if (activeKey === key) {
+            asc = !asc;
+          } else {
+            activeKey = key;
+            asc = true;
+          }
+          const rows = baseRows.slice().sort((a, b) => {
+            const av = valueOf(a, key);
+            const bv = valueOf(b, key);
+            if (typeof av === 'number' && typeof bv === 'number') return asc ? av - bv : bv - av;
+            return asc
+              ? String(av).localeCompare(String(bv))
+              : String(bv).localeCompare(String(av));
+          });
+          tbody.replaceChildren(...rows);
+        });
+      });
+    }
+  </script>
+</Layout>
