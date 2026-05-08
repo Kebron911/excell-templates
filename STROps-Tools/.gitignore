@@ -1,6 +1,7 @@
 # build outputs
 dist/
 .astro/
+public/og/*.png
 
 # deps
 node_modules/

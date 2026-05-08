@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "astro dev",
     "build:magnets": "node scripts/build-stub-magnets.mjs",
+    "build:og": "node scripts/build-og.mjs",
+    "prebuild": "node scripts/build-og.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
