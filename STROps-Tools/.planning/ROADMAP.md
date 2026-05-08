@@ -4,7 +4,7 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 
 ---
 
-## Phase 1 — Foundation `[active]`
+## Phase 1 — Foundation `[complete]`
 
 **Goal:** Bootable Astro site with brand tokens (ops-utility accent), layout primitives, monetization primitives (incl. AffiliateCard + PdfDownloadButton), URL-state, format, SEO, and the **PDF library** with brand chrome.
 
@@ -90,9 +90,9 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 
 | Phase | Status | Started | Completed |
 |-------|--------|---------|-----------|
-| 1 — Foundation | active | 2026-05-05 | — |
-| 2 — Seven tools | not-started | — | — |
-| 3 — Programmatic pages | not-started | — | — |
-| 4 — Site pages + lead magnets | not-started | — | — |
+| 1 — Foundation | complete | 2026-05-08 | 2026-05-08 |
+| 2 — Seven tools | complete | 2026-05-08 | 2026-05-08 |
+| 3 — Programmatic pages | complete | 2026-05-08 | 2026-05-08 |
+| 4 — Site pages + lead magnets | blocked (ESP + vendors) | — | — |
 | 5 — Analytics + E2E | not-started | — | — |
-| 6 — CI/CD + deploy | not-started | — | — |
+| 6 — CI/CD + deploy | blocked (Hostinger creds + domain) | — | — |
