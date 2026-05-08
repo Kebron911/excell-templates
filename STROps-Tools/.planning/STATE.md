@@ -2,7 +2,7 @@
 
 **Current phase:** 4 — Site pages, lead magnets, SEO surface (blocked — see below)
 **Current task:** Not yet started
-**Last update:** 2026-05-08
+**Last update:** 2026-05-08 (Phase 5 shipped before Phase 4 — Phase 5 was unblocked, Phase 4 still gated on ESP + vendors)
 
 ---
 
@@ -28,6 +28,21 @@
 - [x] Task 15 — Damage cost lookup (deep-links to /replace/[item])
 - [x] Task 16 — Maintenance schedule (PDF + .ics)
 
+## Phase 5 progress — COMPLETE ✓ (shipped out-of-order; was unblocked while P4 gated)
+
+- [x] Task 31 — GA4 cross-domain analytics (env-gated via `PUBLIC_GA4_ID`)
+- [x] Task 32 — Playwright smokes — 24 tests passing across 7 tools + 5 maintenance + 5 replacement
+
+**Custom events wired:** `tool_calc_run` (once per tool per session), `pdf_downloaded`, `ics_exported`, `email_capture_submit`. Pre-existing `affiliate_click` left in AffiliateCard with raw gtag call — minor inconsistency, route through `track()` helper next pass.
+
+**Cross-domain linker config** lists all 5 cluster domains: strops, strguests, strhost, strbuyers, thestrledger.
+
+**Build is green WITHOUT `PUBLIC_GA4_ID`** — analytics ships dark; set the env var in Hostinger to activate.
+
+`.env.example` documents PUBLIC_GA4_ID, PUBLIC_ADSENSE_ENABLED, PUBLIC_ADSENSE_CLIENT, PUBLIC_ESP_ENDPOINT.
+
+---
+
 ## Phase 3 progress — COMPLETE ✓
 
 - [x] Task 17 — Maintenance data (tasks.json, 30 tasks)
@@ -44,13 +59,14 @@
 ## Build state (as of 2026-05-08)
 
 - `pnpm typecheck` — exit 0 (1 cosmetic Astro hint, pre-existing)
-- `pnpm test` — exit 0, 34 tests across 13 files
+- `pnpm test` — exit 0, 34 unit tests across 13 files
+- `pnpm test:e2e` — exit 0, **24 Playwright tests** (17 routes covered)
 - `pnpm build` — exit 0, **91 pages emitted**
   - 8 Phase 1+2 (7 tools + landing)
   - 31 maintenance (30 task pages + index)
   - 52 replacement (51 item pages + index)
 
-24 atomic commits on branch `claude/amazing-bhabha-9754da`.
+27 atomic commits on branch `claude/amazing-bhabha-9754da` (24 P1–P3 tasks + 2 P5 tasks + 1 planning doc commit).
 
 ## Decisions log (this run)
 
