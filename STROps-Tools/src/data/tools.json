@@ -1,0 +1,51 @@
+{
+  "turnover-scheduler": {
+    "title": "Turnover scheduler",
+    "primary_keyword": "airbnb turnover scheduler",
+    "magnet": "cleaner-sop",
+    "blurb": "Spot tight changeovers across multiple properties before they cost you a review.",
+    "affiliates": ["turno"]
+  },
+  "cleaner-dispatch": {
+    "title": "Cleaner dispatch",
+    "primary_keyword": "airbnb cleaner sms template",
+    "magnet": "cleaner-sop",
+    "blurb": "Generate a per-cleaner assignment table, SMS templates, and a printable PDF.",
+    "affiliates": ["turno"]
+  },
+  "smart-lock-codes": {
+    "title": "Smart lock code rotator",
+    "primary_keyword": "airbnb smart lock code generator",
+    "magnet": "cleaner-sop",
+    "blurb": "Deterministic per-booking codes (HMAC-SHA-256). No spreadsheets, no reuse.",
+    "affiliates": ["august", "schlage", "remotelock"]
+  },
+  "linen-par-calculator": {
+    "title": "Linen par calculator",
+    "primary_keyword": "airbnb linen par calculator",
+    "magnet": "supply-par",
+    "blurb": "Sets per bed and per bath, by king/queen mix. Stop running short on changeover day.",
+    "affiliates": []
+  },
+  "restock-calculator": {
+    "title": "Restock calculator",
+    "primary_keyword": "airbnb supply restock calculator",
+    "magnet": "supply-par",
+    "blurb": "Per-month consumables from your booking volume — coffee, paper, soap, all of it.",
+    "affiliates": []
+  },
+  "damage-cost-lookup": {
+    "title": "Damage cost lookup",
+    "primary_keyword": "cost to replace items in airbnb",
+    "magnet": "maintenance-checklist",
+    "blurb": "Searchable replacement-cost table. Know the number before the guest disputes the claim.",
+    "affiliates": []
+  },
+  "maintenance-schedule": {
+    "title": "Maintenance schedule",
+    "primary_keyword": "airbnb maintenance schedule",
+    "magnet": "maintenance-checklist",
+    "blurb": "Annual schedule with PDF and .ics export. HVAC, smoke detectors, deep cleans, all on cadence.",
+    "affiliates": ["minut", "noiseaware"]
+  }
+}
