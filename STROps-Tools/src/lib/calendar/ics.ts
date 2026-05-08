@@ -7,11 +7,13 @@
  * and a strops.tools attribution.
  *
  * `downloadIcs` is browser-side only (no-op in SSR). GA4 fires
- * `ics_downloaded` so Phase 5 analytics can attribute the export funnel.
+ * `ics_exported` (Phase 5 canonical taxonomy) so we can attribute the
+ * export funnel.
  */
 
 import { createEvents, type EventAttributes } from 'ics';
 import type { ScheduleResult } from '../calc/maintenance-schedule';
+import { trackEvent } from '@/lib/analytics';
 
 export function buildIcs(r: ScheduleResult): string {
   const events: EventAttributes[] = r.events.map(e => {
@@ -39,7 +41,7 @@ export function buildIcs(r: ScheduleResult): string {
   return value as string;
 }
 
-export function downloadIcs(content: string, filename: string): void {
+export function downloadIcs(content: string, filename: string, tool?: string): void {
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
   const blob = new Blob([content], { type: 'text/calendar' });
   const url = URL.createObjectURL(blob);
@@ -48,7 +50,5 @@ export function downloadIcs(content: string, filename: string): void {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
-  (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag?.('event', 'ics_downloaded', {
-    filename,
-  });
+  trackEvent('ics_exported', { filename, tool });
 }

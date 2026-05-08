@@ -62,12 +62,14 @@ const href = `${v.url}?utm_source=strops-tools&utm_medium=affiliate&utm_content=
 
 <script>
   // No /api/click server in strops — logging is GA4-only per Phase 1 plan.
+  // Routed through src/lib/analytics.ts (Phase 5 Task 31).
+  import { trackEvent } from '@/lib/analytics';
+
   document.querySelectorAll<HTMLAnchorElement>('a[data-affiliate-link]').forEach((a) => {
     a.addEventListener('click', () => {
       const vendor = a.dataset.vendor ?? 'unknown';
       const tool = a.dataset.tool ?? 'unknown';
-      console.log('[AffiliateCard] click', { vendor, tool, href: a.href });
-      (window as any).gtag?.('event', 'affiliate_clicked', { vendor, tool });
+      trackEvent('affiliate_clicked', { vendor, tool });
     });
   });
 </script>

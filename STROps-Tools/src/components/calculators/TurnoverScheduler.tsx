@@ -6,9 +6,10 @@
  * which keeps the UX paste-friendly for hosts pulling rows out of their PMS.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { computeSchedule, type Booking } from '@/lib/calc/turnover';
 import { parse, createDebouncedReplaceState } from '@/lib/url-state';
+import { trackEvent } from '@/lib/analytics';
 
 type State = { turnoverHours: number; rows: string };
 
@@ -32,10 +33,15 @@ function parseRows(rows: string): Booking[] {
 export default function TurnoverScheduler() {
   const [state, setState] = useState<State>(defaults);
   const replacer = useMemo(() => createDebouncedReplaceState(200), []);
+  const fired = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     setState(parse(window.location.search, defaults));
+    if (!fired.current) {
+      fired.current = true;
+      trackEvent('tool_used', { tool: 'turnover-scheduler' });
+    }
   }, []);
 
   useEffect(() => {

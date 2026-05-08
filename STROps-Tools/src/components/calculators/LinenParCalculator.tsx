@@ -2,9 +2,10 @@
  * LinenParCalculator — hydrated island. Number inputs round-trip via URL.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { computeLinenPar } from '@/lib/calc/linen-par';
 import { parse, createDebouncedReplaceState } from '@/lib/url-state';
+import { trackEvent } from '@/lib/analytics';
 
 type State = {
   bedrooms: number;
@@ -25,9 +26,14 @@ const defaults: State = {
 export default function LinenParCalculator() {
   const [s, setS] = useState<State>(defaults);
   const replacer = useMemo(() => createDebouncedReplaceState(200), []);
+  const fired = useRef(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') setS(parse(window.location.search, defaults));
+    if (!fired.current) {
+      fired.current = true;
+      trackEvent('tool_used', { tool: 'linen-par' });
+    }
   }, []);
 
   useEffect(() => {

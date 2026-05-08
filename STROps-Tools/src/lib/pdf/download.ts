@@ -4,10 +4,12 @@
  * Static-site safe — no-op in SSR. Used by Phase 2 cleaner-dispatch and
  * maintenance-schedule tools (and reusable by future PDF tools).
  *
- * Emits a GA4 `pdf_downloaded` event when `window.gtag` is present.
+ * Emits a GA4 `pdf_downloaded` event via the typed analytics helper.
  */
 
-export function downloadBytes(bytes: Uint8Array, filename: string): void {
+import { trackEvent } from '@/lib/analytics';
+
+export function downloadBytes(bytes: Uint8Array, filename: string, tool?: string): void {
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
   // Copy into a fresh Uint8Array<ArrayBuffer> — pdf-lib returns
   // Uint8Array<ArrayBufferLike> which TS5.5+ narrows incompatibly with the
@@ -20,8 +22,5 @@ export function downloadBytes(bytes: Uint8Array, filename: string): void {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
-  // GA4 event — strops uses GA4-only event logging (no /api/click server).
-  (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag?.('event', 'pdf_downloaded', {
-    filename,
-  });
+  trackEvent('pdf_downloaded', { filename, tool });
 }

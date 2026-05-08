@@ -7,9 +7,10 @@
  * inline so operators don't accidentally share a tab with the secret in it.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { codeForAsync } from '@/lib/calc/smart-lock-codes';
 import { parse, createDebouncedReplaceState } from '@/lib/url-state';
+import { trackEvent } from '@/lib/analytics';
 
 type State = { secret: string; digits: number; bookings: string };
 
@@ -23,9 +24,14 @@ export default function SmartLockCodes() {
   const [s, setS] = useState<State>(defaults);
   const [out, setOut] = useState<{ id: string; code: string }[]>([]);
   const replacer = useMemo(() => createDebouncedReplaceState(200), []);
+  const fired = useRef(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') setS(parse(window.location.search, defaults));
+    if (!fired.current) {
+      fired.current = true;
+      trackEvent('tool_used', { tool: 'smart-lock-codes' });
+    }
   }, []);
 
   useEffect(() => {

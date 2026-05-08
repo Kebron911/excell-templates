@@ -75,6 +75,8 @@ const {
 </aside>
 
 <script>
+  import { trackEvent } from '@/lib/analytics';
+
   // Static-site safe: posts directly to the configured ESP webhook.
   const webhook = (import.meta.env.PUBLIC_ESP_WEBHOOK as string | undefined) ?? '';
 
@@ -114,7 +116,7 @@ const {
         } else {
           console.warn('[EmailCaptureCard] PUBLIC_ESP_WEBHOOK not set; payload:', payload);
         }
-        (window as any).gtag?.('event', 'email_captured', { tool, magnet });
+        trackEvent('email_captured', { tool, magnet });
         if (status) status.textContent = 'Got it. Watch your inbox.';
         if (input) input.value = '';
       } catch (err) {

@@ -8,7 +8,7 @@
 
 ## Phase 5 progress
 
-- [ ] Task 31 — GA4 cross-domain analytics with full event taxonomy
+- [x] Task 31 — GA4 cross-domain analytics with full event taxonomy
 - [ ] Task 32 — Playwright E2E suite for 7 tools + sample pages
 
 ---

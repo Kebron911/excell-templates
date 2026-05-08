@@ -4,12 +4,13 @@
  * .ics, print. URL-stateful.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { buildSchedule, type PropertyTraits } from '@/lib/calc/maintenance-schedule';
 import { buildSchedulePdf } from '@/lib/pdf/maintenance-schedule';
 import { buildIcs, downloadIcs } from '@/lib/calendar/ics';
 import { downloadBytes } from '@/lib/pdf/download';
 import { parse, createDebouncedReplaceState } from '@/lib/url-state';
+import { trackEvent } from '@/lib/analytics';
 import tasks from '@/data/tasks.json';
 import type { TaskCatalog } from '@/lib/types';
 
@@ -39,11 +40,16 @@ const defaults: State = {
 export default function MaintenanceSchedule() {
   const [s, setS] = useState<State>(defaults);
   const replacer = useMemo(() => createDebouncedReplaceState(200), []);
+  const fired = useRef(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const parsed = parse(window.location.search, defaults as unknown as Record<string, string | number | boolean>);
       setS(parsed as unknown as State);
+    }
+    if (!fired.current) {
+      fired.current = true;
+      trackEvent('tool_used', { tool: 'maintenance-schedule' });
     }
   }, []);
 
@@ -64,12 +70,12 @@ export default function MaintenanceSchedule() {
   async function downloadPdf() {
     const subtitle = `${s.propertyName} — ${s.startDate} (+${s.horizonDays}d)`;
     const bytes = await buildSchedulePdf(result, subtitle);
-    downloadBytes(bytes, `maintenance-schedule-${s.startDate}.pdf`);
+    downloadBytes(bytes, `maintenance-schedule-${s.startDate}.pdf`, 'maintenance-schedule');
   }
 
   function downloadIcsFile() {
     const ics = buildIcs(result);
-    downloadIcs(ics, `maintenance-schedule-${s.startDate}.ics`);
+    downloadIcs(ics, `maintenance-schedule-${s.startDate}.ics`, 'maintenance-schedule');
   }
 
   return (

@@ -5,11 +5,12 @@
  * `downloadBytes` helper. No email gate — ops audience prefers direct download.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { buildDispatch, type Cleaner, type DispatchTurnover } from '@/lib/calc/cleaner-dispatch';
 import { buildDispatchPdf } from '@/lib/pdf/cleaner-dispatch';
 import { downloadBytes } from '@/lib/pdf/download';
 import { parse, createDebouncedReplaceState } from '@/lib/url-state';
+import { trackEvent } from '@/lib/analytics';
 
 type State = { date: string; turnovers: string; cleaners: string };
 
@@ -44,8 +45,13 @@ function parseCleaners(rows: string): Cleaner[] {
 export default function CleanerDispatch() {
   const [s, setS] = useState<State>(defaults);
   const replacer = useMemo(() => createDebouncedReplaceState(200), []);
+  const fired = useRef(false);
   useEffect(() => {
     if (typeof window !== 'undefined') setS(parse(window.location.search, defaults));
+    if (!fired.current) {
+      fired.current = true;
+      trackEvent('tool_used', { tool: 'cleaner-dispatch' });
+    }
   }, []);
   useEffect(() => {
     replacer(s, defaults);
@@ -60,7 +66,7 @@ export default function CleanerDispatch() {
 
   async function downloadPdf() {
     const bytes = await buildDispatchPdf(result);
-    downloadBytes(bytes, `dispatch-${result.date}.pdf`);
+    downloadBytes(bytes, `dispatch-${result.date}.pdf`, 'cleaner-dispatch');
   }
 
   return (

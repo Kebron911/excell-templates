@@ -4,8 +4,9 @@
  * /replace/[item] pages. Row click navigates to those (404 until then).
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import items from '@/data/items.json';
+import { trackEvent } from '@/lib/analytics';
 
 type Item = {
   name: string;
@@ -25,6 +26,14 @@ const catalog = items as unknown as Catalog;
 export default function DamageCostLookup() {
   const [q, setQ] = useState('');
   const [cat, setCat] = useState('');
+  const fired = useRef(false);
+
+  useEffect(() => {
+    if (!fired.current) {
+      fired.current = true;
+      trackEvent('tool_used', { tool: 'damage-cost-lookup' });
+    }
+  }, []);
 
   const cats = useMemo(
     () => Array.from(new Set(Object.values(catalog).map(i => i.category))).sort(),

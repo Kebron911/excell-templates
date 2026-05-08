@@ -5,9 +5,10 @@
  * Excel/Sheets as a reorder list.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { computeRestock, type RestockItem } from '@/lib/calc/restock';
 import { parse, createDebouncedReplaceState } from '@/lib/url-state';
+import { trackEvent } from '@/lib/analytics';
 
 type State = {
   bookingsPerMonth: number;
@@ -46,9 +47,14 @@ export default function RestockCalculator() {
   const [s, setS] = useState<State>(defaults);
   const [copied, setCopied] = useState(false);
   const replacer = useMemo(() => createDebouncedReplaceState(200), []);
+  const fired = useRef(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') setS(parse(window.location.search, defaults));
+    if (!fired.current) {
+      fired.current = true;
+      trackEvent('tool_used', { tool: 'restock-calculator' });
+    }
   }, []);
 
   useEffect(() => {

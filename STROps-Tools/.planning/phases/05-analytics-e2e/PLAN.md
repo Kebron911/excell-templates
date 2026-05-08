@@ -35,7 +35,7 @@
 
 ## Tasks
 
-- [ ] **Task 31 — GA4 cross-domain analytics with full event taxonomy**
+- [x] **Task 31 — GA4 cross-domain analytics with full event taxonomy**
 
   **Add typed analytics helper:**
 
