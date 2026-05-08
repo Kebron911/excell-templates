@@ -3,7 +3,7 @@ import { buildSchedule } from '@/lib/calc/maintenance-schedule';
 import type { TaskCatalog } from '@/lib/types';
 import seed from '@/data/maintenance-tasks-seed.json';
 
-const catalog = seed as TaskCatalog;
+const catalog = seed as unknown as TaskCatalog;
 
 describe('maintenance-schedule', () => {
   it('emits one occurrence per cadence interval per year (HVAC, 60d, 365d horizon)', () => {

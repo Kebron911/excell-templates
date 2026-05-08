@@ -13,7 +13,10 @@ import { parse, createDebouncedReplaceState } from '@/lib/url-state';
 import tasks from '@/data/tasks.json';
 import type { TaskCatalog } from '@/lib/types';
 
-const catalog = tasks as TaskCatalog;
+// Cast through `unknown` — TypeScript widens JSON tuple literals like
+// `[15, 40]` (estimatedCostUsd) to `number[]`, which trips ts(2352)'s
+// structural-assertion branch. Runtime data shape matches `TaskCatalog`.
+const catalog = tasks as unknown as TaskCatalog;
 
 type State = {
   startDate: string;

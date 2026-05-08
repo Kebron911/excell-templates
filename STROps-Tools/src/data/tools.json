@@ -3,56 +3,77 @@
     "name": "Turnover scheduler",
     "shortName": "Turnover scheduler",
     "tagline": "Spot the impossible checkout/checkin gap before the cleaner does.",
+    "blurb": "Spot tight changeovers across multiple properties before the cleaner does.",
     "path": "/turnover-scheduler",
     "primaryKeyword": "airbnb turnover scheduler",
-    "category": "ops"
+    "category": "ops",
+    "magnet": "cleaner-sop-pdf",
+    "affiliates": ["turno"]
   },
   "cleaner-dispatch": {
     "name": "Cleaner dispatch generator",
     "shortName": "Cleaner dispatch",
     "tagline": "Per-property assignments + SMS templates the cleaner can read on her phone.",
+    "blurb": "Per-property assignment table + SMS templates + downloadable PDF.",
     "path": "/cleaner-dispatch",
     "primaryKeyword": "airbnb cleaner sms template",
-    "category": "ops"
+    "category": "ops",
+    "magnet": "cleaner-sop-pdf",
+    "affiliates": ["turno"]
   },
   "smart-lock-codes": {
     "name": "Smart lock code rotator",
     "shortName": "Smart lock codes",
     "tagline": "Deterministic rolling codes per booking — same input, same code, every time.",
+    "blurb": "Deterministic rolling codes per booking — reproducible, no lookup table.",
     "path": "/smart-lock-codes",
     "primaryKeyword": "airbnb smart lock code generator",
-    "category": "ops"
+    "category": "ops",
+    "magnet": "cleaner-sop-pdf",
+    "affiliates": ["august", "schlage", "remotelock"]
   },
   "linen-par": {
     "name": "Linen par calculator",
     "shortName": "Linen par",
     "tagline": "How many sheet sets and towel sets per property to never run out.",
+    "blurb": "Sheet sets and towel sets per property by king/queen mix and turn rate.",
     "path": "/linen-par",
     "primaryKeyword": "airbnb linen par calculator",
-    "category": "supplies"
+    "category": "supplies",
+    "magnet": "supply-par-pdf",
+    "affiliates": []
   },
   "restock-calculator": {
     "name": "Restock alert calculator",
     "shortName": "Restock",
     "tagline": "Booking volume × consumable burn rate = when to reorder.",
+    "blurb": "Per-month consumable burn from booking volume — when to reorder.",
     "path": "/restock-calculator",
     "primaryKeyword": "airbnb supply restock calculator",
-    "category": "supplies"
+    "category": "supplies",
+    "magnet": "supply-par-pdf",
+    "affiliates": []
   },
   "damage-cost-lookup": {
     "name": "Damage cost lookup",
     "shortName": "Damage cost",
     "tagline": "What it actually costs to replace a mattress, repaint a wall, swap a TV.",
+    "blurb": "Searchable replacement-cost table — mattresses, repaint, TVs, more.",
     "path": "/damage-cost-lookup",
     "primaryKeyword": "cost to replace mattress in airbnb",
-    "category": "ops"
+    "category": "ops",
+    "magnet": "maintenance-checklist-pdf",
+    "affiliates": []
   },
   "maintenance-schedule": {
     "name": "Maintenance schedule generator",
     "shortName": "Maintenance",
     "tagline": "HVAC, smoke detectors, deep clean — the recurring tasks an STR forgets.",
+    "blurb": "Annual maintenance schedule + PDF + .ics calendar export.",
     "path": "/maintenance-schedule",
     "primaryKeyword": "airbnb maintenance schedule",
-    "category": "ops"
+    "category": "ops",
+    "magnet": "maintenance-checklist-pdf",
+    "affiliates": ["minut", "noiseaware"]
   }
 }

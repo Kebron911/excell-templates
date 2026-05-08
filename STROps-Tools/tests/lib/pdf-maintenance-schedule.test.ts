@@ -5,7 +5,7 @@ import type { TaskCatalog } from '@/lib/types';
 import seed from '@/data/maintenance-tasks-seed.json';
 import { PDFDocument } from 'pdf-lib';
 
-const catalog = seed as TaskCatalog;
+const catalog = seed as unknown as TaskCatalog;
 
 describe('maintenance-schedule PDF', () => {
   it('produces a valid PDF', async () => {

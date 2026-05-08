@@ -8,7 +8,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { computeSchedule, type Booking } from '@/lib/calc/turnover';
-import { parse, serialize, createDebouncedReplaceState } from '@/lib/url-state';
+import { parse, createDebouncedReplaceState } from '@/lib/url-state';
 
 type State = { turnoverHours: number; rows: string };
 

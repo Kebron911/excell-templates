@@ -9,7 +9,11 @@
 
 export function downloadBytes(bytes: Uint8Array, filename: string): void {
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
-  const blob = new Blob([bytes], { type: 'application/pdf' });
+  // Copy into a fresh Uint8Array<ArrayBuffer> — pdf-lib returns
+  // Uint8Array<ArrayBufferLike> which TS5.5+ narrows incompatibly with the
+  // BlobPart signature (ts(2322)). Fresh copy guarantees ArrayBuffer-backed.
+  const buf = new Uint8Array(bytes);
+  const blob = new Blob([buf], { type: 'application/pdf' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

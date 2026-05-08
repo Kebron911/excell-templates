@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 4 — Site pages, lead magnets, SEO surface
-**Current task:** Not yet started (Task 25: tools.json registry)
+**Current task:** Task 26 — Lead magnet pages
 **Last update:** 2026-05-07
 
 ---

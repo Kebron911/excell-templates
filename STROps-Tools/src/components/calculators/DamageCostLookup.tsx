@@ -17,7 +17,10 @@ type Item = {
   lastVerified: string;
 };
 type Catalog = Record<string, Item>;
-const catalog = items as Catalog;
+// Cast through `unknown` — TypeScript widens JSON tuple literals like
+// `[100, 250]` to `number[]`, which trips ts(2352)'s structural-assertion
+// branch. Runtime data shape matches `Catalog` exactly.
+const catalog = items as unknown as Catalog;
 
 export default function DamageCostLookup() {
   const [q, setQ] = useState('');

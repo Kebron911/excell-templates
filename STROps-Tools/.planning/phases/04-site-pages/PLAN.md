@@ -38,7 +38,7 @@
 
 ## Tasks
 
-- [ ] **Task 25 — `tools.json` registry (tool→magnet matchup) + typecheck cleanup**
+- [x] **Task 25 — `tools.json` registry (tool→magnet matchup) + typecheck cleanup**
   - Extend `src/data/tools.json` per source plan: add `magnet`, `blurb`, `affiliates` per tool.
     - `cleaner-sop-pdf`: turnover-scheduler, cleaner-dispatch, smart-lock-codes
     - `supply-par-pdf`: linen-par, restock-calculator
