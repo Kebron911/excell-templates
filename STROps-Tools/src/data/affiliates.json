@@ -1,0 +1,11 @@
+{
+  "august":     { "category": "smart-lock",      "title": "August Smart Lock",        "blurb": "Consumer-friendly, retrofits most deadbolts, integrates with Hostfully + OwnerRez.", "href": "https://august.com/?ref=strops" },
+  "schlage":    { "category": "smart-lock",      "title": "Schlage Encode Plus",      "blurb": "Commercial-grade keypad lock, Apple home key support.",                            "href": "https://www.schlage.com/?ref=strops" },
+  "remotelock": { "category": "smart-lock",      "title": "RemoteLock",               "blurb": "Multi-platform lock management; works with most PMS systems.",                     "href": "https://www.remotelock.com/?ref=strops" },
+  "minut":      { "category": "noise-monitor",   "title": "Minut",                    "blurb": "Privacy-respecting noise + occupancy monitor; Airbnb/VRBO compatible.",            "href": "https://www.minut.com/?ref=strops" },
+  "noiseaware": { "category": "noise-monitor",   "title": "NoiseAware",               "blurb": "Indoor + outdoor noise sensors; party-prevention focused.",                       "href": "https://www.noiseaware.com/?ref=strops" },
+  "hostfully":  { "category": "pms",             "title": "Hostfully",                "blurb": "PMS + digital guidebooks; built for STR portfolios.",                              "href": "https://www.hostfully.com/?ref=strops" },
+  "hospitable": { "category": "pms",             "title": "Hospitable",               "blurb": "Automation-first PMS; great messaging suite.",                                     "href": "https://www.hospitable.com/?ref=strops" },
+  "ownerrez":   { "category": "pms",             "title": "OwnerRez",                 "blurb": "Power-user PMS; deepest accounting hooks.",                                        "href": "https://www.ownerrez.com/?ref=strops" },
+  "turno":      { "category": "cleaning",       "title": "Turno (TurnoverBnB)",      "blurb": "Cleaner marketplace + scheduling; pairs well with the dispatch generator.",        "href": "https://turno.com/?ref=strops" }
+}
