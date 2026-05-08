@@ -75,7 +75,7 @@
   - Verify: build clean, both pages render.
   - Commit: `feat(strops-tools): about + contact pages (Phase 4 Task 28)`
 
-- [ ] **Task 29 — Sitemap + robots.txt**
+- [x] **Task 29 — Sitemap + robots.txt**
   - Verify `@astrojs/sitemap` integration emits sitemap with all routes.
   - Create `public/robots.txt` allowing all + sitemap reference.
   - Verify: `dist/sitemap-index.xml` exists, includes maintenance + replace + tools + magnets + landing + about + contact.

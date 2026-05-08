@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 4 — Site pages, lead magnets, SEO surface
-**Current task:** Task 29 — Sitemap + robots.txt
+**Current task:** Task 30 — OG images via Satori
 **Last update:** 2026-05-07
 
 ---
