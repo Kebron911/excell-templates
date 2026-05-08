@@ -1,5 +1,22 @@
 # STROps-Tools — strops.tools
 
+## Status
+
+**LAUNCHED 2026-05-08** at https://strops.tools/ — v0.1.0-strops tag.
+
+- **Pages live:** 103 (7 tools + 30 maintenance + 56 replacement + 3 lead magnets + landing/about/contact + 2 indexes + 4 utility pages)
+- **Build:** Astro 6.3.1 static, OG images via Satori (104 PNGs prebuild), ~9.5s build time
+- **Deploy:** scp-over-SSH to Hostinger via `Claude OS\deploy\scripts\deploy-strops.ps1`, plus auto-deploy on push to main via `.github/workflows/deploy-strops-tools.yml`
+- **CI:** `.github/workflows/ci-strops-tools.yml` — typecheck, vitest, build, Playwright e2e on every PR
+- **Last deploy:** 2026-05-08 ~9:32 MDT (initial public launch); 28/28 smoke endpoints HTTP 200
+- **Monetization status at launch:** lead-magnet capture wired (console-log fallback active until ESP picked); affiliate slots present but no live affiliate IDs yet; GA4 not yet wired (env-var swap post-launch)
+
+**Immediate post-launch priorities (not blocking launch):**
+1. Pick + wire ESP (Buttondown / ConvertKit / Mailchimp). Set `PUBLIC_ESP_WEBHOOK` in `.secrets/hostinger.env` and redeploy.
+2. Provision GA4 property for strops.tools, set `PUBLIC_GA4_ID` and redeploy. Cross-domain link to thestrledger.com is already wired in the analytics module.
+3. Sign up for affiliate programs (Hostfully, Hospitable, OwnerRez, Turno, August/Schlage smart-lock, Minut/NoiseAware noise monitors). Slot real IDs into AffiliateCard data.
+4. Submit `/sitemap-index.xml` to Google Search Console + Bing Webmaster Tools.
+
 ## Folder Purpose
 
 This subfolder is for **strops.tools** — a free-tools website for active short-term rental hosts running properties. Operational pain points = repeat visits = email list compounds fast. Sister site to strbuyers.tools, strhost.tools, strguests.tools, and Excel-Templates (The STR Ledger).

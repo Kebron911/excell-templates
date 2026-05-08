@@ -4,6 +4,16 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 
 ---
 
+## Launched
+
+**v0.1.0-strops** — 2026-05-08 — https://strops.tools/
+
+103 pages live: 7 tools, 30 maintenance + 56 replacement programmatic pages, 3 lead magnets, landing/about/contact, sitemap + robots + 104 OG images. Pre-launch smoke: 28/28 HTTPS endpoints returned 200 (`STROps-Tools/docs/launch-smoke-2026-05-08.md`).
+
+CI/CD wired: `.github/workflows/ci-strops-tools.yml` (PR/push) + `.github/workflows/deploy-strops-tools.yml` (auto-deploy on push to main).
+
+---
+
 ## Phase 1 — Foundation `[completed 2026-05-07]`
 
 **Goal:** Bootable Astro site with brand tokens (ops-utility accent), layout primitives, monetization primitives (incl. AffiliateCard + PdfDownloadButton), URL-state, format, SEO, and the **PDF library** with brand chrome.
@@ -95,4 +105,4 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 | 3 — Programmatic pages | completed | 2026-05-07 | 2026-05-07 |
 | 4 — Site pages + lead magnets | completed | 2026-05-07 | 2026-05-08 |
 | 5 — Analytics + E2E | completed | 2026-05-08 | 2026-05-08 |
-| 6 — CI/CD + deploy | active | 2026-05-08 | — |
+| 6 — CI/CD + deploy | completed | 2026-05-08 | 2026-05-08 |

@@ -53,10 +53,10 @@
 
 ---
 
-## Task 36 — Final commit + tag v0.1.0
+## Task 36 — Final commit + tag v0.1.0 ✅
 
-- [ ] Update `STROps-Tools/CLAUDE.md` and `MEMORY.md` to reflect launched state (live URL, last deploy, monetization status)
-- [ ] Update root `Excel-Templates/PROGRESS.md` if it tracks this site
-- [ ] Update STATE.md (phase 6 complete, project complete) and ROADMAP.md (Phase 6 → completed; add "Launched" header section)
-- [ ] Tag `v0.1.0-strops` (suffix because monorepo also tags strhost/strguests)
-- [ ] Commit: `chore(strops-tools): mark Phase 6 complete + v0.1.0 launched`
+- [x] Update `STROps-Tools/CLAUDE.md` and `MEMORY.md` to reflect launched state (live URL, last deploy, monetization status)
+- [x] Skipped `Excel-Templates/PROGRESS.md` — that file tracks STR Ledger product/SKU launch only; cluster sites are tracked in their own ROADMAPs
+- [x] Update STATE.md (phase 6 complete, project complete) and ROADMAP.md (Phase 6 → completed; add "Launched" header section)
+- [x] Tag `v0.1.0-strops` (suffix because monorepo also tags strhost/strguests)
+- [x] Commit: `chore(strops-tools): mark Phase 6 complete + v0.1.0 launched`
