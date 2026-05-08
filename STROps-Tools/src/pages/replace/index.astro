@@ -1,0 +1,89 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import itemsData from '@data/items.json';
+import type { ItemCatalog } from '@lib/types';
+
+const items = itemsData as unknown as ItemCatalog;
+const list = Object.entries(items).sort(([, a], [, b]) => a.name.localeCompare(b.name));
+const url = 'https://strops.tools/replace/';
+---
+<Layout
+  title="STR replacement cost index"
+  description="Cost ranges and lifespans for every replaceable item in a short-term rental."
+  canonical={url}
+>
+  <article class="prose mx-auto max-w-4xl px-6 py-10">
+    <h1>Replacement cost index</h1>
+    <p class="lead">
+      {list.length} items every operator should know the price tag of. Sorted alphabetically.
+      Click any column header to re-sort.
+    </p>
+
+    <table class="w-full text-sm" data-sortable>
+      <thead>
+        <tr class="text-ink3 text-left">
+          <th><button type="button" data-sort="name" class="font-semibold underline-offset-4 hover:underline">Item</button></th>
+          <th><button type="button" data-sort="category" class="font-semibold underline-offset-4 hover:underline">Category</button></th>
+          <th><button type="button" data-sort="cost" class="font-semibold underline-offset-4 hover:underline">Cost</button></th>
+          <th><button type="button" data-sort="lifespan" class="font-semibold underline-offset-4 hover:underline">Lifespan</button></th>
+        </tr>
+      </thead>
+      <tbody>
+        {list.map(([slug, it]) => (
+          <tr
+            class="border-t border-rule"
+            data-name={it.name}
+            data-category={it.category}
+            data-cost={it.costRange[0]}
+            data-lifespan={it.lifespanYears}
+          >
+            <td><a href={`/replace/${slug}/`} class="underline decoration-accent underline-offset-4">{it.name}</a></td>
+            <td>{it.category}</td>
+            <td class="num">${it.costRange[0]}–${it.costRange[1]}</td>
+            <td class="num">{it.lifespanYears}y</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </article>
+
+  <script>
+    type Key = 'name' | 'category' | 'cost' | 'lifespan';
+    const table = document.querySelector<HTMLTableElement>('table[data-sortable]');
+    if (table) {
+      const tbody = table.querySelector('tbody')!;
+      const baseRows = Array.from(tbody.querySelectorAll<HTMLTableRowElement>('tr'));
+      let activeKey: Key | null = null;
+      let asc = true;
+
+      function valueOf(row: HTMLTableRowElement, key: Key): string | number {
+        if (key === 'cost') return Number(row.dataset.cost);
+        if (key === 'lifespan') return Number(row.dataset.lifespan);
+        if (key === 'name') return row.dataset.name ?? '';
+        if (key === 'category') return row.dataset.category ?? '';
+        return '';
+      }
+
+      table.querySelectorAll<HTMLButtonElement>('button[data-sort]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.sort as Key;
+          if (activeKey === key) {
+            asc = !asc;
+          } else {
+            activeKey = key;
+            asc = true;
+          }
+          const rows = baseRows.slice().sort((a, b) => {
+            const av = valueOf(a, key);
+            const bv = valueOf(b, key);
+            if (typeof av === 'number' && typeof bv === 'number') return asc ? av - bv : bv - av;
+            return asc
+              ? String(av).localeCompare(String(bv))
+              : String(bv).localeCompare(String(av));
+          });
+          tbody.replaceChildren(...rows);
+        });
+      });
+    }
+  </script>
+</Layout>
