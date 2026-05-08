@@ -95,4 +95,4 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 | 3 — Programmatic pages | complete | 2026-05-08 | 2026-05-08 |
 | 4 — Site pages + lead magnets | complete (ESP + vendors stubbed) | 2026-05-08 | 2026-05-08 |
 | 5 — Analytics + E2E | complete (shipped before P4) | 2026-05-08 | 2026-05-08 |
-| 6 — CI/CD + deploy | blocked (Hostinger creds + domain) | — | — |
+| 6 — CI/CD + deploy | complete (gated on GitHub Secrets + DNS) | 2026-05-08 | 2026-05-08 |

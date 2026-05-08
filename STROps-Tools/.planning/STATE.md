@@ -1,8 +1,22 @@
 # STATE
 
-**Current phase:** 6 — CI/CD + production deploy (blocked on Hostinger creds + domain confirm)
-**Current task:** Not yet started
-**Last update:** 2026-05-08 (Phases 1, 2, 3, 4, 5 shipped — only deploy remains)
+**Current phase:** 6 — CI/CD + production deploy — COMPLETE ✓
+**Current task:** Done (v0.1.0 tagged locally; tag not pushed)
+**Last update:** 2026-05-08 (all 36 tasks shipped; live deploy gated on GitHub Secrets + DNS only)
+
+---
+
+## Phase 6 progress — COMPLETE ✓
+
+- [x] Task 33 — GitHub Actions CI (typecheck + vitest + soft-fail playwright + build + e2e)
+- [x] Task 34 — Hostinger SSH+rsync deploy via shared `STR_SSH_KEY`
+- [x] Task 35 — Pre-launch smoke (`scripts/smoke.mjs` wired as deploy.yml post-deploy)
+- [x] Task 36 — v0.1.0 annotated tag (local only; not pushed)
+
+**Mirrors strguests.tools precedent** (commit `9a07321`) — shared cluster
+SSH key, verbose key setup so failures surface, rsync to
+`~/domains/strops.tools/public_html/`. README documents required GitHub
+Secrets the user must add before live deploy works.
 
 ---
 
