@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 3 — Programmatic pages (maintenance + replacement)
-**Current task:** In progress — Task 18 (Maintenance programmatic pages)
+**Current task:** In progress — Task 19 (Maintenance index)
 **Last update:** 2026-05-07
 
 ---
@@ -9,7 +9,7 @@
 ## Phase 3 progress
 
 - [x] Task 17 — Maintenance data expansion (tasks.json, 30 entries)
-- [ ] Task 18 — Maintenance programmatic pages
+- [x] Task 18 — Maintenance programmatic pages (30 routes)
 - [ ] Task 19 — Maintenance index
 - [ ] Task 20 — Maintenance MDX collection (5 samples)
 - [ ] Task 21 — Replacement data expansion (items.json, ~50 entries)
@@ -60,6 +60,7 @@
 - **2026-05-07 (Phase 3 Task 17 — data shape)** — `tasks.json` introduced as the canonical maintenance catalog (30 entries). Phase 2 `maintenance-tasks-seed.json` retained as-is so `tests/calc/maintenance-schedule.test.ts` keeps its small, deterministic fixture (we don't want test runtime tied to catalog growth). `MaintenanceSchedule.tsx` migrated to `tasks.json`. Schema unchanged.
 - **2026-05-07 (Phase 3 MDX strategy)** — Sister project `STRGuests-Tools` (Astro 6 too) uses `import.meta.glob('/src/content/<scope>/*.mdx', { eager: true })` for narrative-slot MDX rather than Astro Content Collections. Adopting same pattern for `/maintenance/[slug].astro` and `/replace/[slug].astro` — zero collection-config overhead, dev/build perf identical at this catalog size, and consistent with cluster.
 - **2026-05-07 (Phase 3 typecheck baseline)** — Phase 2 shipped with 5 pre-existing `ts(2352)` JSON-tuple-narrowing errors + 1 unused-import warning. Logged in `.planning/phases/03-programmatic-pages/deferred-items.md`. Out of scope per scope-boundary rule (pre-existing in main, unrelated to Phase 3 routes). Phase 3 work doesn't introduce new typecheck errors.
+- **2026-05-07 (Phase 3 Task 18 — Astro frontmatter parser quirk)** — Astro 6 (esbuild 0.27) frontmatter parser/transformer trips on deeply-nested arithmetic parens (`(d / 365) * 10) / 10`) inside multiline-conditional expressions, throwing a non-actionable `Unexpected "export"` error pointing at unrelated line numbers. Workaround: pre-compute scaled divisors (`Math.round(d / 36.5) / 10`). Hours debug-bisected to a single math expression. Logged here so future programmatic-page authors don't lose the same hour. Source plan didn't anticipate the Astro 6 + esbuild interaction.
 
 ## Deviations log
 

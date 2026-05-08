@@ -1,0 +1,194 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import { buildArticle, buildWebApplication } from '@/lib/seo';
+import tasksData from '@/data/tasks.json';
+import type { MaintenanceTask } from '@/lib/types';
+
+type TaskJson = Record<string, MaintenanceTask>;
+
+const tasks = tasksData as unknown as TaskJson;
+
+const narrativeMdx = import.meta.glob<{ default: any }>('/src/content/maintenance/*.mdx', { eager: true });
+
+export async function getStaticPaths() {
+  const data = tasksData as unknown as TaskJson;
+  return Object.entries(data).map(([slug, task]) => ({
+    params: { slug },
+    props: { slug, task },
+  }));
+}
+
+interface Props { slug: string; task: MaintenanceTask; }
+
+const { slug, task } = Astro.props as Props;
+const Narrative = narrativeMdx[`/src/content/maintenance/${slug}.mdx`]?.default;
+const path = `/maintenance/${slug}`;
+
+const days = task.cadenceDays;
+const makeCadenceLabel = (d: number): string => {
+  if (d <= 14) return `Every ${d} days`;
+  if (d <= 90) return `Every ${Math.round(d / 7)} weeks`;
+  if (d <= 365) return `Every ${Math.round(d / 30)} months`;
+  const years = Math.round(d / 36.5) / 10;
+  return `Every ${years} years`;
+};
+const cadenceLabel = makeCadenceLabel(days);
+
+const startDate = new Date();
+const occurrences = [1, 2, 3, 4].map(i => {
+  const d = new Date(startDate);
+  d.setDate(d.getDate() + days * i);
+  return d.toISOString().slice(0, 10);
+});
+
+const costRange = `$${task.estimatedCostUsd[0]}–$${task.estimatedCostUsd[1]}`;
+const skillBadge = task.skillLevel === 'pro' ? 'Pro' : 'DIY';
+const skillLabel = task.skillLevel === 'pro' ? 'Hire a pro' : 'DIY';
+const seasonLabel = task.season === 'all' ? 'Year-round' : task.season.charAt(0).toUpperCase() + task.season.slice(1);
+const seasonLower = seasonLabel.toLowerCase();
+
+const summaryLine = `${cadenceLabel} · ${skillLabel} · ${costRange}`;
+
+const related = Object.entries(tasks)
+  .filter(([k, t]) => k !== slug && t.season === task.season)
+  .slice(0, 3)
+  .map(([k, t]) => ({
+    key: k,
+    name: t.name,
+    costRange: `$${t.estimatedCostUsd[0]}–$${t.estimatedCostUsd[1]}`,
+  }));
+
+const jsonLd = Narrative
+  ? [buildArticle({ headline: `${task.name} — STR maintenance schedule`, description: task.consequencesOfSkipping, slug: `maintenance-${slug}`, datePublished: task.lastVerified })]
+  : [buildWebApplication({ name: `${task.name} — STR maintenance`, description: task.consequencesOfSkipping, toolPath: path })];
+
+const scheduleHref = `/maintenance-schedule/?focus=${encodeURIComponent(slug)}`;
+const layoutTitle = `${task.name} — How often in an STR · strops.tools`;
+const layoutDescription = `${cadenceLabel}. ${task.consequencesOfSkipping}`;
+---
+<Layout title={layoutTitle} description={layoutDescription} path={path} jsonLd={jsonLd}>
+  <article class="mx-auto max-w-3xl px-5 py-8">
+    <header>
+      <p class="label text-accent-deep">
+        <a href="/maintenance/" class="no-underline hover:underline">Maintenance</a>
+        <span class="mx-1 text-ink-3" aria-hidden="true">&rsaquo;</span>
+        <span class="capitalize">{seasonLabel}</span>
+      </p>
+      <h1 class="mt-2 font-serif text-h1 text-navy leading-tight">
+        {task.name}<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2 leading-snug">{summaryLine}</p>
+      <p class="mt-1 text-caption text-ink-3 font-mono">
+        Last verified <time datetime={task.lastVerified}>{task.lastVerified}</time>
+      </p>
+    </header>
+
+    <section class="mt-7 grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="rounded-md border border-rule bg-parchment-light p-3">
+        <p class="text-caption text-ink-3 uppercase tracking-widest">Cadence</p>
+        <p class="mt-1 text-ui text-navy font-mono num">{task.cadenceDays}d</p>
+      </div>
+      <div class="rounded-md border border-rule bg-parchment-light p-3">
+        <p class="text-caption text-ink-3 uppercase tracking-widest">Season</p>
+        <p class="mt-1 text-ui text-navy capitalize">{seasonLabel}</p>
+      </div>
+      <div class="rounded-md border border-rule bg-parchment-light p-3">
+        <p class="text-caption text-ink-3 uppercase tracking-widest">Cost</p>
+        <p class="mt-1 text-ui text-navy font-mono num">{costRange}</p>
+      </div>
+      <div class="rounded-md border border-rule bg-parchment-light p-3">
+        <p class="text-caption text-ink-3 uppercase tracking-widest">Skill</p>
+        <p class="mt-1 text-ui text-navy capitalize">{skillBadge}</p>
+      </div>
+    </section>
+
+    <section class="mt-7" aria-labelledby="why-it-matters">
+      <h2 id="why-it-matters" class="font-serif text-h2 text-navy">Why it matters</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">{task.consequencesOfSkipping}</p>
+    </section>
+
+    <section class="mt-7" aria-labelledby="next-up">
+      <h2 id="next-up" class="font-serif text-h2 text-navy">Next 4 occurrences</h2>
+      <p class="mt-2 text-caption text-ink-3 leading-snug">
+        Starting from today, on a {task.cadenceDays}-day cadence.
+      </p>
+      <ul class="mt-3 list-none p-0 grid grid-cols-2 gap-2 max-w-md">
+        {occurrences.map((d, i) => (
+          <li class="rounded-md border border-rule bg-parchment-light p-3 font-mono num text-ui text-navy">
+            <span class="text-caption text-ink-3 mr-2">#{i + 1}</span>{d}
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <aside class="mt-8 rounded-md surface-navy p-6 print:hidden">
+      <p class="label" style="color: var(--accent-500);">Build the full schedule</p>
+      <p class="mt-2 font-serif text-h3 text-parchment leading-snug">
+        Drop your start date and property traits and we will build a year-long schedule and download it as PDF or .ics.
+      </p>
+      <a
+        href={scheduleHref}
+        class="mt-4 inline-flex items-center gap-2 rounded-md text-navy px-5 py-2.5 text-ui no-underline hover:opacity-90 transition-opacity duration-std"
+        style="background: var(--accent-500);"
+      >
+        Open the schedule generator <span aria-hidden="true">&rarr;</span>
+      </a>
+    </aside>
+
+    {Narrative && (
+      <section class="mt-9 prose">
+        <Narrative />
+      </section>
+    )}
+
+    {task.sourceUrls.length > 0 && (
+      <section class="mt-7" aria-labelledby="sources">
+        <h2 id="sources" class="label text-navy">Sources</h2>
+        <ul class="mt-2 text-small text-ink-2 list-disc pl-5 space-y-1">
+          {task.sourceUrls.map(u => (
+            <li><a href={u} rel="noopener" target="_blank" class="text-navy hover:text-accent-deep">{u}</a></li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <AdSlot location="in-content" />
+
+    {related.length > 0 && (
+      <section class="mt-9" aria-labelledby="related-label">
+        <h2 id="related-label" class="label text-navy">More <span class="capitalize">{seasonLower}</span> tasks</h2>
+        <ul class="mt-4 space-y-3 list-none p-0">
+          {related.map(r => (
+            <li>
+              <a
+                href={`/maintenance/${r.key}`}
+                class="block group rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-accent hover:shadow-card transition-all duration-std"
+              >
+                <p class="text-ui text-navy group-hover:text-accent-deep font-semibold">{r.name}</p>
+                <p class="mt-1 text-caption text-ink-2 leading-snug">{r.costRange}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    <EmailCaptureCard
+      magnet="maintenance-checklist-pdf"
+      toolSlug="maintenance-schedule"
+      headline="Free: STR Maintenance Checklist (PDF)"
+      blurb="The full task list plus skip-this-and-it-costs-you context for STR operators."
+      cta="Send me the checklist"
+    />
+
+    <STRLedgerCTA tool="maintenance-schedule" />
+
+    <AdSlot location="footer" />
+  </article>
+
+  <ClusterFunnelBlock currentCluster="operations" />
+</Layout>
