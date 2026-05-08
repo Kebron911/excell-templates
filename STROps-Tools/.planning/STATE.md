@@ -1,8 +1,21 @@
 # STATE
 
-**Current phase:** 4 — Site pages, lead magnets, SEO surface
-**Current task:** Task 30 — OG images via Satori
-**Last update:** 2026-05-07
+**Current phase:** 5 — Analytics + E2E
+**Current task:** Not yet started (Task 31: GA4 cross-domain analytics)
+**Last update:** 2026-05-08
+
+---
+
+## Phase 4 progress
+
+- [x] Task 25 — tools.json registry (tool→magnet matchup) + typecheck cleanup
+- [x] Task 26 — Lead magnet pages (Cleaner SOP / Supply Par / Maintenance Checklist)
+- [x] Task 27 — Production landing page
+- [x] Task 28 — About + Contact pages
+- [x] Task 29 — Sitemap + robots.txt
+- [x] Task 30 — OG images via Satori (104 PNGs)
+
+**Phase 4 complete: 6/6 tasks. 2026-05-08.**
 
 ---
 
@@ -63,6 +76,10 @@
 - **2026-05-07 (Phase 3 MDX strategy)** — Sister project `STRGuests-Tools` (Astro 6 too) uses `import.meta.glob('/src/content/<scope>/*.mdx', { eager: true })` for narrative-slot MDX rather than Astro Content Collections. Adopting same pattern for `/maintenance/[slug].astro` and `/replace/[slug].astro` — zero collection-config overhead, dev/build perf identical at this catalog size, and consistent with cluster.
 - **2026-05-07 (Phase 3 typecheck baseline)** — Phase 2 shipped with 5 pre-existing `ts(2352)` JSON-tuple-narrowing errors + 1 unused-import warning. Logged in `.planning/phases/03-programmatic-pages/deferred-items.md`. Out of scope per scope-boundary rule (pre-existing in main, unrelated to Phase 3 routes). Phase 3 work doesn't introduce new typecheck errors.
 - **2026-05-07 (Phase 3 Task 18 — Astro frontmatter parser quirk)** — Astro 6 (esbuild 0.27) frontmatter parser/transformer trips on deeply-nested arithmetic parens (`(d / 365) * 10) / 10`) inside multiline-conditional expressions, throwing a non-actionable `Unexpected "export"` error pointing at unrelated line numbers. Workaround: pre-compute scaled divisors (`Math.round(d / 36.5) / 10`). Hours debug-bisected to a single math expression. Logged here so future programmatic-page authors don't lose the same hour. Source plan didn't anticipate the Astro 6 + esbuild interaction.
+- **2026-05-08 (Phase 4 Task 25 — typecheck cleanup)** — Cleared 5 pre-existing typecheck errors (4× ts(2352), 1× ts(2322)) + 1 ts(6133) warning logged in `phases/03-programmatic-pages/deferred-items.md`. Resolution: `as unknown as TaskCatalog/Catalog` double-cast (TS widens JSON tuple literals to `number[]`); fresh-Uint8Array copy for the Blob constructor (TS5.5+ narrows pdf-lib's `Uint8Array<ArrayBufferLike>` incompatibly with BlobPart). Deferred items now empty; baseline is 0/0/0.
+- **2026-05-08 (Phase 4 Task 26 — ESP stub strategy)** — Real ESP not selected (Buttondown / ConvertKit / Mailchimp open). Phase 4 ships with Phase 1's existing `EmailCaptureCard` console-log fallback (active when `PUBLIC_ESP_WEBHOOK` env unset). Magnet pages also expose direct stub-PDF download below the form so users get value immediately. Real ESP swap = single-file change post-launch (set `PUBLIC_ESP_WEBHOOK`). No `/api/subscribe` endpoint added — Astro static output doesn't need it; the existing webhook POST pattern is the simplest path to production.
+- **2026-05-08 (Phase 4 Task 30 — OG font CDN drift)** — Hardcoded gstatic /v18/ URLs (per source plan recommendation) returned 404 — Google rotates them. Switched to live CSS API resolution: query `fonts.googleapis.com/css2?family=...&wght=...` with a plain UA, regex-extract the `url(...)` from the response, fetch the binary. Resilient to URL rotation. Also added `display: flex` to a wordmark div (Satori requires explicit flex on multi-child divs).
+- **2026-05-08 (Phase 4 Task 30 — OG output to public/og/ only)** — Source plan suggested writing to both `public/og/` (dev) and `dist/og/` (prod). Astro's static build copies `public/` into `dist/` automatically, so writing only to `public/og/` is sufficient and simpler. `prebuild` hook ensures fresh OGs every production build. Added `public/og/` to `.gitignore` — generated artifacts shouldn't bloat git history; CI/deploy regenerates from `tools.json` / `tasks.json` / `items.json` source data.
 
 ## Deviations log
 

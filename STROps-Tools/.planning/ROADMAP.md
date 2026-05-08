@@ -40,7 +40,7 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 
 ---
 
-## Phase 4 — Site pages, lead magnets, SEO surface
+## Phase 4 — Site pages, lead magnets, SEO surface `[completed 2026-05-08]`
 
 **Goal:** Three lead magnets wired, landing/about/contact, sitemap, OG images.
 
@@ -93,6 +93,6 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 | 1 — Foundation | completed | 2026-05-05 | 2026-05-07 |
 | 2 — Seven tools | completed | 2026-05-07 | 2026-05-07 |
 | 3 — Programmatic pages | completed | 2026-05-07 | 2026-05-07 |
-| 4 — Site pages + lead magnets | active | 2026-05-07 | — |
-| 5 — Analytics + E2E | not-started | — | — |
+| 4 — Site pages + lead magnets | completed | 2026-05-07 | 2026-05-08 |
+| 5 — Analytics + E2E | active | 2026-05-08 | — |
 | 6 — CI/CD + deploy | not-started | — | — |
