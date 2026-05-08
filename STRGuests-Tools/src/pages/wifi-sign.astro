@@ -4,6 +4,7 @@ import Sidebar from '@/components/chrome/Sidebar.astro';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import PdfDownloadButton from '@/components/generator/PdfDownloadButton.astro';
 import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
@@ -90,6 +91,8 @@ const faq = buildFAQPage([
         <li><strong class="text-navy">Re-print after every password rotation.</strong> Best practice: rotate annually and after any incident.</li>
       </ul>
     </section>
+
+    <RelatedPosts toolKey="wifi-sign" />
 
     <EmailCaptureCard
       magnet="wifi-sign"

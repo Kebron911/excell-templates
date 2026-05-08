@@ -173,6 +173,7 @@ function pinTree({ kicker, title, tagline }) {
                 type: 'div',
                 props: {
                   style: {
+                    display: 'flex',
                     fontWeight: 600,
                     fontSize: 18,
                     letterSpacing: 5,

@@ -4,6 +4,7 @@ import Sidebar from '@/components/chrome/Sidebar.astro';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import PdfDownloadButton from '@/components/generator/PdfDownloadButton.astro';
 import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
@@ -92,6 +93,8 @@ const faq = buildFAQPage([
         <li><strong class="text-navy">Emergency contacts</strong> — host, hospital, police.</li>
       </ol>
     </section>
+
+    <RelatedPosts toolKey="welcome-book" />
 
     <EmailCaptureCard
       magnet="welcome-book"
