@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 6 — CI/CD + production deploy
-**Current task:** Task 35 — Pre-launch deploy + smoke
+**Current task:** Task 36 — Final commit + tag v0.1.0-strops
 **Last update:** 2026-05-08
 
 ---
@@ -10,7 +10,7 @@
 
 - [x] Task 33 — GitHub Actions CI workflow (`ci-strops-tools.yml`, paths-filtered to `STROps-Tools/**`)
 - [x] Task 34 — Hostinger deploy (PowerShell script + GHA workflow + docs/deploy.md)
-- [ ] Task 35 — Pre-launch deploy + smoke
+- [x] Task 35 — Pre-launch deploy + smoke (28/28 HTTPS endpoints 200; 103 pages live)
 - [ ] Task 36 — v0.1.0-strops tag + launched marker
 
 ---

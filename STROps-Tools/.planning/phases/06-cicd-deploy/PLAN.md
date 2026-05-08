@@ -42,12 +42,12 @@
 
 ---
 
-## Task 35 — Pre-launch smoke
+## Task 35 — Pre-launch smoke ✅
 
-- [ ] Run `deploy-strops.ps1` for real (no `-WhatIf`)
-- [ ] Smoke check (HTTPS 200): `/`, all 7 tool routes, 5 sample maintenance MDX pages, 5 sample replacement MDX pages, `/sitemap.xml`, `/robots.txt`, `/og/index.png`, `/about/`, `/contact/`
-- [ ] Document outputs to `STROps-Tools/docs/launch-smoke-2026-05-08.md`
-- [ ] Commit: `feat(strops-tools): pre-launch deploy + smoke verified (Phase 6 Task 35)`
+- [x] Run `deploy-strops.ps1` for real (no `-WhatIf`) — 103 pages built, 21 dist/ entries scp'd
+- [x] Smoke check 28/28 endpoints HTTP 200: `/`, all 7 tool routes, both indexes (`/maintenance/`, `/replace/`), 5 sample maintenance MDX pages, 5 sample replacement MDX pages, all 3 lead magnets, `/sitemap-index.xml`, `/robots.txt`, `/og/index.png`, `/about/`, `/contact/`
+- [x] Document outputs to `STROps-Tools/docs/launch-smoke-2026-05-08.md`
+- [x] Commit: `feat(strops-tools): pre-launch deploy + smoke verified (Phase 6 Task 35)`
 
 **Verify:** All smoke URLs return 200 and serve expected content (not Hostinger default.php).
 
