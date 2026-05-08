@@ -1,0 +1,70 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import { orgJsonLd, articleJsonLd } from '@lib/seo';
+
+const url = 'https://strops.tools/about';
+const lastUpdated = '2026-05-08';
+const title = 'About strops.tools';
+const description = 'strops.tools is the operations cluster of a four-site host suite — free tools and printable SOPs for active short-term rental operators. Built by The STR Ledger.';
+---
+<Layout title={title} description={description} canonical={url} ogImage="/og/about.png">
+  <Fragment slot="head">
+    <JsonLd data={[
+      orgJsonLd(),
+      articleJsonLd({
+        headline: title,
+        url,
+        datePublished: lastUpdated,
+        dateModified: lastUpdated,
+      }),
+    ]} />
+  </Fragment>
+
+  <article class="prose mx-auto max-w-2xl px-6 py-12">
+    <div class="text-label uppercase tracking-widest text-accent mb-2">About</div>
+    <h1>About strops.tools</h1>
+
+    <p class="lead">
+      strops.tools is the operations leg of a four-site host suite. Each site lives on
+      a different stage of the host lifecycle and feeds the next one.
+    </p>
+
+    <h2>Who runs it</h2>
+    <p>
+      Daniel Harrison, behind <a href="https://thestrledger.com" rel="noopener">The STR Ledger</a>.
+      Same shop that ships Excel templates for hosts, plus the rest of the cluster:
+      strbuyers.tools (acquisition), strhost.tools (math), strops.tools (operations — you are here),
+      and strguests.tools (guest XP).
+    </p>
+
+    <h2>What's free, what's not</h2>
+    <p>
+      Everything you can run on this site is free. The seven calculators run client-side —
+      no accounts, no rate limits, no email gate on the math itself. Three printable PDFs
+      are gated by email so we can keep them updated.
+    </p>
+    <p>
+      The paid product is <a href="https://thestrledger.com" rel="noopener">The STR Ledger</a> — Excel
+      workbooks for cash flow, P&amp;L, owner statements, and the rest of the financial backbone.
+      Tools surface the operational gap; the Ledger turns it into reportable numbers.
+    </p>
+
+    <h2>How we make money</h2>
+    <p>
+      Affiliate links to operations vendors (smart locks, noise monitors, PMS, cleaner marketplaces)
+      and Ledger sales. No tool here pushes you to an affiliate before it runs the math.
+    </p>
+
+    <h2>Why so plain</h2>
+    <p>
+      The audience is hosts who run multiple properties. Sophisticated operators tune out a hard sell
+      and reward speed. Tools are the magnet; repeat use is the moat. The aesthetic is operations-utility
+      on purpose.
+    </p>
+
+    <p class="text-sm text-ink3 mt-12">
+      Last updated <time datetime={lastUpdated}>{lastUpdated}</time>.
+    </p>
+  </article>
+</Layout>
