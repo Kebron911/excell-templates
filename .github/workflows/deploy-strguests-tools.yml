@@ -60,14 +60,20 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.STR_SSH_KEY }}
         run: |
+          set -e
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          # Pin host key so MITM is impossible. Hostinger's shared host
-          # key fingerprint is captured here; if it changes, rotate.
-          ssh-keyscan -p 65002 -t ed25519 195.35.15.247 >> ~/.ssh/known_hosts 2>/dev/null
+          # Sanity check the written key. ssh-keygen -y derives the public
+          # key — fails loudly if the private key is malformed.
+          echo "Key file size: $(wc -c < ~/.ssh/id_ed25519) bytes"
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null && echo "Key parses OK"
+          # Pin Hostinger's host key. Output ssh-keyscan to known_hosts
+          # without swallowing errors so a port-block surfaces in logs.
+          ssh-keyscan -p 65002 -t ed25519,rsa,ecdsa 195.35.15.247 >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
+          echo "known_hosts entries: $(wc -l < ~/.ssh/known_hosts)"
 
       - name: Deploy via rsync over SSH
         run: |
