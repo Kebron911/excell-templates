@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { computeLinenPar } from '@lib/calc/linen-par';
 import { encodeState, decodeState, browserReplacer } from '@lib/url-state';
+import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = {
   bedrooms: number;
@@ -28,6 +29,12 @@ export default function LinenParCalculator() {
   }, [s, replacer]);
 
   const r = computeLinenPar(s);
+
+  useEffect(() => {
+    if (r.sheetSets > 0 && markCalcRunOnce('linen-par-calculator')) {
+      track('tool_calc_run', { tool: 'linen-par-calculator' });
+    }
+  }, [r]);
 
   const num = (k: keyof State, label: string, step = 1) => (
     <label className="text-sm">

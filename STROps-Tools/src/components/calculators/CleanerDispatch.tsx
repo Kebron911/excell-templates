@@ -3,6 +3,7 @@ import { buildDispatch } from '@lib/calc/cleaner-dispatch';
 import { buildDispatchPdf } from '@lib/pdf/cleaner-dispatch';
 import { downloadBytes } from '@lib/pdf/base';
 import { encodeState, decodeState, browserReplacer } from '@lib/url-state';
+import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = { date: string; turnovers: string; cleaners: string };
 const defaults: State = {
@@ -38,6 +39,12 @@ export default function CleanerDispatch() {
       return { name, phone };
     });
   const result = buildDispatch({ date: s.date, turnovers, cleaners });
+
+  useEffect(() => {
+    if (result.assignments.length > 0 && markCalcRunOnce('cleaner-dispatch')) {
+      track('tool_calc_run', { tool: 'cleaner-dispatch' });
+    }
+  }, [result]);
 
   async function downloadPdf() {
     const bytes = await buildDispatchPdf(result);

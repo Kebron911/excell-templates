@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { computeRestock, type RestockItem } from '@lib/calc/restock';
 import { encodeState, decodeState, browserReplacer } from '@lib/url-state';
+import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = {
   bookingsPerMonth: number;
@@ -49,6 +50,12 @@ export default function RestockCalculator() {
       }),
     [s.bookingsPerMonth, s.avgGuestsPerStay, items],
   );
+
+  useEffect(() => {
+    if (r.lines.length > 0 && markCalcRunOnce('restock-calculator')) {
+      track('tool_calc_run', { tool: 'restock-calculator' });
+    }
+  }, [r]);
 
   return (
     <div className="calculator-shell border border-rule bg-parchment p-6 my-6">

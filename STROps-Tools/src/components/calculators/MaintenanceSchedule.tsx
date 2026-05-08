@@ -4,6 +4,7 @@ import { buildSchedulePdf } from '@lib/pdf/maintenance-schedule';
 import { buildIcs, downloadIcs } from '@lib/calendar/ics';
 import { downloadBytes } from '@lib/pdf/base';
 import { encodeState, decodeState, browserReplacer } from '@lib/url-state';
+import { track, markCalcRunOnce } from '@lib/analytics';
 import tasks from '@data/tasks.json';
 import type { TaskCatalog } from '@lib/types';
 
@@ -51,6 +52,12 @@ export default function MaintenanceSchedule() {
       }),
     [s],
   );
+
+  useEffect(() => {
+    if (result.events.length > 0 && markCalcRunOnce('maintenance-schedule')) {
+      track('tool_calc_run', { tool: 'maintenance-schedule' });
+    }
+  }, [result]);
 
   async function downloadPdf() {
     const bytes = await buildSchedulePdf(result, `Property: ${s.propertyName}`);

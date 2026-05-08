@@ -43,3 +43,17 @@ const c = copy[magnet];
     </form>
   </div>
 </aside>
+
+<script is:inline>
+  document.addEventListener('submit', (e) => {
+    const form = e.target;
+    if (!(form instanceof HTMLFormElement)) return;
+    const card = form.closest('aside.email-capture');
+    if (!card) return;
+    if (typeof window.gtag !== 'function') return;
+    window.gtag('event', 'email_capture_submit', {
+      magnet: card.getAttribute('data-magnet') || '',
+      tool: card.getAttribute('data-tool') || '',
+    });
+  }, { capture: true });
+</script>

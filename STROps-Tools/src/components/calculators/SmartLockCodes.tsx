@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { codeForAsync } from '@lib/calc/smart-lock-codes';
 import { encodeState, decodeState, browserReplacer } from '@lib/url-state';
+import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = { secret: string; digits: number; bookings: string };
 const defaults: State = {
@@ -33,7 +34,12 @@ export default function SmartLockCodes() {
           code: await codeForAsync({ bookingId: id, secret: s.secret, digits: s.digits }),
         })),
       );
-      if (!cancelled) setOut(rows);
+      if (!cancelled) {
+        setOut(rows);
+        if (rows.length > 0 && markCalcRunOnce('smart-lock-codes')) {
+          track('tool_calc_run', { tool: 'smart-lock-codes' });
+        }
+      }
     })();
     return () => {
       cancelled = true;

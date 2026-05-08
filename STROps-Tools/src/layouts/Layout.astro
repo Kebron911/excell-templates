@@ -14,6 +14,7 @@ interface Props {
 }
 const { title, description, canonical, ogImage = '/og/default.png', showCluster = true } = Astro.props;
 const url = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
+const ga4Id = import.meta.env.PUBLIC_GA4_ID;
 ---
 <!doctype html>
 <html lang="en">
@@ -30,6 +31,27 @@ const url = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
     <meta property="og:image" content={new URL(ogImage, Astro.site).toString()} />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    {ga4Id && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${ga4Id}`}></script>
+        <script is:inline define:vars={{ ga4Id }}>
+          window.dataLayer = window.dataLayer || [];
+          window.gtag = function () { window.dataLayer.push(arguments); };
+          gtag('js', new Date());
+          gtag('config', ga4Id, {
+            linker: {
+              domains: [
+                'strops.tools',
+                'strguests.tools',
+                'strhost.tools',
+                'strbuyers.tools',
+                'thestrledger.com',
+              ],
+            },
+          });
+        </script>
+      </>
+    )}
     <slot name="head" />
   </head>
   <body>

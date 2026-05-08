@@ -1,4 +1,5 @@
 import { PDFDocument, StandardFonts, rgb, PDFPage, PDFFont } from 'pdf-lib';
+import { track } from '@lib/analytics';
 
 // Ops accent green-gray = #4F6B5A
 export const ACCENT = rgb(0x4f / 255, 0x6b / 255, 0x5a / 255);
@@ -72,7 +73,7 @@ export function downloadBytes(bytes: Uint8Array, filename: string) {
   const a = document.createElement('a');
   a.href = url; a.download = filename; a.click();
   URL.revokeObjectURL(url);
-  (window as any).gtag && (window as any).gtag('event', 'pdf_downloaded', { filename });
+  track('pdf_downloaded', { filename });
 }
 
 export function wrapText(text: string, maxChars: number): string[] {

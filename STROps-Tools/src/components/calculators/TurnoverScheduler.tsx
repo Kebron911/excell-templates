@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { computeSchedule, type Booking } from '@lib/calc/turnover';
 import { encodeState, decodeState, browserReplacer } from '@lib/url-state';
+import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = { turnoverHours: number; rows: string };
 const defaults: State = {
@@ -36,6 +37,12 @@ export default function TurnoverScheduler() {
     () => computeSchedule(bookings, { turnoverHours: state.turnoverHours }),
     [bookings, state.turnoverHours],
   );
+
+  useEffect(() => {
+    if (result.turnovers.length > 0 && markCalcRunOnce('turnover-scheduler')) {
+      track('tool_calc_run', { tool: 'turnover-scheduler' });
+    }
+  }, [result]);
 
   return (
     <div className="calculator-shell border border-rule bg-parchment p-6 my-6">

@@ -4,6 +4,8 @@
 interface ImportMetaEnv {
   readonly PUBLIC_ADSENSE_ENABLED?: string;
   readonly PUBLIC_ADSENSE_CLIENT?: string;
+  readonly PUBLIC_GA4_ID?: string;
+  readonly PUBLIC_ESP_ENDPOINT?: string;
 }
 
 interface ImportMeta {

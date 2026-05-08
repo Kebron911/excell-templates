@@ -1,5 +1,6 @@
 import { createEvents, type EventAttributes } from 'ics';
 import type { ScheduleResult } from '@lib/calc/maintenance-schedule';
+import { track } from '@lib/analytics';
 
 export function buildIcs(r: ScheduleResult): string {
   const events: EventAttributes[] = r.events.map(e => {
@@ -26,5 +27,5 @@ export function downloadIcs(content: string, filename: string) {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
-  (window as any).gtag && (window as any).gtag('event', 'ics_downloaded', { filename });
+  track('ics_exported', { filename });
 }

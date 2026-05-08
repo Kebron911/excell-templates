@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import items from '@data/items.json';
+import { track, markCalcRunOnce } from '@lib/analytics';
 
 type Item = {
   name: string;
@@ -23,6 +24,11 @@ export default function DamageCostLookup() {
     return filtered.sort(([, a], [, b]) => a.name.localeCompare(b.name));
   }, [q, cat]);
   const cats = Array.from(new Set(Object.values(catalog).map(i => i.category))).sort();
+  useEffect(() => {
+    if ((q || cat) && markCalcRunOnce('damage-cost-lookup')) {
+      track('tool_calc_run', { tool: 'damage-cost-lookup' });
+    }
+  }, [q, cat]);
   return (
     <div className="calculator-shell border border-rule bg-parchment p-6 my-6">
       <div className="grid md:grid-cols-3 gap-4 mb-4">
