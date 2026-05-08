@@ -1,9 +1,116 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import { orgJsonLd, webApplicationJsonLd } from '@lib/seo';
+import tools from '@data/tools.json';
+
+type ToolEntry = { title: string; primary_keyword: string; magnet: string; blurb: string; affiliates: string[] };
+const list = Object.entries(tools as Record<string, ToolEntry>);
+
+const magnets = [
+  {
+    slug: 'cleaner-sop',
+    href: '/get-the-cleaner-sop',
+    title: 'STR Cleaner SOP',
+    blurb: 'Printable SOP your cleaners follow turn after turn.',
+  },
+  {
+    slug: 'maintenance-checklist',
+    href: '/get-the-maintenance-checklist',
+    title: 'STR Maintenance Checklist',
+    blurb: 'Per-turn / monthly / quarterly / annual maintenance, on cadence.',
+  },
+  {
+    slug: 'supply-par',
+    href: '/get-the-supply-par',
+    title: 'STR Supply Par-Level Sheet',
+    blurb: 'Per-bedroom par levels for every consumable in your closet.',
+  },
+];
+
+const url = 'https://strops.tools/';
+const ogImage = '/og/index.png';
+const description = 'Seven free tools and three printable PDFs for short-term rental hosts running properties.';
 ---
-<Layout title="strops.tools — Free tools for active STR operators" description="Free tools for active short-term rental operators.">
-  <div class="mx-auto max-w-6xl px-6 py-10">
-    <h1 class="text-3xl font-semibold">strops<span class="period-gold">.</span>tools</h1>
-    <p class="text-ink2 mt-2">Free tools for active short-term rental operators.</p>
-  </div>
+<Layout
+  title="strops.tools — Free tools for active STR operators"
+  description={description}
+  canonical={url}
+  ogImage={ogImage}
+>
+  <Fragment slot="head">
+    <JsonLd data={[
+      orgJsonLd(),
+      webApplicationJsonLd({
+        name: 'strops.tools',
+        url,
+        description,
+      }),
+    ]} />
+  </Fragment>
+
+  <section class="mx-auto max-w-5xl px-6 py-16">
+    <div class="text-label uppercase tracking-widest text-accent mb-3">Operations cluster</div>
+    <h1 class="display text-5xl mb-3">
+      Free tools for active short-term rental operators.
+    </h1>
+    <p class="lead text-xl text-ink2 max-w-2xl">
+      Calculators, generators, and printable SOPs that pay for themselves on the first turn.
+      No accounts, no upsells in the calculator. The math runs in your browser; the URL is the save file.
+    </p>
+  </section>
+
+  <section class="border-t border-rule">
+    <div class="mx-auto max-w-5xl px-6 py-12">
+      <div class="text-label uppercase tracking-widest text-ink3 mb-4">Tools</div>
+      <div class="grid md:grid-cols-2 gap-6">
+        {list.map(([slug, t]) => (
+          <a
+            href={`/${slug}`}
+            class="block border border-rule bg-parchment p-5 hover:border-accent transition-colors"
+            data-tool={slug}
+          >
+            <div class="font-semibold text-lg">{t.title}</div>
+            <p class="text-ink2 text-sm mt-1">{t.blurb}</p>
+            <div class="text-xs text-ink3 mt-3 uppercase tracking-widest">
+              Pairs with: <span class="text-accent">{t.magnet}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-rule bg-parchment-alt">
+    <div class="mx-auto max-w-5xl px-6 py-12">
+      <div class="text-label uppercase tracking-widest text-ink3 mb-4">Free downloads</div>
+      <p class="text-ink2 max-w-2xl mb-6">
+        Three printable PDFs you can email yourself and hand to your team. Each pairs with the tools above.
+      </p>
+      <div class="grid md:grid-cols-3 gap-6">
+        {magnets.map(m => (
+          <a
+            href={m.href}
+            class="block border border-rule bg-parchment p-5 hover:border-accent transition-colors"
+            data-magnet={m.slug}
+          >
+            <div class="font-semibold">{m.title}</div>
+            <div class="text-ink2 text-sm mt-1">{m.blurb}</div>
+            <div class="text-xs text-ink3 mt-3 uppercase tracking-widest">PDF</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-rule">
+    <div class="mx-auto max-w-5xl px-6 py-12">
+      <div class="text-label uppercase tracking-widest text-ink3 mb-4">Why this exists</div>
+      <p class="text-ink2 max-w-2xl">
+        We run our own properties. Every tool here started as a spreadsheet we got tired of rebuilding.
+        Operations cost you money in places you can't see — tight turnovers, missed maintenance, restock guesses.
+        These tools surface the gap. The cluster funnel below ties operations into the rest of the host lifecycle.
+      </p>
+    </div>
+  </section>
 </Layout>
