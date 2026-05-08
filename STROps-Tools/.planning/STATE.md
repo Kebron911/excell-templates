@@ -1,8 +1,15 @@
 # STATE
 
 **Current phase:** 5 — Analytics + E2E
-**Current task:** Not yet started (Task 31: GA4 cross-domain analytics)
+**Current task:** Task 31 — GA4 cross-domain analytics (in progress)
 **Last update:** 2026-05-08
+
+---
+
+## Phase 5 progress
+
+- [ ] Task 31 — GA4 cross-domain analytics with full event taxonomy
+- [ ] Task 32 — Playwright E2E suite for 7 tools + sample pages
 
 ---
 
