@@ -1,0 +1,111 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import AdSlot from '@components/ads/AdSlot.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import { howToJsonLd, faqJsonLd } from '@lib/seo';
+import tasksData from '@data/tasks.json';
+import type { TaskCatalog } from '@lib/types';
+
+const tasks = tasksData as unknown as TaskCatalog;
+
+export async function getStaticPaths() {
+  const data = (await import('@data/tasks.json')).default as unknown as TaskCatalog;
+  return Object.keys(data).map((slug) => ({ params: { task: slug } }));
+}
+
+const { task } = Astro.params;
+const t = tasks[task!]!;
+const url = `https://strops.tools/maintenance/${task}/`;
+const monthsNum = t.cadenceDays / 30;
+const months = monthsNum >= 1 ? monthsNum.toFixed(1).replace(/\.0$/, '') : monthsNum.toFixed(2);
+const lowerName = t.name.toLowerCase();
+
+const faqs = [
+  {
+    q: `How often should you ${lowerName} in an Airbnb?`,
+    a: `Every ${t.cadenceDays} days (~${months} months). Skip it and you risk: ${t.consequencesOfSkipping}`,
+  },
+  {
+    q: 'Is this a DIY job or pro?',
+    a: t.skillLevel === 'diy'
+      ? 'Most STR operators handle this themselves with a 15-30 minute turnaround.'
+      : 'Best handled by a licensed contractor — schedule it once a year and forget about it.',
+  },
+  {
+    q: 'How much does it cost?',
+    a: `Typical range is $${t.estimatedCostUsd[0]}–$${t.estimatedCostUsd[1]} per occurrence.`,
+  },
+];
+
+const steps = [
+  { name: 'Schedule it', text: `Add a recurring reminder every ${t.cadenceDays} days using the maintenance schedule generator.` },
+  { name: 'Stage supplies', text: 'Stash supplies in your cleaner closet so the task does not slow turn cleans.' },
+  { name: 'Document it', text: 'Photograph each completion to defend against guest claims and document insurance compliance.' },
+];
+---
+<Layout
+  title={`How often to ${lowerName} in an Airbnb`}
+  description={`Cadence, cost, and consequences for ${lowerName} in a short-term rental.`}
+  canonical={url}
+>
+  <Fragment slot="head">
+    <JsonLd data={[
+      howToJsonLd({ name: t.name, description: t.consequencesOfSkipping, steps }),
+      faqJsonLd(faqs),
+    ]} />
+  </Fragment>
+  <article class="prose mx-auto max-w-3xl px-6 py-10">
+    <h1>How often to {lowerName} in an Airbnb</h1>
+    <p class="lead">
+      Every {t.cadenceDays} days (~{months} months). Cost: ${t.estimatedCostUsd[0]}–${t.estimatedCostUsd[1]}.
+      {t.skillLevel === 'diy' ? ' DIY-friendly.' : ' Best left to a pro.'}
+    </p>
+
+    <h2>Why it matters</h2>
+    <p>{t.consequencesOfSkipping}</p>
+
+    <AdSlot location="in-content" />
+
+    <h2>Cost</h2>
+    <p>
+      Typical range: ${t.estimatedCostUsd[0]}–${t.estimatedCostUsd[1]}. Climate, property age, and the time
+      since the last completion push the higher end.
+    </p>
+
+    <h2>DIY vs pro</h2>
+    <p>
+      {t.skillLevel === 'diy'
+        ? 'Most operators handle this in 15-30 minutes. Stage supplies once and the task disappears into your cleaner workflow.'
+        : 'Recommend a licensed contractor. One phone call and an annual calendar invite covers the whole year.'}
+    </p>
+
+    <h2>Signs you waited too long</h2>
+    <p>
+      Guest complaints, efficiency drops, or visible degradation. Track these in your operations log so you
+      can tighten cadence next cycle.
+    </p>
+
+    <h2>Season</h2>
+    <p>
+      {t.season === 'all'
+        ? 'Year-round task — cadence is the only thing that matters.'
+        : `Best handled in ${t.season}; aligns with weather and guest demand.`}
+    </p>
+
+    <EmailCaptureCard magnet="maintenance-checklist" tool={`maintenance-${task}`} />
+
+    <h2>FAQ</h2>
+    {faqs.map((f) => (
+      <div>
+        <h3>{f.q}</h3>
+        <p>{f.a}</p>
+      </div>
+    ))}
+
+    <STRLedgerCTA tool="maintenance-schedule" />
+
+    <p class="text-ink3 text-xs">Last verified {t.lastVerified}.</p>
+  </article>
+</Layout>
