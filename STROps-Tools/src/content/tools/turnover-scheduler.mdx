@@ -1,0 +1,23 @@
+---
+title: Airbnb Turnover Scheduler
+slug: turnover-scheduler
+description: Spot tight turnovers and conflicts across multiple Airbnb properties.
+---
+
+## Intro
+
+Multi-property hosts juggle dozens of checkouts and checkins per week. Tight turnovers — the same-day gaps where one guest leaves and another arrives — are the single biggest operational risk. Miss the window and the next guest walks into a half-cleaned unit.
+
+## How it works
+
+Paste your bookings as one row per line in the format `propertyId,bookingId,checkIn,checkOut`. The tool sorts per-property, computes the gap between every adjacent pair using fixed checkout (11:00 UTC) and check-in (15:00 UTC) times, and flags every gap below your minimum.
+
+## FAQ
+
+**What is a turnover gap?** The hours between one guest checking out and the next checking in.
+
+**Why does same-day turnover matter?** It compresses every operational task — cleaning, linen swap, inspection, stocking — into 4-6 hours.
+
+**What does "tight" mean?** A gap shorter than the hours you set as your minimum.
+
+**Are bookings stored anywhere?** No. All inputs live only in your URL.
