@@ -1,0 +1,41 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Sidebar from '@components/chrome/Sidebar.astro';
+import DamageCostLookup from '@components/calculators/DamageCostLookup.tsx';
+import AdSlot from '@components/ads/AdSlot.astro';
+import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+
+const url = 'https://strops.tools/damage-cost-lookup';
+const faqs = [
+  { q: 'Where do these costs come from?', a: 'Hand-compiled from major retailer pricing snapshots. Always verify against current quotes for your market.' },
+  { q: 'Are these wholesale or retail?', a: 'Retail mid-market — what you would pay walking into a Home Depot or ordering from Wayfair.' },
+  { q: 'How often is the catalog updated?', a: 'Each item carries a "lastVerified" date. Major appliances and furniture are reviewed quarterly.' },
+];
+---
+<Layout title="Airbnb Damage Cost Lookup — strops.tools" description="Replacement cost reference for common Airbnb furniture, electronics, and finishes." canonical={url}>
+  <Fragment slot="head">
+    <JsonLd data={[
+      webApplicationJsonLd({ name: 'Airbnb Damage Cost Lookup', url, description: 'Replacement cost reference for common Airbnb items.' }),
+      faqJsonLd(faqs),
+    ]} />
+  </Fragment>
+  <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">
+    <article class="flex-1 prose">
+      <h1>Damage Cost Lookup</h1>
+      <p class="lead">Search the replacement-cost catalog before you file the AirCover claim — know what you're asking for.</p>
+      <DamageCostLookup client:load />
+      <AdSlot location="in-content" />
+      <h2>How it works</h2>
+      <p>Each row is a hand-compiled retail mid-market price range plus expected lifespan. Click any row to open the deep-dive page for that item with brand recommendations and how-to-replace guidance.</p>
+      <EmailCaptureCard magnet="maintenance-checklist" tool="damage-cost-lookup" />
+      <h2>FAQ</h2>
+      {faqs.map(f => <div><h3>{f.q}</h3><p>{f.a}</p></div>)}
+      <STRLedgerCTA tool="damage-cost-lookup" />
+      <AdSlot location="footer" />
+    </article>
+    <Sidebar current="damage-cost-lookup" />
+  </div>
+</Layout>

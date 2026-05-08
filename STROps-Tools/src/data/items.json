@@ -1,0 +1,74 @@
+{
+  "queen-mattress": {
+    "name": "Queen mattress",
+    "category": "bedroom",
+    "costRange": [400, 1500],
+    "lifespanYears": 8,
+    "brandRecs": ["Tuft & Needle", "Saatva", "Sealy"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "king-mattress": {
+    "name": "King mattress",
+    "category": "bedroom",
+    "costRange": [600, 2200],
+    "lifespanYears": 8,
+    "brandRecs": ["Tuft & Needle", "Saatva", "Sealy"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "sofa-3-seat": {
+    "name": "3-seat sofa",
+    "category": "living",
+    "costRange": [600, 3000],
+    "lifespanYears": 7,
+    "brandRecs": ["IKEA Friheten", "Article", "West Elm"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "tv-55-inch": {
+    "name": "55\" smart TV",
+    "category": "electronics",
+    "costRange": [350, 900],
+    "lifespanYears": 6,
+    "brandRecs": ["TCL", "Hisense", "LG"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "table-lamp": {
+    "name": "Table lamp",
+    "category": "living",
+    "costRange": [40, 200],
+    "lifespanYears": 5,
+    "brandRecs": ["IKEA", "Target Threshold"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "interior-repaint-room": {
+    "name": "Interior repaint (single room)",
+    "category": "utility",
+    "costRange": [250, 700],
+    "lifespanYears": 5,
+    "brandRecs": ["Sherwin-Williams ProMar 200"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "carpet-replace-bedroom": {
+    "name": "Bedroom carpet replacement",
+    "category": "bedroom",
+    "costRange": [400, 1200],
+    "lifespanYears": 7,
+    "brandRecs": ["Mohawk SmartStrand", "Shaw"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  },
+  "kitchen-faucet": {
+    "name": "Kitchen faucet",
+    "category": "kitchen",
+    "costRange": [120, 400],
+    "lifespanYears": 10,
+    "brandRecs": ["Moen", "Delta"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-01"
+  }
+}
