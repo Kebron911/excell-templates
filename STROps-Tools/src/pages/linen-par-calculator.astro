@@ -1,0 +1,52 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Sidebar from '@components/chrome/Sidebar.astro';
+import LinenParCalculator from '@components/calculators/LinenParCalculator.tsx';
+import AdSlot from '@components/ads/AdSlot.astro';
+import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+import affiliates from '@data/affiliates.json';
+
+const url = 'https://strops.tools/linen-par-calculator';
+const faqs = [
+  { q: 'What is "par"?', a: 'The number of complete sets you keep on hand so cleaners can swap dirty for fresh without waiting on laundry.' },
+  { q: 'Why 3 sets per bed?', a: 'One on the bed, one in the wash, one on the shelf — the standard rotation for back-to-back turnovers.' },
+  { q: 'Why split king vs queen?', a: 'Sheets are size-specific. Knowing the split prevents over-buying the wrong size.' },
+  { q: 'Are these counts saved?', a: 'No. Inputs live only in your URL.' },
+];
+---
+<Layout title="Airbnb Linen Par Calculator — strops.tools" description="Calculate sheet and towel par levels per property — never run short on a turnover." canonical={url}>
+  <Fragment slot="head">
+    <JsonLd data={[
+      webApplicationJsonLd({ name: 'Airbnb Linen Par Calculator', url, description: 'Sheet and towel par levels per property.' }),
+      faqJsonLd(faqs),
+    ]} />
+  </Fragment>
+  <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">
+    <article class="flex-1 prose">
+      <h1>Linen Par Calculator</h1>
+      <p class="lead">Stop running short on changeovers. Plug in your bedroom and bathroom counts and get a clean par-level target.</p>
+      <LinenParCalculator client:load />
+      <AdSlot location="in-content" />
+      <h2>How it works</h2>
+      <p>For each bedroom we multiply by your sheet-sets-per-bed (default 3 — one on the bed, one in the wash, one on the shelf). For bathrooms we multiply by towel-sets-per-bath. The king/queen split lets you separate sheet purchases by size.</p>
+      <EmailCaptureCard magnet="supply-par" tool="linen-par-calculator" />
+      <h2>How to use this tool</h2>
+      <ol>
+        <li>Enter bedroom and bathroom counts.</li>
+        <li>Adjust per-bed and per-bath multipliers for your turnover cadence.</li>
+        <li>Set the king share (0 to 1) to split the sheet count.</li>
+        <li>Use the result as your reorder threshold.</li>
+      </ol>
+      <h2>FAQ</h2>
+      {faqs.map(f => <div><h3>{f.q}</h3><p>{f.a}</p></div>)}
+      <STRLedgerCTA tool="linen-par-calculator" />
+      <AffiliateCard {...(affiliates as any)['turno']} vendorId="turno" />
+      <AdSlot location="footer" />
+    </article>
+    <Sidebar current="linen-par-calculator" />
+  </div>
+</Layout>
