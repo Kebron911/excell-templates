@@ -51,63 +51,34 @@ jobs:
           test -d dist/blog/how-to-calculate-airbnb-profitability
           echo "Build output OK"
 
-      # Normalize STRHOST_DOC_ROOT for the FTP user's chroot.
-      #
-      # Hostinger's domain-scoped FTP user (e.g. u123.strhost.tools) is
-      # chrooted to /home/<u>/domains/<domain>/. If the secret holds the
-      # SSH-visible absolute path /home/<u>/domains/<domain>/public_html,
-      # the FTP server treats `/home/...` as a path inside the chroot and
-      # creates a deeply nested mirror (took down the first deploy until
-      # we caught it via SSH). Strip that prefix so FTP sees /public_html.
-      #
-      # Also: strip stray CR/LF/whitespace from the secret value, and
-      # ensure trailing slash (FTP-Deploy-Action requires it).
-      - name: Normalize server-dir
-        id: server_dir
-        shell: bash
+      # SSH-based deploy via the master Hostinger account u470667024 +
+      # the shared cluster SSH key in secret STR_SSH_KEY. Same pattern
+      # as strguests-tools — single key for the whole cluster, drops
+      # the per-site STRHOST_FTP_* secrets.
+      - name: Set up SSH key
         env:
-          RAW_DIR: ${{ secrets.STRHOST_DOC_ROOT }}
+          SSH_PRIVATE_KEY: ${{ secrets.STR_SSH_KEY }}
         run: |
-          DIR=$(printf '%s' "$RAW_DIR" | tr -d '\r\n[:space:]')
-          # Strip leading /home/<user>/domains/<domain>/ if present.
-          DIR=$(printf '%s' "$DIR" | sed -E 's#^/home/[^/]+/domains/[^/]+##')
-          # Ensure leading slash, single trailing slash.
-          [[ "$DIR" != /* ]] && DIR="/$DIR"
-          DIR="${DIR%/}/"
-          printf 'value=%s\n' "$DIR" >> "$GITHUB_OUTPUT"
+          set -e
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null && echo "Key parses OK"
+          ssh-keyscan -p 65002 -t ed25519,rsa,ecdsa 195.35.15.247 >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
-      # If Hostinger FTPS times out (rare; once in ~10 deploys observed
-      # 2026-05-07), re-run the failed job from the Actions tab —
-      # wrapping a uses-block in retry adds more YAML than it saves.
-      - name: Deploy to Hostinger via FTPS
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.STRHOST_FTP_HOST }}
-          username: ${{ secrets.STRHOST_FTP_USER }}
-          password: ${{ secrets.STRHOST_FTP_PASS }}
-          port: ${{ secrets.STRHOST_FTP_PORT }}
-          protocol: ftps
-          local-dir: ./STRHost-Tools/dist/
-          server-dir: ${{ steps.server_dir.outputs.value }}
-          # Keep these on the server after deploy. Note: .htaccess IS
-          # deployed (it's in public/.htaccess and we want our cache rules
-          # applied on every deploy).
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-          # State file caches what we've uploaded so subsequent deploys
-          # only sync changed files (much faster than full re-upload).
-          state-name: .ftp-deploy-sync-state.json
-          dry-run: false
-          log-level: standard
+      - name: Deploy via rsync over SSH
+        run: |
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            -e 'ssh -i ~/.ssh/id_ed25519 -p 65002 -o StrictHostKeyChecking=accept-new' \
+            ./STRHost-Tools/dist/ \
+            u470667024@195.35.15.247:/home/u470667024/domains/strhost.tools/public_html/
 
-      # Notify Bing/Yandex/Seznam/Naver via IndexNow. Free, instant
-      # indexing signal. Google doesn't participate but submits to GSC
-      # are a separate (manual) step — see ROADMAP PL-1.
-      #
-      # Soft-failure: if IndexNow is down or rejects, we don't want to
-      # mark the whole deploy as failed (the site still works).
+      # Notify Bing/Yandex/Seznam/Naver via IndexNow. Soft-fail so a
+      # transient API hiccup doesn't fail the whole deploy.
       - name: Notify IndexNow
         continue-on-error: true
         run: node STRHost-Tools/scripts/indexnow-submit.mjs
