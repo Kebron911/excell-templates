@@ -1,23 +1,25 @@
 # Deploy — strhost.tools
 
-**Target:** Hostinger shared hosting via FTPS.
+**Target:** Hostinger shared hosting via SSH + rsync.
 **Trigger:** every push to `main` that touches `STRHost-Tools/**` or the workflow file.
 **Workflow:** [.github/workflows/deploy-strhost-tools.yml](../../.github/workflows/deploy-strhost-tools.yml)
 
 ## One-time GitHub repo setup
 
-Go to **GitHub → repo → Settings → Secrets and variables → Actions → New repository secret** and add the following six. Values come from `~/Desktop/Claude OS/.secrets/hostinger.env` — copy from there, paste into GitHub.
+The deploy uses a **single shared cluster secret**, `STR_SSH_KEY`, set once at the repo level. Same key works for strhost / strguests / strbuyers / strops.
 
-| Secret name | Source line in `hostinger.env` | Notes |
+| Secret name | Source | Notes |
 |---|---|---|
-| `STRHOST_FTP_HOST` | `STRHOST_FTP_HOST=` | usually `ftp.strhost.tools` or the shared IP |
-| `STRHOST_FTP_USER` | `STRHOST_FTP_USER=` | full hPanel FTP username |
-| `STRHOST_FTP_PASS` | `STRHOST_FTP_PASS=` | the FTP password (not your hPanel password) |
-| `STRHOST_FTP_PORT` | `STRHOST_FTP_PORT=` | typically `21` (FTPS explicit) |
-| `STRHOST_DOC_ROOT` | `STRHOST_DOC_ROOT=` | Either `/public_html/` (FTP-chroot view) or the SSH-style absolute `/home/<user>/domains/<domain>/public_html/`. The workflow strips the `/home/.../domains/<domain>/` prefix automatically — but the FTP user is chrooted to the domain dir, so the FTP-relative form is the canonical one. |
-| `STRHOST_GA4_ID` | (optional) | `G-XXXXXXXXXX`. Omit and the script tag is skipped at build time. |
+| `STR_SSH_KEY` | `~/.ssh/hostinger_ed25519` private key | Already set as of 2026-05-08. One key for the whole cluster. |
+| `STRHOST_GA4_ID` | (optional) | `G-XXXXXXXXXX`. Omit and the GA4 script tag is skipped at build time. |
 
-After adding all six, the next push to `main` will trigger a deploy automatically.
+Set the SSH key (one time):
+
+```powershell
+gh secret set STR_SSH_KEY --repo Kebron911/excell-templates < "$env:USERPROFILE\.ssh\hostinger_ed25519"
+```
+
+The corresponding public key (`hostinger_ed25519.pub`) must be in `~u470667024/.ssh/authorized_keys` on the Hostinger server. Already configured.
 
 ## Manual trigger
 
@@ -26,55 +28,59 @@ Repo → **Actions** tab → **Deploy strhost.tools** → **Run workflow** → b
 ## What the workflow does
 
 1. Checks out the repo
-2. Installs pnpm + Node 20 (with cache)
+2. Installs pnpm + Node 22
 3. `pnpm install --frozen-lockfile` inside `STRHost-Tools/`
-4. `pnpm build` — produces `STRHost-Tools/dist/`, including `dist/blog/`
+4. `pnpm build` — produces `STRHost-Tools/dist/` (static site + sitemap + 69 OG PNGs)
 5. Sanity-checks the build output (fails the run if `dist/blog/index.html` is missing)
-6. FTPS-uploads `dist/` → `STRHOST_DOC_ROOT` using `SamKirkland/FTP-Deploy-Action`
-7. Skips files matching `.git*`, `node_modules/`, `.htaccess` (don't overwrite Hostinger's redirect rules)
-8. Persists a sync state file (`.ftp-deploy-sync-state.json`) on the server so the next run only uploads changed files
+6. Writes `STR_SSH_KEY` to the runner's `~/.ssh/id_ed25519`, validates with `ssh-keygen -y`, pins the Hostinger host key via `ssh-keyscan`
+7. `rsync -av --delete` from `STRHost-Tools/dist/` → `u470667024@195.35.15.247:/home/u470667024/domains/strhost.tools/public_html/` over SSH port 65002
+8. POSTs the live sitemap URL list to IndexNow → Bing/Yandex/Seznam/Naver
 
 ## Verifying a deploy worked
 
 After the workflow finishes:
 
 - `https://strhost.tools/` — landing should still load
-- `https://strhost.tools/blog` — should now return 200 with the post grid
+- `https://strhost.tools/blog` — should return 200 with the post grid
 - `https://strhost.tools/blog/how-to-calculate-airbnb-profitability` — should return 200
-- `https://strhost.tools/sitemap-index.xml` — should now include the 6 blog post URLs
+- `https://strhost.tools/sitemap-index.xml` — should include the blog post URLs
+- `https://strhost.tools/feed.xml` — RSS feed
 
 If `/blog` is still 404 after a successful run, two things to check:
 
 1. **LiteSpeed cache.** Hostinger caches static files aggressively. If `/blog` was a 404 before the deploy and is still 404 after, hPanel → LiteSpeed Cache → **Purge All**.
-2. **Wrong-path nesting.** SSH in and verify files actually landed in the served doc root:
+2. **File-system check via SSH:**
 
 ```bash
-ssh -i ~/.ssh/hostinger_ed25519 -p 65002 u470667024@<host>
+ssh -i ~/.ssh/hostinger_ed25519 -p 65002 u470667024@195.35.15.247
 ls -la /home/u470667024/domains/strhost.tools/public_html/blog/
 # Should show 6 post directories + index.html.
-# If instead you see /home/u470667024/domains/strhost.tools/home/u470667024/...
-# then the FTP user's chroot is creating a nested clone.
-# Fix: simplify STRHOST_DOC_ROOT secret to /public_html/ (no /home prefix).
 ```
 
-The first deploy actually hit this — files landed at the deeply nested mirror path. Caught via SSH, recovered via `rsync` from wrong-path → real path. Workflow now strips the `/home/.../domains/<domain>/` prefix as a guardrail.
+## Migration history
+
+This workflow originally used FTPS via the per-domain sub-FTP account `u470667024.strhost.tools`. The first deploy hit a chroot bug — the sub-FTP-user is chrooted to the domain root, so an absolute `/home/.../domains/strhost.tools/public_html/` path created a deeply nested mirror inside the chroot. Recovered via SSH `rsync` from the wrong-path → real path.
+
+The strguests.tools deploy then hit a different FTP failure mode: Hostinger never provisioned the `u470667024.strguests.tools` sub-FTP-user, so all FTPS auth attempts returned `530 Login incorrect`. SSH+rsync via the master account always works because the master account exists from day one.
+
+So the cluster moved to a single shared-key SSH model. The five per-site `*_FTP_*` secrets are no longer used and can be deleted from GitHub when convenient.
 
 ## Rollback
 
-The FTP deploy doesn't keep history. To roll back:
+The deploy doesn't keep history server-side. To roll back:
 
 1. `git revert <commit-sha>` on `main`, or
 2. Re-run the workflow against an older commit via Actions → Run workflow → choose ref
 
-The state file (`.ftp-deploy-sync-state.json`) on the server will detect the regression as a forward-change and re-upload the older files.
+`rsync --delete` will remove server files that no longer exist in the older `dist/`, so rollback is clean.
 
 ## Cost notes
 
-- GitHub Actions: free tier covers this comfortably (~2 min per run on `ubuntu-latest`).
-- FTPS bandwidth: counts against Hostinger's account allowance — small (single-digit MB per deploy after first).
+- GitHub Actions: free tier covers this (~2 min per run on `ubuntu-latest`).
+- SSH bandwidth: counts against Hostinger's account allowance — single-digit MB per deploy after the first full sync.
 - No third-party deploy service required.
 
 ## Related
 
-- [docs/STATE.md](./STATE.md) — Phase 6 was originally blocked on Hostinger creds; this workflow closes the blocker for the static-site portion of Phase 6.
-- [astro.config.mjs](../astro.config.mjs) — `output: 'static'` is what makes FTP deploy possible. Don't switch to SSR without first wiring Node app deploy (would need a different workflow).
+- [docs/CLUSTER-BLOG-STANDARD.md](../../docs/CLUSTER-BLOG-STANDARD.md) — cluster-wide blog conventions every sister site follows.
+- [astro.config.mjs](../astro.config.mjs) — `output: 'static'` is what makes rsync deploy possible. Switching to SSR would need a different deploy path (Hostinger Node.js Web App).
