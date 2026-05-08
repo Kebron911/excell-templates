@@ -52,7 +52,7 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 
 ---
 
-## Phase 5 — Analytics + E2E
+## Phase 5 — Analytics + E2E `[completed 2026-05-08]`
 
 **Goal:** GA4 cross-domain + custom events (incl. `pdf_downloaded`, `ics_exported`), Playwright smoke per tool.
 
@@ -94,5 +94,5 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 | 2 — Seven tools | completed | 2026-05-07 | 2026-05-07 |
 | 3 — Programmatic pages | completed | 2026-05-07 | 2026-05-07 |
 | 4 — Site pages + lead magnets | completed | 2026-05-07 | 2026-05-08 |
-| 5 — Analytics + E2E | active | 2026-05-08 | — |
-| 6 — CI/CD + deploy | not-started | — | — |
+| 5 — Analytics + E2E | completed | 2026-05-08 | 2026-05-08 |
+| 6 — CI/CD + deploy | active | 2026-05-08 | — |
