@@ -84,7 +84,12 @@ const {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const input = form.querySelector<HTMLInputElement>('input[name="email"]');
-      const status = form.parentElement?.querySelector<HTMLElement>('[data-email-capture-status]');
+      // Status <p> is a sibling of the form's outer wrapper div, both inside
+      // the <aside> root of the card. closest('aside') finds the card root,
+      // then we query down to the status. (form.parentElement is the inner
+      // flex wrapper, which doesn't contain the status element.)
+      const card = form.closest('aside');
+      const status = card?.querySelector<HTMLElement>('[data-email-capture-status]');
       const email = input?.value?.trim();
       const magnet = form.dataset.magnet ?? '';
       const tool = form.dataset.tool ?? '';

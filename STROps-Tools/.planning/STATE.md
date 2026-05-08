@@ -1,7 +1,7 @@
 # STATE
 
 **Current phase:** 5 — Analytics + E2E
-**Current task:** Task 31 — GA4 cross-domain analytics (in progress)
+**Current task:** Task 32 — Playwright E2E suite (complete)
 **Last update:** 2026-05-08
 
 ---
@@ -9,7 +9,9 @@
 ## Phase 5 progress
 
 - [x] Task 31 — GA4 cross-domain analytics with full event taxonomy
-- [ ] Task 32 — Playwright E2E suite for 7 tools + sample pages
+- [x] Task 32 — Playwright E2E suite (26 smokes: 8 tool + 5 maint + 5 replace + 1 landing + 2 a11y + 2 index-sort + 3 lead-magnet)
+
+**Phase 5 complete: 2/2 tasks. 2026-05-08.**
 
 ---
 

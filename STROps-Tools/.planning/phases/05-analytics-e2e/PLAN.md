@@ -68,7 +68,7 @@
 
   Commit: `feat(strops-tools): GA4 cross-domain analytics with full event taxonomy (Phase 5 Task 31)`
 
-- [ ] **Task 32 — Playwright E2E suite for 7 tools + sample pages**
+- [x] **Task 32 — Playwright E2E suite for 7 tools + sample pages**
 
   **Install + configure:**
 
