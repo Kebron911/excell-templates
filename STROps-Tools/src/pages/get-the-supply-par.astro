@@ -1,0 +1,95 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import tools from '@data/tools.json';
+
+type ToolEntry = { title: string; magnet: string; blurb: string; affiliates: string[] };
+const magnet = 'supply-par';
+const file = '/pdf/supply-par-v0.pdf';
+const title = 'STR Supply Par-Level Sheet (PDF)';
+const blurb =
+  "Per-bedroom par levels for sheets, towels, paper goods, kitchen consumables, and amenity restocks. Quietly answers the only question that matters on changeover day: do we have enough?";
+const url = 'https://strops.tools/get-the-supply-par';
+const ogImage = '/og/get-the-supply-par.png';
+
+const pairs = Object.entries(tools as Record<string, ToolEntry>)
+  .filter(([, t]) => t.magnet === magnet);
+---
+<Layout title={title} description={blurb} canonical={url} ogImage={ogImage}>
+  <article class="prose mx-auto max-w-2xl px-6 py-12">
+    <div class="text-label uppercase tracking-widest text-accent mb-2">Free download</div>
+    <h1>{title}</h1>
+    <p class="lead">{blurb}</p>
+
+    <form
+      class="magnet-capture border border-rule bg-parchment-alt p-6 my-8"
+      data-magnet={magnet}
+      action={import.meta.env.PUBLIC_ESP_ENDPOINT || ''}
+      method="post"
+      novalidate
+    >
+      <label class="block text-sm font-semibold">
+        Your email
+        <input
+          type="email"
+          name="email"
+          required
+          placeholder="you@host.com"
+          class="block w-full border border-rule px-3 py-2 mt-1 bg-parchment font-normal"
+        />
+      </label>
+      <button
+        type="submit"
+        class="bg-accent text-parchment px-4 py-2 mt-4 font-semibold hover:bg-accent-deep"
+      >
+        Send me the par sheet
+      </button>
+      <p class="text-xs text-ink3 mt-3 magnet-status" aria-live="polite">
+        We'll email a download link. Stub preview is also linked below.
+      </p>
+    </form>
+
+    <p>
+      <a href={file} class="underline decoration-accent underline-offset-4" data-magnet={magnet}>
+        Download stub preview &rarr;
+      </a>
+    </p>
+
+    <h2 id="pairs">Tools that pair with this par sheet</h2>
+    <ul>
+      {pairs.map(([slug, t]) => (
+        <li>
+          <a href={`/${slug}`} class="font-semibold">{t.title}</a> — <span class="text-ink2">{t.blurb}</span>
+        </li>
+      ))}
+    </ul>
+  </article>
+
+  <script>
+    import { track } from '@lib/analytics';
+
+    document.querySelectorAll<HTMLFormElement>('form.magnet-capture').forEach((form) => {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const magnetName = form.getAttribute('data-magnet') || '';
+        const emailInput = form.querySelector<HTMLInputElement>('input[name="email"]');
+        const status = form.querySelector<HTMLElement>('.magnet-status');
+        if (!emailInput || !emailInput.checkValidity()) {
+          if (status) status.textContent = 'Please enter a valid email address.';
+          return;
+        }
+        const espEndpoint = form.getAttribute('action') || '';
+        track('magnet_captured', { magnet: magnetName, esp: espEndpoint ? 'configured' : 'stub' });
+
+        if (espEndpoint) {
+          fetch(espEndpoint, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ email: emailInput.value, magnet: magnetName }),
+          }).catch(() => { /* swallow */ });
+        }
+        if (status) status.textContent = 'Thanks — check your inbox. The stub preview is linked below in the meantime.';
+        emailInput.value = '';
+      });
+    });
+  </script>
+</Layout>

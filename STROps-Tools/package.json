@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
+    "build:magnets": "node scripts/build-stub-magnets.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
@@ -39,6 +40,7 @@
     "satori": "^0.11.0",
     "sharp": "^0.33.5",
     "tailwindcss": "^3.4.13",
+    "tsx": "^4.21.0",
     "typescript": "^5.6.2",
     "vitest": "^2.1.1"
   },
