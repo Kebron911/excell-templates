@@ -1,0 +1,51 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+---
+
+<Layout
+  title="Disclosures — STR Host Tools"
+  description="Affiliate, advertising, and editorial disclosures for STR Host Tools. How we make money and what that means for the math on this site."
+  path="/disclosures"
+>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9 prose">
+      <h1 class="text-h1 font-serif text-navy leading-tight">
+        Disclosures<span class="period-gold">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2">
+        How this site stays free and what that means for the numbers.
+      </p>
+
+      <h2>Affiliate revenue</h2>
+      <p>
+        STR Host Tools earns a small commission when you click an outbound link to a paid product — typically a workbook on <a href="https://thestrledger.com">The STR Ledger</a> or, occasionally, a third-party tool we genuinely use. The price you pay is the same; the affiliate network attributes the click. We disclose this here once, sitewide, instead of cluttering every page with a banner.
+      </p>
+
+      <h2>Editorial independence</h2>
+      <p>
+        No advertiser pays us to feature their product on a calculator or in a blog post. Recommendations are based on what we actually use to run short-term rentals. If a paid placement ever happens, the page will be marked "sponsored" at the top.
+      </p>
+
+      <h2>Calculator math</h2>
+      <p>
+        Formulas are best-effort and documented on each tool's page. Airbnb's host service fee is described as 3% (split fee) by default; Vrbo's commission and pay-per-booking model is referenced where relevant. Platform fee structures change without notice — the on-page formula is what the calculator actually uses, even if the marketing copy lags.
+      </p>
+
+      <h2>Lodging-tax data</h2>
+      <p>
+        State lodging-tax pages cite the Department of Revenue or equivalent state authority. Local add-on rates (city, county, special district) vary by jurisdiction; the ranges shown are typical, not exhaustive. Always verify your specific city/county rate with the local taxing authority before you file. Calculator output is not tax or legal advice.
+      </p>
+
+      <h2>Sister sites</h2>
+      <p>
+        STR Host Tools is part of the STR cluster published by The STR Ledger: strhost.tools (this site), strbuyers.tools, strops.tools, and strguests.tools. Cross-site links between cluster sites are first-party, not affiliate.
+      </p>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: var(--sp-7); margin-bottom: var(--sp-3); line-height: 1.1; }
+  .prose :global(p) { color: var(--fg-1); margin-bottom: var(--sp-3); line-height: 1.6; }
+  .prose :global(a) { color: var(--brand-navy); text-decoration: underline; text-decoration-color: var(--brand-gold); text-underline-offset: 3px; }
+</style>
