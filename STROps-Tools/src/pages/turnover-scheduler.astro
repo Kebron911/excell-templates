@@ -1,0 +1,53 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Sidebar from '@components/chrome/Sidebar.astro';
+import TurnoverScheduler from '@components/calculators/TurnoverScheduler.tsx';
+import AdSlot from '@components/ads/AdSlot.astro';
+import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+import affiliates from '@data/affiliates.json';
+
+const url = 'https://strops.tools/turnover-scheduler';
+const faqs = [
+  { q: 'What is a turnover gap?', a: 'The hours between one guest checking out and the next checking in — your window for cleaning, restocking, and inspection.' },
+  { q: 'Why does same-day turnover matter?', a: 'Same-day turnovers compress every operational task into 4-6 hours. Tracking them helps you decide whether to staff up or block the night.' },
+  { q: 'What does a "tight" turnover mean?', a: 'A turnover gap shorter than the hours you set as your minimum — flagged so you can act early.' },
+  { q: 'Are bookings stored?', a: 'No. All inputs live in your URL only — nothing is sent to a server.' },
+  { q: 'Can I print this?', a: 'Yes. The print stylesheet shows just the inputs and the schedule.' },
+];
+---
+<Layout title="Airbnb Turnover Scheduler — strops.tools" description="Spot tight turnovers and conflicts across multiple Airbnb properties." canonical={url} ogImage="/og/turnover-scheduler.png">
+  <Fragment slot="head">
+    <JsonLd data={[
+      webApplicationJsonLd({ name: 'Airbnb Turnover Scheduler', url, description: 'Spot tight turnovers and booking conflicts.' }),
+      faqJsonLd(faqs),
+    ]} />
+  </Fragment>
+  <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">
+    <article class="flex-1 prose">
+      <h1>Airbnb Turnover Scheduler</h1>
+      <p class="lead">Paste your bookings, set your turnover window, and see every tight changeover and overlap at a glance.</p>
+      <TurnoverScheduler client:load />
+      <AdSlot location="in-content" />
+      <h2>How it works</h2>
+      <p>Each booking gets a check-out time of 11:00 UTC and the next a check-in of 15:00 UTC. We sort per-property, compute the gap in hours, and flag any below your "turnover hours required" threshold. Same-property check-out before the previous check-out is reported as a conflict.</p>
+      <EmailCaptureCard magnet="cleaner-sop" tool="turnover-scheduler" />
+      <h2>How to use this tool</h2>
+      <ol>
+        <li>Set your minimum turnover window (default 4 hours).</li>
+        <li>Paste bookings — one per line: <code>propertyId,bookingId,checkIn,checkOut</code>.</li>
+        <li>Watch the table update live.</li>
+        <li>Copy the share link to send the schedule to a partner or cleaner manager.</li>
+      </ol>
+      <h2>FAQ</h2>
+      {faqs.map(f => <div><h3>{f.q}</h3><p>{f.a}</p></div>)}
+      <STRLedgerCTA tool="turnover-scheduler" />
+      <AffiliateCard {...(affiliates as any)['turno']} vendorId="turno" />
+      <AdSlot location="footer" />
+    </article>
+    <Sidebar current="turnover-scheduler" />
+  </div>
+</Layout>

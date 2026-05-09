@@ -1,0 +1,49 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Sidebar from '@components/chrome/Sidebar.astro';
+import MaintenanceSchedule from '@components/calculators/MaintenanceSchedule.tsx';
+import AdSlot from '@components/ads/AdSlot.astro';
+import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+
+const url = 'https://strops.tools/maintenance-schedule';
+const faqs = [
+  { q: 'What goes in the schedule?', a: 'HVAC filter changes, AC tune-ups, smoke/CO checks, deep cleans, gutters, water heater flush, dryer vent, pest control, caulk inspection, and chimney sweeps if applicable.' },
+  { q: 'Can I import to Google/Apple Calendar?', a: 'Yes — download the .ics file and open it. Each task becomes a 1-hour event at 9 AM.' },
+  { q: 'How is cadence calculated?', a: 'Each task has a fixed days-between-events. We project from your start date out to your horizon.' },
+  { q: 'Is the PDF branded?', a: 'Yes — strops.tools header in ops accent green.' },
+];
+---
+<Layout title="Airbnb Maintenance Schedule Generator — strops.tools" description="Annual maintenance schedule with PDF and .ics calendar export." canonical={url} ogImage="/og/maintenance-schedule.png">
+  <Fragment slot="head">
+    <JsonLd data={[
+      webApplicationJsonLd({ name: 'Airbnb Maintenance Schedule Generator', url, description: 'Annual maintenance schedule with PDF + ICS export.' }),
+      faqJsonLd(faqs),
+    ]} />
+  </Fragment>
+  <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">
+    <article class="flex-1 prose">
+      <h1>Maintenance Schedule Generator</h1>
+      <p class="lead">Get a year-out schedule of every recurring maintenance task — PDF for your binder, .ics for your calendar app.</p>
+      <MaintenanceSchedule client:load />
+      <AdSlot location="in-content" />
+      <h2>How it works</h2>
+      <p>Each task has a recurring cadence (60 days for HVAC filters, 90 for smoke detectors, 365 for chimney sweeps, etc.). We project occurrences from your start date out to your horizon, filter by property traits (HVAC, fireplace), and emit both a printable PDF and a calendar-ready .ics file.</p>
+      <EmailCaptureCard magnet="maintenance-checklist" tool="maintenance-schedule" />
+      <h2>How to use this tool</h2>
+      <ol>
+        <li>Set your property name and start date.</li>
+        <li>Set the horizon (default 365 days = a full year out).</li>
+        <li>Toggle property traits — HVAC and fireplace gate task applicability.</li>
+        <li>Download the PDF for your binder, or the .ics for your calendar.</li>
+      </ol>
+      <h2>FAQ</h2>
+      {faqs.map(f => <div><h3>{f.q}</h3><p>{f.a}</p></div>)}
+      <STRLedgerCTA tool="maintenance-schedule" />
+      <AdSlot location="footer" />
+    </article>
+    <Sidebar current="maintenance-schedule" />
+  </div>
+</Layout>

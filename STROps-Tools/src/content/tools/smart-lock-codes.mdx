@@ -1,0 +1,20 @@
+---
+title: Smart Lock Code Generator
+description: Deterministic per-booking lock codes — same booking, same code, no storage required.
+---
+
+## Intro
+
+Rotating lock codes per booking is the right move for security — but storing each code in a database adds risk. This tool derives the code from the booking ID + your secret using HMAC-SHA-256, so you can regenerate it on demand without storage.
+
+## How it works
+
+`code = HMAC_SHA256(secret, bookingId) mod 10^digits`. Same input -> same output. Different booking -> different code. Different secret -> different code.
+
+## FAQ
+
+**Is the code unique to each booking?** Yes — different booking IDs always produce different codes (negligible collision probability with HMAC-SHA-256).
+
+**Why deterministic?** No storage required. You can re-derive any code at any time.
+
+**Is my secret stored?** No. URL-only.

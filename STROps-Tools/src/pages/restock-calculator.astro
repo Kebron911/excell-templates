@@ -1,0 +1,50 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Sidebar from '@components/chrome/Sidebar.astro';
+import RestockCalculator from '@components/calculators/RestockCalculator.tsx';
+import AdSlot from '@components/ads/AdSlot.astro';
+import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+import affiliates from '@data/affiliates.json';
+
+const url = 'https://strops.tools/restock-calculator';
+const faqs = [
+  { q: 'What does "per guest night" mean?', a: 'How many units one guest uses on a single night. 0.5 toilet paper rolls per guest-night ≈ a roll every two nights.' },
+  { q: 'Are these realistic numbers?', a: 'They are starting points. Track actuals for one month and adjust per-property.' },
+  { q: 'Can I add my own items?', a: 'Yes — paste any name + per-guest-night rate + average nights into the items textarea.' },
+];
+---
+<Layout title="Airbnb Supply Restock Calculator — strops.tools" description="Project monthly and yearly consumable usage from booking volume." canonical={url} ogImage="/og/restock-calculator.png">
+  <Fragment slot="head">
+    <JsonLd data={[
+      webApplicationJsonLd({ name: 'Airbnb Supply Restock Calculator', url, description: 'Project consumable usage from booking volume and per-guest rates.' }),
+      faqJsonLd(faqs),
+    ]} />
+  </Fragment>
+  <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">
+    <article class="flex-1 prose">
+      <h1>Supply Restock Calculator</h1>
+      <p class="lead">Forecast monthly and yearly consumable use so you stop running out mid-stay.</p>
+      <RestockCalculator client:load />
+      <AdSlot location="in-content" />
+      <h2>How it works</h2>
+      <p>Per-item usage = bookings/month × guests/stay × avg nights × per-guest-night rate. Multiply by 12 for the annual figure. The result is your purchasing baseline — adjust for the long tail (storage, gifts, breakage) per item.</p>
+      <EmailCaptureCard magnet="supply-par" tool="restock-calculator" />
+      <h2>How to use this tool</h2>
+      <ol>
+        <li>Set your monthly booking count and average party size.</li>
+        <li>List your consumables — one per line: <code>name,perGuestNight,avgNights</code>.</li>
+        <li>Use the monthly figure as your minimum reorder threshold.</li>
+      </ol>
+      <h2>FAQ</h2>
+      {faqs.map(f => <div><h3>{f.q}</h3><p>{f.a}</p></div>)}
+      <STRLedgerCTA tool="restock-calculator" />
+      <AffiliateCard {...(affiliates as any)['turno']} vendorId="turno" />
+      <AdSlot location="footer" />
+    </article>
+    <Sidebar current="restock-calculator" />
+  </div>
+</Layout>

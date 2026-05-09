@@ -1,0 +1,55 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import Sidebar from '@components/chrome/Sidebar.astro';
+import SmartLockCodes from '@components/calculators/SmartLockCodes.tsx';
+import AdSlot from '@components/ads/AdSlot.astro';
+import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+import affiliates from '@data/affiliates.json';
+
+const url = 'https://strops.tools/smart-lock-codes';
+const faqs = [
+  { q: 'Is the code unique to each booking?', a: 'Yes. Same booking ID + secret -> same code; different booking ID -> different code.' },
+  { q: 'Why deterministic?', a: 'You can regenerate the same code at any time without storing it — useful when guests forget or your PMS loses the value.' },
+  { q: 'How is the code computed?', a: 'HMAC-SHA-256 of the booking ID using your secret as the key, taken mod 10^digits.' },
+  { q: 'Is my secret stored anywhere?', a: 'No. It only lives in your URL while you use the page. Treat it like a password.' },
+  { q: 'Can I use 4-digit codes?', a: 'Yes. The tool supports 4-8 digit codes. Most smart locks accept 4-8.' },
+];
+---
+<Layout title="Airbnb Smart Lock Code Generator — strops.tools" description="Deterministic per-booking lock codes — same booking, same code, no storage required." canonical={url} ogImage="/og/smart-lock-codes.png">
+  <Fragment slot="head">
+    <JsonLd data={[
+      webApplicationJsonLd({ name: 'Airbnb Smart Lock Code Generator', url, description: 'Deterministic per-booking smart lock codes via HMAC-SHA-256.' }),
+      faqJsonLd(faqs),
+    ]} />
+  </Fragment>
+  <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">
+    <article class="flex-1 prose">
+      <h1>Smart Lock Code Generator</h1>
+      <p class="lead">Generate per-booking lock codes you can re-derive on demand. Same booking ID + secret produces the same code, every time.</p>
+      <SmartLockCodes client:load />
+      <AdSlot location="in-content" />
+      <h2>How it works</h2>
+      <p>We compute HMAC-SHA-256 of your booking ID using your secret as the key, then take the result mod 10^digits and zero-pad to length. The output is deterministic and unique-by-booking — no storage required.</p>
+      <EmailCaptureCard magnet="cleaner-sop" tool="smart-lock-codes" />
+      <h2>How to use this tool</h2>
+      <ol>
+        <li>Pick a strong host secret (treat like a password).</li>
+        <li>Choose your code length (4-8 digits, depending on lock model).</li>
+        <li>Paste your booking IDs — one per line.</li>
+        <li>Copy each code into your lock app or PMS.</li>
+      </ol>
+      <h2>FAQ</h2>
+      {faqs.map(f => <div><h3>{f.q}</h3><p>{f.a}</p></div>)}
+      <STRLedgerCTA tool="smart-lock-codes" />
+      <AffiliateCard {...(affiliates as any)['august']} vendorId="august" />
+      <AffiliateCard {...(affiliates as any)['schlage']} vendorId="schlage" />
+      <AffiliateCard {...(affiliates as any)['remotelock']} vendorId="remotelock" />
+      <AdSlot location="footer" />
+    </article>
+    <Sidebar current="smart-lock-codes" />
+  </div>
+</Layout>

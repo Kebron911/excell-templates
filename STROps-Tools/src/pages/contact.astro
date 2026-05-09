@@ -1,0 +1,61 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+const url = 'https://strops.tools/contact';
+const title = 'Contact strops.tools';
+const description = 'Bug reports, tool requests, partnership questions — the fastest channels into strops.tools.';
+---
+<Layout title={title} description={description} canonical={url} ogImage="/og/contact.png">
+  <article class="prose mx-auto max-w-2xl px-6 py-12">
+    <div class="text-label uppercase tracking-widest text-accent mb-2">Contact</div>
+    <h1>Get in touch</h1>
+
+    <p class="lead">
+      Bug reports, tool requests, and partnership questions are all welcome. Email is fastest.
+    </p>
+
+    <h2>Email</h2>
+    <p>
+      <a href="mailto:hello@strops.tools" class="font-semibold underline decoration-accent underline-offset-4">
+        hello@strops.tools
+      </a>
+    </p>
+
+    <h2>Send a note</h2>
+    <p class="text-ink2 text-sm">
+      Form-backed channel — replace the action URL with your Formspree (or equivalent) endpoint when wiring goes live.
+    </p>
+    <form
+      class="border border-rule bg-parchment-alt p-6 my-6"
+      action="https://formspree.io/f/REPLACE_ME"
+      method="post"
+    >
+      <label class="block text-sm font-semibold">
+        Email
+        <input
+          type="email"
+          name="email"
+          required
+          placeholder="you@host.com"
+          class="block w-full border border-rule px-3 py-2 mt-1 bg-parchment font-normal"
+        />
+      </label>
+      <label class="block text-sm font-semibold mt-4">
+        Message
+        <textarea
+          name="message"
+          required
+          rows="5"
+          placeholder="What would help?"
+          class="block w-full border border-rule px-3 py-2 mt-1 bg-parchment font-normal"
+        ></textarea>
+      </label>
+      <button
+        type="submit"
+        class="bg-accent text-parchment px-4 py-2 mt-4 font-semibold hover:bg-accent-deep"
+      >
+        Send
+      </button>
+    </form>
+  </article>
+</Layout>

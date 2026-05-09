@@ -1,0 +1,34 @@
+---
+interface Props {
+  vendorId: string;
+  title: string;
+  blurb: string;
+  href: string;
+  category: 'smart-lock' | 'noise-monitor' | 'pms' | 'cleaning' | 'replacement';
+}
+const { vendorId, title, blurb, href, category } = Astro.props;
+---
+<article class="affiliate-card my-6 border border-rule bg-parchment p-5" data-vendor={vendorId} data-category={category} data-print="hide">
+  <div class="text-label uppercase tracking-widest text-ink3 mb-1">If you're shopping</div>
+  <div class="font-semibold">{title}</div>
+  <p class="text-ink2 text-sm mt-1">{blurb}</p>
+  <a href={href}
+     rel="sponsored noopener"
+     target="_blank"
+     data-affiliate-vendor={vendorId}
+     class="inline-block mt-3 text-sm underline decoration-accent underline-offset-4 affiliate-link">
+    Check it out &rarr;
+  </a>
+  <div class="text-xs text-ink3 mt-3">
+    Affiliate disclosure: we may earn a commission on purchases. We only feature tools we'd point a friend to.
+  </div>
+</article>
+
+<script is:inline>
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a.affiliate-link');
+    if (!a) return;
+    const vendor = a.getAttribute('data-affiliate-vendor');
+    window.gtag && gtag('event', 'affiliate_click', { vendor });
+  }, { capture: true });
+</script>

@@ -1,0 +1,302 @@
+{
+  "hvac-filter-change": {
+    "name": "Replace HVAC filter",
+    "cadenceDays": 60,
+    "season": "all",
+    "estimatedCostUsd": [15, 40],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Reduced airflow, higher energy use, premature blower wear, and worse indoor air quality.",
+    "sourceUrls": ["https://www.energy.gov/energysaver/maintaining-your-air-conditioner"],
+    "lastVerified": "2026-05-08"
+  },
+  "ac-tune-up": {
+    "name": "AC professional tune-up",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [80, 200],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Compressor failure during peak season — emergency call-out rates and lost nights.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "heater-service": {
+    "name": "Furnace / heater service",
+    "cadenceDays": 365,
+    "season": "fall",
+    "estimatedCostUsd": [80, 200],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Mid-winter outage triggers refunds, frozen pipes, and emergency call-out rates.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "smoke-detector-test": {
+    "name": "Test smoke + CO detectors",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [0, 20],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Code violation, insurance void, life-safety risk.",
+    "sourceUrls": ["https://www.nfpa.org/Public-Education/Staying-safe/Safety-equipment/Smoke-alarms"],
+    "lastVerified": "2026-05-08"
+  },
+  "smoke-detector-battery": {
+    "name": "Replace smoke + CO detector batteries",
+    "cadenceDays": 180,
+    "season": "all",
+    "estimatedCostUsd": [10, 30],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Chirping detectors during a stay = one-star reviews; dead detectors = code violation.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "deep-clean": {
+    "name": "Deep clean (between full turnovers)",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [200, 500],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Grime buildup leads to lower review scores; hard surfaces lose finish over time.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "gutter-clean": {
+    "name": "Clean gutters",
+    "cadenceDays": 180,
+    "season": "fall",
+    "estimatedCostUsd": [120, 300],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Water damage to fascia, foundation, or basement.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "chimney-sweep": {
+    "name": "Chimney sweep",
+    "cadenceDays": 365,
+    "season": "fall",
+    "estimatedCostUsd": [150, 350],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Creosote fire risk; insurance non-coverage.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "water-heater-flush": {
+    "name": "Flush water heater",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [0, 150],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Sediment buildup shortens lifespan and reduces hot water capacity.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "dryer-vent-clean": {
+    "name": "Clean dryer vent",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [80, 180],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Lint fire risk; longer dry times shred linens and raise utility bills.",
+    "sourceUrls": ["https://www.nfpa.org/News-Blogs-and-Articles/Blogs/2023/04/30/Clothes-Dryer-Safety"],
+    "lastVerified": "2026-05-08"
+  },
+  "pest-control": {
+    "name": "Quarterly pest control",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [60, 150],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "One-star reviews, refunds, infestation eradication costs.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "caulk-grout-inspect": {
+    "name": "Inspect & re-caulk bath/kitchen",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [0, 80],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Hidden water damage behind tile; mold remediation later.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "grout-reseal": {
+    "name": "Reseal bathroom & kitchen grout",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [40, 200],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Stained, porous grout traps mildew and looks dirty even after deep cleans.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "fridge-coil-clean": {
+    "name": "Refrigerator coil clean + interior detail",
+    "cadenceDays": 180,
+    "season": "all",
+    "estimatedCostUsd": [0, 50],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Compressor strain, energy waste, eventual fridge replacement years early.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "garbage-disposal-clean": {
+    "name": "Garbage disposal clean + sharpen",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [0, 10],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Smell complaints, jams, eventual replacement.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "washing-machine-clean": {
+    "name": "Washing machine self-clean cycle",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [0, 15],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Linens come out smelling musty — guests notice instantly.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "dishwasher-clean": {
+    "name": "Dishwasher clean + filter rinse",
+    "cadenceDays": 90,
+    "season": "all",
+    "estimatedCostUsd": [0, 15],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Cloudy glasses and spotted plates ruin coffee-bar photos.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "mattress-flip": {
+    "name": "Mattress flip / rotate",
+    "cadenceDays": 180,
+    "season": "all",
+    "estimatedCostUsd": [0, 0],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Premature sagging, body-impression complaints, accelerated replacement.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "pillow-refresh": {
+    "name": "Pillow refresh / replace",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [80, 250],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Yellowed, lumpy pillows are the #1 silent reason for 4-star (vs 5-star) reviews.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "carpet-shampoo": {
+    "name": "Carpet shampoo (high-traffic rooms)",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [120, 400],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Trapped grit grinds carpet fibers — replacement happens 2-3 years sooner.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "couch-deep-clean": {
+    "name": "Couch / upholstery deep clean",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [80, 250],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Stains set permanently and cushion foam absorbs odors.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "interior-touch-up-paint": {
+    "name": "Interior touch-up paint pass",
+    "cadenceDays": 365,
+    "season": "all",
+    "estimatedCostUsd": [50, 250],
+    "skillLevel": "diy",
+    "consequencesOfSkipping": "Scuffs accumulate and the listing photos start to look stale.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "exterior-pressure-wash": {
+    "name": "Exterior pressure wash",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [200, 500],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Curb-appeal photos go flat; siding develops mildew streaks.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "driveway-seal": {
+    "name": "Driveway / asphalt seal coat",
+    "cadenceDays": 730,
+    "season": "summer",
+    "estimatedCostUsd": [200, 600],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Cracking accelerates and full repaving runs 5x more than periodic seal coats.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "exterior-paint": {
+    "name": "Exterior paint refresh",
+    "cadenceDays": 1825,
+    "season": "summer",
+    "estimatedCostUsd": [3000, 12000],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Wood rot, lower property value, weaker first-impression photos.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "lawn-fertilize": {
+    "name": "Lawn fertilize / weed treatment",
+    "cadenceDays": 90,
+    "season": "spring",
+    "estimatedCostUsd": [60, 180],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Patchy lawn drags hero-photo quality and curb appeal.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "tree-pruning": {
+    "name": "Tree pruning + dead-limb inspection",
+    "cadenceDays": 365,
+    "season": "winter",
+    "estimatedCostUsd": [200, 800],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Storm-dropped limbs damage roofs, vehicles, or guests — liability risk.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "termite-inspection": {
+    "name": "Termite inspection",
+    "cadenceDays": 365,
+    "season": "spring",
+    "estimatedCostUsd": [75, 200],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Termite damage is rarely covered by insurance and often runs five figures.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "septic-pump": {
+    "name": "Septic tank pump",
+    "cadenceDays": 1095,
+    "season": "all",
+    "estimatedCostUsd": [300, 700],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Backups during a stay are catastrophic — emergency cleanups, displaced guests, refunds.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "roof-inspection": {
+    "name": "Roof inspection",
+    "cadenceDays": 365,
+    "season": "fall",
+    "estimatedCostUsd": [150, 400],
+    "skillLevel": "pro",
+    "consequencesOfSkipping": "Small leaks become drywall replacements, mold, and lost nights.",
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  }
+}

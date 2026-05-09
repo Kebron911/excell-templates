@@ -1,0 +1,461 @@
+{
+  "queen-mattress": {
+    "name": "Queen mattress",
+    "category": "bedroom",
+    "costRange": [400, 1500],
+    "lifespanYears": 8,
+    "brandRecs": ["Tuft & Needle", "Saatva", "Sealy"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "king-mattress": {
+    "name": "King mattress",
+    "category": "bedroom",
+    "costRange": [600, 2200],
+    "lifespanYears": 8,
+    "brandRecs": ["Tuft & Needle", "Saatva", "Sealy"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "sleeper-sofa-cushion": {
+    "name": "Sleeper sofa cushion replacement",
+    "category": "living",
+    "costRange": [120, 400],
+    "lifespanYears": 4,
+    "brandRecs": ["Foam Factory", "FoamOnline"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "sofa-3-seat": {
+    "name": "3-seat sofa",
+    "category": "living",
+    "costRange": [600, 3000],
+    "lifespanYears": 7,
+    "brandRecs": ["IKEA Friheten", "Article", "West Elm"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "loveseat": {
+    "name": "Loveseat (2-seat sofa)",
+    "category": "living",
+    "costRange": [400, 1800],
+    "lifespanYears": 7,
+    "brandRecs": ["IKEA", "Article", "Wayfair"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "accent-chair": {
+    "name": "Accent chair",
+    "category": "living",
+    "costRange": [150, 700],
+    "lifespanYears": 6,
+    "brandRecs": ["Article", "World Market", "Target Threshold"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "tv-50-inch": {
+    "name": "50\" smart TV",
+    "category": "electronics",
+    "costRange": [280, 700],
+    "lifespanYears": 6,
+    "brandRecs": ["TCL", "Hisense", "LG"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "tv-55-inch": {
+    "name": "55\" smart TV",
+    "category": "electronics",
+    "costRange": [350, 900],
+    "lifespanYears": 6,
+    "brandRecs": ["TCL", "Hisense", "LG"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "tv-65-inch": {
+    "name": "65\" smart TV",
+    "category": "electronics",
+    "costRange": [500, 1400],
+    "lifespanYears": 6,
+    "brandRecs": ["TCL", "Hisense", "Samsung"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "microwave": {
+    "name": "Countertop microwave",
+    "category": "kitchen",
+    "costRange": [80, 300],
+    "lifespanYears": 7,
+    "brandRecs": ["Toshiba", "Panasonic", "GE"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "mini-fridge": {
+    "name": "Mini-fridge",
+    "category": "kitchen",
+    "costRange": [120, 400],
+    "lifespanYears": 8,
+    "brandRecs": ["Frigidaire", "Magic Chef", "Insignia"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "fridge-full-size": {
+    "name": "Full-size refrigerator",
+    "category": "kitchen",
+    "costRange": [700, 2500],
+    "lifespanYears": 12,
+    "brandRecs": ["LG", "Whirlpool", "Samsung"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "range-electric": {
+    "name": "Electric range / oven",
+    "category": "kitchen",
+    "costRange": [500, 1800],
+    "lifespanYears": 13,
+    "brandRecs": ["GE", "Whirlpool", "Frigidaire"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "dishwasher": {
+    "name": "Dishwasher",
+    "category": "kitchen",
+    "costRange": [400, 1400],
+    "lifespanYears": 9,
+    "brandRecs": ["Bosch", "Whirlpool", "GE"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "washer": {
+    "name": "Clothes washer",
+    "category": "utility",
+    "costRange": [500, 1600],
+    "lifespanYears": 10,
+    "brandRecs": ["LG", "Whirlpool", "Samsung"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "dryer": {
+    "name": "Clothes dryer",
+    "category": "utility",
+    "costRange": [450, 1500],
+    "lifespanYears": 11,
+    "brandRecs": ["LG", "Whirlpool", "Samsung"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "kitchen-faucet": {
+    "name": "Kitchen faucet",
+    "category": "kitchen",
+    "costRange": [120, 400],
+    "lifespanYears": 10,
+    "brandRecs": ["Moen", "Delta"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "bathroom-faucet": {
+    "name": "Bathroom faucet",
+    "category": "bathroom",
+    "costRange": [70, 300],
+    "lifespanYears": 12,
+    "brandRecs": ["Moen", "Delta", "Pfister"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "shower-head": {
+    "name": "Shower head",
+    "category": "bathroom",
+    "costRange": [25, 150],
+    "lifespanYears": 8,
+    "brandRecs": ["Moen", "Delta", "Speakman"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "toilet": {
+    "name": "Toilet (full replacement)",
+    "category": "bathroom",
+    "costRange": [200, 700],
+    "lifespanYears": 25,
+    "brandRecs": ["Toto", "Kohler", "American Standard"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "ceiling-fan": {
+    "name": "Ceiling fan",
+    "category": "utility",
+    "costRange": [80, 350],
+    "lifespanYears": 12,
+    "brandRecs": ["Hunter", "Hampton Bay", "Minka-Aire"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "blinds-window": {
+    "name": "Window blinds (per window)",
+    "category": "living",
+    "costRange": [40, 200],
+    "lifespanYears": 7,
+    "brandRecs": ["Levolor", "Bali", "IKEA"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "curtains-panel": {
+    "name": "Curtain panels (per window)",
+    "category": "living",
+    "costRange": [40, 200],
+    "lifespanYears": 6,
+    "brandRecs": ["IKEA", "Target Threshold", "Pottery Barn"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "vinyl-plank-flooring": {
+    "name": "Vinyl plank flooring (per sq ft, installed)",
+    "category": "utility",
+    "costRange": [4, 8],
+    "lifespanYears": 15,
+    "brandRecs": ["LifeProof", "Pergo", "COREtec"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "hardwood-refinish": {
+    "name": "Hardwood floor refinish (per sq ft)",
+    "category": "utility",
+    "costRange": [3, 8],
+    "lifespanYears": 8,
+    "brandRecs": ["Bona", "Minwax"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "carpet-replace-bedroom": {
+    "name": "Bedroom carpet replacement",
+    "category": "bedroom",
+    "costRange": [400, 1200],
+    "lifespanYears": 7,
+    "brandRecs": ["Mohawk SmartStrand", "Shaw"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "tile-replace": {
+    "name": "Bathroom tile replacement (per sq ft)",
+    "category": "bathroom",
+    "costRange": [10, 25],
+    "lifespanYears": 25,
+    "brandRecs": ["Daltile", "MSI", "Floor & Decor"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "interior-repaint-room": {
+    "name": "Interior repaint (single room)",
+    "category": "utility",
+    "costRange": [250, 700],
+    "lifespanYears": 5,
+    "brandRecs": ["Sherwin-Williams ProMar 200", "Behr Premium Plus"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "exterior-repaint-side": {
+    "name": "Exterior repaint (per side / quadrant)",
+    "category": "outdoor",
+    "costRange": [800, 3000],
+    "lifespanYears": 8,
+    "brandRecs": ["Sherwin-Williams Duration", "Benjamin Moore Aura"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "drywall-patch": {
+    "name": "Drywall patch (small hole)",
+    "category": "utility",
+    "costRange": [40, 150],
+    "lifespanYears": 30,
+    "brandRecs": ["3M Patch Plus Primer"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "drywall-sheet-replace": {
+    "name": "Drywall sheet replacement (full 4x8)",
+    "category": "utility",
+    "costRange": [150, 450],
+    "lifespanYears": 30,
+    "brandRecs": ["USG Sheetrock"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "mirror-bathroom": {
+    "name": "Bathroom mirror",
+    "category": "bathroom",
+    "costRange": [50, 250],
+    "lifespanYears": 15,
+    "brandRecs": ["Pottery Barn", "Wayfair", "IKEA"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "framed-art": {
+    "name": "Framed wall art (per piece)",
+    "category": "living",
+    "costRange": [40, 200],
+    "lifespanYears": 10,
+    "brandRecs": ["Society6", "Minted", "IKEA"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "table-lamp": {
+    "name": "Table lamp",
+    "category": "living",
+    "costRange": [40, 200],
+    "lifespanYears": 5,
+    "brandRecs": ["IKEA", "Target Threshold"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "floor-lamp": {
+    "name": "Floor lamp",
+    "category": "living",
+    "costRange": [60, 300],
+    "lifespanYears": 6,
+    "brandRecs": ["IKEA", "Article", "West Elm"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "bedside-table": {
+    "name": "Bedside table",
+    "category": "bedroom",
+    "costRange": [80, 400],
+    "lifespanYears": 10,
+    "brandRecs": ["IKEA", "Article", "Target Threshold"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "dresser": {
+    "name": "Dresser (6-drawer)",
+    "category": "bedroom",
+    "costRange": [250, 1200],
+    "lifespanYears": 12,
+    "brandRecs": ["IKEA Hemnes", "Article", "Crate & Barrel"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "desk": {
+    "name": "Work desk",
+    "category": "living",
+    "costRange": [150, 600],
+    "lifespanYears": 10,
+    "brandRecs": ["IKEA", "Branch", "Article"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "dining-chair": {
+    "name": "Dining chair (per chair)",
+    "category": "living",
+    "costRange": [60, 300],
+    "lifespanYears": 8,
+    "brandRecs": ["IKEA", "Article", "Crate & Barrel"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "dining-table-6": {
+    "name": "6-person dining table",
+    "category": "living",
+    "costRange": [400, 1500],
+    "lifespanYears": 12,
+    "brandRecs": ["IKEA", "Crate & Barrel", "Article"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "bar-stool": {
+    "name": "Bar stool (per stool)",
+    "category": "kitchen",
+    "costRange": [60, 250],
+    "lifespanYears": 8,
+    "brandRecs": ["IKEA", "World Market", "Article"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "area-rug-8x10": {
+    "name": "8x10 area rug",
+    "category": "living",
+    "costRange": [150, 700],
+    "lifespanYears": 5,
+    "brandRecs": ["Ruggable", "Loloi", "Safavieh"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "comforter-king": {
+    "name": "King comforter",
+    "category": "bedroom",
+    "costRange": [80, 350],
+    "lifespanYears": 4,
+    "brandRecs": ["Brooklinen", "Buffy", "Target Threshold"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "sheets-queen-set": {
+    "name": "Queen sheets set (3 sets recommended)",
+    "category": "bedroom",
+    "costRange": [40, 200],
+    "lifespanYears": 2,
+    "brandRecs": ["Mellanni", "Brooklinen", "Costco Kirkland"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "towels-set": {
+    "name": "Bath towel set (4-piece)",
+    "category": "bathroom",
+    "costRange": [40, 150],
+    "lifespanYears": 2,
+    "brandRecs": ["Costco Kirkland", "Brooklinen", "Hotel-grade"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "smart-lock": {
+    "name": "Smart lock",
+    "category": "utility",
+    "costRange": [120, 350],
+    "lifespanYears": 8,
+    "brandRecs": ["August", "Schlage Encode", "Yale Assure"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "doorknob": {
+    "name": "Doorknob / handle set",
+    "category": "utility",
+    "costRange": [25, 120],
+    "lifespanYears": 15,
+    "brandRecs": ["Schlage", "Kwikset", "Baldwin"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "smoke-detector": {
+    "name": "Smoke detector",
+    "category": "utility",
+    "costRange": [20, 60],
+    "lifespanYears": 10,
+    "brandRecs": ["First Alert", "Kidde", "Google Nest Protect"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "co-detector": {
+    "name": "Carbon monoxide detector",
+    "category": "utility",
+    "costRange": [25, 80],
+    "lifespanYears": 7,
+    "brandRecs": ["First Alert", "Kidde"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "fire-extinguisher": {
+    "name": "Fire extinguisher (kitchen-grade)",
+    "category": "utility",
+    "costRange": [25, 80],
+    "lifespanYears": 12,
+    "brandRecs": ["Kidde", "First Alert", "Amerex"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  },
+  "light-fixture-pendant": {
+    "name": "Pendant light fixture",
+    "category": "utility",
+    "costRange": [60, 350],
+    "lifespanYears": 15,
+    "brandRecs": ["IKEA", "West Elm", "Hinkley"],
+    "sourceUrls": [],
+    "lastVerified": "2026-05-08"
+  }
+}

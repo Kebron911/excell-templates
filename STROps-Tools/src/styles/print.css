@@ -1,0 +1,12 @@
+@media print {
+  :root { --bg-1: #ffffff; --fg-1: #000000; }
+  html, body { background: #fff !important; color: #000 !important; }
+  [data-print="hide"], header.site-header, footer.site-footer .nav,
+  .ad-slot, .funnel-band, .cluster-funnel, .email-capture,
+  .affiliate-card, .related-tools, .sidebar { display: none !important; }
+  [data-print="show"] { display: block !important; }
+  .calculator-shell { box-shadow: none !important; border: 1px solid #000; }
+  a::after { content: " (" attr(href) ")"; font-size: 10px; color: #555; }
+  .num, .mono { font-family: "JetBrains Mono", monospace; }
+  @page { margin: 0.6in; }
+}
