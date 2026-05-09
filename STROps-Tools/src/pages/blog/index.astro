@@ -1,0 +1,112 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import { getCollection } from 'astro:content';
+
+// Posts collection — sorted newest first.
+const all = await getCollection('posts');
+const posts = all
+  .map((p) => ({
+    slug: p.id.replace(/\.mdx$/, ''),
+    ...p.data,
+  }))
+  .sort((a, b) => (a.datePublished < b.datePublished ? 1 : -1));
+
+const categoryLabels: Record<string, string> = {
+  math: 'Math',
+  operations: 'Operations',
+  tax: 'Tax',
+  'guest-xp': 'Guest XP',
+  acquisition: 'Acquisition',
+};
+
+const formatDate = (iso: string) =>
+  new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+---
+
+<Layout
+  title="Blog — STR Ops Tools"
+  description="Operations playbooks for short-term rental hosts. Cleaner dispatch, smart lock codes, supply par, maintenance, damage costs."
+  canonical="https://strops.tools/blog"
+  ogImage="/og/blog.png"
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-6xl px-6 pt-12 pb-9">
+      <p class="label text-accent">The Ops Notebook</p>
+      <h1 class="mt-3 text-h1 font-body text-navy max-w-3xl leading-tight">
+        STR ops, written down<span class="period-gold">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink2 max-w-2xl">
+        Practical operations playbooks for short-term rental hosts. Every post pairs a free tool with a checklist-friendly breakdown of how the job actually gets done.
+      </p>
+      <a
+        href="/feed.xml"
+        class="mt-5 inline-flex items-center gap-2 text-sm text-navy no-underline hover:text-navy-tint group"
+      >
+        Subscribe via RSS
+        <span
+          class="text-accent inline-block transition-transform duration-200 group-hover:translate-x-0.5"
+          aria-hidden="true">→</span
+        >
+      </a>
+    </div>
+  </section>
+
+  <section class="bg-parchment-alt border-t border-rule">
+    <div class="mx-auto max-w-6xl px-6 py-9">
+      <ul class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {
+          posts.map((post) => (
+            <li>
+              <a
+                href={`/blog/${post.slug}`}
+                class="group block h-full border border-rule bg-parchment p-6 no-underline hover:border-accent transition-all duration-200"
+              >
+                <div class="flex items-center gap-3 text-xs text-ink3">
+                  <span class="label text-accent">
+                    {categoryLabels[post.category] ?? post.category}
+                  </span>
+                  <span aria-hidden="true">·</span>
+                  <time datetime={post.datePublished} class="font-mono">
+                    {formatDate(post.datePublished)}
+                  </time>
+                  <span aria-hidden="true">·</span>
+                  <span class="font-mono">{post.readMinutes} min read</span>
+                </div>
+                <p class="mt-3 font-body text-h3 text-navy leading-snug group-hover:text-navy-tint">
+                  {post.title}
+                </p>
+                <p class="mt-2 text-sm text-ink2 leading-snug">{post.description}</p>
+                <p class="mt-4 text-xs text-accent group-hover:text-accent-deep flex items-center gap-1">
+                  Read
+                  <span
+                    class="inline-block transition-transform duration-200 group-hover:translate-x-0.5"
+                    aria-hidden="true">→</span
+                  >
+                </p>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-6xl px-6 py-9">
+      <EmailCaptureCard magnet="maintenance-checklist" tool="blog-index" />
+    </div>
+  </section>
+
+  <section class="bg-parchment-alt border-t border-rule">
+    <div class="mx-auto max-w-6xl px-6 py-9">
+      <STRLedgerCTA tool="maintenance-schedule" />
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,127 @@
+---
+title: "Linen Par for Airbnb: How Many Sheet Sets Per Bed You Actually Need"
+description: "Three sets per bed is the wrong answer. The real par level depends on turnover volume, laundry workflow, and damage rate. The math, with examples."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "operations"
+keyword: "airbnb linen par calculator"
+relatedTools:
+  - linen-par-calculator
+  - restock-calculator
+readMinutes: 7
+---
+
+The "three sets per bed" rule is the most-repeated, least-correct piece of advice in short-term rental operations. It is a rule of thumb that worked when most hosts had one property, all linens were on-site, and turnovers were rare. None of those assumptions hold for a multi-property operator running 12-25 turnovers a month.
+
+The actual answer depends on three variables most articles skip: turnover frequency, laundry workflow (on-site vs. off-site), and replacement-cycle damage rate. Get any of them wrong and you either run short on changeover day or sit on $4,000 of linen capital you don't need.
+
+## The cost of getting par wrong
+
+**Too low:** A cleaner shows up Tuesday morning, finds the previous wash didn't finish, and has no fresh linen to make the bed before the 3 p.m. check-in. Outcomes: late cleaning fee paid (1.5x), comped late check-in apology to guest, bad review risk. Hard cost: $40-$80 per incident. Soft cost: cleaner trust erosion.
+
+**Too high:** Sitting on extra linen costs roughly $70-$120 per surplus set in capital, plus the storage space, plus the slow-replacement risk (linens degrade in storage, especially in humid markets). $400 of unneeded linen across a portfolio is $400 you do not have for the maintenance reserve, plus the slow $40/year amortization that creeps in.
+
+The right par is the smallest number of sets that keeps you above zero inventory at any given moment, plus a small safety margin for damage and laundry-cycle slip.
+
+## The actual formula
+
+```
+Par per bed = ceil(turnovers_per_week × turn_cycle_days / 7) + safety_margin
+```
+
+Where:
+- **turnovers_per_week** = expected average turnovers per week for the bed in question.
+- **turn_cycle_days** = days a single set spends out of rotation (in use + laundry + storage transit). Typically 1-3 days.
+- **safety_margin** = 1 set per bed minimum, 2 if you run on-site laundry only, 3 if you have a high-damage market (coastal, wedding rentals, hot-tub homes).
+
+For a property with 2 turnovers a week and a 2-day turn cycle: ceil(2 × 2 / 7) + 1 = ceil(0.57) + 1 = 1 + 1 = 2 sets per bed.
+
+For a property with 4 turnovers a week and a 3-day turn cycle: ceil(4 × 3 / 7) + 2 = ceil(1.71) + 2 = 2 + 2 = 4 sets per bed.
+
+Same property type, different volume: par doubles. The "three sets per bed" rule of thumb gets one of these wrong by a lot.
+
+The [linen par calculator](/linen-par-calculator) computes this per bed, per bath, and per king/queen mix automatically. For the printable supply hand-off your cleaner needs at the property, [grab the free Supply Par-Level Sheet](/get-the-supply-par).
+
+## Worked example: a 3-bedroom × 1-bath at 12 turnovers a month
+
+A common configuration. Three queen beds, one bath. 12 turnovers a month works out to ~3 turnovers a week distributed roughly evenly (some days have multiple, some weeks none).
+
+Assumptions:
+- Turn cycle: 2 days (one day in use, one day in laundry/storage transit). Off-site cleaner picks up linens at end of stay, returns clean sets next-day.
+- Damage/replacement rate: standard (1 set replaced per bed per year).
+- Safety margin: 2 (off-site laundry, no on-site backup).
+
+Sheets per queen bed: ceil(3 × 2 / 7) + 2 = ceil(0.86) + 2 = 1 + 2 = 3 sets.
+
+Three queen beds × 3 sets = **9 queen sheet sets** at par.
+
+Towels per bath: at 3 turnovers/week × 4 towels per turn (2 bath, 2 hand) × 2-day turn cycle = ceil(24/7) + 4 safety = ceil(3.43) + 4 = 4 + 4 = 8 bath towels and 8 hand towels per bath.
+
+Plus pillowcases (typically 2 per bed × par count = 18 queen pillowcases), and a separate par for kitchen towels and washcloths.
+
+That is roughly **$1,200-$1,800 in initial linen capital** for the property at standard hospitality grade. A 4-set "rule of thumb" approach would put you at $1,600-$2,400 — about $400-$600 over par. A 2-set "I'll just do laundry between guests" approach saves capital but fails the first time the dryer breaks.
+
+## On-site vs. off-site laundry — the swing variable
+
+The single biggest swing in par level is on-site versus off-site laundry.
+
+**On-site laundry:**
+- Turn cycle is short (4-6 hours under best conditions).
+- BUT every load needs the appliance to be available, and dryer outages happen 1-2 times a year.
+- Safety margin should be **2 minimum**, 3 if dryer is older than 7 years.
+
+**Off-site laundry (cleaner takes linens):**
+- Turn cycle is longer (24-48 hours).
+- BUT you have professional laundry capacity backing you up, and dryer-failure risk transfers to the cleaner.
+- Safety margin can be **1**, since the cleaner buffers their own capacity.
+
+The [restock calculator](/restock-calculator) handles the consumables side of the same workflow (paper goods, toiletries, kitchen items). Pair the linen par with the consumable restock for a complete supply checklist.
+
+## King vs. queen vs. twin — separate par for each
+
+A common mistake: ordering "10 sheet sets" without splitting them by mattress size. Half the kings and half the queens share par. They do not. Each size has its own demand curve based on which beds turn over most often.
+
+For a property with one king, two queens, and a sofa-bed twin:
+- King: 1 bed × par 3 = 3 king sets.
+- Queen: 2 beds × par 3 = 6 queen sets.
+- Twin: 1 bed × par 2 (lower volume — sofa beds turn over less than primary beds) = 2 twin sets.
+
+11 total sets, three different sizes. Order them as separate line items.
+
+## Damage-driven replacement cycle
+
+Linens do not last forever. Industry-grade hospitality sheets last roughly 80-120 wash cycles before noticeable wear (pilling, color loss, edge fray). At 50-70 turnovers a year per set in heavy rotation, that is roughly an 18-24 month replacement cycle.
+
+Concretely: every linen set should have a "purchased date" tag (a Sharpie mark on the inside hem works) and a calendar trigger to inspect at 18 months. Sets that fail inspection get retired to backup-only use; sets at 24 months get fully replaced regardless of visual condition.
+
+Building this into the par-level math means adding ~10% per year to the standing par to account for sets in retirement at any given time. For the 9-set queen bed example above, that is roughly 1 additional set in the closet at all times as the rotating-replacement buffer.
+
+## Cross-post: where damage cost meets linen par
+
+When a guest damages linens — coffee stains that do not wash out, mascara, ripped corners — the cost is a full replacement set, not a "stain charge." [The damage cost lookup](/damage-cost-lookup) puts replacement costs on the same footing as the linen par budget so the two move together. For tax tracking, [The STR Ledger](https://thestrledger.com) treats linen replacement as a deductible operating expense (vs. a capitalized improvement) — important to track separately.
+
+## Affiliate-honest brand notes
+
+The Best Western / Marriott approach (industry-grade percale, 200-300 thread count, white) survives more washes than the "luxury" 600-thread sateen most hosts buy at retail. Specific brands worth looking at:
+
+- **Mercer + Mettle** (Lands' End hospitality line) — durable, white, replaceable.
+- **Standard Textile** — supplies most US hotels; available B2B if you can place a minimum.
+- **Riegel** (Diamond / Royal Crown lines) — institutional grade, holds up to 100+ washes.
+
+Bedding from the regular consumer-grade aisle of Target or Costco does not survive STR turnover volume past 6-9 months. The price-per-wash math always favors hospitality grade for properties with more than 8 turns a month.
+
+## The two-line par check
+
+Before any new property goes into service, verify:
+
+1. **Stack count physically matches par.** Stand in front of the linen closet, count sets, write the number on the door.
+2. **Reorder trigger is set in writing** at 50% of par. Below that, you are one cycle away from running short.
+
+That is it. Linen is not glamorous. It is one of the three or four operational systems that, when correct, you never think about — and when wrong, ruins a turnover from a hundred miles away.
+
+## Where this fits
+
+The linen par sits between the [turnover scheduler](/turnover-scheduler) (which tells you how often turns happen) and the [restock calculator](/restock-calculator) (which extends the same logic to consumables). The [maintenance schedule](/maintenance-schedule) treats linen retirement and replacement as recurring tasks. For cross-cluster context, [strhost.tools](https://strhost.tools) covers the cleaning-fee math that funds linen replacement, and [strbuyers.tools](https://strbuyers.tools) handles the property-acquisition decisions (laundry on-site vs. nearby commercial laundry) that drive the par formula in the first place.
+
+Get the linen par right once, and you stop thinking about sheets for two years. Get it wrong, and you think about sheets every Wednesday.

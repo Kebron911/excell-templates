@@ -1,0 +1,116 @@
+---
+title: "How to Schedule Airbnb Turnovers When You Have Back-to-Back Bookings"
+description: "Tight changeovers cost you cleaner trust, guest reviews, and same-day money. The math for a turnover window that holds when bookings stack up."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "operations"
+keyword: "airbnb turnover scheduler"
+relatedTools:
+  - turnover-scheduler
+  - cleaner-dispatch
+readMinutes: 7
+---
+
+A back-to-back booking is the most expensive four hours in short-term rental ops. The previous guest checks out at 11. The next guest checks in at 3. Between those two times, somebody has to flip a property that may have hosted six adults, a dog, and a bachelor party. If anything in that window slips — a late checkout, a no-show cleaner, a missing trash bag run — you eat the cost in a one-star review or a comped night.
+
+Most hosts schedule turnovers by feel. That works for one property. It stops working at three. By the time you have five, you have already lost a guest because two cleaners were standing in two driveways while the third house sat dirty.
+
+This is how to set up a turnover schedule that actually holds when bookings stack up.
+
+## What a turnover window really costs
+
+Cleaners do not work for free, and four hours is not enough time. The "11 to 3" window assumes:
+
+- Guests leave on time. About one in eight does not.
+- The cleaner arrives on time. About one in ten does not.
+- Nothing is broken, missing, or unusually filthy. About one in fifteen turns is unusual.
+
+Stack those probabilities and roughly one turnover in four has a problem inside the four-hour window. If your minimum turnover gap is exactly four hours, you are running with no buffer at all.
+
+The fix is a tracked **minimum turnover hours** value — the gap below which you flag the changeover as tight and either accept the risk consciously or block the night. Most multi-property operators land between five and seven hours minimum. The [turnover scheduler](/turnover-scheduler) computes this gap across every booking on your calendar and flags the ones that fall under your threshold.
+
+## The cost of getting it wrong
+
+A bad turnover never costs only the cleaning fee. It costs the next guest's first impression, which costs the review, which costs occupancy for the next ninety days. A single three-star review on a 4.9-rated listing drops Search Position by enough that you typically lose two to three bookings in the following month. At a $180 ADR, that is $360-$540 of revenue gone — to save $40 on a cleaner who could not stay an extra hour.
+
+Build the schedule like an operator who has already paid that bill. Most have.
+
+If you want a printable hand-off your cleaner can sign off on, [grab the free Cleaner SOP PDF](/get-the-cleaner-sop). It pairs with the schedule below.
+
+## A turnover schedule that holds at scale
+
+Three rules cover ninety percent of the failure modes:
+
+**1. Set a real minimum turnover window per property.**
+
+Not a platform default. Look at the actual property. A studio with a single cleaner runs cleanly in three hours. A 3-bedroom house with linens-on-site, a hot tub, and a deep clean every other turn needs six. The window is per-property, not per-portfolio. A one-size minimum either over-blocks revenue on small units or under-buffers the big ones.
+
+**2. Treat same-day turnovers as a separate workflow.**
+
+Same-day turns are not "regular turns done faster." They are a different job. The cleaner needs a faster supply restock plan, a tighter laundry workflow (often off-site is the only way), and a different SMS template that signals urgency without sounding panicked. Pair this post with [the cleaner dispatch SMS template](/blog/airbnb-cleaner-sms-template) for the messaging side.
+
+**3. Audit conflicts weekly, not at booking time.**
+
+Bookings come in via Airbnb, VRBO, direct, and any channel manager you run. They land in different inboxes. The conflicts show up at the seam. Once a week — Sunday night works for most operators — pull the next 14 days into one view and check for two things: same-property check-out before the previous check-out (a sync bug), and any gap below your minimum window (a tight turn).
+
+## Worked example: a 3-property portfolio
+
+Three properties — a studio, a 2-bedroom, and a 4-bedroom. Twelve total turnovers in the upcoming week. You run two cleaners.
+
+Studio minimum: 3 hours. Two-bedroom minimum: 5 hours. Four-bedroom minimum: 7 hours.
+
+Pulling the week into the [turnover scheduler](/turnover-scheduler):
+
+- Studio: 4 turns, all standard 11-3 windows. Zero flags.
+- 2-bedroom: 4 turns. One has a 4.5-hour gap because the next guest requested an early check-in. Flagged.
+- 4-bedroom: 4 turns. Two are same-day turns, one of which has a 6.5-hour gap (under the 7-hour minimum because of a 9:30 a.m. early checkout request). Flagged.
+
+That gives you three flagged turnovers out of twelve. Three is a manageable number. You decline one early check-in, accept one with a 30-minute buffer reduction (the 2-bedroom), and re-route the 4-bedroom early-checkout to the second cleaner who finishes a studio that morning. Zero hand-wringing on Sunday because all three problems are decided before the bookings land in your cleaner's hands.
+
+Without the scheduler, you would find out about the 2-bedroom conflict at 1:45 p.m. on Tuesday when the cleaner texts "running late." That is not a process. That is luck.
+
+## What "back-to-back" actually means
+
+Airbnb labels any check-in on the same day as a check-out as "back-to-back." That is the platform's definition, not yours. Your definition is harder: a turnover where, given your specific cleaner, your specific property, and your specific supply chain, the window is shorter than the time required to safely flip the unit.
+
+Some properties run safely at 4 hours back-to-back. Others — most rural properties with a single cleaner driving 25 minutes each way — do not. Back-to-back is not the question. The question is: what is the actual minimum window for this address, with this cleaner, this season, with the laundry done on-site or off-site?
+
+Set that number. Stop accepting bookings that violate it. The quickest way to lose a cleaner is to keep handing them four-hour windows that take five.
+
+## Block-the-night math
+
+Some operators refuse to block any night, ever. The reasoning: every blocked night is missed revenue. The math is more nuanced.
+
+Block the night when the cost of the tight turn (review risk × ADR-loss-from-reduced-rank) exceeds the ADR of the night you would otherwise sell. For most operators, this is true any time the turnover window is less than 75% of the property's safe minimum.
+
+Worked example: 4-bedroom with a 7-hour safe minimum. A booking offers a 3-hour gap. That is 43% of the safe window. Block the night, even at $300 ADR. The expected cost of a tight-turn review event will exceed $300 within two months.
+
+If the gap were 5.5 hours (78% of safe minimum), you might accept it with a buffer fee paid to the cleaner. The math swings.
+
+## Tools that pair with this
+
+- [The turnover scheduler](/turnover-scheduler) — computes per-property gaps, flags tight changeovers, generates a printable view for your cleaner.
+- [The cleaner dispatch generator](/cleaner-dispatch) — turns the schedule into per-cleaner SMS templates.
+- For the financial side of all this, [The STR Ledger](https://thestrledger.com) tracks cleaning fees, comped nights, and review-driven occupancy lift in one P&L.
+- Cross-cluster: [the cleaning fee math on strhost.tools](https://strhost.tools) helps set the fee that funds the buffer cleaner you'll need on tight days, and [welcome books on strguests.tools](https://strguests.tools) reduce the per-turn questions that eat your cleaner's window.
+
+## What to skip
+
+Most "Airbnb turnover scheduler" content tells you to use Google Calendar. Do not. Calendar conflicts hide because Google does not know which property you mean — bookings on three calendars look like one busy day, not three operationally distinct turnovers. You need property-aware tooling that distinguishes "house A check-out + house B check-in same day" (fine) from "house A check-out + house A check-in same day" (the actual problem).
+
+You also do not need a $50/month PMS to do this. A spreadsheet with the four columns above (property, booking ID, check-in, check-out) and a tool that flags the gaps gets you 90% of the way. The PMS pays off later, when you cross 8-10 properties.
+
+## The week-of checklist
+
+Sunday night, every week:
+
+1. Export the next 14 days of bookings to a single view (CSV, Sheet, or a paste into the scheduler).
+2. Flag every gap below your per-property minimum.
+3. Decide one of three things for each flagged gap: accept with cleaner buffer, decline the booking, or block the night.
+4. Send the schedule to your cleaner Sunday night, not Tuesday morning.
+5. Check the channel manager Monday morning for any new bookings that landed overnight.
+
+Twelve minutes. Saves you the week.
+
+The turnover schedule is the single highest-leverage operational document in a multi-property STR. Get it right and the rest — supply restock, maintenance, lock codes — runs around it. Get it wrong and you are debugging the same crisis every Tuesday for the next year.

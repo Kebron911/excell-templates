@@ -1,0 +1,190 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import tools from '@data/tools.json';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const all = await getCollection('posts');
+  // Sort newest-first so prev = older post, next = newer post —
+  // matches reader expectation of moving "back through history".
+  const sorted = [...all].sort((a, b) =>
+    a.data.datePublished < b.data.datePublished ? 1 : -1,
+  );
+  return sorted.map((post, i) => ({
+    params: { slug: post.id.replace(/\.mdx$/, '') },
+    props: {
+      post,
+      newer: i > 0 ? sorted[i - 1] : null,
+      older: i < sorted.length - 1 ? sorted[i + 1] : null,
+    },
+  }));
+}
+
+const { post, newer, older } = Astro.props;
+const slug = post.id.replace(/\.mdx$/, '');
+const { Content } = await render(post);
+
+const navLink = (p: typeof newer) =>
+  p && {
+    slug: p.id.replace(/\.mdx$/, ''),
+    title: p.data.title,
+    readMinutes: p.data.readMinutes,
+  };
+const newerLink = navLink(newer);
+const olderLink = navLink(older);
+
+type ToolEntry = { title: string; primary_keyword: string; magnet: string; blurb: string };
+const toolMap = tools as Record<string, ToolEntry>;
+const related = (post.data.relatedTools ?? [])
+  .map((key: string) => {
+    const t = toolMap[key];
+    return t ? { slug: key, ...t } : null;
+  })
+  .filter((t): t is { slug: string } & ToolEntry => Boolean(t));
+
+const formatDate = (iso: string) =>
+  new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+
+const categoryLabels: Record<string, string> = {
+  math: 'Math',
+  operations: 'Operations',
+  tax: 'Tax',
+  'guest-xp': 'Guest XP',
+  acquisition: 'Acquisition',
+};
+
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.data.title,
+  description: post.data.description,
+  url: `https://strops.tools/blog/${slug}`,
+  datePublished: post.data.datePublished,
+  dateModified: post.data.dateModified ?? post.data.datePublished,
+  author: { '@type': 'Organization', name: post.data.author },
+  publisher: {
+    '@type': 'Organization',
+    name: 'STR Ops Tools',
+    url: 'https://strops.tools',
+  },
+  mainEntityOfPage: `https://strops.tools/blog/${slug}`,
+};
+---
+
+<Layout
+  title={`${post.data.title} — STR Ops Tools`}
+  description={post.data.description}
+  canonical={`https://strops.tools/blog/${slug}`}
+  ogImage={`/og/blog-${slug}.png`}
+>
+  <Fragment slot="head">
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(articleLd)} />
+  </Fragment>
+
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-6 pt-12 pb-7">
+      <p class="label text-accent">
+        <a href="/blog" class="no-underline hover:text-accent-deep">← Back to all posts</a>
+      </p>
+
+      <div class="mt-3 flex items-center gap-3 text-xs text-ink3">
+        <span class="label text-accent">{categoryLabels[post.data.category] ?? post.data.category}</span>
+        <span aria-hidden="true">·</span>
+        <time datetime={post.data.datePublished} class="font-mono">{formatDate(post.data.datePublished)}</time>
+        <span aria-hidden="true">·</span>
+        <span class="font-mono">{post.data.readMinutes} min read</span>
+      </div>
+
+      <h1 class="mt-3 text-h1 font-body text-navy leading-tight">{post.data.title}</h1>
+      <p class="mt-4 text-lead text-ink2">{post.data.description}</p>
+    </div>
+
+    <div class="mx-auto max-w-3xl px-6 prose">
+      <Content />
+    </div>
+
+    {related.length > 0 && (
+      <div class="mx-auto max-w-3xl px-6 mt-9">
+        <p class="label text-navy">Tools in this post</p>
+        <ul class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {related.map((t) => (
+            <li>
+              <a
+                href={`/${t.slug}`}
+                class="group block border border-rule bg-parchment-alt p-4 no-underline hover:border-accent transition-all duration-200"
+              >
+                <p class="font-body font-semibold text-navy leading-snug group-hover:text-navy-tint">{t.title}</p>
+                <p class="mt-1 text-xs text-ink2 leading-snug">{t.blurb}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    {(newerLink || olderLink) && (
+      <nav class="mx-auto max-w-3xl px-6 mt-9" aria-label="Other posts">
+        <p class="label text-navy">Keep reading</p>
+        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+          {newerLink ? (
+            <a
+              href={`/blog/${newerLink.slug}`}
+              class="group block border border-rule bg-parchment-alt p-4 no-underline hover:border-accent transition-all duration-200"
+            >
+              <p class="text-xs text-accent">← Newer</p>
+              <p class="mt-1 font-body font-semibold text-navy leading-snug group-hover:text-navy-tint">{newerLink.title}</p>
+              <p class="mt-2 text-xs text-ink3 font-mono">{newerLink.readMinutes} min read</p>
+            </a>
+          ) : <span aria-hidden="true" />}
+          {olderLink ? (
+            <a
+              href={`/blog/${olderLink.slug}`}
+              class="group block border border-rule bg-parchment-alt p-4 no-underline hover:border-accent transition-all duration-200 md:text-right"
+            >
+              <p class="text-xs text-accent">Older →</p>
+              <p class="mt-1 font-body font-semibold text-navy leading-snug group-hover:text-navy-tint">{olderLink.title}</p>
+              <p class="mt-2 text-xs text-ink3 font-mono">{olderLink.readMinutes} min read</p>
+            </a>
+          ) : <span aria-hidden="true" />}
+        </div>
+      </nav>
+    )}
+
+    <div class="mx-auto max-w-3xl px-6 mt-9">
+      <EmailCaptureCard
+        magnet={(toolMap[(post.data.relatedTools ?? [])[0] ?? '']?.magnet as 'cleaner-sop' | 'maintenance-checklist' | 'supply-par') ?? 'maintenance-checklist'}
+        tool={`blog-${slug}`}
+      />
+    </div>
+
+    <div class="mx-auto max-w-3xl px-6 mt-7 mb-12">
+      <STRLedgerCTA tool={(post.data.relatedTools ?? [])[0] ?? 'maintenance-schedule'} />
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-body); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: var(--sp-7); margin-bottom: var(--sp-3); line-height: 1.15; }
+  .prose :global(h3) { font-family: var(--font-body); font-size: var(--t-h3-size); color: var(--brand-navy); margin-top: var(--sp-5); margin-bottom: var(--sp-2); }
+  .prose :global(p) { color: var(--fg-1); margin-bottom: var(--sp-3); line-height: 1.65; font-size: 1.05rem; }
+  .prose :global(ol), .prose :global(ul) { margin: var(--sp-3) 0 var(--sp-4); padding-left: var(--sp-5); }
+  .prose :global(li) { margin-bottom: var(--sp-2); line-height: 1.6; }
+  .prose :global(strong) { color: var(--brand-navy); font-weight: 600; }
+  .prose :global(em) { color: var(--fg-1); }
+  .prose :global(code) { font-family: var(--font-mono); font-size: 0.9em; background: var(--bg-2); padding: 0 0.3em; border-radius: var(--r-1); }
+  .prose :global(pre) { background: var(--bg-2); border: 1px solid var(--rule); border-radius: var(--r-2); padding: var(--sp-4); overflow-x: auto; margin: var(--sp-4) 0; }
+  .prose :global(pre code) { background: transparent; padding: 0; font-size: 0.92em; line-height: 1.55; }
+  .prose :global(blockquote) { border-left: 3px solid var(--accent); padding-left: var(--sp-4); color: var(--fg-2); font-style: italic; margin: var(--sp-4) 0; }
+  .prose :global(a) { color: var(--brand-navy); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+  .prose :global(table) { width: 100%; border-collapse: collapse; margin: var(--sp-4) 0; font-size: 0.95em; }
+  .prose :global(th), .prose :global(td) { border-bottom: 1px solid var(--rule); text-align: left; padding: 0.5em 0.75em; }
+  .prose :global(th) { font-family: var(--font-body); color: var(--brand-navy); font-weight: 600; background: var(--bg-2); }
+  .prose :global(hr) { border: 0; border-top: 1px solid var(--rule); margin: var(--sp-6) 0; }
+</style>

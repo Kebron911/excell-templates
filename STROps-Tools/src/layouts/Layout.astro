@@ -31,6 +31,7 @@ const ga4Id = import.meta.env.PUBLIC_GA4_ID;
     <meta property="og:image" content={new URL(ogImage, Astro.site).toString()} />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <link rel="alternate" type="application/rss+xml" title="STR Ops Tools — Blog" href="/feed.xml" />
     {ga4Id && (
       <>
         <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${ga4Id}`}></script>

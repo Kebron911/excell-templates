@@ -1,0 +1,147 @@
+---
+title: "The Airbnb Cleaner Dispatch SMS Template That Cuts Same-Day Confusion"
+description: "A clean SMS template per turnover saves twenty minutes of back-and-forth on tight days. The exact format, the failure modes, and what to omit."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "operations"
+keyword: "airbnb cleaner sms template"
+relatedTools:
+  - cleaner-dispatch
+  - turnover-scheduler
+readMinutes: 7
+---
+
+The cleaner dispatch SMS is one of the highest-leverage messages an STR operator sends. Done right, it tells one person exactly what they need to know, when they need to know it, in a format their phone displays without scrolling. Done wrong, it costs you twenty minutes of "wait, which house?" texts on the day you can least afford them.
+
+Most operators write dispatch texts like email. They are not email. They are field instructions to a person standing in a driveway. The format matters more than most realize.
+
+Here is the SMS template that holds up at scale, plus the specific failure modes it prevents.
+
+## What the template needs to do
+
+A good dispatch SMS does five things in under 320 characters (the limit before most carriers segment the message):
+
+1. Tells the cleaner which property to go to.
+2. Tells them when they can start (check-out time of previous guest) and when they must be done (check-in time of next guest).
+3. Flags anything unusual about this turn (deep clean, pet stay, late checkout request).
+4. Includes the property address as a tappable link to maps.
+5. Includes one easy way to confirm receipt.
+
+Anything else — chit-chat, inspirational quotes, weather, "hope you're well" — adds nothing and pushes the message past the carrier segment limit, which delays delivery.
+
+## The base template
+
+```
+{{date}} TURN: {{property_short}}
+Out: {{checkout_time}}  In: {{checkin_time}}
+{{flags}}
+Address: {{maps_link}}
+Reply Y to confirm.
+```
+
+Filled in for a real turnover:
+
+```
+Tue 5/14 TURN: Maple St 2BR
+Out: 11:00  In: 15:00
+Pet stay - lint roll all soft surfaces.
+Address: maps.app.goo.gl/abc123
+Reply Y to confirm.
+```
+
+That is 142 characters. One segment. Delivered as one notification, displayed without an "expand" tap, readable while the cleaner is loading the car.
+
+The [cleaner dispatch generator](/cleaner-dispatch) builds this format automatically from your turnover list. If you'd rather hand a paper version to a cleaner who does not text, [the Cleaner SOP PDF](/get-the-cleaner-sop) covers the same ground in printable form.
+
+## Why every line earns its slot
+
+**The date prefix.** Cleaners run more than one job, often for more than one host. "TURN" tells them this is yours, not the other operator's. Date first means the message is searchable in their thread by date, which matters more than you'd think when something goes wrong on Thursday and you need to find Tuesday's instructions on Friday.
+
+**Property short name, not full address in the header.** "Maple St 2BR" is enough for the cleaner to know which house. Full address in the maps link slot — separated, tappable, not buried in narrative.
+
+**Out / In times.** Exposes the gap. If it reads "Out: 11:00 In: 14:30" the cleaner immediately sees a 3.5-hour window and can plan accordingly. Hiding this in a "by 3 p.m. please" sentence robs them of that judgment call.
+
+**Flags line.** Single-line, action-verb. Not "this guest had a dog." Write what they need to do: "Pet stay — lint roll all soft surfaces." Save the cleaner the translation.
+
+**Maps link.** Always include even for repeat properties. Cleaners with three jobs Tuesday do not always remember which is yours. The map is one tap.
+
+**Reply Y to confirm.** This is the line everyone skips and the line that actually matters. Most no-show cleaner events are missed messages, not missed jobs. A confirmation reply within 30 minutes of the dispatch tells you the cleaner saw it and is on it. No reply by 30 minutes is your signal to call.
+
+## The cost of getting it wrong
+
+A confused cleaner SMS costs roughly $40 of cleaner time and operator attention per incident. If you run 10 turns a week and three SMS messages produce confusion, you are losing $120 a week — about $6,000 a year — to ambiguity.
+
+Worse: the cleaner who sees a sloppy dispatch SMS believes (correctly) that you do not respect their time. Cleaners who feel disrespected leave, and replacing a reliable cleaner in a tight market takes three weeks and costs you at least one comped night during the gap. The dollar cost of cleaner churn is two orders of magnitude higher than the dollar cost of message confusion.
+
+Spend the 90 seconds it takes to send a clean dispatch.
+
+## Three flag patterns that pay for themselves
+
+Some turn-specific flags are worth standardizing because they recur:
+
+**"Pet stay - lint roll soft surfaces, vacuum corners."** Pet stays leave hair the standard turnover sweep misses. A lint roller pass adds eight minutes to the turn and prevents the next-guest hair complaint that costs a star. Tag the booking from the channel manager so it auto-flags.
+
+**"Long stay - deep dust, run dishwasher empty cycle."** Stays over five nights produce more dust on shelves and more dishwasher residue than a 1-3 night stay. Calling it out reminds the cleaner without you needing to inspect afterward.
+
+**"Same-day turn - laundry off-site, no on-prem wash."** Same-day turnovers cannot afford an on-property laundry cycle. Make this explicit in the SMS so the cleaner pre-stages a fresh linen set in the car. The [back-to-back turnover scheduling post](/blog/airbnb-turnover-scheduler) covers when to flag a turn as same-day vs. block the night.
+
+## Worked example: ten turnovers, two cleaners
+
+A weekend dispatch for a small portfolio. Six properties, ten turns spread across Friday-Sunday. Two cleaners, Liz and Mark.
+
+Friday afternoon, you generate the dispatch list:
+
+```
+Fri 5/16 TURN: Cedar 1BR
+Out: 11:00  In: 16:00
+Standard.
+Address: maps.app.goo.gl/cedar
+Reply Y to confirm.
+
+Fri 5/16 TURN: Maple 2BR
+Out: 11:00  In: 15:00
+Same-day turn - laundry off-site.
+Address: maps.app.goo.gl/maple
+Reply Y to confirm.
+
+Fri 5/16 TURN: Birch 3BR
+Out: 10:00  In: 18:00
+Long stay - deep dust, dishwasher empty cycle.
+Address: maps.app.goo.gl/birch
+Reply Y to confirm.
+```
+
+Three messages, three properties, three different operational profiles. Each cleaner gets only their assignments, in order, sent as one batch.
+
+Liz confirms two within 12 minutes. The third (Birch) goes unread for 40 minutes. You call. She has lost service driving through a dead zone. You re-text the Birch dispatch at 1 p.m. and confirm verbally. Crisis prevented, twenty minutes of stress saved by the simple discipline of a confirmation line.
+
+Without the confirmation line, you would not know there was a problem until Birch was 90 minutes overdue and the next guest was already on the road.
+
+## What to leave out
+
+- **Pricing.** The cleaner already knows what the turn pays. Do not put it in the SMS. Pricing in the dispatch SMS turns into negotiation in the dispatch SMS, which is the wrong place for it.
+- **Photos.** Photos go in a separate message after the cleaner confirms, if needed at all. Photos in the SMS often fail to render on older phones and push the message into MMS billing tiers, which some carriers treat differently.
+- **"Thanks!" or "You're the best!"** Not because gratitude is bad — say it on Sunday in person — but because every extra word of warmth dilutes the operational signal. The SMS is a work message. Save the relationship maintenance for in-person or end-of-week.
+
+## Cross-post: the financial side
+
+If you treat cleaner pay as a flat per-turnover line item, you miss the times same-day turns or long-stay deep cleans should pay extra. [Tracking cleaning fees properly in The STR Ledger](https://thestrledger.com) makes those line-item bumps visible at month-end. The [cleaning fee math on strhost.tools](https://strhost.tools) sets the fee that funds the buffer in the first place.
+
+## The two-minute checklist before you hit send
+
+Before any cleaner dispatch SMS, verify:
+
+1. Property short name matches what your cleaner calls it (not "the green house" if they call it "Cedar").
+2. Out / In times come from the booking, not your memory.
+3. Flags reflect this turn's actual conditions, not the property's defaults.
+4. Maps link works (open it on your phone — does not assume the cleaner has the address saved).
+5. Confirmation prompt is present.
+
+If any of these is wrong, fix it before sending. A re-sent SMS with corrections is twice as confusing as the original, even if the original was wrong.
+
+## Where this fits
+
+The dispatch SMS sits at the seam between the schedule and the cleaner. The [turnover scheduler](/turnover-scheduler) tells you which turns exist; the [cleaner dispatch generator](/cleaner-dispatch) turns that schedule into the per-cleaner messages above. The [smart lock code rotator](/smart-lock-codes) handles the door-code line if you include access codes (you should not — use a separate post-confirmation message). For the rest of the operations stack, [the maintenance schedule](/maintenance-schedule) and [linen par calculator](/linen-par-calculator) keep the supplies that the cleaner expects to find at the property actually present when they arrive.
+
+The SMS is a small thing. So is the confirmation reply. Small things, done consistently, are the entire game in operations.

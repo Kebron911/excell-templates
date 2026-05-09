@@ -1,0 +1,128 @@
+---
+title: "Airbnb Smart Lock Codes: How to Generate, Rotate, and Never Reuse Them"
+description: "Code reuse is how guests still get in the day after they leave. The rotation policy, the per-booking generator, and the smart-lock specifics."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "operations"
+keyword: "airbnb smart lock code generator"
+relatedTools:
+  - smart-lock-codes
+readMinutes: 8
+---
+
+Reused door codes are the most-overlooked security failure in short-term rentals. A guest who stayed in March still has their four-digit code. If you have not rotated it, they can walk in on a Tuesday in May while a different guest is asleep upstairs. Most hosts have never thought about it. The ones who have, often handle it badly — same code for a season, or an "easy to remember" code shared verbally to every guest.
+
+This is how to set up a code-rotation policy that closes the gap, plus the specific behavior of the three smart locks most STRs use.
+
+## The cost of code reuse
+
+Three failure modes:
+
+1. **Returning unauthorized access.** The exact scenario above — a previous guest, possibly a partner of the previous guest who never stayed, walking into an occupied home.
+2. **Cleaner key creep.** Your cleaner keeps a code from six months ago "in case." If they are eventually replaced, the new cleaner inherits a property where the old cleaner still has access. Most hosts do not notice this transition for 90 days.
+3. **Code-screenshot leak.** A guest screenshots the code to a group chat. Three friends now have it. None of them booked the property. The screenshot lives forever in iMessage history.
+
+The dollar cost of any one incident — police call, insurance claim, comped nights, listing review — is high enough that the rotation policy below pays for itself the first time it stops something.
+
+## What "rotation" actually means
+
+A clean rotation policy has four properties:
+
+1. **One unique code per booking.** Not per week, not per month. Per booking.
+2. **Codes are deactivated automatically at checkout.** Manual deactivation does not happen reliably across a portfolio.
+3. **Cleaner codes are separate from guest codes** and rotate on a separate schedule.
+4. **Maintenance/contractor codes are separate again** and exist only for the duration of the work order.
+
+Each of these can be done manually if you have one property and a Schlage Encode you reset by hand. None of them are realistic across five properties without automation. The [smart lock code rotator](/smart-lock-codes) generates a deterministic per-booking code (HMAC-SHA-256 derived, no spreadsheet, no reuse) for every reservation in your calendar.
+
+## Lock-by-lock behavior
+
+The three locks most multi-property STR operators run, and the per-lock specifics that affect rotation:
+
+### Schlage Encode (Wi-Fi)
+
+The Schlage Encode supports up to 100 access codes simultaneously. Codes can be added, deleted, or scheduled via the Schlage Home app or the Allegion API. Per-booking rotation works cleanly: add a code on booking confirmation, delete it on checkout. The catch: Schlage's API is not as well documented as some competitors, and most channel-manager integrations rely on third-party connectors. Verify the integration end-to-end on a test booking before you trust it for production. Schlage's official documentation lives at [schlage.com/support](https://www.schlage.com/en/home/support).
+
+The Encode model also supports a "permanent" code slot for the cleaner. Use it. Rotate it quarterly. Do not reuse the cleaner code as a guest code.
+
+### August Wi-Fi (4th gen)
+
+The August Wi-Fi smart lock supports up to 100 entry codes and integrates with both Airbnb (directly) and most major PMS platforms. The strength of the August integration is the auto-rotation: a per-booking code can be set to expire at the end of the reservation without any manual intervention. The weakness is the lock's reliance on the August Connect bridge — if your Wi-Fi goes down, the integration silently fails and codes do not update. Audit your bridge connectivity weekly. Manufacturer documentation: [august.com/support](https://august.com/support).
+
+### RemoteLock
+
+RemoteLock is the operator-favorite for portfolios because it natively supports per-booking codes across Wi-Fi, PoE, and Z-Wave hardware. The key advantage is the centralized dashboard — every property's codes, schedules, and audit log in one view. The disadvantage is the cost ($2-4 per device per month plus hardware). For a portfolio under 4 properties the per-device cost is hard to justify. Above 4 properties, the centralized audit trail alone usually justifies it.
+
+## A worked rotation policy
+
+For a 5-property portfolio with a single cleaner and a rotating handyman:
+
+**Guest codes:** Generated per booking via the [smart lock code rotator](/smart-lock-codes). Active from check-in time to checkout + 2 hours (the buffer covers late checkouts). Auto-deleted by the lock or PMS after the window closes.
+
+**Cleaner code:** One code per cleaner per property. Rotated quarterly (the first Sunday of each quarter). Active during a 6 a.m.-8 p.m. window seven days a week. Deactivated immediately if the cleaner relationship ends.
+
+**Handyman/contractor codes:** Created per work order via the same rotator. Active only during the scheduled work window (e.g., Wednesday 10 a.m.-2 p.m.). Auto-deleted at end of window.
+
+**Owner code:** Single code per owner, never shared, rotated annually. Stored in a password manager.
+
+**Emergency code:** A single 8-digit "break-glass" code shared with one trusted neighbor. Never communicated electronically. Rotated whenever the neighbor changes.
+
+That is five code categories, four of which rotate on different cadences. Doing this manually across five properties and 25-40 turnovers a month is roughly an hour a week of your time. Doing it via the rotator + your PMS integration is roughly five minutes a week.
+
+If you'd rather hand a printable lock-rotation routine to a cleaner or property manager, [grab the free Cleaner SOP PDF](/get-the-cleaner-sop) — it includes the lock and key handoff section.
+
+## Why a deterministic generator beats a random generator
+
+Most articles tell you to "use a random 4-digit code." That is fine for security but bad for operations. Random codes mean the only place a code exists is the lock and the message you sent the guest. If your PMS integration silently fails and the message did not send, you have no way to recover the code without resetting the lock — which means kicking out the current code holder.
+
+A deterministic generator (HMAC of a stable secret + booking ID) means the code is reproducible. If the message failed to send, you can regenerate the same code on demand and resend without resetting the lock. The code is still unguessable to outsiders because the secret is held only by you.
+
+The [smart lock code rotator](/smart-lock-codes) uses HMAC-SHA-256 with a per-host secret. Same input always produces the same code; secret changes invalidate every previous code at once (useful when offboarding a cleaner or property manager).
+
+## The cleaner code problem
+
+Most cleaner-code mistakes:
+
+1. **Same code at every property.** A cleaner who stops working for you keeps access to all five.
+2. **Code shared verbally to a backup cleaner.** The backup cleaner texts it to their phone, which gets backed up to iCloud, which gets shared to a household plan. Now four people have it.
+3. **Code never rotated.** Five years later, the same four digits.
+
+Fix: per-property cleaner code, rotated quarterly, communicated only via the lock app's secure share function (not text, not email). When a cleaner relationship ends, you rotate immediately — same day — across every property they had access to.
+
+## What guests actually need to know
+
+A clean check-in message tells a guest:
+
+- The address (already in their reservation, repeat it).
+- The door code (not the lock model, not the brand, just the digits).
+- When the code goes active.
+- What to do if the code does not work (one number to call, not three).
+
+That is it. Most hosts over-explain the lock and under-explain the contingency, which is backwards. Guests do not need a lecture on smart locks. They need to know who to call when the keypad does not respond at midnight.
+
+For the format of the post-confirmation guest message — separate from the cleaner dispatch SMS — pair this post with [the cleaner dispatch SMS template](/blog/airbnb-cleaner-sms-template) for the structural pattern.
+
+## Cross-post: the audit log
+
+Every code event — added, used, deleted — should be logged. RemoteLock does this natively. August does it via the app's history view. Schlage Encode keeps a 100-event ring buffer accessible via the app.
+
+Pull the audit log monthly and check for:
+
+- Codes that stayed active past their expected window.
+- Cleaner codes used outside expected hours.
+- Codes used during a known-vacant period.
+
+The [maintenance schedule](/maintenance-schedule) treats this monthly review as a recurring operational task, not a one-off. For the financial side — tracking lock costs, replacements, and any incident-related write-offs — [The STR Ledger](https://thestrledger.com) categorizes them properly for taxes.
+
+Cross-cluster: [strhost.tools](https://strhost.tools) covers the math of how a security incident affects ADR and occupancy via review impact, [strguests.tools](https://strguests.tools) handles the guest-side messaging templates, and [strbuyers.tools](https://strbuyers.tools) covers the lock infrastructure decisions you make at the time of property acquisition.
+
+## The shortest possible policy
+
+If you forget everything else, do these three things:
+
+1. Use a per-booking code, generated deterministically, never reused.
+2. Rotate the cleaner code quarterly and immediately on cleaner change.
+3. Pull the audit log on the first Sunday of every month and look for anomalies.
+
+Smart-lock security is not glamorous. It is the kind of operational hygiene nobody notices when it is right and everybody notices when it is wrong. Set it up once, automate the rotation, and forget it — until the day a previous guest tries the old code and you find out the system held.

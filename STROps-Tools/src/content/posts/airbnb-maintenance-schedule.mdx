@@ -1,0 +1,157 @@
+---
+title: "The 2026 Airbnb Maintenance Schedule: Annual Cadence for HVAC, Smoke Detectors, and Deep Cleans"
+description: "A maintenance schedule that holds across a portfolio. Per-task cadence, cost, and who does the work — for HVAC, smoke detectors, and deep cleans."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "operations"
+keyword: "airbnb maintenance schedule"
+relatedTools:
+  - maintenance-schedule
+  - damage-cost-lookup
+readMinutes: 8
+---
+
+A short-term rental fails not from one big problem but from a stack of small ones nobody scheduled. The HVAC filter that did not get changed at month 3, plus the smoke detector battery that nobody tested at month 11, plus the deep clean that got skipped in Q4 — none of them are individually a crisis. Together, they produce the AC failure on July 4 weekend, the carbon-monoxide false alarm at 2 a.m., and the "musty smell" review that costs you a star.
+
+A maintenance schedule that holds is not a list of tasks. It is a cadence per task, an assigned owner, and a recurring trigger that fires whether you remember it or not. Here is the 2026 cadence for a multi-property STR portfolio, with the costs and the failure modes each task prevents.
+
+## Why most maintenance schedules fail
+
+Three patterns:
+
+1. **The schedule lives in the host's head.** "I usually do this in spring." Spring comes, the host is on a trip or in a busy booking week, the task slips. Six months later they cannot remember whether it was done.
+2. **The schedule lives in a Google Doc but does not trigger reminders.** Tasks queue up and get done in batches when the host happens to be at the property, which is the wrong time (during a vacancy, ideally between specific bookings).
+3. **The schedule does not distinguish between owner-done and contractor-done tasks.** The host adds "service HVAC" to the spring list and forgets that this requires booking an HVAC tech 3 weeks in advance during peak season.
+
+A schedule that holds has three properties: it is **calendar-based** (a date, not a "when convenient"), it is **per-property** (not portfolio-wide), and it is **assigned** (each task has an owner — host, cleaner, or contractor — and the booking lead time written down).
+
+## The annual cadence
+
+Twelve recurring task categories, ordered by cadence:
+
+### Per-turnover (every booking)
+
+- Smoke detector test (cleaner presses the test button — 5 seconds).
+- Carbon monoxide detector test (same — 5 seconds).
+- Light bulb check (cleaner notes any out — text host, host adds to next supply order).
+- Door lock test (cleaner verifies the lock cycles smoothly).
+
+These are not part of the cleaning checklist most cleaners follow by default. Add them explicitly. The [cleaner dispatch SMS template](/blog/airbnb-cleaner-sms-template) covers the SMS format; pair with [the cleaner SOP PDF](/get-the-cleaner-sop) for the printable checklist.
+
+### Monthly
+
+- HVAC filter swap (every 30-45 days for STRs, vs. 90 days for primary residences).
+- Garbage disposal cleaning (citrus + ice cubes, takes 2 minutes).
+- Toilet running-water check (2 minutes per toilet; running toilets cost ~$200/year per toilet in water bills if missed).
+- Smoke + CO detector battery test (if not hardwired).
+
+### Quarterly
+
+- HVAC professional service (if the property has central air; coil clean, condensate line clear, refrigerant top-off if needed). Roughly $80-$180 per visit.
+- Deep clean (in addition to per-turnover cleans — baseboards, vent covers, behind appliances). Roughly $200-$400 depending on property size.
+- Pest control inspection (visible signs only; full treatment as needed).
+- Smart lock battery check (most run on AAs; expect 6-9 months per set, but check quarterly to be safe).
+
+### Semi-annually
+
+- Dryer vent cleaning. This is the most-skipped maintenance task and the highest-consequence one — clogged dryer vents cause fires. Per the U.S. Fire Administration, dryer fires cause an average of 2,900 home fires per year nationally, with failure to clean the vent the leading factor. Reference: [usfa.fema.gov](https://www.usfa.fema.gov). Roughly $100-$200 per cleaning.
+- Roof gutter cleaning. Twice a year (spring + fall) in most climates; quarterly in heavy-tree areas. Roughly $120-$280 per visit.
+- Hot tub deep service (if applicable). Drain, scrub, refill, balance chemistry. Roughly $150-$300.
+- Window screen + caulking inspection.
+
+### Annually
+
+- HVAC professional tune-up (different from quarterly service — full inspection, not just maintenance). Roughly $150-$400.
+- Smoke + CO detector replacement (if older than 7 years; UL-listed sealed-battery models last ~10 years; consult manufacturer instructions). Per the National Fire Protection Association at [nfpa.org](https://www.nfpa.org), smoke detectors should be replaced after 10 years from manufacture date.
+- Lead-paint inspection if the property was built pre-1978. HUD lead-paint guidance: [hud.gov/program_offices/healthy_homes](https://www.hud.gov).
+- Caulking + grout inspection in all wet rooms (Schluter or comparable for high-moisture areas).
+- Fire extinguisher service or replacement (most rated 5-12 years; check the gauge).
+- Insurance review and policy renewal (do not auto-renew without re-pricing).
+- Photo-library refresh for damage-claim baseline (covered in [the damage cost post](/blog/cost-to-replace-items-in-airbnb)).
+
+The [maintenance schedule generator](/maintenance-schedule) builds this cadence per-property, exports to .ics so it lands in your calendar, and produces a printable PDF for the property manager. For the printable hand-off your cleaner needs in the closet, [grab the free Maintenance Checklist PDF](/get-the-maintenance-checklist).
+
+## HVAC: the single most-missed task category
+
+HVAC failures are the highest-cost preventable maintenance event in an STR. A failed compressor in July is a $2,000-$5,000 unit replacement plus a comped booking week plus the review impact. The preventive math: $80-$180 per quarter × 4 = $320-$720 a year keeps the system running. One failure pays for 3-7 years of service.
+
+The actual failure cascade most operators have lived through:
+
+1. Filter not changed at month 3. Airflow drops 15%.
+2. Coil starts freezing on hot days. Detected as "AC blowing warm" by guest at month 5.
+3. Compressor strain compounds. Lifespan reduced 5-7 years.
+4. Compressor fails at month 14 (vs. expected month 60+).
+5. $2,800 replacement on a holiday weekend. No contractor available for 3 days. Comped week.
+
+Most manufacturer documentation (Trane, Carrier, Lennox) recommends 60-90 day filter changes for residential and 30-45 day for high-occupancy applications. STRs fall in the high-occupancy bucket. Verify the specific filter spec — MERV rating affects airflow, and a higher-rated filter that's not designed for your system reduces airflow and can damage the unit.
+
+Worked example: a 2,400-sqft 4-bedroom with central air running 20+ guest-nights/month.
+
+- Filter cost: $18 each, MERV 11 spec.
+- Cadence: every 45 days = ~8 changes/year.
+- Annual filter spend: $144.
+- Quarterly service: $130 × 4 = $520.
+- Annual tune-up: $250.
+- Total annual HVAC maintenance: $914.
+
+Versus the cost of a single failure (replacement + comped revenue + review impact): $4,000-$7,000.
+
+## Smoke and CO detectors: the legal floor
+
+Smoke and CO detector requirements are not optional — they are code in most jurisdictions and a key requirement for Airbnb's host insurance program. The NFPA recommends one smoke detector per bedroom + one in each common area + one on each level. CO detectors are required within 10-15 feet of any sleeping area when fuel-burning appliances or attached garages are present.
+
+Sealed-battery 10-year units (e.g., Kidde, First Alert) are worth the upgrade. The 9-volt battery models that beep at 2 a.m. cost less upfront but generate enough wake-up calls to your guests to materially affect reviews.
+
+Per-turnover test, monthly battery check (if not sealed), annual replacement evaluation. None of these takes more than 5 minutes per property. All of them get skipped routinely. The schedule's job is to make the skipping impossible.
+
+## Quarterly deep cleans vs. per-turnover cleans
+
+Per-turnover cleans cover the visible. They do not cover:
+
+- Behind the refrigerator and oven.
+- Inside the dishwasher and washing machine (run a clean cycle with a tablet).
+- Vent covers and ceiling fan blades (dust accumulates and circulates).
+- Window tracks and screen frames.
+- Baseboards in bedrooms (especially under the bed).
+- Light fixture covers (insect accumulation, dust).
+
+The quarterly deep clean is where these get done. Most cleaners offer a "deep clean" rate that runs roughly 2x the standard turn rate. Schedule them between bookings on the calendar, not "whenever there's a gap" — gaps fill up before you notice.
+
+For the consumables side of cleaning supply (commercial-grade vs. retail), pair with [the supply restock post](/blog/airbnb-supply-restock-calculator).
+
+## Lead-paint, asbestos, and pre-1978 properties
+
+If your property was built before 1978, lead-paint disclosure is federally required for any sale or lease. STR rentals fall in a gray zone — federal law applies to leases of any duration but enforcement priority is on long-term residential. Most operators handle it by including a lead-paint disclosure in the welcome book regardless. HUD's official guidance is at [hud.gov](https://www.hud.gov).
+
+If your property has any chipping or peeling paint, the right action is professional encapsulation or removal, not "we'll get to it." The maintenance schedule should include an annual inspection trigger for any property with painted surfaces older than 1978.
+
+## The handoff: who does what
+
+Three categories of task owner:
+
+**Cleaner:** Per-turnover checks. Light bulb notes. Damage flag-and-photo. Smoke/CO test. Door-cycle test.
+
+**Host:** Monthly HVAC filter swap (if local), quarterly schedule audit, annual review of the entire cadence and re-pricing of contractor relationships.
+
+**Contractor:** Quarterly HVAC service, semi-annual dryer vent and gutters, annual HVAC tune-up + lead-paint inspection if applicable. Book each contractor on a recurring basis, not ad-hoc — recurring relationships get prioritized scheduling and better pricing.
+
+The [maintenance schedule](/maintenance-schedule) outputs the per-owner task list automatically, so the cleaner's monthly view is different from the host's and different again from the HVAC contractor's.
+
+## Cross-post: how maintenance interacts with damage claims
+
+Maintenance and damage claims are linked: routine maintenance creates the documented baseline that AirCover claims rely on. A property with an annual HVAC service receipt has provable evidence the system was working pre-incident; a property without it leaves AirCover room to deny a claim as "wear-and-tear caused the failure."
+
+Keep maintenance receipts in the same per-property folder as damage-claim photos. Pair this post with [the damage cost lookup post](/blog/cost-to-replace-items-in-airbnb) for the claim-side workflow.
+
+For the financial categorization — repairs vs. capital improvements for tax — [The STR Ledger](https://thestrledger.com) splits the lines correctly. A new $80 HVAC filter is a deductible repair; a new $4,800 HVAC compressor is a depreciated capital improvement. Both run through the maintenance schedule but show up in different tax buckets.
+
+Cross-cluster: [strhost.tools](https://strhost.tools) handles the math of how maintenance spend interacts with margin and pricing; [strbuyers.tools](https://strbuyers.tools) covers the property-acquisition decisions (HVAC age, roof age, hot tub yes-or-no) that drive the maintenance cadence in the first place; [strguests.tools](https://strguests.tools) handles the welcome-book and house-rules content that reduces guest-induced maintenance events.
+
+## The two-page printable
+
+The most useful artifact a maintenance schedule produces is a two-page printable that lives on the inside of the laundry-room door at every property. Page one: the per-turnover and monthly checklist. Page two: the quarterly + semi-annual + annual trigger calendar with the contractor names and phone numbers filled in.
+
+Cleaners refer to page one. Contractors refer to page two. You refer to neither — your job is to set up the schedule once and audit it once a quarter.
+
+A maintenance schedule, like a turnover schedule and a code rotation policy, is a small unglamorous discipline that pays out across years. It is the difference between an STR that runs as a business and one that runs as a series of weekly emergencies.

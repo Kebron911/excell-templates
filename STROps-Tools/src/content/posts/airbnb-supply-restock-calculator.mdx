@@ -1,0 +1,160 @@
+---
+title: "Airbnb Supply Restock: A Per-Booking Math for Coffee, Paper, and Soap"
+description: "Restocking on a hunch costs you 30% in over-buying and 10% in stockouts. The per-booking unit math for every consumable in the property."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "operations"
+keyword: "airbnb supply restock calculator"
+relatedTools:
+  - restock-calculator
+  - linen-par-calculator
+readMinutes: 7
+---
+
+Most STR operators restock supplies on a feel. They walk through a property, eyeball the cabinet, and order what looks low. That works at one property. It does not work at three. And it definitely does not work for the operator who runs four properties and discovers, on the same Tuesday, that two are out of toilet paper and a third has eight months of unopened Keurig pods that just hit their best-by date.
+
+Eyeballing it costs you twice: you over-buy on the visible items (coffee, hand soap) and under-buy on the invisible ones (replacement batteries, light bulbs, sponges). Combined waste is roughly 25-35% of consumables spend across a portfolio. On a $200/month per-property consumables line, that is $600-$840 a year per property — money you can recover with a per-booking unit math.
+
+## The unit-per-booking model
+
+Every consumable has a unit-per-booking rate. Coffee: roughly 4-8 K-cups per booking depending on stay length. Toilet paper: roughly 1-1.5 rolls per guest-night. Dish soap: roughly 0.05 bottles per booking (one bottle lasts ~20 turns). Hand soap: roughly 0.1 bottles per booking.
+
+Multiply per-booking rate × bookings per month = monthly burn rate. Order to par + safety stock against monthly burn.
+
+Concretely:
+
+```
+Monthly consumption = unit_per_booking × bookings_per_month
+Reorder point = monthly_consumption × 0.5
+Reorder quantity = monthly_consumption × 1.5
+```
+
+The 0.5 reorder point + 1.5 reorder quantity gives a 2-month rolling supply with a 1-month buffer. Most consumables tolerate a 2-month max in storage without freshness loss; coffee and certain toiletries do not (more on that below).
+
+The [restock calculator](/restock-calculator) takes your per-property booking volume, multiplies by the per-booking rates for every consumable, and outputs a monthly order list per property. For the printable supply checklist your cleaner needs in the closet, [grab the free Supply Par-Level Sheet](/get-the-supply-par).
+
+## The 12 consumables that matter
+
+Roughly 80% of consumables spend goes to a dozen items. The unit-per-booking rates below are conservative averages based on a 2-3 night stay with 2 guests.
+
+| Item | Unit per booking | Notes |
+|---|---|---|
+| Toilet paper rolls | 2-3 | More for stays > 3 nights |
+| Paper towels (rolls) | 0.5-1 | Per kitchen + per bath |
+| Hand soap (bottle equiv) | 0.1 | Refill from bulk if possible |
+| Dish soap (bottle equiv) | 0.05 | One bottle lasts ~20 turns |
+| Dishwasher pods | 1-2 | One per cycle, often 2 cycles per stay |
+| Trash bags | 2-3 | Kitchen + bath + outside bin |
+| Coffee (K-cups or grounds) | 4-8 | K-cups: 1 per guest per morning |
+| Tea bags | 2-4 | Stays under 1% of stays use any |
+| Sugar/sweetener packets | 4-8 | High waste, low cost |
+| Salt, pepper, basics | 0.05 jars | Refill quarterly |
+| Hand towels (small replenish) | 0 | Linen, not consumable |
+| Light bulbs (replacement) | 0.05 | One bulb every ~20 stays |
+
+A property doing 12 bookings/month consumes roughly:
+- 24-36 rolls TP
+- 6-12 rolls paper towel
+- 1.2 bottles hand soap
+- 0.6 bottles dish soap
+- 12-24 dishwasher pods
+- 24-36 trash bags
+- 48-96 coffee K-cups
+- 24-48 tea bags
+- 48-96 sugar packets
+
+Order monthly at 1.5x that, you land at ~36-54 rolls TP, ~9-18 paper towel, ~2 bottles hand soap, ~1 bottle dish soap, ~18-36 dishwasher pods, etc.
+
+## Why eyeballing produces 30% waste
+
+Three failure modes:
+
+**1. Visibility bias.** Hosts walk through and notice items that are visible (coffee on the counter, hand soap by the sink). They miss items that are stored (extra TP rolls in the closet, replacement light bulbs in the garage). Visible items get over-ordered. Invisible items run out at 2 a.m. on a Saturday.
+
+**2. Last-minute confirmation bias.** A host who feels they "just bought" coffee under-orders, then discovers the cleaner has been using two K-cups per cup because the brewer is finicky. The actual burn rate was 2x what they assumed.
+
+**3. Per-property memory failure.** With more than two properties, hosts cannot remember what they bought for which property when. They end up ordering the same thing for all properties at once, regardless of actual property-specific demand. High-occupancy properties run short; low-occupancy properties accumulate.
+
+The fix is the same in every case: a written per-booking rate, a monthly burn calculation, and a reorder point that does not require eyeballing.
+
+## Worked example: 4-property portfolio, mixed occupancy
+
+Four properties, varying booking volume:
+
+- Property A (1BR, downtown): 18 bookings/month, average 2 nights/booking.
+- Property B (2BR, suburban): 12 bookings/month, average 3 nights/booking.
+- Property C (3BR, beach): 8 bookings/month, average 5 nights/booking.
+- Property D (studio, in-law unit): 22 bookings/month, average 1.5 nights/booking.
+
+Total: 60 bookings/month across the portfolio.
+
+Toilet paper at 2.5 rolls/booking average × 60 = 150 rolls/month. At a 1.5x order quantity = 225 rolls/month.
+
+But that is the wrong way to do it — you cannot buy a single 225-roll order across four addresses. You need per-property breakdowns:
+
+- Property A: 18 × 2.5 × 1.5 = ~67 rolls/month delivered.
+- Property B: 12 × 3.0 × 1.5 = ~54 rolls/month (longer stays = more TP per booking).
+- Property C: 8 × 4.0 × 1.5 = ~48 rolls/month (5-night stays = even more).
+- Property D: 22 × 1.5 × 1.5 = ~50 rolls/month (1.5-night stays = less per booking).
+
+Total: ~219 rolls. Close to the back-of-envelope total but materially different per address. Property C needs the longest-stay TP allocation despite the lowest booking count. Property D needs frequent small deliveries, not a quarterly bulk drop.
+
+The [restock calculator](/restock-calculator) does this per-address math automatically.
+
+## Coffee, freshness, and the 2-month rule
+
+Coffee is the consumable hosts get wrong most often. K-cups have a printed best-by date, but the actual flavor degradation starts at roughly 90 days from manufacture. A 96-pack ordered for a property doing 8 bookings/month at 5 K-cups per booking burns through in ~2.4 months — right at the freshness edge.
+
+Buying the 200-pack to save 20% per K-cup is false economy: you stretch the supply to 5+ months, and the last 60 K-cups taste flat. Guest reviews mention "stale coffee" before they mention "good coffee." Order in 2-month quantities, even if the per-unit cost is higher.
+
+Same logic applies to:
+- Tea bags (12-month shelf life in foil; less in cardboard packets).
+- Powdered creamer (6-12 months, faster in humid markets).
+- Sugar packets (effectively indefinite — bulk is fine).
+- Granola bars or "welcome snacks" if you stock them (3-6 month shelf life — be careful with bulk Costco buys).
+
+## Where consumables meet linens
+
+Linens are not consumables but they share a workflow: both burn at a rate proportional to bookings and turnovers, both need a par-level model, and both fail invisibly until the day they fail visibly. The [linen par calculator](/linen-par-calculator) covers the linen side of the same problem, and the [linen par post](/blog/airbnb-linen-par-calculator) walks through the math on sheets and towels specifically.
+
+For the financial categorization — consumables vs. supplies vs. capital improvements for tax purposes — [The STR Ledger](https://thestrledger.com) splits the lines correctly so the tax treatment lines up at year-end.
+
+## Bulk buying — when it pays, when it doesn't
+
+Bulk pays when:
+- The unit per-booking is high (TP, paper towels, trash bags).
+- The shelf life is long (over 12 months).
+- The storage space is free or near-free.
+
+Bulk does not pay when:
+- The unit per-booking is low (specialty items).
+- Shelf life is under 6 months.
+- Storage is constrained (urban properties especially).
+
+A reasonable rule: bulk-buy items that average over $0.50 per booking and have over 12-month shelf life. Standard-pack everything else.
+
+Where bulk does pay, focus your discount-stacking on:
+
+- TP: Costco/Sam's Club commercial-grade roll packs.
+- Trash bags: bulk contractor-grade bags last forever and cost less per bag.
+- Hand soap: bulk gallon refills from Method, Mrs. Meyers, or institutional brands. Decant into per-bath dispensers.
+- Coffee: skip bulk. Order in 60-90 day quantities only.
+
+## Cross-cluster: how restock fits the bigger picture
+
+Cross-cluster context:
+- [strhost.tools](https://strhost.tools) covers the cleaning fee math that funds the consumables line.
+- [strguests.tools](https://strguests.tools) handles welcome-book additions that often replace some loose paper supplies (e.g., a printed welcome book replaces handouts, saving ~$3-5 per turnover).
+- [strbuyers.tools](https://strbuyers.tools) covers the property-acquisition decisions (storage closet size, garage access) that affect which bulk strategies are practical.
+- [The STR Ledger](https://thestrledger.com) tracks the consumables line across the portfolio and surfaces the per-booking cost trend over time.
+
+## The reorder rhythm that holds at scale
+
+Pick one rhythm and stick to it:
+
+- **Weekly:** Set a 30-minute "supply check" block on the calendar (most operators do Sunday afternoons). Review the burn for the week, adjust orders for next week.
+- **Monthly:** Run the [restock calculator](/restock-calculator) at month-end against actual booking volume. Reorder to par. Note any items where burn was off forecast by more than 30%.
+- **Quarterly:** Audit the storage closet at every property. Toss expired items. Re-mark refill bottles with date labels.
+
+Three rhythms, none of them daily, none of them require remembering anything in your head. The supplies show up on Tuesday, the cleaner finds them in the closet on Wednesday, the guest brews fresh coffee on Saturday morning, and you get a five-star review for "well-stocked, thoughtful host" — earned not by adding anything fancy but by having the basics consistently present.
