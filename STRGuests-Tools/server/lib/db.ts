@@ -42,7 +42,7 @@ export function getPool(): mysql.Pool {
  * Returns the raw rows; the second tuple element (fields metadata) is omitted
  * because no caller needs it.
  */
-export async function query<T = any>(sql: string, params: unknown[] = []): Promise<T[]> {
+export async function query<T = any>(sql: string, params: any[] = []): Promise<T[]> {
   const p = getPool();
   const [rows] = await p.execute(sql, params);
   return rows as T[];
@@ -51,7 +51,7 @@ export async function query<T = any>(sql: string, params: unknown[] = []): Promi
 /**
  * Single-row helper.
  */
-export async function queryOne<T = any>(sql: string, params: unknown[] = []): Promise<T | null> {
+export async function queryOne<T = any>(sql: string, params: any[] = []): Promise<T | null> {
   const rows = await query<T>(sql, params);
   return rows.length > 0 ? rows[0] : null;
 }

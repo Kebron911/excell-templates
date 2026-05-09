@@ -20,8 +20,8 @@ const all = await getCollection('posts');
 // primary deep-dives; rank them above posts that only mention this tool
 // secondarily. Within a tier, newer posts win.
 const related = all
-  .filter((p) => Array.isArray(p.data.relatedTools) && p.data.relatedTools.includes(toolKey))
-  .map((p) => ({
+  .filter((p: any) => Array.isArray(p.data.relatedTools) && p.data.relatedTools.includes(toolKey))
+  .map((p: any) => ({
     slug: p.id.replace(/\.mdx$/, ''),
     title: p.data.title,
     description: p.data.description,
@@ -29,7 +29,7 @@ const related = all
     rank: p.data.relatedTools.indexOf(toolKey),
     datePublished: p.data.datePublished,
   }))
-  .sort((a, b) => {
+  .sort((a: { rank: number; datePublished: string }, b: { rank: number; datePublished: string }) => {
     if (a.rank !== b.rank) return a.rank - b.rank;
     return a.datePublished < b.datePublished ? 1 : -1;
   })
@@ -48,7 +48,7 @@ if (related.length === 0) return null;
 >
   <p class="label text-gold-deep">{related.length === 1 ? 'Read the deep-dive' : 'Read the deep-dives'}</p>
   <ul class:list={['mt-3 space-y-3', related.length > 1 && 'grid grid-cols-1 md:grid-cols-2 gap-3 space-y-0']}>
-    {related.map((post) => (
+    {related.map((post: any) => (
       <li>
         <a
           href={`/blog/${post.slug}`}

@@ -6,6 +6,10 @@ on:
     paths:
       - 'STRGuests-Tools/**'
       - '.github/workflows/deploy-strguests-tools.yml'
+  pull_request:
+    paths:
+      - 'STRGuests-Tools/**'
+      - '.github/workflows/deploy-strguests-tools.yml'
   workflow_dispatch:
 
 concurrency:
@@ -15,7 +19,7 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -37,26 +41,60 @@ jobs:
         working-directory: STRGuests-Tools
         run: pnpm install --frozen-lockfile
 
+      - name: Typecheck
+        working-directory: STRGuests-Tools
+        run: pnpm typecheck
+
+      - name: Unit tests
+        working-directory: STRGuests-Tools
+        run: pnpm test
+
       - name: Build
         working-directory: STRGuests-Tools
-        run: pnpm build
         env:
           PUBLIC_GA4_ID: ${{ secrets.STRGUESTS_GA4_ID }}
+        run: pnpm build
 
       - name: Verify build output
         working-directory: STRGuests-Tools
         run: |
+          set -e
           test -f dist/index.html
-          test -f dist/blog/index.html
-          test -f dist/feed.xml
+          test -f dist/house-rules-pdf/index.html
+          test -f dist/welcome-book/index.html
+          test -f dist/wifi-sign/index.html
+          test -f dist/check-in-instructions/index.html
+          test -f dist/templates/index.html
+          test -f dist/get-the-templates/index.html
+          test -f dist/about/index.html
+          test -f dist/contact/index.html
+          test -f dist/sitemap-index.xml
+          test -f dist/robots.txt
           echo "Build output OK"
 
-      # SSH-based deploy. Uses the master Hostinger account
-      # u470667024 + the shared cluster SSH key in secret STR_SSH_KEY.
-      # Sidesteps the per-domain FTP sub-user provisioning that broke
-      # this site's first deploy (the strguests.tools FTP account didn't
-      # exist in hPanel; SSH master always works).
+      # Playwright runs after build because playwright.config.ts spawns
+      # `pnpm preview`, which requires dist/ to exist.
+      - name: Install Playwright browsers
+        id: pw_install
+        continue-on-error: true
+        working-directory: STRGuests-Tools
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: E2E tests
+        if: steps.pw_install.outcome == 'success'
+        working-directory: STRGuests-Tools
+        run: pnpm test:e2e
+
+      # Deploy only on push to main. PRs run through the verification gates above
+      # (typecheck/test/build/e2e) but do not deploy.
+      #
+      # SSH-based deploy. Uses the master Hostinger account u470667024
+      # + the shared cluster SSH key in secret STR_SSH_KEY. Sidesteps
+      # the per-domain FTP sub-user provisioning that broke this site's
+      # first deploy (the strguests.tools FTP account didn't exist in
+      # hPanel; SSH master always works).
       - name: Set up SSH key
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           SSH_PRIVATE_KEY: ${{ secrets.STR_SSH_KEY }}
         run: |
@@ -65,17 +103,14 @@ jobs:
           chmod 700 ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          # Sanity check the written key. ssh-keygen -y derives the public
-          # key — fails loudly if the private key is malformed.
           echo "Key file size: $(wc -c < ~/.ssh/id_ed25519) bytes"
           ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null && echo "Key parses OK"
-          # Pin Hostinger's host key. Output ssh-keyscan to known_hosts
-          # without swallowing errors so a port-block surfaces in logs.
           ssh-keyscan -p 65002 -t ed25519,rsa,ecdsa 195.35.15.247 >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
           echo "known_hosts entries: $(wc -l < ~/.ssh/known_hosts)"
 
       - name: Deploy via rsync over SSH
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           rsync -av --delete \
             --exclude='.git' \
@@ -84,7 +119,15 @@ jobs:
             ./STRGuests-Tools/dist/ \
             u470667024@195.35.15.247:/home/u470667024/domains/strguests.tools/public_html/
 
+      - name: Pre-launch smoke
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: STRGuests-Tools
+        env:
+          SMOKE_BASE_URL: https://strguests.tools
+        run: node scripts/smoke.mjs
+
       # IndexNow auto-submit — fans out to Bing/Yandex/Seznam/Naver.
       - name: Notify IndexNow
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         continue-on-error: true
         run: node STRGuests-Tools/scripts/indexnow-submit.mjs

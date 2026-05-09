@@ -7,11 +7,13 @@ import { getCollection } from 'astro:content';
 
 const all = await getCollection('posts');
 const posts = all
-  .map((p) => ({
+  .map((p: any) => ({
     slug: p.id.replace(/\.mdx$/, ''),
     ...p.data,
   }))
-  .sort((a, b) => (a.datePublished < b.datePublished ? 1 : -1));
+  .sort((a: { datePublished: string }, b: { datePublished: string }) =>
+    a.datePublished < b.datePublished ? 1 : -1,
+  );
 
 const categoryLabels: Record<string, string> = {
   math: 'Math',
@@ -52,7 +54,7 @@ const formatDate = (iso: string) =>
   <section class="bg-parchment-light border-t border-rule">
     <div class="mx-auto max-w-6xl px-5 py-9">
       <ul class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {posts.map((post) => (
+        {posts.map((post: any) => (
           <li>
             <a
               href={`/blog/${post.slug}`}

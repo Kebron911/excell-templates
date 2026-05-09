@@ -13,7 +13,7 @@ const aiTools = toolsList.filter((t: any) => t.kind === 'ai');
 // Latest 3 blog posts — drives pageviews/session and helps crawl bots
 // reach /blog/* from the highest-PageRank URL.
 const latestPosts = (await getCollection('posts'))
-  .map((p) => ({
+  .map((p: any) => ({
     slug: p.id.replace(/\.mdx$/, ''),
     title: p.data.title,
     description: p.data.description,
@@ -21,7 +21,9 @@ const latestPosts = (await getCollection('posts'))
     readMinutes: p.data.readMinutes,
     category: p.data.category,
   }))
-  .sort((a, b) => (a.datePublished < b.datePublished ? 1 : -1))
+  .sort((a: { datePublished: string }, b: { datePublished: string }) =>
+    a.datePublished < b.datePublished ? 1 : -1,
+  )
   .slice(0, 3);
 
 const categoryLabels: Record<string, string> = {
@@ -194,7 +196,7 @@ const categoryLabels: Record<string, string> = {
           </a>
         </div>
         <ul class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {latestPosts.map((post) => (
+          {latestPosts.map((post: any) => (
             <li>
               <a
                 href={`/blog/${post.slug}`}

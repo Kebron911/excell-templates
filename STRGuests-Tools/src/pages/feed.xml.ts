@@ -4,8 +4,8 @@ import type { APIContext } from 'astro';
 
 export async function GET(context: APIContext) {
   const posts = (await getCollection('posts'))
-    .sort((a, b) => (a.data.datePublished < b.data.datePublished ? 1 : -1))
-    .map((post) => {
+    .sort((a: any, b: any) => (a.data.datePublished < b.data.datePublished ? 1 : -1))
+    .map((post: any) => {
       const slug = post.id.replace(/\.mdx$/, '');
       return {
         title: post.data.title,

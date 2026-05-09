@@ -154,7 +154,9 @@ async function drawFun(
   qrPng: any,
 ): Promise<void> {
   // Big QR, playful header, casual copy.
-  drawCentered(page, "WI-FI'S OVER HERE →", fonts.helvBold, 22, PAGE_H - 110, COLORS.terracotta);
+  // » (WinAnsi 0xBB) instead of → (U+2192) — pdf-lib's standard fonts are
+  // WinAnsi-only and cannot encode arrows. » carries the same "this way" visual.
+  drawCentered(page, "WI-FI'S OVER HERE »", fonts.helvBold, 22, PAGE_H - 110, COLORS.terracotta);
   if (input.houseName) {
     drawCentered(page, input.houseName, fonts.timesItalic, 14, PAGE_H - 140, COLORS.ink2);
   }
