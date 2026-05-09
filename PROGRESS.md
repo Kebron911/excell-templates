@@ -2,13 +2,30 @@
 
 > **Read first.** This is the single performance list for the entire empire — templates, storefronts, marketing, infrastructure, products. Mark items `[x]` as you complete them. Sections are ordered **first-payment first**, then expanding outward.
 >
-> **Last reviewed:** 2026-05-05 (Phase 6 fully closed — 65/65 SKUs + Etsy copy + product-page copy. Manifest 327/327 green. **Lifecycle email layer complete** — all 5 sequences drafted: post-purchase-etsy-buyer, review-request, refund-recovery, win-back, abandoned-cart + 5 bundle cross-sell sequences. Pending: IS-import shape conversion + load to Influencersoft.)
+> **Last reviewed:** 2026-05-09 (cluster CI alignment: 4/4 sister sites LIVE — strhost.tools, strguests.tools, strops.tools, strbuyers.tools — all on one CI pattern. Catalog spot-audited 6/6 byte-clean. Storefront still blocked on Daniel account openings — see [`LAUNCH.md`](LAUNCH.md).)
+>
+> **Previous review:** 2026-05-05 (Phase 6 fully closed — 65/65 SKUs + Etsy copy + product-page copy. Manifest 327/327 green. Lifecycle email layer complete — all 5 sequences drafted. Pending: IS-import shape conversion + load to Influencersoft.)
+>
 > **Source-of-truth audits:** SKU completeness (see "Catalog audit" §P4), workspace audit (Sections P0–P3 below).
+>
 > **Companion docs:**
-> - Master strategy → [docs/superpowers/specs/2026-04-22-str-tax-platform-design.md](docs/superpowers/specs/2026-04-22-str-tax-platform-design.md)
-> - Launch design → [docs/superpowers/specs/2026-04-22-first-5-etsy-products-design.md](docs/superpowers/specs/2026-04-22-first-5-etsy-products-design.md)
-> - Daniel's manual queue → [ops/user-manual-todo.md](ops/user-manual-todo.md)
-> - Claude's automation queue → [ops/automation-queue.md](ops/automation-queue.md)
+> - **Single ordered path forward** → [`LAUNCH.md`](LAUNCH.md)
+> - Master strategy → [`docs/superpowers/specs/2026-04-22-str-tax-platform-design.md`](docs/superpowers/specs/2026-04-22-str-tax-platform-design.md)
+> - Launch design → [`docs/superpowers/specs/2026-04-22-first-5-etsy-products-design.md`](docs/superpowers/specs/2026-04-22-first-5-etsy-products-design.md)
+> - Daniel's detailed checklist → [`ops/DANIEL-FIRST-PAYMENT-CHECKLIST.md`](ops/DANIEL-FIRST-PAYMENT-CHECKLIST.md)
+> - Claude's automation queue → [`ops/automation-queue.md`](ops/automation-queue.md)
+> - Cluster site planning → `STR{Buyers,Guests,Host,Ops}-Tools/.planning/STATE.md`
+
+## Cluster status (free-tool funnel sites)
+
+| Site | Status | Tag |
+|---|---|---|
+| strhost.tools | ✅ LIVE | (untagged on main) |
+| strguests.tools | ✅ LIVE | `strguests-tools-v0.1.0` |
+| strops.tools | ✅ LIVE | `v0.1.0-strops` |
+| strbuyers.tools | ✅ LIVE | `strbuyers-tools-v0.1.0` |
+
+All four cluster sites use one CI pattern (PR-gate → push deploy → smoke). Aligned via PRs [#24](https://github.com/Kebron911/excell-templates/pull/24), [#25](https://github.com/Kebron911/excell-templates/pull/25), [#26](https://github.com/Kebron911/excell-templates/pull/26) on 2026-05-09.
 
 ---
 

@@ -4,7 +4,9 @@
 >
 > **Definition of done:** first paid Etsy order arrives in the inbox at `hello@thestrledger.com` for one of the 5 Wave-1 launch SKUs (GST-001 / OPS-001 / TAX-001 / TAX-002 / TAX-003).
 >
-> **Last reviewed:** 2026-05-05
+> **Last reviewed:** 2026-05-09
+>
+> **Single high-level entry point:** [`../LAUNCH.md`](../LAUNCH.md) summarizes this checklist and links each Daniel action to the pre-built implementation Claude will run.
 >
 > **How to use:** work top-to-bottom. Each step has a "tell Claude" signal phrase — say it in the next session and Claude resumes the corresponding downstream work. Phases below are dependency-ordered; don't skip ahead.
 
@@ -269,16 +271,47 @@ When you complete a phase milestone, tell Claude the signal phrase. Claude immed
 
 If anyone else picks up this checklist, here's what's been produced and is sitting in this repo waiting:
 
-- **65 STR templates** at full publish-ready level (briefs + xlsx + thumbnails + PDFs + Etsy copy + product pages)
-- **5 bundles** with full delivery packages (BLANK + DEMO ZIPs + merged howto PDFs + branded README PDFs)
-- **3 hero-magnet artifacts**: 47-deductions PDF, 47-deductions Excel checklist, A13 buyer companion PDF
-- **Full brand asset pack** (logos, banner, icons, favicons, Excel cover, thumbnail master)
+### Catalog
+- **65 STR templates** at full publish-ready level (briefs + xlsx + thumbnails + PDFs + Etsy copy + product pages) — `templates/_masters/`, `templates/_delivery/`
+- **65 build scripts** (1:1 with SKUs, regen byte-clean) — `templates/_build/build_*.py`
+- **12 bundles** at price points $17–$797 — `templates/_delivery/_bundles/`
+- **3 hero-magnet artifacts**: 47-deductions PDF + Excel checklist + A13 buyer companion — `templates/_delivery/_shared/`
 - **Manifest check** (327 SKU + 20 bundle = 347 verification points; pre-commit hook live)
-- **Bundle pricing ladder** spans $17–$797 across 12 price points
-- **47 deductions hero magnet**: PDF + Excel checklist + brief (20 ⚠ verify flags pending Daniel)
-- **All 5 launch SKUs** ready to publish: DEMO + BLANK + howto PDF + license PDF + hero thumbnail per SKU
+- **Spot-audit (2026-05-09):** 6/6 SKUs across 4 categories regen byte-identical; no drift
 
-The artifacts ARE here. The only thing standing between this repo and first payment is the Daniel-only items above.
+### Brand + copy
+- **Full brand asset pack** (logos, banner, icons, favicons, Excel cover, thumbnail master) — `brand/assets/`
+- **Etsy copy + product-page copy** for all 65 SKUs — `copy/`
+- **5 lifecycle email sequences** drafted (post-purchase, review-request, refund-recovery, win-back, abandoned-cart) — `copy/_atomization/`
+
+### Storefront infrastructure (built, blocked on Daniel credentials)
+- **Stripe Tax + Connect runbook** (305 lines) — `infrastructure/stripe/setup.md`
+- **Airtable schema** (279 lines) — `infrastructure/airtable/schema.md`
+- **30 n8n workflows** ready to import (W01–W30) — `infrastructure/n8n/workflows/*.json` paired with `*.md` design doc each
+  - W01–W03: order ingestion (Stripe / Gumroad / Etsy)
+  - W04: subscriber sync
+  - W05–W06: product publish + update
+  - W07: refund handler
+  - W08: lead-magnet delivery
+  - W09–W12: rollups, alerts, support triage
+  - W13–W18: review request, tax escalation, Pinterest poll, weekly backup, integrity check
+  - W19–W22: FB group, affiliate cycle, research, template-update notification
+  - W23–W30: long-haul (course onboarding, drip, cohort, NPS, annual update)
+- **Map of all 30 workflows** — `infrastructure/n8n/workflows-map.md`
+
+### Cluster funnel (4/4 LIVE)
+- **strhost.tools** — calculator suite, blog, lodging-tax-by-state programmatic pages
+- **strguests.tools** — 4 PDF generators + 26 Airbnb message templates + email gate (`strguests-tools-v0.1.0`)
+- **strops.tools** — operations tools + maintenance scheduler (`v0.1.0-strops`)
+- **strbuyers.tools** — 7 calculators + 219 city pages + affiliate-disclosure compliance (`strbuyers-tools-v0.1.0`)
+- All four share one CI pattern (PR-gate → push deploy → smoke) aligned 2026-05-09.
+
+### Runbooks
+- **Disaster recovery** — `docs/runbooks/disaster-recovery.md`
+- **Template production process** — `docs/runbooks/template-production-process.md`
+- **Weekly content engine** — `docs/runbooks/weekly-content-atomization.md`
+
+The artifacts ARE here. **The only thing standing between this repo and first payment is the Daniel-only items above** — accounts, sign-offs, hands-on QA. Every Daniel signal phrase is wired to a specific implementation file Claude will run on the next session.
 
 ---
 

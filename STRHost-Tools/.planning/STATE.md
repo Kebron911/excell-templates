@@ -1,8 +1,18 @@
 # STATE
 
-**Current phase:** READY TO SHIP — all 29 tasks complete; awaiting user-driven launch sequence (DNS, secrets, push to main, manual tag)
-**Last completed phase:** 6 — CI/CD + production deploy (2026-05-06)
-**Last update:** 2026-05-06
+**Current phase:** LIVE — strhost.tools serving 200 in production. CI aligned with cluster pattern on 2026-05-09 (PR #26).
+**Last completed phase:** 6 — CI/CD + production deploy (2026-05-06; CI gates restored + e2e fixes 2026-05-09)
+**Last update:** 2026-05-09
+
+## 2026-05-09 cluster CI alignment
+
+- Root `.github/workflows/deploy-strhost-tools.yml` upgraded: PR-gate (typecheck + test + e2e) + push-to-main deploy + post-deploy smoke + IndexNow.
+- Dropped stale in-project `STRHost-Tools/.github/workflows/{ci.yml,deploy.yml}` (the deploy.yml was failing every push since SSH+rsync replaced `HOSTINGER_FTP_*` cluster-wide).
+- Fixed 6 typecheck regressions (TS 5.5→5.9 inference drift on `UrlState` callbacks + lodging-tax JSON casts).
+- Fixed 8 e2e strict-mode violations (calculator widgets render before MDX content; added `.first()` scoping).
+- No tag yet on main — consider creating `strhost-tools-v0.1.0` to match strguests/strops/strbuyers cluster convention.
+
+---
 
 ---
 
