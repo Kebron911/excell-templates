@@ -21,6 +21,10 @@
 
 **The literal next thing to do:** Daniel completes [§1.1 Etsy seller account](ops/DANIEL-FIRST-PAYMENT-CHECKLIST.md#-11--etsy-seller-account-45-min). Everything else is downstream of account openings.
 
+**Two parallel tracks once accounts open:**
+- **Track A — First-payment critical path** (Phases 1–5 below). Etsy alone gets you to first paid order.
+- **Track B — Full-stack enablement** (Phases 6–10 below). Influencersoft email funnel, Pinterest, Airtable, VPS+n8n, social channels, Ghost blog, analytics. Runs in parallel; **G5 (IS) is the only Track-B item that can soft-block G4** if you don't accept the documented manual-send fallback.
+
 ---
 
 ## Launch sequence — Daniel actions × Claude follow-ups
@@ -75,6 +79,75 @@ After `test purchase pass`, signal: **`publish Wave 1`**. Claude pushes OPS-001 
 
 ---
 
+## Full-stack enablement — runs in parallel with Phases 1–5
+
+Phases 1–5 above are the **minimum path to first paid Etsy order**. These items are needed for the full multi-storefront stack (own site + email lifecycle + Pinterest funnel + analytics + community). They do **not** block G4 first payment except where flagged 🚦, but every day they slip is a day of post-launch attribution loss.
+
+Source-of-truth (more detail per item): [`ops/user-manual-todo.md`](ops/user-manual-todo.md).
+
+### Phase 6 — Additional account openings (parallel with Phase 1, ~2 hrs)
+
+| # | Daniel action | Time | Signal phrase | Claude runs | Implementation file |
+|---|---|---|---|---|---|
+| 6.1 | Airtable account + MCP token | 15 min | `Airtable MCP connected` | Schema migration via Metadata API | [`infrastructure/airtable/schema.md`](infrastructure/airtable/schema.md) |
+| 6.2 | VPS provision (Hetzner CX22 / DO Basic, Ubuntu 24.04) | 20 min | `VPS up at <IP> + SSH key ready` | Ansible hardening + Docker + n8n + Cloudflare Tunnel | [`ops/automation-queue.md`](ops/automation-queue.md) Phase C |
+| 6.3 | **🚦 Influencersoft** — redeem LTD + 2FA + API key | 20 min | (paired with 6.4) | (waits for survey) | — |
+| 6.4 | **🚦 IS API survey** — REST docs / webhooks / Zapier support | 5 min | `IS integration path = <api \| zapier \| playwright \| manual>` | Choose integration adapter accordingly | [`ops/automation-queue.md`](ops/automation-queue.md) Phase G6 |
+| 6.5 | Ghost(Pro) Starter ($9/mo) + 2FA + Admin API key | 15 min | (rolled into 6.7) | Ghost theme deploy + first 3 blog posts | [`ops/automation-queue.md`](ops/automation-queue.md) Phase G |
+| 6.6 | Plausible **or** GA4 (pick one) + analytics property | 15 min | (rolled into 6.7) | Snippet injection on storefront + cluster sites | [`ops/automation-queue.md`](ops/automation-queue.md) Phase D |
+| 6.7 | Vista Create + Creasquare LTD redemption + 2FA | 30 min | `all SaaS paid + API keys added` | OAuth-handshake testing | [`ops/automation-queue.md`](ops/automation-queue.md) Phase A |
+
+**🚦 IS fallback if 6.3 + 6.4 slip:** documented manual-send checklist for first 14 days post-launch — `ops/manual-post-purchase-fallback.md` (to be created when 6.4 returns `manual`).
+
+### Phase 7 — Social accounts + OAuth consents (parallel with Phase 2, ~1 hr)
+
+Each item is "create the account, grant Creasquare OAuth, done". Posting is then API-driven by Claude.
+
+| # | Daniel action | Time | Signal phrase | Claude runs |
+|---|---|---|---|---|
+| 7.1 | **Pinterest Business account** + 2FA | 10 min | (rolled into 7.7) | Board structure + first 30 pins via Pinterest API |
+| 7.2 | Facebook Page + 2FA on personal FB | 10 min | (rolled into 7.7) | Page setup + group cross-post automation |
+| 7.3 | Instagram Business (linked to FB Page) | 5 min | (rolled into 7.7) | Cross-post via Creasquare |
+| 7.4 | LinkedIn Company Page | 10 min | (rolled into 7.7) | Company-page automation |
+| 7.5 | YouTube channel (existing Google account) | 5 min | (rolled into 7.7) | (manual posting first 90 days) |
+| 7.6 | TikTok business account | 5 min | (rolled into 7.7) | (manual posting first 90 days) |
+| 7.7 | OAuth all 6 above to Creasquare | 15 min | `OAuth consents done` | Cross-poster activates; pin distribution can fire | [`infrastructure/n8n/workflows/W15-pinterest-pin-performance-poll.md`](infrastructure/n8n/workflows/W15-pinterest-pin-performance-poll.md) |
+| 7.8 | **Pinterest domain claim** — click "Claim" once Claude confirms TXT live | 2 min | `Pinterest domain claimed` | Resume scheduled pinning (rich pins enable) |
+
+### Phase 8 — Creative inputs (parallel with Phase 3, ~10 hrs)
+
+Daniel-only because no model can substitute for tax/IRS-code accuracy + voice.
+
+| # | Daniel action | Time | Signal phrase | Claude runs |
+|---|---|---|---|---|
+| 8.1 | Write 5 SKU briefs (one per Wave 1 SKU) | 5 hrs | `brief ready: <sku>` (per SKU) | xlsx build via openpyxl + thumbnail render | (already done — Wave 1 briefs locked) |
+| 8.2 | Write the 47 Airbnb tax-deductions list | 2–4 hrs | `47 deductions ready` | Lead-magnet PDF + Excel checklist + email-capture form | [`infrastructure/n8n/workflows/W08-lead-magnet-delivery.md`](infrastructure/n8n/workflows/W08-lead-magnet-delivery.md) |
+
+### Phase 9 — Approval gates beyond SKU QA (parallel with Phase 3, ~3 hrs)
+
+Each `approved` signal unblocks the next surface. Claude builds the artifact; Daniel signs off.
+
+| Surface | Signal phrase | Unblocks | Implementation |
+|---|---|---|---|
+| Brand asset pack visual sign-off | `brand assets approved` | Logo/banner deploys to Etsy + cluster sites | `brand/assets/` |
+| Etsy listing copy (per SKU × 5) | `copy approved: <sku>` | Per-SKU listing publish | `copy/etsy/<sku>.md` |
+| Etsy thumbnails (per SKU × 5) | `thumbnails approved: <sku>` | Per-SKU thumbnail upload | `templates/_delivery/<sku>/thumb-*.png` |
+| **Email sequence (hero magnet, 9 emails)** | `email sequence approved` | IS sequence load OR manual-send fallback | `copy/_atomization/email-sequences/` |
+| **Blog post drafts (×3)** | `blog post N approved` (per post) | Ghost publish | (drafts produced when 8.1 SKUs approved) |
+| **Pinterest pin batches (30 pins, ×3 batches of 10)** | `pins 1–10 approved`, `pins 11–20 approved`, `pins 21–30 approved` | Per-batch Pinterest scheduling | (rendered after 8.1 + 7.8) |
+| **Pre-launch go/no-go (Week 7)** | `launch approved` | All systems green; G4 publish gates open | full-stack dry-run checklist in [`ops/user-manual-todo.md`](ops/user-manual-todo.md) §5.8 |
+
+### Phase 10 — Ongoing human cadence (post-launch)
+
+Not gated; runs forever post-G4.
+
+- **Daily 5-min monitoring glance** (Airtable dashboard, first 4 weeks)
+- **FB Group live presence** (Mon/Tue/Wed live, Thu/Fri pre-scheduled — first 90 days)
+- **Monthly Vaultwarden re-export** (15 min, calendar reminder)
+- **Annual DR drill** (4 hrs, per `docs/runbooks/disaster-recovery.md`)
+
+---
+
 ## What's already built and waiting
 
 The implementations Daniel's sequence triggers are **already in this repo**. Nothing engineering-blocked.
@@ -123,10 +196,13 @@ The implementations Daniel's sequence triggers are **already in this repo**. Not
 | Gate | Status | Blocker | Unblocks |
 |---|---|---|---|
 | G0 — Deployment foundation green | 🟡 partial | Phase 1 (Daniel: account openings) | Phase 3 (SKU QA) — already unblockable in parallel |
-| G1 — Brand assets approved | 🔴 blocked | Phase 2.1 (Daniel sign-off) | Lite folder + thumbnail batches |
+| G1 — Brand assets approved | 🔴 blocked | Phase 2.1 (Daniel sign-off) | Lite folder + thumbnail batches + cluster brand sync |
 | G2 — Wave 1 SKU QA | 🔴 blocked | Phase 3 (Daniel hands-on) | Per-SKU listing publish |
 | G3 — Marketing readiness | 🟡 soft | Phase 0.5 (PROGRESS.md) | Best-effort; non-blocking for G4 |
 | G4 — Wave 1 LIVE on Etsy | 🔴 blocked | G0 + G2 + Phase 4.3 test purchase | First paid order |
+| **G5 — IS post-purchase funnel live** | 🔴 blocked | Phase 6.3 + 6.4 (IS LTD + API survey) | Automated post-purchase email; if not green by G4, manual-send fallback for 14 days |
+| **G6 — Pinterest funnel live** | 🔴 blocked | Phase 7.1 + 7.7 + 7.8 + Phase 9 pin batches | Pinterest scheduled pinning; rich pins; outbound CTR data feed |
+| **G3.5 — Email sequence approved** | 🔴 blocked | Phase 9 `email sequence approved` | IS sequence load OR manual-send fallback artifact |
 | G7 — Wave 2 LIVE | 🔴 blocked | G4 + ~14 days revenue stability | Phase 1 wave growth |
 
 ---
