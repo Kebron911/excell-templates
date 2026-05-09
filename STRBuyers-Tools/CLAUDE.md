@@ -54,6 +54,16 @@ A footer block on every page links to the other three tool sites + The STR Ledge
 
 ## Things to Remember
 
+- **Site is LIVE at https://strbuyers.tools/ as of 2026-05-08** (v0.1.0
+  static deploy via SFTP — 232 pages, 7 calculators, 219 city pages,
+  FTC-compliant disclosures). Tag `v0.1.0-strbuyers` exists locally but
+  has NOT been pushed to the remote yet.
+- **Deploy mechanism:** `scripts/deploy.ps1` uses SFTP via the shared
+  cluster SSH key (`~/.ssh/hostinger_ed25519`) on the main u470667024
+  account. The FTP sub-account `u470667024.strbuyers.tools` was never
+  provisioned. Script uses scp.exe + ssh.exe (OpenSSH client built into
+  Windows 10+); auto-falls back from WinSCP because WinSCP can't parse
+  OpenSSH-format ed25519 keys.
 - Tech stack inherits from strhost.tools (Astro 4.x static, sister sub-brand).
 - Affiliate vendor priorities and city data licensing are open questions — see `docs/superpowers/specs/2026-05-05-strbuyers-tools-design.md` §13.
 - Sister projects:

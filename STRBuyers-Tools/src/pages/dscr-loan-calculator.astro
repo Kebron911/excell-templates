@@ -1,0 +1,114 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import DscrCalculator from '@/components/calculators/DscrCalculator.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  {
+    question: 'What DSCR do most STR lenders require?',
+    answer:
+      'Most DSCR programs require ≥ 1.00x. Visio is the most lenient; Kiavi and Lima One typically prefer 1.10x and price best at 1.25x+.',
+  },
+  {
+    question: 'Does seasonal STR income hurt DSCR?',
+    answer:
+      'Lenders annualize. A property that earns $30k in summer and $5k in winter is evaluated on the $35k annual — not the slow months.',
+  },
+  {
+    question: 'Can I include cleaning fees in DSCR rent?',
+    answer:
+      'No. Lenders use net rent after cleaning fees that pass through to guests. Use the platform-paid net, not the gross with cleaning.',
+  },
+  {
+    question: 'What is a "no-ratio" DSCR loan?',
+    answer:
+      'A program that ignores DSCR if your credit and reserves are strong; rates run 50–100 bps higher than tiered DSCR.',
+  },
+  {
+    question: 'How is DSCR different from cash flow?',
+    answer:
+      'DSCR is a ratio (NOI ÷ debt service). Cash flow is the dollar amount left after debt service. Same numerator, different presentation.',
+  },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'DSCR Loan Calculator for STR',
+    description:
+      'Free DSCR loan calculator for short-term rentals. Hits the 1.0x, 1.25x, and 1.5x thresholds DSCR lenders use to tier rates.',
+    toolPath: '/dscr-loan-calculator',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="DSCR Loan Calculator for STR — strbuyers.tools"
+  description="Calculate Debt Service Coverage Ratio for a short-term rental. See whether the deal hits the 1.0, 1.25, or 1.5x thresholds DSCR lenders use to tier rates."
+  path="/dscr-loan-calculator"
+  jsonLd={jsonLd}
+>
+  <article class="calculator-page bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-9 pb-7 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-9">
+      <div class="min-w-0">
+        <header>
+          <p class="label text-accent">Acquisition · Pre-buy</p>
+          <h1 class="font-serif text-h1 text-navy mt-3 leading-tight">
+            DSCR loan calculator<span class="period-accent">.</span>
+          </h1>
+          <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+            Punch in rent, opex, and the loan terms a DSCR lender just quoted. Live result against the 1.0, 1.25, and 1.5x thresholds.
+          </p>
+        </header>
+
+        <div class="mt-7">
+          <DscrCalculator client:load />
+        </div>
+
+        <AffiliateBlock tool="dscr-calculator" vendorIds={["visio", "kiavi", "lima-one"]} />
+
+        <AdSlot location="in-content" />
+
+        <section class="mt-9 max-w-2xl prose">
+          <h2>How it works</h2>
+          <p>
+            DSCR = annual NOI ÷ annual debt service. NOI is gross rent minus operating expenses (taxes, insurance, HOA, utilities, management, cleaning). Debt service is principal + interest only — DSCR <em>does not</em> include taxes or insurance in the denominator.
+          </p>
+          <p>
+            Most STR DSCR lenders price by tier: ≥ 1.10x qualifies, ≥ 1.25x gets standard rate, ≥ 1.5x gets the best rate sheet. Below 1.10x most lenders pass or quote a no-ratio program at higher cost.
+          </p>
+
+          <h2>How to use this calculator</h2>
+          <ol>
+            <li>Pull a recent 12-month income statement (or AirDNA Rentalizer estimate).</li>
+            <li>Sum 12 months of operating expenses — taxes, insurance, HOA, utilities, mgmt, cleaning.</li>
+            <li>Plug in the loan amount and rate the DSCR lender just quoted.</li>
+            <li>Read the tier — that's the program you qualify for.</li>
+          </ol>
+
+          <h2>FAQ</h2>
+          {faqs.map((f) => (
+            <details>
+              <summary>{f.question}</summary>
+              <p>{f.answer}</p>
+            </details>
+          ))}
+        </section>
+
+        <EmailCaptureCard magnet="str-buyer-playbook" toolSlug="dscr-calculator" />
+        <STRLedgerCTA tool="dscr-calculator" />
+
+        <AdSlot location="footer" />
+      </div>
+
+      <Sidebar current="dscr-calculator" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="acquisition" />
+  </article>
+</Layout>

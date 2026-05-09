@@ -1,0 +1,72 @@
+---
+// Wordmark — "STR Buyers" as the main brand identity in the finance-trust
+// accent, ".tools" as the small trailing category descriptor with an accent
+// period. Single component so Header and Footer never drift apart and a
+// future favicon/og-image generator can import the same proportions.
+//
+// Treatment: "STR Buyers" in Cormorant Garamond medium reads as
+// editorial / finance-trustworthy. Mirrors strhost.tools' wordmark exactly
+// except for the brand name string and the use of the accent (deeper blue)
+// rather than gold-deep for the main string color on parchment.
+
+interface Props {
+  /** Visual scale. */
+  size?: 'sm' | 'md' | 'lg';
+  /** Surface the wordmark sits on; controls 'STR Buyers' color. */
+  theme?: 'navy' | 'parchment';
+  /** Render as a link to home (default true). When false, plain text. */
+  asLink?: boolean;
+  /** Optional href override (defaults to "/"). */
+  href?: string;
+  /** Class to extend the wrapping element. */
+  class?: string;
+}
+
+const { size = 'md', theme = 'navy', asLink = true, href = '/', class: className = '' } = Astro.props;
+
+const sizes = {
+  sm: { main: 'text-[20px]', tail: 'text-[10px]', track: 'tracking-[0.28em]' },
+  md: { main: 'text-[28px]', tail: 'text-[12px]', track: 'tracking-[0.28em]' },
+  lg: { main: 'text-[40px]', tail: 'text-[14px]', track: 'tracking-[0.28em]' },
+};
+
+const themes = {
+  navy:      { main: 'text-accent',     tail: 'text-ink-3', dot: 'text-accent' },
+  parchment: { main: 'text-accent-soft', tail: 'text-parchment opacity-70', dot: 'text-parchment' },
+};
+
+const s = sizes[size];
+const t = themes[theme];
+
+const Tag = asLink ? 'a' : 'span';
+const linkProps = asLink
+  ? { href, 'aria-label': 'STR Buyers Tools — home', class: 'no-underline' }
+  : {};
+---
+<Tag
+  {...linkProps}
+  class:list={[
+    'inline-flex items-baseline gap-1',
+    className,
+  ]}
+>
+  <span
+    class:list={[
+      'font-serif font-medium leading-none whitespace-nowrap',
+      s.main,
+      t.main,
+    ]}
+  >
+    STR Buyers
+  </span>
+  <span
+    class:list={[
+      'font-sans uppercase font-semibold leading-none',
+      s.tail,
+      s.track,
+    ]}
+    aria-hidden="true"
+  >
+    <span class={t.dot}>.</span><span class={t.tail}>tools</span>
+  </span>
+</Tag>

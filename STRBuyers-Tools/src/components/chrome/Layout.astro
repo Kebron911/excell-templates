@@ -1,0 +1,84 @@
+---
+import '@/styles/global.css';
+import '@/styles/print.css';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import FunnelBand from './FunnelBand.astro';
+import { canonical, ogImageFor, buildOrganization } from '@/lib/seo';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  ogImage?: string;
+  noIndex?: boolean;
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
+}
+
+const { title, description, path, ogImage, noIndex = false, jsonLd } = Astro.props;
+const canonicalUrl = canonical(path);
+const ogImg = ogImage ?? ogImageFor(path);
+const orgLd = buildOrganization();
+
+const lds = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noIndex && <meta name="robots" content="noindex,follow" />}
+
+    {/* Open Graph */}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={ogImg} />
+    <meta property="og:site_name" content="strbuyers.tools" />
+
+    {/* Twitter */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImg} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(orgLd)} />
+    {lds.map(ld => (
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(ld)} />
+    ))}
+
+    {/* GA4 — emitted only when PUBLIC_GA4_ID is set. Cross-domain linker
+        wires attribution across the four-site STR cluster + The STR Ledger. */}
+    {import.meta.env.PUBLIC_GA4_ID && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${import.meta.env.PUBLIC_GA4_ID}`} />
+        <script is:inline set:html={`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', '${import.meta.env.PUBLIC_GA4_ID}', {
+            linker: { domains: ['strbuyers.tools', 'strhost.tools', 'thestrledger.com', 'strops.tools', 'strguests.tools'] },
+            send_page_view: true
+          });
+        `} />
+      </>
+    )}
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <Header />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <FunnelBand />
+    <Footer />
+  </body>
+</html>

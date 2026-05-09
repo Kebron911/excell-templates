@@ -1,0 +1,105 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import FurnishingBudgetCalculator from '@/components/calculators/FurnishingBudgetCalculator.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  {
+    question: 'What does a "mid-tier" 3 bed / 2 bath cost?',
+    answer:
+      'Mid-tier on the launch parameters: ~$20k for a 3 bed / 2 bath / 1500 sqft, including 15% decor & accents. Designer trade pricing (Stage by Hand, Minoan) brings that down 15–40% on furniture.',
+  },
+  {
+    question: 'Should I go luxury for a higher ADR?',
+    answer:
+      'Often yes in markets where photo quality is the differentiator (Smokies, Hudson Valley, coastal). In high-saturation urban markets the ADR delta rarely justifies 2x the spend.',
+  },
+  {
+    question: 'Are kitchen appliances included?',
+    answer:
+      'No — assume the property comes with major appliances. The kitchen line is small wares, dishes, cookware, coffee setup, etc.',
+  },
+  {
+    question: 'Why 15% for decor?',
+    answer:
+      "Decor is the line that hosts under-budget. Art, plants, books, throw pillows, lighting upgrades, and runners cost more than people expect. 15% of your room subtotal is the realistic floor.",
+  },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Airbnb Furnishing Budget Calculator',
+    description:
+      'Three-tier furnishing budget estimate by bedrooms, bathrooms, and square footage. Budget, mid, or luxury — full breakdown by room.',
+    toolPath: '/furnishing-budget-calculator',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="Airbnb Furnishing Budget Calculator — strbuyers.tools"
+  description="Estimate STR furnishing cost across three tiers (budget, mid, luxury) with per-room breakdown. Outputs total budget and per-sqft rate."
+  path="/furnishing-budget-calculator"
+  jsonLd={jsonLd}
+>
+  <article class="calculator-page bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-9 pb-7 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-9">
+      <div class="min-w-0">
+        <header>
+          <p class="label text-accent">Acquisition · Startup</p>
+          <h1 class="font-serif text-h1 text-navy mt-3 leading-tight">
+            Furnishing budget calculator<span class="period-accent">.</span>
+          </h1>
+          <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+            Three tiers — budget, mid, luxury — with per-room breakdown. See the total, the per-sqft, and where the money goes.
+          </p>
+        </header>
+
+        <div class="mt-7">
+          <FurnishingBudgetCalculator client:load />
+        </div>
+
+        <AffiliateBlock tool="furnishing-budget" vendorIds={["stage-by-hand", "minoan"]} />
+
+        <AdSlot location="in-content" />
+
+        <section class="mt-9 max-w-2xl prose">
+          <h2>How it works</h2>
+          <p>
+            Per-room baseline × tier multiplier, plus 15% decor on the subtotal. Bedrooms scale linearly with bedroom count; bathrooms with bathroom count; living room and kitchen are flat per property.
+          </p>
+
+          <h2>How to use this calculator</h2>
+          <ol>
+            <li>Enter beds, baths, and sqft.</li>
+            <li>Pick a tier — budget for cash-flow plays, mid for most, luxury for differentiation in design-led markets.</li>
+            <li>Read the total and per-sqft. Plug it into the Year 1 Cash Needs calculator.</li>
+          </ol>
+
+          <h2>FAQ</h2>
+          {faqs.map((f) => (
+            <details>
+              <summary>{f.question}</summary>
+              <p>{f.answer}</p>
+            </details>
+          ))}
+        </section>
+
+        <EmailCaptureCard magnet="str-buyer-playbook" toolSlug="furnishing-budget" />
+        <STRLedgerCTA tool="furnishing-budget" />
+
+        <AdSlot location="footer" />
+      </div>
+
+      <Sidebar current="furnishing-budget" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="acquisition" />
+  </article>
+</Layout>

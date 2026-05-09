@@ -1,0 +1,106 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import MarketScoreCalculator from '@/components/calculators/MarketScoreCalculator.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  {
+    question: 'Is this Airbnb profitable in [my city]?',
+    answer:
+      'Three signals matter — regulation, economics, saturation. This tool weights them 40/40/20. Phase 3 ships per-city pages with these inputs pre-filled from a hand-compiled cities.json.',
+  },
+  {
+    question: 'Why weight regulation 40%?',
+    answer:
+      'A great revenue market with a forthcoming STR ban is a value trap. Regulation can flip a deal overnight; economics rarely does.',
+  },
+  {
+    question: 'How do I know my market\'s saturation tier?',
+    answer:
+      'AirDNA labels markets low/medium/high in their dashboard. You can also eyeball it: 200+ active STRs in a small city is high; 50–200 medium; under 50 low.',
+  },
+  {
+    question: 'Why is RevPAR scaled to $200?',
+    answer:
+      "Roughly the inflection point above which STR economics reliably beat long-term rental. $200 RevPAR ≈ ~$300 ADR at 65% occupancy, which is the launch-cluster median in 2026.",
+  },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'STR Market Score Tool',
+    description:
+      'Score a short-term rental market 0–100 across regulation, economics, and saturation. Manual input now; per-city pages in Phase 3.',
+    toolPath: '/market-score',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="Market Score Tool — Is Airbnb Profitable in This City? — strbuyers.tools"
+  description="Score an STR market 0–100 across regulation, economics, and saturation. Live grade A–D with flags on the risks that matter."
+  path="/market-score"
+  jsonLd={jsonLd}
+>
+  <article class="calculator-page bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-9 pb-7 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-9">
+      <div class="min-w-0">
+        <header>
+          <p class="label text-accent">Acquisition · Pre-buy</p>
+          <h1 class="font-serif text-h1 text-navy mt-3 leading-tight">
+            Market score tool<span class="period-accent">.</span>
+          </h1>
+          <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+            Score a city 0–100 across regulation, RevPAR economics, and saturation. Live A–D grade and risk flags.
+          </p>
+        </header>
+
+        <div class="mt-7">
+          <MarketScoreCalculator client:load />
+        </div>
+
+        <AffiliateBlock tool="market-score" vendorIds={["airdna", "mashvisor"]} />
+
+        <AdSlot location="in-content" />
+
+        <section class="mt-9 max-w-2xl prose">
+          <h2>How it works</h2>
+          <p>
+            Three sub-scores, each 0–100. Regulation maps {`{open: 100, gray: 65, restricted: 35}`}. Economics is RevPAR ÷ 200 (capped at 100). Saturation maps {`{low: 100, medium: 60, high: 30}`}. Weighted average: 40% regulation, 40% economics, 20% saturation.
+          </p>
+
+          <h2>How to use this calculator</h2>
+          <ol>
+            <li>Look up the city's average ADR and occupancy on AirDNA / Mashvisor.</li>
+            <li>Check the city's STR ordinance (search "[city] short-term rental ordinance").</li>
+            <li>Pick the saturation tier from your gut feel of the market.</li>
+            <li>Read the grade and the flags.</li>
+          </ol>
+
+          <h2>FAQ</h2>
+          {faqs.map((f) => (
+            <details>
+              <summary>{f.question}</summary>
+              <p>{f.answer}</p>
+            </details>
+          ))}
+        </section>
+
+        <EmailCaptureCard magnet="str-buyer-playbook" toolSlug="market-score" />
+        <STRLedgerCTA tool="market-score" />
+
+        <AdSlot location="footer" />
+      </div>
+
+      <Sidebar current="market-score" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="acquisition" />
+  </article>
+</Layout>

@@ -1,0 +1,149 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import affiliates from '@/data/affiliates.json';
+
+interface Vendor {
+  id: string;
+  name: string;
+  category: string;
+  tagline: string;
+  ctaUrl: string;
+  payout?: string;
+  network?: string;
+  tools: string[];
+}
+
+const vendors = (affiliates.vendors as Vendor[]) ?? [];
+
+const CATEGORY_LABEL: Record<string, string> = {
+  lender: 'DSCR lenders',
+  data: 'STR data & analytics',
+  insurance: 'STR insurance',
+  furniture: 'Furniture & staging',
+};
+
+const CATEGORY_ORDER = ['lender', 'data', 'insurance', 'furniture'];
+
+const grouped: Record<string, Vendor[]> = {};
+for (const v of vendors) {
+  (grouped[v.category] ||= []).push(v);
+}
+
+const lastUpdated = '2026-05-08';
+---
+<Layout
+  title="Disclosures — Affiliate Relationships & Editorial Independence — strbuyers.tools"
+  description="strbuyers.tools earns commission on some links to lenders, data, insurance, and furniture vendors. Affiliate revenue does not influence calculator math, scoring, or city market scores. Math is open in the repo."
+  path="/disclosures"
+>
+  <article class="disclosures-page bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-9 pb-7">
+      <header>
+        <p class="label text-accent">Legal · Disclosure</p>
+        <h1 class="font-serif text-h1 text-navy mt-3 leading-tight">
+          Affiliate disclosures<span class="period-accent">.</span>
+        </h1>
+        <p class="mt-3 text-lead text-ink-2">
+          The honest version: who pays us, what changes because of it, and what doesn't.
+        </p>
+      </header>
+
+      <section class="mt-9 prose max-w-none">
+        <h2>What we do</h2>
+        <p>
+          strbuyers.tools is a free-tools website for people researching whether to buy a short-term rental property. We don't charge for the calculators, the city profiles, or the analysis. We're paid a commission when a reader clicks through to one of our partners and signs up, applies, or buys.
+        </p>
+        <p>
+          That's the entire business model. Affiliate compensation does not cost you anything extra — pricing is the same whether you reach the vendor through us or directly. In some cases (e.g. some lenders' broker-priced channels) you may actually get a better deal through our links than direct.
+        </p>
+        <p>
+          We use UTM parameters, referral codes, and (in some cases) cookie-based attribution to track clicks. We do not collect or store personally-identifiable browsing data; click logs only record vendor + tool + timestamp.
+        </p>
+
+        <h2>Our partners</h2>
+        <p>
+          We currently work with {vendors.length} vendors across four categories. The roster will grow over time. Here's the full list:
+        </p>
+
+        {CATEGORY_ORDER.map((cat) => {
+          const list = grouped[cat] ?? [];
+          if (list.length === 0) return null;
+          return (
+            <div class="not-prose my-7">
+              <p class="label text-navy mb-3">{CATEGORY_LABEL[cat] ?? cat}</p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {list.map((v) => (
+                  <div class="rounded-md border border-rule bg-parchment-light p-4">
+                    <p class="font-serif text-h3 text-navy leading-snug">{v.name}</p>
+                    <p class="mt-1 text-small text-ink-2 leading-snug">{v.tagline}</p>
+                    {v.payout && (
+                      <p class="mt-2 text-caption text-ink-3 font-mono uppercase tracking-widest">
+                        Payout: {v.payout}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+
+        <h2>How we choose</h2>
+        <p>
+          A vendor must clear three editorial bars before we'll work with them:
+        </p>
+        <ul>
+          <li>
+            <strong>Track record.</strong> The company has been operating long enough — and through enough market cycles — that a serious STR investor would actually use it. New entrants without a history of payouts and customer support get a pass until they've earned the spot.
+          </li>
+          <li>
+            <strong>Payout transparency.</strong> We need to know what we're being paid, when, and under what conditions. Networks that hide rate cards, change terms unilaterally, or delay payments are off the list.
+          </li>
+          <li>
+            <strong>Fit with serious STR investors.</strong> The vendor's product needs to genuinely fit the buyer we're writing for — someone underwriting a real STR purchase, not a tire-kicker. A great affiliate program for the wrong audience is still wrong.
+          </li>
+        </ul>
+        <p>
+          We say no to a meaningful share of inbound partnership requests. The list above is what passed the bar.
+        </p>
+
+        <h2>Editorial independence</h2>
+        <p>
+          The most important section on this page:
+        </p>
+        <ul>
+          <li>
+            <strong>Affiliate revenue does not change calculator math.</strong> The DSCR formula, the cash-on-cash formula, the market-score weighting, and the Year 1 Cash Needs roll-up are open in the repo. They produce the same output regardless of which vendor we link to alongside the result.
+          </li>
+          <li>
+            <strong>Affiliate revenue does not change city market scores.</strong> The 219-city dataset is hand-compiled from public regulatory and industry data. ADR, occupancy, regulation status, saturation tier, and the resulting market score are set by editorial judgement on the source data — vendors do not influence them.
+          </li>
+          <li>
+            <strong>Affiliate revenue does not change which vendors get recommended on which calculators.</strong> AffiliateBlock matches vendors to calculators by topical fit (DSCR lenders next to the DSCR calculator; data vendors next to the market score), not by who pays the most.
+          </li>
+          <li>
+            <strong>Affiliate revenue does change what we build next.</strong> Categories that monetize well will get more tooling investment. We're transparent about that. It does not change anything about the analysis we publish on what we already build.
+          </li>
+        </ul>
+        <p>
+          The math is open. If you find a bug, file an issue. We'll fix it.
+        </p>
+
+        <h2>FTC compliance</h2>
+        <p>
+          Per the FTC's Endorsement Guides, every affiliate link on this site is marked with a clear, in-line disclosure (typically the phrase "Affiliate link — strbuyers.tools may earn commission" or equivalent). The AffiliateBlock components on calculator pages carry an explicit disclosure header. This page is the master disclosure document for the site.
+        </p>
+        <p>
+          If you encounter a link or component that lacks adequate disclosure, please <a href="/contact">contact us</a> — we'll fix it.
+        </p>
+
+        <p class="mt-9 text-caption text-ink-3 font-mono">
+          Last updated <time datetime={lastUpdated}>{lastUpdated}</time>
+        </p>
+      </section>
+    </div>
+
+    <ClusterFunnelBlock currentCluster="acquisition" />
+  </article>
+</Layout>

@@ -1,0 +1,105 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import CashOnCashCalculator from '@/components/calculators/CashOnCashCalculator.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  {
+    question: 'What is a good cash-on-cash return for an Airbnb?',
+    answer:
+      '8% or higher is the bar serious STR investors use. 5–8% is good. 2–5% is marginal — you may be doing the work of an operator for the return of an index fund.',
+  },
+  {
+    question: 'Should I include appreciation in cash-on-cash?',
+    answer:
+      'No. Cash-on-cash is cash-yield only. Total return adds appreciation, mortgage paydown, and tax benefits — different metric.',
+  },
+  {
+    question: 'Why does the calculator subtract debt service?',
+    answer:
+      'Cash flow is what hits your bank account after the mortgage. NOI minus debt service is the residual you live on (or reinvest).',
+  },
+  {
+    question: 'How does this differ from cap rate?',
+    answer:
+      'Cap rate is unlevered (NOI ÷ price). Cash-on-cash is levered (cash flow ÷ cash invested). Two different lenses on the same deal.',
+  },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Cash-on-Cash Return Calculator for STR',
+    description:
+      'Calculate cash-on-cash return for a short-term rental. Annual cash flow ÷ total cash invested, with tier classification.',
+    toolPath: '/cash-on-cash-calculator',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="Cash-on-Cash Return Calculator — Airbnb / STR — strbuyers.tools"
+  description="Free cash-on-cash return calculator for short-term rentals. See your annual yield on cash invested with tier classification (excellent / good / marginal / reject)."
+  path="/cash-on-cash-calculator"
+  jsonLd={jsonLd}
+>
+  <article class="calculator-page bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-9 pb-7 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-9">
+      <div class="min-w-0">
+        <header>
+          <p class="label text-accent">Acquisition · Returns</p>
+          <h1 class="font-serif text-h1 text-navy mt-3 leading-tight">
+            Cash-on-cash return calculator<span class="period-accent">.</span>
+          </h1>
+          <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+            Annual cash flow ÷ total cash invested = your real yield. Tier-classified against the 2/5/8% buyer benchmarks.
+          </p>
+        </header>
+
+        <div class="mt-7">
+          <CashOnCashCalculator client:load />
+        </div>
+
+        <AffiliateBlock tool="cash-on-cash" vendorIds={["airdna", "visio"]} />
+
+        <AdSlot location="in-content" />
+
+        <section class="mt-9 max-w-2xl prose">
+          <h2>How it works</h2>
+          <p>
+            Cash-on-cash return is a year-1 yield on cash deployed. The formula is simple — annual cash flow ÷ total cash invested — but the inputs are where deals get evaluated honestly.
+          </p>
+
+          <h2>How to use this calculator</h2>
+          <ol>
+            <li>Annual cash flow = Year 1 NOI − Year 1 debt service. (Use realistic, not aspirational, NOI.)</li>
+            <li>Total cash invested = down payment + closing + furnishing + reserves + ramp-up carry. The Year 1 Cash Needs calculator builds this for you.</li>
+            <li>Read the tier. If it's "marginal" or worse, the deal probably needs renegotiation or a better market.</li>
+          </ol>
+
+          <h2>FAQ</h2>
+          {faqs.map((f) => (
+            <details>
+              <summary>{f.question}</summary>
+              <p>{f.answer}</p>
+            </details>
+          ))}
+        </section>
+
+        <EmailCaptureCard magnet="str-buyer-playbook" toolSlug="cash-on-cash" />
+        <STRLedgerCTA tool="cash-on-cash" />
+
+        <AdSlot location="footer" />
+      </div>
+
+      <Sidebar current="cash-on-cash" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="acquisition" />
+  </article>
+</Layout>

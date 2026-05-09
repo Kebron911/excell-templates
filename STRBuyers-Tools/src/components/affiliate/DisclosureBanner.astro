@@ -1,0 +1,23 @@
+---
+// DisclosureBanner — small, top-of-page FTC banner. Links to /disclosures
+// (full page comes Phase 3 Task 22). Regulatory chrome — small, clear,
+// non-disruptive.
+---
+<aside
+  class="disclosure-banner border-b border-rule bg-parchment-alt print:hidden"
+  role="note"
+  aria-label="Affiliate disclosure"
+>
+  <div class="mx-auto max-w-6xl px-5 py-2 flex items-center justify-between gap-4">
+    <p class="text-caption text-ink-2 leading-snug">
+      Some links on strbuyers.tools are affiliate links — we may earn a commission at no cost to you.
+    </p>
+    <a
+      href="/disclosures"
+      class="text-caption text-accent no-underline whitespace-nowrap hover:underline decoration-accent underline-offset-2"
+    >
+      Read disclosure
+      <span aria-hidden="true"> →</span>
+    </a>
+  </div>
+</aside>

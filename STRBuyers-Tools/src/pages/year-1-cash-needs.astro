@@ -1,0 +1,106 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Year1CashCalculator from '@/components/calculators/Year1CashCalculator.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  {
+    question: 'Why include 6 months of reserves?',
+    answer:
+      'STR income is seasonal and fragile in Year 1. Six months of full carry is the conservative buffer before bookings normalize.',
+  },
+  {
+    question: "What's a realistic ramp-up period?",
+    answer:
+      'Three months from listing live to bookings covering carry. Slower in saturated markets; faster in low-saturation ones with good photos.',
+  },
+  {
+    question: 'Are closing costs really 3%?',
+    answer:
+      "2–4% is the common range — title, escrow, lender fees, attorney, prepaids. Investor loans (DSCR) tend to run higher than primary residences.",
+  },
+  {
+    question: 'How much should I budget for furnishing?',
+    answer:
+      'See the Furnishing Budget calculator. As a rule of thumb: $20–$30/sqft mid-tier, $35–$50/sqft for design-forward STRs.',
+  },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Year 1 Cash Needs Calculator for STR',
+    description:
+      'Sum every dollar required to close, furnish, reserve, and carry a short-term rental through ramp-up. Five-line breakdown.',
+    toolPath: '/year-1-cash-needs',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="Airbnb Startup Cost Calculator — Year 1 Cash Needs — strbuyers.tools"
+  description="Total cash to acquire and ramp a short-term rental — down payment, closing, furnishing, reserves, and ramp-up carry. Single total, five-line breakdown."
+  path="/year-1-cash-needs"
+  jsonLd={jsonLd}
+>
+  <article class="calculator-page bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-9 pb-7 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-9">
+      <div class="min-w-0">
+        <header>
+          <p class="label text-accent">Acquisition · Startup</p>
+          <h1 class="font-serif text-h1 text-navy mt-3 leading-tight">
+            Year 1 cash needs<span class="period-accent">.</span>
+          </h1>
+          <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+            Down payment + closing + furnishing + reserves + ramp-up carry. Total before keys, on one page.
+          </p>
+        </header>
+
+        <div class="mt-7">
+          <Year1CashCalculator client:load />
+        </div>
+
+        <AffiliateBlock tool="year-1-cash-needs" vendorIds={["visio", "minoan"]} />
+
+        <AdSlot location="in-content" />
+
+        <section class="mt-9 max-w-2xl prose">
+          <h2>How it works</h2>
+          <p>
+            Five line items — down payment, closing, furnishing, reserves, ramp-up carry — sum to total cash needed before bookings cover the property. Most buyers under-estimate reserves and ramp; this calculator forces both onto the page.
+          </p>
+
+          <h2>How to use this calculator</h2>
+          <ol>
+            <li>Enter the purchase price and the down-payment + closing percents your loan product requires.</li>
+            <li>Set furnishing from the Furnishing Budget calculator (or a defensible guess).</li>
+            <li>Set monthly carry — P&amp;I + tax + insurance + utilities.</li>
+            <li>Reserves = 6 months of carry; ramp = 3 months for most STRs.</li>
+          </ol>
+
+          <h2>FAQ</h2>
+          {faqs.map((f) => (
+            <details>
+              <summary>{f.question}</summary>
+              <p>{f.answer}</p>
+            </details>
+          ))}
+        </section>
+
+        <EmailCaptureCard magnet="str-buyer-playbook" toolSlug="year-1-cash-needs" />
+        <STRLedgerCTA tool="year-1-cash-needs" />
+
+        <AdSlot location="footer" />
+      </div>
+
+      <Sidebar current="year-1-cash-needs" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="acquisition" />
+  </article>
+</Layout>

@@ -1,0 +1,40 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import CitiesIndex from '@/components/CitiesIndex.tsx';
+import { listCities } from '@/data/cities';
+
+const cities = listCities();
+const total = cities.length;
+---
+<Layout
+  title={`STR Markets Directory — ${total} U.S. Cities Profiled — strbuyers.tools`}
+  description={`Browse ${total} short-term rental markets — sort by market score, ADR, occupancy. Filter by regulation status (permissive / moderate / restrictive / banned) and saturation tier.`}
+  path="/cities"
+>
+  <article class="cities-index-page bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-9 pb-7">
+      <header>
+        <p class="label text-accent">Acquisition · Market directory</p>
+        <h1 class="font-serif text-h1 text-navy mt-3 leading-tight">
+          STR markets directory<span class="period-accent">.</span>
+        </h1>
+        <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+          {total} U.S. short-term rental markets, hand-compiled. Sort by market score, ADR, or occupancy. Filter by regulation and saturation.
+        </p>
+      </header>
+
+      <div class="mt-7">
+        <CitiesIndex client:load cities={cities} />
+      </div>
+
+      <AdSlot location="in-content" />
+
+      <EmailCaptureCard magnet="str-buyer-playbook" toolSlug="cities-index" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="acquisition" />
+  </article>
+</Layout>
