@@ -1,0 +1,116 @@
+name: Deploy strops.tools
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'STROps-Tools/**'
+      - '.github/workflows/deploy-strops-tools.yml'
+  pull_request:
+    paths:
+      - 'STROps-Tools/**'
+      - '.github/workflows/deploy-strops-tools.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-strops-tools
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: STROps-Tools/pnpm-lock.yaml
+
+      - name: Install
+        working-directory: STROps-Tools
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        working-directory: STROps-Tools
+        run: pnpm typecheck
+
+      - name: Unit tests
+        working-directory: STROps-Tools
+        run: pnpm test
+
+      - name: Install Playwright browsers
+        id: pw_install
+        continue-on-error: true
+        working-directory: STROps-Tools
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: E2E tests
+        if: steps.pw_install.outcome == 'success'
+        working-directory: STROps-Tools
+        run: pnpm test:e2e
+
+      - name: Build
+        working-directory: STROps-Tools
+        env:
+          PUBLIC_GA4_ID: ${{ secrets.STROPS_GA4_ID }}
+          PUBLIC_ESP_ENDPOINT: ${{ secrets.STROPS_ESP_ENDPOINT }}
+        run: pnpm build
+
+      - name: Verify build output
+        working-directory: STROps-Tools
+        run: |
+          set -e
+          test -f dist/index.html
+          test -f dist/turnover-scheduler/index.html
+          test -f dist/maintenance/hvac-filter-change/index.html
+          test -f dist/replace/queen-mattress/index.html
+          test -f dist/get-the-cleaner-sop/index.html
+          test -f dist/sitemap-index.xml
+          test -f dist/robots.txt
+          echo "Build output OK"
+
+      # Deploy only on push to main. PRs run through the verification gates above
+      # (typecheck/test/build) but do not deploy.
+      - name: Set up SSH key
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STR_SSH_KEY }}
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          echo "Key file size: $(wc -c < ~/.ssh/id_ed25519) bytes"
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null && echo "Key parses OK"
+          ssh-keyscan -p 65002 -t ed25519,rsa,ecdsa 195.35.15.247 >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          echo "known_hosts entries: $(wc -l < ~/.ssh/known_hosts)"
+
+      - name: Deploy via rsync over SSH
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            -e 'ssh -i ~/.ssh/id_ed25519 -p 65002 -o StrictHostKeyChecking=accept-new' \
+            ./STROps-Tools/dist/ \
+            u470667024@195.35.15.247:/home/u470667024/domains/strops.tools/public_html/
+
+      - name: Pre-launch smoke
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: STROps-Tools
+        env:
+          SMOKE_BASE_URL: https://strops.tools
+        run: node scripts/smoke.mjs
