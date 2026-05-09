@@ -5,7 +5,7 @@ import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import tools from '@/data/tools.json';
-import { buildArticle } from '@/lib/seo';
+import { buildArticle, buildBreadcrumb } from '@/lib/seo';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -62,13 +62,19 @@ const articleLd = buildArticle({
   dateModified: post.data.dateModified ?? post.data.datePublished,
   authorName: post.data.author,
 });
+
+const breadcrumbLd = buildBreadcrumb([
+  { name: 'Home', url: 'https://strhost.tools/' },
+  { name: 'Blog', url: 'https://strhost.tools/blog/' },
+  { name: post.data.title, url: `https://strhost.tools/blog/${slug}/` },
+]);
 ---
 
 <Layout
   title={`${post.data.title} — STR Host Tools`}
   description={post.data.description}
   path={`/blog/${slug}`}
-  jsonLd={articleLd}
+  jsonLd={[articleLd, breadcrumbLd]}
 >
   <article class="bg-parchment">
     <div class="mx-auto max-w-3xl px-5 pt-12 pb-7">

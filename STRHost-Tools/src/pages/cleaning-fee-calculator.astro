@@ -8,7 +8,7 @@ import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import CleaningFeeCalculator from '@/components/calculators/CleaningFeeCalculator.tsx';
 import { Content as ToolCopy } from '@/content/tools/cleaning-fee-calculator.mdx';
-import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import { buildWebApplication, buildFAQPage, buildHowTo } from '@/lib/seo';
 import tools from '@/data/tools.json';
 
 const tool = tools['cleaning-fee-calculator'];
@@ -49,6 +49,16 @@ const jsonLd = [
     toolPath: tool.path,
   }),
   buildFAQPage(faqs),
+  buildHowTo({
+    name: 'How to set an Airbnb cleaning fee',
+    description: 'Build a defensible cleaning fee bottom-up from labor, supplies, laundry, and a damage buffer.',
+    steps: [
+      { name: 'Estimate cleaner labor', text: 'Multiply your cleaner\'s hourly rate by the realistic turnover hours for the unit (2.5–4 hours for a typical 2BR/2BA, 5–7 for larger or hot-tub properties).' },
+      { name: 'Add consumable supplies', text: 'Budget $8–$15 per turnover for toiletries, paper goods, coffee pods, dishwasher tabs, and trash bags. Add $3–$5 for extras.' },
+      { name: 'Add laundry costs', text: 'Add the per-turnover cost of washing and drying linens, towels, and bath mats — either in-house energy/detergent or off-site laundry pricing.' },
+      { name: 'Add a damage buffer', text: 'Add a 10–20% buffer for surprise tasks, replacement consumables, and minor damage. The result is your defensible bottom-up cleaning fee.' },
+    ],
+  }),
 ];
 ---
 

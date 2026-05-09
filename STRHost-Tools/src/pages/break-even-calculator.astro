@@ -8,7 +8,7 @@ import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import BreakEvenCalculator from '@/components/calculators/BreakEvenCalculator.tsx';
 import { Content as ToolCopy } from '@/content/tools/break-even-calculator.mdx';
-import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import { buildWebApplication, buildFAQPage, buildHowTo } from '@/lib/seo';
 import tools from '@/data/tools.json';
 
 const tool = tools['break-even-calculator'];
@@ -28,6 +28,16 @@ const jsonLd = [
     toolPath: tool.path,
   }),
   buildFAQPage(faqs),
+  buildHowTo({
+    name: 'How to calculate STR break-even occupancy',
+    description: 'Find the minimum nights or occupancy rate needed each month to cover fixed costs at your current ADR.',
+    steps: [
+      { name: 'Sum monthly fixed costs', text: 'Add mortgage or rent, insurance, utilities, internet, software subscriptions, and any other costs you pay every month regardless of bookings.' },
+      { name: 'Enter per-night economics', text: 'Enter your average nightly rate (ADR), per-stay cleaning fee, and platform/processing fee percentage so the calculator can derive net contribution per night.' },
+      { name: 'Set your average length of stay', text: 'Enter typical nights per booking — this determines how often the cleaning fee is collected and amortized across nightly contribution.' },
+      { name: 'Read the floor', text: 'The output shows minimum nights booked per month and the implied occupancy percentage to break even. Anything above it is profit; below it is a loss.' },
+    ],
+  }),
 ];
 ---
 

@@ -34,8 +34,70 @@ export function buildOrganization(): JsonLd {
       url: PUBLISHER_URL,
     },
     sameAs: [
-      // Filled in as social presences come online.
+      'https://thestrledger.com',
     ],
+  };
+}
+
+export interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+export function buildBreadcrumb(items: BreadcrumbItem[]): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+}
+
+export interface ItemListEntry {
+  name: string;
+  url: string;
+}
+
+export function buildItemList(items: ItemListEntry[]): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: items.map((item, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: item.name,
+      url: item.url,
+    })),
+  };
+}
+
+export interface HowToStep {
+  name: string;
+  text: string;
+}
+
+export interface HowToInput {
+  name: string;
+  description: string;
+  steps: HowToStep[];
+}
+
+export function buildHowTo(input: HowToInput): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: input.name,
+    description: input.description,
+    step: input.steps.map((s, i) => ({
+      '@type': 'HowToStep',
+      position: i + 1,
+      name: s.name,
+      text: s.text,
+    })),
   };
 }
 
@@ -128,7 +190,8 @@ export function buildArticle(input: ArticleInput): JsonLd {
  * <link rel="canonical"> and astro-seo's `canonical` prop.
  */
 export function canonical(path: string): string {
-  const cleaned = path.startsWith('/') ? path : `/${path}`;
+  let cleaned = path.startsWith('/') ? path : `/${path}`;
+  if (cleaned !== '/' && !cleaned.endsWith('/')) cleaned = `${cleaned}/`;
   return `${SITE_URL}${cleaned}`;
 }
 
