@@ -1,0 +1,181 @@
+---
+title: "How to Analyze a Short-Term Rental Deal in 2026: The Numbers That Decide Yes or No"
+description: "A deal-underwriting walkthrough for STR buyers. Cap rate, cash-on-cash, DSCR, break-even ADR — the full first-pass screen, with worked numbers."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "acquisition"
+keyword: "short term rental deal analyzer"
+relatedTools:
+  - dscr-calculator
+  - cash-on-cash-calculator
+  - year-1-cash-needs
+readMinutes: 10
+---
+
+{/* TODO confirm magnet route — currently using `/get-the-deal-underwriting-worksheet` placeholder; REQUIREMENTS.md R6 references "STR Buyer Due-Diligence Checklist 2026" but the route key is open */}
+
+Most short-term rental "deal analyses" you see online stop at projected revenue. ADR times occupancy times 365, less a fee, and the spreadsheet spits out a green number. That is not an analysis. That is a hope.
+
+A deal-underwriting screen for an STR — the kind a junior analyst at a small REIT would run before recommending the LOI — has five separable layers: revenue, operating cost, debt cost, working-capital cost, and the regulatory tail risk. Each one can kill the deal independently. This piece walks the layers in order and shows the math at each step.
+
+> **Not investment advice.** Every market and every deal is fact-specific. The numbers below are illustrative. Do your own due diligence and review with a CPA and licensed lender before signing anything.
+
+## Layer 1 — Revenue you can actually defend
+
+Revenue projection is the input every other layer compounds against. If you start optimistic, every downstream output is wrong by the same multiple. Three numbers feed it:
+
+- **ADR** — Average Daily Rate. Pull comps from at least three sources: AirDNA's free city snapshots, Mashvisor estimates, and three live competitor listings on Airbnb itself. Take the trimmed mean.
+- **Occupancy** — for an unfurnished new listing in a competitive market, plan on 50–55% in months 1–6 even if the market average is 65%. New listings are punished by the booking algorithms until they accumulate reviews.
+- **Seasonality** — most non-urban STR markets have ADR variance of 1.6–2.4× between peak and trough months. Annual averages hide it.
+
+Worked example, a hypothetical 2-bed cabin near Pigeon Forge, TN:
+
+- ADR: $215 (trimmed mean of 9 comps, Q1 2026)
+- Occupancy, year 1 stabilized: 58%
+- Annual gross revenue: 215 × 365 × 0.58 = **$45,524**
+
+Note that this is *gross collected from the platform*, not what hits your bank. We strip platform fees and cleaning pass-through next.
+
+### The "stabilized" qualifier matters
+
+A deal pro forma that uses stabilized year-2 occupancy in year 1 is overstating cash flow by 8–15%. Underwrite year 1 conservatively. Use a stabilized number in years 2 and beyond. The spread between the two is your ramp risk and it should be priced in.
+
+## Layer 2 — Operating cost, not just "expenses"
+
+Hosts typically underestimate four cost lines:
+
+1. **Cleaning, paid versus collected.** You pass through a cleaning fee to the guest, but you pay the cleaner. The two are rarely identical. Budget the gap.
+2. **Utilities at occupancy.** A cabin at 58% occupancy in August costs roughly 1.4× the residential utility baseline. Especially HVAC and water.
+3. **Capex reserve.** STR turnover cycles every 2–4 nights versus every 12 months for a long-term rental. Furniture, paint, appliances, and HVAC depreciate faster. Plan 1–3% of property value per year. Skip it and one $9,000 HVAC bill erases a profitable quarter.
+4. **Lodging tax pass-through gaps.** In some counties Airbnb collects state sales tax but *not* the county tourist development tax. Our sister site has the [50-state lodging tax index](https://strhost.tools/lodging-tax) flagging which states have full platform collection.
+
+Same Pigeon Forge example, monthly operating cost:
+
+| Line | Monthly | Annual |
+|---|---|---|
+| Platform fee (3% standard split) | $114 | $1,366 |
+| Cleaning paid (over collected) | $200 | $2,400 |
+| Utilities + internet | $385 | $4,620 |
+| Insurance (STR policy, not residential) | $190 | $2,280 |
+| Repairs + capex reserve (2.5% of value) | $625 | $7,500 |
+| Property tax | $190 | $2,280 |
+| Software (PMS, dynamic pricing) | $55 | $660 |
+| **Total operating cost** | **$1,759** | **$21,106** |
+
+Net operating income before debt: 45,524 − 21,106 = **$24,418/yr**.
+
+For a deeper walk through profit math the way an operator does it, the [strhost.tools profitability post](https://strhost.tools/blog/how-to-calculate-airbnb-profitability) is the closest sibling read.
+
+## Layer 3 — Debt cost and DSCR
+
+Most STR purchases under $750k are financed with one of four products:
+
+- **Conventional second-home loan** — lowest rate, but stricter occupancy rules and 10% minimum down.
+- **DSCR loan** — non-QM, qualified by the property's projected income, not your W-2. Visio, Kiavi, Lima One are the active lenders. Rates run 75–150 bps above conventional.
+- **Conventional investment loan** — 20–25% down minimum, qualified by your DTI.
+- **Cash-out refi from a primary** — viable if you have equity, awful if rates have moved against you since you bought the primary.
+
+The DSCR calculator at [/dscr-calculator/](/dscr-calculator/) outputs the ratio most lenders price off:
+
+```
+DSCR = Net Operating Income / Annual Debt Service
+```
+
+Visio's standard tier requires DSCR ≥ 1.0; their preferred pricing kicks in at 1.20+. Below 1.0, you're either taking a higher rate, putting more down, or being declined.
+
+Our worked Pigeon Forge example, $480,000 purchase, 25% down ($120,000), 30-year fixed at 7.75% on $360,000:
+
+- Monthly P&I: $2,580
+- Annual debt service: $30,960
+- DSCR: 24,418 / 30,960 = **0.79**
+
+That deal does not finance at standard DSCR pricing. Two ways out: more equity (drop loan to $300,000 → debt service $25,800 → DSCR 0.95, still tight) or a higher-revenue thesis (different property, different submarket, different operating model).
+
+This is the moment most amateur underwriters stop and call the deal dead. A professional underwriter stops, recalculates the maximum supportable loan, and *then* decides whether the equity check still hits the return target. The latter is what the [break-even purchase price](/blog/str-break-even-purchase-price) post walks through.
+
+## Layer 4 — Working-capital cost
+
+The line buyers underestimate most: how much cash hits the table *after* the down payment and *before* the first guest pays.
+
+- Closing costs (2–4% of purchase): $9,600–$19,200
+- Furnishing package (3-bed cabin, mid-tier): $28,000–$42,000
+- Photography, listing setup, smart locks, Wi-Fi router class upgrade: $2,500–$4,500
+- Operating reserve (3 months opex + debt service before stabilization): $14,000–$18,000
+
+For the worked example, total Year-1 cash needs come to roughly $175,000–$200,000 above the $120,000 down. The [year 1 cash needs calculator](/year-1-cash-needs/) breaks this out.
+
+Most failed STR deals are not cash-flow failures. They are working-capital failures — the operator runs out of cash in month 4 because furnishing went $11,000 over budget and the first 90 days of bookings undershot.
+
+If you'd rather not run those numbers in a blank spreadsheet, the [STR Deal Underwriting Worksheet](/get-the-deal-underwriting-worksheet) wires the five layers together with the line items pre-populated.
+
+## Layer 5 — Regulatory tail risk
+
+The deal sheet that ignores regulation is the one that gets stopped six months in by an enforcement letter. A non-exhaustive recent set:
+
+- **New York City Local Law 18 of 2022** — effectively banned non-hosted STRs under 30 days. Listings collapsed roughly 90% in 2023.
+- **Los Angeles HSO ordinance** — primary-residence-only for unhosted rentals, capped at 120 nights/year unless extended permit.
+- **Hawaii Bill 41 (Honolulu)** — minimum 30-night stays in most non-resort districts.
+- **Austin, TX** — Type 2 STR licensing, capped citywide.
+
+Read the city's STR code yourself before LOI. A free starting point is the [BiggerPockets STR forum's regulation thread](https://www.biggerpockets.com/forums/535-short-term-and-vacation-rental-discussions) — operators report enforcement faster than ordinance trackers update.
+
+We cover the regulation read in more depth in [Short-Term Rental Regulation by City](/blog/str-regulation-by-city/).
+
+## Putting the five layers together
+
+A deal passes the screen when:
+
+1. Stabilized year-2 NOI is positive at conservative ADR/occupancy
+2. DSCR ≥ 1.0 at the lender's actual rate (not the headline rate)
+3. Year-1 cash needs are within 1.4× the down payment
+4. Cap rate clears your alternative-investment hurdle (more on that in the [vacation rental cap rate](/blog/vacation-rental-cap-rate/) post)
+5. Regulation is either permissive or stable for the foreseeable horizon
+
+Pigeon Forge example fails on (2) at the original $480,000 ask. It would pass at $410,000 with the same operating thesis. That's the offer.
+
+## The single biggest analyst error
+
+Treating the projection as the deal. The projection is a *thesis*. The deal is whatever survives a 20% adverse move in occupancy, a 100 bps rate move, and a single $7,500 unexpected capex hit in year 1. Underwrite the deal with all three of those happening at once. If it still cash-flows, the thesis has slack.
+
+Most pro formas have zero slack. That is the bug.
+
+## How to use the deal analyzer tools on this site
+
+The seven calculators on strbuyers.tools are designed to be run in order:
+
+1. [/market-score/](/market-score/) — does the city pass the basic profitability screen?
+2. [/comp-analyzer/](/comp-analyzer/) — paste 3 comparable listings, get the ADR/occupancy/RevPAR distribution
+3. [/dscr-calculator/](/dscr-calculator/) — does the deal finance?
+4. [/down-payment-calculator/](/down-payment-calculator/) — what's the actual equity ask across loan types?
+5. [/cash-on-cash-calculator/](/cash-on-cash-calculator/) — what's the return on the cash that hits the table?
+6. [/year-1-cash-needs/](/year-1-cash-needs/) — total dollars to first guest
+7. [/furnishing-budget/](/furnishing-budget/) — most-underestimated line item
+
+Once you own the property, [strhost.tools](https://strhost.tools) and [strops.tools](https://strops.tools) take over for the operating math and turnover workflows. Tax-side, [The STR Ledger](https://thestrledger.com) is where the depreciation, Schedule E, and quarterly estimates live.
+
+## Frequently asked
+
+**How conservative should year-1 occupancy be?** For a brand-new listing, 12–18 percentage points below market average for the first 90 days, then ramp. For a property with transferable reviews, market average minus 4 points.
+
+**Is a DSCR loan worth the rate premium?** Sometimes. The premium runs 75–150 bps. If using a DSCR loan lets you keep your DTI clean for the next deal, it can be the right move on a portfolio path even when the rate looks worse standalone.
+
+**Should I include personal labor in operating cost?** Yes. Charge the deal $25–$45 per booking for guest comms / dispatch, even if you do it yourself. Otherwise you'll never know whether the deal was profitable or whether *you were* profitable.
+
+**Cap rate or cash-on-cash — which matters more?** Cash-on-cash for the equity decision; cap rate for the comparable-deal screen. They answer different questions. The [cap rate post](/blog/vacation-rental-cap-rate/) walks the distinction.
+
+## Where this fits in the cluster
+
+This site, **strbuyers.tools**, handles the acquisition layer — DSCR, cash-on-cash, deal screen, market score. Once you own the property the operating math moves to [strhost.tools](https://strhost.tools) (profitability, RevPAR, cleaning fees). Day-to-day operations live at [strops.tools](https://strops.tools). Books, taxes, and depreciation route through [The STR Ledger](https://thestrledger.com).
+
+The [STR Deal Underwriting Worksheet](/get-the-deal-underwriting-worksheet) is the companion download to this post.
+
+## Closing note
+
+Deal analysis is a discipline of subtraction. You start with the gross revenue thesis, subtract every line of cost honestly, subtract again for adverse-scenario stress, and what's left is the deal. If your spreadsheet starts with revenue and ends green without an adverse-stress block, it isn't an analysis. It's a brochure.
+
+Build the brochure for the seller. Run the analysis for yourself.
+
+---
+
+*Affiliate disclosure: this site participates in affiliate partnerships with DSCR lenders, STR data platforms, and furniture vendors. Links marked sponsored may pay us a commission if you transact, at no additional cost to you. We do not link to vendors we have not personally tested or vetted. Full disclosure at [/disclosures](/disclosures/).*

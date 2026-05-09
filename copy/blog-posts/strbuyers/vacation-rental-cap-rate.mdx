@@ -1,0 +1,200 @@
+---
+title: "Vacation Rental Cap Rate: Why STR Cap Rates Don't Behave Like Long-Term Rental Cap Rates"
+description: "Cap rate math for short-term rentals — what to include in NOI, what STR cap rates run, and why the headline number misleads first-time buyers."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "acquisition"
+keyword: "vacation rental cap rate"
+relatedTools:
+  - cash-on-cash-calculator
+  - dscr-calculator
+  - market-score
+readMinutes: 9
+---
+
+{/* TODO confirm magnet route — using `/get-the-deal-underwriting-worksheet` placeholder per REQUIREMENTS.md R6 */}
+
+Cap rate is the metric that connects short-term rentals to the rest of the income-property universe. Long-term rental investors talk in cap rates. Commercial real estate lives in cap rates. CRE acquisition shops will not look at a deal without one.
+
+But STR cap rates do not behave like long-term rental cap rates, and the buyer who imports the LTR mental model wholesale will misjudge every deal. Three things break the analogy: NOI is harder to compute, the discount rate the market applies is wider, and the cap rate compresses or expands faster with operating quality than LTR cap rates do.
+
+This piece walks the math, the differences, and the worked numbers.
+
+> **Not investment advice.** Market data lags. Numbers below are illustrative — verify with current comps before underwriting.
+
+## The cap rate formula
+
+Cap rate is the unlevered annual yield on the property purchase price.
+
+```
+Cap Rate = Net Operating Income (NOI) / Purchase Price
+```
+
+It deliberately excludes the financing structure. That's the point — cap rate is the comparable across deals at different leverage. Two buyers can run the same property at very different cash-on-cash returns based on their down-payment choices, but the cap rate is the same.
+
+For long-term rental, NOI is straightforward:
+
+```
+LTR NOI = Annual Rent
+        − Vacancy reserve (5–8%)
+        − Property tax
+        − Insurance
+        − Property management (if any)
+        − Repairs / maintenance
+        − HOA
+```
+
+For STR, every line item has more variance and more lines hide.
+
+## STR NOI — what to include, what to exclude
+
+A defensible STR NOI for cap rate purposes:
+
+```
+STR NOI = Annual Gross Revenue
+        − Platform host fees (3% standard split or ~14–16% host-only)
+        − Cleaning paid (over-and-above what's collected)
+        − Variable supplies (toiletries, coffee, paper)
+        − Utilities (electric, water, gas, internet, streaming)
+        − Property tax + insurance (STR policy, not residential)
+        − Repairs + maintenance reserve (1–3% of property value/yr)
+        − Capex reserve (HVAC, roof, water heater, furniture refresh)
+        − Property management or co-host fee (or imputed if self-managed)
+        − Software (PMS, dynamic pricing, smart-lock subscription)
+        − Lodging-tax remittance shortfall (where platform doesn't fully collect)
+```
+
+What's **not** in NOI:
+- Mortgage P&I (cap rate is unlevered)
+- Income tax (cap rate is pre-tax to the entity)
+- Depreciation (non-cash, accounting only)
+- Furnishing capex (the initial setup, not the recurring reserve)
+
+Three lines that buyers most often miss:
+
+1. **Imputed self-management.** If you self-manage, the headline NOI looks 18–25% better than a property under professional management. That's not free money — it's labor cost you're absorbing personally. For comparability, charge the deal a 12–18% management fee in NOI even if you self-manage. Otherwise you'll think you bought a 9% cap-rate property and your buyer two years later (charging full management) will see a 7% deal.
+
+2. **Capex reserve, not just maintenance.** STR turnover cycles every 2–4 nights versus every 12 months for LTR. Furniture, appliances, paint, and carpets wear faster. Plan 1–3% of property value annually for capex on top of repair budget.
+
+3. **Lodging-tax gaps.** Where the platform doesn't fully collect, the operator owes the difference. [strhost.tools' 50-state lodging tax index](https://strhost.tools/lodging-tax) flags which states have full collection versus partial.
+
+## What range do STR cap rates actually run?
+
+Approximate Q1 2026 ranges from public-data composites and broker reports:
+
+| Market type | Typical STR cap rate |
+|---|---|
+| Tier-1 urban (Austin, Nashville, Phoenix) | 4.5%–6.5% |
+| Tier-2 leisure (Asheville, Smokies, Joshua Tree) | 6%–8.5% |
+| Rural single-driver leisure (small ski/lake) | 7%–10% |
+| Distressed / heavily seasonal | 9%+ |
+
+Compare to long-term rental:
+- Tier-1 urban LTR: 4%–5%
+- Tier-2 LTR: 5%–7%
+- Rural LTR: 7%–9%
+
+The spread between STR and LTR cap rates in the same market is roughly 100–200 basis points. That spread compensates for:
+
+- Higher operating risk (occupancy variance, regulation, capex velocity)
+- Higher operational labor (turnover, guest comms)
+- Less mature financing market (DSCR loans are non-QM)
+- Tail-risk events (regulatory bans, platform policy shifts)
+
+A market where STR cap rates are *equal to* LTR cap rates is a market where STR investors are not being paid for the additional risk. Either the LTR market is overheated, the STR market is overheated, or buyers are not pricing risk correctly. Worth investigating before deploying.
+
+## Worked example A — Pigeon Forge cabin
+
+Same numbers as our [deal analyzer post](/blog/short-term-rental-deal-analyzer/):
+
+- Purchase price: $480,000
+- Annual gross revenue: $45,524 (ADR $215, occupancy 58%)
+- Annual operating cost (with imputed 15% management): $27,934
+- **NOI: $17,590**
+- **Cap rate: 17,590 / 480,000 = 3.66%**
+
+That cap rate would be embarrassing for a long-term rental at $480k. For an STR, it's also embarrassing — well below the 6%–8.5% range for tier-2 leisure markets.
+
+The deal does not work at $480k. To hit a 6.5% cap rate the purchase price needs to fall to roughly **$270,000** ($17,590 / 0.065 = $270,615), or NOI needs to rise meaningfully (better operating thesis, higher ADR, lower opex). Most likely the right answer is "neither, walk away."
+
+## Worked example B — Asheville short-term rental
+
+- Purchase price: $625,000
+- Annual gross revenue: $82,000 (ADR $235, occupancy 72%)
+- Annual operating cost (with 15% imputed management): $42,500
+- **NOI: $39,500**
+- **Cap rate: 39,500 / 625,000 = 6.32%**
+
+That clears the tier-2 leisure cap-rate range from below. The deal is *passable* — not exceptional, but the asset class would price it. Whether to buy it depends on the cash-on-cash return after debt, which is the [next post](/blog/str-cash-on-cash-return/).
+
+## Why cap rate alone is insufficient for STR
+
+Cap rate compares deals at zero leverage. Most STR buyers operate at 60–80% leverage. Two cap rates the same number can produce wildly different cash-on-cash outcomes after debt service. A 6% cap rate on a property with cheap leverage ([DSCR loan at 6.5%](/dscr-calculator/)) cash-flows; the same 6% cap rate at 8.5% rate doesn't.
+
+Three rules:
+
+1. **Cap rate is the screen, not the decision.** Pass on anything below the market's range; underwrite anything within or above.
+2. **Compare cap rates within the same market and asset profile.** Cross-market cap-rate comparison is misleading — Pigeon Forge cap rates and Manhattan cap rates do not adjust for risk in the same way.
+3. **Use cap rate to back into purchase price, not project return.** "What price would this property need to be at to hit a market cap rate?" is the more useful framing than "what's the cap rate at the asking price?"
+
+## STR cap rate compression and expansion
+
+The cap rate is not a constant. It moves with operating performance and macro conditions. Two phenomena worth understanding:
+
+**Cap rate compression** happens when buyers bid up properties faster than NOI grows. Same NOI, higher price, lower cap rate. STR markets had a major compression cycle 2020–2022 — cap rates collapsed from ~8% to ~5% in many tier-2 leisure markets as buyers piled in.
+
+**Cap rate expansion** happens when buyer demand falls or perceived risk rises. Same NOI, lower price, higher cap rate. STR markets saw expansion 2023–2024 as rate hikes and regulation worries cooled buyer demand. Some markets re-expanded by 150–200 bps.
+
+The buyer's job: don't buy at the bottom of an expansion cycle (when prices look cheap because the market expects further deterioration), don't buy at the top of a compression cycle (when cap rates look fine but prices have outrun NOI). The middle is where the math works.
+
+## The "implied cap rate" trick — what brokers will quote you
+
+Listing brokers often quote a cap rate based on:
+- Gross revenue at *peak-year* (not stabilized)
+- Operating expense without imputed management (because the seller self-managed)
+- No capex reserve
+- Occupancy at the high end of the comp range
+
+This "broker cap rate" can run 200–300 bps higher than the cap rate a sober buyer would compute. It is not a lie — it's a *seller's* number. Recompute every cap rate yourself with your own NOI inputs before you trust it.
+
+A useful test: ask the broker for actuals (booking history, expense statements, lodging-tax filings). If the deal is real, the actuals will be available. If the broker pivots to projections, the deal isn't underwritable on the cap rate they quoted.
+
+## Cap rate vs. cash-on-cash — when to use which
+
+Different questions, different answers:
+
+- **Cap rate** — comparable-deal screen across an asset class. Tells you whether a property is priced in line with the market.
+- **Cash-on-cash** — return on the equity *you* are putting in. Tells you whether the deal works for *your* leverage and capital stack.
+- **DSCR** — does the lender approve? Tells you whether the deal finances at all.
+- **IRR** — total return over a hold period. Includes appreciation and refinance proceeds. Tells you the long-run expected return.
+
+A buyer who underwrites only on cap rate misses the leverage benefit. A buyer who underwrites only on cash-on-cash overweights leverage and may chase deals that don't comp. Use them in sequence — cap rate to screen, cash-on-cash to size the equity, DSCR to confirm financing, IRR to model the hold.
+
+## Where this fits in the cluster
+
+[strbuyers.tools](/) handles cap-rate, cash-on-cash, DSCR, and break-even purchase-price math at the acquisition stage. Operating math after acquisition (RevPAR, profit, cleaning fee economics) lives at [strhost.tools](https://strhost.tools). Day-to-day operations are [strops.tools](https://strops.tools). Tax and books are [The STR Ledger](https://thestrledger.com).
+
+For more on the operator-side P&L that drives NOI, [strhost.tools' profitability post](https://strhost.tools/blog/how-to-calculate-airbnb-profitability) walks the math from the host's perspective.
+
+Companion download: [STR Deal Underwriting Worksheet](/get-the-deal-underwriting-worksheet).
+
+## Frequently asked
+
+**Should I use AirDNA's market cap rate or build my own NOI?** Build your own. AirDNA's revenue figures are useful as comps but their expense assumptions are often optimistic. NOI is yours to compute.
+
+**Why do brokers quote so much higher cap rates than I compute?** Because they're using gross revenue minus a thin slice of operating cost — typically excluding capex reserve, imputed management, and full insurance. Recompute yourself.
+
+**Is depreciation a cap rate input?** No. Cap rate is pre-tax, pre-financing, pre-depreciation. Depreciation matters for after-tax IRR and for [tax planning](https://strhost.tools/blog/short-term-rental-depreciation), not for cap rate.
+
+**What's a "good" STR cap rate?** Whatever clears the market's typical range *plus* the buyer's risk premium for the specific operational thesis. A 6.5% cap rate in a tier-2 leisure market is at the lower end of normal. An 8% cap rate is the upper end. Anything outside those bands deserves additional scrutiny in either direction.
+
+## Closing
+
+Cap rate is the most-cited STR metric and the most-misunderstood one. The headline number is easy to compute and easy to manipulate. The defensible number takes 30 minutes per deal — recomputing NOI honestly, with imputed management and a real capex reserve, against your own market comps.
+
+Most overpaid STR deals trace back to the buyer who took the broker's cap rate at face value. Don't.
+
+---
+
+*Affiliate disclosure: this site participates in affiliate partnerships with DSCR lenders, STR data platforms, and furniture vendors. Sponsored links may pay us a commission if you transact, at no additional cost to you. We only feature vendors we've personally vetted. Full disclosure at [/disclosures](/disclosures/).*

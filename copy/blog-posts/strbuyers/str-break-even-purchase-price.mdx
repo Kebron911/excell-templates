@@ -1,0 +1,222 @@
+---
+title: "The STR Break-Even Purchase Price: How Much Can You Pay and Still Cash-Flow?"
+description: "Reverse the underwriting question. Start with stabilized NOI, set a return hurdle, and back into the maximum defensible purchase price for an STR."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "acquisition"
+keyword: "str break even purchase price"
+relatedTools:
+  - dscr-calculator
+  - cash-on-cash-calculator
+  - down-payment-calculator
+readMinutes: 9
+---
+
+{/* TODO confirm magnet route — using `/get-the-deal-underwriting-worksheet` placeholder per REQUIREMENTS.md R6 */}
+
+Most STR underwriting walks forward — start with the asking price, model out revenue, subtract expenses, see if the deal works. There's a more useful framing for buyers: walk the math *backward*. Start with a defensible stabilized NOI, set a financing structure and a return hurdle, and solve for the maximum purchase price the deal will support.
+
+This is the **break-even purchase price**. It tells you what to offer, not whether to accept the asking price. Asking prices are anchoring numbers; break-even prices are decision numbers.
+
+> **Not investment advice.** Numbers below are illustrative. Verify with current rate quotes, comps, and your own cash position before any offer.
+
+## The reverse formula
+
+Three break-even framings, each answering a different question.
+
+### Break-even 1 — DSCR-supported maximum loan
+
+```
+Max Loan Supported = Stabilized NOI / (Required DSCR × Annual Rate Constant)
+```
+
+Where rate constant is the annual debt service per dollar of loan at the prevailing rate and amortization. For a 7.5% 30-year fixed, the rate constant is roughly 0.0839.
+
+Pair the max loan with the required equity (loan / LTV) and you have the maximum financeable purchase price.
+
+### Break-even 2 — cash-on-cash hurdle
+
+```
+Max Cash Invested = Annual Pre-Tax Cash Flow / Required Cash-on-Cash %
+```
+
+Then back-solve from cash invested to purchase price using your loan structure and acquisition costs.
+
+### Break-even 3 — cap rate hurdle
+
+```
+Max Purchase Price = Stabilized NOI / Required Cap Rate
+```
+
+Simplest of the three. Doesn't account for financing.
+
+A defensible offer should clear *all three* tests. The lowest of the three is the binding constraint.
+
+## Worked example — back into the offer
+
+Same property thread we've used through the [deal analyzer](/blog/short-term-rental-deal-analyzer/), [cap rate](/blog/vacation-rental-cap-rate/), and [cash-on-cash](/blog/str-cash-on-cash-return/) posts: a stabilized year-2 NOI of $19,481 on a Pigeon Forge cabin.
+
+**Inputs:**
+- Stabilized year-2 NOI: $19,481
+- Available financing: DSCR loan, 30-year fixed, 7.5%, 75% LTV
+- Required DSCR: 1.20 (preferred-tier pricing)
+- Required year-2 cash-on-cash: 6%
+- Required cap rate: 6.5%
+- Closing costs + furnishing + setup + reserve (other cash): $68,000
+
+### Test 1 — DSCR-supported max loan
+
+```
+Max Loan = 19,481 / (1.20 × 0.0839) = $193,440
+```
+
+At 75% LTV, that loan implies a max purchase price of:
+
+```
+Max Purchase = 193,440 / 0.75 = $257,920
+```
+
+Required equity at that price: $64,480.
+
+### Test 2 — cash-on-cash hurdle
+
+If purchase is $257,920 with 25% down ($64,480) plus other cash $68,000 = total cash invested $132,480.
+
+Annual debt service on $193,440 at 7.5%: $16,237.
+
+Annual pre-tax cash flow: 19,481 − 16,237 = $3,244.
+
+Cash-on-cash: 3,244 / 132,480 = **2.45%**.
+
+That fails the 6% hurdle. To hit 6%, annual pre-tax cash flow would need to be:
+
+```
+Required Cash Flow = 0.06 × 132,480 = $7,949
+Required Debt Service = 19,481 − 7,949 = $11,532
+Max Loan = 11,532 / 0.0839 = $137,450
+Max Purchase = 137,450 / 0.75 = $183,267
+```
+
+Even tighter. The cash-on-cash test binds at $183,267.
+
+### Test 3 — cap rate hurdle
+
+```
+Max Purchase = 19,481 / 0.065 = $299,708
+```
+
+Less restrictive than the other two.
+
+### The binding constraint
+
+The cash-on-cash test at 6% gives the tightest answer: max defensible purchase **$183,267**. The DSCR test passes the deal at $257,920. The cap rate test passes at $299,708.
+
+The lowest of the three is the actual maximum defensible offer.
+
+If the asking price is $400,000 (seller's number) or even the $310,000 we negotiated to in the deal analyzer post, the deal still doesn't clear the 6% cash-on-cash hurdle. The break-even price is $183k. Anywhere above that, the buyer is choosing to accept a lower running yield in exchange for some other thesis (appreciation, optionality, lifestyle use).
+
+## Why this framing matters
+
+Three reasons to use break-even as the primary deal frame, not asking-price-driven underwriting:
+
+1. **Asking prices are anchoring numbers.** Once you've spent an hour underwriting a $400k deal, you're emotionally invested in making that price work. The break-even price is computed independent of the seller's number, so it's not subject to the anchor.
+
+2. **Markets surface multiple deals at once.** When you have a break-even price, you can scan a list of 30 candidate properties and immediately filter to the few that are pricing within range of your number. Asking-price-first underwriting forces you to model each one.
+
+3. **Negotiation has a defined target.** "I can offer $310k because the cap rate works at $310k" is a coherent buyer position. "I'll offer $310k because that's $90k below ask" is bargain-hunting.
+
+## What changes the break-even price
+
+Five inputs swing the break-even number, in order of magnitude:
+
+### 1. Required cash-on-cash hurdle (largest swing)
+
+A 6% hurdle and a 4% hurdle produce break-even prices roughly 30–50% apart on the same deal. The hurdle is the buyer's choice, not the property's. Run the math at multiple hurdles to see how sensitive your offer should be to the return target.
+
+### 2. Interest rate (large swing)
+
+A 100 bps move in interest rate moves the rate constant ~0.0070 (from 0.0839 at 7.5% to 0.0908 at 8.5%). On a $200k loan that's $1,400/yr more debt service, which compresses the cash-on-cash by 1+ point. The break-even price falls correspondingly.
+
+This is why break-even pricing should be re-run each time rates move 50+ bps. The deal that worked last quarter may not work this quarter.
+
+### 3. Stabilized NOI (large swing)
+
+The whole reverse-math is a function of NOI. A 10% increase in stabilized NOI (better operating thesis, higher ADR, more disciplined opex) increases the break-even price by approximately 10%.
+
+This is the part of the underwriting where buyers have the most leverage. Property selection, operating model, and pricing strategy can move stabilized NOI 15–25% on the same property. That's the equity check moving 15–25%.
+
+### 4. Required DSCR (moderate swing)
+
+A 1.0 DSCR vs. 1.20 DSCR matters only when the DSCR test is binding. In our example, cash-on-cash binds first, so DSCR adjustments don't change the answer until they tighten enough to bind.
+
+### 5. Required cap rate (often non-binding)
+
+In most STR deals, cap rate is the loosest of the three constraints because it's pre-financing. It rarely binds the offer.
+
+## Sensitivity table — same NOI, different inputs
+
+Stabilized NOI = $19,481. Loan terms 30-year fixed at 75% LTV. Acquisition costs $68k.
+
+| Required cash-on-cash | At 7.0% rate | At 7.5% rate | At 8.0% rate |
+|---|---|---|---|
+| 4% | $244,000 | $216,000 | $192,000 |
+| 6% | $208,000 | $183,000 | $162,000 |
+| 8% | $180,000 | $158,000 | $140,000 |
+| 10% | $158,000 | $138,000 | $122,000 |
+
+The buyer's hurdle and the rate environment together swing the maximum offer roughly 2:1 across this grid. The same NOI, the same property, can support purchase prices anywhere from $122k to $244k depending on what return the buyer demands and what financing the market offers.
+
+This is why two buyers looking at the same property in the same week can rationally arrive at very different offer numbers. They have different hurdles. The deal isn't "worth $X" in some absolute sense — it's worth what cash flow it generates at your particular cost of capital.
+
+## When the break-even is the wrong frame
+
+Three situations where pure break-even pricing misleads:
+
+1. **Pure appreciation play.** If the thesis is mostly about appreciation (tier-1 urban, supply-constrained), running yield matters less and the break-even based on cash-on-cash will be too restrictive.
+
+2. **Lifestyle-component deals.** A property the buyer will personally use 20+ nights a year has some value that doesn't show in the NOI. Whether to count that value is a personal call; pretending it's worth zero understates the offer.
+
+3. **Strategic / consolidation purchases.** Buying a third property in the same market generates operational leverage (one cleaner, one PMS license, one local handyman relationship). Marginal NOI on the consolidated portfolio exceeds standalone NOI. The break-even rises accordingly.
+
+For most first-time STR buyers, none of the three apply. Run the standalone break-even and don't talk yourself into a higher number.
+
+## How to use the calculators on this site for the reverse math
+
+The seven calculators on strbuyers.tools are typically run forward. To run them backward:
+
+1. Build stabilized NOI in the [/cash-on-cash-calculator/](/cash-on-cash-calculator/) by entering target operating model
+2. Plug stabilized NOI into the [/dscr-calculator/](/dscr-calculator/) and solve for max loan at required DSCR
+3. Use [/down-payment-calculator/](/down-payment-calculator/) to convert max loan + LTV → max purchase price
+4. Verify max purchase price clears the cap rate hurdle and the cash-on-cash hurdle
+5. Take the lowest of the three to the negotiation
+
+The [/year-1-cash-needs/](/year-1-cash-needs/) and [/furnishing-budget/](/furnishing-budget/) calculators feed into total cash invested and therefore into the cash-on-cash math.
+
+## Where this fits in the cluster
+
+[strbuyers.tools](/) handles break-even purchase pricing, DSCR, cash-on-cash, and cap rate at the deal-stage. After acquisition, [strhost.tools](https://strhost.tools) handles the operating math (RevPAR, profit, cleaning fees). [strops.tools](https://strops.tools) handles operations. [The STR Ledger](https://thestrledger.com) is the financial backbone — books, taxes, depreciation.
+
+For a fuller walk through the post-acquisition profit math, [strhost.tools' profitability post](https://strhost.tools/blog/how-to-calculate-airbnb-profitability) is the closest sibling read.
+
+Companion download: [STR Deal Underwriting Worksheet](/get-the-deal-underwriting-worksheet).
+
+## Frequently asked
+
+**Should I always lead with the break-even price as my first offer?** No. Anchor low if the deal allows. The break-even is your *walk* number — the price above which the deal stops working. Your first offer can be lower; your highest offer should not exceed break-even.
+
+**What if the seller's price is below my break-even — should I just accept?** Verify your stabilized NOI thesis is actually achievable on this specific property. A break-even number that says "this property is a steal" usually means the operating thesis is too aggressive. Recompute conservatively.
+
+**How often should I re-run break-even on a market I'm watching?** Quarterly at minimum, immediately after any 50+ bps rate move. Stabilized NOI drifts slowly; financing terms drift faster. The break-even number is more sensitive to financing than to NOI in most periods.
+
+**Does break-even pricing work for cash purchases?** Yes — the math collapses because there's no debt service. Use the cap-rate hurdle and the cash-on-cash hurdle (where cash invested = full purchase + costs). The DSCR test goes away.
+
+## Closing
+
+Break-even purchase pricing is the discipline of having a number you derived yourself before you saw the seller's number. It removes the anchoring effect, makes negotiation cleaner, and produces decisions that hold up across changing rate environments.
+
+The buyers who consistently buy well don't get the deals others miss. They walk away from the deals others convince themselves into. The break-even price is the discipline that lets you walk.
+
+---
+
+*Affiliate disclosure: this site participates in affiliate partnerships with DSCR lenders and STR insurance providers. Sponsored links may pay us a commission if you transact, at no additional cost to you. Vendors are tested before listing. Full disclosure at [/disclosures](/disclosures/).*

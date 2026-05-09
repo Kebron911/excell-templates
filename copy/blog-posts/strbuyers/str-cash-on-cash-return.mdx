@@ -1,0 +1,229 @@
+---
+title: "STR Cash-on-Cash Return: A Worked Calculation for the First 24 Months"
+description: "How to compute STR cash-on-cash return honestly — what's in the cash invested, what's in the annual cash flow, and a 24-month worked example."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "acquisition"
+keyword: "str cash on cash return"
+relatedTools:
+  - cash-on-cash-calculator
+  - year-1-cash-needs
+  - dscr-calculator
+readMinutes: 9
+---
+
+{/* TODO confirm magnet route — using `/get-the-deal-underwriting-worksheet` placeholder per REQUIREMENTS.md R6 */}
+
+Cash-on-cash return is the metric most STR buyers default to when they want to know whether a deal "works." It answers a specific question — "what's the annual cash return on the dollars I'm actually putting into this deal?" — and answers it cleanly when the inputs are honest. The problem is the inputs are rarely honest. Most cash-on-cash calculations you see online undercount the cash *invested* and overcount the cash *flow*, producing returns that don't survive contact with the operating reality.
+
+This post walks the formula, the line items most buyers miss, and a 24-month worked example with year 1 ramp and year 2 stabilization. The [/cash-on-cash-calculator/](/cash-on-cash-calculator/) tool wires it together if you want the live version.
+
+> **Not investment advice.** Numbers below are illustrative. Verify your own deal's inputs with current rate quotes, comps, and tax conditions before underwriting.
+
+## The formula
+
+```
+Cash-on-Cash Return = Annual Pre-Tax Cash Flow / Total Cash Invested
+```
+
+Both terms have hidden depth.
+
+**Annual pre-tax cash flow** is what hits the operator's bank account in a year, net of operating expenses and debt service, before income tax.
+
+**Total cash invested** is every dollar that left the operator's bank account to acquire and stabilize the property.
+
+Get either wrong and the ratio is wrong by the same multiple.
+
+## What's in "cash invested" — the seven components
+
+Most online calculators include only down payment. That undercounts by 40–80% on a real STR deal.
+
+The full list:
+
+1. **Down payment** — the equity required by the loan product
+2. **Closing costs** — origination, title, escrow, inspection, appraisal, recording fees. Run 2–4% of purchase price.
+3. **Pre-paid items** — escrowed property tax, insurance, mortgage interest at closing
+4. **Furnishing package** — beds, sofas, dining, kitchen, decor, exterior. Mid-tier 3-bed cabin: $28k–$42k.
+5. **Listing setup** — professional photography, smart locks, Wi-Fi router upgrade, lockbox, cleaning supplies stock, listing copywriter (optional)
+6. **Initial repairs / improvements** — anything you fix before listing (paint, deferred maintenance, hot tub install, etc.)
+7. **Operating reserve** — 3 months of opex + debt service before stabilization, held in cash. Critical and most-skipped.
+
+Total typical Year-1 cash investment for a $480k STR purchase: $175,000–$210,000 above the $96,000–$120,000 down payment alone. The [/year-1-cash-needs/](/year-1-cash-needs/) calculator breaks it out per loan type.
+
+## What's in "annual pre-tax cash flow"
+
+```
+Annual Pre-Tax Cash Flow =
+  Gross Revenue
+  − Platform fees
+  − Cleaning paid (over collected)
+  − Variable supplies
+  − Utilities
+  − Insurance
+  − Property tax
+  − Repairs + maintenance
+  − Capex reserve
+  − Software (PMS, dynamic pricing)
+  − Property management or co-host fee (or imputed if self)
+  − Annual debt service (P&I, full amount)
+  − Lodging-tax shortfall (if any)
+```
+
+What's *not* deducted:
+- Income tax (this is pre-tax cash flow)
+- Depreciation (non-cash)
+
+The single biggest source of inflated cash-on-cash numbers is hosts who don't impute management cost. If you self-manage, charge the deal 12–18% of revenue for management labor anyway. Otherwise the cash-on-cash isn't comparable to the deal you'll see in two years when you've burned out and want to hire a co-host.
+
+## Year 1 vs Year 2 — why the difference matters
+
+Year 1 cash flow is structurally lower than year 2 cash flow for two reasons:
+
+1. **Ramp** — new listings are punished by Airbnb's algorithms until they accumulate reviews. Plan 12–18 percentage points below stabilized occupancy for the first 90 days, then a gradual ramp.
+2. **Setup expense** — listing setup, supply stocking, and small punch-list items hit year 1 even though they're amortizable.
+
+Reporting *only* the year-2 cash-on-cash inflates the deal's apparent return. Reporting *only* the year-1 number understates the steady state.
+
+Underwrite both, side by side.
+
+## Worked example — 24-month run
+
+Same Pigeon Forge cabin we've tracked through the [deal analyzer](/blog/short-term-rental-deal-analyzer/) and [cap rate](/blog/vacation-rental-cap-rate/) posts.
+
+**Acquisition assumptions:**
+- Purchase price: $400,000 (negotiated down from $480k after the cap-rate analysis)
+- Loan: DSCR 30-year fixed at 7.50%, 25% down
+- Down payment: $100,000
+- Closing costs (3%): $12,000
+- Furnishing: $34,000
+- Listing setup: $3,500
+- Initial repairs: $4,500
+- Operating reserve (3 months opex + debt): $14,000
+- **Total cash invested: $168,000**
+
+Annual debt service on $300k at 7.50%: $25,170 P&I.
+
+**Year 1 — ramp (months 1–12):**
+
+- ADR: $215 (set at market)
+- Occupancy: ramps from 38% in month 1 to 58% by month 12; full-year average 49%
+- Annual gross revenue: $215 × 365 × 0.49 = $38,463
+- Operating cost (excl. management imputation): $19,500
+- Imputed management at 15%: $5,769
+- Annual cash flow before debt: 38,463 − 19,500 − 5,769 = $13,194
+- Less debt service: 13,194 − 25,170 = **−$11,976**
+- Year 1 cash-on-cash: −11,976 / 168,000 = **−7.13%**
+
+Year 1 is negative. That's normal for a ramp year and is why the operating reserve matters. The deal is "burning" $1,000/mo from the reserve in year 1.
+
+**Year 2 — stabilized:**
+
+- ADR: $222 (modest 3.3% increase)
+- Occupancy: 58% stabilized
+- Annual gross revenue: $222 × 365 × 0.58 = $47,007
+- Operating cost (excl. management): $20,475 (utilities/insurance/tax inflate ~5%)
+- Imputed management at 15%: $7,051
+- Annual cash flow before debt: 47,007 − 20,475 − 7,051 = $19,481
+- Less debt service: 19,481 − 25,170 = **−$5,689**
+- Year 2 cash-on-cash: −5,689 / 168,000 = **−3.39%**
+
+Still negative. The DSCR is below 1.0 (NOI of $19,481 < debt service of $25,170 = DSCR 0.77). The deal does not finance at standard DSCR pricing and does not cash-flow even at stabilized year 2.
+
+This deal does not work *as financed*.
+
+**Two scenarios that do work:**
+
+**Scenario X — more equity:**
+- Drop loan to $240,000 (40% down = $160,000 equity)
+- Annual debt service: $20,136
+- Year 2 cash flow: 19,481 − 20,136 = −$655 still negative
+- Total cash invested: $228,000
+- Year 2 cash-on-cash: −0.29%
+
+Still doesn't work. The property is fundamentally underpriced for STR cash flow at $400k purchase. Conclusion: walk away or buy at $310k.
+
+**Scenario Y — better property at the same price:**
+- Same $400k purchase, same 25% down
+- Property generates $62,000 stabilized year-2 revenue (different cabin, better location, hot tub + pool)
+- Operating cost (excl. management): $24,000
+- Imputed 15% management: $9,300
+- Year 2 NOI: 62,000 − 24,000 − 9,300 = $28,700
+- DSCR: 28,700 / 25,170 = 1.14 (passes DSCR loan minimum)
+- Year 2 cash flow: 28,700 − 25,170 = $3,530
+- Year 2 cash-on-cash: 3,530 / 168,000 = **2.10%**
+
+Now the deal finances. But 2.10% cash-on-cash is still uninspiring — a high-yield savings account beats it. The deal is borderline.
+
+**Scenario Z — better revenue thesis at lower price:**
+- Same $62k revenue thesis, but purchase at $340k (negotiated)
+- Down: 25% × $340k = $85,000
+- Loan: $255,000 at 7.50% → $21,395 annual debt service
+- Total cash invested: $153,000 (less down + lower closing)
+- Year 2 NOI: $28,700 (same operating thesis)
+- DSCR: 28,700 / 21,395 = 1.34 (comfortable)
+- Year 2 cash flow: 28,700 − 21,395 = $7,305
+- Year 2 cash-on-cash: 7,305 / 153,000 = **4.77%**
+
+Better. Still not exciting (matches a 30-year Treasury yield) but at least the deal pays for the operating risk.
+
+## The thresholds buyers should anchor to
+
+A reasonable cash-on-cash hurdle by deal type:
+
+| Deal profile | Year 2 cash-on-cash hurdle |
+|---|---|
+| Below-market deal in a tier-2 leisure market | 8%+ |
+| Market-priced deal in a tier-1 urban market | 5–7% |
+| Buy-and-hold thesis with appreciation upside | 4–6% |
+| Below-hurdle but clears all other tests | reconsider |
+
+A negative or sub-3% year-2 cash-on-cash should fail the deal unless there's a very specific value-add thesis (regulation arbitrage, conversion play, etc.) that justifies the lower running yield.
+
+## Sensitivity: what kills the cash-on-cash
+
+Three variables with the largest effect:
+
+1. **Occupancy** — every percentage point of occupancy moves cash-on-cash 0.4–0.7%. Underwrite with 50–55% in year 1, market-average minus 7 points in year 2.
+2. **Interest rate** — 100 bps higher rate moves debt service ~$3,000/yr on a $300k loan. That's nearly 2% on cash-on-cash for a typical deal.
+3. **Capex reserve adequacy** — under-reserving year 1 inflates cash-on-cash on paper while the property accumulates deferred maintenance you'll pay later.
+
+A defensible underwriting model stress-tests the deal at occupancy minus 5 points, rate plus 100 bps, and capex reserve at 3% of property value (not 1%). If the deal still cash-flows at all three, the thesis has slack. If not, the thesis is exposed.
+
+## Cash-on-cash vs. IRR — what cash-on-cash misses
+
+Cash-on-cash measures one year's running yield. It does not capture:
+- Principal pay-down (mortgage amortization slowly building equity)
+- Appreciation (or depreciation) of the property's market value
+- Tax shield from depreciation (which can be substantial for STRs — see [strhost.tools' depreciation walkthrough](https://strhost.tools/blog/short-term-rental-depreciation))
+- Refinance proceeds at year 5 or 7
+
+For a long-hold thesis, IRR — internal rate of return over the planned hold period including exit — is the more complete metric. Cash-on-cash is the year-by-year health check; IRR is the long-run scorecard.
+
+## Where this fits in the cluster
+
+[strbuyers.tools](/) handles the acquisition-stage cash-on-cash, DSCR, and cap rate math. Once the deal closes, the operating math (RevPAR, profit, cleaning fee margins) lives at [strhost.tools](https://strhost.tools). Operations are [strops.tools](https://strops.tools). Tax-side reporting and depreciation tracking is [The STR Ledger](https://thestrledger.com).
+
+For the post-acquisition profit math, [strhost.tools' profitability calculator](https://strhost.tools/profit-calculator) is the closest sibling tool.
+
+Companion download: [STR Deal Underwriting Worksheet](/get-the-deal-underwriting-worksheet).
+
+## Frequently asked
+
+**Should I use year 1 or year 2 cash-on-cash to evaluate the deal?** Both. Year 1 tells you the cash burn risk during ramp; year 2 tells you the stabilized return. Don't headline-quote either alone.
+
+**What if I self-manage — should I really impute a management fee?** Yes for comparability. Charging the deal 12–18% management even when you self-manage gives you a cash-on-cash that holds up if you ever hire a manager or sell the deal to a non-self-managing buyer.
+
+**Why does my online cash-on-cash calculator show 12% and yours shows 4%?** Three usual differences: (1) they don't include closing costs / furnishing / setup / reserve in cash invested, (2) they don't impute management, (3) they use peak-year revenue not stabilized. Recompute with all three included.
+
+**At what cash-on-cash do I walk?** Below 3% in a market that doesn't have an appreciation thesis to make up for it. Below 5% if you have a clear higher-yield alternative. Below 0% in year 2 always — that's a structurally broken deal.
+
+## Closing
+
+Cash-on-cash is the metric that exposes whether the leverage is helping the deal or hurting it. A deal that cash-flows positively at 25% down and breaks even at 35% down is a deal where the leverage is doing real work. A deal that cash-flows only at 50% down is a deal where the property barely generates enough NOI to cover capital costs at any reasonable financing.
+
+The point isn't to bury yourself in equity to make the math work. The point is to find the property where the unlevered economics are strong enough that reasonable leverage produces a return worth the operating effort.
+
+---
+
+*Affiliate disclosure: this site participates in affiliate partnerships with DSCR lenders and STR insurance providers. Sponsored links may pay us a commission if you transact, at no additional cost to you. Vendors are tested before listing. Full disclosure at [/disclosures](/disclosures/).*

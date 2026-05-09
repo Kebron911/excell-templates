@@ -1,0 +1,199 @@
+---
+title: "Airbnb Market Score: Six Inputs That Predict Whether a Market Will Pay"
+description: "A repeatable scoring framework for STR markets. ADR, occupancy, saturation, regulation, seasonality, and demand source — weighted, scored, and worked through."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "acquisition"
+keyword: "airbnb market score"
+relatedTools:
+  - market-score
+  - comp-analyzer
+  - dscr-calculator
+readMinutes: 9
+---
+
+{/* TODO confirm magnet route — using `/get-the-deal-underwriting-worksheet` placeholder per REQUIREMENTS.md R6 */}
+
+A market score is a deceptively simple thing: a single number that tells you whether to keep underwriting deals in this city or close the spreadsheet and move on. Most "best Airbnb cities" lists you find on the internet are not market scores. They are popularity contests. They sort by ADR and call it analysis.
+
+A real market score weighs six independent inputs, each of which can torpedo a market regardless of how well the others rank. This piece walks the six inputs, explains the weighting, runs two worked markets, and shows where the [/market-score/](/market-score/) tool fits in the decision.
+
+> **Not investment advice.** Market data lags 6–8 weeks behind reality. The numbers in this piece are illustrative and assume Q1 2026 inputs. Verify with current AirDNA / Mashvisor / municipal data before underwriting any specific deal.
+
+## Why six inputs and not three
+
+The standard online "Airbnb market score" uses three: ADR, occupancy, RevPAR. That captures the revenue surface. It misses everything that determines whether the revenue compounds or collapses.
+
+The six-input model:
+
+1. **Revenue indicators** — ADR + occupancy → RevPAR (combined, weighted 25%)
+2. **Saturation tier** — listings per 1,000 housing units (weighted 20%)
+3. **Regulatory status** — open, restricted, banned, trending (weighted 25%)
+4. **Seasonality coefficient** — peak-month-revenue / trough-month-revenue (weighted 10%)
+5. **Demand source diversity** — single-driver vs multi-driver markets (weighted 10%)
+6. **Trend direction** — 24-month ADR + occupancy slope (weighted 10%)
+
+Weights add to 100%. We'll go through each.
+
+## Input 1 — RevPAR (25%)
+
+RevPAR = ADR × occupancy. The hospitality-industry standard metric. Buys the analyst-grade comparison across markets, since cities with $300 ADR at 45% occupancy and $180 ADR at 75% occupancy are economically nearly identical at the property level ($135/night vs $135/night).
+
+**Scoring:**
+- $80–$110 RevPAR — score 4/10
+- $110–$140 — 6/10
+- $140–$180 — 8/10
+- $180+ — 10/10
+
+Pull the inputs from AirDNA's free [city overview pages](https://www.airdna.co/vacation-rental-data/app), Mashvisor, or the [comp analyzer](/comp-analyzer/) on this site (paste 3 listings, get the distribution).
+
+## Input 2 — Saturation tier (20%)
+
+The market with rising ADR and falling occupancy is the market where new supply is arriving faster than new demand. The market with rising ADR and stable occupancy is the market that can absorb you.
+
+A simple proxy is **listings per 1,000 housing units**. AirDNA reports active-listing counts; the U.S. Census reports housing-unit counts. Divide.
+
+**Scoring:**
+- < 5 listings/1k units — score 9/10 (room to grow)
+- 5–15 — 7/10
+- 15–35 — 5/10
+- 35–60 — 3/10
+- 60+ — 1/10 (saturated)
+
+Sevierville/Pigeon Forge sits around 60+. Joshua Tree sits around 90+. Both are saturated. New entrants face a punishing review-velocity curve.
+
+## Input 3 — Regulatory status (25% — the highest individual weight)
+
+Regulation is the input that can take a 10/10 revenue market and push it to zero overnight. It deserves the heaviest weight.
+
+**Scoring:**
+- **Open / permissive** — no STR-specific restrictions beyond business license — score 10/10
+- **Light registration** — registration + lodging tax remittance, no caps — 8/10
+- **Restricted** — primary-residence rule, night caps, or zoning carve-outs — 5/10
+- **Trending toward restricted** — active council proposals, recent enforcement push — 3/10
+- **Effectively banned** — restrictions that gut the unhosted-STR business — 0/10
+
+Reference points (verify current status — these change):
+
+- New York City — banned (Local Law 18 of 2022, enforced September 2023). [NYC OSE](https://www.nyc.gov/site/specialenforcement/registration-law/local-law-18-of-2022.page) is the official source.
+- Los Angeles — restricted (HSO; primary-residence rule, 120-night cap absent extended permit). [LA Planning](https://planning.lacity.gov/) tracks current status.
+- Honolulu, Hawaii — restricted (Bill 41; 30-night minimum in most non-resort zones).
+- Austin, TX — restricted (Type 2 licensing, capped).
+- Most rural Tennessee Smokies submarkets — open (no statewide STR restriction; some county-level rules).
+- Joshua Tree, CA — light registration but tightening.
+
+The municipal STR registry, where one exists, is always the authoritative source. Pull the actual code section, not the news article that summarized it.
+
+## Input 4 — Seasonality coefficient (10%)
+
+Seasonality coefficient = peak-month gross / trough-month gross.
+
+A coefficient of 1.5 means the high month earns 50% more than the low month. A coefficient of 4.0 means the high month earns 4× the low month, which is to say nine months of the year you are bleeding fixed costs while waiting for the season.
+
+**Scoring:**
+- 1.0–1.6 (urban, year-round demand) — 10/10
+- 1.6–2.4 (mixed) — 7/10
+- 2.4–3.5 (seasonal) — 4/10
+- 3.5+ (single-season) — 2/10
+
+A high coefficient is not automatically disqualifying — it just means working capital and reserve discipline matter much more. The [year 1 cash needs calculator](/year-1-cash-needs/) factors seasonality into the operating reserve recommendation.
+
+## Input 5 — Demand source diversity (10%)
+
+A market with a single demand driver — one festival, one university, one ski resort, one corporate campus — has a beta of 1.0 to that driver. Anything that hurts it hurts the listing 1:1.
+
+A market with three or more independent demand drivers (leisure tourism + business travel + a stable event calendar + a healthcare hub, for example) decorrelates the demand and stabilizes occupancy.
+
+**Scoring:**
+- Single driver — 3/10
+- Two drivers — 6/10
+- Three+ drivers — 9/10
+
+Asheville, NC is multi-driver (leisure + healthcare + retirement migration + breweries). Park City, UT in summer is essentially single-driver (skiing → mountain biking is a thin substitute).
+
+## Input 6 — Trend direction (10%)
+
+The 24-month slope of ADR and occupancy. AirDNA's free city pages plot it. So does Mashvisor.
+
+**Scoring:**
+- Both rising — 9/10
+- ADR rising, occupancy flat — 7/10
+- ADR flat, occupancy rising — 7/10
+- Both flat — 5/10
+- Either declining — 3/10
+- Both declining — 1/10
+
+A market that's been declining for 18+ months on both axes is a market where the supply/demand balance has broken. New supply is arriving faster than new demand. This is the most dangerous quadrant — buyers see prior-year ADR comps that no longer hold.
+
+## Worked example A — Sevierville, TN (Smokies submarket)
+
+| Input | Raw | Score | Weight | Contribution |
+|---|---|---|---|---|
+| RevPAR | $128 | 6/10 | 25% | 1.50 |
+| Saturation | ~70/1k | 1/10 | 20% | 0.20 |
+| Regulation | Open | 10/10 | 25% | 2.50 |
+| Seasonality | 2.1× | 7/10 | 10% | 0.70 |
+| Demand diversity | 2 drivers (Smokies + Dollywood-area events) | 6/10 | 10% | 0.60 |
+| Trend | ADR flat, occupancy declining 18 mos | 3/10 | 10% | 0.30 |
+| **Total** | | | | **5.80 / 10** |
+
+Verdict: middling. Permissive regulation props it up; saturation drags it down. A buyer here needs a differentiated property and disciplined underwriting. The market does not carry the deal.
+
+## Worked example B — Asheville, NC
+
+| Input | Raw | Score | Weight | Contribution |
+|---|---|---|---|---|
+| RevPAR | $165 | 8/10 | 25% | 2.00 |
+| Saturation | ~38/1k | 3/10 | 20% | 0.60 |
+| Regulation | Restricted (homestay-only in city; broader county) | 5/10 | 25% | 1.25 |
+| Seasonality | 1.8× | 7/10 | 10% | 0.70 |
+| Demand diversity | 4 drivers | 9/10 | 10% | 0.90 |
+| Trend | ADR rising, occupancy stable | 7/10 | 10% | 0.70 |
+| **Total** | | | | **6.15 / 10** |
+
+Verdict: better than Sevierville on the score, but the city/county regulatory split means listing location matters far more than the headline number suggests. Buying inside Asheville city limits is materially different from a property in Buncombe County 10 minutes out.
+
+The [STR Deal Underwriting Worksheet](/get-the-deal-underwriting-worksheet) ships with the six-input score pre-built so you can run a candidate market in five minutes instead of an hour.
+
+## How to use this scoring in practice
+
+Three rules:
+
+1. **Score below 5.0 → kill the search.** Don't underwrite deals there. Move on.
+2. **Score 5.0–7.0 → property selection matters more than market.** A great property in a mediocre market beats a mediocre property in a great market.
+3. **Score above 7.0 → market carries the deal.** This is the market where average operators do fine and good operators do exceptionally well.
+
+The [/market-score/](/market-score/) tool walks 200+ markets pre-scored on this framework. The [comp analyzer](/comp-analyzer/) zooms into a specific submarket once you've cleared the city-level screen.
+
+After market and property selection, the financial layer takes over — [DSCR](/dscr-calculator/), [cash-on-cash](/cash-on-cash-calculator/), and [break-even purchase price](/blog/str-break-even-purchase-price/) are the three numbers that decide whether a specific offer makes sense.
+
+## Cross-cluster context
+
+Once a property is acquired, the operating math (RevPAR, profit, cleaning fee) lives at [strhost.tools](https://strhost.tools) — their [profitability calculator](https://strhost.tools/profit-calculator) is the operator-side cousin of this site's deal-stage tools. Operations workflows (turnover, dispatch, smart locks) live at [strops.tools](https://strops.tools). The financial backbone — books, taxes, depreciation — is [The STR Ledger](https://thestrledger.com).
+
+## Frequently asked
+
+**Where do I get the inputs without paying for AirDNA Market?** Free city overview pages on [AirDNA](https://www.airdna.co/) cover ADR, occupancy, and listing counts at the city level. Mashvisor's free city pages duplicate it. For regulation, go to the city's planning or zoning department site directly. Census housing-unit data is free at [data.census.gov](https://data.census.gov/).
+
+**Should I weight regulation higher than 25%?** Possibly. If you're risk-averse or if the market has any regulatory chatter at all, weight regulation 40% and shrink the other inputs proportionally. The conservative weighting often catches markets the standard weighting misses.
+
+**Can a market score change quickly?** Yes. Regulation can move overnight (NYC went from open to effectively banned in less than 14 months between draft ordinance and enforcement). Trend direction can shift on 6 months of data. Re-score markets you're actively underwriting at least quarterly.
+
+**What about embedded municipalities — different score for different ZIP codes within a metro?** Often necessary. Asheville city vs. county is a clean example. The [city pages on this site](/cities/) score at the city/submarket level where the data supports it.
+
+## Where this fits in the cluster
+
+Once a market clears the score and you're underwriting individual deals, [/dscr-calculator/](/dscr-calculator/) and [/cash-on-cash-calculator/](/cash-on-cash-calculator/) take over. Operating math after acquisition lives at [strhost.tools](https://strhost.tools). Daily ops route through [strops.tools](https://strops.tools). Tax and books are [The STR Ledger](https://thestrledger.com).
+
+Companion download: [STR Deal Underwriting Worksheet](/get-the-deal-underwriting-worksheet).
+
+## Closing
+
+A market score is not a destination, it's a filter. Its job is to keep you from spending three weeks underwriting deals in a market that the macro layer was always going to break. Six inputs, weighted and scored, separates the markets where average execution wins from the markets where only exceptional execution survives.
+
+Run the framework on your candidate cities before you run another property pro forma. The screening order matters.
+
+---
+
+*Affiliate disclosure: this site participates in affiliate partnerships with STR data platforms and lenders. Sponsored links may pay us a commission if you transact, at no additional cost to you. We only feature vendors we've tested. Full disclosure at [/disclosures](/disclosures/).*

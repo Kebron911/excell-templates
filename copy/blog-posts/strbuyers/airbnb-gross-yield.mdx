@@ -1,0 +1,179 @@
+---
+title: "Airbnb Gross Yield: The Quick Filter Before You Underwrite a Deal"
+description: "Gross yield as the 30-second STR screen — how to compute it, what range to expect by market, and where it stops being useful."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "acquisition"
+keyword: "airbnb gross yield"
+relatedTools:
+  - market-score
+  - cash-on-cash-calculator
+  - dscr-calculator
+readMinutes: 8
+---
+
+{/* TODO confirm magnet route — using `/get-the-deal-underwriting-worksheet` placeholder per REQUIREMENTS.md R6 */}
+
+Gross yield is the screening metric. Cap rate, cash-on-cash, DSCR, and IRR are the underwriting metrics. The difference matters because gross yield is what you use to decide whether a property is *worth underwriting at all* — a 30-second filter that lets you walk away from deals before you spend three hours building a pro forma.
+
+This piece walks the gross-yield math, the reasonable ranges by market type, and the specific ways gross yield misleads buyers who treat it as a return metric.
+
+> **Not investment advice.** Numbers below are illustrative. Verify with current comps before any deal decision.
+
+## The formula
+
+```
+Gross Yield = Annual Gross Revenue / Purchase Price
+```
+
+That's it. No expense deduction, no debt service, no capex reserve. Pure revenue divided by acquisition cost.
+
+For a $480,000 property generating $48,000 of annual gross revenue, gross yield is 10%. A $625,000 property generating $82,000 in gross revenue is 13.1%.
+
+The metric's appeal is its speed. You don't need an operating pro forma to compute it. You need only a comp-derived revenue estimate and the asking price.
+
+## Why gross yield matters as a screen
+
+A 30-second filter has high value when you're working through a long list of candidate deals. The math runs in your head:
+
+- 12%+ gross yield → worth underwriting
+- 9–12% gross yield → maybe, depending on the market
+- Below 9% gross yield → walk
+
+In a tier-2 leisure market, a property has to clear roughly 11% gross yield to have any chance of producing a defensible cash-on-cash return at typical leverage and operating cost. Below that and the underlying revenue is insufficient to support the financial structure.
+
+In a tier-1 urban market, the threshold drops to 8–10% — operating costs are higher, but the appreciation and exit-comp-set support lower running yields.
+
+These are screening thresholds, not investment hurdles. Clearing the threshold gets the deal into your underwriting queue. Failing it keeps you from spending time on a deal that won't survive contact with a real expense load.
+
+## What range gross yield runs by market
+
+Approximate Q1 2026 ranges:
+
+| Market type | Gross yield range |
+|---|---|
+| Tier-1 urban (well-zoned) | 8%–11% |
+| Tier-2 leisure (Smokies, Asheville, Joshua Tree) | 10%–14% |
+| Rural single-driver leisure | 11%–16% |
+| Saturated late-cycle markets | 8%–12% |
+| Heavily seasonal vacation markets | 10%–14% |
+
+Note these run higher than cap rates because gross yield is *gross* — no operating expense subtracted. A 12% gross yield property might have a 6.5% cap rate after honest opex.
+
+The relationship between gross yield and cap rate is roughly:
+
+```
+Cap Rate ≈ Gross Yield × (1 − Operating Expense Ratio)
+```
+
+Typical STR operating expense ratio (excluding debt service) runs 35–50% of gross revenue. So:
+
+- 12% gross yield × (1 − 0.45) ≈ 6.6% cap rate
+- 10% gross yield × (1 − 0.45) ≈ 5.5% cap rate
+- 8% gross yield × (1 − 0.45) ≈ 4.4% cap rate
+
+A market where this ratio compresses (where operators are running at sub-35% expense ratios) is either an exceptionally efficient operator, an unsustainably under-reserved one, or a market with structurally low costs (low utilities, low property tax, low insurance). All three exist; the third is rare.
+
+## Worked example — three properties
+
+| Property | Price | Annual gross revenue | Gross yield |
+|---|---|---|---|
+| A — Pigeon Forge cabin, $480k ask | $480,000 | $45,524 | 9.5% |
+| B — Asheville house, $625k | $625,000 | $82,000 | 13.1% |
+| C — Joshua Tree A-frame, $385k | $385,000 | $54,000 | 14.0% |
+
+Property A fails the screen for a tier-2 leisure market — 9.5% is below the 11% threshold. Walk.
+
+Properties B and C clear. Both move into full underwriting (cap rate, DSCR, cash-on-cash, year-1 cash needs, regulation read).
+
+Underwriting will reveal whether each survives a real expense load. Property C's 14% gross yield is the strongest screen-stage signal but says nothing about whether Joshua Tree's tightening regulation, single-driver demand, and saturation produce a defensible long-run thesis. The screen passed; the underwriting may not.
+
+## Where gross yield misleads
+
+Three failure modes:
+
+### Failure mode 1 — the operating-cost gap
+
+A property in a high-utility, high-insurance, high-property-tax market can have a 14% gross yield and produce no cash flow. Hawaii, much of Florida, parts of Texas. Operating expense ratios of 55–65% are not unusual.
+
+Same gross yield, different operating reality. Two 12%-gross-yield properties in different states are not comparable.
+
+### Failure mode 2 — peak-year revenue
+
+The gross-yield calculation only works if the revenue input is *stabilized*. A peak-year revenue figure inflates gross yield. A first-year ramp figure understates it.
+
+Pull at least 24 months of actuals when available. When working from comps, pull median-year not best-year.
+
+### Failure mode 3 — financing structure
+
+Gross yield is unlevered. A 12% gross-yield property at 65% LTV with a 7.5% interest rate has dramatically different cash-on-cash than the same gross-yield property at 50% LTV at 6.5%.
+
+Gross yield doesn't help you choose between leverage scenarios. It helps you decide whether to look at the property at all.
+
+## How to use gross yield in practice
+
+A reasonable workflow:
+
+1. **Pull asking price** — listing data, MLS, broker.
+2. **Estimate stabilized gross revenue** — three comps, trimmed mean. Or [/comp-analyzer/](/comp-analyzer/) on this site.
+3. **Compute gross yield** — revenue / price.
+4. **Compare to market threshold** — does it clear the screening hurdle for this market type?
+5. **If yes, move to underwriting.** [Cap rate](/blog/vacation-rental-cap-rate/), [cash-on-cash](/blog/str-cash-on-cash-return/), [DSCR](/dscr-calculator/), [year-1 cash needs](/year-1-cash-needs/), regulation read.
+6. **If no, walk.** Move to the next deal.
+
+The discipline is to *not* try to underwrite a deal that fails the screen. The market will reliably surface enough screen-passing deals that there's no shortage. Spending hours pricing a deal whose gross revenue is structurally insufficient for the asking price is bad time allocation.
+
+## What changes the screening threshold
+
+Three factors raise the gross-yield threshold for a market to be worth underwriting:
+
+1. **High operating expense ratio.** Hawaii, Florida, parts of California, and Texas run higher utility/insurance/tax loads. Bump the screen 1–2 points.
+2. **High capital intensity.** Properties requiring large furnishing budgets (luxury cabins, beach houses) consume more cash and need more revenue to amortize the setup.
+3. **Regulatory tail risk.** Markets with active or pending STR restrictions need a higher screen to compensate for the option value of being shut down.
+
+Conversely, the threshold can be *lowered* in:
+- Established appreciation markets (tier-1 urban with limited supply)
+- Markets with unusually permissive regulation (low risk premium needed)
+- Markets where you have specialized operational edge
+
+## Gross yield vs. RevPAR — different questions
+
+These get conflated. They aren't the same.
+
+- **Gross yield** = annual gross revenue / *purchase price*. Asks: how much yield does this purchase produce?
+- **RevPAR** = ADR × occupancy. Asks: how productive is the listing per available night?
+
+Two listings with the same RevPAR can have very different gross yields if the purchase prices differ. Two listings with the same gross yield can have very different RevPARs if the price-to-revenue relationship differs.
+
+RevPAR is an operational comp metric (how is this property performing relative to its competitive set). Gross yield is an acquisition screen metric (is this purchase price defensible at current revenue).
+
+Both matter. They sit at different stages of the decision.
+
+## Where this fits in the cluster
+
+Gross yield is the screen at the top of the [acquisition funnel](/) on this site. After it passes, the underwriting metrics ([cap rate](/blog/vacation-rental-cap-rate/), [cash-on-cash](/blog/str-cash-on-cash-return/), [DSCR](/dscr-calculator/), [break-even purchase price](/blog/str-break-even-purchase-price/)) take over.
+
+After acquisition, RevPAR and operational profitability become the relevant metrics — those live at [strhost.tools](https://strhost.tools), specifically the [RevPAR calculator](https://strhost.tools/revpar-calculator) and [profit calculator](https://strhost.tools/profit-calculator). Operations workflows are [strops.tools](https://strops.tools). Books, taxes, depreciation are [The STR Ledger](https://thestrledger.com).
+
+Companion download: [STR Deal Underwriting Worksheet](/get-the-deal-underwriting-worksheet).
+
+## Frequently asked
+
+**Is gross yield the same as gross rental yield in real estate?** Effectively yes — same formula, same interpretation. The STR-specific wrinkle is that gross revenue is more variable (occupancy and ADR fluctuate) than long-term rental gross revenue (a fixed annual rent), so the screen needs to use stabilized revenue, not best-year revenue.
+
+**What about loans where the lender requires a specific gross yield?** A few non-QM lenders use gross yield as a quick eligibility screen, especially for portfolio loans. Most DSCR lenders use net DSCR (NOI / debt service), which is a stricter test. The [/dscr-calculator/](/dscr-calculator/) walks the DSCR side.
+
+**Should I include cleaning fees in gross revenue?** Yes — cleaning fees collected from guests are part of gross. Cleaning paid to the cleaner is a cost in net calculations. The two often don't net to zero.
+
+**Is gross yield the same in commercial real estate?** The formula is the same. The norms differ — commercial gross yields run 6–10% on stabilized assets; residential STR gross yields run higher because operating cost ratios are higher.
+
+## Closing
+
+Gross yield is the screen, not the answer. Used at the top of a deal funnel, it saves the most valuable thing an acquisition analyst has — time spent on deals that have any chance of working. Used as a final-decision metric, it deceives.
+
+Treat it like a coffee filter. It catches the obvious failures. The deal still has to clear the underwriting that follows.
+
+---
+
+*Affiliate disclosure: this site participates in affiliate partnerships with STR data platforms and lenders. Sponsored links may pay us a commission if you transact, at no additional cost to you. Vendors are tested before listing. Full disclosure at [/disclosures](/disclosures/).*
