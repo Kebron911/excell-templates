@@ -49,17 +49,6 @@ jobs:
         working-directory: STROps-Tools
         run: pnpm test
 
-      - name: Install Playwright browsers
-        id: pw_install
-        continue-on-error: true
-        working-directory: STROps-Tools
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: E2E tests
-        if: steps.pw_install.outcome == 'success'
-        working-directory: STROps-Tools
-        run: pnpm test:e2e
-
       - name: Build
         working-directory: STROps-Tools
         env:
@@ -79,6 +68,19 @@ jobs:
           test -f dist/sitemap-index.xml
           test -f dist/robots.txt
           echo "Build output OK"
+
+      # Playwright runs after build because playwright.config.ts spawns
+      # `pnpm preview`, which requires dist/ to exist.
+      - name: Install Playwright browsers
+        id: pw_install
+        continue-on-error: true
+        working-directory: STROps-Tools
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: E2E tests
+        if: steps.pw_install.outcome == 'success'
+        working-directory: STROps-Tools
+        run: pnpm test:e2e
 
       # Deploy only on push to main. PRs run through the verification gates above
       # (typecheck/test/build) but do not deploy.
