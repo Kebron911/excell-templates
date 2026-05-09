@@ -1,0 +1,136 @@
+---
+title: "Airbnb 1099-NEC: When You Issue One, When You Get One, How to Track It"
+description: "The 1099-NEC rules for STR hosts in 2026 — who you must issue one to, what triggers the $600 threshold, and the records that survive an audit."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "tax"
+keyword: "airbnb 1099 nec"
+relatedTools:
+  - profit-calculator
+  - lodging-tax
+readMinutes: 9
+---
+
+Most short-term rental hosts conflate two different 1099 forms. The platform sends you a **1099-K** (gross payment card and third-party network transactions). You may also be required to issue a **1099-NEC** (nonemployee compensation) to your cleaner, your handyman, or your co-host. They are not the same form, they do not flow through the same line on Schedule E, and the penalty structure for missing one is different from the penalty structure for missing the other.
+
+This piece is about the second one — the 1099-NEC you owe your contractors — and the rare cases where you'd actually receive one as a host. If you'd rather start from a worksheet, the [1099 Trigger Threshold Calculator](https://thestrledger.com) on The STR Ledger walks each contractor through a single yes/no decision so you don't have to read the instructions to Form 1099-NEC three times.
+
+*Not tax advice. Always verify with a CPA who handles short-term rental clients.*
+
+## The two forms hosts confuse
+
+The cleanest way to keep them straight:
+
+```
+1099-K  →  Sent TO you, by Airbnb / Vrbo / Stripe / PayPal
+            Reports gross guest payments routed through the platform
+            Triggers at $600 federal in 2026 (post-ARPA threshold;
+            confirm the current figure with your CPA)
+
+1099-NEC →  Sent BY you, to each unincorporated contractor
+            Reports cash, check, or ACH payments for services
+            Triggers at $600 of total payments in the calendar year
+            Does NOT include payments made via credit card or
+            third-party processor — those route through 1099-K
+            issued by the processor, not by you
+```
+
+The first one is a reporting tool the platform uses to tell the IRS what it paid you. The second one is a reporting tool *you* use to tell the IRS what you paid your contractors. Filing one does not satisfy the other.
+
+## The $600 threshold, in practice
+
+The 1099-NEC threshold is **$600 per payee per calendar year**, in the aggregate, for services rendered in the course of your trade or business. Three pieces matter:
+
+**1. "Per payee."** If your cleaner is a sole proprietor doing business as "Maria's Turnovers" with no LLC and no S-corp election, she is a payee — issue a 1099-NEC if total payments cross $600. If "Maria's Turnovers LLC" is taxed as an S-corp, no 1099-NEC is required for ordinary payments. Get a [Form W-9](https://www.irs.gov/pub/irs-pdf/fw9.pdf) from every contractor before you pay them — the W-9 is the document that tells you which box applies.
+
+**2. "In the aggregate."** Payments made across the year add up. Three $300 payments to the same handyman = $900 = 1099-NEC owed.
+
+**3. "Services rendered in the course of your trade or business."** Personal payments don't count. Rental real estate is murky here — Schedule E filers who don't pass material participation tests have historically had a weaker filing obligation than Schedule C filers, though the practical guidance is to issue 1099-NECs whenever the threshold is crossed for STR-related services. The downside risk of issuing one you didn't owe is zero; the downside risk of skipping one you did owe is a $310 per-form penalty escalating to $630 per form for intentional disregard.
+
+## Who you almost certainly need to issue a 1099-NEC to
+
+Run this list against your last 12 months of bank and credit card statements:
+
+- **Cleaners** — paid by check, cash, Venmo (friends-and-family), Zelle, or ACH. The most common 1099-NEC for hosts.
+- **Handymen** — plumber, electrician, HVAC tech, painter — anyone who is not a registered contractor's employee.
+- **Landscapers and pool service** — the operator, not the corporation; check the W-9.
+- **Co-hosts and on-site managers** paid as 1099 contractors rather than W-2 employees.
+- **Photographer** if paid more than $600 in a single year.
+- **Bookkeeper** if a sole proprietor (a CPA firm taxed as a C-corp does not need one).
+
+Who you do NOT issue one to:
+
+- Anyone you paid exclusively via Airbnb resolution center, credit card, debit card, or a third-party payment processor (Stripe, PayPal Goods & Services). Those payments route through the processor's 1099-K.
+- Any payee whose W-9 shows them as a C-corporation or S-corporation (with the lawyer-fee exception below).
+- Anyone you paid less than $600 total in the calendar year.
+
+The lawyer exception: legal-services payments to attorneys are 1099-NEC reportable regardless of corporate form. A $1,200 LLC-formation fee paid to your attorney's S-corp law firm still triggers a 1099-NEC.
+
+## A worked example
+
+You operate a single STR in 2026. Your books show:
+
+- Maria (cleaner, sole prop): $7,440 paid via Zelle across 62 turnovers
+- Greg (handyman, sole prop): $1,820 paid via check across 4 visits
+- "FixIt Plumbing LLC" (S-corp per W-9): $890 paid by ACH
+- Amazon (supplies): $4,200 — corporate vendor, no 1099 owed
+- Photographer: $480 — under threshold, no 1099 owed
+- Co-host (sole prop): $11,200 paid via Zelle — 25% of revenue split
+- Attorney (S-corp law firm): $750 for STR registration support
+
+You owe four 1099-NECs by the **January 31, 2027** federal deadline: Maria, Greg, the co-host, and the attorney (legal-fee exception). FixIt Plumbing is exempt because of S-corp status. The photographer is under threshold. Amazon is a corporate vendor.
+
+Total of those four 1099-NECs: $21,210 of contractor payments, all of which flow through Schedule E lines 7 (cleaning and maintenance), 11 (management fees), and 10 (legal and other professional fees). Issuing the forms is not what makes them deductible — they're deductible whether you issue the forms or not — but issuing them is what protects the deduction in an audit.
+
+## What "I get a 1099" means for hosts
+
+The 1099-K from Airbnb or Vrbo is the more common form a host receives. In 2026 the federal threshold is **$600 in gross payments**, which captures essentially every active host (the threshold sat at $20,000 / 200 transactions before the American Rescue Plan and is being phased to $600; the IRS has issued multiple delays — verify the current figure, since this number has moved). Some states already enforce a $600 floor regardless of federal posture: Massachusetts, Vermont, Virginia, Maryland, Illinois, Arkansas, and the District of Columbia have lower-than-federal thresholds and have for several years.
+
+Two practical notes:
+
+**The 1099-K is gross.** It includes guest cleaning fees, occupancy taxes the platform collected on your behalf, and the platform's host service fee. Your Schedule E Line 3 (Rents received) should match the 1099-K gross. The platform fee and any pass-through tax come out as expenses on later lines, not as a netting against gross.
+
+**A second-rare form: 1099-NEC sent TO you.** If a property management company pays you (the property owner) more than $600 in net rent for the year, they may issue you a 1099-MISC (rents, Box 1) — not a 1099-NEC. A 1099-NEC sent to you as a host is uncommon and usually indicates either an error or that the payer believes you provided services rather than rented property. Worth a phone call to the issuer.
+
+## The records that survive an audit
+
+The 1099-NEC obligation runs on three documents per contractor. Without these, an auditor can disallow the deduction even if the work was real and the payment cleared:
+
+1. **Form W-9** collected before the first payment. This is the document where the contractor self-reports their entity type, taxpayer ID, and legal name. Keep it for four years after the last payment.
+2. **Contemporaneous payment log** — date, amount, method, and a one-line description of the service. A bank statement plus a Zelle confirmation is sufficient if you can identify the payee.
+3. **The 1099-NEC itself** — Copy A to the IRS, Copy B to the contractor, retained Copy C in your records. File electronically through the [IRS IRIS portal](https://www.irs.gov/filing/e-file-forms-1099-with-iris) (free) or via a paid service ($3–$5 per form on Track1099, Tax1099, etc.).
+
+The January 31 deadline is firm. Late filing penalties scale with how late: $60 per form within 30 days, $130 per form 31 days late through August 1, $330 per form after August 1, $660 per form for intentional disregard. A host with five missed 1099-NECs filed in late August is staring at $1,650 of penalty, before any state-level addition.
+
+## How this connects to the rest of your tax stack
+
+The 1099-NEC list isn't a tax-season job — it's a January-of-next-year job built on records you maintain throughout the year. Three workflow choices that compound:
+
+- Get the W-9 *before* the first payment, not at year-end. Year-end W-9 chasing has a 60–80% response rate; before-payment has a 100% response rate (because no W-9 means no payment).
+- Pay all contractors by ACH or check from a dedicated business account. Mixing personal Venmo with contractor payments creates a reconciliation problem that compounds for years.
+- Run the 1099 list at the end of every quarter, not just at year end. Crossing the $600 threshold mid-year is the right time to send a W-9 request to anyone who didn't have one on file, not in January when the contractor has stopped responding.
+
+For the broader STR tax picture, the [profit calculator](/profit-calculator) lets you model contractor and platform fees against revenue so the deduction discipline shows up in real-time margin. The [50-state lodging tax index](/lodging-tax) handles the *other* tax stack — the one collected on guest payments rather than paid to contractors. They're separate problems with separate filings; mixing them is a common host error and one of the few that the IRS doesn't notice but state DORs do.
+
+If you want a one-page worksheet that flags every contractor against the four threshold rules above, the **1099 Trigger Threshold Calculator** is a free Excel tool from [The STR Ledger](https://thestrledger.com) — drop your contractor list in, the workbook returns a "send" or "skip" against each name and ties to a January 31 reminder.
+
+## Where this fits in the cluster
+
+- Profitability math, including contractor expense lines, runs through the [profit calculator](/profit-calculator).
+- Lodging tax — the *guest-side* tax stack, separate from contractor 1099s — lives at the [50-state index](/lodging-tax).
+- Operations and turnover dispatch (the workflows that produce 1099-NEC-eligible cleaner payments in the first place) sit on [strops.tools](https://strops.tools).
+- Guest-experience systems — house rules, welcome books, AI message replies — run on [strguests.tools](https://strguests.tools).
+- The full P&L, contractor tracking, and 1099 worksheet live in the workbooks at [The STR Ledger](https://thestrledger.com).
+
+## FAQ
+
+**Do I issue a 1099-NEC to my Airbnb co-host?** Yes, if you pay them as a contractor (not a W-2 employee), they are a sole proprietor or unincorporated LLC, and you paid them more than $600 in the calendar year via cash, check, ACH, or Zelle. Co-host fees collected and disbursed by Airbnb itself are platform-routed and the platform handles the 1099-K side; your direct payments to the co-host are still your responsibility.
+
+**What if I paid my cleaner half by Zelle and half by credit card?** The credit-card portion routes through Stripe / the card processor's 1099-K and is not part of your 1099-NEC. The Zelle / ACH portion is yours to report. If the Zelle-only portion is over $600, issue the form for the full amount of Zelle / ACH payments.
+
+**My cleaner is an LLC. Do I still need to issue a 1099-NEC?** Single-member LLCs default to disregarded-entity treatment — the IRS treats them as sole proprietors for 1099 purposes — so yes. LLCs that have elected S-corp or C-corp tax treatment are exempt. The W-9 is the deciding document.
+
+**Can I just file all 1099-NECs in February if I missed January 31?** No. Late filing carries per-form penalties as outlined above. File late, accept the penalty, and adjust your January workflow next year.
+
+**Where does the 1099-NEC go on Schedule E?** Nowhere directly — the 1099-NEC is informational. The underlying contractor expense flows through whichever Schedule E line matches the service (Line 7 for cleaning and maintenance, Line 11 for management, Line 14 for repairs). The 1099-NEC documents the payment; the deduction shows up against the line item.

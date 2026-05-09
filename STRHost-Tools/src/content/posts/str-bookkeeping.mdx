@@ -1,0 +1,201 @@
+---
+title: "STR Bookkeeping in 2026: Chart of Accounts and Monthly Close for Hosts"
+description: "A short-term rental chart of accounts that maps cleanly to Schedule E, plus a 45-minute monthly close routine that survives multi-property growth."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "tax"
+keyword: "str bookkeeping"
+relatedTools:
+  - profit-calculator
+  - lodging-tax
+  - break-even-calculator
+readMinutes: 10
+---
+
+STR bookkeeping fails for the same reason in nine cases out of ten: the chart of accounts was inherited from a generic small-business template, the categories don't map to Schedule E, and reconciliation slips by a week, then a month, then a quarter. By February of the following year, the host is reconstructing twelve months of transactions from a credit-card statement at 11pm with a CPA deadline three days out. The deductions get lossy. The audit posture gets worse. The owner concludes "STR bookkeeping is just hard."
+
+It isn't. The structural decisions are: a chart of accounts that mirrors Schedule E line numbers, a single business bank account per property (or one account with disciplined property tagging for portfolios under five units), and a 45-minute monthly close that runs the same way every month. Build those three correctly and tax season is a one-hour pivot-table run, not a 30-hour archaeology project.
+
+This is a long post. Skip to the chart of accounts if that's all you came for; the monthly close routine is in the second half. The free **STR Chart of Accounts Starter** workbook at [The STR Ledger](https://thestrledger.com) is the pre-built version of what's described below.
+
+*Not tax advice. Always verify with a CPA who handles short-term rental clients.*
+
+## Why generic charts of accounts break for STR
+
+QuickBooks ships with a default chart of accounts built for service businesses and retail. The "rent / supplies / utilities / advertising" categories work for a 1990s consulting firm; they fail an STR host in three specific ways:
+
+1. **No platform fee category.** Airbnb's 3% (or 14–16% host-only) is not advertising in the QuickBooks sense. Rolling it into "Advertising" loses the audit trail; rolling it into "Bank fees" misclassifies it. It needs its own line.
+2. **No lodging tax pass-through structure.** Tax you collect from guests and remit is a *liability*, not income or expense. QuickBooks defaults treat collected tax as part of revenue, then expense the remittance — the net is correct but the gross is wrong, and the gross is what state DORs audit against.
+3. **No depreciation infrastructure.** STR depreciation runs across 5-year, 15-year, and 27.5-year asset classes (see [str depreciation](https://thestrledger.com) on The STR Ledger for the breakdown). QuickBooks tracks fixed assets but doesn't compute MACRS or bonus depreciation; that work happens on Form 4562 in your tax software, and the bookkeeping needs to feed it cleanly.
+
+The fix is a custom chart of accounts that mirrors Schedule E line numbers exactly, plus a separate liability section for lodging tax collected, plus a fixed-asset register that maps to Form 4562's three asset classes.
+
+## The STR chart of accounts
+
+Numbered in classic accounting convention: 1000s = assets, 2000s = liabilities, 3000s = equity, 4000s = revenue, 5000s = COGS-equivalent, 6000s = operating expenses. Each operating expense account ends with a Schedule E line code so year-end roll-up is mechanical.
+
+```
+ASSETS (1000s)
+1010  Operating bank account
+1020  Tax-reserve bank account (lodging tax holding)
+1030  Capex reserve account
+1100  Receivable — direct booking deposits
+1500  Property A — building (27.5-yr)
+1510  Property A — 5-yr property (furniture, appliances, electronics)
+1520  Property A — 15-yr property (landscaping, paving, fencing)
+1530  Property A — accumulated depreciation
+(repeat 1500–1530 per property)
+
+LIABILITIES (2000s)
+2010  Mortgage payable — Property A
+2100  Lodging tax collected — state portion (payable to state DOR)
+2110  Lodging tax collected — county portion
+2120  Lodging tax collected — city portion
+2200  Security deposits held
+2300  Credit card payable — STR business card
+2400  Sales / occupancy tax payable
+
+EQUITY (3000s)
+3010  Owner contributions
+3020  Owner draws
+3100  Retained earnings
+
+REVENUE (4000s)
+4010  Booking revenue — Airbnb
+4020  Booking revenue — Vrbo
+4030  Booking revenue — direct
+4040  Cleaning fees collected from guests
+4050  Pet fees collected
+4060  Damage / extra-guest fees collected
+4900  Other income (referral credits, insurance recoveries)
+
+OPERATING EXPENSES (6000s — Schedule E line in suffix)
+6005-AD  Platform host service fees [SE Line 5]
+6005-PH  Photography & listing services [SE Line 5]
+6005-MK  Marketing & paid promotion [SE Line 5]
+6006-MI  Mileage at IRS standard rate [SE Line 6]
+6006-TR  Travel — airfare / lodging / rental car [SE Line 6]
+6007-CL  Cleaning — contractor labor [SE Line 7]
+6007-MN  Maintenance — contractor labor [SE Line 7]
+6009-IN  Insurance — STR policy + umbrella [SE Line 9]
+6010-LP  Legal & professional fees [SE Line 10]
+6011-MG  Property management & co-host fees [SE Line 11]
+6012-MI  Mortgage interest [SE Line 12]
+6013-OI  Other interest (credit card, LOC) [SE Line 13]
+6014-RE  Repairs (non-capital) [SE Line 14]
+6015-SU  Supplies & guest consumables [SE Line 15]
+6016-PT  Property tax [SE Line 16]
+6016-PM  STR permit & license fees [SE Line 16]
+6017-EL  Utilities — electric [SE Line 17]
+6017-GA  Utilities — gas [SE Line 17]
+6017-WA  Utilities — water / sewer / trash [SE Line 17]
+6017-IN  Utilities — internet & streaming [SE Line 17]
+6018-DE  Depreciation (fed from Form 4562) [SE Line 18]
+6019-HO  HOA / condo fees [SE Line 19]
+6019-SW  Software — PriceLabs / Hospitable / Turno [SE Line 19]
+6019-SH  Smart-home subscriptions [SE Line 19]
+6019-GS  Guest screening services [SE Line 19]
+6019-LT  Lodging tax shortfall (eaten, not pass-through) [SE Line 19]
+6019-BK  Bank & processor fees [SE Line 19]
+```
+
+Two design notes that prevent later headaches:
+
+**The Schedule E line code in the suffix.** A pivot table on the suffix (SE-05, SE-06, etc.) rolls into the form mechanically at year end. No manual reclassification.
+
+**Lodging tax collected as a 2100-series liability.** When a guest pays $100 + $12 lodging tax, the entry is +$100 to revenue (4010), +$12 to liability (2100). When you remit $12 to the state, it's −$12 from liability (2100), zero P&L impact. If you ate the tax (collected $11 instead of $12), the $1 difference goes to 6019-LT as an expense. This mirrors how the [50-state lodging tax index](/lodging-tax) describes the platform-collected vs host-collected gap.
+
+## The monthly close routine
+
+A 45-minute monthly close, run on the same day every month, is the single highest-leverage bookkeeping habit for an STR host. Six steps:
+
+**1. Reconcile bank accounts (10 min).** Match the operating bank account to the closing balance on the statement. If you're $0.34 off, find the $0.34 — almost always a Stripe fee or platform-deposit timing issue. Don't move on without reconciliation; a discrepancy lingering for one month becomes a discrepancy hiding three errors by month four.
+
+**2. Reconcile the credit card (5 min).** Same routine, against the credit card statement.
+
+**3. Categorize uncategorized transactions (15 min).** This is the bulk of the work. Every transaction needs an account number from the chart above. If a category doesn't exist for something, create one — the cost of an extra subaccount is zero, the cost of dumping into "Other" is years of lossy reporting.
+
+**4. Compute lodging tax owed and reconcile to liability account (5 min).** Pull the month's bookings from Airbnb / Vrbo. Sum the tax line. Compare to the balance in 2100/2110/2120. If the platform collected and remitted, the entry already cleared; if you owe local tax not collected by the platform, the gap moves into the liability account, and a reminder fires for next month's remittance.
+
+**5. Run a P&L for the month (5 min).** Revenue, expenses by Schedule E suffix, net. Compare to last month and to the same month last year (after year one). Any line that's off by 30% gets a one-line note: why? "March utilities high — heat wave + 24 booked nights vs 18 last March." The notes accumulate into the institutional memory that makes year-three forecasting accurate.
+
+**6. Funding the reserves (5 min).** Move the month's allocation to capex reserve (1030) and the month's lodging-tax remittance to its bank account (1020). Reserves that exist only on paper get raided; reserves that exist in a separate bank account survive.
+
+The whole routine, done on the first business day of every month, takes 45 minutes for a single property. Two properties: 60 minutes. Five properties: 90 minutes. Past five, a bookkeeper at $200–$400/mo becomes cheaper than the host's time, and the host should be looking at the P&L summary, not categorizing transactions.
+
+## A worked monthly close example
+
+Property: 2-bed STR, single owner, March 2026.
+
+- Revenue: $7,420 (Airbnb), $1,180 (direct booking via OwnerRez), $312 (cleaning fees collected from guests)
+- Lodging tax collected from guests (full statutory stack): $1,140
+- Platform fee on Airbnb portion: $223
+- Stripe fee on direct booking: $34
+- Cleaner paid (Maria, sole prop, ACH): $620
+- Utilities: $412
+- Mortgage interest portion of P&I: $1,238
+- Property tax accrual: $287 (one-twelfth of annual)
+- Insurance accrual: $153
+- HOA: $245
+- PriceLabs + Hospitable: $89
+- Repair (replaced bathroom faucet, contractor labor): $180
+
+Net for the month before depreciation accrual: ~$5,531 of revenue minus ~$3,481 of operating expenses = $2,050 contribution. Depreciation accrual (one-twelfth of annual): $1,188. Net P&L for the month: **$862**.
+
+Lodging tax movement: $1,140 collected → liability account. Platform-collected (county + state, $810) auto-remitted by Airbnb → liability cleared $810. Remaining $330 (city occupancy tax, host-collected) sits in the tax-reserve bank account, due by the 20th of the following month per the city's monthly filing cadence.
+
+That's a clean close. Reproduced 12 times across 2026, the year-end P&L is a single pivot table, the Schedule E worksheet is a single SUMIF per line, and the lodging tax reconciliation is already done. Tax-prep time for an experienced CPA: 60–90 minutes for the full return.
+
+## What changes at multi-property scale
+
+Past three properties, four shifts in the bookkeeping system:
+
+**1. Property dimension on every transaction.** Every entry tagged with a property code (PR-A, PR-B, PR-C). Most accounting software supports a "class" or "location" field that handles this without subaccounts.
+
+**2. Per-property P&L, not just aggregate.** Aggregate P&L is useless when one property is bleeding and another is carrying it. The aggregate masks the bleed. Per-property P&L finds it in week two of the next month.
+
+**3. Inter-property accruals.** Owner pays for shared supplies on one credit card; allocate to each property by its share of nights booked or square footage, depending on the expense type. The IRS doesn't dictate the allocation method but does require it be reasonable and consistent.
+
+**4. Bookkeeper or part-time controller around five properties.** The host's time is more valuable categorizing than reconciling. Hand off the categorization, keep the close-meeting review.
+
+The chart of accounts above scales unchanged through this transition; only the property dimension and the close cadence shift.
+
+## Software choices that pair with this chart
+
+Three setups that work in 2026, ranked by the size of operation:
+
+- **1–3 properties: Excel / Google Sheets workbook with the chart embedded.** Zero subscription cost, full control, fastest year-end pivot. The [STR Chart of Accounts Starter](https://thestrledger.com) is this format. Limitation: no bank-feed automation; transactions are entered manually or imported from CSVs.
+- **3–10 properties: Stessa (free for owners) or QuickBooks Online + a custom chart of accounts.** Bank-feed automation, decent reporting, both can be coerced into the chart above. Stessa is cleaner for pure STR; QuickBooks has the broader ecosystem if the operator runs other businesses.
+- **10+ properties: QuickBooks Online + a part-time bookkeeper, or migrate to Xero with an STR-specific consultant.** Past 10 properties, the operator should be reading reports, not building them.
+
+Whichever path: the chart above is portable. The line codes and the suffix structure transfer between systems with minimal rework.
+
+## Five things hosts skip that they shouldn't
+
+1. **Reconciling the platform 1099-K to the books.** Every January, pull the 1099-K from each platform. The total should match revenue accounts 4010/4020/4030 + cleaning collected (4040) + tax pass-through (2100/2110/2120) for the year. A mismatch is the auditor's first finding; finding it yourself is the cheaper version.
+2. **Tracking security deposits as a liability.** Damage deposits collected and not yet released are *liabilities*, not revenue. Most hosts dump them into revenue and book a refund as a contra-expense. The net is correct; the audit posture is not.
+3. **Capitalizing improvements vs expensing repairs.** The $9,400 HVAC replacement is a Form 4562 asset, not a Line 14 repair. The $180 faucet swap is a Line 14 repair. The IRS [tangible property regulations](https://www.irs.gov/businesses/small-businesses-self-employed/tangible-property-final-regulations) draw the line; the bookkeeping should match it.
+4. **Maintaining a fixed-asset register.** Every furniture purchase, appliance, smart lock, mattress, and TV gets a row: date placed in service, cost, asset class (5/15/27.5), depreciation method. This is the input to Form 4562. Hosts who don't maintain it discover at year five that they can't reconstruct what they bought in year one.
+5. **Closing out the books at year end.** Not just running a year-end P&L — formally closing the period, locking it against further edits, and rolling retained earnings forward. This prevents next-year edits from accidentally restating the prior year's tax return.
+
+## Where this fits in the cluster
+
+- The expense categories in this chart map to the categories in the [vacation rental expense tracker](/blog/vacation-rental-expense-tracker) post — same content, different lens (chart-of-accounts vs transaction-tracker).
+- The 1099-NEC obligation tied to contractor payments lives at [airbnb 1099 nec](/blog/airbnb-1099-nec).
+- For the lodging tax liability accounts (2100/2110/2120), the [50-state lodging tax index](/lodging-tax) and the [airbnb lodging tax compliance](/blog/airbnb-lodging-tax-compliance) primer cover what flows through and what gets eaten.
+- Profit modeling against this clean ledger runs through the [profit calculator](/profit-calculator); break-even occupancy from the same ledger sits at the [break-even occupancy calculator](/break-even-calculator).
+- Operations and turnover dispatch — the systems that produce the contractor and supply line items — run on [strops.tools](https://strops.tools); guest experience on [strguests.tools](https://strguests.tools).
+- The full Schedule E workbook with this chart pre-mapped, plus the depreciation register and 1099-NEC tracker, lives at [The STR Ledger](https://thestrledger.com).
+
+## FAQ
+
+**Do I need a separate bank account per property?** Not strictly. One operating account with disciplined property tagging works through 4–5 properties. Past that, per-property accounts simplify reconciliation enough to justify the bank fees. What matters more: a single bank account dedicated entirely to STR business, separate from personal funds. Commingling personal and business in one account is the most expensive bookkeeping mistake a host can make — both for tax-prep accuracy and for the legal protection of an LLC structure.
+
+**Cash basis or accrual?** Cash basis for almost all single-host STR operations. The IRS allows accrual or cash for rental real estate; cash is simpler, matches when you actually receive and pay money, and is the default for businesses under the gross receipts threshold. Operations large enough to need accrual usually have a CPA driving the decision.
+
+**When do I close the books?** Monthly close on the first business day of the following month. Annual close in the first week of January after the calendar-year end (or first week of the new fiscal year for non-calendar-year filers — rare for STR).
+
+**What if my CPA wants the books in their software, not mine?** Most CPAs accept a clean Excel export or QuickBooks file. The chart above exports cleanly to either. If your CPA insists on rebuilding your books in their system from raw bank statements, find a different CPA — the rebuild fee is typically $1,200–$3,000 and it's billable hours that exist only because of poor handoff.
+
+**Does this chart work for an LLC vs sole proprietor?** Yes. Entity structure doesn't change the chart of accounts; it changes the tax form (Schedule E for sole prop / single-member LLC, Form 1065 for partnership LLC, Form 1120-S for S-corp election). The expense categorization is identical.
