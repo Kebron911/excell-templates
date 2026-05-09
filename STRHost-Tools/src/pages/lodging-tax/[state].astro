@@ -13,7 +13,7 @@ import { getEntry } from 'astro:content';
 import type { LodgingTaxData } from '@/data/lodging-tax-by-state.schema';
 
 export async function getStaticPaths() {
-  const data = (await import('@/data/lodging-tax-by-state.json')).default as LodgingTaxData;
+  const data = (await import('@/data/lodging-tax-by-state.json')).default as unknown as LodgingTaxData;
   return Object.entries(data).map(([code, entry]) => ({
     params: { state: code },
     props: { code, entry },

@@ -10,7 +10,7 @@ import type { LodgingTaxData } from '@/data/lodging-tax-by-state.schema';
 import { formatPercent } from '@/lib/format';
 import { buildWebApplication } from '@/lib/seo';
 
-const entries = Object.entries(data as LodgingTaxData)
+const entries = Object.entries(data as unknown as LodgingTaxData)
   .map(([code, e]) => ({ code, ...e }))
   .sort((a, b) => a.name.localeCompare(b.name));
 

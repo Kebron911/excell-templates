@@ -5,8 +5,8 @@ test.describe('Co-host split calculator', () => {
     await page.goto('/cohost-split-calculator');
 
     await expect(page.getByRole('heading', { name: /co-host split calculator/i, level: 1 })).toBeVisible();
-    await expect(page.getByText(/Cohost share/i)).toBeVisible();
-    await expect(page.getByText(/Owner share/i)).toBeVisible();
+    await expect(page.getByText(/Cohost share/i).first()).toBeVisible();
+    await expect(page.getByText(/Owner share/i).first()).toBeVisible();
   });
 
   test('toggles to flat mode and persists in URL', async ({ page }) => {

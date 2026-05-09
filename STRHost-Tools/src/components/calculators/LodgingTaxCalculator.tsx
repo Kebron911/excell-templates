@@ -14,10 +14,10 @@ export interface LodgingTaxCalculatorProps {
   lastVerified: string;
 }
 
-interface UrlState {
+type UrlState = {
   sub: number;
   local: number;
-}
+};
 
 const TOOL = 'lodging-tax';
 

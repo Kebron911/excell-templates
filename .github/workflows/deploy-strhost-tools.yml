@@ -6,6 +6,10 @@ on:
     paths:
       - 'STRHost-Tools/**'
       - '.github/workflows/deploy-strhost-tools.yml'
+  pull_request:
+    paths:
+      - 'STRHost-Tools/**'
+      - '.github/workflows/deploy-strhost-tools.yml'
   workflow_dispatch:
 
 concurrency:
@@ -15,7 +19,7 @@ concurrency:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -37,25 +41,67 @@ jobs:
         working-directory: STRHost-Tools
         run: pnpm install --frozen-lockfile
 
+      - name: Typecheck
+        working-directory: STRHost-Tools
+        run: pnpm typecheck
+
+      - name: Unit tests
+        working-directory: STRHost-Tools
+        run: pnpm test
+
       - name: Build
         working-directory: STRHost-Tools
-        run: pnpm build
         env:
           PUBLIC_GA4_ID: ${{ secrets.STRHOST_GA4_ID }}
+        run: pnpm build
 
       - name: Verify build output
         working-directory: STRHost-Tools
         run: |
+          set -e
           test -f dist/index.html
+          test -f dist/airbnb-fee-calculator/index.html
+          test -f dist/profit-calculator/index.html
+          test -f dist/cleaning-fee-calculator/index.html
+          test -f dist/revpar-calculator/index.html
+          test -f dist/break-even-calculator/index.html
+          test -f dist/cohost-split-calculator/index.html
+          test -f dist/lodging-tax/index.html
           test -f dist/blog/index.html
-          test -d dist/blog/how-to-calculate-airbnb-profitability
+          test -f dist/sitemap-index.xml
+          test -f dist/robots.txt
           echo "Build output OK"
 
-      # SSH-based deploy via the master Hostinger account u470667024 +
-      # the shared cluster SSH key in secret STR_SSH_KEY. Same pattern
-      # as strguests-tools — single key for the whole cluster, drops
-      # the per-site STRHOST_FTP_* secrets.
+      # Playwright runs after build because playwright.config.ts spawns
+      # `pnpm preview`, which requires dist/ to exist.
+      - name: Install Playwright browsers
+        id: pw_install
+        continue-on-error: true
+        working-directory: STRHost-Tools
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: E2E tests
+        if: steps.pw_install.outcome == 'success'
+        working-directory: STRHost-Tools
+        run: pnpm test:e2e
+
+      - name: Upload Playwright report on failure
+        if: failure() && steps.pw_install.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-strhost
+          path: STRHost-Tools/playwright-report
+          retention-days: 14
+
+      # Deploy only on push to main. PRs run through the verification gates
+      # above (typecheck/test/build/e2e) but do not deploy.
+      #
+      # SSH-based deploy via the master Hostinger account u470667024 + the
+      # shared cluster SSH key in secret STR_SSH_KEY. Same pattern as
+      # strguests / strops / strbuyers — single key for the whole cluster,
+      # drops the per-site STRHOST_FTP_* secrets.
       - name: Set up SSH key
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           SSH_PRIVATE_KEY: ${{ secrets.STR_SSH_KEY }}
         run: |
@@ -69,6 +115,7 @@ jobs:
           chmod 600 ~/.ssh/known_hosts
 
       - name: Deploy via rsync over SSH
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           rsync -av --delete \
             --exclude='.git' \
@@ -77,8 +124,16 @@ jobs:
             ./STRHost-Tools/dist/ \
             u470667024@195.35.15.247:/home/u470667024/domains/strhost.tools/public_html/
 
+      - name: Post-deploy smoke
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: STRHost-Tools
+        env:
+          SMOKE_BASE_URL: https://strhost.tools
+        run: node scripts/post-deploy-smoke.mjs
+
       # Notify Bing/Yandex/Seznam/Naver via IndexNow. Soft-fail so a
       # transient API hiccup doesn't fail the whole deploy.
       - name: Notify IndexNow
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         continue-on-error: true
         run: node STRHost-Tools/scripts/indexnow-submit.mjs
