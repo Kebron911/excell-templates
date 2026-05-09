@@ -1,0 +1,142 @@
+---
+title: "The Airbnb Wi-Fi Sign That Stops the 2 a.m. Text"
+description: "A wi-fi sign that actually works isn't a Canva template — it's a single readable card placed where the guest looks first. Here's the format that ends arrival-night messages."
+datePublished: "2026-05-08"
+dateModified: "2026-05-08"
+author: "The STR Ledger"
+category: "guest-xp"
+keyword: "airbnb wifi sign template"
+relatedTools:
+  - wifi-sign
+  - welcome-book
+  - check-in-instructions
+readMinutes: 7
+---
+
+The 2 a.m. text every host has received: *"Hi sorry to bother you so late — what's the wi-fi password?"* The guest has been at the property for six hours. The welcome book was on the counter. The password was in the pre-arrival message. They still texted.
+
+That message is the symptom. The disease is a wi-fi sign that exists but isn't *findable* in the first 90 seconds of arrival, when the guest has bags in their hands and a kid asking for an iPad. A sign that stops the late-night text isn't a design problem — it's a placement and readability problem with a very small surface area.
+
+## What the guest is actually doing in the first 5 minutes
+
+Bags down. Bathroom check. Heat or AC adjustment. Then phone out to connect to wi-fi, before they've thought about anything else on the property. If your sign isn't visible from the spot a guest stands when they pull out their phone, it doesn't matter what the sign says. They'll text.
+
+Three placements that work, in order of impact:
+
+1. **On the kitchen counter or breakfast bar.** Frame-stand format, facing the entry. This is where 70% of guests put down their bags and pull out their phone.
+2. **On the fridge or coffee station.** Magnet-backed, eye level. The fallback page when the framed sign goes missing.
+3. **By the TV or smart speaker.** For guests who connect a streaming device first. Usually the kid in the family.
+
+One sign isn't enough. Two is the minimum — primary at the counter, backup on the fridge. The [check-in instructions](/check-in-instructions) generator covers the door and entryway; the wi-fi sign covers the moment after they're inside.
+
+## What goes on the sign
+
+Three pieces of information, in this exact priority order:
+
+1. **Network name (SSID)** — exact characters, case-sensitive, no clever rebranding.
+2. **Password** — same: exact characters, case-sensitive, no decorative fonts.
+3. **A QR code** for one-tap connection on iOS and Android.
+
+That's it. No "Welcome!" greeting. No house photo. No host signature. No ten-language translation. The sign has one job — get the guest online in under 30 seconds — and every additional element delays that job.
+
+### Network name and password readability
+
+The most-broken sign in the wild uses a script font for the password. Script fonts hide the difference between `l` (lowercase L), `1` (one), and `I` (capital i). They turn `0` (zero) and `O` (capital o) into the same shape. A guest squinting at `Welcome2024!` in italic script will mistype it twice and message you on the third try.
+
+Rules that produce a sign guests don't message about:
+
+- **Sans-serif font.** Inter, Helvetica, or Arial. No script, no condensed, no thin weights.
+- **24pt minimum** for the password line; 32pt is better at arm's length.
+- **Monospace for the password specifically.** Roboto Mono or JetBrains Mono. Eliminates the `l/1/I` confusion in one stroke.
+- **Mixed case or all caps for the SSID** — match what the router actually broadcasts. Guests will literally type what they see.
+- **Avoid passwords with `O` and `0` together,** or `l` and `1` together. If your router's default password has both, change it. The wi-fi sign is the one place where router defaults cost you sleep.
+
+A worked example. A real wi-fi card from a 4.9-star Joshua Tree rental:
+
+```
+NETWORK
+HighDesertCabin-Guest
+
+PASSWORD
+sunset-juniper-217
+
+[QR code, 2.5" square]
+```
+
+Three lines. Network in 28pt Inter. Password in 32pt JetBrains Mono. QR code below. The host laminated it, propped it on a maple stand by the kettle. Zero wi-fi messages in 18 months.
+
+## QR code: when it's worth it, when it's noise
+
+A QR code that auto-connects guests to wi-fi is genuinely useful — about 60% of guests will scan it before typing the password. The other 40% will type it (older travelers, anyone with QR fatigue from menu signage, anyone whose camera app doesn't recognize wi-fi QR formats).
+
+Print **both**. The QR is a shortcut, not a replacement. A sign with only a QR code and no typed password is the wrong call — it fails for the 40% who don't scan, and fails closed when the QR gets a coffee stain.
+
+Best practices for wi-fi QR codes:
+
+- **Use the standard `WIFI:` URI format** — `WIFI:T:WPA;S:NetworkName;P:password;;`. iOS 11+ and Android 10+ recognize it natively without an app.
+- **Print at 2 inches square minimum.** Smaller and phone cameras struggle from arm's length.
+- **High contrast.** Black on white. Decorative QR codes (color-tinted, logo-embedded) work in marketing — they fail more often when stained, low-light, or scanned at an angle.
+- **Test the QR yourself** with three different phones before you laminate.
+
+The on-site [Wi-Fi Sign Generator](/wifi-sign) builds the QR in the standard `WIFI:` format, sized correctly, paired with the readable password — pick a template, type the SSID and password, download a print-ready PDF.
+
+## Frame, laminate, or naked print
+
+A printed-only A5 sheet on the counter looks like a printable from 2009 and gets pushed under the welcome book within a week. The format that survives turnover and reads as intentional is one of two:
+
+- **Framed (5x7 picture frame).** Maple, walnut, or matte black. Costs $4–8 from any general store. Hides print imperfections and adds enough weight that cleaners won't accidentally toss it. The version most associated with high-end short-term rentals.
+- **Laminated card on a magnet or stand.** Costs $1.50 in commercial lamination. Survives spills. Slightly more "rental" than framed, but the right call for a fridge-mounted backup or a high-traffic property where frames get knocked over.
+
+Skip the leather-bound binder welcome card with the wi-fi tucked inside. Skip the chalkboard with hand-written password (impossible to read, looks dirty within a week). Skip the engraved wood plaque (looks great, but updating the password after a rotation costs $40 every time).
+
+## Multi-language wi-fi signs: when, when not
+
+For most US-domestic STRs, English-only is fine. The QR code does the universal-language work. Adding Spanish, French, or Mandarin labels on the sign helps in three specific cases:
+
+- **Tourist-heavy international markets** — Miami, San Francisco, NYC, Orlando, Las Vegas, Honolulu. A second-language line is worth the visual cost.
+- **Border-region rentals** — Tijuana-adjacent CA, El Paso, McAllen. Spanish first or in parallel.
+- **Listings that explicitly market to international travelers** — your listing copy already mentions multilingual welcome and your booking mix is 30%+ international.
+
+Outside those cases, two languages on a wi-fi sign creates more visual noise than translation value. The QR code carries non-English speakers across the gap on its own.
+
+## Where the welcome book and the wi-fi sign overlap
+
+Your [welcome book](/welcome-book) should also have a wi-fi page — repeated, big type, near the front. The framed sign and the welcome-book page work together: the framed sign is glance-and-go, the welcome-book page is the backup when the frame gets knocked behind the toaster.
+
+This sounds redundant. It is. Redundancy is the point. Every host who has dealt with a 2 a.m. wi-fi text has the same realization: *the information was in three places and the guest still couldn't find it*. Three places is the floor, not the ceiling.
+
+The cadence of [pre-arrival messaging](/blog/guest-message-cadence-pre-arrival-to-checkout) closes the last gap — the password goes in the day-before message too, so guests can connect before they walk in if they're quick. Three on-property surfaces plus one digital surface = no late-night texts.
+
+## What changes when you fix the sign
+
+Two measurable shifts within 30 days of replacing a poor wi-fi sign:
+
+- **Arrival-night message volume drops 40–60%.** Wi-fi is the single most-asked question; killing it eliminates a chunk of the support load.
+- **Review mentions of "easy check-in" rise.** Guests don't review the sign, but they review the *feeling* of an arrival that worked. Per the AirDNA 2024 host benchmark, listings rated 4.9+ on "communication" have a measurable lift in nightly bookable rate.
+
+The cost of the fix is $10–15 in materials and 20 minutes of design. The return is one fewer message per booking and a cleaner arrival-night reputation. There's no other piece of $15 in the operation that has the same return.
+
+## Cluster context
+
+The wi-fi sign sits inside a wider arrival-experience system:
+
+- **The sign itself** = the [Wi-Fi Sign Generator](/wifi-sign) on this site, with templates and the standard QR format.
+- **The companion documents** — [welcome book builder](/welcome-book), [check-in instructions](/check-in-instructions), [house rules PDF](/house-rules-pdf).
+- **Pre-arrival message** that sends the password the day before and reduces day-of friction → [guest message templates](/guest-messages).
+- **Reviews that follow from a smooth arrival** → [house rules that actually reduce damage](/blog/house-rules-that-actually-reduce-damage) covers the sister piece, the printed rule sheet.
+- **Listing copy** that primes the right expectations → [the listing description angle](/blog/ai-listing-descriptions-when-they-help-and-when-they-hurt).
+- **Ops backbone** — restocking the laminated card, replacing frames, rotating wi-fi passwords on a schedule → [strops.tools](https://strops.tools) workflow templates.
+- **The math behind whether arrival-experience details change occupancy** — see communication-rating impact at [strhost.tools](https://strhost.tools).
+- **Tracking how many wi-fi-related messages you receive month-over-month** → [The STR Ledger](https://thestrledger.com) booking log.
+
+## FAQ
+
+**Should I show the wi-fi password in my listing photos?** No. Password rotation breaks the photo, and showing operational signage in marketing imagery makes the listing read as utility-rental rather than experience. Photograph the empty frame if you want; never the password itself.
+
+**How often should I rotate the wi-fi password?** Quarterly is reasonable for most STRs. After any guest who left a bad review, rotate immediately. Some PMS systems auto-rotate per booking via a smart router (eero, Plume); useful at 8+ properties, overkill below.
+
+**Can I use my router's default password?** Only if it's printable — many default passwords are 16-character random strings with `O`/`0` collisions. Change to a memorable three-word password like `sunset-juniper-217` and update the sign. Per [Airbnb's host help](https://www.airbnb.com/help/article/2503), reliable wi-fi is one of the top-cited factors in guest satisfaction.
+
+**Should the sign include the network speed?** Optional. If you're advertising "fast wi-fi" in the listing, show the down/up speed (e.g. "300/30 Mbps") on the sign — it builds trust and pre-empts disputes. If your wi-fi is average, leave it off.
+
+**What about a separate guest network vs the main wi-fi?** Strongly recommended for any rental — a guest network keeps your smart-home devices off the same network as guest devices. The sign shows the *guest* SSID only; your private network stays unlisted.
