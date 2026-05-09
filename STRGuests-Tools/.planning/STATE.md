@@ -1,8 +1,8 @@
 # STATE
 
-**Current phase:** 6 — Analytics + E2E + CI/CD + deploy (Phase 3 still deferred — blocked on OPENAI_API_KEY)
-**Current task:** Not yet started (Task 32: GA4 cross-domain + custom events)
-**Last update:** 2026-05-06
+**Current phase:** 6 — Analytics + E2E + CI/CD + deploy (complete; Phase 3 still deferred — blocked on OPENAI_API_KEY)
+**Current task:** None — v0.1.0 shipped at tag `strguests-tools-v0.1.0`
+**Last update:** 2026-05-08
 
 ---
 
@@ -44,6 +44,16 @@
 
 **Coverage gap (intentional):** spec target was ~100 templates (10 per category). Shipped 26 (2–3 per category) covering all 10 spec categories. The schema, validator, programmatic-page architecture, and index UX are all proven; templates can grow incrementally via PR after launch.
 
+## Phase 6 progress (complete — 2026-05-08)
+
+- [x] Task 32 — GA4 cross-domain + custom events (Layout.astro emits gtag only when `PUBLIC_GA4_ID` is set)
+- [x] Task 33 — Playwright E2E smokes (`tests/e2e/smoke.spec.ts` — 9 page-load + cluster-link + robots/sitemap + GA4-gate-off checks)
+- [x] Task 34 — GitHub Actions CI (typecheck + unit + build + e2e on PR; same gates + deploy on push to main)
+- [x] Task 35 — Hostinger deploy via SSH+rsync (shared `STR_SSH_KEY`; deploy workflow at `.github/workflows/deploy-strguests-tools.yml`)
+- [x] Task 36 — Pre-launch smoke (`scripts/smoke.mjs`) + `strguests-tools-v0.1.0` tag
+
+**Note (2026-05-08):** Phase 6 was originally shipped at tag `strguests-tools-v0.1.0` on 2026-05-07 with a unified `.github/workflows/strguests-tools.yml`. A subsequent CI reorg (PR #22, strops-focused) split the workflow into `deploy-*.yml` files and accidentally deleted the strguests test-run + smoke spec. Restored on 2026-05-08: `tests/e2e/smoke.spec.ts` recovered from tag, deploy workflow re-armed with typecheck/test/e2e/smoke gates, post-deploy `scripts/smoke.mjs` added.
+
 ## Phase 5 progress (complete — 2026-05-06)
 
 - [x] Task 25 — Pinterest pin generator (Satori) — 1000×1500, scripts/build-pins.mjs
@@ -72,6 +82,12 @@
 - **db.query parameterization is enforced at compile + runtime.** No string-concat path; tests assert via mocked `mysql2/promise` AND a source-scan regex.
 - **`@` alias must use `fileURLToPath(new URL('./src', import.meta.url))`** in both vitest.config.ts and astro.config.mjs (cluster-style-guide §10) — the naive `.pathname` approach breaks on Windows.
 - **No `/api/click` endpoint** (deliberate omission vs strhost/strbuyers — strguests monetizes via PDF + AI generators + email list, not affiliate hops).
+
+### Phase 6
+- **PR triggers run all gates but skip deploy.** Push-to-main gates AND deploys. Mirrors the strops/strhost pattern — typecheck/test/build/e2e are required on every PR but secrets-bearing steps are gated by `github.event_name == 'push' && github.ref == 'refs/heads/main'`.
+- **GA4 gate-off case is asserted by E2E.** `PUBLIC_GA4_ID` is unset in CI build; smoke.spec.ts asserts the gtag snippet does NOT appear in the HTML. Locks the env-gated injection in Layout.astro.
+- **Post-deploy smoke is plain Node + fetch.** No deps, runs after rsync completes, asserts content-type + body substring per critical route. Failure exits non-zero so a broken deploy fails the workflow visibly.
+- **CI restoration story.** Original unified workflow + smoke spec were deleted by a strops-focused CI reorg (commit 30c9f9f, PR #22). v0.1.0 tag content was the recovery source.
 
 ### Phase 5
 - **Pinterest distribution = canonical pre-built pins.** Per-generator dynamic state pins (pin reflects current form state) deferred — would require a runtime image upload endpoint strguests doesn't operate. Pinterest's `media=` intent parameter pre-loads the pin so the user only confirms the save.
