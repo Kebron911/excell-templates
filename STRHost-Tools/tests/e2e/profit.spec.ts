@@ -5,8 +5,8 @@ test.describe('Profit calculator', () => {
     await page.goto('/profit-calculator');
 
     await expect(page.getByRole('heading', { name: /profit calculator/i, level: 1 })).toBeVisible();
-    await expect(page.getByText(/Net profit/i)).toBeVisible();
-    await expect(page.getByText(/Profit margin/i)).toBeVisible();
+    await expect(page.getByText(/Net profit/i).first()).toBeVisible();
+    await expect(page.getByText(/Profit margin/i).first()).toBeVisible();
 
     // ADR -> 250
     await page.getByLabel('ADR (avg nightly rate)').fill('250');

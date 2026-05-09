@@ -5,8 +5,8 @@ test.describe('RevPAR calculator', () => {
     await page.goto('/revpar-calculator');
 
     await expect(page.getByRole('heading', { name: /revpar calculator/i, level: 1 })).toBeVisible();
-    await expect(page.getByText(/Occupancy/i)).toBeVisible();
-    await expect(page.getByText(/RevPAR/i)).toBeVisible();
+    await expect(page.getByText(/Occupancy/i).first()).toBeVisible();
+    await expect(page.getByText(/RevPAR/i).first()).toBeVisible();
 
     await page.getByLabel('Revenue (period)').fill('5000');
     await page.waitForTimeout(300);

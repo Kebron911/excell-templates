@@ -4,11 +4,11 @@ import { formatCurrency, formatPercent } from '@/lib/format';
 import { parse, createDebouncedReplaceState } from '@/lib/url-state';
 import { Field, Row, Actions } from './ui';
 
-interface UrlState {
+type UrlState = {
   nightly: number;
   nights: number;
   cleaning: number;
-}
+};
 
 const DEFAULTS: UrlState = {
   nightly: AIRBNB_FEE_DEFAULTS.nightlyRate,

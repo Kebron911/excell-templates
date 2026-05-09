@@ -19,8 +19,8 @@ test.describe('Lodging tax — index + per-state', () => {
     await page.goto('/lodging-tax/tx');
 
     await expect(page.getByRole('heading', { name: /texas lodging tax calculator/i, level: 1 })).toBeVisible();
-    await expect(page.getByText(/Effective rate/i)).toBeVisible();
-    await expect(page.getByText(/Guest total/i)).toBeVisible();
+    await expect(page.getByText(/Effective rate/i).first()).toBeVisible();
+    await expect(page.getByText(/Guest total/i).first()).toBeVisible();
 
     await page.getByLabel('Booking subtotal').fill('2000');
     await page.waitForTimeout(300);

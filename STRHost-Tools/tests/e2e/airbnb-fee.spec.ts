@@ -8,8 +8,8 @@ test.describe('Airbnb fee calculator', () => {
     await expect(page.getByRole('heading', { name: /airbnb fee calculator/i, level: 1 })).toBeVisible();
 
     // Result panel visible
-    await expect(page.getByText(/Guest pays/i)).toBeVisible();
-    await expect(page.getByText(/You receive/i)).toBeVisible();
+    await expect(page.getByText(/Guest pays/i).first()).toBeVisible();
+    await expect(page.getByText(/You receive/i).first()).toBeVisible();
 
     // Change nightly rate to 250 -> URL updates after debounce
     await page.getByLabel('Nightly rate').fill('250');
