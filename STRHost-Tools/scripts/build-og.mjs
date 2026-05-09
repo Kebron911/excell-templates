@@ -178,13 +178,7 @@ async function render(slug, opts, fonts) {
 }
 
 async function main() {
-  let fonts;
-  try {
-    fonts = await loadFonts();
-  } catch (err) {
-    console.warn(`OG image generation skipped — font fetch failed: ${err.message}`);
-    return;
-  }
+  const fonts = await loadFonts();
 
   const tools = JSON.parse(
     await fs.readFile(path.join(root, 'src', 'data', 'tools.json'), 'utf8'),
@@ -306,16 +300,27 @@ async function main() {
     }, fonts),
   );
 
-  try {
-    const slugs = await Promise.all(renders);
-    console.log(`OG images built: ${slugs.length} files in dist/og/ and public/og/`);
-  } catch (err) {
-    console.warn(`OG image generation skipped — render failed: ${err.message}`);
-  }
+  const slugs = await Promise.all(renders);
+
+  // Sitewide fallback — referenced by Layout when a per-page OG file is missing
+  // OR when something requests the default. Same generator, distinct slug.
+  await render('og-default', {
+    kicker: 'STR Host Tools',
+    title: 'Free calculators for short-term rental hosts.',
+    footer: 'Built by The STR Ledger',
+  }, fonts);
+
+  // Mirror og-default into public/ root and dist/ root so /og-default.png resolves.
+  const defaultPng = await fs.readFile(path.join(distOgDir, 'og-default.png'));
+  await fs.writeFile(path.join(root, 'public', 'og-default.png'), defaultPng);
+  await fs.writeFile(path.join(root, 'dist', 'og-default.png'), defaultPng);
+
+  console.log(`OG images built: ${slugs.length + 1} files in dist/og/ and public/og/`);
 }
 
 main().catch((err) => {
-  // Never block the build — OG images are post-build polish, not critical path.
-  console.warn('OG build skipped:', err.message);
-  process.exit(0);
+  // Fail-loud: a missing OG image set means broken social shares on every page.
+  // We'd rather block the deploy than ship 404s on og:image.
+  console.error('OG build failed:', err.stack ?? err.message);
+  process.exit(1);
 });
