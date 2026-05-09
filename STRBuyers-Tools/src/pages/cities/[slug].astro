@@ -1,0 +1,183 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import { getCollection, render } from 'astro:content';
+import { listCities, type CityEntry } from '@/data/cities';
+import { formatCurrency, formatPercent } from '@/lib/format';
+import { buildPlace } from '@/lib/seo';
+
+export async function getStaticPaths() {
+  return listCities().map((city) => ({
+    params: { slug: city.slug },
+    props: { city },
+  }));
+}
+
+interface Props {
+  city: CityEntry;
+}
+
+const { city } = Astro.props;
+
+// Score color tier badge.
+function scoreTone(score: number): { label: string; cls: string } {
+  if (score >= 80) return { label: 'Strong', cls: 'bg-emerald-100 text-emerald-900 border-emerald-300' };
+  if (score >= 60) return { label: 'Mixed', cls: 'bg-amber-100 text-amber-900 border-amber-300' };
+  return { label: 'Weak', cls: 'bg-stone-200 text-stone-700 border-stone-300' };
+}
+const tone = scoreTone(city.marketScore);
+
+// Regulation status visual styling.
+const REG_STYLES: Record<CityEntry['regulationStatus'], { label: string; cls: string }> = {
+  permissive: { label: 'Permissive', cls: 'bg-emerald-100 text-emerald-900 border-emerald-300' },
+  moderate: { label: 'Moderate', cls: 'bg-amber-100 text-amber-900 border-amber-300' },
+  restrictive: { label: 'Restrictive', cls: 'bg-orange-100 text-orange-900 border-orange-300' },
+  banned: { label: 'Banned / near-banned', cls: 'bg-red-100 text-red-900 border-red-300' },
+};
+const reg = REG_STYLES[city.regulationStatus];
+
+// Saturation tier note.
+const SAT_LABEL: Record<CityEntry['saturationTier'], string> = {
+  A: 'Tier A — Low saturation',
+  B: 'Tier B — Balanced',
+  C: 'Tier C — Crowded',
+  D: 'Tier D — Over-supplied',
+};
+
+// In-depth MDX article (optional).
+const articles = await getCollection('cities');
+const article = articles.find((a) => a.id === city.slug);
+const Content = article ? (await render(article)).Content : null;
+
+const dataQualityLabel =
+  city.dataQuality === 'researched'
+    ? 'Researched'
+    : 'Estimated — community-sourced';
+
+const placeLd = buildPlace({
+  city: city.name,
+  addressRegion: city.state,
+  slug: city.slug,
+  description: city.notes,
+});
+
+const pageTitle = `Is Airbnb profitable in ${city.name}, ${city.state}? — strbuyers.tools`;
+const pageDesc = `${city.name}, ${city.stateName} STR market profile — ADR ${formatCurrency(city.adrAvg, { maximumFractionDigits: 0 })}, occupancy ${formatPercent(city.occupancyAvg)}, market score ${city.marketScore}/100. Regulation: ${reg.label}.`;
+---
+<Layout
+  title={pageTitle}
+  description={pageDesc}
+  path={`/cities/${city.slug}`}
+  jsonLd={placeLd}
+>
+  <article class="city-page bg-parchment">
+    <div class="mx-auto max-w-4xl px-5 pt-9 pb-7">
+      <header>
+        <p class="label text-accent">Acquisition · Market profile</p>
+        <h1 class="font-serif text-h1 text-navy mt-3 leading-tight">
+          {city.name}, {city.state}<span class="period-accent">.</span>
+        </h1>
+        <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+          Is Airbnb profitable in {city.name}? Hand-compiled market profile — regulation, economics, saturation.
+        </p>
+
+        <div class="mt-4 flex flex-wrap items-center gap-3">
+          <span class={`inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-ui font-mono ${tone.cls}`}>
+            Score {city.marketScore}/100 · {tone.label}
+          </span>
+          <span class={`inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-small ${reg.cls}`}>
+            Regulation: {reg.label}
+          </span>
+          <span class="inline-flex items-center gap-2 rounded-md border border-rule bg-parchment-light px-3 py-1.5 text-small text-ink-2">
+            {SAT_LABEL[city.saturationTier]}
+          </span>
+        </div>
+      </header>
+
+      <section class="mt-7 grid grid-cols-3 gap-4">
+        <div class="rounded-md border border-rule bg-parchment-light p-4">
+          <p class="text-caption text-ink-3 uppercase tracking-widest">ADR (avg)</p>
+          <p class="font-mono text-h2 text-navy mt-1">{formatCurrency(city.adrAvg, { maximumFractionDigits: 0 })}</p>
+        </div>
+        <div class="rounded-md border border-rule bg-parchment-light p-4">
+          <p class="text-caption text-ink-3 uppercase tracking-widest">Occupancy</p>
+          <p class="font-mono text-h2 text-navy mt-1">{formatPercent(city.occupancyAvg)}</p>
+        </div>
+        <div class="rounded-md border border-rule bg-parchment-light p-4">
+          <p class="text-caption text-ink-3 uppercase tracking-widest">RevPAR</p>
+          <p class="font-mono text-h2 text-navy mt-1">{formatCurrency(city.revparAvg, { maximumFractionDigits: 0 })}</p>
+        </div>
+      </section>
+
+      <aside class={`mt-6 rounded-md border-l-4 p-4 ${reg.cls}`}>
+        <p class="label">Regulation status — {reg.label}</p>
+        <p class="mt-1 text-small leading-snug">{city.notes}</p>
+      </aside>
+
+      <div class="mt-7 flex flex-wrap items-center gap-3">
+        <a
+          href={`/market-score?city=${city.slug}`}
+          class="inline-flex items-center gap-2 rounded-md bg-accent text-parchment px-5 py-2 text-ui no-underline hover:bg-accent-tint transition-colors duration-std focus:outline-none focus:shadow-focus"
+        >
+          Run a Market Score on {city.name}
+          <span aria-hidden="true">→</span>
+        </a>
+        <a
+          href="/cities"
+          class="inline-flex items-center gap-2 rounded-md border border-rule bg-parchment-light px-5 py-2 text-ui text-navy no-underline hover:border-accent transition-colors duration-std"
+        >
+          Browse all cities
+        </a>
+      </div>
+
+      {Content && (
+        <section class="mt-9 prose max-w-none">
+          <h2 class="font-serif text-h2 text-navy">In-depth analysis</h2>
+          <Content />
+        </section>
+      )}
+
+      {!Content && (
+        <EmailCaptureCard
+          magnet={`city-deep-dive-${city.slug}`}
+          toolSlug={`cities-${city.slug}`}
+          headline={`Get notified when in-depth analysis ships for ${city.name}`}
+          blurb={`Regulatory deep-dive, neighborhoods to target, and pitfalls — drop your email and we'll send the ${city.name} brief when it ships.`}
+          cta="Notify me"
+        />
+      )}
+
+      <AffiliateBlock vendorIds={['airdna', 'mashvisor', 'pricelabs']} tool="market-score" />
+
+      <AdSlot location="in-content" />
+
+      <EmailCaptureCard magnet="str-buyer-playbook" toolSlug={`cities-${city.slug}`} />
+
+      <p class="mt-7 text-caption text-ink-3 font-mono">
+        Last reviewed <time datetime={city.lastReviewed}>{city.lastReviewed}</time>
+        <span class="mx-2">·</span>
+        <span>{dataQualityLabel}</span>
+        <span class="mx-2">·</span>
+        <span>Population {city.population.toLocaleString('en-US')}</span>
+      </p>
+    </div>
+
+    <ClusterFunnelBlock currentCluster="acquisition" />
+  </article>
+
+  {/* GA4 city_view — fires once on mount via cluster-wide analytics convention. */}
+  <script is:inline define:vars={{ slug: city.slug, state: city.state }}>
+    (function () {
+      function fire() {
+        if (typeof window === 'undefined') return;
+        if (typeof window.gtag !== 'function') return;
+        try { window.gtag('event', 'city_view', { slug: slug, state: state }); } catch (_e) {}
+      }
+      if (document.readyState === 'complete') fire();
+      else window.addEventListener('load', fire, { once: true });
+    })();
+  </script>
+</Layout>

@@ -1,0 +1,38 @@
+---
+// Thin co-branded band — "Built by The STR Ledger →".
+// Soft-funnel mechanism from strbuyers.tools to thestrledger.com. Sits above
+// the footer, doesn't shout.
+---
+<section class="funnel-band border-t border-rule bg-parchment-light">
+  <div class="mx-auto max-w-6xl px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+    <p class="text-small text-ink-2 leading-snug">
+      <span class="label text-navy mr-2">Built by</span>
+      <a
+        href="https://thestrledger.com"
+        class="font-serif text-h3 text-navy no-underline hover:text-navy-tint transition-colors duration-std"
+      >
+        The STR Ledger<span class="period-gold">.</span>
+      </a>
+      <span class="text-ink-2"> Excel templates and PDFs for short-term rental finance.</span>
+    </p>
+    <a
+      href="https://thestrledger.com?utm_source=strbuyers-tools&utm_medium=funnel-band"
+      class="text-ui text-navy no-underline whitespace-nowrap hover:text-accent group"
+      data-cluster-link
+      data-destination="thestrledger"
+    >
+      Visit The STR Ledger
+      <span class="text-accent inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true"> →</span>
+    </a>
+  </div>
+</section>
+
+<script>
+  // Fire `cluster_click` on the funnel-band STR Ledger link.
+  document.querySelectorAll<HTMLAnchorElement>('.funnel-band a[data-cluster-link]').forEach((a) => {
+    a.addEventListener('click', () => {
+      const destination = a.dataset.destination ?? '';
+      (window as any).gtag?.('event', 'cluster_click', { destination });
+    });
+  });
+</script>

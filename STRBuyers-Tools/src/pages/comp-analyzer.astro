@@ -1,0 +1,106 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import CompAnalyzer from '@/components/calculators/CompAnalyzer.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  {
+    question: 'Where do I get the ADR and occupancy numbers?',
+    answer:
+      'AirDNA Rentalizer, PriceLabs market dashboards, or Mashvisor neighborhood data. For a free first look, visit each comp listing on Airbnb and read the calendar — booked nights ÷ 30 = approximate occupancy.',
+  },
+  {
+    question: 'How is RevPAR calculated?',
+    answer:
+      'RevPAR = ADR × occupancy. It is the per-available-night revenue and the cleanest single metric for comparing properties.',
+  },
+  {
+    question: 'What does the outlier flag mean?',
+    answer:
+      "If a row's value differs from the mean by more than 25%, it's flagged. Either the comp isn't really comparable, or it represents a real edge — investigate before averaging it in.",
+  },
+  {
+    question: 'Should I use 3 comps or more?',
+    answer:
+      'Three is the floor for a meaningful average. Five is better. This tool ships with three; paste your strongest three and re-run for additional sets.',
+  },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Airbnb Comp Analyzer',
+    description:
+      'Paste three short-term rental comparables and see average ADR, occupancy, and RevPAR — with outliers automatically flagged.',
+    toolPath: '/comp-analyzer',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="Airbnb Comp Analyzer — strbuyers.tools"
+  description="Paste 3 STR comparables and see average ADR, occupancy, and RevPAR — with outliers flagged when they deviate >25% from the mean."
+  path="/comp-analyzer"
+  jsonLd={jsonLd}
+>
+  <article class="calculator-page bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-9 pb-7 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-9">
+      <div class="min-w-0">
+        <header>
+          <p class="label text-accent">Acquisition · Pre-buy</p>
+          <h1 class="font-serif text-h1 text-navy mt-3 leading-tight">
+            Comp analyzer<span class="period-accent">.</span>
+          </h1>
+          <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+            Three listings in, three averages out — ADR, occupancy, RevPAR. Outliers flagged so you don't average a unicorn.
+          </p>
+        </header>
+
+        <div class="mt-7">
+          <CompAnalyzer client:load />
+        </div>
+
+        <AffiliateBlock tool="comp-analyzer" vendorIds={["airdna", "pricelabs", "mashvisor"]} />
+
+        <AdSlot location="in-content" />
+
+        <section class="mt-9 max-w-2xl prose">
+          <h2>How it works</h2>
+          <p>
+            Mean of three numbers is fragile. The 25% deviation flag is a low-bar guard against averaging a comp that doesn't belong — a 5-bed lake house in a 2-bed urban data set, for example.
+          </p>
+
+          <h2>How to use this calculator</h2>
+          <ol>
+            <li>Open Airbnb and find three listings within a half-mile, similar in beds/baths and finish level.</li>
+            <li>Read each calendar to estimate occupancy (booked nights this month ÷ 30).</li>
+            <li>Note ADR from the listing's nightly rate.</li>
+            <li>Paste in. If a row flags, swap it for a better-matched comp.</li>
+          </ol>
+
+          <h2>FAQ</h2>
+          {faqs.map((f) => (
+            <details>
+              <summary>{f.question}</summary>
+              <p>{f.answer}</p>
+            </details>
+          ))}
+        </section>
+
+        <EmailCaptureCard magnet="str-buyer-playbook" toolSlug="comp-analyzer" />
+        <STRLedgerCTA tool="comp-analyzer" />
+
+        <AdSlot location="footer" />
+      </div>
+
+      <Sidebar current="comp-analyzer" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="acquisition" />
+  </article>
+</Layout>

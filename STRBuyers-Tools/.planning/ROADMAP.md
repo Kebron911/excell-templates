@@ -4,7 +4,7 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 
 ---
 
-## Phase 1 — Foundation `[active]`
+## Phase 1 — Foundation `[complete]`
 
 **Goal:** Bootable Astro site with brand tokens (finance-trust accent), layout primitives, monetization primitives (incl. AffiliateBlock + DisclosureBanner), URL-state, format, SEO libraries.
 
@@ -16,7 +16,7 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 
 ---
 
-## Phase 2 — Seven calculators
+## Phase 2 — Seven calculators `[complete]`
 
 **Goal:** All seven calculators live, each TDD'd, AffiliateBlock wired with vendor matchups.
 
@@ -28,7 +28,7 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 
 ---
 
-## Phase 3 — 200-city market data + disclosures
+## Phase 3 — 200-city market data + disclosures `[complete]`
 
 **Goal:** The defensibility moat — 200 programmatic city pages, sortable index, FTC `/disclosures` page.
 
@@ -40,7 +40,7 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 
 ---
 
-## Phase 4 — Server (click endpoint) + site pages
+## Phase 4 — Server (click endpoint) + site pages `[complete]`
 
 **Goal:** Node.js click-logging endpoint deployed alongside static dist; landing, about, contact, lead magnet, sitemap, OG images.
 
@@ -52,7 +52,7 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 
 ---
 
-## Phase 5 — Analytics + E2E
+## Phase 5 — Analytics + E2E `[complete]`
 
 **Goal:** GA4 cross-domain + custom events, Playwright smoke on every calculator.
 
@@ -64,7 +64,7 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 
 ---
 
-## Phase 6 — CI/CD + production deploy
+## Phase 6 — CI/CD + production deploy `[complete]`
 
 **Goal:** Green CI on every PR, dual-target deploy (static dist + Node click endpoint), post-deploy smoke, release tag.
 
@@ -89,9 +89,18 @@ Phase grouping of the 36 atomic tasks from [implementation plan](../docs/superpo
 
 | Phase | Status | Started | Completed |
 |-------|--------|---------|-----------|
-| 1 — Foundation | active | 2026-05-05 | — |
-| 2 — Seven calculators | not-started | — | — |
-| 3 — City pages + disclosures | not-started | — | — |
-| 4 — Server + site pages | not-started | — | — |
-| 5 — Analytics + E2E | not-started | — | — |
-| 6 — CI/CD + deploy | not-started | — | — |
+| 1 — Foundation | complete | 2026-05-05 | 2026-05-07 |
+| 2 — Seven calculators | complete | 2026-05-07 | 2026-05-07 |
+| 3 — City pages + disclosures | complete | 2026-05-07 | 2026-05-08 |
+| 4 — Server + site pages | complete | 2026-05-08 | 2026-05-08 |
+| 5 — Analytics + E2E | complete | 2026-05-08 | 2026-05-08 |
+| 6 — CI/CD + deploy | complete (partial) | 2026-05-08 | 2026-05-08 |
+
+**Phase 6 complete — Path A static-only:** Tasks A (affiliate URL swap),
+32 (GitHub Actions CI), 33 (Hostinger SFTP deploy script), 35 (pre-launch
+smoke + actual deploy), 36 (v0.1.0 tag) all done. Task 34 (Node click
+endpoint deploy) DEFERRED to v0.2.0 — requires Hostinger Node.js Web App
+provisioning + MySQL DB. /api/click POSTs from the live site 404 silently
+(already wrapped in try/catch). Site LIVE at https://strbuyers.tools/
+since 2026-05-08; v0.1.0-strbuyers tag created locally (NOT yet pushed
+to remote — user pushes).

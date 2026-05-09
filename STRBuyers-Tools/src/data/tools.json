@@ -1,0 +1,65 @@
+{
+  "dscr-calculator": {
+    "name": "DSCR loan calculator",
+    "shortName": "DSCR loan",
+    "tagline": "Will an STR property qualify for a no-income-verification DSCR loan?",
+    "path": "/dscr-loan-calculator",
+    "primaryKeyword": "dscr loan calculator str",
+    "category": "financing",
+    "status": "live"
+  },
+  "down-payment-calculator": {
+    "name": "Down payment calculator",
+    "shortName": "Down payment",
+    "tagline": "How much cash you need by loan type — DSCR, conventional, second home.",
+    "path": "/down-payment-calculator",
+    "primaryKeyword": "airbnb down payment calculator",
+    "category": "financing",
+    "status": "live"
+  },
+  "comp-analyzer": {
+    "name": "Comp analyzer",
+    "shortName": "Comp analyzer",
+    "tagline": "Paste 3 listings, see ADR, occupancy, and RevPAR averages.",
+    "path": "/comp-analyzer",
+    "primaryKeyword": "airbnb comp analyzer",
+    "category": "market",
+    "status": "live"
+  },
+  "market-score": {
+    "name": "Market score tool",
+    "shortName": "Market score",
+    "tagline": "Is Airbnb profitable in this city? Regulation, ADR, saturation in one score.",
+    "path": "/market-score",
+    "primaryKeyword": "is airbnb profitable in city",
+    "category": "market",
+    "status": "live"
+  },
+  "cash-on-cash": {
+    "name": "Cash-on-cash return calculator",
+    "shortName": "Cash-on-cash",
+    "tagline": "What return your cash earns once the property is up and renting.",
+    "path": "/cash-on-cash-calculator",
+    "primaryKeyword": "airbnb cash on cash",
+    "category": "returns",
+    "status": "live"
+  },
+  "year-1-cash-needs": {
+    "name": "Year 1 cash needs calculator",
+    "shortName": "Year 1 cash",
+    "tagline": "Down payment + closing + furnish + 6 months reserves — total before keys.",
+    "path": "/year-1-cash-needs",
+    "primaryKeyword": "airbnb startup cost calculator",
+    "category": "startup",
+    "status": "live"
+  },
+  "furnishing-budget": {
+    "name": "Furnishing budget calculator",
+    "shortName": "Furnishing budget",
+    "tagline": "What it costs to outfit a 2BR / 3BR / 4BR STR to a competitive standard.",
+    "path": "/furnishing-budget-calculator",
+    "primaryKeyword": "airbnb furnishing budget",
+    "category": "startup",
+    "status": "live"
+  }
+}

@@ -1,0 +1,61 @@
+---
+import tools from '@/data/tools.json';
+import Wordmark from './Wordmark.astro';
+
+const today = new Date();
+const lastUpdated = today.toISOString().slice(0, 10);
+const toolsList = Object.values(tools);
+---
+<footer class="surface-navy mt-7">
+  <div class="mx-auto max-w-6xl px-5 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 footer-nav">
+      <div>
+        <Wordmark size="md" theme="parchment" asLink={false} />
+        <p class="mt-3 text-small text-parchment max-w-xs leading-snug">
+          Free calculators for short-term rental buyers. Built by the team at <a href="https://thestrledger.com" class="underline decoration-gold underline-offset-2 text-parchment hover:text-gold-soft">The STR Ledger</a>.
+        </p>
+      </div>
+
+      <div>
+        <p class="label text-gold">Calculators</p>
+        <ul class="mt-3 space-y-2">
+          {toolsList.map(t => (
+            <li>
+              <a href={t.path} class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">{t.shortName}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <p class="label text-gold">Site</p>
+        <ul class="mt-3 space-y-2">
+          <li><a href="/about" class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">About</a></li>
+          <li><a href="/contact" class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">Contact</a></li>
+          <li><a href="/blog" class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">Blog</a></li>
+          <li><a href="/get-the-pdf" class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">Free PDF</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="label text-gold">Legal</p>
+        <ul class="mt-3 space-y-2">
+          <li><a href="/privacy" class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">Privacy</a></li>
+          <li><a href="/terms" class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">Terms</a></li>
+          <li><a href="/disclosures" class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">Disclosures</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <hr class="gold-rule full mt-7 border-0 h-px bg-gold" />
+
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+      <p class="text-caption text-parchment opacity-70">
+        © {today.getFullYear()} STR Buyers Tools. All rates and figures for informational purposes only — not financial, tax, or investment advice.
+      </p>
+      <p class="text-caption text-parchment opacity-70 font-mono">
+        Last updated <time datetime={lastUpdated}>{lastUpdated}</time>
+      </p>
+    </div>
+  </div>
+</footer>

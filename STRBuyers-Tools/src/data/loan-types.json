@@ -1,0 +1,54 @@
+[
+  {
+    "id": "conventional",
+    "label": "Conventional (Fannie/Freddie investor)",
+    "minDownPct": 0.20,
+    "dscrThreshold": null,
+    "rateEstimateBps": 725,
+    "notes": [
+      "Requires full income docs (2 yrs tax returns + W-2/1099).",
+      "Cap of 10 financed properties; 25% down for property #5+.",
+      "STR income may not count toward DTI without 24 mo. history."
+    ],
+    "affiliateMatch": []
+  },
+  {
+    "id": "dscr",
+    "label": "DSCR (no-income-doc investor loan)",
+    "minDownPct": 0.20,
+    "dscrThreshold": 1.0,
+    "rateEstimateBps": 825,
+    "notes": [
+      "Qualifies based on property cash flow, not personal income.",
+      "Most popular STR financing in 2026.",
+      "Visio, Kiavi, Lima One are primary players."
+    ],
+    "affiliateMatch": ["visio", "kiavi", "lima-one"]
+  },
+  {
+    "id": "second-home",
+    "label": "Second-home loan",
+    "minDownPct": 0.10,
+    "dscrThreshold": null,
+    "rateEstimateBps": 700,
+    "notes": [
+      "10% down — best non-investor option.",
+      "You must occupy 14+ days/yr and not rent more than 180 days.",
+      "Lender may classify as investment if STR usage is too aggressive."
+    ],
+    "affiliateMatch": []
+  },
+  {
+    "id": "fha",
+    "label": "FHA (owner-occupied house-hack)",
+    "minDownPct": 0.035,
+    "dscrThreshold": null,
+    "rateEstimateBps": 675,
+    "notes": [
+      "3.5% down only if you occupy 1 unit of a 2–4 unit property.",
+      "Mortgage insurance (MIP) for life of loan in most cases.",
+      "STR income from non-occupied units may count after 24 months."
+    ],
+    "affiliateMatch": []
+  }
+]

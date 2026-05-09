@@ -1,0 +1,108 @@
+/* ============================================================
+   strbuyers.tools — Print stylesheet
+   Hides chrome and ads on @media print, keeps inputs + results +
+   footer. Calculator pages should print as a clean two-column
+   report (inputs / results) on Letter or A4.
+   ============================================================ */
+
+@media print {
+  html, body {
+    background: #ffffff !important;
+    color: #1f1f1f !important;
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+
+  /* Hide chrome, navigation, and monetization */
+  header,
+  nav,
+  aside,
+  footer .footer-nav,
+  .no-print,
+  [data-no-print],
+  [data-ad-slot],
+  ins.adsbygoogle,
+  .funnel-band,
+  .cluster-funnel-block,
+  .email-capture-card,
+  .str-ledger-cta,
+  .affiliate-block,
+  .affiliate-card,
+  .disclosure-banner,
+  .related-calculators,
+  .pin-button,
+  .share-button,
+  .print-button,
+  button[data-pdf-download],
+  button[data-pin-button] {
+    display: none !important;
+  }
+
+  main, article, section.calculator-page {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .surface-calc {
+    background: transparent !important;
+    border: 1px solid #ccc !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 12pt !important;
+  }
+
+  .num, .font-mono, code, output, input[type="number"] {
+    font-family: "JetBrains Mono", monospace !important;
+    font-variant-numeric: tabular-nums !important;
+  }
+
+  input, select, textarea {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    font-weight: 500;
+  }
+
+  h1, h2, h3, h4 {
+    color: #1f1f1f !important;
+    page-break-after: avoid;
+  }
+
+  .result-block,
+  .calculator-result,
+  table {
+    page-break-inside: avoid;
+  }
+
+  @page {
+    size: auto;
+    margin: 16mm 14mm 18mm 14mm;
+  }
+
+  body::after {
+    content: "strbuyers.tools — Generated " counter(page) " of " counter(pages);
+    display: block;
+    position: fixed;
+    bottom: 4mm;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 9pt;
+    color: #888;
+  }
+
+  a {
+    color: #1f1f1f !important;
+    text-decoration: none !important;
+  }
+
+  a[href^="http"]:not([data-print-no-href])::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #888;
+  }
+}

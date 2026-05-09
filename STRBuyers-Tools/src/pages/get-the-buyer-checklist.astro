@@ -1,0 +1,63 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import DisclosureBanner from '@/components/affiliate/DisclosureBanner.astro';
+---
+<Layout
+  title="Get the STR Buyer Pre-Purchase Checklist — strbuyers.tools"
+  description="Free PDF: 47-item checklist covering financing, market, regulation, inspection, insurance, and Year 1 cash. Every item we wish we'd checked before our first STR purchase."
+  path="/get-the-buyer-checklist"
+>
+  <DisclosureBanner />
+
+  <article class="mx-auto max-w-3xl px-5 py-12 prose">
+    <header>
+      <p class="label text-accent">Free download</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">
+        The STR Buyer Pre-Purchase Checklist<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2 max-w-2xl leading-snug">
+        47 items across financing, market, regulation, inspection, insurance, and
+        Year 1 cash. Everything we wish we'd checked before our first STR purchase —
+        free PDF, emailed instantly.
+      </p>
+    </header>
+
+    <section class="mt-8">
+      <h2 class="font-serif text-h2 text-navy">What's inside</h2>
+      <ul class="mt-4 space-y-3 text-body text-ink-2 leading-relaxed">
+        <li><strong class="text-navy">Financing readiness</strong> — DSCR, conventional, second-home, FHA paperwork prep + the questions a lender will actually ask.</li>
+        <li><strong class="text-navy">Market viability</strong> — regulation status, occupancy benchmark, ADR ceiling, saturation tier, comp triangulation.</li>
+        <li><strong class="text-navy">Property inspection</strong> — STR-specific items (hot tub, parking, noise, neighbor proximity, HOA carve-outs).</li>
+        <li><strong class="text-navy">Insurance + LLC</strong> — STR-specific carriers, what umbrella covers, when to LLC vs. not.</li>
+        <li><strong class="text-navy">Year 1 cash</strong> — down payment + closing + furnishing + reserves + the surprises (utility deposits, permit fees, software stack).</li>
+        <li><strong class="text-navy">First-90-days operating plan</strong> — listing setup, first-30 reviews, pricing strategy, cleaner relationship.</li>
+      </ul>
+    </section>
+
+    <EmailCaptureCard
+      magnet="buyer-checklist"
+      toolSlug="buyer-checklist"
+      headline="Email me the 47-item checklist"
+      blurb="Free PDF, sent instantly. We'll also send occasional buyer-focused tools as they ship — unsubscribe anytime."
+      cta="Send me the PDF"
+    />
+
+    <section class="mt-12">
+      <h2 class="font-serif text-h2 text-navy">Why a checklist?</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        Most STR purchases that struggle in Year 1 don't fail because of bad
+        market choice. They fail because something obvious got skipped during
+        the buy — an HOA STR ban that wasn't flagged, a regulation change that
+        was three months away, a furnishing budget that came in 60% over plan.
+      </p>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        A checklist isn't sexy. It's just the cheapest way to not lose money
+        on something predictable.
+      </p>
+    </section>
+  </article>
+
+  <ClusterFunnelBlock currentCluster="acquisition" />
+</Layout>

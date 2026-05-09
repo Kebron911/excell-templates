@@ -1,0 +1,107 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import DownPaymentCalculator from '@/components/calculators/DownPaymentCalculator.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+
+const faqs = [
+  {
+    question: 'Why is the DSCR down payment 20% but FHA only 3.5%?',
+    answer:
+      'FHA is owner-occupied — you must live in one unit of a 2–4 unit property. DSCR is investor-only with no occupancy requirement, so lenders price more conservatively (20% min).',
+  },
+  {
+    question: 'Can I use a second-home loan if I plan to STR the property?',
+    answer:
+      'Only if you occupy 14+ days/yr and rent it less than 180 days. Aggressive STR usage on a second-home loan is mortgage fraud — the lender will reclassify and call the loan.',
+  },
+  {
+    question: 'Why does the rate estimate vary by loan type?',
+    answer:
+      'Investor (DSCR, conventional) loans price 75–150 bps above primary residence. FHA gets the lowest rate but adds MIP. Second-home is in between.',
+  },
+  {
+    question: 'Are closing costs included in this calculator?',
+    answer:
+      'No — closing costs run 2–4% of price. The Year 1 Cash Needs calculator rolls them in alongside the down payment.',
+  },
+];
+
+const jsonLd = [
+  buildWebApplication({
+    name: 'Down Payment Calculator for STR',
+    description:
+      'Compare down payment, loan amount, and monthly P&I across DSCR, conventional, second-home, and FHA loan products at one purchase price.',
+    toolPath: '/down-payment-calculator',
+  }),
+  buildFAQPage(faqs),
+];
+---
+<Layout
+  title="Airbnb Down Payment Calculator — strbuyers.tools"
+  description="Compare down payment by loan type — DSCR, conventional, second home, FHA — at any price. See loan amount, estimated P&I, and rate side by side."
+  path="/down-payment-calculator"
+  jsonLd={jsonLd}
+>
+  <article class="calculator-page bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-9 pb-7 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-9">
+      <div class="min-w-0">
+        <header>
+          <p class="label text-accent">Acquisition · Pre-buy</p>
+          <h1 class="font-serif text-h1 text-navy mt-3 leading-tight">
+            Down payment calculator<span class="period-accent">.</span>
+          </h1>
+          <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+            One price, four loan types side by side — DSCR, conventional, second-home, FHA.
+            See the cash you need and the monthly carry for each.
+          </p>
+        </header>
+
+        <div class="mt-7">
+          <DownPaymentCalculator client:load />
+        </div>
+
+        <AffiliateBlock tool="down-payment-calculator" vendorIds={["visio", "kiavi"]} />
+
+        <AdSlot location="in-content" />
+
+        <section class="mt-9 max-w-2xl prose">
+          <h2>How it works</h2>
+          <p>
+            Each row applies the loan product's minimum down-payment percent to your purchase price. Loan amount is the residual; monthly P&amp;I assumes a 30-year fixed at the rate-estimate baseline for each product.
+          </p>
+
+          <h2>How to use this calculator</h2>
+          <ol>
+            <li>Enter the purchase price you're modeling.</li>
+            <li>Read the cash-needed column for each loan type.</li>
+            <li>Compare the monthly P&amp;I — that's the floor your STR has to cover.</li>
+            <li>Cross-reference with the DSCR calculator to see which products your deal qualifies for.</li>
+          </ol>
+
+          <h2>FAQ</h2>
+          {faqs.map((f) => (
+            <details>
+              <summary>{f.question}</summary>
+              <p>{f.answer}</p>
+            </details>
+          ))}
+        </section>
+
+        <EmailCaptureCard magnet="str-buyer-playbook" toolSlug="down-payment-calculator" />
+        <STRLedgerCTA tool="down-payment-calculator" />
+
+        <AdSlot location="footer" />
+      </div>
+
+      <Sidebar current="down-payment-calculator" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="acquisition" />
+  </article>
+</Layout>

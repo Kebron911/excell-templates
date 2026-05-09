@@ -1,0 +1,152 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+---
+<Layout
+  title="Contact — strbuyers.tools"
+  description="Bug reports, calculator requests, and partnership inquiries for strbuyers.tools."
+  path="/contact"
+>
+  <article class="mx-auto max-w-3xl px-5 py-12 prose">
+    <header>
+      <p class="label text-accent">Contact</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">
+        hello@strbuyers.tools<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-3 text-lead text-ink-2 max-w-2xl leading-snug">
+        Bug reports, calculator requests, partnership inquiries — we read every
+        message. We don't promise instant replies, but we promise a real one.
+      </p>
+    </header>
+
+    <section class="mt-9">
+      <h2 class="font-serif text-h2 text-navy">Best ways to reach us</h2>
+      <dl class="mt-4 space-y-5">
+        <div>
+          <dt class="font-serif text-h3 text-navy">Bug reports</dt>
+          <dd class="mt-1 text-body text-ink-2 leading-relaxed">
+            Email
+            <a href="mailto:hello@strbuyers.tools?subject=Bug+report" class="text-accent">
+              hello@strbuyers.tools
+            </a>
+            with the page URL, your browser + OS, and the steps to reproduce.
+            We typically fix high-impact bugs within a week.
+          </dd>
+        </div>
+        <div>
+          <dt class="font-serif text-h3 text-navy">Calculator requests</dt>
+          <dd class="mt-1 text-body text-ink-2 leading-relaxed">
+            New buy-decision calculator you'd like? Email
+            <a href="mailto:hello@strbuyers.tools?subject=Calculator+request" class="text-accent">
+              hello@strbuyers.tools
+            </a>
+            with the scenario you'd want it for. We collect requests and ship
+            the highest-demand ones quarterly.
+          </dd>
+        </div>
+        <div>
+          <dt class="font-serif text-h3 text-navy">City data fixes</dt>
+          <dd class="mt-1 text-body text-ink-2 leading-relaxed">
+            See a regulation status that's outdated, or know an ADR figure
+            that's off? Email
+            <a href="mailto:hello@strbuyers.tools?subject=City+data+correction" class="text-accent">
+              hello@strbuyers.tools
+            </a>
+            with the city slug + a source we can verify against.
+          </dd>
+        </div>
+        <div>
+          <dt class="font-serif text-h3 text-navy">Press / partnerships</dt>
+          <dd class="mt-1 text-body text-ink-2 leading-relaxed">
+            For press inquiries or partnership pitches, email
+            <a href="mailto:hello@strbuyers.tools?subject=Press+inquiry" class="text-accent">
+              hello@strbuyers.tools
+            </a>.
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="mt-12">
+      <h2 class="font-serif text-h2 text-navy">Or use this form</h2>
+      <p class="mt-2 text-small text-ink-3 leading-snug">
+        Submitting opens your email client with the message pre-filled. We don't
+        run a backend form processor — keeps you in control of what hits send.
+      </p>
+      <form
+        class="mt-5 grid grid-cols-1 gap-4"
+        data-contact-form
+        novalidate
+      >
+        <label class="block">
+          <span class="text-ui text-navy">Your email</span>
+          <input
+            type="email"
+            name="email"
+            required
+            autocomplete="email"
+            class="mt-1 w-full rounded-md border border-rule bg-parchment px-4 py-2 text-ui text-navy placeholder:text-ink-3 focus:outline-none focus:border-accent focus:shadow-focus"
+            placeholder="you@yourdomain.com"
+          />
+        </label>
+        <label class="block">
+          <span class="text-ui text-navy">Subject</span>
+          <select
+            name="subject"
+            class="mt-1 w-full rounded-md border border-rule bg-parchment px-4 py-2 text-ui text-navy focus:outline-none focus:border-accent focus:shadow-focus"
+          >
+            <option value="Bug report">Bug report</option>
+            <option value="Calculator request">Calculator request</option>
+            <option value="City data correction">City data correction</option>
+            <option value="Press inquiry">Press inquiry</option>
+            <option value="Other">Other</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-ui text-navy">Message</span>
+          <textarea
+            name="message"
+            required
+            minlength="10"
+            rows="6"
+            class="mt-1 w-full rounded-md border border-rule bg-parchment px-4 py-2 text-ui text-navy placeholder:text-ink-3 focus:outline-none focus:border-accent focus:shadow-focus"
+            placeholder="What's on your mind?"
+          ></textarea>
+        </label>
+        <button
+          type="submit"
+          class="self-start rounded-md bg-accent text-parchment px-5 py-2 text-ui hover:bg-accent-tint transition-colors duration-std focus:outline-none focus:shadow-focus"
+        >
+          Open in mail client
+        </button>
+      </form>
+    </section>
+  </article>
+
+  <ClusterFunnelBlock currentCluster="acquisition" />
+</Layout>
+
+<script>
+  // Mailto-fallback handler — validates with zod-equivalent inline rules,
+  // composes a mailto: URL, and triggers the user's mail client. No
+  // backend dependency.
+  document.querySelectorAll<HTMLFormElement>('form[data-contact-form]').forEach((form) => {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const email = String(fd.get('email') ?? '').trim();
+      const subject = String(fd.get('subject') ?? 'General').trim();
+      const message = String(fd.get('message') ?? '').trim();
+
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (!emailOk || message.length < 10) {
+        alert('Please fill in a valid email and a message at least 10 characters long.');
+        return;
+      }
+
+      const body = encodeURIComponent(`From: ${email}\n\n${message}`);
+      const subj = encodeURIComponent(subject);
+      window.location.href = `mailto:hello@strbuyers.tools?subject=${subj}&body=${body}`;
+    });
+  });
+</script>

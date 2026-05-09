@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  strbuyers.tools favicon — 32×32, on-brand.
+  Background: parchment (#F6EFE2). Wordmark "SB" in navy serif (Cormorant
+  fallback to Georgia at this size). Accent dot (#1E3A8A) sits to the
+  right as the finance-trust delta vs sister sites' gold accent.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="4" fill="#F6EFE2"/>
+  <text x="4" y="23" font-family="Cormorant Garamond, Georgia, serif" font-weight="500" font-size="20" fill="#12304E" letter-spacing="-0.5">SB</text>
+  <circle cx="27" cy="21" r="2.2" fill="#1E3A8A"/>
+</svg>
