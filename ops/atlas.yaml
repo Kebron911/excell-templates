@@ -325,6 +325,7 @@ sections:
           - { name: cwv-watch,                          url: infrastructure/n8n/flows/cwv-watch.json,              kind: yaml }
           - { name: indexing-watch,                     url: infrastructure/n8n/flows/indexing-watch.json,         kind: yaml }
           - { name: funnel-dropout-watch,               url: infrastructure/n8n/flows/funnel-dropout-watch.json,   kind: yaml }
+          - { name: cache-staleness-watch,              url: infrastructure/n8n/flows/cache-staleness-watch.json,  kind: yaml, note: "pages if sync-log >50h" }
       - label: Phase 4+ (planned)
         items:
           - { name: convo-age-watch,                    url: infrastructure/n8n/flows/convo-age-watch.json,        kind: yaml, status: placeholder }

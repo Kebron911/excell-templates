@@ -77,6 +77,7 @@ The console reads the same files (zero shape when missing).
 | `cwv-watch.json` | cron daily 04:00 | seo.json (worstLcp/INP/CLS thresholds) | P1 |
 | `indexing-watch.json` | cron daily 05:00 | seo.json (indexingErrors + issues) | P1 |
 | `funnel-dropout-watch.json` | cron Mon 08:00 | contacts.json (stage-to-stage leak %) | P1 if >95%, else P2 |
+| `cache-staleness-watch.json` | cron daily 10:00 | sync-log.json mtime (self-monitoring) | P0 if ≥50h, P1 if ≥26h |
 
 ### nightly-refresh contract
 

@@ -30,6 +30,11 @@ import { readTargets } from '../src/lib/data/targets.js';
 import { readTimeLog } from '../src/lib/data/time-log.js';
 import { readVendors } from '../src/lib/data/vendors.js';
 import { listSites } from '../src/lib/data/site-atlas.js';
+import { readMoney } from '../src/lib/data/money.js';
+import { readTraffic } from '../src/lib/data/traffic.js';
+import { readSeo } from '../src/lib/data/seo.js';
+import { readContacts } from '../src/lib/data/contacts.js';
+import { readSyncLog } from '../src/lib/data/sync-log.js';
 
 interface Check { name: string; run: () => Promise<unknown>; }
 
@@ -60,6 +65,12 @@ const checks: Check[] = [
   { name: 'time-log',         run: () => readTimeLog() },
   { name: 'vendors',          run: () => readVendors() },
   { name: 'atlas/sites/*',    run: () => listSites() },
+  // Phase 3 cache layer — readers must gracefully handle missing cache files.
+  { name: 'cache/money',      run: () => readMoney() },
+  { name: 'cache/traffic',    run: () => readTraffic() },
+  { name: 'cache/seo',        run: () => readSeo() },
+  { name: 'cache/contacts',   run: () => readContacts() },
+  { name: 'cache/sync-log',   run: () => readSyncLog() },
 ];
 
 async function main() {
