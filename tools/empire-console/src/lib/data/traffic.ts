@@ -29,7 +29,7 @@ const Anomaly = z.object({
   triggerAt: z.string(),
 });
 
-const TrafficCacheSchema = z.object({
+export const TrafficCacheSchema = z.object({
   generatedAt: z.string().optional(),
   yesterday: z.object({
     sessions: z.number().default(0),

@@ -18,6 +18,9 @@ n8n credentials store + Vaultwarden — **never commit values to this file**.
 | `N8N_INTERNAL_API` | n8n-self-watch | n8n's own REST API base (`http://localhost:5678` typically) |
 | `N8N_PUBLIC_URL` | n8n-self-watch | Public n8n URL for executions deep-link |
 | `UPTIME_HEARTBEAT_URL` | n8n-self-watch | External uptime URL pinged on heartbeat (UptimeRobot / healthchecks.io) |
+| `MONTHLY_BURN` | nightly-refresh | Operational monthly burn in USD — feeds money.json `mtd.burn` (above-the-line ratio) |
+| `ETSY_SHOP_ID` | nightly-refresh | Etsy shop ID for receipts endpoint |
+| `IS_API_BASE` | nightly-refresh | Influencersoft API base URL |
 
 ## n8n credentials store
 
@@ -25,6 +28,12 @@ n8n credentials store + Vaultwarden — **never commit values to this file**.
 |---|---|---|---|
 | `telegram-empire-bot` | Telegram API | shared/telegram-router | Bot token from @BotFather |
 | `n8n-internal-api` | n8n API | n8n-self-watch | Personal Access Token from n8n Settings |
+| `STRIPE_SECRET` | HTTP header auth (`Authorization: Bearer sk_…`) | nightly-refresh | Stripe restricted key (read-only on charges/refunds) |
+| `ETSY_API_KEY` | HTTP header auth (`x-api-key`) | nightly-refresh | Etsy API v3 keystring |
+| `GUMROAD_TOKEN` | HTTP header auth (`Authorization: Bearer …`) | nightly-refresh | Gumroad access token |
+| `PLAUSIBLE_TOKEN` | HTTP header auth (`Authorization: Bearer …`) | nightly-refresh | Plausible API token (Stats API scope) |
+| `GSC_OAUTH` | OAuth2 (Google) | nightly-refresh | Search Console read-only scope |
+| `IS_API_KEY` | HTTP header auth | nightly-refresh | Influencersoft API key |
 
 ## Webhook URLs (callable from outside n8n)
 
@@ -48,9 +57,22 @@ n8n credentials store + Vaultwarden — **never commit values to this file**.
 - [ ] Sign up for an external uptime service → set `UPTIME_HEARTBEAT_URL`
 - [ ] Set GitHub repo secret `PUBLIC_N8N_WEBHOOK_BASE`
 
+### Phase 3 cache layer (nightly-refresh)
+
+- [ ] Stripe → create restricted key (read-only Charges + Refunds + Payment Intents) → save as `STRIPE_SECRET` credential
+- [ ] Etsy → register app, generate API v3 keystring → save as `ETSY_API_KEY`; set `ETSY_SHOP_ID` env var
+- [ ] Gumroad → Settings → Advanced → generate access token → save as `GUMROAD_TOKEN`
+- [ ] Plausible → Account → API Keys → generate Stats-API token → save as `PLAUSIBLE_TOKEN`
+- [ ] Google Cloud → create OAuth2 client for Search Console (read-only) → save as `GSC_OAUTH`
+- [ ] Influencersoft → Settings → API → generate key → save as `IS_API_KEY`; set `IS_API_BASE` env var
+- [ ] Set `MONTHLY_BURN` env var to current burn (drives above-the-line ratio)
+
 ## Rotation policy
 
 - Telegram bot token: rotate annually or immediately on suspected compromise
 - n8n PAT: rotate every 6 months
 - `STR_SSH_KEY`: rotate annually (cluster-wide — coordinated with sister-site CI)
+- Stripe restricted key: rotate every 6 months or on any laptop loss
+- Plausible / Etsy / Gumroad / IS tokens: rotate annually or on suspected compromise
+- GSC OAuth: refresh tokens are long-lived; re-authorize annually
 - Webhook URLs are not secrets but include in audit logs which IPs hit them

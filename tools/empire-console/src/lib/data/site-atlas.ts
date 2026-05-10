@@ -67,7 +67,19 @@ export async function readSiteAtlas(siteId: string): Promise<SiteAtlas | null> {
   const meta = data.site as SiteMetadata | undefined;
   if (!meta || !meta.id) return null;
 
-  const sections = (data.sections ?? []) as AtlasSection[];
+  // Per-site YAML supports a flat `items:` shorthand on each section.
+  // Normalize to the AtlasSection { groups: [{ items }] } shape the renderer expects.
+  const rawSections = (data.sections ?? []) as Array<Record<string, unknown>>;
+  const sections: AtlasSection[] = rawSections.map((s) => {
+    const groups = Array.isArray(s.groups) ? (s.groups as AtlasSection['groups']) : null;
+    const items = Array.isArray(s.items) ? (s.items as AtlasSection['groups'][number]['items']) : null;
+    return {
+      id: String(s.id ?? ''),
+      label: String(s.label ?? s.id ?? ''),
+      expanded: s.expanded !== false,
+      groups: groups ?? (items ? [{ label: '', items }] : []),
+    };
+  });
   const local_dev = (data.local_dev ?? {}) as Record<string, unknown>;
   const hosting   = (data.hosting   ?? {}) as Record<string, unknown>;
   const ci        = (data.ci        ?? {}) as Record<string, unknown>;

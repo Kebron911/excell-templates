@@ -28,7 +28,7 @@ const IndexingIssue = z.object({
   detectedAt: z.string(),
 });
 
-const SeoCacheSchema = z.object({
+export const SeoCacheSchema = z.object({
   generatedAt: z.string().optional(),
   gsc: z.object({
     impressions: z.number().default(0),

@@ -35,14 +35,16 @@ async function discoverBlogPosts(siteId: string, siteDir: string): Promise<BlogP
     try { entries = await readdir(blogDir, { withFileTypes: true }); }
     catch { continue; }
     for (const entry of entries) {
-      if (!entry.isFile() || !/\.(md|mdx|astro)$/.test(entry.name)) continue;
+      if (!entry.isFile() || !/\.(md|mdx)$/.test(entry.name)) continue;
       // Skip index pages
-      if (/^index\.(md|mdx|astro)$/.test(entry.name)) continue;
+      if (/^index\.(md|mdx)$/.test(entry.name)) continue;
       const full = join(blogDir, entry.name);
-      const slug = entry.name.replace(/\.(md|mdx|astro)$/, '');
+      const slug = entry.name.replace(/\.(md|mdx)$/, '');
       let raw = '';
       try { raw = await readFile(full, 'utf8'); } catch { continue; }
-      const fm = matter(raw).data as Record<string, unknown>;
+      let fm: Record<string, unknown> = {};
+      try { fm = matter(raw).data as Record<string, unknown>; }
+      catch { /* malformed frontmatter — fall back to filename-only */ }
       const st = await stat(full);
       out.push({
         site: siteId,

@@ -23,7 +23,7 @@ const SequenceRow = z.object({
   value: z.string(),
 });
 
-const ContactsCacheSchema = z.object({
+export const ContactsCacheSchema = z.object({
   generatedAt: z.string().optional(),
   list: z.object({
     total: z.number().default(0),

@@ -9,23 +9,23 @@ import EmptyState from '@/components/widgets/EmptyState.astro';
 import SourceFooter from '@/components/widgets/SourceFooter.astro';
 import { readProgress } from '@/lib/data/progress';
 import { readRunbooks } from '@/lib/data/runbooks';
-import { readVendors } from '@/lib/data/vendors';
 import { readCalendar } from '@/lib/data/calendar';
 import { readInfrastructure } from '@/lib/data/infrastructure';
 import { readTargets, worstStatus } from '@/lib/data/targets';
 import { readRisks } from '@/lib/data/risks';
 import { readMoney } from '@/lib/data/money';
+import { readSyncLog } from '@/lib/data/sync-log';
 import { formatDate } from '@/lib/format';
 
-const [progress, runbooks, vendors, calendar, infra, targets, risks, money] = await Promise.all([
+const [progress, runbooks, calendar, infra, targets, risks, money, syncLog] = await Promise.all([
   readProgress(),
   readRunbooks(),
-  readVendors(),
   readCalendar(),
   readInfrastructure(),
   readTargets(),
   readRisks(),
   readMoney(),
+  readSyncLog(),
 ]);
 const worstMetric = worstStatus(targets);
 
@@ -149,7 +149,13 @@ const domainTier = infra.expiringP0 > 0 ? 'critical' : infra.expiringSoon > 0 ? 
        : (money.aboveTheLineRatio !== null ? 'border-left: 4px solid rgb(var(--c-ok))' : '')}>
     <div class="flex flex-wrap items-baseline justify-between gap-4">
       <div>
-        <h3 class="font-display text-base font-semibold">Money pulse</h3>
+        <div class="flex items-baseline gap-2">
+          <h3 class="font-display text-base font-semibold">Money pulse</h3>
+          {syncLog.staleness === 'ok'   && <span class="badge badge-ok">{syncLog.ageHours!.toFixed(0)}h fresh</span>}
+          {syncLog.staleness === 'warn' && <span class="badge badge-p1">{syncLog.ageHours!.toFixed(0)}h stale</span>}
+          {syncLog.staleness === 'bad'  && syncLog.ageHours !== null && <span class="badge badge-p0">{syncLog.ageHours.toFixed(0)}h stale</span>}
+          {syncLog.staleness === 'missing' && <span class="badge badge-p2">no cache yet</span>}
+        </div>
         <p class="mt-1 text-xs" style="color: rgb(var(--c-muted))">
           {money.isCacheReady
             ? 'Live from ops/cache/money.json (n8n nightly-refresh)'

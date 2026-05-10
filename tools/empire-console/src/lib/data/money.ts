@@ -33,7 +33,7 @@ const RefundSpike = z.object({
   triggerAt: z.string(),
 });
 
-const MoneyCacheSchema = z.object({
+export const MoneyCacheSchema = z.object({
   generatedAt: z.string().optional(),
   yesterday: z.object({
     revenue: z.number().default(0),
