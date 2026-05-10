@@ -98,15 +98,21 @@ const totalRevenue = m.topSkus.reduce((sum, r) => sum + r.revenue, 0);
                   <td class="text-right font-mono">${r.revenue.toFixed(0)}</td>
                   <td class="text-right font-mono">{r.orders}</td>
                   <td class="text-right font-mono">{(r.refundRate * 100).toFixed(1)}%</td>
-                  <td class="text-right">
+                  <td class="text-right whitespace-nowrap">
                     <button type="button"
-                            class="rounded border px-2 py-1 text-xs"
+                            class="js-delist-preview rounded border px-2 py-1 text-xs mr-1"
                             style="border-color: rgb(var(--c-border)); color: rgb(var(--c-muted))"
                             data-sku={r.sku}
-                            data-action="kill"
-                            disabled
-                            title="Phase 4 — n8n delist-sku flow not yet active">
-                      Mark for delist
+                            title="Dry-run: find Etsy listing, do not deactivate">
+                      Preview
+                    </button>
+                    <button type="button"
+                            class="js-delist rounded border px-2 py-1 text-xs"
+                            style="border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent))"
+                            data-sku={r.sku}
+                            data-reason="kill-sku-flagged"
+                            title="POST to n8n delist-sku webhook — sets Etsy listing inactive">
+                      Delist
                     </button>
                   </td>
                 </tr>
@@ -186,7 +192,67 @@ const totalRevenue = m.topSkus.reduce((sum, r) => sum + r.revenue, 0);
     </ul>
   </section>
 
+  <div id="delist-result" class="mt-4 hidden card" role="status" aria-live="polite"></div>
+
   <SourceFooter source="ops/cache/money.json + templates/_briefs/"
                 lastRefresh={m.generatedAt ?? null}
                 notes="n8n weekly-pnl-digest computes candidates" />
 </Layout>
+
+<script is:inline>
+(function () {
+  const result = document.getElementById('delist-result');
+  function show(kind, msg) {
+    if (!result) return;
+    result.classList.remove('hidden');
+    const tone = kind === 'ok' ? 'badge-ok' : kind === 'warn' ? 'badge-p1' : 'badge-p0';
+    result.innerHTML = '<span class="badge ' + tone + '">' + kind + '</span> <span class="ml-2">' + msg + '</span>';
+  }
+  async function postDelist(sku, dryRun, reason, btn) {
+    const base = window.__EMPIRE_WEBHOOK_BASE__;
+    if (!base) { show('bad', 'No PUBLIC_N8N_WEBHOOK_BASE configured at build time.'); return; }
+    const originalLabel = btn.textContent;
+    btn.setAttribute('disabled', 'true');
+    btn.textContent = dryRun ? 'Looking up…' : 'Delisting…';
+    try {
+      const res = await fetch(base + '/delist-sku', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sku: sku, reason: reason || 'kill-sku-flagged', dryRun: dryRun }),
+      });
+      const body = await res.json().catch(function () { return {}; });
+      if (res.ok && body.ok) {
+        if (body.dryRun) {
+          show('warn', 'Found listing ' + body.listing_id + ' ("' + body.title + '") for ' + sku + '. Click Delist to deactivate.');
+        } else {
+          show('ok', 'Delisted ' + sku + ' (Etsy listing ' + body.listing_id + ' set to inactive).');
+        }
+      } else if (res.status === 404) {
+        show('warn', 'No Etsy listing matched ' + sku + '. Listing may already be inactive or unmatched.');
+      } else {
+        show('bad', 'Failed — ' + (body.error || ('HTTP ' + res.status)));
+      }
+    } catch (err) {
+      show('bad', 'Network error — ' + (err && err.message ? err.message : String(err)));
+    } finally {
+      btn.removeAttribute('disabled');
+      btn.textContent = originalLabel;
+    }
+  }
+  document.querySelectorAll('.js-delist-preview').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const sku = btn.getAttribute('data-sku');
+      if (sku) postDelist(sku, true, 'preview', btn);
+    });
+  });
+  document.querySelectorAll('.js-delist').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      const sku = btn.getAttribute('data-sku');
+      const reason = btn.getAttribute('data-reason') || 'kill-sku-flagged';
+      if (!sku) return;
+      if (!confirm('Delist ' + sku + ' on Etsy?\n\nThis sets the listing state to inactive (buyers can no longer purchase). Reversible: re-list manually in Etsy admin if regretted.')) return;
+      postDelist(sku, false, reason, btn);
+    });
+  });
+})();
+</script>

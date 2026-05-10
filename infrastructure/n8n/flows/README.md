@@ -97,6 +97,7 @@ A `sync-log.json` file is touched on success to fuel a "stale cache" indicator.
 | Flow | Trigger | What it does | Priority |
 |---|---|---|---|
 | `release-shipped.json` | webhook POST `/webhook/release-shipped` | Validates SKU + version against on-disk VERSION file, emails prior buyers via IS, refreshes Etsy listings, appends `update-shipped:<sku>:<version>` tag to `ops/release-tags.ndjson`. Bound to the **Ship update** button on `/maintain/releases`. | P1 on success, 409 returned on VERSION mismatch (no side effects) |
+| `delist-sku.json` | webhook POST `/webhook/delist-sku` | Finds the Etsy listing for the SKU; with `dryRun:true` returns the match without acting (404 if none). With `dryRun:false` PATCHes the listing to `state: inactive` and appends to `ops/delist-log.ndjson`. Bound to **Preview** + **Delist** buttons on `/check/kill-sku`. | P1 on success, 404 if listing not found |
 
 ## Phase 4+ flows (planned)
 
@@ -104,7 +105,6 @@ A `sync-log.json` file is touched on success to fuel a "stale cache" indicator.
 |---|---|---|---|
 | `backup-restore-test.json` | 4 | cron monthly 1st | P0 on fail |
 | `gdpr-intake.json` | 4 | webhook (privacy@ form) | P1 |
-| `delist-sku.json` | 4 | console button (POST) | P1 confirm |
 
 ## How a flow writes the alert log
 

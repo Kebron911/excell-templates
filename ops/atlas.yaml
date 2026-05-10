@@ -343,7 +343,7 @@ sections:
           - { name: lead-magnet-perf-watch,             url: infrastructure/n8n/flows/lead-magnet-perf-watch.json, kind: yaml, status: placeholder }
           - { name: tool-untracked-watch,               url: infrastructure/n8n/flows/tool-untracked-watch.json,   kind: yaml, status: placeholder }
           - { name: release-shipped (Phase 4),          url: infrastructure/n8n/flows/release-shipped.json,        kind: yaml, note: "POST /webhook/release-shipped — bound to /maintain/releases Ship update button" }
-          - { name: delist-sku (Phase 4),               url: infrastructure/n8n/flows/delist-sku.json,             kind: yaml, status: placeholder }
+          - { name: delist-sku (Phase 4),               url: infrastructure/n8n/flows/delist-sku.json,             kind: yaml, note: "POST /webhook/delist-sku — bound to /check/kill-sku Delist button" }
           - { name: backup-restore-test (Phase 4),      url: infrastructure/n8n/flows/backup-restore-test.json,    kind: yaml, status: placeholder }
           - { name: gdpr-intake (Phase 4),              url: infrastructure/n8n/flows/gdpr-intake.json,            kind: yaml, status: placeholder }
 

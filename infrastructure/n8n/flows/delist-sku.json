@@ -1,0 +1,208 @@
+{
+  "name": "delist-sku",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "delist-sku",
+        "responseMode": "responseNode",
+        "options": { "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "={{ $env.EMPIRE_CONSOLE_BASE_URL || '*' }}" }] } }
+      },
+      "id": "webhook",
+      "name": "POST /webhook/delist-sku",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "webhookId": "delist-sku"
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = $input.item.json.body || $input.item.json;\nconst sku = (body.sku || '').toString().toUpperCase();\nconst reason = (body.reason || 'kill-sku-flagged').toString();\nconst dryRun = body.dryRun === true;\nif (!/^[A-Z]{3}-\\d{3}$/.test(sku)) return [{ json: { _error: `Bad sku: ${sku}` } }];\nreturn [{ json: { sku, reason, dryRun, ts: new Date().toISOString() } }];"
+      },
+      "id": "validate",
+      "name": "Validate payload",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "rules": { "rules": [{ "operation": "isNotEmpty", "value1": "={{ $json._error }}" }] }
+      },
+      "id": "errCheck",
+      "name": "Has error?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": false, \"error\": \"{{ $json._error }}\"}",
+        "options": { "responseCode": 400 }
+      },
+      "id": "respErr",
+      "name": "400 error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [800, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://openapi.etsy.com/v3/application/shops/{{ $env.ETSY_SHOP_ID }}/listings",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": { "parameters": [
+          { "name": "state", "value": "active" },
+          { "name": "limit", "value": "100" }
+        ] },
+        "options": {}
+      },
+      "id": "findListing",
+      "name": "Find Etsy listing for SKU",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [800, 400],
+      "credentials": { "httpHeaderAuth": { "id": "ETSY_API_KEY", "name": "Etsy API key" } },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "functionCode": "const sku = $('Validate payload').first().json.sku;\nconst body = $input.item.json || {};\nconst results = Array.isArray(body.results) ? body.results : [];\n// Listings whose sku field includes the empire SKU id\nconst match = results.find(l => {\n  const skuField = l.sku || (Array.isArray(l.skus) ? l.skus : []);\n  if (typeof skuField === 'string') return skuField.toUpperCase().includes(sku);\n  if (Array.isArray(skuField)) return skuField.some(s => typeof s === 'string' && s.toUpperCase().includes(sku));\n  return false;\n});\nif (!match) return [{ json: { _miss: true, sku } }];\nreturn [{ json: { listing_id: match.listing_id, title: match.title, sku } }];"
+      },
+      "id": "resolveListing",
+      "name": "Resolve listing id",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1000, 400]
+    },
+    {
+      "parameters": {
+        "rules": { "rules": [{ "operation": "isNotEmpty", "value1": "={{ $json._miss }}" }] }
+      },
+      "id": "missCheck",
+      "name": "Listing missing?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [1200, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": false, \"error\": \"etsy-listing-not-found\", \"sku\": \"{{ $('Validate payload').first().json.sku }}\"}",
+        "options": { "responseCode": 404 }
+      },
+      "id": "respMiss",
+      "name": "404 listing missing",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1400, 300]
+    },
+    {
+      "parameters": {
+        "rules": { "rules": [{ "operation": "isEqual", "value1": "={{ $('Validate payload').first().json.dryRun }}", "value2": true }] }
+      },
+      "id": "dryRunCheck",
+      "name": "Dry run?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [1400, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": true, \"dryRun\": true, \"sku\": \"{{ $('Validate payload').first().json.sku }}\", \"listing_id\": \"{{ $json.listing_id }}\", \"title\": \"{{ $json.title }}\", \"note\": \"Listing found; not delisted (dryRun=true).\"}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "respDry",
+      "name": "200 dry-run",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1600, 400]
+    },
+    {
+      "parameters": {
+        "url": "=https://openapi.etsy.com/v3/application/shops/{{ $env.ETSY_SHOP_ID }}/listings/{{ $json.listing_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "method": "PATCH",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"state\": \"inactive\" }",
+        "options": {}
+      },
+      "id": "deactivate",
+      "name": "Deactivate Etsy listing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1600, 600],
+      "credentials": { "httpHeaderAuth": { "id": "ETSY_API_KEY", "name": "Etsy API key" } }
+    },
+    {
+      "parameters": {
+        "command": "=set -e\nrepo=\"{{ $env.EMPIRE_REPO_PATH }}\"\nsku=\"{{ $('Validate payload').first().json.sku }}\"\nreason=\"{{ $('Validate payload').first().json.reason }}\"\nts=\"{{ $('Validate payload').first().json.ts }}\"\nlisting=\"{{ $('Resolve listing id').first().json.listing_id }}\"\nmkdir -p \"$repo/ops\"\nprintf '{\"sku\":\"%s\",\"action\":\"delisted\",\"reason\":\"%s\",\"etsy_listing_id\":\"%s\",\"ts\":\"%s\"}\\n' \"$sku\" \"$reason\" \"$listing\" \"$ts\" >> \"$repo/ops/delist-log.ndjson\""
+      },
+      "id": "writeLog",
+      "name": "Append delist-log",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1800, 600]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": true, \"dryRun\": false, \"sku\": \"{{ $('Validate payload').first().json.sku }}\", \"listing_id\": \"{{ $('Resolve listing id').first().json.listing_id }}\", \"note\": \"Etsy listing set to inactive; ops/delist-log.ndjson updated.\"}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "respOk",
+      "name": "200 OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2000, 600]
+    },
+    {
+      "parameters": {
+        "functionCode": "const v = $('Validate payload').first().json;\nconst listing = $('Resolve listing id').first().json;\nreturn [{ json: {\n  priority: 'P1',\n  source: 'delist-sku',\n  message: `Delisted ${v.sku} on Etsy (listing ${listing.listing_id}). Reason: ${v.reason}. Title was: ${listing.title}.`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/kill-sku'\n} }];"
+      },
+      "id": "notify",
+      "name": "Build telegram alert",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [2200, 600]
+    },
+    {
+      "parameters": { "source": "parameter", "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID" },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [2400, 600]
+    }
+  ],
+  "connections": {
+    "POST /webhook/delist-sku":   { "main": [[{ "node": "Validate payload",       "type": "main", "index": 0 }]] },
+    "Validate payload":           { "main": [[{ "node": "Has error?",             "type": "main", "index": 0 }]] },
+    "Has error?":                 { "main": [
+                                    [{ "node": "400 error",                  "type": "main", "index": 0 }],
+                                    [{ "node": "Find Etsy listing for SKU",  "type": "main", "index": 0 }]
+                                  ] },
+    "Find Etsy listing for SKU":  { "main": [[{ "node": "Resolve listing id",     "type": "main", "index": 0 }]] },
+    "Resolve listing id":         { "main": [[{ "node": "Listing missing?",       "type": "main", "index": 0 }]] },
+    "Listing missing?":           { "main": [
+                                    [{ "node": "404 listing missing",        "type": "main", "index": 0 }],
+                                    [{ "node": "Dry run?",                   "type": "main", "index": 0 }]
+                                  ] },
+    "Dry run?":                   { "main": [
+                                    [{ "node": "200 dry-run",                "type": "main", "index": 0 }],
+                                    [{ "node": "Deactivate Etsy listing",    "type": "main", "index": 0 }]
+                                  ] },
+    "Deactivate Etsy listing":    { "main": [[{ "node": "Append delist-log",      "type": "main", "index": 0 }]] },
+    "Append delist-log":          { "main": [[{ "node": "200 OK",                 "type": "main", "index": 0 }]] },
+    "200 OK":                     { "main": [[{ "node": "Build telegram alert",   "type": "main", "index": 0 }]] },
+    "Build telegram alert":       { "main": [[{ "node": "→ telegram-router",      "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "phase-4" }, { "name": "webhook" }]
+}
