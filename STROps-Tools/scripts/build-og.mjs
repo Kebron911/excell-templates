@@ -267,6 +267,58 @@ async function main() {
     ),
   );
 
+  // Blog index
+  renders.push(
+    render(
+      'blog',
+      {
+        kicker: 'Operations Notebook',
+        title: 'Operations, written down.',
+        footer: 'Field notes for active STR operators',
+      },
+      fonts,
+    ),
+  );
+
+  // Per-post OG cards. Read MDX files in src/content/posts and build
+  // a 1200x630 card per post that mirrors the post's title + category.
+  const postsDir = path.join(root, 'src', 'content', 'posts');
+  const postFiles = (await fs.readdir(postsDir)).filter((f) => f.endsWith('.mdx'));
+  const categoryKickers = {
+    operations: 'Operations',
+    turnover: 'Turnover',
+    cleaning: 'Cleaning',
+    access: 'Access',
+    supply: 'Supply',
+    maintenance: 'Maintenance',
+    damage: 'Damage',
+  };
+  for (const file of postFiles) {
+    const slug = file.replace(/\.mdx$/, '');
+    const raw = await fs.readFile(path.join(postsDir, file), 'utf8');
+    const fmMatch = raw.match(/^---\n([\s\S]*?)\n---/);
+    const fm = {};
+    if (fmMatch) {
+      for (const line of fmMatch[1].split('\n')) {
+        const m = line.match(/^(\w+):\s*"?([^"]*?)"?\s*$/);
+        if (m) fm[m[1]] = m[2];
+      }
+    }
+    const title = (fm.title ?? slug).replace(/\s+$/, '');
+    const kicker = categoryKickers[fm.category] ?? 'Blog';
+    renders.push(
+      render(
+        `blog-${slug}`,
+        {
+          kicker,
+          title: title.endsWith('.') || title.endsWith('?') ? title : `${title}.`,
+          footer: 'strops.tools — Operations Notebook',
+        },
+        fonts,
+      ),
+    );
+  }
+
   // 3 lead magnet capture pages
   renders.push(
     render(

@@ -1,0 +1,363 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import {
+  orgJsonLd,
+  blogPostingJsonLd,
+  breadcrumbJsonLd,
+  faqJsonLd,
+} from '@lib/seo';
+import tools from '@data/tools.json';
+import { getCollection } from 'astro:content';
+
+type ToolEntry = { title: string; primary_keyword: string; magnet: string; blurb: string };
+
+export async function getStaticPaths() {
+  const all = await getCollection('posts');
+  const sorted = [...all].sort((a, b) =>
+    a.data.datePublished < b.data.datePublished ? 1 : -1,
+  );
+  return sorted.map((post, i) => ({
+    params: { slug: post.id.replace(/\.mdx?$/, '') },
+    props: {
+      post,
+      newer: i > 0 ? sorted[i - 1] : null,
+      older: i < sorted.length - 1 ? sorted[i + 1] : null,
+    },
+  }));
+}
+
+const { post, newer, older } = Astro.props;
+const slug = post.id.replace(/\.mdx?$/, '');
+const { Content, headings, remarkPluginFrontmatter } = await post.render();
+
+const toolMap = tools as Record<string, ToolEntry>;
+const related = (post.data.relatedTools ?? [])
+  .map((key: string) => ({ slug: key, ...(toolMap[key] ?? {}) }))
+  .filter((t: any) => t.title);
+
+const navLink = (p: typeof newer) =>
+  p && {
+    slug: p.id.replace(/\.mdx?$/, ''),
+    title: p.data.title,
+    readMinutes: p.data.readMinutes,
+    description: p.data.description,
+  };
+const newerLink = navLink(newer);
+const olderLink = navLink(older);
+
+const categoryLabels: Record<string, string> = {
+  operations: 'Operations',
+  turnover: 'Turnover',
+  cleaning: 'Cleaning',
+  access: 'Access',
+  supply: 'Supply',
+  maintenance: 'Maintenance',
+  damage: 'Damage',
+};
+
+const formatDate = (iso: string) =>
+  new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+
+const url = `https://strops.tools/blog/${slug}`;
+const ogImagePath = post.data.ogImage ?? `/og/blog-${slug}.png`;
+const ogImageAbs = `https://strops.tools${ogImagePath}`;
+const dateModified = post.data.dateModified ?? post.data.datePublished;
+const wordCount = (remarkPluginFrontmatter as { wordCount?: number } | undefined)?.wordCount;
+
+const breadcrumbs = [
+  { name: 'Home', url: 'https://strops.tools/' },
+  { name: 'Blog', url: 'https://strops.tools/blog' },
+  { name: post.data.title, url },
+];
+
+const articleLd = blogPostingJsonLd({
+  headline: post.data.title,
+  description: post.data.description,
+  url,
+  slug,
+  image: ogImageAbs,
+  datePublished: post.data.datePublished,
+  dateModified,
+  authorName: post.data.author,
+  section: categoryLabels[post.data.category] ?? post.data.category,
+  keywords: post.data.keywords,
+  wordCount,
+});
+
+const jsonLdBlocks: object[] = [
+  orgJsonLd(),
+  articleLd,
+  breadcrumbJsonLd(breadcrumbs),
+];
+if (post.data.faq?.length) {
+  jsonLdBlocks.push(faqJsonLd(post.data.faq));
+}
+
+// TOC: limit to depth 2 (H2 only) to avoid noise.
+const toc = (headings ?? []).filter((h: { depth: number }) => h.depth === 2);
+---
+<Layout
+  title={`${post.data.title} — strops.tools`}
+  description={post.data.description}
+  canonical={url}
+  ogImage={ogImagePath}
+  ogType="article"
+  publishedTime={`${post.data.datePublished}T12:00:00Z`}
+  modifiedTime={`${dateModified}T12:00:00Z`}
+  author={post.data.author}
+  articleSection={categoryLabels[post.data.category] ?? post.data.category}
+>
+  <Fragment slot="head">
+    <JsonLd data={jsonLdBlocks} />
+    <link rel="alternate" type="application/rss+xml" title="strops.tools" href="/feed.xml" />
+  </Fragment>
+
+  <article class="bg-parchment" itemscope itemtype="https://schema.org/BlogPosting">
+    <meta itemprop="datePublished" content={post.data.datePublished} />
+    <meta itemprop="dateModified" content={dateModified} />
+    <meta itemprop="author" content={post.data.author} />
+
+    <nav aria-label="Breadcrumb" class="mx-auto max-w-3xl px-6 pt-8 text-xs text-ink3">
+      <ol class="flex flex-wrap items-center gap-2">
+        <li><a href="/" class="hover:text-ink2 no-underline">Home</a></li>
+        <li aria-hidden="true">›</li>
+        <li><a href="/blog" class="hover:text-ink2 no-underline">Blog</a></li>
+        <li aria-hidden="true">›</li>
+        <li class="text-ink2 truncate max-w-[60ch]">{post.data.title}</li>
+      </ol>
+    </nav>
+
+    <header class="mx-auto max-w-3xl px-6 pt-6 pb-6">
+      <div class="flex items-center gap-3 text-xs text-ink3">
+        <span class="text-label uppercase tracking-widest text-accent">
+          {categoryLabels[post.data.category] ?? post.data.category}
+        </span>
+        <span aria-hidden="true">·</span>
+        <time datetime={post.data.datePublished} class="font-mono" itemprop="datePublished">
+          {formatDate(post.data.datePublished)}
+        </time>
+        {post.data.dateModified && post.data.dateModified !== post.data.datePublished && (
+          <>
+            <span aria-hidden="true">·</span>
+            <span class="font-mono">Updated {formatDate(post.data.dateModified)}</span>
+          </>
+        )}
+        <span aria-hidden="true">·</span>
+        <span class="font-mono">{post.data.readMinutes} min read</span>
+      </div>
+
+      <h1 class="display mt-3 text-4xl md:text-5xl leading-tight" itemprop="headline">
+        {post.data.title}
+      </h1>
+      <p class="lead mt-4 text-lg text-ink2" itemprop="description">{post.data.description}</p>
+      <p class="mt-3 text-xs text-ink3">
+        By <span itemprop="author">{post.data.author}</span>
+      </p>
+    </header>
+
+    {post.data.keyTakeaways.length > 0 && (
+      <aside
+        class="mx-auto max-w-3xl px-6 mb-6"
+        aria-label="Key takeaways"
+      >
+        <div class="border-l-2 border-accent bg-parchment-alt p-5">
+          <p class="text-label uppercase tracking-widest text-accent mb-2">Key takeaways</p>
+          <ul class="list-disc pl-5 space-y-1 text-ink2 text-sm leading-snug">
+            {post.data.keyTakeaways.map((t: string) => <li>{t}</li>)}
+          </ul>
+        </div>
+      </aside>
+    )}
+
+    {toc.length > 2 && (
+      <aside class="mx-auto max-w-3xl px-6 mb-6" aria-label="Table of contents">
+        <details class="border border-rule bg-parchment-alt p-5">
+          <summary class="cursor-pointer text-label uppercase tracking-widest text-ink3">
+            On this page
+          </summary>
+          <ol class="mt-3 space-y-1 text-sm text-ink2 list-decimal pl-5">
+            {toc.map((h: { slug: string; text: string }) => (
+              <li><a href={`#${h.slug}`} class="no-underline hover:underline">{h.text}</a></li>
+            ))}
+          </ol>
+        </details>
+      </aside>
+    )}
+
+    <div class="mx-auto max-w-3xl px-6 prose" itemprop="articleBody">
+      <Content />
+    </div>
+
+    {post.data.faq.length > 0 && (
+      <section class="mx-auto max-w-3xl px-6 mt-10" aria-labelledby="faq-heading">
+        <h2 id="faq-heading" class="display text-3xl mb-4">Frequently asked questions</h2>
+        <div class="space-y-3">
+          {post.data.faq.map((f: { q: string; a: string }) => (
+            <details class="border border-rule bg-parchment-alt p-4">
+              <summary class="cursor-pointer font-semibold text-navy">{f.q}</summary>
+              <p class="mt-2 text-ink2 text-sm leading-relaxed">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {related.length > 0 && (
+      <div class="mx-auto max-w-3xl px-6 mt-10">
+        <p class="text-label uppercase tracking-widest text-ink3">Tools in this post</p>
+        <ul class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {related.map((t: any) => (
+            <li>
+              <a
+                href={`/${t.slug}`}
+                class="group block border border-rule bg-parchment-alt p-4 no-underline hover:border-accent transition-colors duration-200"
+                rel="related"
+              >
+                <p class="font-semibold text-navy leading-snug">{t.title}</p>
+                <p class="mt-1 text-sm text-ink2 leading-snug">{t.blurb}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <div class="mx-auto max-w-3xl px-6 mt-10">
+      <EmailCaptureCard magnet={post.data.magnet} tool={`blog-${slug}`} />
+    </div>
+
+    <div class="mx-auto max-w-3xl px-6 mt-6">
+      <STRLedgerCTA tool={related[0]?.slug ?? 'turnover-scheduler'} />
+    </div>
+
+    {(newerLink || olderLink) && (
+      <nav class="mx-auto max-w-3xl px-6 mt-10 mb-12" aria-label="Other posts">
+        <p class="text-label uppercase tracking-widest text-ink3">Keep reading</p>
+        <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+          {newerLink ? (
+            <a
+              href={`/blog/${newerLink.slug}`}
+              class="group block border border-rule bg-parchment-alt p-4 no-underline hover:border-accent transition-colors duration-200"
+              rel="prev"
+            >
+              <p class="text-xs text-accent">← Newer</p>
+              <p class="mt-1 font-semibold text-navy leading-snug">{newerLink.title}</p>
+              <p class="mt-1 text-xs text-ink2 line-clamp-2">{newerLink.description}</p>
+              <p class="mt-2 text-xs text-ink3 font-mono">{newerLink.readMinutes} min read</p>
+            </a>
+          ) : <span aria-hidden="true" />}
+          {olderLink ? (
+            <a
+              href={`/blog/${olderLink.slug}`}
+              class="group block border border-rule bg-parchment-alt p-4 no-underline hover:border-accent transition-colors duration-200 md:text-right"
+              rel="next"
+            >
+              <p class="text-xs text-accent">Older →</p>
+              <p class="mt-1 font-semibold text-navy leading-snug">{olderLink.title}</p>
+              <p class="mt-1 text-xs text-ink2 line-clamp-2">{olderLink.description}</p>
+              <p class="mt-2 text-xs text-ink3 font-mono">{olderLink.readMinutes} min read</p>
+            </a>
+          ) : <span aria-hidden="true" />}
+        </div>
+      </nav>
+    )}
+  </article>
+</Layout>
+
+<style>
+  .text-navy { color: var(--brand-navy); }
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .prose :global(h2) {
+    font-family: var(--font-display);
+    font-size: var(--t-h2-size);
+    color: var(--brand-navy);
+    margin-top: var(--sp-7);
+    margin-bottom: var(--sp-3);
+    line-height: 1.15;
+    scroll-margin-top: var(--sp-7);
+  }
+  .prose :global(h3) {
+    font-family: var(--font-display);
+    font-size: var(--t-h3-size);
+    color: var(--brand-navy);
+    margin-top: var(--sp-5);
+    margin-bottom: var(--sp-2);
+    scroll-margin-top: var(--sp-7);
+  }
+  .prose :global(p) {
+    color: var(--fg-1);
+    margin-bottom: var(--sp-4);
+    line-height: 1.65;
+    font-size: 1.05rem;
+  }
+  .prose :global(ol),
+  .prose :global(ul) {
+    margin: var(--sp-3) 0 var(--sp-5);
+    padding-left: var(--sp-5);
+  }
+  .prose :global(li) { margin-bottom: var(--sp-2); line-height: 1.6; }
+  .prose :global(strong) { color: var(--brand-navy); font-weight: 600; }
+  .prose :global(em) { color: var(--fg-1); }
+  .prose :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--bg-2);
+    padding: 0 0.3em;
+    border-radius: var(--r-1);
+  }
+  .prose :global(pre) {
+    background: var(--bg-2);
+    border: 1px solid var(--rule);
+    border-radius: var(--r-2);
+    padding: var(--sp-4);
+    overflow-x: auto;
+    margin: var(--sp-4) 0;
+  }
+  .prose :global(pre code) { background: transparent; padding: 0; font-size: 0.92em; line-height: 1.55; }
+  .prose :global(blockquote) {
+    border-left: 3px solid var(--accent);
+    padding-left: var(--sp-4);
+    color: var(--fg-2);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--t-quote-size);
+    margin: var(--sp-5) 0;
+  }
+  .prose :global(a) {
+    color: var(--brand-navy);
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 3px;
+  }
+  .prose :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--sp-4) 0;
+    font-size: 0.95em;
+  }
+  .prose :global(th),
+  .prose :global(td) {
+    border-bottom: 1px solid var(--rule);
+    text-align: left;
+    padding: 0.5em 0.75em;
+  }
+  .prose :global(th) {
+    color: var(--brand-navy);
+    font-weight: 600;
+    background: var(--bg-2);
+  }
+  .prose :global(hr) { border: 0; border-top: 1px solid var(--rule); margin: var(--sp-6) 0; }
+</style>

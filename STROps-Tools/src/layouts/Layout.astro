@@ -11,8 +11,26 @@ interface Props {
   canonical?: string;
   ogImage?: string;
   showCluster?: boolean;
+  ogType?: 'website' | 'article';
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  articleSection?: string;
+  noindex?: boolean;
 }
-const { title, description, canonical, ogImage = '/og/default.png', showCluster = true } = Astro.props;
+const {
+  title,
+  description,
+  canonical,
+  ogImage = '/og/default.png',
+  showCluster = true,
+  ogType = 'website',
+  publishedTime,
+  modifiedTime,
+  author,
+  articleSection,
+  noindex = false,
+} = Astro.props;
 const url = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
 const ga4Id = import.meta.env.PUBLIC_GA4_ID;
 ---
@@ -29,8 +47,22 @@ const ga4Id = import.meta.env.PUBLIC_GA4_ID;
     <meta property="og:description" content={description} />
     <meta property="og:url" content={url} />
     <meta property="og:image" content={new URL(ogImage, Astro.site).toString()} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="strops.tools" />
     <meta name="twitter:card" content="summary_large_image" />
+    {ogType === 'article' && publishedTime && (
+      <meta property="article:published_time" content={publishedTime} />
+    )}
+    {ogType === 'article' && modifiedTime && (
+      <meta property="article:modified_time" content={modifiedTime} />
+    )}
+    {ogType === 'article' && author && (
+      <meta property="article:author" content={author} />
+    )}
+    {ogType === 'article' && articleSection && (
+      <meta property="article:section" content={articleSection} />
+    )}
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
     {ga4Id && (
       <>
         <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${ga4Id}`}></script>

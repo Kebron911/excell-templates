@@ -51,3 +51,55 @@ export const articleJsonLd = (opts: { headline: string; url: string; datePublish
   datePublished: opts.datePublished,
   dateModified: opts.dateModified,
 });
+
+export interface BlogPostingOpts {
+  headline: string;
+  description: string;
+  url: string;
+  slug: string;
+  image: string;
+  datePublished: string;
+  dateModified: string;
+  authorName: string;
+  section: string;
+  keywords?: string[];
+  wordCount?: number;
+}
+
+export const blogPostingJsonLd = (opts: BlogPostingOpts) => ({
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  mainEntityOfPage: { '@type': 'WebPage', '@id': opts.url },
+  headline: opts.headline,
+  description: opts.description,
+  image: opts.image,
+  url: opts.url,
+  datePublished: opts.datePublished,
+  dateModified: opts.dateModified,
+  author: {
+    '@type': 'Person',
+    name: opts.authorName,
+    url: 'https://thestrledger.com',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'strops.tools',
+    url: 'https://strops.tools',
+  },
+  articleSection: opts.section,
+  ...(opts.keywords && opts.keywords.length ? { keywords: opts.keywords.join(', ') } : {}),
+  ...(opts.wordCount ? { wordCount: opts.wordCount } : {}),
+  inLanguage: 'en-US',
+});
+
+export interface BreadcrumbCrumb { name: string; url: string; }
+export const breadcrumbJsonLd = (crumbs: BreadcrumbCrumb[]) => ({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: crumbs.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.name,
+    item: c.url,
+  })),
+});
