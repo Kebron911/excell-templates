@@ -1,0 +1,104 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readAssetsByType } from '@/lib/data/assets';
+
+const items = await readAssetsByType('document');
+
+function daysToExpiry(d: unknown): number | null {
+  if (typeof d !== 'string') return null;
+  const ms = new Date(d).getTime();
+  if (Number.isNaN(ms)) return null;
+  return Math.floor((ms - Date.now()) / 86_400_000);
+}
+
+const enriched = items.map((it) => {
+  const days = daysToExpiry(it.raw.expires);
+  return {
+    ...it,
+    daysToExpiry: days,
+    isExpiringSoon: days !== null && days >= 0 && days <= 30,
+    isExpired: days !== null && days < 0,
+  };
+});
+
+const categories = new Set(items.map((i) => String(i.raw.category ?? 'uncategorized')));
+const expiringSoon = enriched.filter((i) => i.isExpiringSoon).length;
+const expired = enriched.filter((i) => i.isExpired).length;
+const placeholders = items.filter((i) => i.raw.issued === 'TBD' || i.raw.issued === undefined).length;
+---
+<Layout title="Maintain · Documents" section="maintain">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Documents vault index</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Index of business documents. Source: <code>ops/assets/documents.yaml</code>.
+        <strong>Documents themselves live in Vaultwarden / encrypted Drive / physical safe.</strong>
+      </p>
+    </div>
+    <a href="/maintain/assets" class="text-xs">← back to registry</a>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Documents indexed" value={items.length} />
+    <Scorecard label="Categories" value={categories.size} hint={[...categories].slice(0,4).join(' · ')} />
+    <Scorecard label="Expiring ≤30d" value={expiringSoon} tone={expiringSoon > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Expired" value={expired} tone={expired > 0 ? 'bad' : 'ok'} />
+  </section>
+
+  {placeholders > 0 && (
+    <section class="mb-6 card" style="background: rgb(var(--c-warn) / 0.08); border-color: rgb(var(--c-warn))">
+      <strong>{placeholders}</strong> entries are still TBD placeholders. Fill them in
+      <code>ops/assets/documents.yaml</code> as the docs come into existence.
+    </section>
+  )}
+
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b text-left text-xs uppercase tracking-wide"
+          style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+        <th class="py-2">Document</th>
+        <th>Category</th>
+        <th>Storage</th>
+        <th>Location</th>
+        <th class="text-right">Issued</th>
+        <th class="text-right">Expires</th>
+      </tr>
+    </thead>
+    <tbody>
+      {enriched.map((d) => (
+        <tr class="border-b" style="border-color: rgb(var(--c-border))">
+          <td class="py-3 font-medium">{d.name}</td>
+          <td>
+            <span class="badge badge-p2">{String(d.raw.category ?? '—')}</span>
+          </td>
+          <td class="font-mono text-xs">{String(d.raw.storage ?? '—')}</td>
+          <td class="font-mono text-xs" style="color: rgb(var(--c-muted))">
+            {String(d.raw.location_ref ?? '—')}
+          </td>
+          <td class="text-right font-mono text-xs">{String(d.raw.issued ?? '—')}</td>
+          <td class="text-right font-mono text-xs">
+            {d.daysToExpiry === null ? (
+              <span style="color: rgb(var(--c-muted))">{String(d.raw.expires ?? '—')}</span>
+            ) : (
+              <span class:list={[d.isExpired ? 'badge badge-p0' : d.isExpiringSoon ? 'badge badge-p1' : '']}>
+                {d.isExpired ? `${Math.abs(d.daysToExpiry)}d late` : `${d.daysToExpiry}d`}
+              </span>
+            )}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <section class="mt-8 card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Why no document contents in the console
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong>Security:</strong> repo + console are git-tracked. PII / credentials / signed contracts must not leak there.</li>
+      <li>• <strong>Single source of truth:</strong> Vaultwarden + encrypted Drive. The console points to them, never duplicates.</li>
+      <li>• <strong>Backup discipline:</strong> Vaultwarden recovery codes live in the physical safe (entry <code>doc-vault-recovery-codes</code>).</li>
+    </ul>
+  </section>
+</Layout>

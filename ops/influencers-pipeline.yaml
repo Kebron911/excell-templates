@@ -1,0 +1,40 @@
+# ops/influencers-pipeline.yaml — influencer prospects + active partnerships
+#
+# Read by:
+#   - tools/empire-console — /promote/influencers
+#   - infrastructure/n8n/flows/outreach-followup-watch
+#
+# State machine:
+#   prospect → contacted → negotiating → active → paused | ended
+#
+# Compensation models:
+#   - free_tier:      free Vault tier in exchange for promotion (founding affiliates per PROGRESS §P5.7)
+#   - revenue_share:  affiliate % (default 30% / 60-day cookie)
+#   - flat_fee:       paid placement
+#   - product_swap:   trade content/audience
+#
+# Tracking attribution:
+#   - utm_campaign: their handle
+#   - coupon_code: their code (also drives referral attribution)
+
+prospects:
+  - handle: "@example_str_coach"
+    platform: Instagram
+    audience: 25000
+    angle: STR coach with semi-pro audience (3–10 properties) — perfect Sarah persona
+    compensation: free_tier
+    state: prospect
+    last_touch: null
+    next_action_date: 2026-05-20
+    owner: Daniel
+    notes: PLACEHOLDER — replace with founding 10 list per PROGRESS §P5.7.
+
+active:
+  # populated when partnerships go live. Sample shape:
+  # - handle: "@real_partner"
+  #   platform: Instagram
+  #   compensation: revenue_share
+  #   coupon_code: PARTNER10
+  #   utm_campaign: partner10
+  #   started: 2026-06-01
+  #   notes: ""

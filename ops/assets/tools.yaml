@@ -1,0 +1,145 @@
+# ops/assets/tools.yaml — every built tool across the cluster
+#
+# Read by:
+#   - tools/empire-console — /maintain/assets/tools
+#   - infrastructure/n8n/flows/tool-stale-watch (monthly, P2 if last_updated >365d)
+#
+# Schema:
+#   id:           string
+#   name:         string
+#   site:         thestrledger | strguests | strhost | strops | strbuyers | empire-console
+#   url:          live URL
+#   tool_type:    pdf-generator | ai-generator | calculator | template-page | utility | dashboard
+#   tech:         astro | react-island | express-api | python | n8n
+#   uses_api:     [openai | etsy | stripe | gsc | ga4 | none]
+#   email_gate:   true | false
+#   is_form_id:   if email_gate true, the IS form behind it
+#   status:       active | archived | deprecated | beta | draft
+#   created:      YYYY-MM-DD
+#   last_updated: YYYY-MM-DD
+#   owner:        Daniel | TBD
+
+tools:
+  # STRGuests-Tools — 7 generators (4 PDF + 3 AI)
+  - id: tool-strguests-house-rules
+    name: House Rules PDF Generator
+    site: strguests
+    url: https://strguests.tools/tools/house-rules
+    tool_type: pdf-generator
+    tech: react-island
+    uses_api: [none]
+    email_gate: true
+    is_form_id: TBD
+    status: active
+    created: 2026-05-06
+    last_updated: 2026-05-06
+    owner: Daniel
+
+  - id: tool-strguests-welcome-book
+    name: Welcome Book Builder
+    site: strguests
+    url: https://strguests.tools/tools/welcome-book
+    tool_type: pdf-generator
+    tech: react-island
+    uses_api: [none]
+    email_gate: true
+    status: active
+    created: 2026-05-06
+    last_updated: 2026-05-06
+    owner: Daniel
+
+  - id: tool-strguests-wifi-sign
+    name: Wi-Fi Sign Generator
+    site: strguests
+    url: https://strguests.tools/tools/wifi-sign
+    tool_type: pdf-generator
+    tech: react-island
+    uses_api: [none]
+    email_gate: true
+    status: active
+    created: 2026-05-06
+    last_updated: 2026-05-06
+    owner: Daniel
+
+  - id: tool-strguests-checkin
+    name: Check-in Instructions Generator
+    site: strguests
+    url: https://strguests.tools/tools/check-in
+    tool_type: pdf-generator
+    tech: react-island
+    uses_api: [none]
+    email_gate: true
+    status: active
+    created: 2026-05-06
+    last_updated: 2026-05-06
+    owner: Daniel
+
+  - id: tool-strguests-listing-ai
+    name: Listing Description AI Generator
+    site: strguests
+    url: https://strguests.tools/tools/listing-description
+    tool_type: ai-generator
+    tech: express-api
+    uses_api: [openai]
+    email_gate: true
+    status: draft
+    created: 2026-05-06
+    last_updated: 2026-05-06
+    owner: Daniel
+    notes: Phase 3 of strguests.tools — blocked on OPENAI_API_KEY.
+
+  - id: tool-strguests-review-ai
+    name: Review Response AI Generator
+    site: strguests
+    url: https://strguests.tools/tools/review-response
+    tool_type: ai-generator
+    tech: express-api
+    uses_api: [openai]
+    email_gate: true
+    status: draft
+    created: 2026-05-06
+    last_updated: 2026-05-06
+    owner: Daniel
+
+  - id: tool-strguests-message-ai
+    name: Guest Message AI Generator
+    site: strguests
+    url: https://strguests.tools/tools/guest-messages
+    tool_type: ai-generator
+    tech: express-api
+    uses_api: [openai]
+    email_gate: true
+    status: draft
+    created: 2026-05-06
+    last_updated: 2026-05-06
+    owner: Daniel
+
+  # Internal tooling
+  - id: tool-empire-console
+    name: Empire Console
+    site: empire-console
+    url: http://localhost:4327
+    tool_type: dashboard
+    tech: astro
+    uses_api: [stripe, etsy, gsc, ga4]
+    email_gate: false
+    status: beta
+    created: 2026-05-10
+    last_updated: 2026-05-10
+    owner: Daniel
+    notes: This thing.
+
+  # PLACEHOLDERS for STRHost / STROps / STRBuyers as they ship
+  - id: tool-strhost-todo
+    name: STRHost tools (TBD)
+    site: strhost
+    url: https://strhost.tools
+    tool_type: utility
+    tech: astro
+    uses_api: [none]
+    email_gate: false
+    status: draft
+    created: 2026-05-01
+    last_updated: 2026-05-07
+    owner: Daniel
+    notes: PLACEHOLDER — replace with concrete tools as STRHost Phase 2 ships.

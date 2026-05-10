@@ -1,0 +1,150 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readCompensation } from '@/lib/data/compensation';
+import { formatCurrency, formatDate } from '@/lib/format';
+
+const c = await readCompensation();
+const runwayTone = c
+  ? c.runwayMonths >= c.runwayTarget ? 'ok' :
+    c.runwayMonths >= c.runwayTarget / 2 ? 'warn' : 'bad'
+  : 'neutral';
+const runwayTier = c
+  ? c.runwayMonths < c.runwayTarget / 2 ? 'critical' :
+    c.runwayMonths < c.runwayTarget ? 'notable' : 'normal'
+  : 'normal';
+---
+<Layout title="Owner's compensation" section="money">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <a href="/money" class="text-xs">← back to Money</a>
+      <h1 class="mt-1 font-display text-3xl font-semibold">Owner's compensation</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Empire-side cash + runway + pay-yourself rule. Personal finances live in Cowork OS.
+        Source: <code>ops/owner-compensation.yaml</code>.
+      </p>
+    </div>
+  </header>
+
+  {!c ? (
+    <EmptyState
+      title="Owner compensation not configured"
+      body="Set cash balances + burn target + pay rule to start tracking runway."
+      yamlPath="ops/owner-compensation.yaml"
+    />
+  ) : (
+    <>
+      <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <Scorecard
+          label="Cash on hand"
+          value={formatCurrency(c.cashTotal)}
+          hint={`Stripe ${formatCurrency(c.raw.cash.stripe_balance)} + bank ${formatCurrency(c.raw.cash.bank_balance)}`}
+        />
+        <Scorecard
+          label="Monthly burn"
+          value={formatCurrency(c.monthlyBurn)}
+          hint={c.raw.burn.last_actual > 0 ? `last actual ${formatCurrency(c.raw.burn.last_actual)}` : 'target'}
+        />
+        <Scorecard
+          label="Runway"
+          value={c.runwayMonths === Infinity || isNaN(c.runwayMonths) ? '—' : `${c.runwayMonths.toFixed(1)}mo`}
+          hint={`target: ${c.runwayTarget}mo`}
+          tone={runwayTone}
+          tier={runwayTier}
+        />
+      </section>
+
+      {c.raw.tax_buffer && (
+        <section class={`mb-8 card ${c.taxBufferShortfall > 0 ? 'card-notable' : 'card-reference'}`}>
+          <div class="flex items-baseline justify-between gap-3">
+            <h2 class="font-display text-xl font-semibold">Tax buffer</h2>
+            <span class:list={['badge', c.taxBufferShortfall > 0 ? 'badge-p1' : 'badge-ok']}>
+              {c.taxBufferShortfall > 0 ? `short ${formatCurrency(c.taxBufferShortfall)}` : 'on track'}
+            </span>
+          </div>
+          <div class="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+            <Scorecard label="Buffer balance" value={formatCurrency(c.taxBufferActual)} />
+            <Scorecard label="Target" value={formatCurrency(c.taxBufferTarget)}
+                       hint={`${(c.raw.tax_buffer.target_percent * 100).toFixed(0)}% of YTD ${formatCurrency(c.raw.tax_buffer.ytd_revenue)}`} />
+            <Scorecard label="Shortfall"
+                       value={formatCurrency(c.taxBufferShortfall)}
+                       tone={c.taxBufferShortfall > 0 ? 'warn' : 'ok'} />
+            <Scorecard label="Next payment"
+                       value={c.raw.tax_buffer.next_payment_due ? formatDate(c.raw.tax_buffer.next_payment_due) : '—'}
+                       hint="quarterly estimated tax" />
+          </div>
+          {c.raw.tax_buffer.notes && (
+            <pre class="mt-3 whitespace-pre-wrap rounded p-3 text-xs"
+                 style="background: rgb(var(--c-surface-2)); color: rgb(var(--c-muted))">{c.raw.tax_buffer.notes}</pre>
+          )}
+        </section>
+      )}
+
+      <section class={`mb-8 card ${c.drawAvailable ? 'card-reference' : 'card-notable'}`}>
+        <div class="flex items-baseline justify-between gap-3">
+          <h2 class="font-display text-xl font-semibold">Pay-yourself rule</h2>
+          <span class:list={['badge', c.drawAvailable ? 'badge-ok' : 'badge-p1']}>
+            {c.drawAvailable ? 'draw available' : 'not yet'}
+          </span>
+        </div>
+        <p class="mt-2 text-base">
+          <strong>Rule:</strong> <code>{c.raw.pay_rule.type}</code>
+          {c.raw.pay_rule.type === 'runway_target' && ` — build ${c.runwayTarget} months of runway, then take ${(c.raw.pay_rule.percent * 100).toFixed(0)}% of net profit`}
+          {c.raw.pay_rule.type === 'fixed_monthly' && ` — $${c.raw.pay_rule.fixed}/mo`}
+          {c.raw.pay_rule.type === 'percent_of_net_profit' && ` — ${(c.raw.pay_rule.percent * 100).toFixed(0)}% of net profit`}
+        </p>
+        <p class="mt-3 text-sm">
+          <strong>Status:</strong> {c.drawAvailableLabel}
+        </p>
+        {c.raw.pay_rule.notes && (
+          <pre class="mt-3 whitespace-pre-wrap rounded p-3 text-xs"
+               style="background: rgb(var(--c-surface-2)); color: rgb(var(--c-muted))">{c.raw.pay_rule.notes}</pre>
+        )}
+      </section>
+
+      <section class="mb-8">
+        <h2 class="mb-4 font-display text-xl font-semibold">Draws</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <Scorecard label="YTD drawn" value={formatCurrency(c.ytdDrawn)} />
+          <Scorecard label="Total drawn (lifetime)" value={formatCurrency(c.totalDrawn)} />
+        </div>
+
+        {c.raw.draws.length === 0 ? (
+          <p class="mt-4 text-sm" style="color: rgb(var(--c-muted))">
+            No draws logged. Add to <code>ops/owner-compensation.yaml</code> under <code>draws:</code> when you take one.
+          </p>
+        ) : (
+          <ul class="mt-4 space-y-2">
+            {c.raw.draws.map((d) => (
+              <li class="card card-tight flex items-baseline justify-between gap-3">
+                <div>
+                  <span class="font-display text-lg font-semibold tabular-nums">{formatCurrency(d.amount)}</span>
+                  {d.note && <span class="ml-3 text-sm" style="color: rgb(var(--c-muted))">{d.note}</span>}
+                </div>
+                <span class="font-mono text-xs" style="color: rgb(var(--c-muted))">{formatDate(d.date)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section class="card" style="background: rgb(var(--c-surface-2))">
+        <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+          Update cadence
+        </h3>
+        <ul class="space-y-1 text-sm">
+          <li>• Update <code>cash.*</code> monthly during close (1st of month).</li>
+          <li>• Update <code>burn.last_actual</code> from Wave Apps P&L.</li>
+          <li>• Log each draw under <code>draws:</code> with date + note.</li>
+          <li>• Phase 5+: Stripe balance auto-pulls; bank balance still manual.</li>
+        </ul>
+      </section>
+    </>
+  )}
+
+  <SourceFooter source="ops/owner-compensation.yaml"
+                lastRefresh={c?.raw.cash.last_updated ?? null}
+                notes="Wave/QuickBooks remains the source of truth for the actual books" />
+</Layout>

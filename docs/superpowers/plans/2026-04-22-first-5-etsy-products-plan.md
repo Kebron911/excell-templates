@@ -11,7 +11,7 @@
 - Vista Create Pro for brand assets + thumbnails + branded PDFs
 - Etsy seller UI for listings (no API at MVP stage)
 - Gumroad UI for mirror
-- Cloudflare Registrar + Google Workspace for domain + email
+- Hostinger + Google Workspace for domain + email
 - Git for all committed artifacts
 
 **Parent design:** [2026-04-22-first-5-etsy-products-design.md](../specs/2026-04-22-first-5-etsy-products-design.md)
@@ -120,7 +120,7 @@ copy/etsy-listings/GST-001-welcome-book.md         # Refresh after brief
 copy/etsy-listings/TAX-001-mileage-log.md          # Refresh after brief
 copy/etsy-listings/TAX-003-1099-nec-tracker.md     # Refresh after brief
 copy/etsy-listings/TAX-002-single-property-pl-lite.md  # Refresh after brief
-ops/credentials-inventory.md                        # Add Etsy, Gumroad, Cloudflare, Workspace
+ops/credentials-inventory.md                        # Add Etsy, Gumroad, Hostinger, Workspace
 ```
 
 ---
@@ -275,22 +275,22 @@ git commit -m "build: Python env + brand_config helpers for Excel generation"
 
 **Files:**
 - Modify: `brand/brand-decisions.md` (append "Domain confirmed" date)
-- Create: `ops/credentials-inventory.md` (append Cloudflare + Workspace rows; file may already exist)
+- Create: `ops/credentials-inventory.md` (append Hostinger + Workspace rows; file may already exist)
 
 **Owner:** Daniel executes (purchase, DNS, Workspace signup). Claude produces the exact checklist.
 
 **Acceptance criteria:** `thestrledger.com` resolves; test email sent to `hello@thestrledger.com` from another address arrives within 5 minutes.
 
-- [ ] **Step 1: Purchase domain at Cloudflare Registrar**
+- [ ] **Step 1: Purchase domain at Hostinger**
 
-Go to https://dash.cloudflare.com/ → Sign up or log in → left nav → Domain Registration → Register Domain → search `thestrledger.com`.
+Go to https://hpanel.hostinger.com/ → Sign up or log in → left nav → Domain Registration → Register Domain → search `thestrledger.com`.
 
 If available: click Purchase. Cost: ~$10/year. Enable WHOIS privacy (default).
 If taken: fall back to `strledger.co` or `thestrledger.io`; document choice in `brand/brand-decisions.md`.
 
-- [ ] **Step 2: Configure DNS in Cloudflare**
+- [ ] **Step 2: Configure DNS in Hostinger hPanel**
 
-Cloudflare dashboard → select thestrledger.com → DNS → Records → Add record.
+Hostinger hPanel → select thestrledger.com → DNS → Records → Add record.
 
 Add the following records (6 records):
 
@@ -317,13 +317,13 @@ Setup wizard:
 - Admin email (will become): `hello@thestrledger.com` (Google Workspace lets you set the admin email to any alias)
 - Payment method: credit card
 
-Workspace will provide a TXT verification record — add it as a 7th record in Cloudflare DNS.
+Workspace will provide a TXT verification record — add it as a 7th record in Hostinger DNS.
 
 After verification (usually <5 min), create user: `hello@thestrledger.com`.
 
 - [ ] **Step 4: Add DKIM for deliverability (important)**
 
-Workspace Admin console → Apps → Google Workspace → Gmail → Authenticate email → Generate new record → copy the DKIM TXT record → add to Cloudflare DNS as TXT record named `google._domainkey`.
+Workspace Admin console → Apps → Google Workspace → Gmail → Authenticate email → Generate new record → copy the DKIM TXT record → add to Hostinger DNS as TXT record named `google._domainkey`.
 
 Wait 10 minutes, then click "Start authentication" in Admin console.
 
@@ -343,19 +343,19 @@ All credentials stored in Vaultwarden (self-hosted, Bitwarden-compatible). This 
 
 | System | Owner-of-record | Account identifier | 2FA | Notes |
 |---|---|---|---|---|
-| Cloudflare | Daniel | (email in Vaultwarden) | Yes | Registrar + DNS |
+| Hostinger | Daniel | (email in Vaultwarden) | Yes | Registrar + DNS |
 | Google Workspace | Daniel | hello@thestrledger.com | Yes | $6/user/mo |
 ```
 
-If it exists, append rows to the Accounts table for Cloudflare and Workspace.
+If it exists, append rows to the Accounts table for Hostinger and Workspace.
 
 - [ ] **Step 7: Update brand-decisions.md with confirmation**
 
 Append to `brand/brand-decisions.md`:
 ```markdown
 ## Domain + email — confirmed 2026-04-22
-- Domain: thestrledger.com (Cloudflare Registrar, renewed annually ~$10)
-- DNS: Cloudflare (MX for Workspace, A placeholder until Lane B)
+- Domain: thestrledger.com (Hostinger, renewed annually ~$10)
+- DNS: Hostinger (MX for Workspace, A placeholder until Lane B)
 - Email: hello@thestrledger.com (Google Workspace Business Starter)
 - DKIM: enabled
 - Test email: delivered successfully
@@ -419,7 +419,7 @@ Etsy issues a 1099-K annually; expect one in January if gross sales > $600 (2026
 
 Account → Security → Two-factor authentication → Authenticator app (NOT SMS — SMS is vulnerable to SIM-swap).
 
-Use the same authenticator app you use for Cloudflare/Workspace (e.g., Bitwarden mobile/desktop — which syncs with your Vaultwarden — Authy, or Google Authenticator). Scan QR, enter 6-digit code, save backup codes to Vaultwarden AND print a copy offline.
+Use the same authenticator app you use for Hostinger/Workspace (e.g., Bitwarden mobile/desktop — which syncs with your Vaultwarden — Authy, or Google Authenticator). Scan QR, enter 6-digit code, save backup codes to Vaultwarden AND print a copy offline.
 
 - [ ] **Step 6: Create shop-setup.md**
 

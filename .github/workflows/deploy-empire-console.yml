@@ -1,0 +1,76 @@
+name: Deploy empire-console
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/empire-console/**'
+      - 'ops/**'
+      - '.github/workflows/deploy-empire-console.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-empire-console
+  cancel-in-progress: false
+
+# Hostinger shared hosting via SSH + rsync.
+# Same shared cluster SSH key as sister sites (STR_SSH_KEY).
+# Host: 195.35.15.247 · user: u470667024 · port: 65002
+# Doc root: /home/u470667024/domains/dashboard.thestrledger.com/public_html/
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PUBLIC_CONSOLE_BASE_URL: https://dashboard.thestrledger.com
+      PUBLIC_N8N_WEBHOOK_BASE: ${{ secrets.PUBLIC_N8N_WEBHOOK_BASE }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: tools/empire-console/pnpm-lock.yaml
+
+      - name: Install
+        working-directory: tools/empire-console
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate (typecheck + ops + atlas)
+        working-directory: tools/empire-console
+        run: pnpm validate
+
+      - name: Build
+        working-directory: tools/empire-console
+        run: pnpm build
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.STR_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
+          ssh-keyscan -p 65002 -H 195.35.15.247 >> ~/.ssh/known_hosts
+
+      - name: Rsync to Hostinger
+        run: |
+          rsync -av --delete \
+            -e "ssh -i ~/.ssh/id_ed25519 -p 65002" \
+            tools/empire-console/dist/ \
+            u470667024@195.35.15.247:/home/u470667024/domains/dashboard.thestrledger.com/public_html/
+
+      - name: Smoke check
+        run: |
+          # 401 expected when .htaccess basic auth is in place — that's healthy.
+          code=$(curl -s -o /dev/null -w "%{http_code}" https://dashboard.thestrledger.com)
+          echo "HTTP $code"
+          if [ "$code" = "200" ] || [ "$code" = "401" ]; then exit 0; else exit 1; fi

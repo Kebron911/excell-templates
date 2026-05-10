@@ -1,0 +1,55 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import { readAlerts } from '@/lib/data/alerts';
+
+const alerts = await readAlerts(200);
+const counts = {
+  P0: alerts.filter((a) => a.priority === 'P0').length,
+  P1: alerts.filter((a) => a.priority === 'P1').length,
+  P2: alerts.filter((a) => a.priority === 'P2').length,
+};
+---
+<Layout title="Check · Alerts" section="check">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Alert log</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Newest first · max 200 · written by n8n flows to <code>ops/alerts.ndjson</code>.
+      </p>
+    </div>
+    <div class="flex gap-2 text-xs">
+      <span class="badge badge-p0">P0 · {counts.P0}</span>
+      <span class="badge badge-p1">P1 · {counts.P1}</span>
+      <span class="badge badge-p2">P2 · {counts.P2}</span>
+    </div>
+  </header>
+  {alerts.length === 0 && (
+    <div class="card">
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        No alerts yet. Seed one with <code>pnpm empire alert P1 "test alert"</code>
+        or wait for the first n8n cron to fire.
+      </p>
+    </div>
+  )}
+  <ol class="space-y-2">
+    {alerts.map((a) => (
+      <li class="card flex items-start gap-3 text-sm">
+        <span class:list={['badge', `badge-${a.priority.toLowerCase()}`]}>{a.priority}</span>
+        <div class="flex-1">
+          <div class="font-medium">{a.message}</div>
+          <div class="mt-1 text-xs" style="color: rgb(var(--c-muted))">
+            <span class="font-mono">{a.source}</span>
+            <span class="mx-2">·</span>
+            <span>{new Date(a.ts).toLocaleString()}</span>
+            {a.url && (
+              <>
+                <span class="mx-2">·</span>
+                <a href={a.url}>open →</a>
+              </>
+            )}
+          </div>
+        </div>
+      </li>
+    ))}
+  </ol>
+</Layout>

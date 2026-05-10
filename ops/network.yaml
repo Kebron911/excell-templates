@@ -1,0 +1,27 @@
+# ops/network.yaml — mentor, advisor, peer relationships
+#
+# Tracking who matters to the business. Personal social belongs in Cowork OS.
+# This file: people whose context affects empire decisions.
+#
+# Schema:
+#   id:          string
+#   name:        string
+#   role:        mentor | advisor | peer | customer | partner | other
+#   category:    finance | tech | str-niche | marketing | legal | other
+#   contact:     email or DM handle
+#   last_contact: YYYY-MM-DD
+#   context:     short reason this person matters
+#   ask_debt:    me-owes | them-owes | balanced
+#   notes:       optional
+
+people:
+  # Sample shape — replace with real connections:
+  # - id: net-001
+  #   name: Example Mentor (STR coach)
+  #   role: mentor
+  #   category: str-niche
+  #   contact: handle@example.com
+  #   last_contact: 2026-04-15
+  #   context: 12yr STR operator with 30+ doors. Critical voice on operator pain points.
+  #   ask_debt: them-owes
+  #   notes: They asked me to share early Wave-1 feedback in Apr.

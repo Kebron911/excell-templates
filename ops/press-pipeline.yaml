@@ -1,0 +1,52 @@
+# ops/press-pipeline.yaml — podcast outreach + HARO/Qwoted + guest posts + media mentions
+#
+# Read by:
+#   - tools/empire-console — /promote/press
+#   - infrastructure/n8n/flows/outreach-followup-watch
+#
+# Channels:
+#   - podcast      (pitch to host)
+#   - haro_qwoted  (responding to journalist queries)
+#   - guest_post   (pitching written piece)
+#   - mention      (won media mention to log)
+
+podcasts:
+  - show: BiggerPockets Podcast
+    host: ""
+    angle: STR tax + financial systems for semi-pro hosts (Sarah persona)
+    state: prospect
+    last_touch: null
+    next_action_date: 2026-05-22
+    owner: Daniel
+    notes: PROGRESS §P5.7 — top 10 STR podcast pitch list goes here.
+
+  - show: STR Like the Pros
+    host: ""
+    angle: Tax-and-financial beachhead, Excel templates angle
+    state: prospect
+    last_touch: null
+    next_action_date: 2026-05-29
+    owner: Daniel
+
+haro_qwoted:
+  # log responses + outcomes. Sample shape:
+  # - query_subject: "Tax tips for short-term rental owners"
+  #   outlet: ""
+  #   responded: 2026-05-15
+  #   state: responded
+  #   outcome_url: ""
+
+guest_posts:
+  - target_publication: BiggerPockets blog
+    angle: 47 deductions every STR host misses
+    state: prospect
+    last_touch: null
+    next_action_date: 2026-06-01
+    owner: Daniel
+
+mentions:
+  # log each won mention. Sample:
+  # - publication: ""
+  #   url: ""
+  #   date: ""
+  #   notes: ""

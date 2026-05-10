@@ -1,0 +1,95 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import { readNewsletter } from '@/lib/data/newsletter';
+import { readBacklinksPipeline, readInfluencersPipeline, readPressPipeline } from '@/lib/data/pipelines';
+
+const [newsletter, backlinks, influencers, press] = await Promise.all([
+  readNewsletter(),
+  readBacklinksPipeline(),
+  readInfluencersPipeline(),
+  readPressPipeline(),
+]);
+
+interface Tile {
+  href: string; title: string; desc: string;
+  signal?: string; tone?: 'ok' | 'warn' | 'bad'; disabled?: boolean;
+}
+
+const groups: Array<{ title: string; tiles: Tile[] }> = [
+  {
+    title: 'Content',
+    tiles: [
+      { href: '/promote/newsletter', title: 'Newsletter', desc: 'Subscribers · cadence · per-send performance.',
+        signal: newsletter.daysSinceLastSend !== null
+          ? `last send ${newsletter.daysSinceLastSend}d ago`
+          : 'no sends yet',
+        tone: newsletter.isCadenceStale ? 'warn' : 'ok' },
+      { href: '#', title: 'Atomization queue', desc: 'Source Topic → 11 platform artifacts.', disabled: true },
+      { href: '#', title: 'Pin generator', desc: 'Hoists STRGuests pin code to shared lib.', disabled: true },
+      { href: '#', title: 'Broadcast queue', desc: 'IS YAML → import webhook (the send action).', disabled: true },
+      { href: '#', title: 'Lifecycle preview', desc: 'IS automated sequence viewer.', disabled: true },
+      { href: '#', title: 'Editorial calendar', desc: 'Drafts in flight + schedule.', disabled: true },
+    ],
+  },
+  {
+    title: 'Acquisition',
+    tiles: [
+      { href: '/promote/backlinks',    title: 'Backlinks',    desc: 'Outreach pipeline + acquired log.',
+        signal: `${backlinks.outreach.total} in flight · ${backlinks.outreach.overdue} overdue`,
+        tone: backlinks.outreach.overdue > 0 ? 'warn' : 'ok' },
+      { href: '/promote/influencers',  title: 'Influencers',  desc: 'Prospect list + active partnerships.',
+        signal: `${influencers.prospects.total} prospects · ${influencers.active.count} active`,
+        tone: influencers.prospects.overdue > 0 ? 'warn' : 'ok' },
+      { href: '/promote/affiliates',   title: 'Affiliates',   desc: 'Leaderboard + payouts due.' },
+      { href: '/promote/press',        title: 'Press / PR',   desc: 'Podcasts + HARO + guest posts + mentions.',
+        signal: `${press.podcasts.total + press.guestPosts.total} in flight · ${press.podcasts.overdue + press.guestPosts.overdue} overdue`,
+        tone: (press.podcasts.overdue + press.guestPosts.overdue) > 0 ? 'warn' : 'ok' },
+      { href: '/promote/paid',         title: 'Paid',         desc: 'Promoted Listings · Pinterest · Meta.' },
+      { href: '/promote/partnerships', title: 'Partnerships', desc: 'PMS integrations + co-marketing.', disabled: true },
+      { href: '#',                      title: 'Social',       desc: 'Reddit + FB + X + LinkedIn + IG queue.', disabled: true },
+      { href: '#',                      title: 'Pinterest perf', desc: 'Top pin + saves + clicks.', disabled: true },
+      { href: '#',                      title: 'Keyword opportunities', desc: 'GSC striking-distance + content gaps.', disabled: true },
+      { href: '/promote/competitors',   title: 'Competitor watch', desc: 'Direct · adjacent · aspirational players.' },
+    ],
+  },
+  {
+    title: 'Service',
+    tiles: [
+      { href: '/promote/voice', title: 'Customer voice', desc: 'Quotes · pain · feature-asks · objections · churn reasons.' },
+      { href: '/promote/feature-requests', title: 'Feature requests', desc: 'Clustered view of feature-asks (3+ = strong signal).' },
+      { href: '/promote/onboarding', title: 'Onboarding flow', desc: 'First-100 buyer white-glove follow-through.' },
+      { href: '#', title: 'Customer support', desc: 'Etsy convos + Gumroad + email queue.', disabled: true },
+      { href: '#', title: 'Reviews & reputation', desc: 'Etsy + Gumroad rating + 1-2 star alerts.', disabled: true },
+      { href: '#', title: 'Promotions', desc: 'Coupon ladder + A/B tests.', disabled: true },
+    ],
+  },
+];
+---
+<Layout title="Grow" section="promote">
+  <header class="mb-8">
+    <h1 class="font-display text-4xl font-semibold">Grow</h1>
+    <p class="text-sm" style="color: rgb(var(--c-muted))">Content production · traffic acquisition · customer service.</p>
+  </header>
+
+  {groups.map((group) => (
+    <section class="mb-10">
+      <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        {group.title}
+      </h2>
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {group.tiles.map((t) => (
+          <a href={t.disabled ? '#' : t.href}
+             class="card no-underline transition hover:shadow-md"
+             style={t.disabled ? 'opacity: 0.55; cursor: not-allowed' : ''}
+             aria-disabled={t.disabled ? 'true' : undefined}>
+            <div class="flex items-baseline justify-between gap-3">
+              <h3 class="font-display text-base font-semibold">{t.title}</h3>
+              {t.signal && <span class:list={['badge', `badge-${t.tone === 'bad' ? 'p0' : t.tone === 'warn' ? 'p1' : 'ok'}`, 'shrink-0', 'text-[10px]']}>{t.signal}</span>}
+            </div>
+            <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">{t.desc}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  ))}
+</Layout>

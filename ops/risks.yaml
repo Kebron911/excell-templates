@@ -1,0 +1,121 @@
+# ops/risks.yaml — solopreneur risk register
+#
+# Read by:
+#   - tools/empire-console — /maintain/risks
+#
+# Risk score = likelihood × impact (1-25 scale). ≥16 = critical.
+#
+# Schema:
+#   id:           string
+#   title:        string
+#   category:     platform | financial | technical | legal | operational | strategic
+#   likelihood:   1-5    (1 = very unlikely, 5 = expected)
+#   impact:       1-5    (1 = nuisance, 5 = ends the business)
+#   mitigation:   string (current mitigation — what protects against this)
+#   contingency:  string (what to do if it happens)
+#   owner:        Daniel | TBD
+#   last_reviewed: YYYY-MM-DD
+#   notes:        optional
+#
+# Review quarterly. Update `last_reviewed` after each review.
+
+risks:
+  - id: risk-stripe-shutdown
+    title: Stripe account suspended
+    category: platform
+    likelihood: 2
+    impact: 5
+    mitigation: "Maintain clean dispute rate (<0.5%), avoid prohibited categories, no chargeback magnets. Own-site checkout via Stripe Tax."
+    contingency: "Fall back to Gumroad payment + manual delivery via IS. 24h max downtime."
+    owner: Daniel
+    last_reviewed: 2026-05-10
+
+  - id: risk-etsy-tos
+    title: Etsy ToS change or account suspension
+    category: platform
+    likelihood: 3
+    impact: 4
+    mitigation: "Monitor Etsy ToS changes via ops/etsy-review-tos-check.md runbook. Don't depend on Etsy for >70% of GMV at scale."
+    contingency: "Migrate buyers to own-site via post-purchase email. Etsy listings act as funnel, not sole revenue."
+    owner: Daniel
+    last_reviewed: 2026-05-10
+
+  - id: risk-influencersoft-shutdown
+    title: Influencersoft service shuts down or breaks
+    category: platform
+    likelihood: 2
+    impact: 5
+    mitigation: "Weekly export of contacts + sequences to encrypted backup. Schema documented for migration."
+    contingency: "Migrate to ConvertKit / MailerLite within 48h. n8n flows route to new provider via webhook abstraction."
+    owner: Daniel
+    last_reviewed: 2026-05-10
+
+  - id: risk-google-deindex
+    title: Google de-indexes thestrledger.com or sister sites
+    category: platform
+    likelihood: 2
+    impact: 4
+    mitigation: "White-hat SEO only. No link schemes. Quality content per cluster blog standard. CWV in Good for all pages."
+    contingency: "Manual reconsideration request. Diversify traffic to Pinterest + email + direct."
+    owner: Daniel
+    last_reviewed: 2026-05-10
+
+  - id: risk-domain-loss
+    title: Domain expires or registrar account compromised
+    category: technical
+    likelihood: 1
+    impact: 5
+    mitigation: "Domain auto-renew enabled. Registrar 2FA + Vaultwarden recovery codes in physical safe. n8n cert-watch + domain-watch flows."
+    contingency: "Recovery codes in safe enable account reset. Renewal grace periods give 30d window."
+    owner: Daniel
+    last_reviewed: 2026-05-10
+
+  - id: risk-solo-burnout
+    title: Solopreneur burnout / extended unavailability
+    category: operational
+    likelihood: 2
+    impact: 4
+    mitigation: "n8n automates 90% of ops. Vacation runbook documents what runs autonomously vs needs touch."
+    contingency: "Auto-responder + 'maintenance mode' page. Stripe sub purchases keep flowing. Pause email broadcasts via n8n."
+    owner: Daniel
+    last_reviewed: 2026-05-10
+
+  - id: risk-tax-filing-late
+    title: Quarterly tax filing missed
+    category: financial
+    likelihood: 2
+    impact: 3
+    mitigation: "ops/calendar.yaml + n8n due-soon-watch P1 alerts at 7d, P0 if overdue."
+    contingency: "Pay penalty + interest. Catch up next quarter. Doesn't break business but expensive."
+    owner: Daniel
+    last_reviewed: 2026-05-10
+
+  - id: risk-cpa-mistake
+    title: CPA / DIY books error producing wrong tax filing
+    category: financial
+    likelihood: 2
+    impact: 4
+    mitigation: "Wave Apps used for books. Quarterly self-review against Stripe/Etsy/Gumroad raw exports."
+    contingency: "Amended return. CPA engagement letter (when established) covers errors-and-omissions."
+    owner: Daniel
+    last_reviewed: 2026-05-10
+
+  - id: risk-template-bug-mass-refund
+    title: Critical bug in best-selling template causes mass refunds
+    category: technical
+    likelihood: 2
+    impact: 4
+    mitigation: "Per-SKU file-integrity smoke test (planned Phase 5). Manual QA before each release."
+    contingency: "W-update workflow ships fix to all prior buyers within 24h. Refund-recovery sequence keeps trust."
+    owner: Daniel
+    last_reviewed: 2026-05-10
+
+  - id: risk-content-cadence-rot
+    title: Content cadence drops → SEO + email engagement collapses
+    category: strategic
+    likelihood: 3
+    impact: 3
+    mitigation: "Atomization engine — one Source Topic → 11 artifacts. Lower per-week burden."
+    contingency: "Pause all paid spend. Focus on 1 weekly broadcast minimum. Resume cadence over 4 weeks."
+    owner: Daniel
+    last_reviewed: 2026-05-10

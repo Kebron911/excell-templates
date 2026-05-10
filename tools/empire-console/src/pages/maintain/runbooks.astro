@@ -1,0 +1,73 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import { readRunbooks } from '@/lib/data/runbooks';
+
+const runbooks = await readRunbooks();
+const stale = runbooks.filter((r) => r.isStale);
+const fresh = runbooks.filter((r) => !r.isStale);
+---
+<Layout title="Maintain · Runbooks" section="maintain">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Runbook index</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        {runbooks.length} runbooks · {stale.length} stale (>180d or undated).
+      </p>
+    </div>
+    <span class:list={['badge', stale.length === 0 ? 'badge-ok' : 'badge-p1']}>
+      {stale.length === 0 ? 'all fresh' : `${stale.length} need review`}
+    </span>
+  </header>
+
+  {stale.length > 0 && (
+    <section class="mb-8">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-warn))">
+        Stale or undated ({stale.length})
+      </h2>
+      <ul class="space-y-2">
+        {stale.map((r) => (
+          <li class="card flex items-start gap-3 text-sm">
+            <div class="flex-1">
+              <div class="font-medium">{r.title}</div>
+              <div class="mt-1 text-xs" style="color: rgb(var(--c-muted))">
+                <span class="font-mono">{r.relPath}</span>
+                {r.owner && <><span class="mx-2">·</span><span>owner: {r.owner}</span></>}
+                <span class="mx-2">·</span>
+                <span>last reviewed: {r.lastReviewed ?? '—'}</span>
+                {r.ageDays !== null && <>
+                  <span class="mx-2">·</span>
+                  <span>{r.ageDays}d ago</span>
+                </>}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  <section>
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Fresh ({fresh.length})
+    </h2>
+    {fresh.length === 0 ? (
+      <p class="text-sm" style="color: rgb(var(--c-muted))">None yet. Add frontmatter <code>last_reviewed: YYYY-MM-DD</code> to any runbook.</p>
+    ) : (
+      <ul class="space-y-2">
+        {fresh.map((r) => (
+          <li class="card flex items-start gap-3 text-sm">
+            <div class="flex-1">
+              <div class="font-medium">{r.title}</div>
+              <div class="mt-1 text-xs" style="color: rgb(var(--c-muted))">
+                <span class="font-mono">{r.relPath}</span>
+                <span class="mx-2">·</span>
+                <span>{r.lastReviewed} ({r.ageDays}d ago)</span>
+                {r.cadence && <><span class="mx-2">·</span><span>{r.cadence}</span></>}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</Layout>

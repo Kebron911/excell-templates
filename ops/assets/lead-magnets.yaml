@@ -1,0 +1,126 @@
+# ops/assets/lead-magnets.yaml — every PDF/freebie used to capture emails
+#
+# Read by:
+#   - tools/empire-console — /maintain/assets/lead-magnets
+#   - infrastructure/n8n/flows/asset-stale-watch (weekly Mon, P1 if last_updated >180d)
+#   - infrastructure/n8n/flows/lead-magnet-perf-watch (weekly, P1 if conversion drops >50%)
+#
+# Schema:
+#   id:               string — stable ID (e.g. "lm-house-rules")
+#   name:             string — human label
+#   site:             thestrledger | strguests | strhost | strops | strbuyers
+#   landing_url:      where someone signs up
+#   pdf_path:         repo path or URL to the file
+#   is_form_id:       Influencersoft form ID (drives funnel attribution)
+#   is_tag:           IS tag applied on opt-in
+#   welcome_sequence: IS sequence triggered after opt-in
+#   related_skus:     [SKU IDs this magnet pre-sells]
+#   status:           active | archived | deprecated | draft
+#   created:          YYYY-MM-DD
+#   last_updated:     YYYY-MM-DD
+#   owner:            Daniel | TBD
+#   notes:            optional
+
+magnets:
+  # STRGuests-Tools cluster pack (5 PDF magnets shipped Phase 2)
+  - id: lm-house-rules
+    name: House Rules PDF
+    site: strguests
+    landing_url: https://strguests.tools/tools/house-rules
+    pdf_path: STRGuests-Tools/dist/house-rules.pdf
+    is_form_id: TBD
+    is_tag: lead-magnet:house-rules
+    welcome_sequence: welcome-house-rules
+    related_skus: [GST-001]
+    status: active
+    created: 2026-05-06
+    last_updated: 2026-05-06
+    owner: Daniel
+
+  - id: lm-welcome-book
+    name: Welcome Book Builder
+    site: strguests
+    landing_url: https://strguests.tools/tools/welcome-book
+    pdf_path: STRGuests-Tools/dist/welcome-book.pdf
+    is_form_id: TBD
+    is_tag: lead-magnet:welcome-book
+    welcome_sequence: welcome-welcome-book
+    related_skus: [GST-002]
+    status: active
+    created: 2026-05-06
+    last_updated: 2026-05-06
+    owner: Daniel
+
+  - id: lm-wifi-sign
+    name: Wi-Fi Sign Generator
+    site: strguests
+    landing_url: https://strguests.tools/tools/wifi-sign
+    pdf_path: STRGuests-Tools/dist/wifi-sign.pdf
+    is_form_id: TBD
+    is_tag: lead-magnet:wifi-sign
+    welcome_sequence: welcome-wifi-sign
+    related_skus: []
+    status: active
+    created: 2026-05-06
+    last_updated: 2026-05-06
+    owner: Daniel
+
+  - id: lm-checkin-instructions
+    name: Check-in Instructions PDF
+    site: strguests
+    landing_url: https://strguests.tools/tools/check-in
+    pdf_path: STRGuests-Tools/dist/check-in.pdf
+    is_form_id: TBD
+    is_tag: lead-magnet:check-in
+    welcome_sequence: welcome-check-in
+    related_skus: []
+    status: active
+    created: 2026-05-06
+    last_updated: 2026-05-06
+    owner: Daniel
+
+  - id: lm-message-templates-pack
+    name: Guest Message Templates Pack
+    site: strguests
+    landing_url: https://strguests.tools/lead-magnet/message-templates
+    pdf_path: STRGuests-Tools/dist/message-templates-pack.pdf
+    is_form_id: TBD
+    is_tag: lead-magnet:message-templates
+    welcome_sequence: welcome-message-templates
+    related_skus: []
+    status: active
+    created: 2026-05-06
+    last_updated: 2026-05-06
+    owner: Daniel
+
+  # Hub — STR Ledger
+  - id: lm-47-deductions
+    name: 47 Deductions Every STR Host Misses
+    site: thestrledger
+    landing_url: https://thestrledger.com/47-deductions
+    pdf_path: templates/_shared/47-deductions.pdf
+    is_form_id: TBD
+    is_tag: lead-magnet:47-deductions
+    welcome_sequence: welcome-tax-deductions
+    related_skus: [TAX-001, TAX-002]
+    status: active
+    created: 2026-04-22
+    last_updated: 2026-05-05
+    owner: Daniel
+    notes: Beachhead lead magnet — drives the tax-and-financial funnel.
+
+  # STROps-Tools cluster pack (placeholder)
+  - id: lm-strops-cluster-pack
+    name: STR Ops Cluster Pack
+    site: strops
+    landing_url: https://strops.tools/lead-magnet/cluster-pack
+    pdf_path: STROps-Tools/dist/cluster-pack.pdf
+    is_form_id: TBD
+    is_tag: lead-magnet:strops-cluster
+    welcome_sequence: TBD
+    related_skus: [OPS-001, OPS-002, OPS-003]
+    status: draft
+    created: 2026-05-06
+    last_updated: 2026-05-06
+    owner: Daniel
+    notes: PLACEHOLDER. Confirm shape when STROps Phase 2 ships.

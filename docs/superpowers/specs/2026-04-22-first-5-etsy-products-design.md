@@ -155,7 +155,7 @@ The P&L Lite is single-property only; the Full version (multi-property, deprecia
 
 | # | Task | Day | Claude deliverable | Daniel action |
 |---|---|---|---|---|
-| A2 | Domain + email | 1 | DNS record values; Cloudflare Registrar purchase checklist; Google Workspace setup steps; test-email verification checklist | Buy thestrledger.com at Cloudflare; add A + MX records; sign up for Workspace ($6/mo); verify `hello@thestrledger.com` |
+| A2 | Domain + email | 1 | DNS record values; Hostinger purchase checklist; Google Workspace setup steps; test-email verification checklist | Buy thestrledger.com via Hostinger; add A + MX records; sign up for Workspace ($6/mo); verify `hello@thestrledger.com` |
 | A3 | Etsy seller account | 1–2 | Pre-filled preferences; tax-entity note (sole prop OK for MVP); bank/tax submission checklist; 2FA steps | Create Etsy account with business email; submit bank + SSN/EIN; enable 2FA authenticator; record shop URL + listing ID format |
 | A4 | Vista Create asset pack | 2–4 | Precise Vista Create specs: logo sq + horiz, banner (1600×213), icon (500×500), thumbnail master (2000×2000), Excel cover (1000×400) — exact hex, fonts, headline copy, layout, negative space | Build 5 assets in Vista Create Pro; export PNG + SVG where applicable to `brand/assets/`; commit |
 | A5 | Shop copy live | 5 | (No new Claude work — copy already drafted) | Paste `shop-about.md` into Etsy → About; paste `shop-policies.md` into Etsy → Policies; paste announcement banner text |
@@ -239,7 +239,7 @@ The P&L Lite is single-property only; the Full version (multi-property, deprecia
 | Etsy account approval delayed (1–3 days) | Medium | High | A3 starts Day 1 parallel to briefs; worst case slips G4 by 1–2 days |
 | Excel build bug missed until buyer opens file | Low-Medium | High | Test purchase gate G3; Windows QA at G2/G5; openpyxl generates deterministic output |
 | Thumbnail CTR <1% post-launch | High | Medium | Rewrite trigger at Day 30 (already in Welcome Book listing draft line 214); thumbnail is biggest conversion lever per master spec |
-| Domain purchase friction (card decline, region mismatch) | Low | Medium | Cloudflare Registrar known-fast; fallback: Porkbun or Namecheap |
+| Domain purchase friction (card decline, region mismatch) | Low | Medium | Hostinger known-fast; fallback: Porkbun or Namecheap |
 | Daniel review bottleneck on briefs | Medium | Medium | Budget 15 min/brief; Claude queues briefs one at a time; Daniel reviews same-day |
 | Vista Create thumbnail build slower than estimated | Medium | Low | Thumbnail master from A4 is reusable; each product thumb is text-swap only |
 | P&L Lite formula bug discovered post-launch | Medium | Medium | Hardest SKU gets longest QA window (Days 8–13); test purchase from secondary account before G7 |

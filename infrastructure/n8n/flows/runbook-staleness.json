@@ -1,0 +1,54 @@
+{
+  "name": "runbook-staleness",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * 1" }] }
+      },
+      "id": "cron",
+      "name": "Mondays 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cd {{ $env.EMPIRE_REPO_PATH }} && find ops/runbooks docs/runbooks -name '*.md' -print 2>/dev/null"
+      },
+      "id": "list",
+      "name": "List runbook files",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const fs = require('fs');\nconst path = require('path');\nconst matter = require('gray-matter');\nconst repo = $env.EMPIRE_REPO_PATH;\nconst paths = ($input.item.json.stdout || '').split('\\n').filter(Boolean);\nconst now = Date.now();\nconst stale = [];\nfor (const rel of paths) {\n  const full = path.resolve(repo, rel);\n  let raw; try { raw = fs.readFileSync(full, 'utf8'); } catch { continue; }\n  const fm = matter(raw).data || {};\n  const lr = fm.last_reviewed || fm.lastReviewed;\n  const lrDate = lr ? new Date(lr).getTime() : null;\n  const ageDays = lrDate ? Math.floor((now - lrDate) / 86400000) : null;\n  if (ageDays === null || ageDays > 180) {\n    stale.push({ rel, title: fm.title || rel, ageDays });\n  }\n}\nif (stale.length === 0) return [];\nconst lines = stale.slice(0, 10).map(s => `• ${s.title} (${s.ageDays === null ? 'undated' : s.ageDays + 'd old'})`).join('\\n');\nreturn [{ json: {\n  priority: 'P1',\n  source: 'runbook-staleness',\n  message: `${stale.length} runbook${stale.length>1?'s':''} stale or undated:\\n${lines}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/maintain/runbooks'\n}}];"
+      },
+      "id": "parse",
+      "name": "Find stale runbooks",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": {
+        "source": "parameter",
+        "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID"
+      },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "Mondays 08:00":      { "main": [[{ "node": "List runbook files",  "type": "main", "index": 0 }]] },
+    "List runbook files": { "main": [[{ "node": "Find stale runbooks", "type": "main", "index": 0 }]] },
+    "Find stale runbooks":{ "main": [[{ "node": "→ telegram-router",   "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P1" }]
+}

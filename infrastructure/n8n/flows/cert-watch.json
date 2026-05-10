@@ -1,0 +1,121 @@
+{
+  "name": "cert-watch",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 6 * * *" }] }
+      },
+      "id": "cron",
+      "name": "Daily 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cat {{ $env.EMPIRE_REPO_PATH }}/ops/infrastructure.yaml"
+      },
+      "id": "readYaml",
+      "name": "Read infrastructure.yaml",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const yaml = require('js-yaml');\nconst doc = yaml.load($input.item.json.stdout || '') || { domains: [] };\nconst urls = (doc.domains || []).filter(d => d.ssl_check_url).map(d => ({ domain: d.domain, url: d.ssl_check_url }));\nreturn urls.map(u => ({ json: u }));"
+      },
+      "id": "extract",
+      "name": "Extract SSL URLs",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": { "redirect": { "redirect": { "followRedirects": true } }, "timeout": 10000 },
+        "method": "HEAD"
+      },
+      "id": "probe",
+      "name": "Probe HTTPS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [800, 300],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "functionCode": "// n8n's HEAD request returns headers; extract cert info from the response.\n// In practice, openssl s_client gives the most reliable expiry. Use Execute Command for that.\nconst domain = $('Extract SSL URLs').item.json.domain;\nconst url = $('Extract SSL URLs').item.json.url;\nconst host = new URL(url).hostname;\nreturn [{ json: { domain, host } }];"
+      },
+      "id": "prep",
+      "name": "Prep for openssl",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1000, 300]
+    },
+    {
+      "parameters": {
+        "command": "=echo | openssl s_client -servername {{ $json.host }} -connect {{ $json.host }}:443 2>/dev/null | openssl x509 -noout -enddate | cut -d= -f2"
+      },
+      "id": "openssl",
+      "name": "openssl x509 enddate",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1200, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const enddateStr = ($input.item.json.stdout || '').trim();\nconst domain = $('Prep for openssl').item.json.domain;\nif (!enddateStr) return [{ json: { domain, daysLeft: null, error: 'no enddate parsed' } }];\nconst expires = new Date(enddateStr);\nconst daysLeft = Math.floor((expires - Date.now()) / 86400000);\nreturn [{ json: { domain, expires: expires.toISOString().slice(0,10), daysLeft } }];"
+      },
+      "id": "compute",
+      "name": "Compute days left",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1400, 300]
+    },
+    {
+      "parameters": { "fieldToAggregate": "json", "options": {} },
+      "id": "agg",
+      "name": "Aggregate",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1600, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const certs = ($input.item.json.json || []);\nconst critical = certs.filter(c => c.daysLeft !== null && c.daysLeft <= 3);\nconst soon = certs.filter(c => c.daysLeft !== null && c.daysLeft > 3 && c.daysLeft <= 14);\nif (critical.length === 0 && soon.length === 0) return [];\nconst priority = critical.length > 0 ? 'P0' : 'P1';\nconst lines = [...critical, ...soon].map(c => `• ${c.domain}: ${c.daysLeft}d remaining`);\nreturn [{ json: {\n  priority,\n  source: 'cert-watch',\n  message: `${critical.length} cert${critical.length > 1 ? 's' : ''} ≤3d / ${soon.length} ≤14d:\\n${lines.join('\\n')}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/infrastructure'\n}}];"
+      },
+      "id": "decide",
+      "name": "Decide alert",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1800, 300]
+    },
+    {
+      "parameters": {
+        "source": "parameter",
+        "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID"
+      },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [2000, 300]
+    }
+  ],
+  "connections": {
+    "Daily 06:00":              { "main": [[{ "node": "Read infrastructure.yaml", "type": "main", "index": 0 }]] },
+    "Read infrastructure.yaml": { "main": [[{ "node": "Extract SSL URLs",         "type": "main", "index": 0 }]] },
+    "Extract SSL URLs":         { "main": [[{ "node": "Probe HTTPS",              "type": "main", "index": 0 }]] },
+    "Probe HTTPS":              { "main": [[{ "node": "Prep for openssl",         "type": "main", "index": 0 }]] },
+    "Prep for openssl":         { "main": [[{ "node": "openssl x509 enddate",    "type": "main", "index": 0 }]] },
+    "openssl x509 enddate":     { "main": [[{ "node": "Compute days left",       "type": "main", "index": 0 }]] },
+    "Compute days left":        { "main": [[{ "node": "Aggregate",                "type": "main", "index": 0 }]] },
+    "Aggregate":                { "main": [[{ "node": "Decide alert",             "type": "main", "index": 0 }]] },
+    "Decide alert":             { "main": [[{ "node": "→ telegram-router",        "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P0" }]
+}

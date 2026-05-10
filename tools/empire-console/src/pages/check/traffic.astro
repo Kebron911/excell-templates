@@ -1,0 +1,88 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+
+// Phase 3 — wired when nightly-refresh pulls GA4 + Plausible.
+const stub = {
+  yesterday: { sessions: 0, users: 0 },
+  week:      { sessions: 0, users: 0 },
+  mtd:       { sessions: 0, users: 0 },
+  bySite: [
+    { id: 'thestrledger', name: 'thestrledger.com', sessions: 0 },
+    { id: 'strguests',    name: 'strguests.tools',  sessions: 0 },
+    { id: 'strhost',      name: 'strhost.tools',    sessions: 0 },
+    { id: 'strops',       name: 'strops.tools',     sessions: 0 },
+    { id: 'strbuyers',    name: 'strbuyers.tools',  sessions: 0 },
+  ],
+  topSources: [
+    { source: 'Google / organic',    sessions: 0 },
+    { source: 'Pinterest / referral', sessions: 0 },
+    { source: 'Direct',               sessions: 0 },
+    { source: 'Etsy',                 sessions: 0 },
+  ],
+};
+---
+<Layout title="Check · Traffic" section="check">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Traffic</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Cluster-wide sessions across thestrledger.com + 4 sister sites.
+        Plausible is the primary number; GA4 for funnel drill-in (Phase 3).
+      </p>
+    </div>
+    <span class="badge badge-p2">Phase 3 stub</span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+    <Scorecard label="Yesterday" value={stub.yesterday.sessions} hint={`${stub.yesterday.users} users`} />
+    <Scorecard label="This week" value={stub.week.sessions} hint={`${stub.week.users} users`} />
+    <Scorecard label="MTD" value={stub.mtd.sessions} hint={`${stub.mtd.users} users`} />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Sessions by site (MTD)
+    </h2>
+    <div class="card">
+      <table class="w-full text-sm">
+        <tbody>
+          {stub.bySite.map((s) => (
+            <tr class="border-b last:border-0" style="border-color: rgb(var(--c-border))">
+              <td class="py-2 font-medium">{s.name}</td>
+              <td class="py-2 text-right font-mono">{s.sessions}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Top sources (MTD)
+    </h2>
+    <div class="card">
+      <table class="w-full text-sm">
+        <tbody>
+          {stub.topSources.map((s) => (
+            <tr class="border-b last:border-0" style="border-color: rgb(var(--c-border))">
+              <td class="py-2">{s.source}</td>
+              <td class="py-2 text-right font-mono">{s.sessions}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Anomaly detection
+    </h3>
+    <p class="text-sm">
+      The n8n <code>traffic-anomaly-watch</code> flow fires a P1 if yesterday's sessions
+      drop >30% vs the trailing-14d average. Tuned per-site once 4 weeks of baseline accumulate.
+    </p>
+  </section>
+</Layout>

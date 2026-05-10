@@ -232,7 +232,7 @@ Articles are 1,500–2,500 words, genuinely useful (not bait), end with: *"This 
 
 ## 12. Tech Stack (deep)
 
-**One platform, one bill.** Matches the unified Hostinger Business cluster decision — no Cloudflare, no AWS, no third-party object store.
+**One platform, one bill.** Matches the unified Hostinger Business cluster decision — no Hostinger, no AWS, no third-party object store.
 
 ```
 Astro 5.x (static + islands)
@@ -272,7 +272,7 @@ Plausible
   └── Hosted plan ($9/mo) — no need to self-host on Hostinger
 ```
 
-**Why this beats Cloudflare R2 + Postmark + ConvertKit at our scale:**
+**Why this beats Hostinger R2 + Postmark + ConvertKit at our scale:**
 - 50 manuals × 15MB = 750MB → comfortably under Hostinger Business's 200GB SSD
 - Sub-100k downloads/mo means edge caching is irrelevant (each file is pulled once per buyer)
 - One contact pool across all 5 cluster sites = real cross-site segmentation

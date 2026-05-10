@@ -1,0 +1,77 @@
+# ops/infrastructure.yaml — domains, certs, DNS, hosts
+#
+# Read by:
+#   - tools/empire-console — /check/infrastructure
+#   - infrastructure/n8n/flows/cert-watch — daily 06:00, P1 ≤14d, P0 ≤3d
+#   - infrastructure/n8n/flows/domain-watch — weekly Mon 06:00, P1 ≤60d, P0 ≤7d
+#
+# Schema:
+#   domain:      string  (apex)
+#   role:        hub | site | tool | infra | mail
+#   registrar:   Hostinger | Namecheap | GoDaddy | other
+#   expires:     YYYY-MM-DD  (registrar expiry)
+#   ssl_provider: Hostinger AutoSSL | LetsEncrypt | other
+#   ssl_check_url: https url to probe (defaults to https://<domain>/)
+#   notes: optional
+
+domains:
+  - domain: thestrledger.com
+    role: hub
+    registrar: Hostinger
+    expires: 2027-04-22
+    ssl_provider: Hostinger AutoSSL
+    ssl_check_url: https://thestrledger.com
+    notes: Master hub.
+
+  - domain: blog.thestrledger.com
+    role: hub
+    registrar: Hostinger
+    expires: 2027-04-22
+    ssl_provider: Hostinger AutoSSL
+    ssl_check_url: https://blog.thestrledger.com
+    notes: Ghost blog.
+
+  - domain: strguests.tools
+    role: site
+    registrar: Hostinger
+    expires: 2027-05-01
+    ssl_provider: Hostinger AutoSSL
+    ssl_check_url: https://strguests.tools
+    notes: Sister site — Guest XP.
+
+  - domain: strhost.tools
+    role: site
+    registrar: Hostinger
+    expires: 2027-05-01
+    ssl_provider: Hostinger AutoSSL
+    ssl_check_url: https://strhost.tools
+
+  - domain: strops.tools
+    role: site
+    registrar: Hostinger
+    expires: 2027-05-01
+    ssl_provider: Hostinger AutoSSL
+    ssl_check_url: https://strops.tools
+
+  - domain: strbuyers.tools
+    role: site
+    registrar: Hostinger
+    expires: 2027-05-01
+    ssl_provider: Hostinger AutoSSL
+    ssl_check_url: https://strbuyers.tools
+
+  - domain: n8n.thestrledger.com
+    role: infra
+    registrar: Hostinger
+    expires: 2027-04-22
+    ssl_provider: Hostinger AutoSSL
+    ssl_check_url: https://n8n.thestrledger.com
+    notes: Self-hosted n8n.
+
+  - domain: dashboard.thestrledger.com
+    role: tool
+    registrar: Hostinger
+    expires: 2027-04-22
+    ssl_provider: Hostinger AutoSSL
+    ssl_check_url: https://dashboard.thestrledger.com
+    notes: Empire Console — Hostinger shared hosting + .htaccess basic auth.

@@ -1,0 +1,51 @@
+# ops/competitors.yaml — competitor watch list
+#
+# Read by tools/empire-console — /promote/competitors
+# Reviewed weekly during Tuesday Trajectory or Wednesday Wisdom session.
+#
+# Schema per competitor:
+#   id:           string
+#   name:         string
+#   url:          live URL
+#   tier:         direct | adjacent | aspirational
+#                 (direct = competes for same dollars · adjacent = adjacent niche · aspirational = role models)
+#   category:     etsy-templates | own-site | community | course | tool
+#   pricing:      string (rough range)
+#   strengths:    array of strings
+#   weaknesses:   array of strings
+#   moves:        array — recent observed changes
+#   last_checked: YYYY-MM-DD
+#   notes:        optional
+
+competitors:
+  - id: comp-placeholder-1
+    name: Example Etsy seller (top STR template)
+    url: https://www.etsy.com
+    tier: direct
+    category: etsy-templates
+    pricing: "$5–$25 per template"
+    strengths:
+      - Established Etsy seller rep
+      - Bundle pricing
+    weaknesses:
+      - No own-site / no email list
+      - Generic templates not STR-specific
+    moves: []
+    last_checked: 2026-05-10
+    notes: PLACEHOLDER. Replace with real top-3 Etsy competitors after eRank research.
+
+  - id: comp-placeholder-2
+    name: Example STR coach with templates
+    url: https://example.com
+    tier: adjacent
+    category: own-site
+    pricing: "$49–$197 packages"
+    strengths:
+      - Authority via podcast / coaching
+      - Higher price point
+    weaknesses:
+      - Coaching-led, templates are afterthought
+      - Low template variety
+    moves: []
+    last_checked: 2026-05-10
+    notes: PLACEHOLDER. Map after Wave-1 launch.

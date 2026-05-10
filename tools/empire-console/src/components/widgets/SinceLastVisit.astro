@@ -1,0 +1,71 @@
+---
+import { readAlerts } from '@/lib/data/alerts';
+import { readProgress } from '@/lib/data/progress';
+
+const [alerts, progress] = await Promise.all([readAlerts(200), readProgress()]);
+const currentAlertCount = alerts.length;
+const currentProgressChecked = progress.totalChecked;
+---
+<div id="since-last-visit"
+     class="hidden card card-tight mb-4"
+     style="background: rgb(var(--c-surface-2)); display: none"
+     data-alert-count={currentAlertCount}
+     data-progress-checked={currentProgressChecked}
+     role="status"
+     aria-live="polite">
+  <div class="flex items-baseline justify-between gap-3">
+    <div class="text-sm">
+      <strong>Welcome back.</strong>
+      <span id="slv-summary" style="color: rgb(var(--c-muted))"></span>
+    </div>
+    <button id="slv-dismiss" type="button"
+            class="text-xs"
+            style="color: rgb(var(--c-muted))"
+            aria-label="Dismiss welcome-back banner">dismiss ✕</button>
+  </div>
+</div>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('since-last-visit');
+    if (!el) return;
+    const summary = document.getElementById('slv-summary');
+    const dismiss = document.getElementById('slv-dismiss');
+    const KEY = 'empire-last-visit';
+    const stored = localStorage.getItem(KEY);
+    const now = Date.now();
+    const currentAlerts = Number(el.getAttribute('data-alert-count')) || 0;
+    const currentChecked = Number(el.getAttribute('data-progress-checked')) || 0;
+
+    if (stored) {
+      try {
+        const prev = JSON.parse(stored);
+        const ageMs = now - prev.ts;
+        const ageDays = Math.floor(ageMs / 86400000);
+        const newAlerts = Math.max(0, currentAlerts - (prev.alerts || 0));
+        const checkedDelta = Math.max(0, currentChecked - (prev.checked || 0));
+        // Show banner only if >18h since last visit AND something changed
+        if (ageMs > 18 * 3600 * 1000 && (newAlerts > 0 || checkedDelta > 0 || ageDays > 1)) {
+          const parts = [];
+          if (ageDays > 1) parts.push(`Last visit ${ageDays}d ago`);
+          else parts.push('Last visit ~1d ago');
+          if (newAlerts > 0) parts.push(`+${newAlerts} alert${newAlerts > 1 ? 's' : ''}`);
+          if (checkedDelta > 0) parts.push(`+${checkedDelta} progress item${checkedDelta > 1 ? 's' : ''} checked`);
+          summary.textContent = ' · ' + parts.join(' · ');
+          el.classList.remove('hidden');
+          el.style.display = 'block';
+        }
+      } catch {}
+    }
+
+    dismiss?.addEventListener('click', () => {
+      el.style.display = 'none';
+      localStorage.setItem(KEY, JSON.stringify({ ts: now, alerts: currentAlerts, checked: currentChecked }));
+    });
+
+    // Always update last-visit on next page load
+    setTimeout(() => {
+      localStorage.setItem(KEY, JSON.stringify({ ts: now, alerts: currentAlerts, checked: currentChecked }));
+    }, 5000);
+  });
+</script>

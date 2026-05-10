@@ -1,0 +1,39 @@
+/* Empire Console — print stylesheet for weekly/monthly review export */
+@media print {
+  /* Hide chrome */
+  header, footer, nav, .no-print, [data-no-print],
+  #atlas-filter, .atlas-kind-btn, #cmdk-overlay, button {
+    display: none !important;
+  }
+  /* Expand collapsibles when printing */
+  details { display: block !important; }
+  details > summary { display: none !important; }
+  details > * { display: block !important; }
+
+  body, html {
+    background: white !important;
+    color: black !important;
+  }
+  .card, .card-tight {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+  }
+  .badge { border: 1px solid #ccc !important; }
+  a {
+    color: black !important;
+    text-decoration: underline;
+  }
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    color: #555;
+  }
+  a[href^="/"]::after { content: ""; } /* skip internal links */
+  main { max-width: 100% !important; padding: 0 !important; }
+
+  h1, h2, h3 { page-break-after: avoid; }
+  table { page-break-inside: auto; }
+  tr { page-break-inside: avoid; }
+}

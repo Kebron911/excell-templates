@@ -1,0 +1,44 @@
+---
+// Theme toggle — persists to localStorage, applied via [data-theme] on <html>.
+// Renders nothing server-side; the inline script runs before paint to avoid flash.
+---
+<button id="theme-toggle"
+        type="button"
+        class="rounded px-2 py-1.5 text-xs"
+        style="color: rgb(var(--c-muted))"
+        aria-label="Toggle dark mode"
+        title="Toggle dark mode">
+  <span data-theme-light class="hidden">☀</span>
+  <span data-theme-dark>☾</span>
+</button>
+
+<script is:inline>
+  // Pre-paint theme application to avoid flash of wrong theme
+  (function () {
+    const stored = localStorage.getItem('empire-theme');
+    if (stored === 'light' || stored === 'dark') {
+      document.documentElement.setAttribute('data-theme', stored);
+    }
+  })();
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('theme-toggle');
+    const lightIcon = btn?.querySelector('[data-theme-light]');
+    const darkIcon = btn?.querySelector('[data-theme-dark]');
+
+    function syncIcons() {
+      const current = document.documentElement.getAttribute('data-theme') ||
+                      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (current === 'dark') { lightIcon?.classList.remove('hidden'); darkIcon?.classList.add('hidden'); }
+      else { lightIcon?.classList.add('hidden'); darkIcon?.classList.remove('hidden'); }
+    }
+    syncIcons();
+    btn?.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') ||
+                      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('empire-theme', next);
+      syncIcons();
+    });
+  });
+</script>

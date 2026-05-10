@@ -1,0 +1,59 @@
+# ops/assets/brand-assets.yaml — logos, palettes, fonts, templates
+#
+# Read by:
+#   - tools/empire-console — /maintain/assets/brand
+#
+# Schema:
+#   id, name, category, location, format, last_updated, owner, notes
+
+assets:
+  - id: ba-wordmark-strledger
+    name: STR Ledger wordmark (primary)
+    category: logo
+    location: brand/assets/logo/strledger-wordmark.svg
+    format: svg
+    last_updated: 2026-04-22
+    owner: Daniel
+
+  - id: ba-palette-cluster
+    name: Cluster color palette tokens
+    category: palette
+    location: design-system/tokens.css
+    format: css
+    last_updated: 2026-05-06
+    owner: Daniel
+    notes: Single source of truth for cluster + sister-site accents.
+
+  - id: ba-fonts-cormorant
+    name: Cormorant Garamond (display)
+    category: font
+    location: https://fonts.google.com/specimen/Cormorant+Garamond
+    format: web-font
+    last_updated: 2026-04-22
+    owner: Daniel
+
+  - id: ba-fonts-inter
+    name: Inter (body)
+    category: font
+    location: https://fonts.google.com/specimen/Inter
+    format: web-font
+    last_updated: 2026-04-22
+    owner: Daniel
+
+  - id: ba-og-template
+    name: OG image template (1200x630)
+    category: template
+    location: brand/assets/og-template.html
+    format: html
+    last_updated: 2026-05-06
+    owner: Daniel
+    notes: Rendered to PNG by Satori + sharp at build time.
+
+  - id: ba-press-kit
+    name: Press kit ZIP
+    category: kit
+    location: brand/assets/press-kit.zip
+    format: zip
+    last_updated: TBD
+    owner: Daniel
+    notes: PROGRESS §P5.7 — assemble before first podcast pitch.

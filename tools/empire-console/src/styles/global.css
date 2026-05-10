@@ -1,0 +1,102 @@
+@import './tokens.css';
+@import './print.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  a { color: rgb(var(--c-accent)); }
+  a:hover { text-decoration: underline; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.92em; }
+  kbd {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.85em;
+  }
+  /* Skip-to-content for screen readers / keyboard users */
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 999;
+  }
+  .skip-link:focus {
+    left: 1rem;
+    top: 1rem;
+    padding: 0.5rem 1rem;
+    background: rgb(var(--c-surface));
+    border: 2px solid rgb(var(--c-accent));
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-lg border p-5;
+    background: rgb(var(--c-surface));
+    border-color: rgb(var(--c-border));
+  }
+  .card-tight { @apply p-3; }
+
+  /* Three-tier visual hierarchy */
+  .card-critical {
+    border-left: 4px solid rgb(var(--c-bad));
+    background: linear-gradient(to right, rgb(var(--c-bad) / 0.04), rgb(var(--c-surface)) 30%);
+  }
+  .card-notable {
+    border-left: 4px solid rgb(var(--c-warn));
+  }
+  .card-reference {
+    background: rgb(var(--c-surface-2));
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded px-2 py-0.5 text-xs font-medium;
+  }
+  .badge-p0 { background: rgb(var(--c-bad) / 0.15);  color: rgb(var(--c-bad)); }
+  .badge-p1 { background: rgb(var(--c-warn) / 0.18); color: rgb(var(--c-warn)); }
+  .badge-p2 { background: rgb(var(--c-muted) / 0.18); color: rgb(var(--c-muted)); }
+  .badge-ok { background: rgb(var(--c-ok) / 0.15);   color: rgb(var(--c-ok)); }
+
+  /* Tooltip (CSS-only, hover/focus) */
+  .tooltip { position: relative; cursor: help; border-bottom: 1px dotted rgb(var(--c-muted)); }
+  .tooltip:hover::after,
+  .tooltip:focus::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgb(var(--c-ink));
+    color: rgb(var(--c-paper));
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: normal;
+    white-space: nowrap;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  /* Empty state pattern */
+  .empty-state {
+    @apply card text-center;
+    background: rgb(var(--c-surface-2));
+  }
+
+  /* Status dot */
+  .status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .status-dot-ok  { background: rgb(var(--c-ok)); }
+  .status-dot-p1  { background: rgb(var(--c-warn)); }
+  .status-dot-p0  { background: rgb(var(--c-bad)); animation: pulse 2s infinite; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+}

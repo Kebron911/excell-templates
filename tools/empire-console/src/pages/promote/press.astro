@@ -1,0 +1,99 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readPressPipeline } from '@/lib/data/pipelines';
+
+const data = await readPressPipeline();
+const totalOutreach = data.podcasts.total + data.guestPosts.total;
+const totalOverdue = data.podcasts.overdue + data.guestPosts.overdue;
+---
+<Layout title="Promote · Press / PR" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Press / PR</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Podcast outreach + HARO/Qwoted + guest posts + media mentions.
+        Source: <code>ops/press-pipeline.yaml</code>.
+      </p>
+    </div>
+    <span class="badge badge-p2">Phase 4 stub</span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+    <Scorecard label="Outreach in flight" value={totalOutreach} />
+    <Scorecard label="Outreach overdue" value={totalOverdue}
+               tone={totalOverdue > 0 ? 'bad' : 'ok'} />
+    <Scorecard label="HARO responses (logged)" value={data.haro.count} />
+    <Scorecard label="Mentions (logged)" value={data.mentions.count} />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Podcast outreach
+    </h2>
+    <div class="card">
+      {data.podcasts.items.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          PROGRESS §P5.7 — 10 STR podcast pitch list goes in <code>ops/press-pipeline.yaml</code>.
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Show</th>
+              <th>Angle</th>
+              <th>State</th>
+              <th class="text-right">Next</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.podcasts.items.map((it: any) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2 font-medium">{it.show}</td>
+                <td style="color: rgb(var(--c-muted))">{it.angle}</td>
+                <td><span class="badge badge-p2">{it.state}</span></td>
+                <td class="text-right font-mono">{it.next_action_date ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Guest post pitches
+    </h2>
+    <div class="card">
+      {data.guestPosts.items.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">No pitches in flight.</p>
+      ) : (
+        <ul class="space-y-2 text-sm">
+          {data.guestPosts.items.map((it: any) => (
+            <li class="flex items-baseline justify-between">
+              <span><strong>{it.target_publication}</strong> — {it.angle}</span>
+              <span class="badge badge-p2">{it.state}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Channels in this module
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong>Podcast outreach</strong> — pitch top-10 STR podcasts (BiggerPockets, Hosts on Mission, etc.)</li>
+      <li>• <strong>HARO / Qwoted</strong> — respond to journalist queries; log to grow press kit.</li>
+      <li>• <strong>Guest posts</strong> — pitch written pieces to authority publications for backlinks + audience.</li>
+      <li>• <strong>Media mentions</strong> — log won placements; feeds press-kit page on the hub.</li>
+    </ul>
+    <p class="mt-3 text-sm" style="color: rgb(var(--c-muted))">
+      n8n <code>outreach-followup-watch</code> P1s daily 09:00 if any <code>next_action_date</code> is overdue.
+    </p>
+  </section>
+</Layout>

@@ -1,0 +1,77 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readBacklinksPipeline } from '@/lib/data/pipelines';
+
+const data = await readBacklinksPipeline();
+---
+<Layout title="Promote · Backlinks" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Backlinks</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Outreach pipeline + acquired log. Source: <code>ops/backlinks-pipeline.yaml</code>.
+        GSC + Ahrefs population in Phase 4.
+      </p>
+    </div>
+    <span class="badge badge-p2">Phase 4 stub</span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+    <Scorecard label="Outreach in flight" value={data.outreach.total} />
+    <Scorecard label="Next-action ≤7d" value={data.outreach.nextActions7d}
+               tone={data.outreach.nextActions7d > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Outreach overdue" value={data.outreach.overdue}
+               tone={data.outreach.overdue > 0 ? 'bad' : 'ok'} />
+    <Scorecard label="Backlinks acquired" value={data.acquired.count} />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Outreach pipeline
+    </h2>
+    <div class="card">
+      {data.outreach.items.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          Edit <code>ops/backlinks-pipeline.yaml</code> to add prospects.
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Target</th>
+              <th>Angle</th>
+              <th>State</th>
+              <th class="text-right">Next</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.outreach.items.map((it: any) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2 font-medium">{it.target_domain}</td>
+                <td style="color: rgb(var(--c-muted))">{it.angle}</td>
+                <td>
+                  <span class="badge badge-p2">{it.state}</span>
+                </td>
+                <td class="text-right font-mono">{it.next_action_date ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      How backlinks land in this view
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong>Manual outreach</strong>: edit YAML; <code>outreach-followup-watch</code> P1s on overdue follow-ups.</li>
+      <li>• <strong>Acquired (auto)</strong>: GSC backlink data via <code>nightly-refresh</code> writes the <code>acquired</code> array.</li>
+      <li>• <strong>Lost-link recovery</strong>: <code>backlink-watch</code> (weekly Sun) P1s on any acquired backlink that disappeared from GSC.</li>
+      <li>• <strong>Anchor health</strong>: surfaces over-optimized anchors (>30% same exact-match) for natural-language tuning.</li>
+    </ul>
+  </section>
+</Layout>

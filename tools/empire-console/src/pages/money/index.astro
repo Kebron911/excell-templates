@@ -1,0 +1,53 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import { readVendors } from '@/lib/data/vendors';
+
+const vendors = await readVendors();
+
+interface Tile {
+  href: string; title: string; desc: string;
+  signal?: string; tone?: 'ok' | 'warn' | 'bad'; disabled?: boolean; external?: boolean;
+}
+
+const tiles: Tile[] = [
+  { href: '/check/money',    title: 'Operational money',  desc: 'Yesterday/week/MTD revenue + above-the-line ratio.',
+    signal: 'Phase 3 stub', tone: 'warn' },
+  { href: '/money/compensation', title: 'Owner\'s compensation', desc: 'Cash · runway · pay-yourself rule · tax buffer.' },
+  { href: '/money/cohort',       title: 'LTV + cohort',          desc: 'Repeat-rate · LTV per channel/SKU.', signal: 'Phase 3 stub', tone: 'warn' },
+  { href: '/maintain/vendors', title: 'Vendors + burn',  desc: 'Monthly burn · renewals ≤30d.',
+    signal: `$${vendors.monthlyBurn.toFixed(0)}/mo · ${vendors.upcomingRenewals} renewing`,
+    tone: vendors.upcomingRenewals > 0 ? 'warn' : 'ok' },
+  { href: '/check/contacts', title: 'Funnel + contacts',  desc: 'Sign-ups · drop-out · list health.',
+    signal: 'Phase 3 stub', tone: 'warn' },
+  { href: '/promote/affiliates', title: 'Affiliates',     desc: 'Leaderboard · payouts due.',
+    signal: 'Phase 4 stub', tone: 'warn' },
+  { href: '/promote/paid',   title: 'Paid acquisition',   desc: 'Promoted Listings · Pinterest · Meta · ROAS.',
+    signal: 'Phase 4 stub', tone: 'warn' },
+  { href: '/check/kill-sku', title: 'Kill-SKU candidates', desc: 'CVR<1% · 0 sales 90d.', disabled: true },
+  { href: 'https://waveapps.com', title: 'Wave Apps (books) ↗', desc: 'Tax-grade P&L · 1099-K reconciliation.', external: true },
+];
+---
+<Layout title="Money" section="money">
+  <header class="mb-8">
+    <h1 class="font-display text-4xl font-semibold">Money</h1>
+    <p class="text-sm" style="color: rgb(var(--c-muted))">
+      Operational financials. Books of record live in Wave/QuickBooks (PROGRESS §P9.2) — console links out for tax work.
+    </p>
+  </header>
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {tiles.map((t) => (
+      <a href={t.disabled ? '#' : t.href}
+         target={t.external ? '_blank' : undefined}
+         rel={t.external ? 'noopener noreferrer' : undefined}
+         class="card no-underline transition hover:shadow-md"
+         style={t.disabled ? 'opacity: 0.55; cursor: not-allowed' : ''}
+         aria-disabled={t.disabled ? 'true' : undefined}>
+        <div class="flex items-baseline justify-between gap-3">
+          <h3 class="font-display text-lg font-semibold">{t.title}</h3>
+          {t.signal && <span class:list={['badge', `badge-${t.tone === 'bad' ? 'p0' : t.tone === 'warn' ? 'p1' : 'ok'}`, 'shrink-0']}>{t.signal}</span>}
+        </div>
+        <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">{t.desc}</p>
+      </a>
+    ))}
+  </div>
+</Layout>

@@ -84,7 +84,7 @@ Each tool's sidebar/footer links to the other six.
 - **Vitest** for calculator unit tests
 - **Playwright** for one smoke test per calculator
 - **pnpm** workspace inside `STRBuyers-Tools/`
-- **Deploy target:** Hostinger Business shared hosting (already provisioned). Static `dist/` deployed via Git push or FTP. Click-logging Node.js endpoint colocated. Bundled Cloudflare CDN enabled.
+- **Deploy target:** Hostinger Business shared hosting (already provisioned). Static `dist/` deployed via Git push or FTP. Click-logging Node.js endpoint colocated. Bundled Hostinger CDN enabled.
 
 ---
 
@@ -275,7 +275,7 @@ Same stack as strhost.tools:
 - Deploy preview per PR
 - Hostinger Business shared hosting. Static Astro `dist/` deployed via Git push or FTP to subdomain directory.
 - One Node.js endpoint (Hostinger Apps) serves `/api/click` and writes to MySQL.
-- Bundled Cloudflare CDN enabled for cache + TTFB
+- Bundled Hostinger CDN enabled for cache + TTFB
 - Domain registration: confirm before deploy
 
 ---

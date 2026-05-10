@@ -1,0 +1,36 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import { runManifestCheck } from '@/lib/data/manifest';
+
+const result = await runManifestCheck();
+---
+<Layout title="Check · Catalog" section="check">
+  <header class="mb-6">
+    <h1 class="font-display text-3xl font-semibold">Catalog manifest</h1>
+    <p class="text-sm" style="color: rgb(var(--c-muted))">
+      Wraps <code>templates/_build/manifest_check.py</code> · ran at {new Date(result.ranAt).toLocaleString()}
+    </p>
+  </header>
+  <div class="card mb-6">
+    <div class="flex items-baseline justify-between">
+      <span class:list={['badge', result.ok ? 'badge-ok' : 'badge-p0']}>
+        {result.ok ? 'PASS' : 'FAIL'}
+      </span>
+      <span class="font-mono text-2xl font-semibold">{result.summary}</span>
+    </div>
+    {result.passing !== null && result.total !== null && (
+      <div class="mt-4 h-2 w-full overflow-hidden rounded"
+           style="background: rgb(var(--c-surface-2))">
+        <div class="h-full rounded"
+             style={`width: ${(result.passing / result.total) * 100}%; background: rgb(var(--c-${result.ok ? 'ok' : 'bad'}))`}></div>
+      </div>
+    )}
+  </div>
+  <details class="card">
+    <summary class="cursor-pointer text-sm font-medium">
+      Output (last 4KB) — exit {result.exitCode}
+    </summary>
+    <pre class="mt-3 max-h-96 overflow-auto whitespace-pre-wrap text-xs"
+         style="color: rgb(var(--c-muted))">{result.output}</pre>
+  </details>
+</Layout>

@@ -1,0 +1,28 @@
+---
+import { readAlerts } from '@/lib/data/alerts';
+import { readNewsletter } from '@/lib/data/newsletter';
+
+const [alerts, newsletter] = await Promise.all([readAlerts(200), readNewsletter()]);
+
+// Streak 1: days since last P0 alert
+const lastP0 = alerts.find((a) => a.priority === 'P0');
+const daysSinceP0 = lastP0
+  ? Math.floor((Date.now() - new Date(lastP0.ts).getTime()) / 86_400_000)
+  : null;
+
+// Streak 2: newsletter cadence — sends not late
+const newsletterStreak = !newsletter.isCadenceStale && newsletter.daysSinceLastSend !== null
+  ? newsletter.sent.length
+  : 0;
+---
+<div class="flex flex-wrap gap-3 text-xs" style="color: rgb(var(--c-muted))">
+  {daysSinceP0 !== null && daysSinceP0 >= 7 && (
+    <span class="badge badge-ok">{daysSinceP0}d no P0</span>
+  )}
+  {newsletterStreak >= 3 && (
+    <span class="badge badge-ok">{newsletterStreak} on-time newsletters</span>
+  )}
+  {daysSinceP0 === null && newsletterStreak < 3 && (
+    <span style="opacity: 0.5">Streaks build with use</span>
+  )}
+</div>

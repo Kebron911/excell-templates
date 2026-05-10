@@ -1,0 +1,83 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readInfluencersPipeline } from '@/lib/data/pipelines';
+
+const data = await readInfluencersPipeline();
+---
+<Layout title="Promote · Influencers" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Influencer marketing</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Prospects + active partnerships. Source: <code>ops/influencers-pipeline.yaml</code>.
+      </p>
+    </div>
+    <span class="badge badge-p2">Phase 4 stub</span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+    <Scorecard label="Prospects" value={data.prospects.total} />
+    <Scorecard label="Outreach ≤7d" value={data.prospects.nextActions7d}
+               tone={data.prospects.nextActions7d > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Outreach overdue" value={data.prospects.overdue}
+               tone={data.prospects.overdue > 0 ? 'bad' : 'ok'} />
+    <Scorecard label="Active partnerships" value={data.active.count} />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Prospects
+    </h2>
+    <div class="card">
+      {data.prospects.items.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          Edit <code>ops/influencers-pipeline.yaml</code> to add prospects (PROGRESS §P5.7 founding 10).
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Handle</th>
+              <th>Platform</th>
+              <th class="text-right">Audience</th>
+              <th>Compensation</th>
+              <th>State</th>
+              <th class="text-right">Next</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.prospects.items.map((it: any) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2 font-medium">{it.handle}</td>
+                <td style="color: rgb(var(--c-muted))">{it.platform}</td>
+                <td class="text-right font-mono">{(it.audience ?? 0).toLocaleString()}</td>
+                <td style="color: rgb(var(--c-muted))">{it.compensation}</td>
+                <td><span class="badge badge-p2">{it.state}</span></td>
+                <td class="text-right font-mono">{it.next_action_date ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Compensation models
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong>free_tier</strong> — free Vault tier in exchange for promotion (PROGRESS §P5.7 founding affiliates).</li>
+      <li>• <strong>revenue_share</strong> — affiliate % (default 30% / 60-day cookie).</li>
+      <li>• <strong>flat_fee</strong> — paid placement.</li>
+      <li>• <strong>product_swap</strong> — trade content/audience.</li>
+    </ul>
+    <p class="mt-3 text-sm" style="color: rgb(var(--c-muted))">
+      Each active partnership gets a unique <code>coupon_code</code> + <code>utm_campaign</code>.
+      Console reads redemptions through <code>nightly-refresh</code>'s Stripe + Etsy pulls
+      and shows per-partner conversion in Phase 4.
+    </p>
+  </section>
+</Layout>

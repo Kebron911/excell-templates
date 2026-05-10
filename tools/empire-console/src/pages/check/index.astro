@@ -1,0 +1,59 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import { readClusterStatus } from '@/lib/data/cluster';
+import { readInfrastructure } from '@/lib/data/infrastructure';
+import { readAlerts } from '@/lib/data/alerts';
+
+const [cluster, infra, alerts] = await Promise.all([
+  readClusterStatus(), readInfrastructure(), readAlerts(50),
+]);
+const sitesGreen = cluster.filter((s) => s.status === 'ok').length;
+const openP0 = alerts.filter((a) => a.priority === 'P0' && !a.acked).length;
+const openP1 = alerts.filter((a) => a.priority === 'P1' && !a.acked).length;
+
+interface Tile {
+  href: string; title: string; desc: string;
+  signal?: string; tone?: 'ok' | 'warn' | 'bad'; disabled?: boolean;
+}
+
+const tiles: Tile[] = [
+  { href: '/check/cluster',         title: 'Cluster status',    desc: '4 sister sites · dist/ presence + last-built timestamps.',
+    signal: `${sitesGreen}/${cluster.length} green`,
+    tone: sitesGreen === cluster.length ? 'ok' : 'warn' },
+  { href: '/check/infrastructure',  title: 'Infrastructure',    desc: 'Domains · SSL · registrar expiry.',
+    signal: infra.expiringP0 > 0 ? `${infra.expiringP0} ≤7d` : `${infra.domains.length} tracked`,
+    tone: infra.expiringP0 > 0 ? 'bad' : infra.expiringSoon > 0 ? 'warn' : 'ok' },
+  { href: '/check/alerts',          title: 'Alert log',         desc: 'Live tail of ops/alerts.ndjson (n8n-fed).',
+    signal: openP0 > 0 ? `${openP0} P0 open` : openP1 > 0 ? `${openP1} P1 open` : 'all clear',
+    tone: openP0 > 0 ? 'bad' : openP1 > 0 ? 'warn' : 'ok' },
+  { href: '/check/catalog',         title: 'Catalog manifest',  desc: 'Wraps manifest_check.py — 65 SKUs + 5 bundles.' },
+  { href: '/check/contacts',        title: 'Contacts (funnel)', desc: 'Sign-ups · drop-out · list health · sequences.' },
+  { href: '/check/traffic',         title: 'Traffic',           desc: 'Sessions per site + top sources.' },
+  { href: '/check/seo',             title: 'SEO',               desc: 'GSC impressions/clicks/position + CWV.' },
+  { href: '/check/audits',          title: 'Site audits',       desc: 'Meta · schema · sitemap · broken links.' },
+  { href: '/check/money',           title: 'Money (operational)', desc: 'Yesterday/week/MTD revenue + burn ratio.' },
+  { href: '/check/links',           title: 'Link health',       desc: 'Cross-site CTA audit.', disabled: true },
+  { href: '/check/kill-sku',        title: 'Kill-SKU candidates', desc: 'CVR<1% · 0 sales 90d.', disabled: true },
+  { href: '/check/automations',     title: 'Automations',       desc: 'n8n flow health board.', disabled: true },
+];
+---
+<Layout title="Watch" section="check">
+  <header class="mb-8">
+    <h1 class="font-display text-4xl font-semibold">Watch</h1>
+    <p class="text-sm" style="color: rgb(var(--c-muted))">Health & metrics across the empire.</p>
+  </header>
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {tiles.map((t) => (
+      <a href={t.disabled ? '#' : t.href}
+         class="card no-underline transition hover:shadow-md"
+         style={t.disabled ? 'opacity: 0.55; cursor: not-allowed' : ''}
+         aria-disabled={t.disabled ? 'true' : undefined}>
+        <div class="flex items-baseline justify-between gap-3">
+          <h3 class="font-display text-lg font-semibold">{t.title}</h3>
+          {t.signal && <span class:list={['badge', `badge-${t.tone === 'bad' ? 'p0' : t.tone === 'warn' ? 'p1' : 'ok'}`]}>{t.signal}</span>}
+        </div>
+        <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">{t.desc}</p>
+      </a>
+    ))}
+  </div>
+</Layout>

@@ -1,0 +1,345 @@
+# ops/atlas.yaml — the empire's directory of everything
+#
+# Read by:
+#   - tools/empire-console — /atlas (main directory)
+#   - tools/empire-console — Cmd+K palette on every page
+#
+# Sections are ordered by frequency of use. Top sections render expanded;
+# lower sections render collapsed (toggled by `expanded: true|false`).
+# When the user filters, sections that contain matches auto-expand.
+#
+# Schema per item:
+#   name:    string   (display name)
+#   url:     string   (relative for internal, absolute for external)
+#   kind:    internal | external | doc | code | yaml | runbook
+#   note:    optional one-liner
+#   status:  optional — active | beta | placeholder
+#   tags:    optional array — for future task-based filtering
+#
+# SECURITY: this file IS in git. Never put credentials here.
+
+sections:
+
+  # ─────────────────────────────────────────────────────────────────
+  # DAILY — what Daniel opens every day
+  # ─────────────────────────────────────────────────────────────────
+  - id: daily
+    label: Daily essentials
+    expanded: true
+    groups:
+      - label: ""
+        items:
+          - { name: Etsy seller dashboard,    url: https://www.etsy.com/your/shops/me/dashboard, kind: external, note: "orders · convos · listings" }
+          - { name: Stripe dashboard,         url: https://dashboard.stripe.com,                 kind: external, note: "payments · refunds · disputes" }
+          - { name: Influencersoft (admin),   url: https://app.influencersoft.com,               kind: external, note: "list · sequences · broadcasts" }
+          - { name: Empire Console (live),    url: https://dashboard.thestrledger.com,           kind: external, note: "Hostinger + .htaccess basic auth" }
+          - { name: Today (this console),     url: /,                                            kind: internal, note: "morning view of the empire" }
+          - { name: Inbox (quick capture),    url: /inbox,                                       kind: internal, note: "press 'i' from anywhere" }
+          - { name: Targets (pace),           url: /today/targets,                               kind: internal, note: "monthly + quarterly progress" }
+          - { name: Money (this console),     url: /money,                                       kind: internal }
+          - { name: Alert log,                url: /check/alerts,                                kind: internal, note: "n8n-fed priority alerts" }
+          - { name: Plausible analytics,      url: https://plausible.io/sites,                   kind: external }
+          - { name: n8n self-hosted,          url: https://n8n.thestrledger.com,                 kind: external, note: "automation engine" }
+          - { name: Hostinger hPanel,         url: https://hpanel.hostinger.com,                 kind: external, note: "DNS · subdomains · SSL · file manager" }
+          - { name: PROGRESS.md (master tracker), url: PROGRESS.md,                              kind: doc }
+
+  # ─────────────────────────────────────────────────────────────────
+  # CONSOLE — in-app surfaces (most-clicked from inside the console)
+  # ─────────────────────────────────────────────────────────────────
+  - id: console-registries
+    label: Console — registries
+    expanded: true
+    groups:
+      - label: Asset registry
+        items:
+          - { name: Asset registry (all),         url: /maintain/assets,                    kind: internal }
+          - { name: Lead magnets,                 url: /maintain/assets/lead-magnets,       kind: internal }
+          - { name: Tools,                        url: /maintain/assets/tools,              kind: internal }
+          - { name: Documents (vault index),      url: /maintain/assets/documents,          kind: internal }
+          - { name: Brand assets,                 url: /maintain/assets/brand,              kind: internal, status: placeholder }
+          - { name: Email templates,              url: /maintain/assets/email-templates,    kind: internal, status: placeholder }
+          - { name: Pages,                        url: /maintain/assets/pages,              kind: internal, status: placeholder }
+      - label: Other in-app registries
+        items:
+          - { name: Vendors,                      url: /maintain/vendors,                   kind: internal }
+          - { name: Runbooks,                     url: /maintain/runbooks,                  kind: internal }
+          - { name: SKU catalog,                  url: /check/catalog,                      kind: internal, note: "wraps manifest_check.py" }
+          - { name: Domains + SSL,                url: /check/infrastructure,               kind: internal }
+          - { name: Atlas (this page),            url: /atlas,                              kind: internal }
+          - { name: Inbox,                        url: /inbox,                              kind: internal, note: "quick capture (i shortcut)" }
+          - { name: Targets,                      url: /today/targets,                      kind: internal }
+          - { name: Roadmap (30/60/90d),          url: /today/roadmap,                      kind: internal }
+          - { name: Time-by-domain,               url: /today/time,                         kind: internal }
+          - { name: Weekly review,                url: /today/review,                       kind: internal }
+          - { name: Risk register,                url: /maintain/risks,                     kind: internal }
+          - { name: Decisions log,                url: /maintain/decisions,                 kind: internal }
+          - { name: Customer voice,               url: /promote/voice,                      kind: internal }
+          - { name: Competitor watch,             url: /promote/competitors,                kind: internal }
+          - { name: Owner's compensation,         url: /money/compensation,                 kind: internal, note: "incl. tax buffer" }
+          - { name: LTV + cohort,                 url: /money/cohort,                       kind: internal, status: placeholder }
+          - { name: Onboarding flow,              url: /promote/onboarding,                 kind: internal }
+          - { name: Feature requests (clustered), url: /promote/feature-requests,           kind: internal }
+          - { name: Network (mentors/advisors),   url: /maintain/network,                   kind: internal }
+          - { name: Near-misses log,              url: /maintain/near-misses,               kind: internal }
+          - { name: Morning routine (7-step),     url: /today/routine,                      kind: internal }
+          - { name: Data backup (localStorage),   url: /data,                               kind: internal, note: "weekly export" }
+
+  - id: console-pipelines
+    label: Console — pipelines
+    expanded: true
+    groups:
+      - label: Acquisition
+        items:
+          - { name: Backlinks,                    url: /promote/backlinks,                  kind: internal }
+          - { name: Influencers,                  url: /promote/influencers,                kind: internal }
+          - { name: Affiliates,                   url: /promote/affiliates,                 kind: internal }
+          - { name: Press / PR,                   url: /promote/press,                      kind: internal }
+          - { name: Paid acquisition,             url: /promote/paid,                       kind: internal }
+          - { name: Partnerships,                 url: /promote/partnerships,               kind: internal }
+      - label: Content + customer
+        items:
+          - { name: Newsletter,                   url: /promote/newsletter,                 kind: internal }
+          - { name: Customer support queue,       url: /promote/support,                    kind: internal, status: placeholder }
+          - { name: Reviews & reputation,         url: /promote/reviews,                    kind: internal, status: placeholder }
+      - label: Health & metrics
+        items:
+          - { name: Cluster status,               url: /check/cluster,                      kind: internal }
+          - { name: Site audits,                  url: /check/audits,                       kind: internal }
+          - { name: Catalog manifest,             url: /check/catalog,                      kind: internal }
+          - { name: Operational money,            url: /check/money,                        kind: internal }
+          - { name: Contacts (funnel),            url: /check/contacts,                     kind: internal }
+          - { name: Traffic,                      url: /check/traffic,                      kind: internal }
+          - { name: SEO,                          url: /check/seo,                          kind: internal }
+
+  # ─────────────────────────────────────────────────────────────────
+  # MARKETING — email + SEO + social (weekly)
+  # ─────────────────────────────────────────────────────────────────
+  - id: marketing
+    label: Marketing — email · SEO · social
+    expanded: false
+    groups:
+      - label: Email + funnel
+        items:
+          - { name: Influencersoft (admin),       url: https://app.influencersoft.com,      kind: external }
+          - { name: Ghost admin (blog),           url: https://blog.thestrledger.com/ghost, kind: external }
+      - label: Social + content production
+        items:
+          - { name: Pinterest Business,           url: https://business.pinterest.com,      kind: external }
+          - { name: Vista Create,                 url: https://create.vista.com,            kind: external, note: "brand asset production" }
+          - { name: BotFather (Telegram bot mgmt), url: https://t.me/BotFather,             kind: external }
+      - label: SEO + research
+        items:
+          - { name: Google Search Console,        url: https://search.google.com/search-console, kind: external }
+          - { name: GA4,                          url: https://analytics.google.com,        kind: external }
+          - { name: Plausible,                    url: https://plausible.io/sites,          kind: external }
+          - { name: eRank (Etsy SEO),             url: https://erank.com,                   kind: external }
+          - { name: PageSpeed Insights,           url: https://pagespeed.web.dev,           kind: external }
+
+  # ─────────────────────────────────────────────────────────────────
+  # COMMERCE — storefronts, payments, accounting
+  # ─────────────────────────────────────────────────────────────────
+  - id: commerce
+    label: Commerce — storefronts · payments · books
+    expanded: false
+    groups:
+      - label: Storefronts
+        items:
+          - { name: Etsy seller,                  url: https://www.etsy.com/your/shops/me/dashboard, kind: external }
+          - { name: Gumroad dashboard,            url: https://gumroad.com/dashboard,       kind: external }
+      - label: Payments
+        items:
+          - { name: Stripe dashboard,             url: https://dashboard.stripe.com,        kind: external }
+          - { name: Stripe Tax,                   url: https://dashboard.stripe.com/tax,    kind: external }
+          - { name: Stripe Connect (affiliates),  url: https://dashboard.stripe.com/connect/accounts, kind: external }
+      - label: Books of record
+        items:
+          - { name: Wave Apps,                    url: https://waveapps.com,                kind: external, note: "primary bookkeeping (P9.2)" }
+          - { name: QuickBooks (alternative),     url: https://quickbooks.intuit.com,       kind: external, status: placeholder }
+      - label: Tax + government
+        items:
+          - { name: IRS payments,                 url: https://www.irs.gov/payments,        kind: external, note: "quarterly estimated tax" }
+          - { name: State sales-tax portal,       url: "",                                  kind: external, status: placeholder, note: "set per P0.0 sales-tax-posture" }
+
+  # ─────────────────────────────────────────────────────────────────
+  # INFRASTRUCTURE — hosting, DNS, vault, code (weekly to monthly)
+  # ─────────────────────────────────────────────────────────────────
+  - id: infrastructure
+    label: Infrastructure — hosting · DNS · vault · repo
+    expanded: false
+    groups:
+      - label: Hosting + DNS
+        items:
+          - { name: Hostinger hPanel,             url: https://hpanel.hostinger.com,        kind: external, note: "DNS · domains · SSL · subdomains · file manager · email" }
+          - { name: n8n self-hosted,              url: https://n8n.thestrledger.com,        kind: external }
+      - label: Vault + dev
+        items:
+          - { name: Vaultwarden,                  url: https://vault.thestrledger.com,      kind: external, status: placeholder }
+          - { name: GitHub repo (this monorepo),  url: https://github.com/Kebron911/Excel-Templates, kind: external, status: placeholder }
+      - label: Telegram alert channels
+        items:
+          - { name: "@strledger-p0 (page)",       url: https://t.me/strledger-p0,           kind: external, status: placeholder }
+          - { name: "@strledger-p1 (daily)",      url: https://t.me/strledger-p1,           kind: external, status: placeholder }
+          - { name: "@strledger-p2 (weekly)",     url: https://t.me/strledger-p2,           kind: external, status: placeholder }
+
+  # ─────────────────────────────────────────────────────────────────
+  # DOCUMENTATION — read during planning sessions, not daily
+  # ─────────────────────────────────────────────────────────────────
+  - id: docs
+    label: Documentation
+    expanded: false
+    groups:
+      - label: Strategy specs
+        items:
+          - { name: Master strategy,              url: docs/superpowers/specs/2026-04-22-str-tax-platform-design.md, kind: doc }
+          - { name: Content atomization engine,   url: docs/superpowers/specs/2026-04-29-content-atomization-engine.md, kind: doc }
+          - { name: Empire Console design (this), url: docs/superpowers/specs/2026-05-10-empire-console-design.md, kind: doc }
+          - { name: First 5 Etsy products design, url: docs/superpowers/specs/2026-04-22-first-5-etsy-products-design.md, kind: doc, status: placeholder }
+      - label: Plans
+        items:
+          - { name: Weeks 1-8 launch plan,        url: docs/superpowers/plans/2026-04-22-weeks-1-8-launch.md,    kind: doc }
+          - { name: Brand substitution plan,      url: docs/superpowers/plans/2026-04-22-brand-substitution.md,  kind: doc }
+      - label: Runbooks
+        items:
+          - { name: Runbook index,                url: ops/runbooks/README.md,              kind: runbook }
+          - { name: Disaster recovery,            url: docs/runbooks/disaster-recovery.md,  kind: runbook }
+          - { name: Template production process,  url: docs/runbooks/template-production-process.md, kind: runbook }
+          - { name: Weekly content atomization,   url: docs/runbooks/weekly-content-atomization.md, kind: runbook }
+          - { name: Cluster blog standard,        url: docs/CLUSTER-BLOG-STANDARD.md,       kind: doc }
+      - label: Trackers + brand
+        items:
+          - { name: PROGRESS.md (master tracker), url: PROGRESS.md,                         kind: doc }
+          - { name: README.md (root),             url: README.md,                           kind: doc }
+          - { name: Brand decisions,              url: brand/brand-decisions.md,            kind: doc }
+      - label: Infrastructure docs
+        items:
+          - { name: Airtable schema,              url: infrastructure/airtable/schema.md,   kind: doc }
+          - { name: n8n workflows map,            url: infrastructure/n8n/workflows-map.md, kind: doc }
+          - { name: n8n flows README,             url: infrastructure/n8n/flows/README.md,  kind: doc }
+          - { name: Stripe setup,                 url: infrastructure/stripe/setup.md,      kind: doc }
+
+  # ─────────────────────────────────────────────────────────────────
+  # YAML SOURCES — open when editing data
+  # ─────────────────────────────────────────────────────────────────
+  - id: yaml-sources
+    label: YAML sources of truth
+    expanded: false
+    groups:
+      - label: Assets
+        items:
+          - { name: Lead magnets YAML,            url: ops/assets/lead-magnets.yaml,        kind: yaml }
+          - { name: Tools YAML,                   url: ops/assets/tools.yaml,               kind: yaml }
+          - { name: Documents YAML,               url: ops/assets/documents.yaml,           kind: yaml }
+          - { name: Brand assets YAML,            url: ops/assets/brand-assets.yaml,        kind: yaml }
+          - { name: Email templates YAML,         url: ops/assets/email-templates.yaml,     kind: yaml }
+          - { name: Pages YAML,                   url: ops/assets/pages.yaml,               kind: yaml }
+      - label: Pipelines
+        items:
+          - { name: Backlinks pipeline YAML,      url: ops/backlinks-pipeline.yaml,         kind: yaml }
+          - { name: Influencers pipeline YAML,    url: ops/influencers-pipeline.yaml,       kind: yaml }
+          - { name: Press pipeline YAML,          url: ops/press-pipeline.yaml,             kind: yaml }
+          - { name: Newsletter pipeline YAML,     url: ops/newsletter-pipeline.yaml,        kind: yaml }
+      - label: Operations
+        items:
+          - { name: Vendor inventory YAML,        url: ops/vendor-inventory.yaml,           kind: yaml }
+          - { name: Calendar YAML,                url: ops/calendar.yaml,                   kind: yaml }
+          - { name: Infrastructure YAML,          url: ops/infrastructure.yaml,             kind: yaml }
+          - { name: Atlas YAML (this index),      url: ops/atlas.yaml,                      kind: yaml }
+          - { name: Targets YAML,                 url: ops/targets.yaml,                    kind: yaml }
+          - { name: Risks YAML,                   url: ops/risks.yaml,                      kind: yaml }
+          - { name: Roadmap YAML,                 url: ops/roadmap.yaml,                    kind: yaml }
+          - { name: Owner's compensation YAML,    url: ops/owner-compensation.yaml,         kind: yaml }
+          - { name: Competitors YAML,             url: ops/competitors.yaml,                kind: yaml }
+          - { name: Onboarding flow YAML,         url: ops/onboarding-flow.yaml,            kind: yaml }
+          - { name: Network YAML,                 url: ops/network.yaml,                    kind: yaml }
+      - label: Solopreneur logs (append-only)
+        items:
+          - { name: Inbox NDJSON,                 url: ops/inbox.ndjson,                    kind: yaml }
+          - { name: Customer voice NDJSON,        url: ops/customer-voice.ndjson,           kind: yaml }
+          - { name: Decisions NDJSON,             url: ops/decisions.ndjson,                kind: yaml }
+          - { name: Time log NDJSON,              url: ops/time-log.ndjson,                 kind: yaml }
+          - { name: Near-misses NDJSON,           url: ops/near-misses.ndjson,              kind: yaml }
+      - label: Per-site atlases
+        items:
+          - { name: thestrledger.yaml,            url: ops/atlas/sites/thestrledger.yaml,   kind: yaml }
+          - { name: strguests.yaml,               url: ops/atlas/sites/strguests.yaml,      kind: yaml }
+          - { name: strhost.yaml,                 url: ops/atlas/sites/strhost.yaml,        kind: yaml }
+          - { name: strops.yaml,                  url: ops/atlas/sites/strops.yaml,         kind: yaml }
+          - { name: strbuyers.yaml,               url: ops/atlas/sites/strbuyers.yaml,      kind: yaml }
+      - label: Append-only logs
+        items:
+          - { name: Alerts log (NDJSON),          url: ops/alerts.ndjson,                   kind: yaml }
+
+  # ─────────────────────────────────────────────────────────────────
+  # n8n FLOWS — when editing automation logic
+  # ─────────────────────────────────────────────────────────────────
+  - id: n8n-flows
+    label: n8n flows (this repo)
+    expanded: false
+    groups:
+      - label: Phase 1 (active)
+        items:
+          - { name: telegram-router (priority sink),    url: infrastructure/n8n/flows/shared/telegram-router.json, kind: yaml }
+          - { name: vendor-renewal-watch,               url: infrastructure/n8n/flows/vendor-renewal-watch.json,   kind: yaml }
+          - { name: runbook-staleness,                  url: infrastructure/n8n/flows/runbook-staleness.json,      kind: yaml }
+          - { name: cluster-smoke (FS variant),         url: infrastructure/n8n/flows/cluster-smoke-fs.json,        kind: yaml }
+          - { name: cert-watch (Phase 1),               url: infrastructure/n8n/flows/cert-watch.json,              kind: yaml }
+          - { name: domain-watch (Phase 1),             url: infrastructure/n8n/flows/domain-watch.json,            kind: yaml }
+          - { name: due-soon-watch (Phase 1),           url: infrastructure/n8n/flows/due-soon-watch.json,          kind: yaml }
+          - { name: n8n-self-watch (Phase 1),           url: infrastructure/n8n/flows/n8n-self-watch.json,          kind: yaml }
+          - { name: capture-receiver (Phase 4 webhook), url: infrastructure/n8n/flows/capture-receiver.json,        kind: yaml }
+      - label: Phase 2+ (planned)
+        items:
+          - { name: cert-watch,                         url: infrastructure/n8n/flows/cert-watch.json,             kind: yaml, status: placeholder }
+          - { name: domain-watch,                       url: infrastructure/n8n/flows/domain-watch.json,           kind: yaml, status: placeholder }
+          - { name: due-soon-watch,                     url: infrastructure/n8n/flows/due-soon-watch.json,         kind: yaml, status: placeholder }
+          - { name: n8n-self-watch,                     url: infrastructure/n8n/flows/n8n-self-watch.json,         kind: yaml, status: placeholder }
+          - { name: nightly-refresh,                    url: infrastructure/n8n/flows/nightly-refresh.json,        kind: yaml, status: placeholder }
+          - { name: revenue-watch,                      url: infrastructure/n8n/flows/revenue-watch.json,          kind: yaml, status: placeholder }
+          - { name: refund-spike-watch,                 url: infrastructure/n8n/flows/refund-spike-watch.json,     kind: yaml, status: placeholder }
+          - { name: convo-age-watch,                    url: infrastructure/n8n/flows/convo-age-watch.json,        kind: yaml, status: placeholder }
+          - { name: reputation-watch,                   url: infrastructure/n8n/flows/reputation-watch.json,       kind: yaml, status: placeholder }
+          - { name: traffic-anomaly-watch,              url: infrastructure/n8n/flows/traffic-anomaly-watch.json,  kind: yaml, status: placeholder }
+          - { name: cwv-watch,                          url: infrastructure/n8n/flows/cwv-watch.json,              kind: yaml, status: placeholder }
+          - { name: sitemap-freshness,                  url: infrastructure/n8n/flows/sitemap-freshness.json,      kind: yaml, status: placeholder }
+          - { name: backlink-watch,                     url: infrastructure/n8n/flows/backlink-watch.json,         kind: yaml, status: placeholder }
+          - { name: outreach-followup-watch,            url: infrastructure/n8n/flows/outreach-followup-watch.json, kind: yaml, status: placeholder }
+          - { name: affiliate-payout-watch,             url: infrastructure/n8n/flows/affiliate-payout-watch.json, kind: yaml, status: placeholder }
+          - { name: paid-roas-watch,                    url: infrastructure/n8n/flows/paid-roas-watch.json,        kind: yaml, status: placeholder }
+          - { name: ai-cost-watch,                      url: infrastructure/n8n/flows/ai-cost-watch.json,          kind: yaml, status: placeholder }
+          - { name: api-quota-watch,                    url: infrastructure/n8n/flows/api-quota-watch.json,        kind: yaml, status: placeholder }
+          - { name: newsletter-cadence-watch,           url: infrastructure/n8n/flows/newsletter-cadence-watch.json, kind: yaml, status: placeholder }
+          - { name: newsletter-perf-watch,              url: infrastructure/n8n/flows/newsletter-perf-watch.json,  kind: yaml, status: placeholder }
+          - { name: asset-stale-watch,                  url: infrastructure/n8n/flows/asset-stale-watch.json,      kind: yaml, status: placeholder }
+          - { name: document-expiry-watch,              url: infrastructure/n8n/flows/document-expiry-watch.json,  kind: yaml, status: placeholder }
+          - { name: lead-magnet-perf-watch,             url: infrastructure/n8n/flows/lead-magnet-perf-watch.json, kind: yaml, status: placeholder }
+          - { name: tool-untracked-watch,               url: infrastructure/n8n/flows/tool-untracked-watch.json,   kind: yaml, status: placeholder }
+
+  # ─────────────────────────────────────────────────────────────────
+  # CODE — top-level repo dirs (for editing)
+  # ─────────────────────────────────────────────────────────────────
+  - id: code
+    label: Code locations (top-level dirs)
+    expanded: false
+    groups:
+      - label: Apps + sites
+        items:
+          - { name: Empire Console,               url: tools/empire-console/,               kind: code }
+          - { name: STRGuests-Tools site,         url: STRGuests-Tools/,                    kind: code }
+          - { name: STRHost-Tools site,           url: STRHost-Tools/,                      kind: code }
+          - { name: STROps-Tools site,            url: STROps-Tools/,                       kind: code }
+          - { name: STRBuyers-Tools site,         url: STRBuyers-Tools/,                    kind: code }
+      - label: Shared
+        items:
+          - { name: Templates (65 SKUs),          url: templates/,                          kind: code }
+          - { name: Brand assets,                 url: brand/,                              kind: code }
+          - { name: Design system,                url: design-system/,                      kind: code }
+          - { name: Copy (Etsy/email/blog/social), url: copy/,                              kind: code }
+          - { name: Infrastructure,               url: infrastructure/,                     kind: code }
+          - { name: Ops (this kind of YAML),      url: ops/,                                kind: code }
+          - { name: Docs,                         url: docs/,                               kind: code }
+      - label: Per-site planning
+        items:
+          - { name: STRGuests planning,           url: STRGuests-Tools/.planning/,          kind: code }
+          - { name: STRHost planning,             url: STRHost-Tools/.planning/,            kind: code }
+          - { name: STROps planning,              url: STROps-Tools/.planning/,             kind: code }
+          - { name: STRBuyers planning,           url: STRBuyers-Tools/.planning/,          kind: code }

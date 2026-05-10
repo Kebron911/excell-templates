@@ -1,0 +1,172 @@
+---
+import '@/styles/global.css';
+import CommandPalette from './CommandPalette.astro';
+import HealthDot from '@/components/widgets/HealthDot.astro';
+import DarkModeToggle from '@/components/widgets/DarkModeToggle.astro';
+import ConfirmDialog from '@/components/widgets/ConfirmDialog.astro';
+import QuickCapture from '@/components/widgets/QuickCapture.astro';
+
+interface Props {
+  title: string;
+  section?: 'today' | 'money' | 'promote' | 'check' | 'maintain';
+}
+
+const { title, section = 'today' } = Astro.props;
+
+// Verb labels (UX): keep URLs as-is for stability, rename labels per UX audit C3.
+//   /promote → "Grow"   /check → "Watch"   /maintain → "Run"
+const nav = [
+  { key: 'today',    href: '/',          label: 'Today' },
+  { key: 'money',    href: '/money',     label: 'Money' },
+  { key: 'promote',  href: '/promote',   label: 'Grow' },
+  { key: 'check',    href: '/check',     label: 'Watch' },
+  { key: 'maintain', href: '/maintain',  label: 'Run' },
+] as const;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#b86333" />
+    <meta name="apple-mobile-web-app-title" content="Empire" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>{title} · Empire Console</title>
+  </head>
+  <body class="min-h-screen">
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <header class="border-b" style="border-color: rgb(var(--c-border))" role="banner">
+      <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:px-6 md:py-4">
+        <div class="flex items-center gap-3">
+          <a href="/" class="flex items-baseline gap-2 no-underline" aria-label="Empire Console — home">
+            <span class="font-display text-xl tracking-tight" style="color: rgb(var(--c-accent))">Empire</span>
+            <span class="hidden text-sm sm:inline" style="color: rgb(var(--c-muted))">·console</span>
+          </a>
+          <HealthDot />
+        </div>
+
+        <!-- Desktop nav -->
+        <nav class="hidden items-center gap-1 text-sm md:flex" aria-label="Main">
+          {nav.map((item) => (
+            <a
+              href={item.href}
+              class:list={[
+                'rounded px-3 py-1.5 no-underline',
+                section === item.key ? 'font-medium' : '',
+              ]}
+              aria-current={section === item.key ? 'page' : undefined}
+              style={section === item.key
+                ? 'background: rgb(var(--c-surface-2)); color: rgb(var(--c-ink))'
+                : 'color: rgb(var(--c-muted))'}
+            >
+              {item.label}
+            </a>
+          ))}
+          <span class="mx-2 text-xs" style="color: rgb(var(--c-muted))">·</span>
+          <button id="cmdk-trigger"
+                  type="button"
+                  class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs"
+                  style="border: 1px solid rgb(var(--c-border)); color: rgb(var(--c-muted)); background: rgb(var(--c-surface))"
+                  title="Find anything (⌘K)"
+                  aria-label="Open command palette (Cmd or Ctrl K)">
+            <span>Find</span>
+            <kbd class="rounded border px-1 py-0.5 text-[10px]"
+                 style="border-color: rgb(var(--c-border)); background: rgb(var(--c-paper))">⌘K</kbd>
+          </button>
+          <a href="/atlas"
+             class="rounded px-2 py-1.5 text-xs no-underline"
+             style="color: rgb(var(--c-muted))">Atlas</a>
+          <a href="/inbox"
+             class="rounded px-2 py-1.5 text-xs no-underline"
+             style="color: rgb(var(--c-muted))"
+             title="Inbox — quick capture (i)">Inbox</a>
+          <DarkModeToggle />
+        </nav>
+
+        <!-- Mobile: hamburger + Cmd-K + theme -->
+        <div class="flex items-center gap-1 md:hidden">
+          <button id="cmdk-trigger-mobile"
+                  type="button"
+                  class="rounded px-2 py-1.5 text-xs"
+                  style="border: 1px solid rgb(var(--c-border)); color: rgb(var(--c-muted))"
+                  aria-label="Find">Find</button>
+          <DarkModeToggle />
+          <button id="mobile-menu-trigger"
+                  type="button"
+                  class="rounded px-2 py-1.5 text-sm"
+                  style="border: 1px solid rgb(var(--c-border)); color: rgb(var(--c-ink))"
+                  aria-label="Open menu"
+                  aria-expanded="false"
+                  aria-controls="mobile-menu">☰</button>
+        </div>
+      </div>
+
+      <!-- Mobile menu drawer -->
+      <nav id="mobile-menu"
+           class="hidden border-t md:hidden"
+           style="border-color: rgb(var(--c-border)); background: rgb(var(--c-surface))"
+           aria-label="Mobile navigation">
+        <ul class="mx-auto max-w-6xl px-4 py-3">
+          {nav.map((item) => (
+            <li>
+              <a href={item.href}
+                 class="block rounded px-3 py-2.5 no-underline"
+                 aria-current={section === item.key ? 'page' : undefined}
+                 style={section === item.key
+                   ? 'background: rgb(var(--c-surface-2)); color: rgb(var(--c-ink)); font-weight: 500'
+                   : 'color: rgb(var(--c-ink))'}>
+                {item.label}
+              </a>
+            </li>
+          ))}
+          <li class="mt-2 border-t pt-2" style="border-color: rgb(var(--c-border))">
+            <a href="/atlas" class="block rounded px-3 py-2.5 no-underline" style="color: rgb(var(--c-muted))">
+              Atlas — directory of everything
+            </a>
+            <a href="/inbox" class="block rounded px-3 py-2.5 no-underline" style="color: rgb(var(--c-muted))">
+              Inbox — quick capture
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main" class="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-8" role="main">
+      <slot />
+    </main>
+
+    <footer class="mx-auto max-w-6xl px-4 py-10 text-xs md:px-6"
+            style="color: rgb(var(--c-muted))" role="contentinfo">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-t pt-6"
+           style="border-color: rgb(var(--c-border))">
+        <span>The STR Ledger · empire console · local</span>
+        <span class="font-mono">{new Date().toISOString().slice(0, 16)}Z</span>
+      </div>
+    </footer>
+
+    <CommandPalette />
+    <ConfirmDialog />
+    <QuickCapture />
+
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', () => {
+        // Cmd+K triggers
+        const triggers = [document.getElementById('cmdk-trigger'), document.getElementById('cmdk-trigger-mobile')];
+        triggers.forEach((t) => t?.addEventListener('click', () => window.empireCmdK?.open()));
+
+        // Mobile menu
+        const mobileBtn = document.getElementById('mobile-menu-trigger');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileBtn?.addEventListener('click', () => {
+          const expanded = mobileBtn.getAttribute('aria-expanded') === 'true';
+          mobileBtn.setAttribute('aria-expanded', String(!expanded));
+          mobileMenu?.classList.toggle('hidden');
+        });
+      });
+    </script>
+  </body>
+</html>

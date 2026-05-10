@@ -1,0 +1,105 @@
+# ops/assets/email-templates.yaml — every IS sequence + transactional template
+#
+# Read by:
+#   - tools/empire-console — /maintain/assets/email-templates
+#
+# Schema:
+#   id, name, kind, trigger, message_count, owner, last_updated, status, notes
+
+templates:
+  # Welcome sequences (per lead magnet)
+  - id: seq-welcome-house-rules
+    name: Welcome — House Rules
+    kind: welcome
+    trigger: "IS form: lm-house-rules"
+    message_count: 5
+    owner: Daniel
+    last_updated: 2026-05-06
+    status: active
+
+  - id: seq-welcome-welcome-book
+    name: Welcome — Welcome Book
+    kind: welcome
+    trigger: "IS form: lm-welcome-book"
+    message_count: 5
+    owner: Daniel
+    last_updated: 2026-05-06
+    status: active
+
+  - id: seq-welcome-tax-deductions
+    name: Welcome — 47 Deductions
+    kind: welcome
+    trigger: "IS form: lm-47-deductions"
+    message_count: 7
+    owner: Daniel
+    last_updated: 2026-04-22
+    status: active
+    notes: Beachhead nurture sequence.
+
+  # Lifecycle (purchase + retention) — drafted per memory S82
+  - id: seq-post-purchase-etsy
+    name: Post-purchase — Etsy buyer
+    kind: lifecycle
+    trigger: "Stripe webhook OR IS tag: purchase:etsy"
+    message_count: 4
+    owner: Daniel
+    last_updated: 2026-05-06
+    status: drafted
+    notes: Pending IS-import shape conversion.
+
+  - id: seq-review-request
+    name: Review request
+    kind: lifecycle
+    trigger: "purchase + 7d delay"
+    message_count: 2
+    owner: Daniel
+    last_updated: 2026-05-06
+    status: drafted
+
+  - id: seq-refund-recovery
+    name: Refund recovery
+    kind: lifecycle
+    trigger: "Stripe refund webhook"
+    message_count: 1
+    owner: Daniel
+    last_updated: 2026-05-06
+    status: drafted
+
+  - id: seq-win-back
+    name: Win-back (90d cold)
+    kind: lifecycle
+    trigger: "IS tag: cold-90d"
+    message_count: 3
+    owner: Daniel
+    last_updated: 2026-05-06
+    status: drafted
+
+  - id: seq-abandoned-cart
+    name: Abandoned cart
+    kind: lifecycle
+    trigger: "Stripe checkout.session.expired"
+    message_count: 2
+    owner: Daniel
+    last_updated: 2026-05-06
+    status: drafted
+
+  # Transactional (not in IS — sent by Stripe / Etsy / app)
+  - id: tx-stripe-receipt
+    name: Stripe receipt
+    kind: transactional
+    trigger: Stripe payment success
+    message_count: 1
+    owner: Stripe
+    last_updated: 2026-04-22
+    status: active
+    notes: Customize from Stripe dashboard.
+
+  - id: tx-download-link
+    name: Download link delivery
+    kind: transactional
+    trigger: post-purchase
+    message_count: 1
+    owner: Influencersoft
+    last_updated: TBD
+    status: drafted
+    notes: Plus manual-post-purchase-fallback runbook for delivery failures.

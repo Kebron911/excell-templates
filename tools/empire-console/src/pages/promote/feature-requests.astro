@@ -1,0 +1,106 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readVoice } from '@/lib/data/customer-voice';
+import { formatDateTime } from '@/lib/format';
+
+const all = await readVoice(500);
+const requests = all.filter((v) => v.category === 'feature-ask');
+
+// Crude clustering: count similar quote signatures (lowercased + first 5 words).
+const fingerprint = (s: string) => s.toLowerCase().split(/\s+/).slice(0, 6).join(' ');
+const clusters = requests.reduce<Record<string, typeof requests>>((acc, r) => {
+  const k = fingerprint(r.quote);
+  acc[k] = acc[k] ?? [];
+  acc[k].push(r);
+  return acc;
+}, {});
+const ranked = Object.entries(clusters)
+  .map(([key, items]) => ({ key, items, count: items.length }))
+  .sort((a, b) => b.count - a.count);
+
+const last30d = requests.filter((r) => Date.now() - new Date(r.ts).getTime() < 30 * 86_400_000).length;
+---
+<Layout title="Feature requests" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Feature requests</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Filtered view of <a href="/promote/voice">Customer voice</a> · category = <code>feature-ask</code>.
+        Same source: <code>ops/customer-voice.ndjson</code>.
+      </p>
+    </div>
+  </header>
+
+  <section class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Total requests" value={requests.length} />
+    <Scorecard label="Last 30d" value={last30d} />
+    <Scorecard label="Unique themes" value={ranked.length} />
+    <Scorecard label="Top theme count"
+               value={ranked[0]?.count ?? 0}
+               tone={(ranked[0]?.count ?? 0) >= 3 ? 'warn' : 'ok'}
+               hint={(ranked[0]?.count ?? 0) >= 3 ? 'strong signal — consider building' : 'low signal yet'} />
+  </section>
+
+  {requests.length === 0 ? (
+    <EmptyState
+      title="No feature requests captured"
+      body="When customers ask for things, log them under Customer voice with category 'feature-ask'."
+      ctaHref="/inbox"
+      ctaLabel="Open inbox (i)"
+    />
+  ) : (
+    <>
+      <h2 class="mb-3 text-xs font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Themes (clustered, most-asked first)
+      </h2>
+      <ul class="mb-8 space-y-3">
+        {ranked.map((cluster) => (
+          <li class="card">
+            <div class="flex items-baseline justify-between gap-3">
+              <h3 class="font-display text-lg font-semibold">{cluster.items[0].quote.slice(0, 80)}{cluster.items[0].quote.length > 80 ? '…' : ''}</h3>
+              <span class:list={['badge', cluster.count >= 3 ? 'badge-p1' : 'badge-p2']}>
+                {cluster.count} ask{cluster.count > 1 ? 's' : ''}
+              </span>
+            </div>
+            {cluster.count > 1 && (
+              <details class="mt-3">
+                <summary class="cursor-pointer text-xs" style="color: rgb(var(--c-muted))">
+                  Show all {cluster.count} variations
+                </summary>
+                <ul class="mt-2 space-y-2 text-sm">
+                  {cluster.items.map((it) => (
+                    <li class="border-l-2 pl-3"
+                        style="border-color: rgb(var(--c-border))">
+                      <div>"{it.quote}"</div>
+                      <div class="mt-1 text-xs" style="color: rgb(var(--c-muted))">
+                        {formatDateTime(it.ts)} · {it.source}
+                        {it.sku && <> · SKU: <code>{it.sku}</code></>}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      <section class="card" style="background: rgb(var(--c-surface-2))">
+        <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+          When to build
+        </h3>
+        <ul class="space-y-1 text-sm">
+          <li>• <strong>3+ asks for the same thing</strong> = strong signal. Consider adding to roadmap.</li>
+          <li>• <strong>1–2 asks</strong> = note it, watch for repetition. Don't chase one-offs.</li>
+          <li>• <strong>Pair with revenue impact</strong> — does the asker buy? Are they a high-LTV customer cohort?</li>
+          <li>• Roadmap items derive from this list at <a href="/today/roadmap">/today/roadmap</a> Next/Later columns.</li>
+        </ul>
+      </section>
+    </>
+  )}
+
+  <SourceFooter source="ops/customer-voice.ndjson (filtered to category=feature-ask)" lastRefresh={new Date()} />
+</Layout>

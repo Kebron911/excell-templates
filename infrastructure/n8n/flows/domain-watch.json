@@ -1,0 +1,54 @@
+{
+  "name": "domain-watch",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 6 * * 1" }] }
+      },
+      "id": "cron",
+      "name": "Mondays 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cat {{ $env.EMPIRE_REPO_PATH }}/ops/infrastructure.yaml"
+      },
+      "id": "readYaml",
+      "name": "Read infrastructure.yaml",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const yaml = require('js-yaml');\nconst doc = yaml.load($input.item.json.stdout || '') || { domains: [] };\nconst now = Date.now();\nconst flagged = (doc.domains || []).map(d => {\n  const expMs = d.expires ? new Date(d.expires).getTime() : null;\n  const daysLeft = expMs ? Math.floor((expMs - now) / 86400000) : null;\n  return { domain: d.domain, expires: d.expires, daysLeft };\n}).filter(d => d.daysLeft !== null && d.daysLeft >= 0 && d.daysLeft <= 60);\nif (flagged.length === 0) return [];\nconst critical = flagged.filter(d => d.daysLeft <= 7);\nconst priority = critical.length > 0 ? 'P0' : 'P1';\nconst lines = flagged.map(d => `• ${d.domain}: ${d.daysLeft}d (expires ${d.expires})`);\nreturn [{ json: {\n  priority,\n  source: 'domain-watch',\n  message: `${critical.length} domain${critical.length === 1 ? '' : 's'} ≤7d / ${flagged.length - critical.length} ≤60d:\\n${lines.join('\\n')}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/infrastructure'\n}}];"
+      },
+      "id": "decide",
+      "name": "Find domains expiring soon",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "source": "parameter",
+        "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID"
+      },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [800, 300]
+    }
+  ],
+  "connections": {
+    "Mondays 06:00":              { "main": [[{ "node": "Read infrastructure.yaml",     "type": "main", "index": 0 }]] },
+    "Read infrastructure.yaml":   { "main": [[{ "node": "Find domains expiring soon",  "type": "main", "index": 0 }]] },
+    "Find domains expiring soon": { "main": [[{ "node": "→ telegram-router",            "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P0" }]
+}

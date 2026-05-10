@@ -1,0 +1,31 @@
+---
+import { readAlerts } from '@/lib/data/alerts';
+const limit = Astro.props.limit ?? 5;
+const alerts = await readAlerts(limit);
+---
+<div class="card">
+  <div class="mb-3 flex items-center justify-between">
+    <h3 class="text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Alert feed
+    </h3>
+    <a href="/check/alerts" class="text-xs">View all →</a>
+  </div>
+  {alerts.length === 0 && (
+    <p class="text-sm" style="color: rgb(var(--c-muted))">
+      No alerts yet. n8n flows write to <code>ops/alerts.ndjson</code>.
+    </p>
+  )}
+  <ul class="space-y-2">
+    {alerts.map((a) => (
+      <li class="flex items-start gap-3 text-sm">
+        <span class:list={['badge', `badge-${a.priority.toLowerCase()}`]}>{a.priority}</span>
+        <span class="flex-1">
+          <span class="font-medium">{a.message}</span>
+          <span class="ml-2 text-xs" style="color: rgb(var(--c-muted))">
+            {a.source} · {new Date(a.ts).toLocaleString()}
+          </span>
+        </span>
+      </li>
+    ))}
+  </ul>
+</div>

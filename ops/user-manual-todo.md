@@ -75,15 +75,15 @@ Claude handles product creation (5 SKUs) via Gumroad API later.
 
 Registrar signup and Workspace billing need you; DNS configuration is API-able.
 
-1. Cloudflare dashboard → Domain Registration → buy `thestrledger.com` if not already owned. Add to Vaultwarden.
-2. Generate a Cloudflare API token scoped to `thestrledger.com` zone (Zone:DNS:Edit). Add to Vaultwarden — Claude writes all DNS records via API (automation queue B1).
+1. Hostinger hPanel → Domains → confirm `thestrledger.com` is owned/registered. Login in Vaultwarden.
+2. Confirm DNS managed in Hostinger (hPanel → Domains → DNS / Nameservers).
 3. Sign up for Google Workspace ($6/user/mo) with domain `thestrledger.com`.
 4. Create `hello@thestrledger.com` as primary inbox.
 5. Enable 2FA on Google Workspace.
 
-Claude writes the MX, TXT verification, SPF, DKIM, DMARC records via Cloudflare API — you do not click in Cloudflare's UI.
+Claude provides the MX, TXT verification, SPF, DKIM, DMARC record values — paste them into Hostinger hPanel DNS by hand.
 
-**Tell Claude "domain + workspace live + Cloudflare API token added."**
+**Tell Claude "domain + workspace live + Hostinger DNS access (manual via hPanel) added."**
 
 ### [ ] 1.6 — Provision VPS (20 min human time)
 
@@ -95,7 +95,7 @@ Provider signup + billing = you. OS config = Ansible.
 4. Spin up one server. Note the IP.
 5. Add provider API token to Vaultwarden (for future scaling/backups). Add VPS IP + SSH private key location to `ops/credentials-inventory.md`.
 
-Claude runs the Ansible hardening + Docker + n8n + Cloudflare Tunnel + Vaultwarden-import scripts (automation queue C1–C4).
+Claude runs the Ansible hardening + Docker + n8n + Caddy reverse proxy on VPS + Vaultwarden-import scripts (automation queue C1–C4).
 
 **Tell Claude "VPS up at <IP> + SSH key ready."**
 
@@ -119,7 +119,7 @@ Account creation with your payment method. All configuration is API-able after.
 
 Checklist — confirm each:
 
-- [ ] Cloudflare
+- [ ] Hostinger hPanel
 - [ ] Google Workspace
 - [ ] Stripe
 - [ ] Etsy
@@ -207,7 +207,7 @@ If not: Claude falls back to Playwright browser automation or, worst case, a cop
 
 ### [ ] 4.3 — Claim Pinterest domain
 
-Pinterest requires a domain-verification TXT record. Claude writes it via Cloudflare API; you only need to click "Claim" once Claude confirms the record is live.
+Pinterest requires a domain-verification TXT record. Claude writes it via Hostinger DNS (manual); you only need to click "Claim" once Claude confirms the record is live.
 
 **Tell Claude "OAuth consents done."**
 
@@ -304,7 +304,7 @@ Per `docs/runbooks/disaster-recovery.md` — simulate each scenario end-to-end.
 | Review + approval gates | ✅ | — |
 | FB Group live presence | ✅ | drafts posts |
 | Daily monitoring glance | ✅ | automated alerts |
-| DNS records | — | ✅ Cloudflare API |
+| DNS records | — | ✅ Hostinger DNS (manual) |
 | VPS hardening + Docker | — | ✅ Ansible |
 | n8n workflow builds | — | ✅ REST import of JSON |
 | Airtable schema | — | ✅ Metadata API |
@@ -321,7 +321,7 @@ Per `docs/runbooks/disaster-recovery.md` — simulate each scenario end-to-end.
 
 ## Signal phrases
 
-Phase 1: "Etsy account open + API app registered" · "Stripe confirmed + CLI key added" · "Gumroad account open + API token added" · "Airtable MCP connected" · "domain + workspace live + Cloudflare API token added" · "VPS up at <IP> + SSH key ready" · "all SaaS paid + API keys added"
+Phase 1: "Etsy account open + API app registered" · "Stripe confirmed + CLI key added" · "Gumroad account open + API token added" · "Airtable MCP connected" · "domain + workspace live + Hostinger DNS access (manual via hPanel) added" · "VPS up at <IP> + SSH key ready" · "all SaaS paid + API keys added"
 Phase 2: "2FA + offline backups complete"
 Phase 3: "brief ready: <sku>" · "47 deductions ready"
 Phase 4: "IS integration path = <path>" · "OAuth consents done"

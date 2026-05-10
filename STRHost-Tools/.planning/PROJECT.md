@@ -31,7 +31,7 @@ These are ADR-equivalent and must not be re-litigated mid-execution. Source: [de
 | 4 | Embed widgets | **Defer to Phase 2** | Architect calculators as standalone islands so widget extraction is mechanical |
 | 5 | Calculator UX | **Live updates + URL state + print** | Shareable, bookmarkable, indexable; SSR defaults so first paint is useful pre-JS |
 | 6 | Monetization density | **Balanced** | One in-content ad, one footer ad, one inline email capture, one STR Ledger CTA. Zero popups, zero exit-intent, zero sticky ads |
-| 7 | Deploy target | **Hostinger Business shared hosting** | Already provisioned. Cloudflare CDN bundled. FTP deploy via GitHub Actions |
+| 7 | Deploy target | **Hostinger Business shared hosting** | Already provisioned. Hostinger CDN bundled. FTP deploy via GitHub Actions |
 | 8 | CSS approach | **Tailwind + tokens.css ported from Excel-Templates** | Token continuity with The STR Ledger; rapid component build |
 | 9 | Test stack | **Vitest (unit) + Playwright (smoke)** | Calculator math is 100% pure-function unit-testable; one E2E per calculator |
 | 10 | Package manager | **pnpm** | Workspace-friendly, fast, deterministic |

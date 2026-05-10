@@ -41,14 +41,14 @@ Stripe account already exists. Just verify regulatory fields:
 
 → **Tell Claude:** *"Stripe confirmed + CLI key added."*
 
-### [ ] 1.3 — Domain + Cloudflare API token (15 min)
+### [ ] 1.3 — Domain + Hostinger DNS access (15 min)
 
-1. Cloudflare dashboard → Domain Registration → buy `thestrledger.com` (if not already owned)
-2. Add to Vaultwarden
-3. Generate Cloudflare API token scoped to `thestrledger.com` zone with `Zone:DNS:Edit` permission
-4. Add token to Vaultwarden — Claude writes all DNS records via API after this
+1. Hostinger hPanel → Domains → confirm `thestrledger.com` is owned/registered
+2. Add hPanel login to Vaultwarden
+3. Confirm DNS is managed in Hostinger (hPanel → Domains → DNS / Nameservers)
+4. DNS records get edited via hPanel — Claude provides the record values, you paste them in
 
-→ **Tell Claude:** *"domain + Cloudflare API token added."*
+→ **Tell Claude:** *"Hostinger domain + DNS access confirmed."*
 
 ### [ ] 1.4 — Google Workspace ($6/user/mo, 15 min)
 
@@ -253,7 +253,7 @@ When you complete a phase milestone, tell Claude the signal phrase. Claude immed
 |---|---|---|
 | 1.1 | "Etsy account open + API app registered" | Listing API publish |
 | 1.2 | "Stripe confirmed + CLI key added" | Stripe Tax + payment plumbing |
-| 1.3 | "domain + Cloudflare API token added" | DNS automation |
+| 1.3 | "Hostinger domain + DNS access confirmed" | DNS records (manual via hPanel) |
 | 1.4 | "workspace live" | Email plumbing setup |
 | 1.5 | "Gumroad account open + API token added" | Gumroad mirror |
 | 1.6 | "2FA + offline backups complete" | Phase 2 |

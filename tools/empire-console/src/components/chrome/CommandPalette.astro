@@ -1,0 +1,272 @@
+---
+/**
+ * Cmd+K palette — searches Atlas + PROGRESS.
+ *
+ * Data is fetched lazily on first open from /atlas-data.json (and PROGRESS items
+ * are inlined since they're small and tied to current state).
+ *
+ * E14: previously inlined ~15KB of Atlas JSON into every page; now fetched once
+ * per session and cached.
+ */
+import { readProgress } from '@/lib/data/progress';
+
+const progress = await readProgress();
+const progressItems = progress.nextActions.map((a) => ({
+  name: a.text,
+  url: 'PROGRESS.md',
+  kind: 'doc' as const,
+  section: `PROGRESS · ${a.section}`,
+  note: undefined,
+  isExternal: false,
+}));
+const progressJson = JSON.stringify(progressItems);
+---
+<div id="cmdk-overlay"
+     class="hidden fixed inset-0 z-50"
+     style="background: rgba(0,0,0,0.45)"
+     role="dialog"
+     aria-modal="true"
+     aria-label="Command palette">
+  <div class="mx-4 mt-12 md:mx-auto md:mt-20 max-w-2xl rounded-lg shadow-2xl"
+       style="background: rgb(var(--c-paper)); border: 1px solid rgb(var(--c-border))">
+    <input id="cmdk-input"
+           type="search"
+           placeholder='Find anything — try "stripe", "newsletter", "runbook"…'
+           class="w-full rounded-t-lg border-b px-5 py-4 text-base"
+           style="background: rgb(var(--c-paper)); border-color: rgb(var(--c-border)); color: rgb(var(--c-ink)); outline: none"
+           autocomplete="off"
+           aria-label="Search empire console" />
+    <ul id="cmdk-results"
+        class="max-h-[60vh] overflow-y-auto p-2"
+        role="listbox"></ul>
+    <div class="flex items-center justify-between border-t px-4 py-2 text-xs"
+         style="border-color: rgb(var(--c-border)); color: rgb(var(--c-muted))">
+      <span class="hidden sm:inline">
+        <kbd class="rounded border px-1.5 py-0.5" style="border-color: rgb(var(--c-border))">↑</kbd>
+        <kbd class="rounded border px-1.5 py-0.5" style="border-color: rgb(var(--c-border))">↓</kbd>
+        nav
+        <span class="mx-2">·</span>
+        <kbd class="rounded border px-1.5 py-0.5" style="border-color: rgb(var(--c-border))">↵</kbd>
+        open
+        <span class="mx-2">·</span>
+        <kbd class="rounded border px-1.5 py-0.5" style="border-color: rgb(var(--c-border))">⇧↵</kbd>
+        toggle ★
+        <span class="mx-2">·</span>
+        <kbd class="rounded border px-1.5 py-0.5" style="border-color: rgb(var(--c-border))">esc</kbd>
+        close
+      </span>
+      <span><kbd class="rounded border px-1.5 py-0.5" style="border-color: rgb(var(--c-border))">⌘K</kbd> toggle</span>
+    </div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ progressJson }}>
+  (function () {
+    const progressItems = JSON.parse(progressJson);
+    let items = progressItems.slice(); // start with PROGRESS only; Atlas loads lazily
+    let atlasLoaded = false;
+    let atlasLoadPromise = null;
+
+    async function ensureAtlasLoaded() {
+      if (atlasLoaded) return;
+      if (atlasLoadPromise) return atlasLoadPromise;
+      atlasLoadPromise = fetch('/atlas-data.json')
+        .then((r) => r.ok ? r.json() : [])
+        .then((atlasItems) => {
+          items = [...atlasItems, ...progressItems];
+          atlasLoaded = true;
+        })
+        .catch(() => { atlasLoaded = true; });
+      return atlasLoadPromise;
+    }
+
+    const overlay = document.getElementById('cmdk-overlay');
+    const input = document.getElementById('cmdk-input');
+    const results = document.getElementById('cmdk-results');
+    let activeIndex = 0;
+    let visible = [];
+
+    const FAV_KEY = 'empire-cmdk-favs';
+    const RECENT_KEY = 'empire-cmdk-recent';
+
+    function loadSet(key) {
+      try { return new Set(JSON.parse(localStorage.getItem(key) || '[]')); } catch { return new Set(); }
+    }
+    function loadList(key) {
+      try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; }
+    }
+    function saveSet(key, s) { localStorage.setItem(key, JSON.stringify([...s])); }
+    function saveList(key, l) { localStorage.setItem(key, JSON.stringify(l)); }
+
+    function favKey(it) { return `${it.kind}:${it.url}`; }
+
+    function score(it, q, favs) {
+      if (!q) return 1;
+      const name = it.name.toLowerCase();
+      const note = (it.note || '').toLowerCase();
+      const section = (it.section || '').toLowerCase();
+      let s = 0;
+      if (name.startsWith(q)) s = 100;
+      else if (name.includes(q)) s = 50;
+      else if (note.includes(q)) s = 20;
+      else if (section.includes(q)) s = 10;
+      if (s > 0 && favs.has(favKey(it))) s += 200;
+      return s;
+    }
+
+    function render(query) {
+      const q = query.trim().toLowerCase();
+      const favs = loadSet(FAV_KEY);
+      const recent = loadList(RECENT_KEY);
+
+      // Empty query: show favorites + recent
+      if (!q) {
+        const favItems = items.filter((it) => favs.has(favKey(it)));
+        const recentItems = recent
+          .map((rk) => items.find((it) => favKey(it) === rk))
+          .filter(Boolean)
+          .filter((it) => !favs.has(favKey(it)))
+          .slice(0, 6);
+        const sections = [];
+        if (favItems.length) sections.push({ label: '★ Favorites', items: favItems.slice(0, 8) });
+        if (recentItems.length) sections.push({ label: 'Recent', items: recentItems });
+        if (!favItems.length && !recentItems.length) {
+          sections.push({ label: 'Start typing…', items: items.slice(0, 8) });
+        }
+        renderSections(sections, favs);
+        return;
+      }
+
+      visible = items
+        .map((it) => ({ it, s: score(it, q, favs) }))
+        .filter((x) => x.s > 0)
+        .sort((a, b) => b.s - a.s)
+        .slice(0, 50);
+      renderSections([{ label: '', items: visible.map((v) => v.it) }], favs);
+    }
+
+    function renderSections(sections, favs) {
+      let html = '';
+      let idx = 0;
+      visible = [];
+      for (const sec of sections) {
+        if (sec.label) {
+          html += `<li class="px-3 pt-3 pb-1 text-xs font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">${escape(sec.label)}</li>`;
+        }
+        for (const it of sec.items) {
+          const isFav = favs.has(favKey(it));
+          const target = it.isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
+          const kindLabel = it.isExternal ? 'tool ↗' : it.kind;
+          const cssClass = it.kind === 'external' ? 'badge-p1' : it.kind === 'internal' ? 'badge-ok' : 'badge-p2';
+          html += `<li role="option" data-index="${idx}" data-url="${escape(it.url)}" data-external="${it.isExternal}" data-favkey="${escape(favKey(it))}"
+                       class="cmdk-result flex items-center justify-between gap-3 rounded px-3 py-2.5 cursor-pointer ${idx === 0 ? 'cmdk-active' : ''}">
+                     <div class="min-w-0 flex-1">
+                       <div class="font-medium truncate">
+                         <span style="color: rgb(var(--c-${isFav ? 'warn' : 'muted'})); margin-right: 6px">${isFav ? '★' : '·'}</span>
+                         ${escape(it.name)}
+                       </div>
+                       <div class="text-xs truncate" style="color: rgb(var(--c-muted))">
+                         ${escape(it.section || '')}${it.note ? ' · ' + escape(it.note) : ''}
+                       </div>
+                     </div>
+                     <span class="badge ${cssClass} shrink-0">${kindLabel}</span>
+                   </li>`;
+          visible.push(it);
+          idx++;
+        }
+      }
+      results.innerHTML = html || '<li class="px-3 py-6 text-center text-sm" style="color: rgb(var(--c-muted))">No matches.</li>';
+      activeIndex = 0;
+      updateActive();
+    }
+
+    function escape(s) {
+      const div = document.createElement('div');
+      div.textContent = String(s ?? '');
+      return div.innerHTML;
+    }
+
+    function updateActive() {
+      const all = results.querySelectorAll('.cmdk-result');
+      all.forEach((el, i) => el.classList.toggle('cmdk-active', i === activeIndex));
+      const active = all[activeIndex];
+      if (active) active.scrollIntoView({ block: 'nearest' });
+    }
+
+    function open() {
+      overlay.classList.remove('hidden');
+      input.value = '';
+      render('');
+      setTimeout(() => input.focus(), 0);
+      // Fire-and-forget: load full Atlas in background; re-render when ready
+      ensureAtlasLoaded().then(() => render(input.value));
+    }
+    function close() {
+      overlay.classList.add('hidden');
+    }
+    function activate() {
+      const el = results.querySelectorAll('.cmdk-result')[activeIndex];
+      if (!el) return;
+      const url = el.getAttribute('data-url');
+      const external = el.getAttribute('data-external') === 'true';
+      const fk = el.getAttribute('data-favkey');
+      // push to recent
+      const recent = loadList(RECENT_KEY).filter((k) => k !== fk);
+      recent.unshift(fk);
+      saveList(RECENT_KEY, recent.slice(0, 12));
+      close();
+      if (external) window.open(url, '_blank', 'noopener,noreferrer');
+      else location.href = url;
+    }
+    function toggleFav() {
+      const el = results.querySelectorAll('.cmdk-result')[activeIndex];
+      if (!el) return;
+      const fk = el.getAttribute('data-favkey');
+      const favs = loadSet(FAV_KEY);
+      if (favs.has(fk)) favs.delete(fk);
+      else favs.add(fk);
+      saveSet(FAV_KEY, favs);
+      render(input.value);
+    }
+
+    input.addEventListener('input', (e) => render(e.target.value));
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = Math.min(visible.length - 1, activeIndex + 1);
+        updateActive();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = Math.max(0, activeIndex - 1);
+        updateActive();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (e.shiftKey) toggleFav();
+        else activate();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        close();
+      }
+    });
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    results.addEventListener('click', (e) => {
+      const el = e.target.closest('.cmdk-result');
+      if (!el) return;
+      activeIndex = Number(el.getAttribute('data-index')) || 0;
+      activate();
+    });
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (overlay.classList.contains('hidden')) open();
+        else close();
+      }
+    });
+
+    window.empireCmdK = { open, close };
+  })();
+</script>
+
+<style is:global>
+  .cmdk-active { background: rgb(var(--c-surface-2)); }
+</style>

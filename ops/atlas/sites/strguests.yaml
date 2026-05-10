@@ -1,0 +1,70 @@
+# ops/atlas/sites/strguests.yaml — strguests.tools
+
+site:
+  id: strguests
+  name: strguests.tools
+  role: site
+  description: Free tools for STR hosts to delight guests. 4 PDF generators + 3 AI generators + ~100 programmatic message-template pages. Lifecycle stage = Guest XP. Hospitality-warm terracotta accent.
+  live_url: https://strguests.tools
+  domain: strguests.tools
+  repo_path: STRGuests-Tools/
+
+local_dev:
+  start_command: "pnpm dev"
+  port_static: 4321
+  port_server: 3001
+  notes: "Dual-target: Astro static site on :4321 + Express API for AI tools on :3001"
+
+hosting:
+  provider: Hostinger
+  doc_root: ~/domains/strguests.tools/public_html/
+  notes: Astro static via FTP. Express API via Hostinger Apps over SSH/rsync.
+
+ci:
+  workflow_paths:
+    - STRGuests-Tools/.github/workflows/ci.yml
+    - STRGuests-Tools/.github/workflows/deploy.yml
+  smoke_path: STRGuests-Tools/scripts/smoke.mjs
+
+sections:
+  - id: planning
+    label: Planning + state
+    items:
+      - { name: STATE.md (current phase), url: STRGuests-Tools/.planning/STATE.md, kind: doc }
+      - { name: ROADMAP.md,            url: STRGuests-Tools/.planning/ROADMAP.md, kind: doc }
+      - { name: README.md,             url: STRGuests-Tools/README.md, kind: doc }
+      - { name: CLAUDE.md (agent instructions), url: STRGuests-Tools/CLAUDE.md, kind: doc }
+      - { name: MEMORY.md,             url: STRGuests-Tools/MEMORY.md, kind: doc }
+      - { name: docs/ (ADRs + plans),  url: STRGuests-Tools/docs/, kind: code }
+
+  - id: code
+    label: Code
+    items:
+      - { name: src/ (Astro static site), url: STRGuests-Tools/src/, kind: code }
+      - { name: server/ (Express API),    url: STRGuests-Tools/server/, kind: code }
+      - { name: src/components/chrome,    url: STRGuests-Tools/src/components/chrome/, kind: code }
+      - { name: src/components/generator, url: STRGuests-Tools/src/components/generator/, kind: code }
+      - { name: src/lib/pdf (PDF base),   url: STRGuests-Tools/src/lib/pdf/, kind: code }
+      - { name: server/db/schema.sql,     url: STRGuests-Tools/server/db/schema.sql, kind: code }
+      - { name: tests/ (Vitest + Playwright), url: STRGuests-Tools/tests/, kind: code }
+      - { name: scripts/build-og,         url: STRGuests-Tools/scripts/build-og.mjs, kind: code, status: placeholder }
+      - { name: scripts/smoke,            url: STRGuests-Tools/scripts/smoke.mjs, kind: code }
+
+  - id: tools-on-site
+    label: Live tools on this site
+    items:
+      - { name: House Rules PDF,          url: https://strguests.tools/tools/house-rules, kind: external }
+      - { name: Welcome Book Builder,     url: https://strguests.tools/tools/welcome-book, kind: external }
+      - { name: Wi-Fi Sign Generator,     url: https://strguests.tools/tools/wifi-sign, kind: external }
+      - { name: Check-in Instructions,    url: https://strguests.tools/tools/check-in, kind: external }
+      - { name: Listing Description AI,   url: https://strguests.tools/tools/listing-description, kind: external, status: placeholder }
+      - { name: Review Response AI,       url: https://strguests.tools/tools/review-response, kind: external, status: placeholder }
+      - { name: Guest Message AI,         url: https://strguests.tools/tools/guest-messages, kind: external, status: placeholder }
+      - { name: Message Templates pack landing, url: https://strguests.tools/lead-magnet/message-templates, kind: external }
+
+  - id: marketing
+    label: Marketing + cluster
+    items:
+      - { name: Pinterest pins (built),   url: STRGuests-Tools/public/pinterest/, kind: code, status: placeholder }
+      - { name: OG images (built),        url: STRGuests-Tools/public/og/, kind: code, status: placeholder }
+      - { name: Cluster style guide,      url: STRHost-Tools/.planning/CLUSTER-STYLE-GUIDE.md, kind: doc, status: placeholder }

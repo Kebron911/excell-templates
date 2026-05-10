@@ -1,0 +1,274 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readTimeLog, type Domain } from '@/lib/data/time-log';
+import { formatDateTime } from '@/lib/format';
+
+const r = await readTimeLog();
+
+// Daniel's intended weekly rhythm allocation (per CLAUDE.md)
+const intendedWeekly: Record<Domain, number> = {
+  Money: 600,        // Monday focus = ~10h
+  Trajectory: 600,   // Tuesday
+  Wisdom: 480,       // Wednesday
+  Thrive: 360,       // Thursday
+  Freedom: 360,      // Friday
+  Self: 240,         // Saturday
+  Social: 180,       // Sunday
+};
+
+const domains = Object.keys(intendedWeekly) as Domain[];
+function fmtHm(m: number): string {
+  if (m === 0) return '0m';
+  const h = Math.floor(m / 60);
+  const min = m % 60;
+  return h > 0 ? `${h}h ${min}m` : `${min}m`;
+}
+const overallTone =
+  r.weekTotalMinutes > 1500 ? 'warn' :       // > 25h/week
+  r.weekTotalMinutes < 600 && new Date().getDay() > 4 ? 'warn' :  // < 10h by Friday
+  'ok';
+---
+<Layout title="Time" section="today">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <a href="/" class="text-xs">← back to Today</a>
+      <h1 class="mt-1 font-display text-3xl font-semibold">Time by domain</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Light tracking — start a session from the rhythm card on Today, end it here.
+        Source: <code>ops/time-log.ndjson</code>.
+      </p>
+    </div>
+    <button id="time-start-btn" type="button"
+            class="rounded border px-4 py-2 text-sm font-medium"
+            style="border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent))">
+      ▶ Start session
+    </button>
+  </header>
+
+  <!-- Active session bar (client-side state) -->
+  <section id="time-active" class="mb-8 hidden card card-notable">
+    <div class="flex items-baseline justify-between gap-3">
+      <div>
+        <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">Active session</div>
+        <div class="mt-1 font-display text-2xl font-semibold">
+          <span id="time-active-domain">Money</span> · <span id="time-active-elapsed" class="tabular-nums">0:00</span>
+        </div>
+      </div>
+      <div class="flex gap-2 text-xs">
+        <button id="time-stop-btn" type="button"
+                class="rounded border px-3 py-1.5 font-medium"
+                style="border-color: rgb(var(--c-bad)); color: rgb(var(--c-bad))">■ Stop & log</button>
+        <button id="time-cancel-btn" type="button"
+                class="rounded border px-3 py-1.5"
+                style="border-color: rgb(var(--c-border))">Cancel</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3">
+    <Scorecard label="Today" value={fmtHm(r.todayMinutes)} />
+    <Scorecard label="This week" value={fmtHm(r.weekTotalMinutes)} tone={overallTone} hint="logged sessions only" />
+    <Scorecard label="Sessions logged" value={r.recentEntries.length} />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 font-display text-xl font-semibold">This week vs intended</h2>
+    {r.weekTotalMinutes === 0 ? (
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        No sessions logged this week. Start one with the button above.
+      </p>
+    ) : (
+      <div class="card">
+        <ul class="space-y-3">
+          {domains.map((d) => {
+            const actual = r.weekByDomain[d];
+            const intended = intendedWeekly[d];
+            const ratio = intended > 0 ? Math.min(1.5, actual / intended) : 0;
+            const pct = ratio * 100;
+            const tone = ratio >= 0.9 ? 'ok' : ratio >= 0.5 ? 'warn' : 'bad';
+            const barColor = tone === 'ok' ? 'rgb(var(--c-ok))' : tone === 'warn' ? 'rgb(var(--c-warn))' : 'rgb(var(--c-bad))';
+            return (
+              <li>
+                <div class="flex items-baseline justify-between text-sm">
+                  <span class="font-medium">{d}</span>
+                  <span class="font-mono">{fmtHm(actual)} / {fmtHm(intended)}</span>
+                </div>
+                <div class="mt-1 h-2 w-full overflow-hidden rounded" style="background: rgb(var(--c-surface-2))">
+                  <div class="h-full rounded transition-all"
+                       style={`width: ${Math.min(100, pct)}%; background: ${barColor}`}></div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    )}
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 font-display text-xl font-semibold">Recent sessions</h2>
+    {r.recentEntries.length === 0 ? (
+      <EmptyState
+        title="No time logged"
+        body="Click 'Start session' to begin. Stop & log writes a pending entry to drain into ops/time-log.ndjson."
+        yamlPath="ops/time-log.ndjson"
+      />
+    ) : (
+      <ul class="space-y-2">
+        {r.recentEntries.map((e) => (
+          <li class="card card-tight flex items-baseline justify-between gap-3">
+            <div>
+              <span class="badge badge-p2">{e.domain}</span>
+              <span class="ml-3 font-medium">{fmtHm(e.minutes)}</span>
+              {e.note && <span class="ml-3 text-sm" style="color: rgb(var(--c-muted))">{e.note}</span>}
+            </div>
+            <span class="font-mono text-xs" style="color: rgb(var(--c-muted))">{formatDateTime(e.ts)}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <!-- Pending sessions (localStorage) -->
+  <section id="time-pending-section" class="mb-6 hidden">
+    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide" style="color: rgb(var(--c-warn))">
+      Pending sessions (local) · <span id="time-pending-count">0</span>
+    </h3>
+    <div class="card card-notable">
+      <ul id="time-pending-list" class="space-y-2 text-sm"></ul>
+      <div class="mt-3 flex gap-2">
+        <button id="time-copy-pending" type="button"
+                class="rounded px-3 py-1.5 text-sm font-medium"
+                style="background: rgb(var(--c-accent)); color: white">
+          Copy → clipboard
+        </button>
+        <button id="time-clear-pending" type="button"
+                class="rounded border px-3 py-1.5 text-sm"
+                style="border-color: rgb(var(--c-border))">
+          Clear (after pasting!)
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <SourceFooter source="ops/time-log.ndjson + browser session state" lastRefresh={new Date()}
+                notes="Phase 4 wires n8n webhook for direct persistence" />
+</Layout>
+
+<script is:inline>
+  (function () {
+    const ACTIVE_KEY = 'empire-time-active';
+    const PENDING_KEY = 'empire-time-pending';
+    const startBtn = document.getElementById('time-start-btn');
+    const stopBtn = document.getElementById('time-stop-btn');
+    const cancelBtn = document.getElementById('time-cancel-btn');
+    const activeBlock = document.getElementById('time-active');
+    const activeDomain = document.getElementById('time-active-domain');
+    const activeElapsed = document.getElementById('time-active-elapsed');
+    const pendingSection = document.getElementById('time-pending-section');
+    const pendingCount = document.getElementById('time-pending-count');
+    const pendingList = document.getElementById('time-pending-list');
+    const copyBtn = document.getElementById('time-copy-pending');
+    const clearBtn = document.getElementById('time-clear-pending');
+    let timerId = null;
+
+    const DOMAINS = ['Money','Trajectory','Wisdom','Thrive','Freedom','Self','Social'];
+
+    function load(key) { try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; } }
+    function save(key, v) { localStorage.setItem(key, JSON.stringify(v)); }
+    function loadList(key) { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; } }
+    function saveList(key, l) { localStorage.setItem(key, JSON.stringify(l)); }
+    function escape(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
+
+    function renderActive() {
+      const a = load(ACTIVE_KEY);
+      if (!a) { activeBlock.classList.add('hidden'); if (timerId) { clearInterval(timerId); timerId = null; } return; }
+      activeBlock.classList.remove('hidden');
+      activeDomain.textContent = a.domain;
+      function tick() {
+        const ms = Date.now() - new Date(a.startedAt).getTime();
+        const m = Math.floor(ms / 60000);
+        const s = Math.floor((ms % 60000) / 1000);
+        activeElapsed.textContent = `${m}:${String(s).padStart(2, '0')}`;
+      }
+      tick();
+      if (timerId) clearInterval(timerId);
+      timerId = setInterval(tick, 1000);
+    }
+
+    function renderPending() {
+      const list = loadList(PENDING_KEY);
+      pendingCount.textContent = String(list.length);
+      if (list.length === 0) { pendingSection.classList.add('hidden'); return; }
+      pendingSection.classList.remove('hidden');
+      pendingList.innerHTML = list.map((e) =>
+        `<li class="rounded border p-2" style="border-color: rgb(var(--c-border))">
+           <div class="flex items-baseline justify-between gap-3">
+             <span><span class="badge badge-p2">${escape(e.domain)}</span>
+                   <span class="ml-2 font-medium">${e.minutes}m</span>
+                   ${e.note ? '<span class="ml-2 text-sm" style="color: rgb(var(--c-muted))">' + escape(e.note) + '</span>' : ''}</span>
+             <span class="font-mono text-xs" style="color: rgb(var(--c-muted))">${escape(new Date(e.ts).toLocaleString())}</span>
+           </div>
+         </li>`
+      ).join('');
+    }
+
+    startBtn.addEventListener('click', () => {
+      const domain = prompt(`Which domain?\n${DOMAINS.map((d, i) => (i + 1) + '. ' + d).join('\n')}\n\nType name (Money / Trajectory / etc):`,
+                            DOMAINS[(new Date().getDay() + 6) % 7]);
+      if (!domain || !DOMAINS.includes(domain)) return;
+      save(ACTIVE_KEY, { domain, startedAt: new Date().toISOString() });
+      renderActive();
+    });
+
+    stopBtn.addEventListener('click', () => {
+      const a = load(ACTIVE_KEY);
+      if (!a) return;
+      const minutes = Math.max(1, Math.round((Date.now() - new Date(a.startedAt).getTime()) / 60000));
+      const note = prompt('Optional note (what did you work on?):', '');
+      const entry = {
+        id: (crypto.randomUUID && crypto.randomUUID()) || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
+        ts: new Date().toISOString(),
+        domain: a.domain,
+        minutes,
+        note: note || undefined,
+      };
+      const list = loadList(PENDING_KEY);
+      list.push(entry);
+      saveList(PENDING_KEY, list);
+      localStorage.removeItem(ACTIVE_KEY);
+      renderActive();
+      renderPending();
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      if (!confirm('Cancel active session without logging?')) return;
+      localStorage.removeItem(ACTIVE_KEY);
+      renderActive();
+    });
+
+    copyBtn?.addEventListener('click', async () => {
+      const list = loadList(PENDING_KEY);
+      const lines = list.map((e) => JSON.stringify(e)).join('\n');
+      try {
+        await navigator.clipboard.writeText(lines + (lines ? '\n' : ''));
+        copyBtn.textContent = '✓ Copied — paste into ops/time-log.ndjson';
+        setTimeout(() => { copyBtn.textContent = 'Copy → clipboard'; }, 3000);
+      } catch {
+        alert('Copy failed. Pending:\n\n' + lines);
+      }
+    });
+
+    clearBtn?.addEventListener('click', () => {
+      if (!confirm('Clear pending sessions? Only after pasting into ops/time-log.ndjson.')) return;
+      saveList(PENDING_KEY, []);
+      renderPending();
+    });
+
+    renderActive();
+    renderPending();
+  })();
+</script>

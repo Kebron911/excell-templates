@@ -1,0 +1,3 @@
+{"id":"seed-001","priority":"P2","source":"empire-console-bootstrap","message":"Empire Console scaffolded — Phase 1 ready for first run.","ts":"2026-05-10T13:35:00.000Z"}
+{"id":"seed-002","priority":"P1","source":"empire-console-bootstrap","message":"Vendor inventory seeded with 12 placeholders — fill costs + renewal_date.","url":"http://localhost:4327/maintain/vendors","ts":"2026-05-10T13:36:00.000Z"}
+{"id":"seed-003","priority":"P1","source":"runbook-staleness","message":"Most runbook stubs lack last_reviewed frontmatter — add to silence false-stale.","url":"http://localhost:4327/maintain/runbooks","ts":"2026-05-10T13:37:00.000Z"}

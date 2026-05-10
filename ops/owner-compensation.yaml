@@ -1,0 +1,62 @@
+# ops/owner-compensation.yaml — runway + pay-yourself rule
+#
+# This is the empire's view, not Daniel's personal finances.
+# Personal financial planning lives in Cowork OS (Wealth/Accounts, etc.).
+#
+# What this tracks:
+#   - cash on hand the empire holds (Stripe balance + Wave bank balance)
+#   - monthly business burn (vendors + tax buffer + planned reinvestment)
+#   - recommended owner draw based on a chosen rule
+#
+# Schema:
+#   cash:
+#     stripe_balance:        USD currently in Stripe
+#     bank_balance:          USD in business checking
+#     last_updated:          YYYY-MM-DD
+#   burn:
+#     monthly_target:        USD planned monthly outflow (vendors + tax buffer + reinvest)
+#     last_actual:           USD actual last month
+#   pay_rule:
+#     type:                  percent_of_net_profit | fixed_monthly | runway_target
+#     percent:               (if percent_of_net_profit) — e.g. 0.30
+#     fixed:                 (if fixed_monthly) — USD
+#     runway_months_target:  desired months of cash in business before drawing
+#   draws:
+#     - amount: USD
+#       date:   YYYY-MM-DD
+#       note:   optional
+
+cash:
+  stripe_balance: 0
+  bank_balance: 0
+  last_updated: 2026-05-10
+
+burn:
+  monthly_target: 80     # placeholder — vendor burn (small) + IS plan when live
+  last_actual: 0
+
+pay_rule:
+  type: runway_target
+  percent: 0.30
+  fixed: 0
+  runway_months_target: 6
+  notes: |
+    Don't draw until business has 6 months of monthly_target burn in cash.
+    Above that threshold, draw 30% of trailing-3-month net profit monthly.
+    Reinvest the other 70% in growth (paid acquisition unlock, premium tools).
+
+tax_buffer:
+  # G16 — Tax buffer tracker. Solopreneurs miss quarterly taxes if they don't set aside.
+  target_percent: 0.30           # save 30% of revenue for federal+state taxes
+  current_balance: 0             # USD currently in the tax-buffer account/sub-account
+  ytd_revenue: 0                 # YTD gross revenue (manual until Phase 3 auto-pull)
+  next_payment_due: 2026-06-15   # next quarterly estimated tax date
+  notes: |
+    Target: 30% of YTD revenue. If buffer < target, you're under-saving.
+    Wave Apps stays source of truth for actual tax liability.
+
+draws:
+  # log each owner draw here. Example:
+  # - amount: 500
+  #   date: 2026-07-15
+  #   note: First profitable month draw

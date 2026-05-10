@@ -1,0 +1,209 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+
+// Phase 3 — wired when nightly-refresh pulls IS contacts/sequences/tags into SQLite.
+// Stub renders the layout against placeholder zeros so the route exists.
+
+interface FunnelStage { label: string; count: number; }
+interface SourceRow { source: string; signups: number; }
+interface SequenceRow { name: string; metric: string; value: string; }
+
+const stub = {
+  list: { total: 0, new7d: 0, new7dDelta: 0, engaged30d: 0, cold90d: 0 },
+  funnel: [
+    { label: 'Visitor',      count: 0 },
+    { label: 'Email opt-in', count: 0 },
+    { label: 'Engaged',      count: 0 },
+    { label: 'Purchaser',    count: 0 },
+  ] as FunnelStage[],
+  topSources: [] as SourceRow[],
+  health: {
+    bounceRate: 0,
+    unsubRate: 0,
+    complaintRate: 0,
+    avgOpen: 0,
+    avgClick: 0,
+  },
+  sequences: [] as SequenceRow[],
+};
+
+const maxStage = stub.funnel[0]?.count || 1;
+function pct(n: number, d: number) { return d > 0 ? ((n / d) * 100) : 0; }
+const bounceTone = stub.health.bounceRate > 2 ? 'bad' : 'ok';
+const complaintTone = stub.health.complaintRate > 0.1 ? 'bad' : 'ok';
+---
+<Layout title="Check · Contacts" section="check">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Contacts (funnel)</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Source: Influencersoft (cached). The middle of the chain — between
+        <a href="/check/traffic">Traffic</a> (who's coming) and
+        <a href="/check/money">Money</a> (who paid).
+      </p>
+    </div>
+    <span class="badge badge-p2">Phase 3 stub</span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Total list" value={stub.list.total} />
+    <Scorecard
+      label="New (7d)"
+      value={stub.list.new7d}
+      hint={stub.list.new7dDelta >= 0 ? `+${stub.list.new7dDelta} vs avg` : `${stub.list.new7dDelta} vs avg`}
+      tone={stub.list.new7dDelta < 0 ? 'warn' : 'ok'}
+    />
+    <Scorecard
+      label="Engaged (30d)"
+      value={stub.list.engaged30d}
+      hint={stub.list.total > 0 ? `${pct(stub.list.engaged30d, stub.list.total).toFixed(0)}% of list` : '—'}
+    />
+    <Scorecard
+      label="Cold (90d+)"
+      value={stub.list.cold90d}
+      hint="re-engage candidates"
+      tone={stub.list.cold90d > 0 ? 'warn' : 'ok'}
+    />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Funnel conversion (28d)
+    </h2>
+    <div class="card">
+      {stub.funnel.map((stage, i) => {
+        const prev = i > 0 ? stub.funnel[i - 1].count : null;
+        const stagePct = prev !== null && prev > 0 ? pct(stage.count, prev) : null;
+        const overallPct = i > 0 ? pct(stage.count, maxStage) : 100;
+        const barWidth = Math.min(100, overallPct);
+        return (
+          <div class="mb-3 last:mb-0">
+            <div class="flex items-baseline justify-between text-sm">
+              <span class="font-medium">{stage.label}</span>
+              <span class="font-mono">
+                {stage.count}
+                {stagePct !== null && (
+                  <span class="ml-2 text-xs" style="color: rgb(var(--c-muted))">
+                    ({stagePct.toFixed(1)}% of {stub.funnel[i - 1].label.toLowerCase()})
+                  </span>
+                )}
+              </span>
+            </div>
+            <div class="mt-1 h-2 w-full overflow-hidden rounded" style="background: rgb(var(--c-surface-2))">
+              <div class="h-full rounded" style={`width: ${barWidth}%; background: rgb(var(--c-accent))`}></div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Drop-out — where the leak is (28d)
+    </h2>
+    <div class="card">
+      {stub.funnel.length < 2 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">No data yet.</p>
+      ) : (
+        <ul class="space-y-2 text-sm">
+          {stub.funnel.slice(1).map((stage, i) => {
+            const prev = stub.funnel[i].count;
+            const lossPct = prev > 0 ? 100 - pct(stage.count, prev) : 0;
+            return (
+              <li class="flex items-center justify-between">
+                <span>{stub.funnel[i].label} → {stage.label}</span>
+                <span class="font-mono" style={lossPct > 80 ? 'color: rgb(var(--c-bad))' : ''}>
+                  {lossPct.toFixed(1)}% leak
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <p class="mt-3 text-xs" style="color: rgb(var(--c-muted))">
+        n8n <code>funnel-dropout-watch</code> sends a P2 weekly digest;
+        escalates to P1 if any stage drops &gt;50% week-over-week.
+      </p>
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Top sign-up sources (28d)
+    </h2>
+    <div class="card">
+      {stub.topSources.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          Will populate from IS form-of-origin in Phase 3. Each lead magnet across
+          the cluster has its own form ID — that's the attribution key.
+        </p>
+      ) : (
+        <ul>{stub.topSources.map((s) => <li>{s.source} — {s.signups}</li>)}</ul>
+      )}
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      List health (rolling 30d)
+    </h2>
+    <div class="grid grid-cols-2 gap-4 md:grid-cols-5">
+      <Scorecard label="Bounce rate" value={`${stub.health.bounceRate.toFixed(2)}%`} tone={bounceTone}
+                 hint=">2% fires P0" />
+      <Scorecard label="Unsub rate" value={`${stub.health.unsubRate.toFixed(2)}%`} />
+      <Scorecard label="Complaint rate" value={`${stub.health.complaintRate.toFixed(2)}%`} tone={complaintTone}
+                 hint=">0.1% fires P0" />
+      <Scorecard label="Avg open" value={`${stub.health.avgOpen.toFixed(0)}%`} />
+      <Scorecard label="Avg click" value={`${stub.health.avgClick.toFixed(1)}%`} />
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Sequence performance (28d)
+    </h2>
+    <div class="card">
+      {stub.sequences.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          5 IS sequences drafted (welcome · review-request · refund-recovery · win-back · abandoned-cart).
+          Phase 3 wires per-sequence open/click/convert. Drill-in to IS UI for full message-level data.
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Sequence</th>
+              <th>Metric</th>
+              <th class="text-right">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stub.sequences.map((s) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2 font-medium">{s.name}</td>
+                <td>{s.metric}</td>
+                <td class="text-right font-mono">{s.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      What this module does NOT do
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong>No per-contact records.</strong> That's the Influencersoft UI.
+        Console shows aggregates and drill-out links.</li>
+      <li>• <strong>No manual tagging.</strong> IS owns tags; console reads them.</li>
+      <li>• <strong>No direct email sends.</strong> All sends go through n8n → IS webhook.
+        Trigger from <a href="/promote/broadcasts">Promote → Broadcasts</a> (Phase 4).</li>
+    </ul>
+  </section>
+</Layout>

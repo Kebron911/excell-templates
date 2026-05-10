@@ -1,0 +1,54 @@
+{
+  "name": "vendor-renewal-watch",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 * * *" }] }
+      },
+      "id": "cron",
+      "name": "Daily 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cat {{ $env.EMPIRE_REPO_PATH }}/ops/vendor-inventory.yaml"
+      },
+      "id": "readYaml",
+      "name": "Read vendor-inventory.yaml",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const yaml = require('js-yaml');\nconst raw = $input.item.json.stdout || '';\nconst doc = yaml.load(raw) || { vendors: [] };\nconst now = Date.now();\nconst soon = (doc.vendors || []).map(v => {\n  const r = v.renewal_date ? new Date(v.renewal_date).getTime() : null;\n  const d = r ? Math.floor((r - now) / 86400000) : null;\n  return { ...v, daysToRenewal: d };\n}).filter(v => v.daysToRenewal !== null && v.daysToRenewal >= 0 && v.daysToRenewal <= 7);\nif (soon.length === 0) return [];\nconst lines = soon.map(v => `• ${v.vendor} renews in ${v.daysToRenewal}d ($${(v.monthly_cost||0)}/mo)`).join('\\n');\nreturn [{ json: {\n  priority: 'P1',\n  source: 'vendor-renewal-watch',\n  message: `${soon.length} vendor renewal${soon.length>1?'s':''} ≤7d:\\n${lines}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/maintain/vendors'\n}}];"
+      },
+      "id": "parse",
+      "name": "Find renewals ≤7d",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": {
+        "source": "parameter",
+        "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID"
+      },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "Daily 09:00":                 { "main": [[{ "node": "Read vendor-inventory.yaml", "type": "main", "index": 0 }]] },
+    "Read vendor-inventory.yaml":  { "main": [[{ "node": "Find renewals ≤7d",          "type": "main", "index": 0 }]] },
+    "Find renewals ≤7d":           { "main": [[{ "node": "→ telegram-router",          "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P1" }]
+}

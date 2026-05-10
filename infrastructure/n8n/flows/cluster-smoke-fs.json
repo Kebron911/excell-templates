@@ -1,0 +1,54 @@
+{
+  "name": "cluster-smoke-fs",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "*/15 * * * *" }] }
+      },
+      "id": "cron",
+      "name": "Every 15min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cd {{ $env.EMPIRE_REPO_PATH }} && for d in STRGuests-Tools STRHost-Tools STROps-Tools STRBuyers-Tools; do if [ -d \"$d/dist\" ]; then echo \"$d $(stat -c %Y $d/dist 2>/dev/null || stat -f %m $d/dist)\"; else echo \"$d UNBUILT\"; fi; done"
+      },
+      "id": "stat",
+      "name": "Stat each dist/",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const STALE_HOURS = 72;\nconst now = Math.floor(Date.now() / 1000);\nconst rows = ($input.item.json.stdout || '').trim().split('\\n').map(l => l.split(' '));\nconst issues = [];\nfor (const [name, mtime] of rows) {\n  if (mtime === 'UNBUILT') { issues.push(`• ${name} has no dist/`); continue; }\n  const ageHours = (now - parseInt(mtime, 10)) / 3600;\n  if (ageHours > STALE_HOURS) issues.push(`• ${name} dist/ is ${ageHours.toFixed(1)}h old`);\n}\nif (issues.length === 0) return [];\nreturn [{ json: {\n  priority: 'P0',\n  source: 'cluster-smoke-fs',\n  message: `${issues.length} cluster site${issues.length>1?'s':''} unbuilt or stale:\\n${issues.join('\\n')}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/cluster'\n}}];"
+      },
+      "id": "parse",
+      "name": "Find unbuilt/stale",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": {
+        "source": "parameter",
+        "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID"
+      },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "Every 15min":        { "main": [[{ "node": "Stat each dist/",   "type": "main", "index": 0 }]] },
+    "Stat each dist/":    { "main": [[{ "node": "Find unbuilt/stale","type": "main", "index": 0 }]] },
+    "Find unbuilt/stale": { "main": [[{ "node": "→ telegram-router", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P0" }]
+}

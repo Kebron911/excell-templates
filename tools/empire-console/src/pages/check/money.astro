@@ -1,0 +1,106 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+
+// Phase 3 — wired when nightly-refresh + SQLite cache land.
+// This stub renders the layout against placeholder zeros so the route exists
+// and the design is reviewable now.
+const stub = {
+  yesterday: { revenue: 0, orders: 0, refunds: 0 },
+  week:      { revenue: 0, orders: 0, refunds: 0 },
+  mtd:       { revenue: 0, orders: 0, refunds: 0, burn: 0 },
+  channels: [
+    { name: 'Etsy',     amount: 0, share: 0 },
+    { name: 'Own site', amount: 0, share: 0 },
+    { name: 'Gumroad',  amount: 0, share: 0 },
+  ],
+  topSkus: [] as Array<{ sku: string; title: string; revenue: number; orders: number; refundRate: number }>,
+};
+const ratio = stub.mtd.burn > 0 ? (stub.mtd.revenue / stub.mtd.burn) : null;
+---
+<Layout title="Check · Money" section="check">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Money</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Operational revenue & burn. <strong>Not bookkeeping.</strong>
+        Books of record: Wave / QuickBooks (PROGRESS §P9.2). Phase 3 wires the live data.
+      </p>
+    </div>
+    <span class="badge badge-p2">Phase 3 stub</span>
+  </header>
+
+  <section class="mb-6 card border-2" style="border-color: rgb(var(--c-accent))">
+    <div class="flex items-baseline justify-between">
+      <div>
+        <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+          Above the line (MTD)
+        </div>
+        <div class="mt-1 font-display text-4xl font-semibold">
+          ${stub.mtd.revenue.toFixed(0)}
+          <span class="text-2xl" style="color: rgb(var(--c-muted))">
+            / ${stub.mtd.burn.toFixed(0)} burn
+          </span>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">Ratio</div>
+        <div class="mt-1 font-display text-3xl font-semibold">
+          {ratio === null ? '—' : `${ratio.toFixed(1)}×`}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+    <Scorecard label="Yesterday revenue" value={`$${stub.yesterday.revenue}`} hint={`${stub.yesterday.orders} orders, ${stub.yesterday.refunds} refunds`} />
+    <Scorecard label="This week" value={`$${stub.week.revenue}`} hint={`${stub.week.orders} orders, ${stub.week.refunds} refunds`} />
+    <Scorecard label="MTD orders" value={stub.mtd.orders} hint={`${stub.mtd.refunds} refunds MTD`} />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Revenue by channel (MTD)
+    </h2>
+    <div class="card">
+      {stub.channels.map((c) => (
+        <div class="mb-3 last:mb-0">
+          <div class="flex items-baseline justify-between text-sm">
+            <span class="font-medium">{c.name}</span>
+            <span class="font-mono">${c.amount.toFixed(0)} ({c.share}%)</span>
+          </div>
+          <div class="mt-1 h-2 w-full overflow-hidden rounded" style="background: rgb(var(--c-surface-2))">
+            <div class="h-full rounded" style={`width: ${c.share}%; background: rgb(var(--c-accent))`}></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Top SKUs (MTD)
+    </h2>
+    <div class="card">
+      {stub.topSkus.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          Will populate from Stripe + Etsy + Gumroad APIs in Phase 3 (nightly-refresh → SQLite).
+        </p>
+      ) : (
+        <ul>{stub.topSkus.map((s) => <li>{s.sku} {s.title} ${s.revenue}</li>)}</ul>
+      )}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Books of record
+    </h3>
+    <p class="text-sm">
+      Tax-grade P&L, journal entries, depreciation, and 1099-K reconciliation live in
+      <a href="https://waveapps.com" target="_blank" rel="noopener noreferrer">Wave Apps</a>
+      (or QuickBooks — pending §9 decision). The console intentionally does <em>not</em> own the books;
+      it shows the operational view between closes.
+    </p>
+  </section>
+</Layout>

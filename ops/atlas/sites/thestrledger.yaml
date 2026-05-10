@@ -1,0 +1,61 @@
+# ops/atlas/sites/thestrledger.yaml — per-site atlas for the hub
+#
+# Read by tools/empire-console — /atlas/thestrledger
+# Auto-merged with: lead-magnets/tools/pages tagged site:thestrledger,
+# domain entry from infrastructure.yaml.
+
+site:
+  id: thestrledger
+  name: thestrledger.com
+  role: hub
+  description: Master hub. Beachhead = STR tax & financial templates. SSOT for the empire's positioning.
+  live_url: https://thestrledger.com
+  blog_url: https://blog.thestrledger.com
+  domain: thestrledger.com
+  repo_path: ./
+
+local_dev:
+  start_command: "n/a — hub site is built from templates/ + content collections"
+  port_static: null
+
+hosting:
+  provider: Hostinger
+  doc_root: ~/domains/thestrledger.com/public_html/
+
+ci:
+  workflow_paths: []
+  smoke_path: null
+
+sections:
+  - id: strategy
+    label: Strategy & positioning
+    items:
+      - { name: Master strategy spec, url: docs/superpowers/specs/2026-04-22-str-tax-platform-design.md, kind: doc }
+      - { name: Brand decisions,      url: brand/brand-decisions.md, kind: doc }
+      - { name: Content atomization engine spec, url: docs/superpowers/specs/2026-04-29-content-atomization-engine.md, kind: doc }
+      - { name: Weeks 1-8 launch plan, url: docs/superpowers/plans/2026-04-22-weeks-1-8-launch.md, kind: doc }
+
+  - id: catalog
+    label: Catalog (65 SKUs + 5 bundles)
+    items:
+      - { name: templates/ root,      url: templates/, kind: code }
+      - { name: Manifest check (Python), url: templates/_build/manifest_check.py, kind: code }
+      - { name: Bundles directory,    url: templates/_delivery/_bundles/, kind: code }
+      - { name: Shared assets,        url: templates/_shared/, kind: code }
+      - { name: Catalog manifest (in console), url: /check/catalog, kind: internal }
+
+  - id: blog
+    label: Blog (Ghost at blog.thestrledger.com)
+    items:
+      - { name: Live blog,            url: https://blog.thestrledger.com, kind: external }
+      - { name: Ghost admin,          url: https://blog.thestrledger.com/ghost, kind: external }
+      - { name: Cluster blog standard, url: docs/CLUSTER-BLOG-STANDARD.md, kind: doc }
+
+  - id: copy
+    label: Copy + content
+    items:
+      - { name: copy/ root,           url: copy/, kind: code }
+      - { name: Atomization decks,    url: copy/_atomization/, kind: code }
+      - { name: Etsy listing copy,    url: copy/etsy/, kind: code, status: placeholder }
+      - { name: Email sequences,      url: copy/email/, kind: code, status: placeholder }
+      - { name: Press kit assets,     url: brand/assets/press-kit.zip, kind: code, status: placeholder }

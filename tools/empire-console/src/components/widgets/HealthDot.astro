@@ -1,0 +1,27 @@
+---
+import { readAlerts } from '@/lib/data/alerts';
+
+const alerts = await readAlerts(50);
+const openP0 = alerts.filter((a) => a.priority === 'P0' && !a.acked).length;
+const openP1 = alerts.filter((a) => a.priority === 'P1' && !a.acked).length;
+
+const tone =
+  openP0 > 0 ? 'p0' :
+  openP1 > 0 ? 'p1' : 'ok';
+
+const label =
+  openP0 > 0 ? `${openP0} open P0 — needs attention` :
+  openP1 > 0 ? `${openP1} open P1 — review` :
+  'All systems green';
+---
+<a href="/check/alerts"
+   class="inline-flex items-center text-xs no-underline"
+   style="color: rgb(var(--c-muted))"
+   aria-label={label}
+   title={label}>
+  <span class={`status-dot status-dot-${tone}`} aria-hidden="true"></span>
+  <span class="hidden sm:inline">
+    {openP0 > 0 ? `${openP0} P0` :
+     openP1 > 0 ? `${openP1} P1` : 'green'}
+  </span>
+</a>
