@@ -1,0 +1,70 @@
+---
+// Wordmark — "STR Ops" as the main brand identity in the finance-trust
+// accent, ".tools" as the small trailing category descriptor with an accent
+// period. Single component so Header and Footer never drift apart and a
+// future favicon/og-image generator can import the same proportions.
+//
+// Mirrors strbuyers.tools / strhost.tools wordmark proportions exactly so
+// the cluster reads as a coordinated family.
+
+interface Props {
+  /** Visual scale. */
+  size?: 'sm' | 'md' | 'lg';
+  /** Surface the wordmark sits on; controls 'STR Ops' color. */
+  theme?: 'navy' | 'parchment';
+  /** Render as a link to home (default true). When false, plain text. */
+  asLink?: boolean;
+  /** Optional href override (defaults to "/"). */
+  href?: string;
+  /** Class to extend the wrapping element. */
+  class?: string;
+}
+
+const { size = 'md', theme = 'navy', asLink = true, href = '/', class: className = '' } = Astro.props;
+
+const sizes = {
+  sm: { main: 'text-[20px]', tail: 'text-[10px]', track: 'tracking-[0.28em]' },
+  md: { main: 'text-[28px]', tail: 'text-[12px]', track: 'tracking-[0.28em]' },
+  lg: { main: 'text-[40px]', tail: 'text-[14px]', track: 'tracking-[0.28em]' },
+};
+
+const themes = {
+  navy:      { main: 'text-accent',      tail: 'text-ink3',     dot: 'text-accent' },
+  parchment: { main: 'text-accent-soft', tail: 'text-parchment opacity-70', dot: 'text-parchment' },
+};
+
+const s = sizes[size];
+const t = themes[theme];
+
+const Tag = asLink ? 'a' : 'span';
+const linkProps = asLink
+  ? { href, 'aria-label': 'STR Ops Tools — home', class: 'no-underline' }
+  : {};
+---
+<Tag
+  {...linkProps}
+  class:list={[
+    'inline-flex items-baseline gap-1',
+    className,
+  ]}
+>
+  <span
+    class:list={[
+      'font-display font-medium leading-none whitespace-nowrap',
+      s.main,
+      t.main,
+    ]}
+  >
+    STR Ops
+  </span>
+  <span
+    class:list={[
+      'font-body uppercase font-semibold leading-none',
+      s.tail,
+      s.track,
+    ]}
+    aria-hidden="true"
+  >
+    <span class={t.dot}>.</span><span class={t.tail}>tools</span>
+  </span>
+</Tag>
