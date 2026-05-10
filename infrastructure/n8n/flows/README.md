@@ -92,11 +92,16 @@ A `sync-log.json` file is touched on success to fuel a "stale cache" indicator.
 
 `ops/cache/*.json` is git-ignored (contains live API data).
 
+## Phase 4 flows (active)
+
+| Flow | Trigger | What it does | Priority |
+|---|---|---|---|
+| `release-shipped.json` | webhook POST `/webhook/release-shipped` | Validates SKU + version against on-disk VERSION file, emails prior buyers via IS, refreshes Etsy listings, appends `update-shipped:<sku>:<version>` tag to `ops/release-tags.ndjson`. Bound to the **Ship update** button on `/maintain/releases`. | P1 on success, 409 returned on VERSION mismatch (no side effects) |
+
 ## Phase 4+ flows (planned)
 
 | Flow | Phase | Trigger | Priority |
 |---|---|---|---|
-| `release-shipped.json` | 4 | webhook (VERSION bump) | P1 |
 | `backup-restore-test.json` | 4 | cron monthly 1st | P0 on fail |
 | `gdpr-intake.json` | 4 | webhook (privacy@ form) | P1 |
 | `delist-sku.json` | 4 | console button (POST) | P1 confirm |

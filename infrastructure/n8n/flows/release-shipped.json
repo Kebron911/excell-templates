@@ -1,0 +1,189 @@
+{
+  "name": "release-shipped",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "release-shipped",
+        "responseMode": "responseNode",
+        "options": { "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "={{ $env.EMPIRE_CONSOLE_BASE_URL || '*' }}" }] } }
+      },
+      "id": "webhook",
+      "name": "POST /webhook/release-shipped",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "webhookId": "release-shipped"
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = $input.item.json.body || $input.item.json;\nconst sku = (body.sku || '').toString().toUpperCase();\nconst version = (body.version || '').toString();\nconst releaseNotes = (body.releaseNotes || '').toString();\nif (!/^[A-Z]{3}-\\d{3}$/.test(sku)) return [{ json: { _error: `Bad sku: ${sku}` } }];\nif (!/^v?\\d+\\.\\d+\\.\\d+(?:-[\\w.]+)?$/.test(version)) return [{ json: { _error: `Bad version: ${version}` } }];\nconst tag = `update-shipped:${sku}:${version.startsWith('v') ? version : 'v' + version}`;\nreturn [{ json: { sku, version, releaseNotes, tag, ts: new Date().toISOString() } }];"
+      },
+      "id": "validate",
+      "name": "Validate payload",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "rules": { "rules": [{ "operation": "isNotEmpty", "value1": "={{ $json._error }}" }] }
+      },
+      "id": "errCheck",
+      "name": "Has error?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": false, \"error\": \"{{ $json._error }}\"}",
+        "options": { "responseCode": 400 }
+      },
+      "id": "respErr",
+      "name": "400 error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [800, 200]
+    },
+    {
+      "parameters": {
+        "command": "=set -e\nrepo=\"{{ $env.EMPIRE_REPO_PATH }}\"\nsku=\"{{ $json.sku }}\"\nversion=\"{{ $json.version }}\"\nfolder=$(find \"$repo/templates/_delivery\" -maxdepth 1 -type d -name \"${sku}-*\" | head -1)\nif [ -z \"$folder\" ]; then echo '{\"ok\":false,\"reason\":\"delivery-folder-missing\"}'; exit 0; fi\nvfile=\"$folder/VERSION\"\nif [ ! -f \"$vfile\" ]; then echo '{\"ok\":false,\"reason\":\"VERSION-file-missing\"}'; exit 0; fi\non_disk=$(tr -d '[:space:]' < \"$vfile\")\nexpected=$(echo \"$version\" | tr -d '[:space:]')\nif [ \"$on_disk\" != \"$expected\" ] && [ \"v$on_disk\" != \"$expected\" ] && [ \"$on_disk\" != \"v$expected\" ]; then\n  echo \"{\\\"ok\\\":false,\\\"reason\\\":\\\"version-mismatch\\\",\\\"onDisk\\\":\\\"$on_disk\\\",\\\"requested\\\":\\\"$expected\\\"}\"\n  exit 0\nfi\nprintf '{\"ok\":true,\"folder\":\"%s\",\"onDisk\":\"%s\"}\\n' \"$folder\" \"$on_disk\""
+      },
+      "id": "verifyVersion",
+      "name": "Verify VERSION on disk",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [800, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "let probe;\ntry { probe = JSON.parse(($input.item.json.stdout || '{}').trim()); } catch { probe = { ok: false, reason: 'probe-parse-error' }; }\nif (!probe.ok) return [{ json: { _abort: true, ...probe } }];\nreturn [{ json: { ...probe } }];"
+      },
+      "id": "probeDecide",
+      "name": "Probe result",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1000, 400]
+    },
+    {
+      "parameters": {
+        "rules": { "rules": [{ "operation": "isNotEmpty", "value1": "={{ $json._abort }}" }] }
+      },
+      "id": "abortCheck",
+      "name": "Abort on mismatch?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [1200, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": false, \"error\": \"{{ $json.reason }}\", \"detail\": {\"onDisk\": \"{{ $json.onDisk }}\", \"requested\": \"{{ $json.requested }}\"}}",
+        "options": { "responseCode": 409 }
+      },
+      "id": "respAbort",
+      "name": "409 mismatch",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1400, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.IS_API_BASE }}/broadcasts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"tag\": \"purchased:{{ $('Validate payload').first().json.sku }}\", \"subject\": \"Update for {{ $('Validate payload').first().json.sku }} — {{ $('Validate payload').first().json.version }}\", \"body\": \"Your STR Ledger template has been updated. New version: {{ $('Validate payload').first().json.version }}\\n\\n{{ $('Validate payload').first().json.releaseNotes }}\\n\\nDownload the new file from your original purchase link.\" }",
+        "options": {}
+      },
+      "id": "isEmail",
+      "name": "Email prior buyers (IS)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1400, 500],
+      "credentials": { "httpHeaderAuth": { "id": "IS_API_KEY", "name": "Influencersoft API" } },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "https://openapi.etsy.com/v3/application/shops/{{ $env.ETSY_SHOP_ID }}/listings",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "etsyListings",
+      "name": "Etsy listings index",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1600, 500],
+      "credentials": { "httpHeaderAuth": { "id": "ETSY_API_KEY", "name": "Etsy API key" } },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "command": "=set -e\nrepo=\"{{ $env.EMPIRE_REPO_PATH }}\"\ntag=\"{{ $('Validate payload').first().json.tag }}\"\nts=\"{{ $('Validate payload').first().json.ts }}\"\nsku=\"{{ $('Validate payload').first().json.sku }}\"\nversion=\"{{ $('Validate payload').first().json.version }}\"\nf=\"$repo/ops/release-tags.ndjson\"\nmkdir -p \"$repo/ops\"\nprintf '{\"tag\":\"%s\",\"sku\":\"%s\",\"version\":\"%s\",\"ts\":\"%s\"}\\n' \"$tag\" \"$sku\" \"$version\" \"$ts\" >> \"$f\""
+      },
+      "id": "writeTag",
+      "name": "Append release-tag",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1800, 500]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": true, \"sku\": \"{{ $('Validate payload').first().json.sku }}\", \"version\": \"{{ $('Validate payload').first().json.version }}\", \"tag\": \"{{ $('Validate payload').first().json.tag }}\"}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "respOk",
+      "name": "200 OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2000, 500]
+    },
+    {
+      "parameters": {
+        "functionCode": "const v = $('Validate payload').first().json;\nreturn [{ json: {\n  priority: 'P1',\n  source: 'release-shipped',\n  message: `Shipped ${v.sku} ${v.version} — buyers emailed via IS, Etsy listings refreshed, tag ${v.tag} recorded.`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/maintain/releases'\n} }];"
+      },
+      "id": "notify",
+      "name": "Build telegram alert",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [2200, 500]
+    },
+    {
+      "parameters": { "source": "parameter", "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID" },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [2400, 500]
+    }
+  ],
+  "connections": {
+    "POST /webhook/release-shipped": { "main": [[{ "node": "Validate payload",     "type": "main", "index": 0 }]] },
+    "Validate payload":              { "main": [[{ "node": "Has error?",          "type": "main", "index": 0 }]] },
+    "Has error?":                    { "main": [
+                                       [{ "node": "400 error",                "type": "main", "index": 0 }],
+                                       [{ "node": "Verify VERSION on disk",   "type": "main", "index": 0 }]
+                                     ] },
+    "Verify VERSION on disk":        { "main": [[{ "node": "Probe result",         "type": "main", "index": 0 }]] },
+    "Probe result":                  { "main": [[{ "node": "Abort on mismatch?",   "type": "main", "index": 0 }]] },
+    "Abort on mismatch?":            { "main": [
+                                       [{ "node": "409 mismatch",             "type": "main", "index": 0 }],
+                                       [{ "node": "Email prior buyers (IS)",  "type": "main", "index": 0 }]
+                                     ] },
+    "Email prior buyers (IS)":       { "main": [[{ "node": "Etsy listings index",  "type": "main", "index": 0 }]] },
+    "Etsy listings index":           { "main": [[{ "node": "Append release-tag",   "type": "main", "index": 0 }]] },
+    "Append release-tag":            { "main": [[{ "node": "200 OK",               "type": "main", "index": 0 }]] },
+    "200 OK":                        { "main": [[{ "node": "Build telegram alert", "type": "main", "index": 0 }]] },
+    "Build telegram alert":          { "main": [[{ "node": "→ telegram-router",    "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "phase-4" }, { "name": "webhook" }]
+}
