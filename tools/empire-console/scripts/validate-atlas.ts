@@ -73,6 +73,8 @@ async function main() {
     for (const group of section.groups) {
       for (const item of group.items) {
         if (item.kind !== 'internal') continue;
+        // Skip explicitly-flagged placeholders — they're roadmap markers, not broken links.
+        if (item.status === 'placeholder') continue;
         // Strip query string + hash for route matching
         const url = item.url.split('?')[0].split('#')[0];
         // Anchors-only or empty URLs we skip

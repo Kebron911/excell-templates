@@ -46,7 +46,7 @@ export async function timeAll<T extends readonly unknown[]>(
   groupLabel: string,
   fns: { [K in keyof T]: [string, () => Promise<T[K]>] }
 ): Promise<T> {
-  if (!isDev) return Promise.all(fns.map(([_, f]) => f())) as Promise<T>;
+  if (!isDev) return Promise.all(fns.map(([_, f]) => f())) as unknown as Promise<T>;
   const start = performance.now();
   const results = await Promise.all(fns.map(async ([label, f]) => {
     const s = performance.now();

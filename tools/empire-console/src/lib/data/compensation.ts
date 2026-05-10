@@ -27,11 +27,12 @@ const Schema = z.object({
     next_payment_due: z.string().optional(),
     notes: z.string().optional(),
   }).optional(),
+  // Tolerate `draws:` with no items (YAML null) — treat as empty.
   draws: z.array(z.object({
     amount: z.number(),
     date: z.string(),
     note: z.string().optional(),
-  })).default([]),
+  })).nullable().default([]).transform((v) => v ?? []),
 });
 
 export interface CompensationReport {

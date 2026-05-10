@@ -55,6 +55,5 @@ export async function appendAlert(input: Omit<Alert, 'id' | 'ts'> & Partial<Pick
 
 function cryptoRandomId(): string {
   // node 22 has crypto.randomUUID globally
-  // @ts-expect-error global
   return globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }

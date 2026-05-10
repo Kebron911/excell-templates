@@ -14,11 +14,8 @@
  * items and offers manual drain.
  */
 
-declare global {
-  interface ImportMeta {
-    readonly env: { readonly PUBLIC_N8N_WEBHOOK_BASE?: string };
-  }
-}
+// ImportMetaEnv is augmented in src/env.d.ts (Astro convention) —
+// PUBLIC_N8N_WEBHOOK_BASE is added there. Don't redeclare here.
 
 export type CaptureType =
   | 'inbox'

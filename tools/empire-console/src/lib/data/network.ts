@@ -15,7 +15,10 @@ const Person = z.object({
   notes: z.string().optional(),
 });
 export type NetworkPerson = z.infer<typeof Person>;
-const FileSchema = z.object({ people: z.array(Person).default([]) });
+// Tolerate `people:` with no items (YAML null) — treat as empty.
+const FileSchema = z.object({
+  people: z.array(Person).nullable().default([]).transform((v) => v ?? []),
+});
 
 import { STALE_DAYS } from './staleness.js';
 

@@ -100,15 +100,15 @@ export async function readSiteAtlas(siteId: string): Promise<SiteAtlas | null> {
 
   const derived: AtlasSection[] = [];
   if (leadMagnets.length) {
-    derived.push({ id: 'auto-lead-magnets', label: `Lead magnets on ${meta.name}`,
+    derived.push({ id: 'auto-lead-magnets', label: `Lead magnets on ${meta.name}`, expanded: true,
       groups: [{ label: '', items: leadMagnets }] });
   }
   if (tools.length) {
-    derived.push({ id: 'auto-tools', label: `Tools on ${meta.name}`,
+    derived.push({ id: 'auto-tools', label: `Tools on ${meta.name}`, expanded: true,
       groups: [{ label: '', items: tools }] });
   }
   if (pages.length) {
-    derived.push({ id: 'auto-pages', label: `Tracked pages on ${meta.name}`,
+    derived.push({ id: 'auto-pages', label: `Tracked pages on ${meta.name}`, expanded: true,
       groups: [{ label: '', items: pages }] });
   }
 

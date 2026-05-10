@@ -15,7 +15,10 @@ const Buyer = z.object({
   case_study_candidate: z.boolean().default(false),
 });
 export type OnboardingBuyer = z.infer<typeof Buyer>;
-const FileSchema = z.object({ buyers: z.array(Buyer).default([]) });
+// Tolerate `buyers:` with no items (YAML parses that to null) — treat as empty.
+const FileSchema = z.object({
+  buyers: z.array(Buyer).nullable().default([]).transform((v) => v ?? []),
+});
 
 export interface OnboardingReport {
   buyers: OnboardingBuyer[];

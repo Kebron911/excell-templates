@@ -215,6 +215,7 @@ sections:
           - { name: Airtable schema,              url: infrastructure/airtable/schema.md,   kind: doc }
           - { name: n8n workflows map,            url: infrastructure/n8n/workflows-map.md, kind: doc }
           - { name: n8n flows README,             url: infrastructure/n8n/flows/README.md,  kind: doc }
+          - { name: n8n secrets inventory,        url: infrastructure/n8n/secrets-inventory.md, kind: doc, note: "every n8n credential + env var" }
           - { name: Stripe setup,                 url: infrastructure/stripe/setup.md,      kind: doc }
 
   # ─────────────────────────────────────────────────────────────────
