@@ -1,0 +1,174 @@
+{
+  "name": "nightly-refresh",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 3 * * *" }] }
+      },
+      "id": "cron",
+      "name": "Daily 03:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.stripe.com/v1/charges",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": { "parameters": [
+          { "name": "created[gte]", "value": "={{ Math.floor(new Date(new Date().setDate(1)).getTime() / 1000) }}" },
+          { "name": "limit", "value": "100" }
+        ] },
+        "options": {}
+      },
+      "id": "stripe",
+      "name": "Stripe charges (MTD)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [420, 200],
+      "credentials": { "httpHeaderAuth": { "id": "STRIPE_SECRET", "name": "Stripe secret" } }
+    },
+    {
+      "parameters": {
+        "url": "https://openapi.etsy.com/v3/application/shops/{{ $env.ETSY_SHOP_ID }}/receipts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": { "parameters": [
+          { "name": "min_created", "value": "={{ Math.floor(new Date(new Date().setDate(1)).getTime() / 1000) }}" },
+          { "name": "limit", "value": "100" }
+        ] },
+        "options": {}
+      },
+      "id": "etsy",
+      "name": "Etsy receipts (MTD)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [420, 300],
+      "credentials": { "httpHeaderAuth": { "id": "ETSY_API_KEY", "name": "Etsy API key" } }
+    },
+    {
+      "parameters": {
+        "url": "https://gumroad.com/api/v2/sales",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": { "parameters": [
+          { "name": "after", "value": "={{ new Date(new Date().setDate(1)).toISOString().slice(0,10) }}" }
+        ] },
+        "options": {}
+      },
+      "id": "gumroad",
+      "name": "Gumroad sales (MTD)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [420, 400],
+      "credentials": { "httpHeaderAuth": { "id": "GUMROAD_TOKEN", "name": "Gumroad token" } }
+    },
+    {
+      "parameters": {
+        "url": "https://plausible.io/api/v1/stats/aggregate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": { "parameters": [
+          { "name": "site_id", "value": "thestrledger.com" },
+          { "name": "period", "value": "month" },
+          { "name": "metrics", "value": "visitors,pageviews" }
+        ] },
+        "options": {}
+      },
+      "id": "plausible",
+      "name": "Plausible (MTD)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [420, 500],
+      "credentials": { "httpHeaderAuth": { "id": "PLAUSIBLE_TOKEN", "name": "Plausible token" } }
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/webmasters/v3/sites/sc-domain%3Athestrledger.com/searchAnalytics/query",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"startDate\": \"{{ new Date(Date.now() - 28*864e5).toISOString().slice(0,10) }}\", \"endDate\": \"{{ new Date().toISOString().slice(0,10) }}\", \"dimensions\": [\"query\"], \"rowLimit\": 100 }",
+        "options": {}
+      },
+      "id": "gsc",
+      "name": "Search Console (28d)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [420, 600],
+      "credentials": { "oAuth2Api": { "id": "GSC_OAUTH", "name": "Search Console OAuth" } }
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.IS_API_BASE }}/contacts/stats",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "is",
+      "name": "Influencersoft stats",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [420, 700],
+      "credentials": { "httpHeaderAuth": { "id": "IS_API_KEY", "name": "Influencersoft API" } }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Merge all five API results into the four cache files.\nconst now = new Date().toISOString();\nconst items = $input.all();\nconst byName = Object.fromEntries(items.map(i => [i.json._sourceNode || i.json.__name || '', i.json]));\nconst stripe = items[0]?.json || {};\nconst etsy = items[1]?.json || {};\nconst gumroad = items[2]?.json || {};\nconst plausible = items[3]?.json || {};\nconst gsc = items[4]?.json || {};\nconst is = items[5]?.json || {};\n\n// Money cache\nconst stripeData = stripe.data || [];\nconst etsyResults = etsy.results || [];\nconst gumroadSales = Array.isArray(gumroad.sales) ? gumroad.sales : [];\nconst stripeRev = stripeData.reduce((s,c) => s + ((c.amount_captured || 0) / 100), 0);\nconst etsyRev = etsyResults.reduce((s,r) => s + parseFloat(r.grandtotal?.amount_major || r.subtotal?.amount_major || 0), 0);\nconst gumroadRev = gumroadSales.reduce((s,r) => s + parseFloat(r.price || 0) / 100, 0);\nconst totalMtd = stripeRev + etsyRev + gumroadRev;\nconst burn = parseFloat($env.MONTHLY_BURN || '0');\nconst money = {\n  generatedAt: now,\n  yesterday: { revenue: 0, orders: 0, refunds: 0 },\n  week:      { revenue: 0, orders: 0, refunds: 0 },\n  mtd:       { revenue: totalMtd, orders: stripeData.length + etsyResults.length + gumroadSales.length, refunds: 0, burn: burn },\n  channels: [\n    { name: 'Stripe',  amount: stripeRev,  share: totalMtd > 0 ? stripeRev/totalMtd : 0,  orders: stripeData.length, refunds: 0 },\n    { name: 'Etsy',    amount: etsyRev,    share: totalMtd > 0 ? etsyRev/totalMtd : 0,    orders: etsyResults.length, refunds: 0 },\n    { name: 'Gumroad', amount: gumroadRev, share: totalMtd > 0 ? gumroadRev/totalMtd : 0, orders: gumroadSales.length, refunds: 0 }\n  ],\n  topSkus: [],\n  killSkuCandidates: [],\n  refundSpikes: []\n};\n\n// Traffic cache\nconst sessions = plausible.results?.pageviews?.value || 0;\nconst users = plausible.results?.visitors?.value || 0;\nconst traffic = {\n  generatedAt: now,\n  yesterday: { sessions: 0, users: 0 },\n  week:      { sessions: 0, users: 0 },\n  mtd:       { sessions, users },\n  bySite: [\n    { id: 'thestrledger', name: 'thestrledger.com', sessions, users, deltaPct14d: null }\n  ],\n  topSources: [],\n  anomalies: []\n};\n\n// SEO cache\nconst gscRows = gsc.rows || [];\nconst impressions = gscRows.reduce((s,r) => s + (r.impressions || 0), 0);\nconst clicks = gscRows.reduce((s,r) => s + (r.clicks || 0), 0);\nconst ctr = impressions > 0 ? clicks / impressions : 0;\nconst avgPosition = gscRows.length > 0 ? gscRows.reduce((s,r) => s + (r.position || 0), 0) / gscRows.length : 0;\nconst seo = {\n  generatedAt: now,\n  gsc: { impressions, clicks, ctr, avgPosition, indexingErrors: 0 },\n  cwv: { pagesGood: 0, pagesNeedsImprovement: 0, pagesPoor: 0, worstLcpMs: null, worstCls: null, worstInpMs: null },\n  topQueries: gscRows.slice(0, 20).map(r => ({ query: r.keys?.[0] || '', impressions: r.impressions || 0, clicks: r.clicks || 0, position: r.position || 0, deltaPosition: 0 })),\n  strikingDistance: gscRows.filter(r => (r.position || 0) >= 5 && (r.position || 0) <= 20).slice(0, 20).map(r => ({ query: r.keys?.[0] || '', position: r.position, impressions: r.impressions || 0 })),\n  indexingIssues: []\n};\n\n// Contacts cache\nconst contacts = {\n  generatedAt: now,\n  list: {\n    total: is.total || 0,\n    new7d: is.new7d || 0,\n    new7dDelta: is.new7dDelta || 0,\n    engaged30d: is.engaged30d || 0,\n    cold90d: is.cold90d || 0\n  },\n  funnel: is.funnel || [],\n  topSources: is.topSources || [],\n  health: is.health || { bounceRate: 0, unsubRate: 0, complaintRate: 0, avgOpen: 0, avgClick: 0 },\n  sequences: is.sequences || []\n};\n\nreturn [\n  { json: { _path: 'money.json',    payload: money } },\n  { json: { _path: 'traffic.json',  payload: traffic } },\n  { json: { _path: 'seo.json',      payload: seo } },\n  { json: { _path: 'contacts.json', payload: contacts } }\n];"
+      },
+      "id": "merge",
+      "name": "Build cache payloads",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [820, 450]
+    },
+    {
+      "parameters": {
+        "command": "=set -e\nmkdir -p {{ $env.EMPIRE_REPO_PATH }}/ops/cache\ntmp=\"{{ $env.EMPIRE_REPO_PATH }}/ops/cache/{{ $json._path }}.tmp\"\ncat > \"$tmp\" <<'JSON'\n{{ JSON.stringify($json.payload, null, 2) }}\nJSON\nmv \"$tmp\" \"{{ $env.EMPIRE_REPO_PATH }}/ops/cache/{{ $json._path }}\""
+      },
+      "id": "write",
+      "name": "Atomic write cache",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1020, 450]
+    },
+    {
+      "parameters": {
+        "command": "=date -u +%FT%TZ > {{ $env.EMPIRE_REPO_PATH }}/ops/cache/sync-log.json.tmp && mv {{ $env.EMPIRE_REPO_PATH }}/ops/cache/sync-log.json.tmp {{ $env.EMPIRE_REPO_PATH }}/ops/cache/sync-log.json"
+      },
+      "id": "synclog",
+      "name": "Touch sync-log",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1220, 450]
+    }
+  ],
+  "connections": {
+    "Daily 03:00":           { "main": [[
+      { "node": "Stripe charges (MTD)",  "type": "main", "index": 0 },
+      { "node": "Etsy receipts (MTD)",   "type": "main", "index": 0 },
+      { "node": "Gumroad sales (MTD)",   "type": "main", "index": 0 },
+      { "node": "Plausible (MTD)",       "type": "main", "index": 0 },
+      { "node": "Search Console (28d)",  "type": "main", "index": 0 },
+      { "node": "Influencersoft stats",  "type": "main", "index": 0 }
+    ]] },
+    "Stripe charges (MTD)":  { "main": [[{ "node": "Build cache payloads", "type": "main", "index": 0 }]] },
+    "Etsy receipts (MTD)":   { "main": [[{ "node": "Build cache payloads", "type": "main", "index": 0 }]] },
+    "Gumroad sales (MTD)":   { "main": [[{ "node": "Build cache payloads", "type": "main", "index": 0 }]] },
+    "Plausible (MTD)":       { "main": [[{ "node": "Build cache payloads", "type": "main", "index": 0 }]] },
+    "Search Console (28d)":  { "main": [[{ "node": "Build cache payloads", "type": "main", "index": 0 }]] },
+    "Influencersoft stats":  { "main": [[{ "node": "Build cache payloads", "type": "main", "index": 0 }]] },
+    "Build cache payloads":  { "main": [[{ "node": "Atomic write cache",   "type": "main", "index": 0 }]] },
+    "Atomic write cache":    { "main": [[{ "node": "Touch sync-log",       "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "phase-3" }, { "name": "cache" }]
+}

@@ -1,0 +1,51 @@
+{
+  "name": "weekly-pnl-digest",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * 1" }] }
+      },
+      "id": "cron",
+      "name": "Mon 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cat {{ $env.EMPIRE_REPO_PATH }}/ops/cache/money.json 2>/dev/null || echo '{}'"
+      },
+      "id": "read",
+      "name": "Read money.json",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "let cache;\ntry { cache = JSON.parse($input.item.json.stdout || '{}'); } catch { cache = {}; }\nconst mtd = cache.mtd || { revenue: 0, orders: 0, burn: 0 };\nconst ratio = mtd.burn > 0 ? (mtd.revenue / mtd.burn) : null;\nconst kills = cache.killSkuCandidates || [];\nconst killLine = kills.length === 0 ? 'no kill-SKU candidates' : `${kills.length} kill candidates: ${kills.slice(0,3).map(k => k.sku).join(', ')}`;\nconst ratioLine = ratio === null ? 'burn not set' : `${ratio.toFixed(2)}× above the line (rev $${mtd.revenue.toFixed(0)} / burn $${mtd.burn.toFixed(0)})`;\nreturn [{ json: {\n  priority: 'P2',\n  source: 'weekly-pnl-digest',\n  message: `Weekly P&L:\\n• ${ratioLine}\\n• ${mtd.orders} MTD orders\\n• ${killLine}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/money'\n} }];"
+      },
+      "id": "decide",
+      "name": "Build digest",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": { "source": "parameter", "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID" },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "Mon 08:00":       { "main": [[{ "node": "Read money.json",   "type": "main", "index": 0 }]] },
+    "Read money.json": { "main": [[{ "node": "Build digest",      "type": "main", "index": 0 }]] },
+    "Build digest":    { "main": [[{ "node": "→ telegram-router", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P2" }, { "name": "digest" }]
+}

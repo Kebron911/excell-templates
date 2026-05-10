@@ -1,0 +1,51 @@
+{
+  "name": "funnel-dropout-watch",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * 1" }] }
+      },
+      "id": "cron",
+      "name": "Mon 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cat {{ $env.EMPIRE_REPO_PATH }}/ops/cache/contacts.json 2>/dev/null || echo '{}'"
+      },
+      "id": "read",
+      "name": "Read contacts.json",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "let cache;\ntry { cache = JSON.parse($input.item.json.stdout || '{}'); } catch { return []; }\nconst funnel = cache.funnel || [];\nconst health = cache.health || {};\nconst leaks = [];\nlet maxLeak = 0;\nfor (let i = 1; i < funnel.length; i++) {\n  const prev = funnel[i-1].count || 0;\n  const curr = funnel[i].count || 0;\n  if (prev === 0) continue;\n  const lossPct = (1 - curr/prev) * 100;\n  if (lossPct > maxLeak) maxLeak = lossPct;\n  leaks.push(`${funnel[i-1].label}→${funnel[i].label}: ${lossPct.toFixed(0)}% leak`);\n}\nconst healthBad = (health.bounceRate > 2) || (health.complaintRate > 0.1);\nif (leaks.length === 0 && !healthBad) return [];\nconst priority = (maxLeak > 95 || healthBad) ? 'P1' : 'P2';\nconst healthLine = healthBad ? `\\n• HEALTH: bounce ${health.bounceRate}% · complaint ${health.complaintRate}%` : '';\nreturn [{ json: {\n  priority,\n  source: 'funnel-dropout-watch',\n  message: `Funnel digest:\\n${leaks.map(l => `• ${l}`).join('\\n')}${healthLine}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/contacts'\n} }];"
+      },
+      "id": "decide",
+      "name": "Compute leaks",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": { "source": "parameter", "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID" },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "Mon 08:00":          { "main": [[{ "node": "Read contacts.json", "type": "main", "index": 0 }]] },
+    "Read contacts.json": { "main": [[{ "node": "Compute leaks",      "type": "main", "index": 0 }]] },
+    "Compute leaks":      { "main": [[{ "node": "→ telegram-router",  "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P2" }]
+}

@@ -33,6 +33,13 @@ export const paths = {
   network: resolve(REPO_ROOT, 'ops', 'network.yaml'),
   nearMisses: resolve(REPO_ROOT, 'ops', 'near-misses.ndjson'),
   consoleActions: resolve(REPO_ROOT, 'ops', 'console-actions.ndjson'),
+  cache: {
+    money:    resolve(REPO_ROOT, 'ops', 'cache', 'money.json'),
+    traffic:  resolve(REPO_ROOT, 'ops', 'cache', 'traffic.json'),
+    seo:      resolve(REPO_ROOT, 'ops', 'cache', 'seo.json'),
+    contacts: resolve(REPO_ROOT, 'ops', 'cache', 'contacts.json'),
+    syncLog:  resolve(REPO_ROOT, 'ops', 'cache', 'sync-log.json'),
+  },
   assets: {
     leadMagnets:    resolve(REPO_ROOT, 'ops', 'assets', 'lead-magnets.yaml'),
     tools:          resolve(REPO_ROOT, 'ops', 'assets', 'tools.yaml'),

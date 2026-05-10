@@ -54,17 +54,51 @@ After import, edit the credential reference in each "Telegram" / "Execute Comman
 | `n8n-self-watch.json` | cron every 30min | n8n executions API for failed flows · pings external uptime | P0 if >5 fails |
 | `capture-receiver.json` | webhook POST | Phase 4 — receives Inbox/voice/decisions/time-log/near-miss/console-action captures, appends to NDJSON, optionally git-pushes | n/a (CRUD) |
 
-## Phase 2+ flows (planned)
+## Phase 2 flows (active)
+
+| Flow | Trigger | What it does | Priority |
+|---|---|---|---|
+| `sitemap-freshness.json` | cron daily 08:00 | Stat each cluster site's sitemap.xml mtime | P0 if >7d |
+| `broken-link-watch.json` | cron Sunday 04:00 | Cross-cluster link audit against dist/ HTML | P1 if any broken |
+
+## Phase 3 flows (cache layer — active once nightly-refresh runs)
+
+All Phase 3 watchers read from `ops/cache/*.json` (written by `nightly-refresh`).
+The console reads the same files (zero shape when missing).
+
+| Flow | Trigger | Reads | Priority |
+|---|---|---|---|
+| `nightly-refresh.json` | cron daily 03:00 | Stripe + Etsy + Gumroad + Plausible + GSC + IS → writes 4 cache files | — |
+| `revenue-watch.json` | cron daily 09:00 | money.json (yesterday vs daily-burn) | P0 if -75%, else P1 |
+| `refund-spike-watch.json` | cron hourly | money.json (refundSpikes array) | P0 |
+| `weekly-pnl-digest.json` | cron Mon 08:00 | money.json (MTD ratio + kill candidates) | P2 |
+| `traffic-anomaly-watch.json` | cron daily 08:30 | traffic.json (anomalies array) | P1 |
+| `gsc-digest.json` | cron Mon 08:00 | seo.json (climbers/fallers) | P2 |
+| `cwv-watch.json` | cron daily 04:00 | seo.json (worstLcp/INP/CLS thresholds) | P1 |
+| `indexing-watch.json` | cron daily 05:00 | seo.json (indexingErrors + issues) | P1 |
+| `funnel-dropout-watch.json` | cron Mon 08:00 | contacts.json (stage-to-stage leak %) | P1 if >95%, else P2 |
+
+### nightly-refresh contract
+
+The flow writes 4 cache files atomically (temp + rename) into `ops/cache/`:
+
+- `money.json` — Stripe + Etsy + Gumroad MTD aggregates, channel splits, top SKUs, kill candidates, refund spikes
+- `traffic.json` — Plausible sessions/users by site (MTD, 7d, yesterday), top sources, anomalies
+- `seo.json` — GSC impressions/clicks/position (28d), top queries, striking-distance, CWV buckets, indexing issues
+- `contacts.json` — Influencersoft list size, funnel stages, top signup sources, list health, sequence performance
+
+A `sync-log.json` file is touched on success to fuel a "stale cache" indicator.
+
+`ops/cache/*.json` is git-ignored (contains live API data).
+
+## Phase 4+ flows (planned)
 
 | Flow | Phase | Trigger | Priority |
 |---|---|---|---|
-| `cluster-smoke.json` (HTTP variant) | 2 | cron 15min | P0 on flap |
-| `manifest-watch.json` | 2 | webhook (push to main) | P0 on red |
-| `nightly-refresh.json` | 3 | cron 02:00 | P1 morning digest |
-| `kill-sku-watch.json` | 3 | cron weekly Mon 08:30 | P2 |
 | `release-shipped.json` | 4 | webhook (VERSION bump) | P1 |
 | `backup-restore-test.json` | 4 | cron monthly 1st | P0 on fail |
 | `gdpr-intake.json` | 4 | webhook (privacy@ form) | P1 |
+| `delist-sku.json` | 4 | console button (POST) | P1 confirm |
 
 ## How a flow writes the alert log
 

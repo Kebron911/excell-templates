@@ -14,9 +14,10 @@ import { readCalendar } from '@/lib/data/calendar';
 import { readInfrastructure } from '@/lib/data/infrastructure';
 import { readTargets, worstStatus } from '@/lib/data/targets';
 import { readRisks } from '@/lib/data/risks';
+import { readMoney } from '@/lib/data/money';
 import { formatDate } from '@/lib/format';
 
-const [progress, runbooks, vendors, calendar, infra, targets, risks] = await Promise.all([
+const [progress, runbooks, vendors, calendar, infra, targets, risks, money] = await Promise.all([
   readProgress(),
   readRunbooks(),
   readVendors(),
@@ -24,6 +25,7 @@ const [progress, runbooks, vendors, calendar, infra, targets, risks] = await Pro
   readInfrastructure(),
   readTargets(),
   readRisks(),
+  readMoney(),
 ]);
 const worstMetric = worstStatus(targets);
 
@@ -140,6 +142,49 @@ const domainTier = infra.expiringP0 > 0 ? 'critical' : infra.expiringSoon > 0 ? 
       tooltip="Registrar expiry from ops/infrastructure.yaml"
     />
   </section>
+
+  <a href="/check/money" class="card mb-6 block no-underline transition hover:shadow-md"
+     style={money.aboveTheLineRatio !== null && money.aboveTheLineRatio < 1
+       ? 'border-left: 4px solid rgb(var(--c-bad))'
+       : (money.aboveTheLineRatio !== null ? 'border-left: 4px solid rgb(var(--c-ok))' : '')}>
+    <div class="flex flex-wrap items-baseline justify-between gap-4">
+      <div>
+        <h3 class="font-display text-base font-semibold">Money pulse</h3>
+        <p class="mt-1 text-xs" style="color: rgb(var(--c-muted))">
+          {money.isCacheReady
+            ? 'Live from ops/cache/money.json (n8n nightly-refresh)'
+            : 'Awaiting first nightly-refresh — values are zeros until n8n writes the cache'}
+        </p>
+      </div>
+      <div class="flex items-baseline gap-6 text-sm">
+        <div>
+          <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">Yesterday</div>
+          <div class="mt-0.5 font-mono text-base">
+            ${money.yesterday.revenue.toFixed(0)}
+            <span class="ml-1 text-xs" style="color: rgb(var(--c-muted))">
+              · {money.yesterday.orders} orders
+            </span>
+          </div>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">MTD revenue</div>
+          <div class="mt-0.5 font-mono text-base">${money.mtd.revenue.toFixed(0)}</div>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">Above the line</div>
+          <div class="mt-0.5 font-display text-xl font-semibold"
+               style={money.aboveTheLineRatio !== null && money.aboveTheLineRatio < 1
+                 ? 'color: rgb(var(--c-bad))'
+                 : (money.aboveTheLineRatio !== null ? 'color: rgb(var(--c-ok))' : '')}>
+            {money.aboveTheLineRatio === null ? '—' : `${money.aboveTheLineRatio.toFixed(1)}×`}
+          </div>
+        </div>
+        {money.refundSpikes.length > 0 && (
+          <span class="badge badge-p0">{money.refundSpikes.length} refund spike</span>
+        )}
+      </div>
+    </div>
+  </a>
 
   <section class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
     <a href="/today/targets" class="card no-underline transition hover:shadow-md"

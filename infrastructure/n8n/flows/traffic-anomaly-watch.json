@@ -1,0 +1,51 @@
+{
+  "name": "traffic-anomaly-watch",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "30 8 * * *" }] }
+      },
+      "id": "cron",
+      "name": "Daily 08:30",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cat {{ $env.EMPIRE_REPO_PATH }}/ops/cache/traffic.json 2>/dev/null || echo '{}'"
+      },
+      "id": "read",
+      "name": "Read traffic.json",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "let cache;\ntry { cache = JSON.parse($input.item.json.stdout || '{}'); } catch { return []; }\nconst anomalies = cache.anomalies || [];\nif (anomalies.length === 0) return [];\nconst lines = anomalies.map(a => `• ${a.siteId}: ${a.yesterday} vs 14d avg ${a.baseline14d.toFixed(0)} (${(a.dropPct*100).toFixed(0)}% drop)`);\nreturn [{ json: {\n  priority: 'P1',\n  source: 'traffic-anomaly-watch',\n  message: `Traffic drop on ${anomalies.length} site(s):\\n${lines.join('\\n')}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/traffic'\n} }];"
+      },
+      "id": "decide",
+      "name": "Check anomalies",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": { "source": "parameter", "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID" },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "Daily 08:30":       { "main": [[{ "node": "Read traffic.json", "type": "main", "index": 0 }]] },
+    "Read traffic.json": { "main": [[{ "node": "Check anomalies",   "type": "main", "index": 0 }]] },
+    "Check anomalies":   { "main": [[{ "node": "→ telegram-router", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P1" }]
+}

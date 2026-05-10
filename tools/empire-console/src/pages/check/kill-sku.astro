@@ -1,0 +1,192 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readMoney } from '@/lib/data/money';
+import { readSkus } from '@/lib/data/skus';
+
+const [m, sk] = await Promise.all([readMoney(), readSkus()]);
+
+const skuMap = new Map(sk.skus.map((s) => [s.sku, s]));
+const moneyMap = new Map(m.topSkus.map((r) => [r.sku, r]));
+
+// Candidates from cache (n8n-computed). Fall back to live SKUs not in topSkus.
+const cacheCandidates = m.killSkuCandidates;
+
+// Live candidates: SKUs that exist but have 0 revenue in topSkus (when cache is live).
+const liveCandidates = m.isCacheReady
+  ? sk.skus.filter((s) => {
+      const r = moneyMap.get(s.sku);
+      return s.status === 'live' && (!r || r.revenue === 0);
+    })
+  : [];
+
+const totalRevenue = m.topSkus.reduce((sum, r) => sum + r.revenue, 0);
+---
+<Layout title="Check · Kill-SKU candidates" section="check">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Kill-SKU candidates</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Underperformers: CVR&lt;1% · 0 sales 90d · refundRate&gt;5%.
+        Sourced from <a href="/check/money">money cache</a> · cross-referenced with
+        <a href="/check/catalog">SKU registry</a>.
+      </p>
+    </div>
+    {m.isCacheReady
+      ? <span class="badge badge-ok">live</span>
+      : <span class="badge badge-p2">awaiting n8n nightly-refresh</span>}
+  </header>
+
+  {!m.isCacheReady && (
+    <div class="mb-6 card" style="background: rgb(var(--c-surface-2))">
+      <p class="text-sm">
+        <strong>No money cache yet.</strong> Kill-SKU detection runs in the n8n
+        <code>weekly-pnl-digest</code> flow against <code>ops/cache/money.json</code>.
+        Until then, this page shows the empty shape against the live SKU registry.
+      </p>
+    </div>
+  )}
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Total live SKUs" value={sk.totals.live} />
+    <Scorecard label="Cache candidates" value={cacheCandidates.length}
+               tone={cacheCandidates.length > 0 ? 'warn' : 'ok'}
+               hint="n8n weekly-pnl-digest" />
+    <Scorecard label="Zero-revenue SKUs" value={liveCandidates.length}
+               tone={liveCandidates.length > 0 ? 'warn' : 'ok'}
+               hint="live but no MTD sales" />
+    <Scorecard label="Total MTD revenue" value={`$${totalRevenue.toFixed(0)}`} />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Kill candidates (cache-flagged)
+    </h2>
+    <div class="card">
+      {cacheCandidates.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          No SKUs currently flagged. n8n weekly-pnl-digest writes to <code>killSkuCandidates</code>
+          when CVR &lt; 1% and 0 sales in 90 days.
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">SKU</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th class="text-right">Revenue</th>
+              <th class="text-right">Orders</th>
+              <th class="text-right">Refund rate</th>
+              <th class="text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {cacheCandidates.map((r) => {
+              const meta = skuMap.get(r.sku);
+              return (
+                <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                  <td class="py-2 font-mono">
+                    <a href={`/check/catalog/${r.sku}`}>{r.sku}</a>
+                  </td>
+                  <td class="text-xs">{r.title ?? meta?.name ?? '—'}</td>
+                  <td>
+                    {meta ? <span class={`badge badge-${meta.status === 'live' ? 'ok' : meta.status === 'partial' ? 'p2' : 'p1'}`}>{meta.status}</span> : '—'}
+                  </td>
+                  <td class="text-right font-mono">${r.revenue.toFixed(0)}</td>
+                  <td class="text-right font-mono">{r.orders}</td>
+                  <td class="text-right font-mono">{(r.refundRate * 100).toFixed(1)}%</td>
+                  <td class="text-right">
+                    <button type="button"
+                            class="rounded border px-2 py-1 text-xs"
+                            style="border-color: rgb(var(--c-border)); color: rgb(var(--c-muted))"
+                            data-sku={r.sku}
+                            data-action="kill"
+                            disabled
+                            title="Phase 4 — n8n delist-sku flow not yet active">
+                      Mark for delist
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Zero-revenue live SKUs (cross-reference)
+    </h2>
+    <div class="card">
+      {!m.isCacheReady ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          Live-vs-cache cross-reference activates once <code>ops/cache/money.json</code> has data.
+        </p>
+      ) : liveCandidates.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          Every live SKU has at least some MTD revenue. Healthy.
+        </p>
+      ) : (
+        <>
+          <p class="mb-3 text-xs" style="color: rgb(var(--c-muted))">
+            These SKUs are marked <code>status: live</code> in the registry but have $0 MTD revenue.
+            Not yet weekly-pnl candidates (those need 90 days of data), but worth a glance.
+          </p>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b text-left text-xs uppercase tracking-wide"
+                  style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+                <th class="py-2">SKU</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Wave</th>
+                <th class="text-right">Last updated</th>
+              </tr>
+            </thead>
+            <tbody>
+              {liveCandidates.slice(0, 20).map((s) => (
+                <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                  <td class="py-2 font-mono">
+                    <a href={`/check/catalog/${s.sku}`}>{s.sku}</a>
+                  </td>
+                  <td class="text-xs">{s.name}</td>
+                  <td class="text-xs" style="color: rgb(var(--c-muted))">{s.categoryName}</td>
+                  <td class="text-xs font-mono">{s.wave ?? '—'}</td>
+                  <td class="text-right text-xs font-mono">
+                    {s.lastUpdated ? new Date(s.lastUpdated).toLocaleDateString() : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {liveCandidates.length > 20 && (
+            <p class="mt-3 text-xs" style="color: rgb(var(--c-muted))">
+              Showing first 20 of {liveCandidates.length}.
+            </p>
+          )}
+        </>
+      )}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Kill criteria & next steps
+    </h3>
+    <ul class="space-y-1 text-sm list-disc pl-5">
+      <li><strong>CVR &lt; 1%</strong> on the Etsy listing for 90+ days</li>
+      <li><strong>0 sales in 90 days</strong> across all channels</li>
+      <li><strong>Refund rate &gt; 5%</strong> sustained over 30 days</li>
+      <li>Once flagged: either iterate (new thumbs / new title / new price) or delist via Phase 4 <code>delist-sku</code> flow</li>
+    </ul>
+  </section>
+
+  <SourceFooter source="ops/cache/money.json + templates/_briefs/"
+                lastRefresh={m.generatedAt ?? null}
+                notes="n8n weekly-pnl-digest computes candidates" />
+</Layout>

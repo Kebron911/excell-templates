@@ -123,6 +123,7 @@ sections:
           - { name: Contacts (funnel),            url: /check/contacts,                     kind: internal }
           - { name: Traffic,                      url: /check/traffic,                      kind: internal }
           - { name: SEO,                          url: /check/seo,                          kind: internal }
+          - { name: Kill-SKU candidates,          url: /check/kill-sku,                     kind: internal, note: "CVR<1% · 0 sales 90d" }
 
   # ─────────────────────────────────────────────────────────────────
   # MARKETING — email + SEO + social (weekly)
@@ -282,6 +283,14 @@ sections:
       - label: Append-only logs
         items:
           - { name: Alerts log (NDJSON),          url: ops/alerts.ndjson,                   kind: yaml }
+      - label: Phase 3 cache (n8n-written, git-ignored)
+        items:
+          - { name: Cache contract README,        url: ops/cache/README.md,                 kind: doc }
+          - { name: money.json,                   url: ops/cache/money.json,                kind: yaml, status: placeholder, note: "written by nightly-refresh" }
+          - { name: traffic.json,                 url: ops/cache/traffic.json,              kind: yaml, status: placeholder }
+          - { name: seo.json,                     url: ops/cache/seo.json,                  kind: yaml, status: placeholder }
+          - { name: contacts.json,                url: ops/cache/contacts.json,             kind: yaml, status: placeholder }
+          - { name: sync-log.json,                url: ops/cache/sync-log.json,             kind: yaml, status: placeholder, note: "touched on each refresh" }
 
   # ─────────────────────────────────────────────────────────────────
   # n8n FLOWS — when editing automation logic
@@ -301,20 +310,25 @@ sections:
           - { name: due-soon-watch (Phase 1),           url: infrastructure/n8n/flows/due-soon-watch.json,          kind: yaml }
           - { name: n8n-self-watch (Phase 1),           url: infrastructure/n8n/flows/n8n-self-watch.json,          kind: yaml }
           - { name: capture-receiver (Phase 4 webhook), url: infrastructure/n8n/flows/capture-receiver.json,        kind: yaml }
-      - label: Phase 2+ (planned)
+      - label: Phase 2 (active)
         items:
-          - { name: cert-watch,                         url: infrastructure/n8n/flows/cert-watch.json,             kind: yaml, status: placeholder }
-          - { name: domain-watch,                       url: infrastructure/n8n/flows/domain-watch.json,           kind: yaml, status: placeholder }
-          - { name: due-soon-watch,                     url: infrastructure/n8n/flows/due-soon-watch.json,         kind: yaml, status: placeholder }
-          - { name: n8n-self-watch,                     url: infrastructure/n8n/flows/n8n-self-watch.json,         kind: yaml, status: placeholder }
-          - { name: nightly-refresh,                    url: infrastructure/n8n/flows/nightly-refresh.json,        kind: yaml, status: placeholder }
-          - { name: revenue-watch,                      url: infrastructure/n8n/flows/revenue-watch.json,          kind: yaml, status: placeholder }
-          - { name: refund-spike-watch,                 url: infrastructure/n8n/flows/refund-spike-watch.json,     kind: yaml, status: placeholder }
+          - { name: sitemap-freshness,                  url: infrastructure/n8n/flows/sitemap-freshness.json,      kind: yaml }
+          - { name: broken-link-watch,                  url: infrastructure/n8n/flows/broken-link-watch.json,      kind: yaml }
+      - label: Phase 3 (cache layer)
+        items:
+          - { name: nightly-refresh,                    url: infrastructure/n8n/flows/nightly-refresh.json,        kind: yaml, note: "writes ops/cache/*.json" }
+          - { name: revenue-watch,                      url: infrastructure/n8n/flows/revenue-watch.json,          kind: yaml }
+          - { name: refund-spike-watch,                 url: infrastructure/n8n/flows/refund-spike-watch.json,     kind: yaml }
+          - { name: weekly-pnl-digest,                  url: infrastructure/n8n/flows/weekly-pnl-digest.json,      kind: yaml }
+          - { name: traffic-anomaly-watch,              url: infrastructure/n8n/flows/traffic-anomaly-watch.json,  kind: yaml }
+          - { name: gsc-digest,                         url: infrastructure/n8n/flows/gsc-digest.json,             kind: yaml }
+          - { name: cwv-watch,                          url: infrastructure/n8n/flows/cwv-watch.json,              kind: yaml }
+          - { name: indexing-watch,                     url: infrastructure/n8n/flows/indexing-watch.json,         kind: yaml }
+          - { name: funnel-dropout-watch,               url: infrastructure/n8n/flows/funnel-dropout-watch.json,   kind: yaml }
+      - label: Phase 4+ (planned)
+        items:
           - { name: convo-age-watch,                    url: infrastructure/n8n/flows/convo-age-watch.json,        kind: yaml, status: placeholder }
           - { name: reputation-watch,                   url: infrastructure/n8n/flows/reputation-watch.json,       kind: yaml, status: placeholder }
-          - { name: traffic-anomaly-watch,              url: infrastructure/n8n/flows/traffic-anomaly-watch.json,  kind: yaml, status: placeholder }
-          - { name: cwv-watch,                          url: infrastructure/n8n/flows/cwv-watch.json,              kind: yaml, status: placeholder }
-          - { name: sitemap-freshness,                  url: infrastructure/n8n/flows/sitemap-freshness.json,      kind: yaml, status: placeholder }
           - { name: backlink-watch,                     url: infrastructure/n8n/flows/backlink-watch.json,         kind: yaml, status: placeholder }
           - { name: outreach-followup-watch,            url: infrastructure/n8n/flows/outreach-followup-watch.json, kind: yaml, status: placeholder }
           - { name: affiliate-payout-watch,             url: infrastructure/n8n/flows/affiliate-payout-watch.json, kind: yaml, status: placeholder }
@@ -327,6 +341,10 @@ sections:
           - { name: document-expiry-watch,              url: infrastructure/n8n/flows/document-expiry-watch.json,  kind: yaml, status: placeholder }
           - { name: lead-magnet-perf-watch,             url: infrastructure/n8n/flows/lead-magnet-perf-watch.json, kind: yaml, status: placeholder }
           - { name: tool-untracked-watch,               url: infrastructure/n8n/flows/tool-untracked-watch.json,   kind: yaml, status: placeholder }
+          - { name: release-shipped (Phase 4),          url: infrastructure/n8n/flows/release-shipped.json,        kind: yaml, status: placeholder }
+          - { name: delist-sku (Phase 4),               url: infrastructure/n8n/flows/delist-sku.json,             kind: yaml, status: placeholder }
+          - { name: backup-restore-test (Phase 4),      url: infrastructure/n8n/flows/backup-restore-test.json,    kind: yaml, status: placeholder }
+          - { name: gdpr-intake (Phase 4),              url: infrastructure/n8n/flows/gdpr-intake.json,            kind: yaml, status: placeholder }
 
   # ─────────────────────────────────────────────────────────────────
   # CODE — top-level repo dirs (for editing)
