@@ -1,36 +1,113 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
 import { runManifestCheck } from '@/lib/data/manifest';
+import { readSkus } from '@/lib/data/skus';
+import { formatDate } from '@/lib/format';
 
-const result = await runManifestCheck();
+const [manifest, sku] = await Promise.all([runManifestCheck(), readSkus()]);
+
+const statusBadge = {
+  live:    'badge-ok',
+  partial: 'badge-p1',
+  draft:   'badge-p2',
+} as const;
 ---
-<Layout title="Check · Catalog" section="check">
+<Layout title="Catalog" section="check">
   <header class="mb-6">
-    <h1 class="font-display text-3xl font-semibold">Catalog manifest</h1>
+    <h1 class="font-display text-3xl font-semibold">Catalog</h1>
     <p class="text-sm" style="color: rgb(var(--c-muted))">
-      Wraps <code>templates/_build/manifest_check.py</code> · ran at {new Date(result.ranAt).toLocaleString()}
+      {sku.totals.total} SKUs across {Object.keys(sku.byCategory).length} categories.
+      Manifest runs <code>templates/_build/manifest_check.py</code>; browser walks <code>templates/_briefs/*.md</code>.
     </p>
   </header>
-  <div class="card mb-6">
+
+  <!-- Manifest at-a-glance -->
+  <section class="mb-6 card">
     <div class="flex items-baseline justify-between">
-      <span class:list={['badge', result.ok ? 'badge-ok' : 'badge-p0']}>
-        {result.ok ? 'PASS' : 'FAIL'}
+      <div>
+        <span class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+          Manifest
+        </span>
+        <span class="ml-3 font-mono text-2xl font-semibold">{manifest.summary}</span>
+      </div>
+      <span class:list={['badge', manifest.ok ? 'badge-ok' : 'badge-p0']}>
+        {manifest.ok ? 'PASS' : 'FAIL'}
       </span>
-      <span class="font-mono text-2xl font-semibold">{result.summary}</span>
     </div>
-    {result.passing !== null && result.total !== null && (
-      <div class="mt-4 h-2 w-full overflow-hidden rounded"
-           style="background: rgb(var(--c-surface-2))">
+    {manifest.passing !== null && manifest.total !== null && (
+      <div class="mt-3 h-2 w-full overflow-hidden rounded" style="background: rgb(var(--c-surface-2))">
         <div class="h-full rounded"
-             style={`width: ${(result.passing / result.total) * 100}%; background: rgb(var(--c-${result.ok ? 'ok' : 'bad'}))`}></div>
+             style={`width: ${(manifest.passing / manifest.total) * 100}%; background: rgb(var(--c-${manifest.ok ? 'ok' : 'bad'}))`}></div>
       </div>
     )}
-  </div>
-  <details class="card">
+  </section>
+
+  <!-- SKU scorecards -->
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5">
+    <Scorecard label="Total" value={sku.totals.total} />
+    <Scorecard label="Live" value={sku.totals.live} tone="ok" />
+    <Scorecard label="Partial" value={sku.totals.partial}
+               tone={sku.totals.partial > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Missing Etsy copy" value={sku.totals.missingEtsy}
+               tone={sku.totals.missingEtsy > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Missing product copy" value={sku.totals.missingProduct}
+               tone={sku.totals.missingProduct > 0 ? 'warn' : 'ok'} />
+  </section>
+
+  {/* Per-category browser */}
+  {sku.skus.length === 0 ? (
+    <EmptyState
+      title="No SKUs found in templates/_briefs/"
+      body="Each SKU is one .md file in templates/_briefs/. Add a brief to surface it here."
+      yamlPath="templates/_briefs/"
+    />
+  ) : (
+    <>
+      {Object.entries(sku.byCategory).sort(([a], [b]) => a.localeCompare(b)).map(([cat, items]) => (
+        <details class="mb-4" open>
+          <summary class="cursor-pointer rounded px-3 py-2 hover:bg-[rgb(var(--c-surface-2))]">
+            <span class="font-display text-xl font-semibold">{cat}</span>
+            <span class="ml-2 text-sm" style="color: rgb(var(--c-muted))">
+              {items[0].categoryName} · {items.length} SKUs
+            </span>
+          </summary>
+          <ul class="mt-2 grid grid-cols-1 gap-2 md:grid-cols-2">
+            {items.map((s) => (
+              <li>
+                <a href={`/check/catalog/${s.sku}`}
+                   class="card card-tight no-underline transition hover:shadow-md block">
+                  <div class="flex items-baseline justify-between gap-2">
+                    <span class="font-mono text-xs" style="color: rgb(var(--c-muted))">{s.sku}</span>
+                    <span class:list={['badge', statusBadge[s.status]]}>{s.status}</span>
+                  </div>
+                  <div class="mt-1 font-medium">{s.name}</div>
+                  <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs" style="color: rgb(var(--c-muted))">
+                    {s.etsyPrice && <span>Etsy {s.etsyPrice.split('(')[0].trim()}</span>}
+                    {s.ownsitePrice && <span>Site {s.ownsitePrice.split('(')[0].trim()}</span>}
+                    {s.thumbCount > 0 && <span>{s.thumbCount} thumbs</span>}
+                    {!s.hasEtsyCopy && <span style="color: rgb(var(--c-warn))">no Etsy copy</span>}
+                    {!s.hasProductCopy && <span style="color: rgb(var(--c-warn))">no product copy</span>}
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))}
+    </>
+  )}
+
+  <details class="mt-6 card">
     <summary class="cursor-pointer text-sm font-medium">
-      Output (last 4KB) — exit {result.exitCode}
+      Manifest output (last 4KB) — exit {manifest.exitCode}
     </summary>
     <pre class="mt-3 max-h-96 overflow-auto whitespace-pre-wrap text-xs"
-         style="color: rgb(var(--c-muted))">{result.output}</pre>
+         style="color: rgb(var(--c-muted))">{manifest.output}</pre>
   </details>
+
+  <SourceFooter source="templates/_briefs/ + templates/_delivery/ + copy/etsy-listings/ + copy/product-pages/"
+                lastRefresh={new Date()} />
 </Layout>

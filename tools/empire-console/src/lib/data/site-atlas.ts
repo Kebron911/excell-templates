@@ -30,6 +30,10 @@ export interface SiteAtlas {
     daysToExpiry?: number | null;
     sslProvider?: string | null;
   };
+  /** First ~80 lines of <repo>/<site>/.planning/STATE.md (G3). */
+  stateExcerpt?: string | null;
+  /** First ~30 lines of <repo>/<site>/MEMORY.md (G9). */
+  memoryExcerpt?: string | null;
 }
 
 export async function listSites(): Promise<SiteMetadata[]> {
@@ -126,5 +130,23 @@ export async function readSiteAtlas(siteId: string): Promise<SiteAtlas | null> {
     }
   }
 
-  return { meta, local_dev, hosting, ci, sections, derived, domainStatus };
+  // G3 + G9: pull STATE.md + MEMORY.md excerpts if present.
+  const repoPath = meta.repo_path?.replace(/\/$/, '') ?? '';
+  let stateExcerpt: string | null = null;
+  let memoryExcerpt: string | null = null;
+  if (repoPath) {
+    const { join } = await import('node:path');
+    const stateAbs = join(paths.root, repoPath, '.planning', 'STATE.md');
+    const memoryAbs = join(paths.root, repoPath, 'MEMORY.md');
+    try {
+      const txt = await readFile(stateAbs, 'utf8');
+      stateExcerpt = txt.split(/\r?\n/).slice(0, 80).join('\n');
+    } catch { /* missing is fine */ }
+    try {
+      const txt = await readFile(memoryAbs, 'utf8');
+      memoryExcerpt = txt.split(/\r?\n/).slice(0, 30).join('\n');
+    } catch { /* missing is fine */ }
+  }
+
+  return { meta, local_dev, hosting, ci, sections, derived, domainStatus, stateExcerpt, memoryExcerpt };
 }

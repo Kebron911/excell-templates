@@ -1,0 +1,77 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readN8nFlows } from '@/lib/data/n8n-flows';
+
+const r = await readN8nFlows();
+
+const triggerBadge: Record<string, string> = {
+  cron: 'badge-ok',
+  webhook: 'badge-p1',
+  'sub-workflow': 'badge-p2',
+  unknown: 'badge-p2',
+};
+---
+<Layout title="Automations" section="maintain">
+  <header class="mb-6">
+    <h1 class="font-display text-3xl font-semibold">Automations</h1>
+    <p class="text-sm" style="color: rgb(var(--c-muted))">
+      n8n flow registry. Walks <code>infrastructure/n8n/flows/*.json</code>.
+      Phase 4 also pulls live status from n8n executions API.
+    </p>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Flows in repo" value={r.totals.total} />
+    <Scorecard label="Cron-triggered" value={r.totals.cron} />
+    <Scorecard label="Webhook" value={r.totals.webhook} />
+    <Scorecard label="Sub-workflows" value={r.totals.subWorkflow} />
+  </section>
+
+  {r.flows.length === 0 ? (
+    <EmptyState title="No flows" body="Add JSON exports to infrastructure/n8n/flows/" />
+  ) : (
+    <ul class="space-y-2">
+      {r.flows.map((f) => (
+        <li class="card card-tight">
+          <div class="flex flex-wrap items-baseline justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <div class="font-medium">{f.name}</div>
+              <div class="mt-1 text-xs font-mono" style="color: rgb(var(--c-muted))">
+                {f.file}
+              </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+              <span class:list={['badge', triggerBadge[f.triggerKind]]}>{f.triggerKind}</span>
+              {f.triggerSchedule && (
+                <span class="font-mono" style="color: rgb(var(--c-muted))">{f.triggerSchedule}</span>
+              )}
+              <span class="font-mono" style="color: rgb(var(--c-muted))">{f.nodeCount} nodes</span>
+              {f.tags.map((t) => <span class="badge badge-p2">{t}</span>)}
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <section class="mt-8 card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Phase 4 — live execution status
+    </h3>
+    <p class="text-sm">
+      Currently shows the design state (what flows EXIST). Phase 4 wires
+      <code>n8n /api/v1/workflows</code> + <code>/api/v1/executions</code> to merge
+      <strong>active/inactive</strong>, <strong>last execution timestamp</strong>,
+      and <strong>24h success rate</strong> per flow.
+    </p>
+    <p class="mt-2 text-xs" style="color: rgb(var(--c-muted))">
+      The <code>n8n-self-watch</code> flow already pages P0 if &gt;5 failures in 30min — this page is the proactive companion.
+    </p>
+  </section>
+
+  <SourceFooter source="infrastructure/n8n/flows/*.json" lastRefresh={new Date()}
+                notes="Phase 4 adds live n8n API merge" />
+</Layout>

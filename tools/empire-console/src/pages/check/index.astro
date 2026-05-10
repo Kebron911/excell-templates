@@ -26,7 +26,8 @@ const tiles: Tile[] = [
   { href: '/check/alerts',          title: 'Alert log',         desc: 'Live tail of ops/alerts.ndjson (n8n-fed).',
     signal: openP0 > 0 ? `${openP0} P0 open` : openP1 > 0 ? `${openP1} P1 open` : 'all clear',
     tone: openP0 > 0 ? 'bad' : openP1 > 0 ? 'warn' : 'ok' },
-  { href: '/check/catalog',         title: 'Catalog manifest',  desc: 'Wraps manifest_check.py — 65 SKUs + 5 bundles.' },
+  { href: '/check/catalog',         title: 'Catalog (65 SKUs)', desc: 'Manifest + per-SKU browser (brief, files, copy state).' },
+  { href: '/check/cluster/blog',    title: 'Cluster blog index', desc: 'Every blog post across all sister sites.' },
   { href: '/check/contacts',        title: 'Contacts (funnel)', desc: 'Sign-ups · drop-out · list health · sequences.' },
   { href: '/check/traffic',         title: 'Traffic',           desc: 'Sessions per site + top sources.' },
   { href: '/check/seo',             title: 'SEO',               desc: 'GSC impressions/clicks/position + CWV.' },
@@ -34,7 +35,6 @@ const tiles: Tile[] = [
   { href: '/check/money',           title: 'Money (operational)', desc: 'Yesterday/week/MTD revenue + burn ratio.' },
   { href: '/check/links',           title: 'Link health',       desc: 'Cross-site CTA audit.', disabled: true },
   { href: '/check/kill-sku',        title: 'Kill-SKU candidates', desc: 'CVR<1% · 0 sales 90d.', disabled: true },
-  { href: '/check/automations',     title: 'Automations',       desc: 'n8n flow health board.', disabled: true },
 ];
 ---
 <Layout title="Watch" section="check">

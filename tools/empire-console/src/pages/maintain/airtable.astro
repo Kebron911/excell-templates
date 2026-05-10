@@ -1,0 +1,75 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { paths } from '@/lib/paths';
+
+let raw: string | null = null;
+try {
+  raw = await readFile(join(paths.root, 'infrastructure', 'airtable', 'schema.md'), 'utf8');
+} catch { /* missing is fine */ }
+
+// Pull a list of table names — convention: `## Table — <name>` or `### <name>` headings.
+const tables: { name: string; level: number }[] = [];
+if (raw) {
+  for (const line of raw.split(/\r?\n/)) {
+    const h2 = line.match(/^##\s+Table\s+[—-]\s+(.+)$/i) || line.match(/^##\s+(.+)$/);
+    const h3 = line.match(/^###\s+(.+)$/);
+    if (h2) tables.push({ name: h2[1].trim(), level: 2 });
+    else if (h3 && /table|view/i.test(h3[1])) tables.push({ name: h3[1].trim(), level: 3 });
+  }
+}
+---
+<Layout title="Airtable" section="maintain">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Airtable schema</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Source: <code>infrastructure/airtable/schema.md</code>. Airtable is the SSOT
+        for products, customers, sequences, etc. — this is the documented schema.
+      </p>
+    </div>
+    <a href="https://airtable.com" target="_blank" rel="noopener noreferrer"
+       class="rounded border px-3 py-1.5 text-xs no-underline"
+       style="border-color: rgb(var(--c-border))">Open Airtable ↗</a>
+  </header>
+
+  {raw === null ? (
+    <EmptyState
+      title="No schema doc"
+      body="Document your Airtable base structure in infrastructure/airtable/schema.md"
+      yamlPath="infrastructure/airtable/schema.md"
+    />
+  ) : (
+    <>
+      {tables.length > 0 && (
+        <section class="mb-8 card">
+          <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+            Tables / sections referenced ({tables.length})
+          </h2>
+          <ul class="grid grid-cols-1 gap-1 text-sm md:grid-cols-2">
+            {tables.map((t) => (
+              <li>
+                <span style={t.level === 2 ? 'font-weight: 600' : 'color: rgb(var(--c-muted))'}>
+                  {t.level === 3 ? '↳ ' : ''}{t.name}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section class="card">
+        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+          Schema doc (full content)
+        </h2>
+        <pre class="max-h-[60vh] overflow-auto whitespace-pre-wrap text-xs"
+             style="font-family: inherit; line-height: 1.6">{raw}</pre>
+      </section>
+    </>
+  )}
+
+  <SourceFooter source="infrastructure/airtable/schema.md" lastRefresh={new Date()} />
+</Layout>

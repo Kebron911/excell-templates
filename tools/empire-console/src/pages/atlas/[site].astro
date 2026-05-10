@@ -13,7 +13,7 @@ if (!atlas) {
   return Astro.redirect('/atlas');
 }
 
-const { meta, local_dev, hosting, ci, sections, derived, domainStatus } = atlas;
+const { meta, local_dev, hosting, ci, sections, derived, domainStatus, stateExcerpt, memoryExcerpt } = atlas;
 const allSections = [...derived, ...sections];
 
 const kindMeta = {
@@ -79,6 +79,35 @@ type Kind = keyof typeof kindMeta;
         ))}
         {ci.smoke_path && <li>🔥 smoke: <code>{String(ci.smoke_path)}</code></li>}
       </ul>
+    </section>
+  )}
+
+  {(stateExcerpt || memoryExcerpt) && (
+    <section class="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      {stateExcerpt && (
+        <div class="card">
+          <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+            STATE.md (top of file)
+          </h3>
+          <pre class="max-h-96 overflow-auto whitespace-pre-wrap text-xs"
+               style="font-family: inherit; line-height: 1.5">{stateExcerpt}</pre>
+          <p class="mt-2 text-xs" style="color: rgb(var(--c-muted))">
+            <code>{meta.repo_path}.planning/STATE.md</code>
+          </p>
+        </div>
+      )}
+      {memoryExcerpt && (
+        <div class="card">
+          <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+            MEMORY.md (recent)
+          </h3>
+          <pre class="max-h-96 overflow-auto whitespace-pre-wrap text-xs"
+               style="font-family: inherit; line-height: 1.5">{memoryExcerpt}</pre>
+          <p class="mt-2 text-xs" style="color: rgb(var(--c-muted))">
+            <code>{meta.repo_path}MEMORY.md</code>
+          </p>
+        </div>
+      )}
     </section>
   )}
 

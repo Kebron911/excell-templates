@@ -24,11 +24,12 @@ const groups: Array<{ title: string; tiles: Tile[] }> = [
           ? `last send ${newsletter.daysSinceLastSend}d ago`
           : 'no sends yet',
         tone: newsletter.isCadenceStale ? 'warn' : 'ok' },
-      { href: '#', title: 'Atomization queue', desc: 'Source Topic → 11 platform artifacts.', disabled: true },
+      { href: '/promote/atomization',     title: 'Atomization decks', desc: 'Source Topic → 11 platform artifacts.' },
+      { href: '/promote/copy',            title: 'Copy library',      desc: 'All copy/ assets — Etsy · email · blog · Pinterest · FB.' },
+      { href: '/promote/email-sequences', title: 'Email sequences',   desc: 'IS sequence drafts (welcome · post-purchase · win-back · etc.).' },
       { href: '#', title: 'Pin generator', desc: 'Hoists STRGuests pin code to shared lib.', disabled: true },
       { href: '#', title: 'Broadcast queue', desc: 'IS YAML → import webhook (the send action).', disabled: true },
       { href: '#', title: 'Lifecycle preview', desc: 'IS automated sequence viewer.', disabled: true },
-      { href: '#', title: 'Editorial calendar', desc: 'Drafts in flight + schedule.', disabled: true },
     ],
   },
   {

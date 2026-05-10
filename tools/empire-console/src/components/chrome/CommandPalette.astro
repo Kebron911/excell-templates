@@ -1,25 +1,48 @@
 ---
 /**
- * Cmd+K palette — searches Atlas + PROGRESS.
+ * Cmd+K palette — searches Atlas + PROGRESS + captured content (G6).
  *
- * Data is fetched lazily on first open from /atlas-data.json (and PROGRESS items
- * are inlined since they're small and tied to current state).
- *
- * E14: previously inlined ~15KB of Atlas JSON into every page; now fetched once
- * per session and cached.
+ * Atlas data is fetched lazily from /atlas-data.json (E14).
+ * PROGRESS + captures (inbox / voice / decisions / near-misses) inline.
  */
 import { readProgress } from '@/lib/data/progress';
+import { readInbox } from '@/lib/data/inbox';
+import { readVoice } from '@/lib/data/customer-voice';
+import { readDecisions } from '@/lib/data/decisions';
+import { readNearMisses } from '@/lib/data/near-misses';
 
-const progress = await readProgress();
+const [progress, inbox, voice, decisions, nearMisses] = await Promise.all([
+  readProgress(),
+  readInbox(50),
+  readVoice(50),
+  readDecisions(50),
+  readNearMisses(50),
+]);
+
 const progressItems = progress.nextActions.map((a) => ({
-  name: a.text,
-  url: 'PROGRESS.md',
-  kind: 'doc' as const,
-  section: `PROGRESS · ${a.section}`,
-  note: undefined,
-  isExternal: false,
+  name: a.text, url: 'PROGRESS.md', kind: 'doc' as const,
+  section: `PROGRESS · ${a.section}`, note: undefined, isExternal: false,
 }));
-const progressJson = JSON.stringify(progressItems);
+const inboxItems = inbox.map((e) => ({
+  name: e.text.slice(0, 80), url: '/inbox', kind: 'doc' as const,
+  section: `Inbox · ${e.category}`, note: e.text.slice(0, 200), isExternal: false,
+}));
+const voiceItems = voice.map((e) => ({
+  name: e.quote.slice(0, 80), url: '/promote/voice', kind: 'doc' as const,
+  section: `Voice · ${e.category}`, note: e.quote.slice(0, 200), isExternal: false,
+}));
+const decisionItems = decisions.map((d) => ({
+  name: d.title, url: '/maintain/decisions', kind: 'doc' as const,
+  section: `Decision · ${d.category}`, note: d.decision.slice(0, 200), isExternal: false,
+}));
+const nearMissItems = nearMisses.map((n) => ({
+  name: n.title, url: '/maintain/near-misses', kind: 'doc' as const,
+  section: 'Near-miss', note: (n.what ?? '').slice(0, 200), isExternal: false,
+}));
+
+const progressJson = JSON.stringify([
+  ...progressItems, ...inboxItems, ...voiceItems, ...decisionItems, ...nearMissItems,
+]);
 ---
 <div id="cmdk-overlay"
      class="hidden fixed inset-0 z-50"

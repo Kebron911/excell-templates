@@ -1,0 +1,85 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readCopyLibrary } from '@/lib/data/copy-library';
+import { formatDate } from '@/lib/format';
+
+const r = await readCopyLibrary();
+const kb = (n: number) => `${(n / 1024).toFixed(1)}KB`;
+---
+<Layout title="Copy library" section="promote">
+  <header class="mb-6">
+    <h1 class="font-display text-3xl font-semibold">Copy library</h1>
+    <p class="text-sm" style="color: rgb(var(--c-muted))">
+      All copy assets in <code>copy/</code> — Etsy listings, email sequences, blog drafts,
+      Pinterest, FB groups, atomization decks, product pages, lead magnets.
+    </p>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Assets" value={r.total} />
+    <Scorecard label="Categories" value={Object.keys(r.byCategory).length} />
+    <Scorecard label="Total size" value={kb(r.totalBytes)} />
+    <Scorecard label="Recent (7d)"
+      value={r.assets.filter((a) => Date.now() - new Date(a.mtime).getTime() < 7 * 86_400_000).length} />
+  </section>
+
+  {r.total === 0 ? (
+    <EmptyState title="No copy assets" body="Drop .md/.txt/.html files in copy/" yamlPath="copy/" />
+  ) : (
+    <>
+      <section class="mb-8">
+        <h2 class="mb-3 text-xs font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+          Recently edited
+        </h2>
+        <div class="card">
+          <ul class="space-y-2 text-sm">
+            {r.recentlyTouched.map((a) => (
+              <li class="flex items-baseline justify-between gap-3">
+                <span>
+                  <span class="badge badge-p2">{a.category}</span>
+                  <span class="ml-2 font-mono text-xs">{a.name}</span>
+                </span>
+                <span class="font-mono text-xs" style="color: rgb(var(--c-muted))">
+                  {formatDate(a.mtime)} · {kb(a.size)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {Object.entries(r.byCategory).sort(([a], [b]) => a.localeCompare(b)).map(([cat, items]) => (
+        <details class="mb-3" open={items.length < 8}>
+          <summary class="cursor-pointer rounded px-3 py-2 hover:bg-[rgb(var(--c-surface-2))]">
+            <span class="font-display text-lg font-semibold">{cat}</span>
+            <span class="ml-2 text-sm" style="color: rgb(var(--c-muted))">
+              {items.length} files · {kb(items.reduce((s, a) => s + a.size, 0))}
+            </span>
+          </summary>
+          <ul class="mt-2 space-y-1">
+            {items.map((a) => (
+              <li class="card card-tight">
+                <div class="flex items-baseline justify-between gap-3 text-sm">
+                  <span class="font-mono text-xs truncate flex-1">{a.path}</span>
+                  <span class="font-mono text-xs whitespace-nowrap" style="color: rgb(var(--c-muted))">
+                    {kb(a.size)} · {formatDate(a.mtime)}
+                  </span>
+                </div>
+                {a.excerpt && (
+                  <p class="mt-1 text-xs italic line-clamp-2" style="color: rgb(var(--c-muted))">
+                    {a.excerpt}…
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))}
+    </>
+  )}
+
+  <SourceFooter source="copy/**/*.{md,txt,html}" lastRefresh={new Date()} />
+</Layout>

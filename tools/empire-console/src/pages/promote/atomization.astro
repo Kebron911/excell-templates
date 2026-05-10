@@ -1,0 +1,67 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readAtomization } from '@/lib/data/atomization';
+import { formatDate } from '@/lib/format';
+
+const r = await readAtomization();
+const kb = (n: number) => `${(n / 1024).toFixed(1)}KB`;
+---
+<Layout title="Atomization" section="promote">
+  <header class="mb-6">
+    <h1 class="font-display text-3xl font-semibold">Atomization decks</h1>
+    <p class="text-sm" style="color: rgb(var(--c-muted))">
+      One Source Topic → 11 platform artifacts. Walks <code>copy/_atomization/</code>.
+      Atomization engine spec: <code>docs/superpowers/specs/2026-04-29-content-atomization-engine.md</code>.
+    </p>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3">
+    <Scorecard label="Topics" value={r.totalTopics} />
+    <Scorecard label="Total artifacts" value={r.totalArtifacts} />
+    <Scorecard label="Per-topic avg"
+               value={r.totalTopics > 0 ? Math.round(r.totalArtifacts / r.totalTopics) : 0}
+               hint="target: ~11 per topic" />
+  </section>
+
+  {r.topics.length === 0 ? (
+    <EmptyState
+      title="No atomization decks"
+      body="Drop a Source Topic folder under copy/_atomization/<slug>/ — Mon brief, then Tue–Fri artifacts."
+      yamlPath="copy/_atomization/"
+    />
+  ) : (
+    <ul class="space-y-3">
+      {r.topics.map((t) => (
+        <li>
+          <details class="card">
+            <summary class="cursor-pointer">
+              <span class="font-display text-lg font-semibold">{t.slug}</span>
+              <span class="ml-3 font-mono text-xs" style="color: rgb(var(--c-muted))">
+                {t.artifacts.length} artifacts · {kb(t.totalSize)} ·
+                last touched {t.lastTouched ? formatDate(t.lastTouched) : '—'}
+              </span>
+            </summary>
+            {t.brief && (
+              <p class="mt-3 italic text-sm" style="color: rgb(var(--c-muted))">{t.brief}…</p>
+            )}
+            <ul class="mt-3 space-y-1">
+              {t.artifacts.map((a) => (
+                <li class="flex items-baseline justify-between gap-3 text-xs font-mono">
+                  <span class="truncate flex-1">{a.path}</span>
+                  <span class="whitespace-nowrap" style="color: rgb(var(--c-muted))">
+                    {kb(a.size)} · {formatDate(a.mtime)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </details>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <SourceFooter source="copy/_atomization/" lastRefresh={new Date()} />
+</Layout>
