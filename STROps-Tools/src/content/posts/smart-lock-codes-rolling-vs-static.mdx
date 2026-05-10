@@ -1,0 +1,83 @@
+---
+title: "Smart lock codes: rolling vs static for short-term rentals"
+description: "Why static codes are a slow-motion security incident, what rolling codes solve, and the deterministic generator most hosts can run without buying new hardware."
+datePublished: "2026-05-09"
+category: "access"
+readMinutes: 6
+relatedTools: ["smart-lock-codes"]
+magnet: "cleaner-sop"
+---
+
+Most hosts start with a static code. Same four digits, every guest, for years. It's easy to remember, easy to share, and easy for everyone who has ever stayed at the property to walk in two years later and pick up a forgotten phone charger.
+
+Rolling codes — a fresh code per booking — solve that. They're not new, they're not expensive, and they're not optional once you have more than a few stays.
+
+## What a static code actually leaks
+
+The argument for static is "it's just a guest, they're not coming back." Run the math.
+
+- 50 bookings a year × 4 years = 200 prior guests with your code.
+- A reasonable share of those guests texted the code to a partner, a friend, a babysitter.
+- A reasonable share saved it in a notes app that syncs to the cloud and gets indexed if breached.
+
+You don't have a lock. You have a public-facing PIN with marketing on Airbnb pointing at it.
+
+The day the static code leaks (someone's old screenshot, an Airbnb dispute screenshot, a returning guest who lets themselves in for "just a minute"), you're not just changing the code — you're changing it on every device, every cleaner, every co-host, every mid-stay handoff. That's an afternoon of phone-tag during turnover.
+
+## What rolling codes solve
+
+A rolling code is a per-booking code with two properties:
+
+1. **Unique.** Different from any other booking's code.
+2. **Bounded in time.** Active from check-in (or a few hours before) to checkout (or a few hours after). Outside that window, it doesn't work.
+
+When the booking ends, so does the code. There's nothing to rotate. Your prior guest's screenshot doesn't open the door tomorrow.
+
+Two ways to get rolling codes:
+
+- **Hardware.** August, Schlage Encode, Yale Assure, RemoteLock — most modern smart locks support per-booking codes via app or PMS integration.
+- **Software, on top of any keypad lock.** A code generator that produces deterministic per-booking codes you punch into the lock manually (or via your PMS).
+
+If you're already on a smart lock with PMS integration, use it. If you're on a keypad lock without smart features, the deterministic generator is the bridge.
+
+## Why "deterministic"
+
+A random code is fine if you have a place to store it. A *deterministic* code is fine if you don't.
+
+The [smart lock code rotator](/smart-lock-codes) takes three inputs:
+
+- A secret you keep (your master phrase, never published).
+- The booking's check-in date.
+- The guest's first name (or last 4 of phone).
+
+It runs HMAC-SHA-256 over those, takes the first 4 digits, and outputs a code. Same inputs, same code — every time. Different inputs, different code — always.
+
+What that buys you:
+
+- **No spreadsheet of codes.** You can regenerate any code from the booking record alone.
+- **No reuse.** Two guests on the same date with different names get different codes; same guest on different dates gets different codes.
+- **No leak from a code list, because there is no list.**
+
+The secret stays in your head (or your password manager). Even if a guest tries every reasonable PIN, the keyspace is 10,000 — and most smart locks lock out after 5 failed attempts. Brute force is not the threat.
+
+## The threat that *is* real
+
+Codes leak through three channels:
+
+1. **Returning guests.** Solved by per-booking expiry on the lock. If the lock can't enforce time-bounded codes, you have to manually clear codes after checkout. Set a recurring task.
+2. **Cleaners.** Cleaners need access. Use a *separate* cleaner code that you rotate quarterly — not the guest code. The cleaner code never goes in a guest message.
+3. **Co-hosts and handymen.** Same rule. Their own code, rotated at a known cadence.
+
+The smart lock code rotator covers (1). The other two are still your job.
+
+## What to actually do this week
+
+If you're on static codes today, the migration is roughly:
+
+- **Day 0.** Pick your master phrase. Write it once, in the place you'll remember (password manager, not a sticky note).
+- **Day 1.** Generate codes for every active and upcoming booking. Send the per-booking code to the guest 24 hours before check-in (not at booking confirmation — too easy to lose).
+- **Day 2.** Add a cleaner-only code, separate from the master.
+- **Day 7.** Schedule a quarterly cleaner-code rotation. Put it on the [maintenance schedule](/maintenance-schedule) so it doesn't drift.
+- **Day 30.** Audit who else has a code. The list is shorter than you think — make it shorter.
+
+Static codes are the operations equivalent of sticking with the same password since 2018. They worked until they didn't, and the day they stop working is not a day you wanted to be reactive.

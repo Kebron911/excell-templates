@@ -14,8 +14,9 @@ const tools = [
     <a href="/" class="font-body font-semibold text-lg tracking-tight">
       strops<span class="period-gold">.</span>tools
     </a>
-    <nav aria-label="Tools" class="hidden md:flex gap-6 text-sm">
+    <nav aria-label="Primary" class="hidden md:flex gap-6 text-sm items-center">
       {tools.map(t => <a href={t.href} class="text-ink2 hover:text-ink">{t.label}</a>)}
+      <a href="/blog" class="text-ink2 hover:text-ink font-semibold">Blog</a>
     </nav>
   </div>
 </header>

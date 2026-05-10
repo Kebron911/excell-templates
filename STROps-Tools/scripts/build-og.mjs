@@ -267,6 +267,19 @@ async function main() {
     ),
   );
 
+  // Blog index (per-post OG falls back to default for v1)
+  renders.push(
+    render(
+      'blog',
+      {
+        kicker: 'Operations Notebook',
+        title: 'Operations, written down.',
+        footer: 'Field notes for active STR operators',
+      },
+      fonts,
+    ),
+  );
+
   // 3 lead magnet capture pages
   renders.push(
     render(
