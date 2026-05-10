@@ -171,6 +171,32 @@ export function buildPlace(input: PlaceInput): JsonLd {
   };
 }
 
+export interface BreadcrumbCrumb {
+  /** Display name, e.g. "Blog" */
+  name: string;
+  /** Path on this site, e.g. "/blog". Last crumb may omit URL but
+   * Google rendering improves when every crumb has one. */
+  path: string;
+}
+
+/**
+ * BreadcrumbList — emit on every non-root page so SERPs show the breadcrumb
+ * navigation chip and Google can build a hub-and-spoke understanding of the
+ * site. Canonical URLs are derived via SITE_URL + path.
+ */
+export function buildBreadcrumbList(crumbs: BreadcrumbCrumb[]): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map((c, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: c.name,
+      item: `${SITE_URL}${c.path}`,
+    })),
+  };
+}
+
 /**
  * Returns the canonical URL for a path. Used by Layout for
  * <link rel="canonical"> and astro-seo's `canonical` prop.

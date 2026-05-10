@@ -17,4 +17,47 @@ const cities = defineCollection({
   }),
 });
 
-export const collections = { cities };
+/**
+ * `blog` content collection — long-form supporting MDX. Loaded by
+ * src/pages/blog/[...slug].astro and indexed by src/pages/blog/index.astro.
+ * Schema mirrors the seo.ts ArticleInput contract so post frontmatter feeds
+ * the JSON-LD builder directly.
+ */
+const blog = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/blog' }),
+  schema: z.object({
+    title: z.string(),
+    slug: z.string(),
+    description: z.string(),
+    datePublished: z.string(),
+    dateModified: z.string().optional(),
+    category: z.enum([
+      'financing',
+      'markets',
+      'underwriting',
+      'operations',
+      'regulation',
+    ]),
+    relatedTool: z.string().optional(),
+    affiliateVendors: z.array(z.string()).optional(),
+    readingTimeMin: z.number().int().positive(),
+    /** 40–60 word direct answer rendered above the fold. Drives AIO /
+     * Perplexity citation and featured-snippet eligibility. */
+    keyTakeaway: z.string().optional(),
+    /** People-Also-Ask seed Q&A. Emitted as FAQPage JSON-LD AND rendered
+     * as an on-page <details> section at the bottom of the post. */
+    faqs: z
+      .array(
+        z.object({
+          q: z.string(),
+          a: z.string(),
+        }),
+      )
+      .optional(),
+    /** Inline links to sibling blog post slugs. Rendered as a "Related
+     * reading" block above the funnel. */
+    relatedPosts: z.array(z.string()).optional(),
+  }),
+});
+
+export const collections = { cities, blog };

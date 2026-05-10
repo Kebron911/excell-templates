@@ -1,0 +1,85 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
+import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import { getCollection } from 'astro:content';
+import { buildBreadcrumbList } from '@/lib/seo';
+
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.datePublished.localeCompare(a.data.datePublished));
+
+const total = posts.length;
+const breadcrumbLd = buildBreadcrumbList([
+  { name: 'Home', path: '/' },
+  { name: 'Blog', path: '/blog' },
+]);
+
+const CATEGORY_LABEL: Record<string, string> = {
+  financing: 'Financing',
+  markets: 'Markets',
+  underwriting: 'Underwriting',
+  operations: 'Operations',
+  regulation: 'Regulation',
+};
+---
+<Layout
+  title="STR Buyer Blog — Pre-Purchase Guides for Airbnb Investors — strbuyers.tools"
+  description={`${total} long-form guides for people researching whether to buy a short-term rental. Financing, markets, underwriting, regulation — written for buyers, not for clicks.`}
+  path="/blog"
+  ogImage="https://strbuyers.tools/og/default.png"
+  jsonLd={breadcrumbLd}
+>
+  <article class="blog-index-page bg-parchment">
+    <div class="mx-auto max-w-4xl px-5 pt-9 pb-7">
+      <header>
+        <p class="label text-accent">Acquisition · Long-form guides</p>
+        <h1 class="font-serif text-h1 text-navy mt-3 leading-tight">
+          STR buyer blog<span class="period-accent">.</span>
+        </h1>
+        <p class="mt-3 text-lead text-ink-2 max-w-2xl">
+          Long-form guides for people researching whether to buy a short-term
+          rental — financing, markets, underwriting, regulation. Written for
+          buyers, not for clicks.
+        </p>
+      </header>
+
+      <ul class="mt-9 grid grid-cols-1 gap-5 list-none p-0">
+        {posts.map((post) => (
+          <li class="rounded-md border border-rule bg-parchment-light p-5">
+            <p class="text-caption text-ink-3 uppercase tracking-widest font-mono">
+              {CATEGORY_LABEL[post.data.category] ?? post.data.category}
+              <span class="mx-2">·</span>
+              <time datetime={post.data.datePublished}>{post.data.datePublished}</time>
+              <span class="mx-2">·</span>
+              {post.data.readingTimeMin} min read
+            </p>
+            <h2 class="font-serif text-h2 text-navy mt-2 leading-snug">
+              <a
+                href={`/blog/${post.data.slug}`}
+                class="text-navy no-underline hover:text-accent transition-colors duration-std"
+              >
+                {post.data.title}
+              </a>
+            </h2>
+            <p class="mt-2 text-ui text-ink-2">{post.data.description}</p>
+            <p class="mt-3">
+              <a
+                href={`/blog/${post.data.slug}`}
+                class="inline-flex items-center gap-2 text-ui text-accent no-underline hover:underline"
+              >
+                Read the guide <span aria-hidden="true">→</span>
+              </a>
+            </p>
+          </li>
+        ))}
+      </ul>
+
+      <AdSlot location="in-content" />
+
+      <EmailCaptureCard magnet="str-buyer-playbook" toolSlug="blog-index" />
+    </div>
+
+    <ClusterFunnelBlock currentCluster="acquisition" />
+  </article>
+</Layout>

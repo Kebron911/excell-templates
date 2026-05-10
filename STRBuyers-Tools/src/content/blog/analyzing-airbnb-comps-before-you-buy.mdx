@@ -1,0 +1,113 @@
+---
+title: "How to Analyze Airbnb Comps Before You Buy"
+slug: "analyzing-airbnb-comps-before-you-buy"
+description: "Three listings is not a comp analysis. The five filters that separate a defensible STR comp set from cherry-picked optimism — plus the underwriting math."
+datePublished: "2026-05-09"
+category: "underwriting"
+relatedTool: "/comp-analyzer"
+affiliateVendors: ["airdna", "mashvisor", "pricelabs"]
+readingTimeMin: 9
+keyTakeaway: "Pull 15–25 active Airbnb comps in the same submarket with matching bedrooms, baths, capacity, and amenities. Compute median, P25, and P75 RevPAR (revenue per available night). Underwrite the deal at the P25 case — not the median, not the cherry-picked top three. Filter out any comp with under 18 months of operating history."
+relatedPosts:
+  - "cash-on-cash-return-good-numbers-for-strs"
+  - "reading-an-str-ordinance-before-you-buy"
+  - "year-1-airbnb-startup-costs"
+faqs:
+  - q: "How many comps do I need for a defensible Airbnb analysis?"
+    a: "Fifteen to twenty-five active listings in the same submarket, matching bedroom count, bathroom count, sleeping capacity, and amenities tier. Three listings is anecdote, not data — the selection bias from picking three top performers will overstate ADR by 15–40% versus a properly-sized comp set."
+  - q: "What's the difference between ADR and RevPAR for an STR?"
+    a: "ADR (average daily rate) is the booked nightly rate — what guests pay per night they actually stay. RevPAR (revenue per available night) is ADR multiplied by occupancy, so it measures actual nightly earnings across booked and unbooked nights. RevPAR is the more useful underwriting number because it reflects both pricing and demand."
+  - q: "Where do I get historical Airbnb data for comp analysis?"
+    a: "AirDNA, Mashvisor, and PriceLabs are the three most commonly used STR data providers. AirDNA has the broadest market coverage; PriceLabs is integrated with dynamic pricing; Mashvisor is friendlier for buyers comparing markets. Free Airbnb scraping works for a single deal but is slow and biased toward currently-bookable listings."
+  - q: "Why should I underwrite at the P25 RevPAR scenario?"
+    a: "If your deal only pencils at median or P75 RevPAR, you're betting on average-or-better performance in a market where 25% of operators do worse than that. STR cash flows have high variance — when you miss your number, you miss it badly. Conservative underwriting (P25) builds in margin for execution and seasonality risk."
+  - q: "Should I use comp listings that opened in the last 6 months?"
+    a: "No. New STR listings typically take 4–8 months to ramp to stabilized occupancy. Their TTM revenue understates their mature potential. Filter to listings with at least 18 months of operating history; if your submarket doesn't have 15+ such listings, the submarket itself is unproven and that's a separate risk."
+---
+
+Three listings does not make a comp analysis. Neither does an AirDNA market overview. The reason most STR pro formas blow up at month six is that the comp work upstream was lazy — the buyer pattern-matched to the best listings in the market, not the average ones, and underwrote the deal to a number that only the top quartile actually hits.
+
+Here's the comp methodology I use before I'll let an offer go out.
+
+## Start with the right comp set, not the best one
+
+The fundamental error: you go on Airbnb, you find three listings that look like the property you're buying, and you average their nightly rate. The selection bias is built in — you found three listings that are *currently bookable*, which means they're already filtered for being competitive enough to show up on the first page in your test search.
+
+A defensible comp set:
+
+- **15–25 listings minimum.** Three is anecdote, not data.
+- **Same submarket** — not just same city. A 20-minute drive in a destination market is a totally different demand zone.
+- **Same bedroom count.** A 3BR doesn't comp to a 4BR. Period.
+- **Similar bathroom count and sleeping capacity.** A 3BR/2BA sleeping 8 comps very differently from a 3BR/2BA sleeping 6.
+- **Similar amenities tier.** Hot tub, pool, EV charger, view — these create huge ADR delta.
+- **Filter for active listings only** — drop ones that haven't been booked in 90 days. They're either priced wrong or have a problem.
+
+This is where AirDNA, Mashvisor, and PriceLabs earn their subscription cost. The free path — manually searching Airbnb and reading reviews — is doable for a single deal, but slow and prone to bias. The paid tools give you historical RevPAR, not just current ADR.
+
+## The five filters that matter
+
+For each candidate comp, run it against these five filters:
+
+**1. Match the unit** — bedrooms, bathrooms, sleeping capacity, square footage tier (S/M/L). A 1,200 sq ft 3BR doesn't compete with a 2,400 sq ft 3BR.
+
+**2. Match the location** — same neighborhood, similar walkability, similar distance to the primary demand driver (beach, downtown, ski slopes, theme park).
+
+**3. Match the amenities** — hot tub, pool, fenced yard, view, parking, dedicated workspace. These shift ADR by 10–40% individually.
+
+**4. Match the operator quality** — listings with 4.9+ stars and Superhost status routinely earn 15–25% premium ADR over comparable 4.6-star listings. If your comp set is heavy in 4.95-star Superhost properties, you're underwriting the operator, not the asset.
+
+**5. Match the seasonality profile** — was the comp's last 12 months a normal year? An Olympic year, a hurricane year, a SXSW-pulled-out-of-Austin year, a regulatory-overhang year? Don't pull a comp's TTM as your forward expectation if the year had a one-off.
+
+## The math you should actually run
+
+For each comp, capture:
+
+- **ADR** — average daily rate (booked nights only)
+- **Occupancy** — % of available nights booked
+- **RevPAR** — ADR × occupancy. This is the single most useful number.
+- **Trailing 12-month gross revenue**
+- **Cleaning fee** (informational; not part of revenue for your purposes)
+
+Then compute the comp set as:
+
+```
+Median RevPAR (not average — average gets distorted by one outlier)
+P25 RevPAR (your conservative case)
+P75 RevPAR (your optimistic case)
+```
+
+When you underwrite the deal, run three scenarios:
+
+- **Conservative:** P25 RevPAR × 365
+- **Base case:** Median RevPAR × 365
+- **Aspirational:** P75 RevPAR × 365
+
+The deal should pencil at conservative. If it only pencils at aspirational, you're buying optimism, not an investment.
+
+Drop your comps into the [comp analyzer](/comp-analyzer) for a side-by-side breakdown.
+
+## The "seasoned year" test
+
+A common comp trap: pulling comps that opened in the last 6 months. A new STR listing typically takes 4–8 months to ramp to stabilized occupancy. Booking algorithms reward listings with reviews and history, and your comp's TTM revenue may dramatically understate its mature potential — or, worse, dramatically overstate it if the operator opened during a peak season and hasn't seen a slow shoulder yet.
+
+Filter your comp set to listings with at least **18 months of operating history**. If the submarket doesn't have 15+ such listings, the submarket itself is unproven, and that's a separate risk you need to price.
+
+## The regulation gut-check
+
+A listing's TTM revenue is irrelevant if the property's STR license is non-transferable, or if the city is mid-ordinance-revision, or if the HOA has a pending CC&R amendment. Before you trust any comp:
+
+1. Verify the **listing has a current, valid STR license** (most cities publish a public registry).
+2. Verify the **license type is transferable** to a new owner.
+3. Read the **most recent ordinance amendments** — not the version from 2022.
+4. Check the **HOA documents** if applicable.
+
+Run the [market score](/market-score) on your target city — it'll surface the regulation status before you commit.
+
+## Pitfalls
+
+- **Cherry-picking the top three listings.** Selection bias kills more STR deals than bad rates.
+- **Confusing "listed nightly rate" with "achieved ADR".** A property listed at $450/night that's only booking at $350 is a $350 comp, not a $450 comp. Use achieved data.
+- **Ignoring cleaning fees in the guest economics.** Your ADR comp is fine, but a $250 cleaning fee on a 2-night stay is a 30%+ surcharge, and high-cleaning-fee listings book at lower rates than their headline ADR suggests.
+- **Underwriting against next year's comps.** Comps are backwards-looking. If the city is approving 200 new STR licenses next quarter, your comp set is about to change.
+
+A good comp analysis takes a few hours per deal. A bad one costs you the deal.
