@@ -1,0 +1,20 @@
+# STR cluster — pnpm workspace declaration
+#
+# STATUS: Stub. Per-tool dev still uses `cd <Tool> && pnpm install`.
+# Do not run `pnpm install` from the repo root yet — it will try to
+# consolidate the four per-tool lockfiles into a single root lockfile,
+# which we are not ready for (Astro version skew between STROps@4.x and
+# the others@6.x must be resolved first; see docs/CONTRIBUTING.md).
+#
+# Once the shared `@str/common` package lands and Astro versions converge,
+# uncomment the `packages:` block below and migrate to a single lockfile.
+
+packages:
+  # - "STRBuyers-Tools"
+  # - "STRGuests-Tools"
+  # - "STRHost-Tools"
+  # - "STROps-Tools"
+  # - "packages/*"
+
+# When you do enable workspaces, also align packageManager across all
+# package.json files (currently: STROps@pnpm@10.0.0, others@pnpm@9.6.0).

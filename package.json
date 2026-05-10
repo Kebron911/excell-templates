@@ -1,0 +1,33 @@
+{
+  "name": "str-cluster",
+  "version": "0.0.0",
+  "private": true,
+  "description": "STR tool cluster monorepo — strbuyers.tools, strhost.tools, strops.tools, strguests.tools, and The STR Ledger (Excel-Templates).",
+  "scripts": {
+    "buyers:dev": "pnpm --dir STRBuyers-Tools dev",
+    "buyers:build": "pnpm --dir STRBuyers-Tools build",
+    "buyers:test": "pnpm --dir STRBuyers-Tools test",
+    "buyers:typecheck": "pnpm --dir STRBuyers-Tools typecheck",
+    "guests:dev": "pnpm --dir STRGuests-Tools dev",
+    "guests:build": "pnpm --dir STRGuests-Tools build",
+    "guests:test": "pnpm --dir STRGuests-Tools test",
+    "guests:typecheck": "pnpm --dir STRGuests-Tools typecheck",
+    "host:dev": "pnpm --dir STRHost-Tools dev",
+    "host:build": "pnpm --dir STRHost-Tools build",
+    "host:test": "pnpm --dir STRHost-Tools test",
+    "host:typecheck": "pnpm --dir STRHost-Tools typecheck",
+    "ops:dev": "pnpm --dir STROps-Tools dev",
+    "ops:build": "pnpm --dir STROps-Tools build",
+    "ops:test": "pnpm --dir STROps-Tools test",
+    "ops:typecheck": "pnpm --dir STROps-Tools typecheck",
+    "all:install": "pnpm --dir STRBuyers-Tools install && pnpm --dir STRGuests-Tools install && pnpm --dir STRHost-Tools install && pnpm --dir STROps-Tools install",
+    "all:typecheck": "pnpm --dir STRBuyers-Tools typecheck && pnpm --dir STRGuests-Tools typecheck && pnpm --dir STRHost-Tools typecheck && pnpm --dir STROps-Tools typecheck",
+    "all:test": "pnpm --dir STRBuyers-Tools test && pnpm --dir STRGuests-Tools test && pnpm --dir STRHost-Tools test && pnpm --dir STROps-Tools test",
+    "all:build": "pnpm --dir STRBuyers-Tools build && pnpm --dir STRGuests-Tools build && pnpm --dir STRHost-Tools build && pnpm --dir STROps-Tools build"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.6.0"
+  },
+  "packageManager": "pnpm@9.6.0"
+}
