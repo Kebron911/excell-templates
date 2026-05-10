@@ -3,7 +3,12 @@ import Layout from '@/layouts/Layout.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
-import { orgJsonLd, articleJsonLd } from '@lib/seo';
+import {
+  orgJsonLd,
+  blogPostingJsonLd,
+  breadcrumbJsonLd,
+  faqJsonLd,
+} from '@lib/seo';
 import tools from '@data/tools.json';
 import { getCollection } from 'astro:content';
 
@@ -26,7 +31,7 @@ export async function getStaticPaths() {
 
 const { post, newer, older } = Astro.props;
 const slug = post.id.replace(/\.mdx?$/, '');
-const { Content } = await post.render();
+const { Content, headings, remarkPluginFrontmatter } = await post.render();
 
 const toolMap = tools as Record<string, ToolEntry>;
 const related = (post.data.relatedTools ?? [])
@@ -38,6 +43,7 @@ const navLink = (p: typeof newer) =>
     slug: p.id.replace(/\.mdx?$/, ''),
     title: p.data.title,
     readMinutes: p.data.readMinutes,
+    description: p.data.description,
   };
 const newerLink = navLink(newer);
 const olderLink = navLink(older);
@@ -61,55 +67,148 @@ const formatDate = (iso: string) =>
   });
 
 const url = `https://strops.tools/blog/${slug}`;
-const articleLd = {
-  ...articleJsonLd({
-    headline: post.data.title,
-    url,
-    datePublished: post.data.datePublished,
-    dateModified: post.data.dateModified ?? post.data.datePublished,
-  }),
+const ogImagePath = post.data.ogImage ?? `/og/blog-${slug}.png`;
+const ogImageAbs = `https://strops.tools${ogImagePath}`;
+const dateModified = post.data.dateModified ?? post.data.datePublished;
+const wordCount = (remarkPluginFrontmatter as { wordCount?: number } | undefined)?.wordCount;
+
+const breadcrumbs = [
+  { name: 'Home', url: 'https://strops.tools/' },
+  { name: 'Blog', url: 'https://strops.tools/blog' },
+  { name: post.data.title, url },
+];
+
+const articleLd = blogPostingJsonLd({
+  headline: post.data.title,
   description: post.data.description,
-  author: { '@type': 'Person', name: post.data.author },
-  publisher: orgJsonLd(),
-};
+  url,
+  slug,
+  image: ogImageAbs,
+  datePublished: post.data.datePublished,
+  dateModified,
+  authorName: post.data.author,
+  section: categoryLabels[post.data.category] ?? post.data.category,
+  keywords: post.data.keywords,
+  wordCount,
+});
+
+const jsonLdBlocks: object[] = [
+  orgJsonLd(),
+  articleLd,
+  breadcrumbJsonLd(breadcrumbs),
+];
+if (post.data.faq?.length) {
+  jsonLdBlocks.push(faqJsonLd(post.data.faq));
+}
+
+// TOC: limit to depth 2 (H2 only) to avoid noise.
+const toc = (headings ?? []).filter((h: { depth: number }) => h.depth === 2);
 ---
 <Layout
   title={`${post.data.title} — strops.tools`}
   description={post.data.description}
   canonical={url}
-  ogImage="/og/blog.png"
+  ogImage={ogImagePath}
+  ogType="article"
+  publishedTime={`${post.data.datePublished}T12:00:00Z`}
+  modifiedTime={`${dateModified}T12:00:00Z`}
+  author={post.data.author}
+  articleSection={categoryLabels[post.data.category] ?? post.data.category}
 >
   <Fragment slot="head">
-    <JsonLd data={articleLd} />
+    <JsonLd data={jsonLdBlocks} />
+    <link rel="alternate" type="application/rss+xml" title="strops.tools" href="/feed.xml" />
   </Fragment>
 
-  <article class="bg-parchment">
-    <header class="mx-auto max-w-3xl px-6 pt-12 pb-6">
-      <p class="text-xs uppercase tracking-widest text-accent">
-        <a href="/blog" class="no-underline hover:text-accent-deep">← Back to all posts</a>
-      </p>
+  <article class="bg-parchment" itemscope itemtype="https://schema.org/BlogPosting">
+    <meta itemprop="datePublished" content={post.data.datePublished} />
+    <meta itemprop="dateModified" content={dateModified} />
+    <meta itemprop="author" content={post.data.author} />
 
-      <div class="mt-3 flex items-center gap-3 text-xs text-ink3">
+    <nav aria-label="Breadcrumb" class="mx-auto max-w-3xl px-6 pt-8 text-xs text-ink3">
+      <ol class="flex flex-wrap items-center gap-2">
+        <li><a href="/" class="hover:text-ink2 no-underline">Home</a></li>
+        <li aria-hidden="true">›</li>
+        <li><a href="/blog" class="hover:text-ink2 no-underline">Blog</a></li>
+        <li aria-hidden="true">›</li>
+        <li class="text-ink2 truncate max-w-[60ch]">{post.data.title}</li>
+      </ol>
+    </nav>
+
+    <header class="mx-auto max-w-3xl px-6 pt-6 pb-6">
+      <div class="flex items-center gap-3 text-xs text-ink3">
         <span class="text-label uppercase tracking-widest text-accent">
           {categoryLabels[post.data.category] ?? post.data.category}
         </span>
         <span aria-hidden="true">·</span>
-        <time datetime={post.data.datePublished} class="font-mono">
+        <time datetime={post.data.datePublished} class="font-mono" itemprop="datePublished">
           {formatDate(post.data.datePublished)}
         </time>
+        {post.data.dateModified && post.data.dateModified !== post.data.datePublished && (
+          <>
+            <span aria-hidden="true">·</span>
+            <span class="font-mono">Updated {formatDate(post.data.dateModified)}</span>
+          </>
+        )}
         <span aria-hidden="true">·</span>
         <span class="font-mono">{post.data.readMinutes} min read</span>
       </div>
 
-      <h1 class="display mt-3 text-4xl md:text-5xl leading-tight">
+      <h1 class="display mt-3 text-4xl md:text-5xl leading-tight" itemprop="headline">
         {post.data.title}
       </h1>
-      <p class="lead mt-4 text-lg text-ink2">{post.data.description}</p>
+      <p class="lead mt-4 text-lg text-ink2" itemprop="description">{post.data.description}</p>
+      <p class="mt-3 text-xs text-ink3">
+        By <span itemprop="author">{post.data.author}</span>
+      </p>
     </header>
 
-    <div class="mx-auto max-w-3xl px-6 prose">
+    {post.data.keyTakeaways.length > 0 && (
+      <aside
+        class="mx-auto max-w-3xl px-6 mb-6"
+        aria-label="Key takeaways"
+      >
+        <div class="border-l-2 border-accent bg-parchment-alt p-5">
+          <p class="text-label uppercase tracking-widest text-accent mb-2">Key takeaways</p>
+          <ul class="list-disc pl-5 space-y-1 text-ink2 text-sm leading-snug">
+            {post.data.keyTakeaways.map((t: string) => <li>{t}</li>)}
+          </ul>
+        </div>
+      </aside>
+    )}
+
+    {toc.length > 2 && (
+      <aside class="mx-auto max-w-3xl px-6 mb-6" aria-label="Table of contents">
+        <details class="border border-rule bg-parchment-alt p-5">
+          <summary class="cursor-pointer text-label uppercase tracking-widest text-ink3">
+            On this page
+          </summary>
+          <ol class="mt-3 space-y-1 text-sm text-ink2 list-decimal pl-5">
+            {toc.map((h: { slug: string; text: string }) => (
+              <li><a href={`#${h.slug}`} class="no-underline hover:underline">{h.text}</a></li>
+            ))}
+          </ol>
+        </details>
+      </aside>
+    )}
+
+    <div class="mx-auto max-w-3xl px-6 prose" itemprop="articleBody">
       <Content />
     </div>
+
+    {post.data.faq.length > 0 && (
+      <section class="mx-auto max-w-3xl px-6 mt-10" aria-labelledby="faq-heading">
+        <h2 id="faq-heading" class="display text-3xl mb-4">Frequently asked questions</h2>
+        <div class="space-y-3">
+          {post.data.faq.map((f: { q: string; a: string }) => (
+            <details class="border border-rule bg-parchment-alt p-4">
+              <summary class="cursor-pointer font-semibold text-navy">{f.q}</summary>
+              <p class="mt-2 text-ink2 text-sm leading-relaxed">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    )}
 
     {related.length > 0 && (
       <div class="mx-auto max-w-3xl px-6 mt-10">
@@ -120,6 +219,7 @@ const articleLd = {
               <a
                 href={`/${t.slug}`}
                 class="group block border border-rule bg-parchment-alt p-4 no-underline hover:border-accent transition-colors duration-200"
+                rel="related"
               >
                 <p class="font-semibold text-navy leading-snug">{t.title}</p>
                 <p class="mt-1 text-sm text-ink2 leading-snug">{t.blurb}</p>
@@ -146,9 +246,11 @@ const articleLd = {
             <a
               href={`/blog/${newerLink.slug}`}
               class="group block border border-rule bg-parchment-alt p-4 no-underline hover:border-accent transition-colors duration-200"
+              rel="prev"
             >
               <p class="text-xs text-accent">← Newer</p>
               <p class="mt-1 font-semibold text-navy leading-snug">{newerLink.title}</p>
+              <p class="mt-1 text-xs text-ink2 line-clamp-2">{newerLink.description}</p>
               <p class="mt-2 text-xs text-ink3 font-mono">{newerLink.readMinutes} min read</p>
             </a>
           ) : <span aria-hidden="true" />}
@@ -156,9 +258,11 @@ const articleLd = {
             <a
               href={`/blog/${olderLink.slug}`}
               class="group block border border-rule bg-parchment-alt p-4 no-underline hover:border-accent transition-colors duration-200 md:text-right"
+              rel="next"
             >
               <p class="text-xs text-accent">Older →</p>
               <p class="mt-1 font-semibold text-navy leading-snug">{olderLink.title}</p>
+              <p class="mt-1 text-xs text-ink2 line-clamp-2">{olderLink.description}</p>
               <p class="mt-2 text-xs text-ink3 font-mono">{olderLink.readMinutes} min read</p>
             </a>
           ) : <span aria-hidden="true" />}
@@ -170,6 +274,12 @@ const articleLd = {
 
 <style>
   .text-navy { color: var(--brand-navy); }
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
   .prose :global(h2) {
     font-family: var(--font-display);
     font-size: var(--t-h2-size);
@@ -177,6 +287,7 @@ const articleLd = {
     margin-top: var(--sp-7);
     margin-bottom: var(--sp-3);
     line-height: 1.15;
+    scroll-margin-top: var(--sp-7);
   }
   .prose :global(h3) {
     font-family: var(--font-display);
@@ -184,6 +295,7 @@ const articleLd = {
     color: var(--brand-navy);
     margin-top: var(--sp-5);
     margin-bottom: var(--sp-2);
+    scroll-margin-top: var(--sp-7);
   }
   .prose :global(p) {
     color: var(--fg-1);
