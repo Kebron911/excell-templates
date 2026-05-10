@@ -33,7 +33,8 @@ const tiles: Tile[] = [
   { href: '/check/seo',             title: 'SEO',               desc: 'GSC impressions/clicks/position + CWV.' },
   { href: '/check/audits',          title: 'Site audits',       desc: 'Meta · schema · sitemap · broken links.' },
   { href: '/check/money',           title: 'Money (operational)', desc: 'Yesterday/week/MTD revenue + burn ratio.' },
-  { href: '/check/links',           title: 'Link health',       desc: 'Cross-site CTA audit.', disabled: true },
+  { href: '/check/links',           title: 'Link health',       desc: 'Cross-cluster link audit — every dist/ HTML walked.' },
+  { href: '/check/cluster/smoke',   title: 'Live cluster smoke', desc: 'Runs each site\'s scripts/smoke.mjs against prod (slow).' },
   { href: '/check/kill-sku',        title: 'Kill-SKU candidates', desc: 'CVR<1% · 0 sales 90d.', disabled: true },
 ];
 ---

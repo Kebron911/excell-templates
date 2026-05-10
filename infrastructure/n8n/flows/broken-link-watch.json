@@ -1,0 +1,54 @@
+{
+  "name": "broken-link-watch",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 4 * * 0" }] }
+      },
+      "id": "cron",
+      "name": "Sunday 04:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cd {{ $env.EMPIRE_REPO_PATH }}/tools/empire-console && pnpm tsx -e \"import {readLinkHealth} from './src/lib/data/link-health.ts'; const r = await readLinkHealth(); const broken = r.links.filter(l=>!l.resolved); console.log(JSON.stringify({total: r.totals.total, resolved: r.totals.resolved, broken: r.totals.broken, sample: broken.slice(0,10)}));\""
+      },
+      "id": "exec",
+      "name": "Run link checker",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "let report;\ntry { report = JSON.parse(($input.item.json.stdout || '').trim().split('\\n').filter(l=>l.startsWith('{')).pop() || '{}'); }\ncatch { return []; }\nif (!report.broken || report.broken === 0) return [];\nconst lines = (report.sample || []).map(l => `• ${l.fromSite}${l.fromPath} → ${l.href}`);\nreturn [{ json: {\n  priority: 'P1',\n  source: 'broken-link-watch',\n  message: `${report.broken} broken cross-cluster link${report.broken===1?'':'s'} (of ${report.total}):\\n${lines.join('\\n')}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/links'\n}}];"
+      },
+      "id": "decide",
+      "name": "Decide alert",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": {
+        "source": "parameter",
+        "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID"
+      },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "Sunday 04:00":      { "main": [[{ "node": "Run link checker", "type": "main", "index": 0 }]] },
+    "Run link checker":  { "main": [[{ "node": "Decide alert",      "type": "main", "index": 0 }]] },
+    "Decide alert":      { "main": [[{ "node": "→ telegram-router", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P1" }]
+}

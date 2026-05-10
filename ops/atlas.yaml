@@ -85,6 +85,9 @@ sections:
           - { name: PROGRESS browser,             url: /today/progress,                     kind: internal, note: "phase-by-phase" }
           - { name: Catalog (per-SKU browser),    url: /check/catalog,                      kind: internal, note: "65 SKUs" }
           - { name: Cluster blog index,           url: /check/cluster/blog,                 kind: internal }
+          - { name: Cluster live smoke,           url: /check/cluster/smoke,                kind: internal, note: "runs each scripts/smoke.mjs" }
+          - { name: Link health (cross-cluster),  url: /check/links,                        kind: internal }
+          - { name: Releases (per-SKU VERSION),   url: /maintain/releases,                  kind: internal }
           - { name: Copy library,                 url: /promote/copy,                       kind: internal }
           - { name: Atomization decks,            url: /promote/atomization,                kind: internal }
           - { name: Email sequences,              url: /promote/email-sequences,            kind: internal }

@@ -1,0 +1,99 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readLinkHealth } from '@/lib/data/link-health';
+
+const r = await readLinkHealth();
+const broken = r.links.filter((l) => !l.resolved);
+---
+<Layout title="Link health" section="check">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Link health</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Cross-cluster link audit — every <code>https://strX.tools/Y</code> in built HTML must
+        resolve to a real file in the target site's <code>dist/</code>.
+      </p>
+    </div>
+    <span class:list={['badge', r.totals.broken > 0 ? 'badge-p0' : 'badge-ok']}>
+      {r.totals.broken} broken
+    </span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3">
+    <Scorecard label="Cross-site links" value={r.totals.total} />
+    <Scorecard label="Resolved" value={r.totals.resolved} tone="ok" />
+    <Scorecard label="Broken" value={r.totals.broken}
+               tone={r.totals.broken > 0 ? 'bad' : 'ok'}
+               tier={r.totals.broken > 0 ? 'critical' : 'normal'} />
+  </section>
+
+  {r.totals.total === 0 ? (
+    <EmptyState
+      title="No cross-site links found"
+      body="Either no sites are built, or no cross-cluster links exist (no funnel band yet)."
+    />
+  ) : (
+    <>
+      <section class="mb-8">
+        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+          By target site
+        </h2>
+        <div class="card">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b text-left text-xs uppercase tracking-wide"
+                  style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+                <th class="py-2">Target</th>
+                <th class="text-right">Resolved</th>
+                <th class="text-right">Broken</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(r.byTargetSite).sort(([a], [b]) => a.localeCompare(b)).map(([id, c]) => (
+                <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                  <td class="py-2 font-medium">{id}</td>
+                  <td class="text-right font-mono">{c.resolved}</td>
+                  <td class="text-right font-mono"
+                      style={c.broken > 0 ? 'color: rgb(var(--c-bad))' : ''}>{c.broken}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {broken.length > 0 && (
+        <section>
+          <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-bad))">
+            Broken cross-site links ({broken.length})
+          </h2>
+          <ul class="space-y-2">
+            {broken.slice(0, 50).map((l) => (
+              <li class="card card-tight card-critical">
+                <div class="flex items-baseline justify-between gap-3">
+                  <div class="min-w-0 flex-1">
+                    <code class="text-xs">{l.fromSite}{l.fromPath}</code>
+                    <span class="mx-2" style="color: rgb(var(--c-muted))">→</span>
+                    <code class="text-xs">{l.href}</code>
+                  </div>
+                  <span class="badge badge-p0 shrink-0">404</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {broken.length > 50 && (
+            <p class="mt-2 text-xs" style="color: rgb(var(--c-muted))">
+              Showing 50 of {broken.length} broken. Fix top of list first.
+            </p>
+          )}
+        </section>
+      )}
+    </>
+  )}
+
+  <SourceFooter source="STR{Guests,Host,Ops,Buyers}-Tools/dist/ + thestrledger.com/dist/"
+                lastRefresh={new Date()} />
+</Layout>

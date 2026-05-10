@@ -10,7 +10,9 @@ const allOk = sites.every((s) => s.status === 'ok');
     <div>
       <h1 class="font-display text-3xl font-semibold">Cluster status</h1>
       <p class="text-sm" style="color: rgb(var(--c-muted))">
-        4 sister sites · filesystem-only check (Phase 1) · HTTP smoke lands in Phase 2.
+        4 sister sites · filesystem-only check.
+        Live HTTP smoke at <a href="/check/cluster/smoke">/check/cluster/smoke</a> ·
+        blog index at <a href="/check/cluster/blog">/check/cluster/blog</a>.
       </p>
     </div>
     <span class:list={['badge', allOk ? 'badge-ok' : 'badge-p1']}>

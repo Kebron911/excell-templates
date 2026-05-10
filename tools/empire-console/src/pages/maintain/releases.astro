@@ -1,0 +1,94 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readReleases } from '@/lib/data/releases';
+import { formatDate } from '@/lib/format';
+
+const r = await readReleases();
+---
+<Layout title="Releases" section="maintain">
+  <header class="mb-6">
+    <h1 class="font-display text-3xl font-semibold">Releases</h1>
+    <p class="text-sm" style="color: rgb(var(--c-muted))">
+      Per-SKU version tracking. PROGRESS §P8.1 W-update workflow: bump <code>VERSION</code> →
+      n8n emails prior buyers + updates Etsy listing files + writes <code>update-shipped:&lt;sku&gt;:&lt;version&gt;</code> tag.
+    </p>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3">
+    <Scorecard label="Total SKUs" value={r.versions.length} />
+    <Scorecard label="With VERSION" value={r.totalWithVersion} tone="ok" />
+    <Scorecard label="Missing VERSION" value={r.totalMissingVersion}
+               tone={r.totalMissingVersion > 0 ? 'warn' : 'ok'}
+               hint="add VERSION file to start versioning" />
+  </section>
+
+  {r.versions.length === 0 ? (
+    <EmptyState title="No SKU delivery folders" body="Expected templates/_delivery/<sku>-<slug>/" />
+  ) : (
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b text-left text-xs uppercase tracking-wide"
+            style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+          <th class="py-2">SKU</th>
+          <th>Version</th>
+          <th>Release notes</th>
+          <th class="text-right">Last bumped</th>
+          <th class="text-right">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {r.versions.map((v) => (
+          <tr class="border-b" style="border-color: rgb(var(--c-border))">
+            <td class="py-3 font-mono">{v.sku}</td>
+            <td>
+              {v.version
+                ? <span class="badge badge-ok">{v.version}</span>
+                : <span class="badge badge-p2">untagged</span>}
+            </td>
+            <td class="text-xs" style="color: rgb(var(--c-muted))">
+              {v.releaseNotesPath ? <code>{v.releaseNotesPath}</code> : '—'}
+            </td>
+            <td class="text-right font-mono text-xs">
+              {v.lastBumped ? formatDate(v.lastBumped) : '—'}
+            </td>
+            <td class="text-right">
+              {v.version && (
+                <button type="button"
+                        class="rounded border px-2 py-1 text-xs"
+                        style="border-color: rgb(var(--c-border)); color: rgb(var(--c-muted))"
+                        data-sku={v.sku}
+                        data-version={v.version}
+                        data-action="ship-update"
+                        disabled
+                        title="Phase 4 — n8n release-shipped flow not yet active">
+                  Ship update
+                </button>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+
+  <section class="mt-8 card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      W-update pipeline (Phase 4)
+    </h3>
+    <ol class="space-y-1 text-sm list-decimal pl-5">
+      <li>Edit <code>templates/_delivery/&lt;sku&gt;-&lt;slug&gt;/VERSION</code> → bump version (e.g. v1.0.1)</li>
+      <li>Write <code>release-notes.md</code> in the same folder describing the change</li>
+      <li>Click <strong>Ship update</strong> here → POST to n8n <code>release-shipped</code> webhook</li>
+      <li>n8n: updates Etsy listing files via API · emails prior buyers via IS · writes <code>update-shipped:&lt;sku&gt;:&lt;version&gt;</code> tag</li>
+      <li>P1 confirmation Telegram on success</li>
+    </ol>
+    <p class="mt-3 text-xs" style="color: rgb(var(--c-muted))">
+      Currently the button is disabled. Phase 4 wires <code>infrastructure/n8n/flows/release-shipped.json</code>.
+    </p>
+  </section>
+
+  <SourceFooter source="templates/_delivery/<sku>/VERSION + release-notes.md" lastRefresh={new Date()} />
+</Layout>

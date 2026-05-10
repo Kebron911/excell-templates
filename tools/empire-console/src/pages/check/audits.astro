@@ -1,105 +1,127 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
 import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readAudits, STALE_SITEMAP_HOURS_THRESHOLD } from '@/lib/data/audits';
 
-// Phase 2 — wired when audits.ts walks dist/ across the cluster.
-// Until then, render the layout with placeholder zeros so the route exists.
-const stub = {
-  totals: {
-    pages: 0,
-    missingTitle: 0,
-    missingMeta: 0,
-    missingSchema: 0,
-    invalidSchema: 0,
-    brokenInternal: 0,
-    brokenExternal: 0,
-    sitemapStaleHours: 0,
-  },
-  bySite: [
-    { id: 'thestrledger', name: 'thestrledger.com', issues: 0, sitemapAgeHours: null as number | null },
-    { id: 'strguests',    name: 'strguests.tools',  issues: 0, sitemapAgeHours: null },
-    { id: 'strhost',      name: 'strhost.tools',    issues: 0, sitemapAgeHours: null },
-    { id: 'strops',       name: 'strops.tools',     issues: 0, sitemapAgeHours: null },
-    { id: 'strbuyers',    name: 'strbuyers.tools',  issues: 0, sitemapAgeHours: null },
-  ],
-};
-const totalIssues =
-  stub.totals.missingTitle + stub.totals.missingMeta +
-  stub.totals.missingSchema + stub.totals.invalidSchema +
-  stub.totals.brokenInternal + stub.totals.brokenExternal;
+const r = await readAudits();
+const overallTone =
+  r.totals.brokenInternal > 0 || r.totals.sitemapMissingCount > 0 ? 'bad' :
+  r.totals.missingTitle > 0 || r.totals.missingMetaDescription > 0 ? 'warn' : 'ok';
 ---
-<Layout title="Check · Site audits" section="check">
+<Layout title="Site audits" section="check">
   <header class="mb-6 flex items-baseline justify-between">
     <div>
       <h1 class="font-display text-3xl font-semibold">Site audits</h1>
       <p class="text-sm" style="color: rgb(var(--c-muted))">
-        Filesystem walk of each <code>dist/</code> — title/meta/schema/sitemap/links.
-        Phase 2 wires the live scanner.
+        Filesystem scan of each cluster site's <code>dist/</code> for SEO + structural issues.
+        Phase 2 — runs without network.
       </p>
     </div>
-    <span class:list={['badge', totalIssues === 0 ? 'badge-ok' : 'badge-p1']}>
-      Phase 2 stub
+    <span class:list={['badge', `badge-${overallTone === 'bad' ? 'p0' : overallTone === 'warn' ? 'p1' : 'ok'}`]}>
+      {overallTone === 'ok' ? 'all green' : overallTone === 'warn' ? 'attention' : 'critical'}
     </span>
   </header>
 
   <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-    <Scorecard label="Pages scanned" value={stub.totals.pages} />
-    <Scorecard label="Missing &lt;title&gt;" value={stub.totals.missingTitle}
-               tone={stub.totals.missingTitle > 0 ? 'bad' : 'ok'} />
-    <Scorecard label="Missing meta desc" value={stub.totals.missingMeta}
-               tone={stub.totals.missingMeta > 0 ? 'warn' : 'ok'} />
-    <Scorecard label="Schema issues"
-               value={stub.totals.missingSchema + stub.totals.invalidSchema}
-               tone={(stub.totals.missingSchema + stub.totals.invalidSchema) > 0 ? 'warn' : 'ok'} />
-    <Scorecard label="Broken internal" value={stub.totals.brokenInternal}
-               tone={stub.totals.brokenInternal > 0 ? 'bad' : 'ok'} />
-    <Scorecard label="Broken external" value={stub.totals.brokenExternal}
-               tone={stub.totals.brokenExternal > 0 ? 'warn' : 'ok'} />
-    <Scorecard label="Sitemap age (h)"
-               value={stub.totals.sitemapStaleHours.toFixed(0)}
-               tone={stub.totals.sitemapStaleHours > 168 ? 'bad' : 'ok'}
+    <Scorecard label="Pages scanned" value={r.totals.pages} />
+    <Scorecard label="Broken internal" value={r.totals.brokenInternal}
+               tone={r.totals.brokenInternal > 0 ? 'bad' : 'ok'}
+               tier={r.totals.brokenInternal > 0 ? 'critical' : 'normal'} />
+    <Scorecard label="Missing title" value={r.totals.missingTitle}
+               tone={r.totals.missingTitle > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Missing meta desc" value={r.totals.missingMetaDescription}
+               tone={r.totals.missingMetaDescription > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Missing JSON-LD" value={r.totals.missingJsonLd}
+               tone={r.totals.missingJsonLd > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Missing OG image" value={r.totals.missingOgImage}
+               tone={r.totals.missingOgImage > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Sitemaps missing" value={r.totals.sitemapMissingCount}
+               tone={r.totals.sitemapMissingCount > 0 ? 'bad' : 'ok'} />
+    <Scorecard label="Worst sitemap age"
+               value={r.totals.sitemapStaleHours ? `${r.totals.sitemapStaleHours.toFixed(0)}h` : '—'}
+               tone={r.totals.sitemapStaleHours > STALE_SITEMAP_HOURS_THRESHOLD ? 'bad' : 'ok'}
                hint=">168h fires P0" />
   </section>
 
-  <section class="mb-8">
-    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
-      Per site
-    </h2>
+  {r.sites.every((s) => !s.hasDist) ? (
+    <EmptyState
+      title="No dist/ folders found"
+      body="Each cluster site needs to be built (pnpm build) before audits can run."
+    />
+  ) : (
     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-      {stub.bySite.map((s) => (
-        <div class="card">
-          <div class="flex items-baseline justify-between">
-            <h3 class="font-display text-xl font-semibold">{s.name}</h3>
-            <span class:list={['badge', s.issues === 0 ? 'badge-ok' : 'badge-p1']}>
-              {s.issues === 0 ? 'clean' : `${s.issues} issues`}
-            </span>
+      {r.sites.map((site) => {
+        const issues = site.missingTitle + site.missingMetaDescription + site.missingJsonLd
+                     + site.missingOgImage + site.brokenInternal;
+        const sitemapStale = site.sitemapAgeHours !== null && site.sitemapAgeHours > STALE_SITEMAP_HOURS_THRESHOLD;
+        const tone = !site.hasDist ? 'bad' : issues > 0 || sitemapStale ? 'warn' : 'ok';
+        return (
+          <div class={`card ${tone === 'bad' ? 'card-critical' : tone === 'warn' ? 'card-notable' : ''}`}>
+            <div class="flex items-baseline justify-between">
+              <h3 class="font-display text-xl font-semibold">{site.name}</h3>
+              <span class:list={['badge', tone === 'bad' ? 'badge-p0' : tone === 'warn' ? 'badge-p1' : 'badge-ok']}>
+                {!site.hasDist ? 'unbuilt' : `${site.pagesScanned} pages`}
+              </span>
+            </div>
+            {site.hasDist ? (
+              <dl class="mt-3 grid grid-cols-2 gap-2 text-sm">
+                <dt style="color: rgb(var(--c-muted))">Pages</dt>
+                <dd class="text-right font-mono">{site.pagesScanned}</dd>
+                <dt style="color: rgb(var(--c-muted))">Missing &lt;title&gt;</dt>
+                <dd class="text-right font-mono">{site.missingTitle}</dd>
+                <dt style="color: rgb(var(--c-muted))">Missing meta desc</dt>
+                <dd class="text-right font-mono">{site.missingMetaDescription}</dd>
+                <dt style="color: rgb(var(--c-muted))">Missing JSON-LD</dt>
+                <dd class="text-right font-mono">{site.missingJsonLd}</dd>
+                <dt style="color: rgb(var(--c-muted))">Missing OG image</dt>
+                <dd class="text-right font-mono">{site.missingOgImage}</dd>
+                <dt style="color: rgb(var(--c-muted))">Broken internal links</dt>
+                <dd class="text-right font-mono"
+                    style={site.brokenInternal > 0 ? 'color: rgb(var(--c-bad))' : ''}>
+                  {site.brokenInternal}
+                </dd>
+                <dt style="color: rgb(var(--c-muted))">Sitemap</dt>
+                <dd class="text-right font-mono">
+                  {site.sitemapFound
+                    ? `${site.sitemapAgeHours?.toFixed(0)}h old`
+                    : <span style="color: rgb(var(--c-bad))">missing</span>}
+                </dd>
+                <dt style="color: rgb(var(--c-muted))">robots.txt</dt>
+                <dd class="text-right">{site.robotsFound ? '✓' : '✗'}</dd>
+              </dl>
+            ) : (
+              <p class="mt-3 text-sm" style="color: rgb(var(--c-muted))">
+                Build with <code>pnpm build</code> in <code>{site.id}/</code>.
+              </p>
+            )}
+            {site.brokenInternal > 0 && (
+              <details class="mt-3">
+                <summary class="cursor-pointer text-xs" style="color: rgb(var(--c-bad))">
+                  Show broken links (first 10)
+                </summary>
+                <ul class="mt-2 space-y-1 text-xs font-mono">
+                  {site.pageIssues
+                    .filter((p) => p.brokenInternalLinks.length > 0)
+                    .slice(0, 10)
+                    .map((p) => (
+                      <li>
+                        <strong>{p.path}</strong>
+                        <ul class="ml-3 mt-1">
+                          {p.brokenInternalLinks.slice(0, 3).map((l) => <li>→ {l}</li>)}
+                        </ul>
+                      </li>
+                    ))}
+                </ul>
+              </details>
+            )}
           </div>
-          <dl class="mt-3 grid grid-cols-2 gap-2 text-sm">
-            <dt style="color: rgb(var(--c-muted))">issues</dt>
-            <dd class="text-right font-mono">{s.issues}</dd>
-            <dt style="color: rgb(var(--c-muted))">sitemap age</dt>
-            <dd class="text-right font-mono">{s.sitemapAgeHours === null ? '—' : `${s.sitemapAgeHours.toFixed(0)}h`}</dd>
-          </dl>
-        </div>
-      ))}
+        );
+      })}
     </div>
-  </section>
+  )}
 
-  <section class="card" style="background: rgb(var(--c-surface-2))">
-    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
-      What gets checked
-    </h3>
-    <ul class="space-y-1 text-sm">
-      <li>• Every page has a non-empty <code>&lt;title&gt;</code> (≤60 chars) and <code>&lt;meta name="description"&gt;</code> (≤160 chars).</li>
-      <li>• JSON-LD structured data present + valid (Article / Product / FAQ schemas).</li>
-      <li>• Internal links resolve to a built page (no 404 from build artifacts).</li>
-      <li>• Sitemap.xml exists, validates, and <code>&lt;lastmod&gt;</code> is ≤7 days old per cluster site.</li>
-      <li>• robots.txt allows the right paths and references the sitemap.</li>
-      <li>• Open Graph image present per page, dimensions ≥1200×630.</li>
-    </ul>
-    <p class="mt-3 text-sm" style="color: rgb(var(--c-muted))">
-      Sitemap stale &gt;7d fires <strong>P0</strong> — almost always means the build is broken.
-      Other issues fire <strong>P1</strong> weekly digest.
-    </p>
-  </section>
+  <SourceFooter source="STR{Guests,Host,Ops,Buyers}-Tools/dist/" lastRefresh={new Date()}
+                notes={`scans up to 200 pages per site; sitemap stale at >${STALE_SITEMAP_HOURS_THRESHOLD}h`} />
 </Layout>
