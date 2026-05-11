@@ -35,11 +35,19 @@ jobs:
         with:
           node-version: '22'
           cache: 'pnpm'
-          cache-dependency-path: STRGuests-Tools/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
-      - name: Install
-        working-directory: STRGuests-Tools
+      - name: Install (root workspace)
+        # STRGuests imports from @str/seo, @str/format, @str/email-gate
+        # (shared workspace packages). Workspace install builds the
+        # symlinks from STRGuests-Tools/node_modules/@str/* to packages/*.
         run: pnpm install --frozen-lockfile
+
+      - name: Build shared packages
+        # Compiles packages/seo, format, email-gate, url-state to their
+        # dist/ folders. STRGuests's astro build resolves @str/* to those
+        # dist files via main/exports declared in each package's package.json.
+        run: pnpm -r --filter "./packages/*" build
 
       - name: Typecheck
         working-directory: STRGuests-Tools

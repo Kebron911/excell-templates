@@ -8,13 +8,14 @@ import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import AiRateLimitNotice from '@/components/generator/AiRateLimitNotice.astro';
 import ReviewResponseGenerator from '@/components/generators/ReviewResponseGenerator.tsx';
-import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import { buildWebApplication, buildFAQPage } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
 
 const tool = tools['review-response'];
 const path = tool.path;
 
-const webApp = buildWebApplication({ name: tool.name, description: tool.tagline, toolPath: path });
+const webApp = buildWebApplication(siteConfig, { name: tool.name, description: tool.tagline, toolPath: path });
 const faq = buildFAQPage([
   {
     question: 'Does the bad-review response sound defensive?',
