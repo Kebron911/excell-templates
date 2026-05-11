@@ -661,6 +661,8 @@ export async function postEmail(email: string, magnet: string, toolSlug: string)
 
 ---
 
+> **✅ SHIPPED 2026-05-11.** Implemented per spec — no divergence. See `STRGuests-Tools/.planning/STATE.md` Phase 3 Decisions log for the full record.
+
 ## Task 16: OpenAI client wrapper (TDD)
 
 **Files:**
@@ -710,6 +712,8 @@ export async function generate(input: GenerateInput): Promise<GenerateOutput> {
 
 ---
 
+> **✅ SHIPPED 2026-05-11.** Divergence from this section: token shape is nonce-only on the wire (32 hex chars), with server-side HMAC-SHA256(email||nonce, secret) stored as `token_hash` per the existing schema. Adds `server/lib/verified-cookie.ts` (signed cookie consumed by rate-limit middleware) and `server/lib/mailer.ts` (console/webhook provider). See STATE.md Phase 3 Decisions.
+
 ## Task 17: Email verification flow (token-based)
 
 **Files:**
@@ -725,6 +729,8 @@ Token-based: user submits email → server generates 64-char token, stores `emai
 - [ ] **Step 4:** Commit — `feat: email verification flow`
 
 ---
+
+> **✅ SHIPPED 2026-05-11. Diverged from the code block in this section.** The plan's SQL referenced columns `(scope, identifier, used_at)` that do not exist in the migrated schema. Rewrote against the actual schema `(ip_hash, email, tool_slug, bucket, count, window_start)` using `INSERT … ON DUPLICATE KEY UPDATE` for atomic increments, plus a `peek()` read-only counterpart used by `/api/rate-limit-status`. See STATE.md Phase 3 Decisions Conflict 2.
 
 ## Task 18: Rate-limit middleware (TDD)
 
@@ -801,6 +807,8 @@ export function rateLimitMiddleware(tool: string) {
 - [ ] **Step 3:** Commit — `feat: rate-limit middleware with IP/email scopes`
 
 ---
+
+> **✅ SHIPPED 2026-05-11. Diverged from this section.** Page filename: `src/pages/listing-description.astro` (matching `tools.json` and existing `Header.astro` / `STRLedgerCTA.astro` references), NOT `listing-description-generator.astro` as written below. The endpoint compose folds OpenAI call + generation_logs INSERT into `server/lib/openai-log.ts` so handlers stay short. UI uses the shared `AiGeneratorShell.tsx`. `generation_logs` SQL uses the existing schema columns (`tool_slug`, `model`, `prompt_tokens`, `completion_tokens`, `prompt_hash`, `latency_ms`), not the plan's `tool` / `tokens_used`. See STATE.md Phase 3 Decisions Conflict 1+2.
 
 ## Task 19: `/api/generate-listing` endpoint + UI
 
@@ -890,6 +898,8 @@ export const generateListingHandler = [
 
 ---
 
+> **✅ SHIPPED 2026-05-11.** Page filename: `src/pages/review-response.astro` (per tools.json). Reuses `AiGeneratorShell.tsx`. Star-variant prompts enforce: bad-review responses lead with empathy and propose a concrete remedy with no defensive language — verified in `tests/server/generators.test.ts`.
+
 ## Task 20: `/api/generate-review` endpoint + UI
 
 **Files:**
@@ -905,6 +915,8 @@ Same shape as Task 19. Prompt accepts review-rating toggle (5★/4★/bad-review
 Commit: `feat: review response generator (AI)`
 
 ---
+
+> **✅ SHIPPED 2026-05-11.** Page filename: `src/pages/guest-messages.astro` (per tools.json) — the path was `/guest-messages` not `/message-template-generator`. Stage × tone matrix is 4 × 3 = 12 variants; output uses `{{guestFirstName}}` + `{{propertyName}}` placeholders the host swaps per booking.
 
 ## Task 21: `/api/generate-message` endpoint + UI
 

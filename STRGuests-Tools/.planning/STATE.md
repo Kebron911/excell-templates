@@ -1,8 +1,8 @@
 # STATE
 
-**Current phase:** 6 — Analytics + E2E + CI/CD + deploy (complete; Phase 3 still deferred — blocked on OPENAI_API_KEY)
-**Current task:** None — v0.1.0 shipped at tag `strguests-tools-v0.1.0`
-**Last update:** 2026-05-08
+**Current phase:** 3 complete — all 6 phases shipped.
+**Current task:** None — v0.2.0 ready to tag (Phase 3 AI generators landed 2026-05-11).
+**Last update:** 2026-05-11
 
 ---
 
@@ -27,14 +27,16 @@
 - [x] Task 14 — Check-in instructions PDF (multi-page + image upload)
 - [x] Task 15 — Soft email-gate module (extracted shared logic)
 
-## Phase 3 progress (deferred — blocked on OPENAI_API_KEY)
+## Phase 3 progress (complete — 2026-05-11)
 
-- [ ] Task 16 — OpenAI client wrapper (TDD) — **blocked on OPENAI_API_KEY**
-- [ ] Task 17 — Email verification flow
-- [ ] Task 18 — Rate-limit middleware
-- [ ] Task 19 — Listing description generator (endpoint + UI)
-- [ ] Task 20 — Review response generator (endpoint + UI)
-- [ ] Task 21 — Message template generator (endpoint + UI)
+- [x] Task 16 — OpenAI client wrapper (TDD) — `server/lib/openai-client.ts` + 8 tests
+- [x] Task 17 — Email verification flow — HMAC tokens, signed cookie, console/webhook mailer, 10 tests
+- [x] Task 18 — Rate-limit middleware — sliding-window UPSERT against existing schema, 8 tests
+- [x] Task 19 — Listing description generator — endpoint + AiGeneratorShell + Astro page
+- [x] Task 20 — Review response generator — endpoint + island + Astro page (5★/4★/bad variants)
+- [x] Task 21 — Message template generator — endpoint + island + Astro page (4 stages × 3 tones)
+
+Bonus: `GET /api/rate-limit-status` (peek-only) added because the Phase-1 AiRateLimitNotice front-end was stubbed waiting for it.
 
 ## Phase 4 progress (complete — 2026-05-06)
 
@@ -116,37 +118,50 @@
 - **Email-gate module extracted as PURE logic** (no DOM in `email-gate.ts`). Modal markup stays in `PdfDownloadButton.astro`; only the post + dismissal flag + email validator are shared.
 - **Per-toolSlug session dismissal.** A visitor dismissing the house-rules modal still sees it on welcome-book — different magnets, different reasons to capture.
 
+### Phase 3
+- **Conflict 1 (resolved) — page filenames.** Master plan said `listing-description-generator.astro`, `review-response-generator.astro`, `message-template-generator.astro`. Existing `src/data/tools.json` already declared the three AI tools with paths `/listing-description`, `/review-response`, `/guest-messages`, and `Header.astro` + `STRLedgerCTA.astro` + Phase-1 blog posts already deep-link those paths. Honored the deployed paths over the plan filenames.
+- **Conflict 2 (resolved) — schema mismatch.** Master plan's Task 18 SQL used columns `(scope, identifier, used_at)` that do not exist; the migrated schema is `(ip_hash, email, tool_slug, bucket, count, window_start)` — a sliding-window-counter design, not a per-call insert. Same mismatch on `generation_logs`. Rewrote both against the existing schema with a single `INSERT … ON DUPLICATE KEY UPDATE` UPSERT keyed on `(ip_hash, tool_slug, bucket, window_start)`. **No new migration shipped** — the deployed Hostinger DB needed nothing.
+- **AiGeneratorShell pattern.** The three "same shape" generators share `AiGeneratorShell.tsx` so Task 20 + Task 21 are ~80 LOC islands defining only form fields + endpoint. The plan suggested per-tool components from scratch; the shared shell collapses ~600 LOC of duplication.
+- **`generateAndLog` writes BOTH ok and openai-error rows.** Failed OpenAI calls insert a `status='openai_error'` row in `generation_logs` so cost / abuse dashboards see the full call surface, not just successes. Token counts are 0 on the error row.
+- **`peek()` added to rate-limit.** Read-only counterpart to `consume()` so the front-end can render "N of M remaining" without spending a generation. Wired into `/api/rate-limit-status`.
+- **Mailer is console-by-default.** `EMAIL_PROVIDER` env defaults to `'console'` (logs the verify link). Set to `'webhook'` for ESP delivery via `PUBLIC_ESP_WEBHOOK`. Production-grade SMTP/Postmark/Resend wiring is a one-branch addition to `server/lib/mailer.ts`.
+- **Verified-email cookie is stateless.** `sg-verified-email=email.hmac(email, secret)` — rate-limit middleware reads it without a DB hit. Same secret as the email-verify tokens; rotation is single-point.
+
 ## Deviations log
 
-_None._ Phase 1 and Phase 2 followed the plan verbatim with the option-1 API adaptation noted above.
+_None._ Phase 1 and Phase 2 followed the plan verbatim with the option-1 API adaptation noted above. Phase 3 conflicts above are resolved divergences, documented in commit messages.
 
-## Open questions blocking Phase 3 / Phase 5
+## Open questions
 
-- **OpenAI API key** — required for Task 16 (OpenAI client wrapper). Hard blocker on Phase 3. Spec also notes Claude (claude-haiku-4-5) as a potentially cheaper alternative — open question to resolve before Task 16 starts.
-- **MySQL on Hostinger Business** — Task 10 schema is in place but `pnpm db:migrate` against a real Hostinger Business MySQL instance is unverified. Must confirm sufficient connection-pool quota before Phase 3 server deploy.
+- **MySQL on Hostinger Business** — Task 10 schema is in place but `pnpm db:migrate` against a real Hostinger Business MySQL instance is unverified. Must confirm sufficient connection-pool quota before exposing the AI generators to public traffic.
+- **Production ESP wiring** — `EMAIL_PROVIDER` is `console` today. Decide between webhook ESP (Postmark / Resend / Mailgun) vs direct SMTP before launch.
+- **Pinterest account / API credentials** — Phase 5 Task 25 + 26 still depend on a real Pinterest account + image upload endpoint for dynamic pin handoff.
 - **Cleaner SOP / welcome book master content authorship** — Phase 5 Task 27 lead-magnet PDF question. Self-authored vs Daniel vs AI draft.
-- **PDF co-branding default** — should `brandFooter:true` stay the default forever, or should we offer a UI toggle? Open product question — default stays for now.
-- **Pinterest account / API credentials** — Phase 5 Task 25 (pin generator) and Task 26 (button wiring) depend on a real Pinterest account + image upload endpoint.
+- **PDF co-branding default** — should `brandFooter:true` stay the default forever, or should we offer a UI toggle?
 
 ## Cluster sequencing
 
 Per the strategic build order: strhost.tools first (✅ Phase 6 complete), **strguests.tools second (Phase 1 ✅, Phase 2 ✅)**, strops.tools third, strbuyers.tools fourth.
 
-## Phase 1 + 2 verification (run before Phase 3)
+## Phase 3 verification (run before tagging v0.2.0)
 
 ```bash
 pnpm install
 pnpm typecheck    # astro check + tsc + server tsconfig — zero errors
-pnpm test         # vitest: format, url-state, pdf/base, pdf/house-rules,
-                  #         pdf/welcome-book, pdf/wifi-sign, pdf/checkin,
-                  #         email-gate, server/db
+pnpm test         # vitest: 164 passing, 1 skipped across 15 files
+pnpm build        # 45 pages + 9 pins + 44 OGs
 pnpm dev &        # Astro on :4321
 pnpm server:dev & # Express on :3001
-curl http://localhost:3001/api/health    # {"status":"ok",...}
+curl http://localhost:3001/api/health
+curl "http://localhost:3001/api/rate-limit-status?tool=listing-description"
 ```
 
 Visit each generator page in dev:
-- `/house-rules-pdf` — checkbox toggle + custom rules + download
-- `/welcome-book` — 5-section toggle + multi-page nav preview
-- `/wifi-sign` — 3-template radio + live QR preview
-- `/check-in-instructions` — image upload + multi-page nav preview
+- `/house-rules-pdf` — checkbox toggle + custom rules + download (Phase 2)
+- `/welcome-book` — 5-section toggle + multi-page nav preview (Phase 2)
+- `/wifi-sign` — 3-template radio + live QR preview (Phase 2)
+- `/check-in-instructions` — image upload + multi-page nav preview (Phase 2)
+- `/listing-description` — form + AI output + Copy + Regenerate (Phase 3)
+- `/review-response` — 5★/4★/bad variants + Copy (Phase 3)
+- `/guest-messages` — 4 stages × 3 tones (Phase 3)
+- `/verified` — confirmation landing after `/api/verify-email/confirm`
