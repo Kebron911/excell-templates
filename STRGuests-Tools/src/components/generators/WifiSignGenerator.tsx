@@ -107,7 +107,7 @@ export default function WifiSignGenerator() {
             <p className="label text-ink-2">WI-FI</p>
             {input.houseName && <p className="mt-3 font-serif italic text-graphite text-[18px]">{input.houseName}</p>}
             <div className="mt-7 mx-auto" style={{ width: 180, height: 180 }}>
-              {qrDataUrl ? <img src={qrDataUrl} alt="Wi-Fi QR" className="w-full h-full" /> : <PlaceholderQr />}
+              {qrDataUrl ? <img src={qrDataUrl} alt="Wi-Fi QR" className="w-full h-full" width={180} height={180} /> : <PlaceholderQr />}
             </div>
             <p className="label mt-7 text-ink-2">NETWORK</p>
             <p className="font-mono font-bold text-navy text-[18px]">{input.ssid}</p>
@@ -124,7 +124,7 @@ export default function WifiSignGenerator() {
             <hr className="accent-rule mx-auto mt-3" />
             <p className="mt-3 font-serif italic text-graphite text-[16px]">Get connected</p>
             <div className="mt-5 mx-auto" style={{ width: 168, height: 168 }}>
-              {qrDataUrl ? <img src={qrDataUrl} alt="Wi-Fi QR" className="w-full h-full" /> : <PlaceholderQr />}
+              {qrDataUrl ? <img src={qrDataUrl} alt="Wi-Fi QR" className="w-full h-full" width={168} height={168} /> : <PlaceholderQr />}
             </div>
             <div className="mt-7 mx-auto max-w-md rounded-md border border-[color:var(--accent-500)] bg-parchment p-4 text-left">
               <p className="label text-ink-2">NETWORK</p>
@@ -141,7 +141,7 @@ export default function WifiSignGenerator() {
             <p className="font-bold text-[color:var(--accent-500)] text-[22px]">WI-FI'S OVER HERE →</p>
             {input.houseName && <p className="mt-2 font-serif italic text-ink-2 text-small">{input.houseName}</p>}
             <div className="mt-3 mx-auto" style={{ width: 240, height: 240 }}>
-              {qrDataUrl ? <img src={qrDataUrl} alt="Wi-Fi QR" className="w-full h-full" /> : <PlaceholderQr />}
+              {qrDataUrl ? <img src={qrDataUrl} alt="Wi-Fi QR" className="w-full h-full" width={240} height={240} /> : <PlaceholderQr />}
             </div>
             <p className="mt-5 font-serif italic text-ink-2">or type:</p>
             <p className="mt-1 font-mono font-bold text-navy text-[16px]">{input.ssid}</p>

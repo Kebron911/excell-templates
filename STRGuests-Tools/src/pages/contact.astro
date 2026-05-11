@@ -1,9 +1,11 @@
----
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+﻿---
+import Layout from '@/components/AppLayout.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import { siteConfig } from '@/data/site.config';
 ---
 <Layout
-  title="Contact — strguests.tools"
+  siteConfig={siteConfig}
+  title="Contact â€” strguests.tools"
   description="Bug reports, feature requests, and partnership inquiries for strguests.tools. We read every message."
   path="/contact"
 >
@@ -14,7 +16,7 @@ import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
         hello@strguests.tools<span class="period-accent">.</span>
       </h1>
       <p class="mt-3 text-lead text-ink-2 max-w-2xl leading-snug">
-        Bug reports, feature requests, partnership inquiries — we read every
+        Bug reports, feature requests, partnership inquiries â€” we read every
         message. We don't promise instant replies, but we promise a real one.
       </p>
     </header>
@@ -42,7 +44,7 @@ import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
         <div>
           <dt class="font-serif text-h3 text-navy">Template suggestions</dt>
           <dd class="mt-1 text-body text-graphite leading-relaxed">
-            We add 5–10 new templates per month. If there's a guest scenario
+            We add 5â€“10 new templates per month. If there's a guest scenario
             we don't cover, send us the situation + the message you actually
             sent. Good submissions get credited in the template's MDX
             narrative.
@@ -68,5 +70,5 @@ import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
     </section>
   </article>
 
-  <ClusterFunnelBlock currentCluster="guest-xp" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
 </Layout>

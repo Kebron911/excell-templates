@@ -1,8 +1,9 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@/components/AppLayout.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
 import { getCollection } from 'astro:content';
 
@@ -36,6 +37,7 @@ const categoryLabels: Record<string, string> = {
 ---
 
 <Layout
+  siteConfig={siteConfig}
   title="STR Guests Tools — Free generators for hosts to delight guests"
   description="Seven free generators for Airbnb and Vrbo hosts: house rules, welcome books, wifi signs, check-in PDFs, AI listing descriptions, review responses, and message templates. Plus a 26-template Airbnb message library. No signup."
   path="/"
@@ -225,6 +227,7 @@ const categoryLabels: Record<string, string> = {
   <section class="bg-parchment-light border-t border-rule">
     <div class="mx-auto max-w-6xl px-5 py-9">
       <EmailCaptureCard
+        siteConfig={siteConfig}
         magnet="message-template-bundle"
         toolSlug="landing"
         headline="Get the full Guest Message Template Pack"
@@ -237,9 +240,9 @@ const categoryLabels: Record<string, string> = {
   {/* STR Ledger funnel */}
   <section class="bg-parchment border-t border-rule">
     <div class="mx-auto max-w-6xl px-5 py-9">
-      <STRLedgerCTA tool="welcome-book" />
+      <STRLedgerCTA siteConfig={siteConfig} tool="welcome-book" />
     </div>
   </section>
 
-  <ClusterFunnelBlock currentCluster="guest-xp" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
 </Layout>

@@ -1,13 +1,13 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import Sidebar from '@/components/chrome/Sidebar.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@/components/AppLayout.astro';
+import Sidebar from '@/components/AppSidebar.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import PdfDownloadButton from '@/components/generator/PdfDownloadButton.astro';
 import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import WifiSignGenerator from '@/components/generators/WifiSignGenerator.tsx';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
@@ -41,6 +41,7 @@ const faq = buildFAQPage([
 ]);
 ---
 <Layout
+  siteConfig={siteConfig}
   title={`${tool.name} — strguests.tools`}
   description={tool.tagline}
   path={path}
@@ -72,7 +73,7 @@ const faq = buildFAQPage([
       <PinterestPinButton toolSlug="wifi-sign" description="Free Airbnb wifi sign template — printable QR + credentials" />
     </div>
 
-    <AdSlot location="in-content" />
+    <AdSlot siteConfig={siteConfig} location="in-content" />
 
     <section class="mt-9 prose">
       <h2 class="font-serif text-h2 text-navy">The first thing every guest does</h2>
@@ -96,6 +97,7 @@ const faq = buildFAQPage([
     <RelatedPosts toolKey="wifi-sign" />
 
     <EmailCaptureCard
+      siteConfig={siteConfig}
       magnet="wifi-sign"
       toolSlug="wifi-sign"
       headline="Get the printable Cluster Pack"
@@ -127,12 +129,12 @@ const faq = buildFAQPage([
       </dl>
     </section>
 
-    <STRLedgerCTA tool="wifi-sign" />
+    <STRLedgerCTA siteConfig={siteConfig} tool="wifi-sign" />
 
-    <AdSlot location="footer" />
+    <AdSlot siteConfig={siteConfig} location="footer" />
 
-    <Sidebar current="wifi-sign" />
+    <Sidebar siteConfig={siteConfig} current="wifi-sign" />
   </article>
 
-  <ClusterFunnelBlock currentCluster="guest-xp" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
 </Layout>

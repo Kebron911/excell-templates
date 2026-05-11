@@ -1,25 +1,27 @@
----
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+﻿---
+import Layout from '@/components/AppLayout.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
 
 const toolsList = Object.values(tools);
 const pdfTools = toolsList.filter((t: any) => t.kind === 'pdf');
 ---
 <Layout
-  title="Page not found — strguests.tools"
+  siteConfig={siteConfig}
+  title="Page not found â€” strguests.tools"
   description="The page you're looking for doesn't exist. Try a free generator, browse the 26-template Airbnb message library, or grab the Pinterest pin pack."
   path="/404"
 >
   <section class="bg-parchment">
     <div class="mx-auto max-w-3xl px-5 pt-12 pb-9">
-      <p class="label text-[color:var(--accent-700)]">404 — Page not found</p>
+      <p class="label text-[color:var(--accent-700)]">404 â€” Page not found</p>
       <h1 class="mt-3 text-h1 font-serif text-navy max-w-2xl leading-tight">
         That page doesn't exist<span class="period-accent">.</span>
       </h1>
       <p class="mt-4 text-lead text-ink-2 max-w-2xl">
         The URL you followed is broken or the page has moved. Here are the
-        most useful entry points on strguests.tools — pick the one you
+        most useful entry points on strguests.tools â€” pick the one you
         came in for.
       </p>
     </div>
@@ -40,7 +42,7 @@ const pdfTools = toolsList.filter((t: any) => t.kind === 'pdf');
               <p class="mt-2 text-small text-ink-2 leading-snug">{t.tagline}</p>
               <p class="mt-4 text-caption text-[color:var(--accent-700)] group-hover:text-[color:var(--accent-500)] flex items-center gap-1">
                 Open
-                <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+                <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">â†’</span>
               </p>
             </a>
           </li>
@@ -59,10 +61,10 @@ const pdfTools = toolsList.filter((t: any) => t.kind === 'pdf');
           <p class="label text-[color:var(--accent-700)]">Library</p>
           <p class="mt-2 font-serif text-h3 text-navy leading-snug">26 message templates</p>
           <p class="mt-2 text-small text-ink-2 leading-snug">
-            Searchable, filterable — pre-arrival, problem-resolution, cancellations, anniversaries.
+            Searchable, filterable â€” pre-arrival, problem-resolution, cancellations, anniversaries.
           </p>
           <p class="mt-4 text-caption text-[color:var(--accent-700)] group-hover:text-[color:var(--accent-500)]">
-            Browse <span aria-hidden="true">→</span>
+            Browse <span aria-hidden="true">â†’</span>
           </p>
         </a>
         <a
@@ -72,10 +74,10 @@ const pdfTools = toolsList.filter((t: any) => t.kind === 'pdf');
           <p class="label text-[color:var(--accent-700)]">Lead magnet</p>
           <p class="mt-2 font-serif text-h3 text-navy leading-snug">Free template pack</p>
           <p class="mt-2 text-small text-ink-2 leading-snug">
-            Editable bundle of all 26 templates — sent the day the AI generator ships.
+            Editable bundle of all 26 templates â€” sent the day the AI generator ships.
           </p>
           <p class="mt-4 text-caption text-[color:var(--accent-700)] group-hover:text-[color:var(--accent-500)]">
-            Get the pack <span aria-hidden="true">→</span>
+            Get the pack <span aria-hidden="true">â†’</span>
           </p>
         </a>
         <a
@@ -85,10 +87,10 @@ const pdfTools = toolsList.filter((t: any) => t.kind === 'pdf');
           <p class="label text-[color:var(--accent-700)]">From the notebook</p>
           <p class="mt-2 font-serif text-h3 text-navy leading-snug">Field-tested guides</p>
           <p class="mt-2 text-small text-ink-2 leading-snug">
-            House rules, welcome books, review responses, message cadence — by hosts, for hosts.
+            House rules, welcome books, review responses, message cadence â€” by hosts, for hosts.
           </p>
           <p class="mt-4 text-caption text-[color:var(--accent-700)] group-hover:text-[color:var(--accent-500)]">
-            Read the blog <span aria-hidden="true">→</span>
+            Read the blog <span aria-hidden="true">â†’</span>
           </p>
         </a>
       </div>
@@ -104,5 +106,5 @@ const pdfTools = toolsList.filter((t: any) => t.kind === 'pdf');
     </div>
   </section>
 
-  <ClusterFunnelBlock currentCluster="guest-xp" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
 </Layout>

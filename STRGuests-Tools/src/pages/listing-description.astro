@@ -1,11 +1,11 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import Sidebar from '@/components/chrome/Sidebar.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@/components/AppLayout.astro';
+import Sidebar from '@/components/AppSidebar.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import AiRateLimitNotice from '@/components/generator/AiRateLimitNotice.astro';
 import ListingDescriptionGenerator from '@/components/generators/ListingDescriptionGenerator.tsx';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
@@ -32,6 +32,7 @@ const faq = buildFAQPage([
 ]);
 ---
 <Layout
+  siteConfig={siteConfig}
   title={`${tool.name} — strguests.tools`}
   description={tool.tagline}
   path={path}
@@ -54,7 +55,7 @@ const faq = buildFAQPage([
       <ListingDescriptionGenerator client:load />
     </section>
 
-    <AdSlot location="in-content" />
+    <AdSlot siteConfig={siteConfig} location="in-content" />
 
     <section class="mt-9 prose">
       <h2 class="font-serif text-h2 text-navy">Why structured fields beat freeform prompts</h2>
@@ -66,6 +67,7 @@ const faq = buildFAQPage([
     <RelatedPosts toolKey="listing-description" />
 
     <EmailCaptureCard
+      siteConfig={siteConfig}
       magnet="listing-description"
       toolSlug="listing-description"
       headline="Want 50 generations/day instead of 5/hour?"
@@ -73,12 +75,12 @@ const faq = buildFAQPage([
       cta="Send the verify link"
     />
 
-    <STRLedgerCTA tool="listing-description" />
+    <STRLedgerCTA siteConfig={siteConfig} tool="listing-description" />
 
-    <AdSlot location="footer" />
+    <AdSlot siteConfig={siteConfig} location="footer" />
 
-    <Sidebar current="listing-description" />
+    <Sidebar siteConfig={siteConfig} current="listing-description" />
   </article>
 
-  <ClusterFunnelBlock currentCluster="guest-xp" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
 </Layout>

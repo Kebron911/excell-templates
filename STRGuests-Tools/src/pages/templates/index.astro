@@ -1,10 +1,10 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@/components/AppLayout.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import TemplateIndex from '@/components/templates/TemplateIndex.tsx';
 import { buildWebApplication, buildItemList, buildBreadcrumb } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
@@ -50,6 +50,7 @@ const breadcrumbLd = buildBreadcrumb(siteConfig, [
 ]);
 ---
 <Layout
+  siteConfig={siteConfig}
   title="Airbnb Message Templates — strguests.tools"
   description="26 hand-written Airbnb host message templates across 10 scenario categories. Searchable, filterable, with example inputs and outputs."
   path={path}
@@ -76,7 +77,7 @@ const breadcrumbLd = buildBreadcrumb(siteConfig, [
       />
     </section>
 
-    <AdSlot location="in-content" />
+    <AdSlot siteConfig={siteConfig} location="in-content" />
 
     <section class="mt-9 prose">
       <h2 class="font-serif text-h2 text-navy">Why these templates work</h2>
@@ -98,6 +99,7 @@ const breadcrumbLd = buildBreadcrumb(siteConfig, [
     <RelatedPosts toolKey="guest-messages" variant="section" />
 
     <EmailCaptureCard
+      siteConfig={siteConfig}
       magnet="message-template-bundle"
       toolSlug="guest-messages"
       headline="Get the full Guest Message Template Pack"
@@ -105,10 +107,10 @@ const breadcrumbLd = buildBreadcrumb(siteConfig, [
       cta="Email me the template pack"
     />
 
-    <STRLedgerCTA tool="guest-messages" />
+    <STRLedgerCTA siteConfig={siteConfig} tool="guest-messages" />
 
-    <AdSlot location="footer" />
+    <AdSlot siteConfig={siteConfig} location="footer" />
   </article>
 
-  <ClusterFunnelBlock currentCluster="guest-xp" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
 </Layout>

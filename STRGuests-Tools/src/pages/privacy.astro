@@ -1,11 +1,13 @@
----
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+﻿---
+import Layout from '@/components/AppLayout.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import { siteConfig } from '@/data/site.config';
 
 const today = new Date().toISOString().slice(0, 10);
 ---
 <Layout
-  title="Privacy — strguests.tools"
+  siteConfig={siteConfig}
+  title="Privacy â€” strguests.tools"
   description="How strguests.tools handles email addresses, analytics, and the soft-gate lead-magnet flow. Plain English, short."
   path="/privacy"
 >
@@ -26,9 +28,9 @@ const today = new Date().toISOString().slice(0, 10);
         tools and the optional lead-magnet email follow-ups.
       </p>
       <ul class="mt-3 text-body text-graphite leading-relaxed list-disc pl-5">
-        <li><strong class="text-navy">Email address</strong> — only when you submit one through the soft email gate or a newsletter signup. Stored with our email provider and used to send the requested template pack or notification.</li>
-        <li><strong class="text-navy">Analytics</strong> — Google Analytics 4 records anonymized pageviews and aggregated tool usage. No personally identifying information is sent.</li>
-        <li><strong class="text-navy">PDF inputs</strong> — values you type into a generator never leave your browser. PDF generation runs entirely client-side via pdf-lib.</li>
+        <li><strong class="text-navy">Email address</strong> â€” only when you submit one through the soft email gate or a newsletter signup. Stored with our email provider and used to send the requested template pack or notification.</li>
+        <li><strong class="text-navy">Analytics</strong> â€” Google Analytics 4 records anonymized pageviews and aggregated tool usage. No personally identifying information is sent.</li>
+        <li><strong class="text-navy">PDF inputs</strong> â€” values you type into a generator never leave your browser. PDF generation runs entirely client-side via pdf-lib.</li>
       </ul>
     </section>
 
@@ -50,5 +52,5 @@ const today = new Date().toISOString().slice(0, 10);
     </section>
   </article>
 
-  <ClusterFunnelBlock currentCluster="guest-xp" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
 </Layout>

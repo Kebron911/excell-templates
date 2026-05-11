@@ -1,13 +1,13 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import Sidebar from '@/components/chrome/Sidebar.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@/components/AppLayout.astro';
+import Sidebar from '@/components/AppSidebar.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import PdfDownloadButton from '@/components/generator/PdfDownloadButton.astro';
 import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import HouseRulesGenerator from '@/components/generators/HouseRulesGenerator.tsx';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
@@ -45,6 +45,7 @@ const faq = buildFAQPage([
 ]);
 ---
 <Layout
+  siteConfig={siteConfig}
   title={`${tool.name} — strguests.tools`}
   description={tool.tagline}
   path={path}
@@ -76,7 +77,7 @@ const faq = buildFAQPage([
       <PinterestPinButton toolSlug="house-rules-pdf" description="Free Airbnb house rules PDF generator" />
     </div>
 
-    <AdSlot location="in-content" />
+    <AdSlot siteConfig={siteConfig} location="in-content" />
 
     <section class="mt-9 prose">
       <h2 class="font-serif text-h2 text-navy">Why house rules belong in writing</h2>
@@ -101,6 +102,7 @@ const faq = buildFAQPage([
     <RelatedPosts toolKey="house-rules-pdf" />
 
     <EmailCaptureCard
+      siteConfig={siteConfig}
       magnet="house-rules-pdf"
       toolSlug="house-rules-pdf"
       headline="Free Welcome Book master template — coming next"
@@ -134,12 +136,12 @@ const faq = buildFAQPage([
       </dl>
     </section>
 
-    <STRLedgerCTA tool="house-rules-pdf" />
+    <STRLedgerCTA siteConfig={siteConfig} tool="house-rules-pdf" />
 
-    <AdSlot location="footer" />
+    <AdSlot siteConfig={siteConfig} location="footer" />
 
-    <Sidebar current="house-rules-pdf" />
+    <Sidebar siteConfig={siteConfig} current="house-rules-pdf" />
   </article>
 
-  <ClusterFunnelBlock currentCluster="guest-xp" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
 </Layout>
