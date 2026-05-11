@@ -1,0 +1,75 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import { buildWebSite } from '@/lib/seo';
+
+const cards = [
+  { href: '/products/',                  title: 'Workbooks',          blurb: 'Excel + PDF templates for tax, ops, pricing, acquisition. 60+ SKUs.' },
+  { href: '/free/47-deductions/',        title: 'Free 47-deductions PDF', blurb: 'The deductions most STR hosts miss. Email-gated, instant download.' },
+  { href: '/blog/',                      title: 'Blog',                blurb: 'Long-form notes from operators running real portfolios.' },
+  { href: 'https://strhost.tools',       title: 'Free calculators',    blurb: 'Fees, profit, RevPAR, break-even. Live at strhost.tools.', external: true },
+  { href: '/about/',                     title: 'About',               blurb: 'Who builds these workbooks and why.' },
+  { href: '/contact/',                   title: 'Contact',             blurb: 'hello@thestrledger.com. We answer within a week.' },
+];
+
+const websiteLd = buildWebSite();
+---
+<Layout
+  title="The STR Ledger — Excel workbooks for short-term rental operators"
+  description="Schedule E-ready Excel workbooks and PDF guides for short-term rental hosts. Tax, ops, pricing, acquisition. Built for portfolios of 3+ properties. Run your rentals before they run you."
+  path="/"
+  jsonLd={websiteLd}
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-12 pb-9">
+      <p class="label text-gold-deep">Excel + PDF workbooks for short-term rentals</p>
+      <h1 class="mt-3 font-serif text-h1 text-navy max-w-3xl leading-tight">
+        Run your rentals before they run you<span class="period-gold">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2 max-w-2xl">
+        Schedule E-ready workbooks. Formula-tight. Built for hosts running 3-10 properties as a real business — not a hobby.
+      </p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a
+          href="/products/"
+          class="inline-flex items-center gap-2 bg-navy text-parchment px-5 py-3 rounded-md no-underline text-ui hover:bg-navy-tint transition-colors"
+        >
+          Browse the workbooks
+          <span class="text-gold" aria-hidden="true">→</span>
+        </a>
+        <a
+          href="/free/47-deductions/"
+          class="inline-flex items-center gap-2 border border-rule-strong text-navy px-5 py-3 rounded-md no-underline text-ui hover:border-gold transition-colors"
+        >
+          Free 47-deductions PDF
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <p class="label text-gold-deep">Start here</p>
+      <ul class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {cards.map((c) => (
+          <li>
+            <a
+              href={c.href}
+              class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-gold hover:shadow-card transition-all"
+            >
+              <p class="font-serif text-h3 text-navy leading-snug">
+                {c.title}{c.external ? <span class="text-gold ml-1" aria-hidden="true">↗</span> : null}
+              </p>
+              <p class="mt-2 text-small text-ink-2 leading-snug">{c.blurb}</p>
+              <p class="mt-4 text-caption text-gold-deep group-hover:text-gold">
+                Open <span class="inline-block" aria-hidden="true">→</span>
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <ClusterFunnelBlock />
+</Layout>

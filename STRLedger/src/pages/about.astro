@@ -1,0 +1,82 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import { buildBreadcrumb } from '@/lib/seo';
+
+const breadcrumb = buildBreadcrumb([
+  { name: 'Home', url: '/' },
+  { name: 'About', url: '/about/' },
+]);
+---
+<Layout
+  title="About — The STR Ledger"
+  description="Excel workbooks and PDF guides for short-term rental operators. The hub of a five-site toolkit covering acquisition, math, ops, guests, and operator manuals."
+  path="/about"
+  jsonLd={breadcrumb}
+>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9 prose">
+      <h1 class="font-serif text-h1 text-navy leading-tight">
+        About The STR Ledger<span class="period-gold">.</span>
+      </h1>
+      <p class="text-lead text-ink-2">
+        <em>Run your rentals before they run you.</em>
+      </p>
+
+      <h2>What this is</h2>
+      <p>
+        The STR Ledger publishes Excel workbooks and PDF guides for short-term rental operators. Schedule E-ready bookkeeping. Turnover ops. Pricing math. Acquisition underwriting. Built for hosts who run 3-10 properties as a real business — not a hobby.
+      </p>
+
+      <h2>Why this exists</h2>
+      <p>
+        QuickBooks doesn't understand cleaning fees. Generic tax software doesn't understand a Schedule E with cost segregation. AirDNA is a market data tool, not a bookkeeping system. The Ledger fills the gap between "spreadsheet you cobbled together" and "enterprise PMS you don't need."
+      </p>
+
+      <h2>The full toolkit</h2>
+      <p>
+        The STR Ledger is the hub. Five sister sites cover the free math, ops generators, and operator manuals that pair with the paid workbooks:
+      </p>
+      <ul>
+        <li><a href="https://strbuyers.tools">strbuyers.tools</a> — free pre-buy tools: DSCR, market score, comp analysis.</li>
+        <li><a href="https://strhost.tools">strhost.tools</a> — free calculators: fees, profit, RevPAR, break-even, lodging tax.</li>
+        <li><a href="https://strops.tools">strops.tools</a> — free ops tools: turnover, dispatch, smart locks.</li>
+        <li><a href="https://strguests.tools">strguests.tools</a> — free generators: house rules, welcome books, AI replies.</li>
+        <li><a href="https://strmanuals.com">strmanuals.com</a> — paid operator manuals and SOP packs.</li>
+      </ul>
+      <p>
+        The free tools cover the math. The workbooks cover the part you take to your CPA.
+      </p>
+
+      <h2>Who we build for</h2>
+      <p>
+        Semi-Pro Sarah: 38-55, married to a W2 partner, 3-10 STR properties, runs the portfolio as the real business. HHI $200K+, STR gross $150K-500K/year. Top pains: tax season anxiety, cleaner chaos, pricing guesswork, the partner asking "where are the real books?"
+      </p>
+      <p>
+        If that's you, the workbooks were drafted with your portfolio in mind.
+      </p>
+
+      <h2>What this is not</h2>
+      <ul>
+        <li>Not a SaaS. No accounts, no monthly subscription, no dashboard you have to learn.</li>
+        <li>Not tax advice. The workbooks compute numbers; your CPA files your return.</li>
+        <li>Not a PMS. We don't talk to Airbnb's API. We're the bookkeeping math layer.</li>
+      </ul>
+
+      <h2>Contact</h2>
+      <p>
+        <a href="mailto:hello@thestrledger.com" class="font-mono">hello@thestrledger.com</a>
+      </p>
+    </div>
+
+    <ClusterFunnelBlock />
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size, 36px); color: var(--brand-navy); margin-top: var(--sp-7); margin-bottom: var(--sp-3); line-height: 1.1; }
+  .prose :global(p) { color: var(--fg-1); margin-bottom: var(--sp-3); line-height: 1.6; }
+  .prose :global(ul) { margin: var(--sp-3) 0 var(--sp-4); padding-left: var(--sp-5); }
+  .prose :global(li) { margin-bottom: var(--sp-2); line-height: 1.55; }
+  .prose :global(a) { color: var(--brand-navy); text-decoration: underline; text-decoration-color: var(--brand-gold); text-underline-offset: 3px; }
+</style>

@@ -1,0 +1,70 @@
+---
+// Footer — CRITICAL for Move 2 (bidirectional sister-site cross-links).
+// The parent brand owns 5 sister sites and links to ALL of them here. This is
+// the hub-and-spoke entity signal no competitor can replicate.
+import Wordmark from './Wordmark.astro';
+
+const today = new Date();
+const lastUpdated = today.toISOString().slice(0, 10);
+
+// Sister sites — paired free funnels into the workbook catalog. Order = funnel
+// order: pre-buy → math → ops → guests → manuals.
+const sisterSites = [
+  { name: 'strbuyers.tools',  href: 'https://strbuyers.tools',  blurb: 'Free buyer tools — DSCR, market score, comp analysis.' },
+  { name: 'strhost.tools',    href: 'https://strhost.tools',    blurb: 'Free calculators — fees, profit, RevPAR, break-even.' },
+  { name: 'strops.tools',     href: 'https://strops.tools',     blurb: 'Free ops tools — turnover, dispatch, smart locks.' },
+  { name: 'strguests.tools',  href: 'https://strguests.tools',  blurb: 'Free generators — house rules, welcome books, AI replies.' },
+  { name: 'strmanuals.com',   href: 'https://strmanuals.com',   blurb: 'Paid manuals — operator runbooks and SOPs.' },
+];
+---
+<footer class="surface-navy mt-12">
+  <div class="mx-auto max-w-6xl px-5 py-10">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div class="md:col-span-1">
+        <Wordmark size="md" theme="parchment" asLink={false} />
+        <p class="mt-3 text-small text-parchment max-w-xs leading-snug opacity-90">
+          Excel workbooks and PDF guides for short-term rental operators. <em>Run your rentals before they run you.</em>
+        </p>
+      </div>
+
+      <div>
+        <p class="label text-gold">Shop</p>
+        <ul class="mt-3 space-y-2">
+          <li><a href="/products/" class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">All workbooks</a></li>
+          <li><a href="/free/47-deductions/" class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">Free 47-deductions PDF</a></li>
+          <li><a href="/blog/" class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">Blog</a></li>
+          <li><a href="/about/" class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">About</a></li>
+          <li><a href="/contact/" class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="md:col-span-2">
+        <p class="label text-gold">Sister sites — the toolkit</p>
+        <ul class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+          {sisterSites.map((s) => (
+            <li>
+              <a href={s.href} class="text-small text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2 font-mono">{s.name}</a>
+              <p class="text-caption text-parchment opacity-70 leading-snug">{s.blurb}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <hr class="gold-rule mt-8 border-0 h-px" />
+
+    <div class="mt-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+      <div class="flex flex-wrap gap-4 text-caption text-parchment opacity-80">
+        <a href="/privacy/" class="text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">Privacy</a>
+        <a href="/terms/" class="text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">Terms</a>
+        <a href="/disclosures/" class="text-parchment no-underline hover:underline hover:decoration-gold underline-offset-2">Disclosures</a>
+      </div>
+      <p class="text-caption text-parchment opacity-70">
+        © {today.getFullYear()} The STR Ledger · Last updated <time datetime={lastUpdated} class="font-mono">{lastUpdated}</time>
+      </p>
+    </div>
+    <p class="mt-3 text-caption text-parchment opacity-60 leading-snug">
+      Informational purposes only — not tax, legal, or financial advice. Consult a CPA before filing.
+    </p>
+  </div>
+</footer>

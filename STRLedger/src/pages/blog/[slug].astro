@@ -1,0 +1,55 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Layout from '@/components/chrome/Layout.astro';
+import { buildBreadcrumb } from '@/lib/seo';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog') as CollectionEntry<'blog'>[];
+  return posts.map((p) => ({
+    params: { slug: p.id.replace(/\.mdx$/, '') },
+    props: { post: p },
+  }));
+}
+
+const { post } = Astro.props as { post: CollectionEntry<'blog'> };
+const { data } = post;
+const slug = post.id.replace(/\.mdx$/, '');
+const { Content } = await render(post);
+
+const breadcrumb = buildBreadcrumb([
+  { name: 'Home', url: '/' },
+  { name: 'Blog', url: '/blog/' },
+  { name: data.title, url: `/blog/${slug}/` },
+]);
+---
+<Layout
+  title={`${data.title} — The STR Ledger`}
+  description={data.description}
+  path={`/blog/${slug}`}
+  pathPrefix="blog"
+  article={{
+    headline: data.title,
+    description: data.description,
+    slug,
+    datePublished: data.datePublished,
+    dateModified: data.dateModified,
+  }}
+  jsonLd={breadcrumb}
+>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9 prose">
+      <p class="font-mono text-caption text-gold-deep">{data.datePublished} · {data.readMinutes} min · {data.author}</p>
+      <h1 class="mt-3 font-serif text-h1 text-navy leading-tight">{data.title}</h1>
+      <p class="mt-3 text-lead text-ink-2">{data.description}</p>
+      <div class="mt-7">
+        <Content />
+      </div>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size, 36px); color: var(--brand-navy); margin-top: var(--sp-7); margin-bottom: var(--sp-3); line-height: 1.1; }
+  .prose :global(p) { color: var(--fg-1); margin-bottom: var(--sp-3); line-height: 1.6; }
+  .prose :global(a) { color: var(--brand-navy); text-decoration: underline; text-decoration-color: var(--brand-gold); text-underline-offset: 3px; }
+</style>

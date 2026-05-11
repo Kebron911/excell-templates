@@ -1,0 +1,70 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+
+const links = [
+  { href: '/products/',            title: 'Workbooks',            blurb: 'Excel + PDF templates for STR operators.' },
+  { href: '/free/47-deductions/',  title: 'Free 47-deductions',   blurb: 'The deductions most STR hosts miss.' },
+  { href: '/blog/',                title: 'Blog',                 blurb: 'Long-form notes from operators.' },
+  { href: '/about/',               title: 'About',                blurb: 'Who builds these workbooks and why.' },
+];
+
+const sisterSites = [
+  { name: 'strbuyers.tools',  href: 'https://strbuyers.tools',  blurb: 'Pre-buy: DSCR, market score, comp analysis.' },
+  { name: 'strhost.tools',    href: 'https://strhost.tools',    blurb: 'Math: fees, profit, RevPAR, break-even.' },
+  { name: 'strops.tools',     href: 'https://strops.tools',     blurb: 'Ops: turnover, dispatch, smart locks.' },
+  { name: 'strguests.tools',  href: 'https://strguests.tools',  blurb: 'Guests: house rules, welcome books, AI replies.' },
+  { name: 'strmanuals.com',   href: 'https://strmanuals.com',   blurb: 'Manuals: operator runbooks and SOPs.' },
+];
+---
+<Layout
+  title="Page not found — The STR Ledger"
+  description="That page doesn't exist on thestrledger.com. Try the catalog, the free PDF, the blog, or one of the sister sites."
+  path="/404"
+  noIndex={true}
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-12 pb-9">
+      <p class="label text-gold-deep">404</p>
+      <h1 class="mt-3 font-serif text-h1 text-navy max-w-3xl leading-tight">
+        Page not found<span class="period-gold">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2 max-w-2xl">
+        The URL you followed doesn't match anything on thestrledger.com. Try one of these.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <p class="label text-gold-deep">On this site</p>
+      <ul class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {links.map((l) => (
+          <li>
+            <a href={l.href} class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-gold hover:shadow-card transition-all">
+              <p class="font-serif text-h3 text-navy leading-snug">{l.title}</p>
+              <p class="mt-2 text-small text-ink-2 leading-snug">{l.blurb}</p>
+              <p class="mt-3 text-caption text-gold-deep group-hover:text-gold">Open →</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <p class="label text-gold-deep">Sister sites — the toolkit</p>
+      <ul class="mt-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        {sisterSites.map((s) => (
+          <li>
+            <a href={s.href} class="group block h-full rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-gold hover:shadow-card transition-all">
+              <p class="font-mono text-small text-navy">{s.name}</p>
+              <p class="mt-2 text-caption text-ink-2 leading-snug">{s.blurb}</p>
+              <p class="mt-3 text-caption text-gold-deep group-hover:text-gold">Visit →</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Layout>

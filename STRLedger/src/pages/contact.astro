@@ -1,0 +1,75 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import { buildBreadcrumb, SITE_NAME, SITE_URL, CONTACT_EMAIL } from '@/lib/seo';
+
+const contactPageLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'Contact — The STR Ledger',
+  url: `${SITE_URL}/contact/`,
+  about: {
+    '@type': 'Organization',
+    name: SITE_NAME,
+    url: SITE_URL,
+    email: CONTACT_EMAIL,
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: CONTACT_EMAIL,
+      availableLanguage: ['English'],
+    },
+  },
+};
+
+const breadcrumb = buildBreadcrumb([
+  { name: 'Home', url: '/' },
+  { name: 'Contact', url: '/contact/' },
+]);
+---
+<Layout
+  title="Contact — The STR Ledger"
+  description="Contact The STR Ledger. Workbook questions, refund requests, bug reports, and partnership inquiries welcome."
+  path="/contact"
+  jsonLd={[contactPageLd, breadcrumb]}
+>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9 prose">
+      <h1 class="font-serif text-h1 text-navy leading-tight">
+        Contact<span class="period-gold">.</span>
+      </h1>
+      <p class="text-lead text-ink-2">
+        Workbook questions, refund requests, bug reports, partnership inquiries. Email is the way.
+      </p>
+
+      <h2>Email</h2>
+      <p>
+        <a href="mailto:hello@thestrledger.com" class="font-mono">hello@thestrledger.com</a>
+      </p>
+
+      <h2>What works well</h2>
+      <ul>
+        <li><strong>Refund requests</strong> — 14 days, no questions. Include the SKU.</li>
+        <li><strong>Bug reports</strong> — workbook SKU, Excel version (or Sheets), the cell or sheet, what you expected, what you saw.</li>
+        <li><strong>Feature requests</strong> — what host problem are you trying to solve? We backlog by host volume.</li>
+        <li><strong>Bundle / wholesale</strong> — coaches, courses, and PM companies licensing workbooks for clients: yes, let's talk.</li>
+      </ul>
+
+      <h2>What does not work</h2>
+      <ul>
+        <li>Tax advice questions — that's a CPA's job. We can point you at the IRS source.</li>
+        <li>Cold SEO / backlink pitches — pass.</li>
+      </ul>
+
+      <p>Response time: usually within a week. Faster on refunds and bugs.</p>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size, 36px); color: var(--brand-navy); margin-top: var(--sp-7); margin-bottom: var(--sp-3); line-height: 1.1; }
+  .prose :global(p) { color: var(--fg-1); margin-bottom: var(--sp-3); line-height: 1.6; }
+  .prose :global(ul) { margin: var(--sp-3) 0 var(--sp-4); padding-left: var(--sp-5); }
+  .prose :global(li) { margin-bottom: var(--sp-2); line-height: 1.55; }
+  .prose :global(strong) { color: var(--brand-navy); font-weight: 600; }
+  .prose :global(a) { color: var(--brand-navy); text-decoration: underline; text-decoration-color: var(--brand-gold); text-underline-offset: 3px; }
+</style>

@@ -1,0 +1,91 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import { buildFAQPage, buildBreadcrumb } from '@/lib/seo';
+
+const faqs = [
+  {
+    question: 'Is the 47-deductions PDF actually free?',
+    answer: 'Yes. Free PDF in exchange for your email. We send the download link immediately and add you to a low-volume operator newsletter. Unsubscribe at any time.',
+  },
+  {
+    question: 'Is this tax advice?',
+    answer: 'No. The PDF is a checklist of deductions short-term rental hosts commonly miss, sourced from IRS publications. Consult a CPA before filing.',
+  },
+  {
+    question: 'How is this different from the paid workbooks?',
+    answer: 'The PDF is the checklist. The workbooks (TAX-001 mileage log, TAX-004 Schedule E prep, etc.) are the spreadsheets that compute the deductions for you and produce your filing-ready summary.',
+  },
+  {
+    question: 'What email list will I be on?',
+    answer: 'A short, operator-focused newsletter — usually 2-4 emails per month. We do not sell your address. Unsubscribe link in every email.',
+  },
+];
+
+const faqLd = buildFAQPage(faqs);
+const breadcrumb = buildBreadcrumb([
+  { name: 'Home', url: '/' },
+  { name: 'Free 47-deductions PDF', url: '/free/47-deductions/' },
+]);
+---
+<Layout
+  title="The 47 deductions most STR hosts miss — Free PDF — The STR Ledger"
+  description="A free checklist of the 47 deductions Schedule E filers most commonly miss. IRS-sourced, operator-tested. Email-gated, instant download."
+  path="/free/47-deductions"
+  jsonLd={[faqLd, breadcrumb]}
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9">
+      <p class="label text-gold-deep">Free PDF · No payment</p>
+      <h1 class="mt-3 font-serif text-h1 text-navy leading-tight">
+        The 47 deductions most STR hosts miss<span class="period-gold">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2 max-w-2xl">
+        Schedule E filers leave thousands on the table every year. Mileage. Home office. Section 179. The de minimis safe harbor. Cost segregation worth the prep cost. This PDF is the checklist.
+      </p>
+
+      <form
+        class="mt-7 flex flex-col sm:flex-row gap-3 max-w-xl"
+        action="mailto:hello@thestrledger.com"
+        method="post"
+        enctype="text/plain"
+      >
+        <label for="email" class="sr-only">Email address</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          placeholder="you@portfolio.com"
+          required
+          class="flex-1 rounded-md border border-rule-strong bg-parchment-light px-4 py-3 text-body text-navy focus:outline-none focus:shadow-focus"
+        />
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center gap-2 bg-navy text-parchment px-5 py-3 rounded-md text-ui hover:bg-navy-tint transition-colors"
+        >
+          Send me the PDF
+          <span class="text-gold" aria-hidden="true">→</span>
+        </button>
+      </form>
+      <p class="mt-2 text-caption text-ink-3">
+        We email the download link immediately. Low-volume operator newsletter — unsubscribe at any time.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-3xl px-5 py-9">
+      <h2 class="font-serif text-h2 text-navy">FAQ</h2>
+      <dl class="mt-5 space-y-5">
+        {faqs.map((f) => (
+          <div>
+            <dt class="font-serif text-h3 text-navy leading-snug">{f.question}</dt>
+            <dd class="mt-2 text-body text-ink-2 leading-relaxed">{f.answer}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <ClusterFunnelBlock />
+</Layout>

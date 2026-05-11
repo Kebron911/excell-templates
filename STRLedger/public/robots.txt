@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://thestrledger.com/sitemap-index.xml

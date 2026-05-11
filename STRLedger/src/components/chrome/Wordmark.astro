@@ -1,0 +1,40 @@
+---
+// Wordmark — "The STR Ledger." with italic "The" + gold period accent,
+// matching brand-decisions.md §3.1.
+
+interface Props {
+  size?: 'sm' | 'md' | 'lg';
+  theme?: 'navy' | 'parchment';
+  asLink?: boolean;
+  href?: string;
+  class?: string;
+}
+
+const { size = 'md', theme = 'navy', asLink = true, href = '/', class: className = '' } = Astro.props;
+
+const sizes = {
+  sm: { main: 'text-[20px]', the: 'text-[10px]' },
+  md: { main: 'text-[28px]', the: 'text-[14px]' },
+  lg: { main: 'text-[40px]', the: 'text-[18px]' },
+};
+
+const themes = {
+  navy:      { main: 'text-navy',      the: 'text-ink-2',    dot: 'text-gold' },
+  parchment: { main: 'text-parchment', the: 'text-parchment opacity-70', dot: 'text-gold' },
+};
+
+const s = sizes[size];
+const t = themes[theme];
+
+const Tag = asLink ? 'a' : 'span';
+const linkProps = asLink ? { href, 'aria-label': 'The STR Ledger — home', class: 'no-underline' } : {};
+---
+<Tag
+  {...linkProps}
+  class:list={['inline-flex items-baseline gap-1', className]}
+>
+  <span class:list={['font-serif italic font-normal leading-none', s.the, t.the]}>The</span>
+  <span class:list={['font-serif font-medium leading-none whitespace-nowrap', s.main, t.main]}>
+    STR Ledger<span class={t.dot}>.</span>
+  </span>
+</Tag>

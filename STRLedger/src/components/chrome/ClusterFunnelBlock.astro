@@ -1,0 +1,39 @@
+---
+// Cluster funnel block — surfaces the full STR cluster on the homepage and key
+// pages. Since thestrledger.com IS the hub, this shows the full spoke set
+// (Buyers → Math → Ops → Guests → Manuals) with the parent itself implicit.
+// Per Move 2: bidirectional sister-site cross-links.
+const spokes = [
+  { name: 'strbuyers.tools',  href: 'https://strbuyers.tools',  step: 'Pre-buy',     blurb: 'DSCR, market score, comp analysis. Free.' },
+  { name: 'strhost.tools',    href: 'https://strhost.tools',    step: 'Analyzing',   blurb: 'Fees, profit, RevPAR, break-even. Free.' },
+  { name: 'strops.tools',     href: 'https://strops.tools',     step: 'Running',     blurb: 'Turnover, dispatch, smart locks. Free.' },
+  { name: 'strguests.tools',  href: 'https://strguests.tools',  step: 'Optimizing',  blurb: 'House rules, welcome books, AI replies. Free.' },
+  { name: 'strmanuals.com',   href: 'https://strmanuals.com',   step: 'Scaling',     blurb: 'Operator runbooks and SOPs. Paid.' },
+];
+---
+<section class="bg-parchment-alt border-y border-rule">
+  <div class="mx-auto max-w-6xl px-5 py-10">
+    <p class="label text-navy">The full toolkit</p>
+    <h2 class="mt-2 font-serif text-h2 text-navy leading-tight max-w-3xl">
+      Free tools across the host journey<span class="period-gold">.</span>
+    </h2>
+    <p class="mt-3 text-small text-ink-2 max-w-2xl leading-snug">
+      The STR Ledger publishes the paid workbooks. The five sister sites cover every step before, during, and after — free.
+    </p>
+    <ul class="mt-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
+      {spokes.map((s) => (
+        <li>
+          <a
+            href={s.href}
+            class="group block h-full rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-gold hover:shadow-card transition-all"
+          >
+            <p class="label text-gold-deep">{s.step}</p>
+            <p class="mt-2 font-mono text-small text-navy">{s.name}</p>
+            <p class="mt-2 text-caption text-ink-2 leading-snug">{s.blurb}</p>
+            <p class="mt-3 text-caption text-gold-deep group-hover:text-gold">Visit →</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

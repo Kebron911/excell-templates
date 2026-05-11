@@ -1,0 +1,59 @@
+/* ============================================================
+   thestrledger.com — Design Tokens
+   Hub brand (parent of strhost / strbuyers / strops / strguests / strmanuals).
+   Palette + type ported from brand/brand-decisions.md v1.1.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ---- Core palette (brand kit) ------------------------- */
+  --brand-navy:            #12304E;
+  --brand-parchment:       #F6EFE2;
+  --brand-gold:            #C9A24B;
+  --brand-clay:            #B5725E;
+  --brand-graphite:        #2B2B2B;
+
+  /* ---- Tints / shades ----------------------------------- */
+  --brand-navy-tint:       #2A4867;
+  --brand-navy-shade:      #0A1F35;
+  --brand-parchment-alt:   #EFE5D0;
+  --brand-parchment-deep:  #E7DCC2;
+  --brand-gold-soft:       #E2C884;
+  --brand-gold-deep:       #A9863A;
+  --brand-clay-soft:       #D3A290;
+
+  /* ---- Semantic foreground / background ----------------- */
+  --fg-1:                  var(--brand-graphite);
+  --fg-2:                  #555049;
+  --fg-3:                  #8A8176;
+
+  --bg-1:                  var(--brand-parchment);
+  --bg-2:                  var(--brand-parchment-alt);
+  --bg-3:                  #FBF6EC;
+
+  --rule:                  var(--brand-parchment-deep);
+  --rule-strong:           #BEB19A;
+
+  /* ---- Font stacks -------------------------------------- */
+  --font-display:  "Cormorant Garamond", "Cormorant", Georgia, "Times New Roman", serif;
+  --font-body:     "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-mono:     "JetBrains Mono", "Menlo", "Consolas", ui-monospace, monospace;
+
+  /* ---- Spacing ----------------------------------------- */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px; --sp-7: 48px; --sp-8: 64px;
+  --sp-9: 96px; --sp-10: 128px;
+
+  /* ---- Radii ------------------------------------------- */
+  --r-0: 0px; --r-1: 2px; --r-2: 4px; --r-3: 6px; --r-4: 10px; --r-pill: 999px;
+
+  /* ---- Shadows ----------------------------------------- */
+  --sh-card:    0 1px 2px rgba(10, 31, 53, 0.06), 0 1px 1px rgba(10, 31, 53, 0.04);
+  --sh-lifted:  0 8px 24px -8px rgba(10, 31, 53, 0.20), 0 2px 6px rgba(10, 31, 53, 0.08);
+  --sh-focus-ring: 0 0 0 3px rgba(201, 162, 75, 0.45);
+  --sh-gold-glow: 0 0 0 3px rgba(201, 162, 75, 0.25);
+
+  /* ---- Motion ------------------------------------------ */
+  --ease-std: cubic-bezier(0.2, 0.6, 0.2, 1);
+}

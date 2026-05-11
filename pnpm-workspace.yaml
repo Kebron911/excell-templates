@@ -10,6 +10,9 @@
 # tells pnpm "these are siblings, treat them as a workspace."
 
 packages:
+  # STRLedger is the parent brand site (thestrledger.com).
+  # The *-Tools entries below are sister sites — free tools that funnel back here.
+  - 'STRLedger'
   - 'STRBuyers-Tools'
   - 'STRGuests-Tools'
   - 'STRHost-Tools'

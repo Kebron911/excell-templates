@@ -1,0 +1,41 @@
+---
+import Wordmark from './Wordmark.astro';
+
+const navItems = [
+  { href: '/products/', label: 'Products' },
+  { href: '/free/47-deductions/', label: 'Free guide' },
+  { href: '/blog/', label: 'Blog' },
+  { href: '/about/', label: 'About' },
+];
+---
+<header class="border-b border-rule bg-parchment">
+  <div class="mx-auto max-w-6xl px-5 py-5 flex items-center justify-between gap-6">
+    <Wordmark size="md" theme="navy" class="shrink-0" />
+
+    <nav class="hidden md:flex items-center gap-6" aria-label="Primary">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class="text-ui text-ink-2 no-underline hover:text-navy transition-colors whitespace-nowrap"
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <details class="md:hidden relative">
+      <summary class="list-none cursor-pointer p-2 -mr-2" aria-label="Open menu">
+        <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+          <path d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="1.5" fill="none" />
+        </svg>
+      </summary>
+      <div class="absolute right-0 top-full mt-2 w-60 bg-parchment-light border border-rule rounded-md shadow-lifted py-2 z-10">
+        {navItems.map((item) => (
+          <a href={item.href} class="block px-4 py-2 text-ui text-ink-2 no-underline hover:bg-parchment-alt hover:text-navy">
+            {item.label}
+          </a>
+        ))}
+      </div>
+    </details>
+  </div>
+</header>
