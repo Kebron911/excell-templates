@@ -1,0 +1,94 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readPinterest } from '@/lib/data/pinterest';
+
+const data = await readPinterest();
+const fmt = (n: number) => n.toLocaleString();
+---
+<Layout title="Promote · Pinterest" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Pinterest</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Volume + performance. Powered by <strong>W15</strong> (poll) + <strong>W44</strong> (volume crank).
+        Source: <code>ops/cache/pinterest.json</code>.
+      </p>
+    </div>
+    {data.isCacheReady ? (
+      <span class="badge badge-ok">cache ready</span>
+    ) : (
+      <span class="badge badge-p1">cache pending — run W44 once</span>
+    )}
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Pins published (7d)" value={data.pins_published_7d} />
+    <Scorecard label="Pins published (30d)" value={data.pins_published_30d} />
+    <Scorecard label="Impressions (30d)" value={fmt(data.impressions_30d)} />
+    <Scorecard label="Outbound clicks (30d)" value={fmt(data.outbound_clicks_30d)} />
+  </section>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3">
+    <Scorecard label="Impressions (7d)" value={fmt(data.impressions_7d)} />
+    <Scorecard label="Saves (30d)" value={fmt(data.saves_30d)} />
+    <Scorecard label="CTR (30d)" value={`${(data.ctr_30d * 100).toFixed(2)}%`} />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Top pins (30d outbound clicks)
+    </h2>
+    <div class="card">
+      {data.top_pins.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          No top pins yet. Activate W44 in n8n to start the cadence.
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Title</th>
+              <th>Style</th>
+              <th class="text-right">Impr</th>
+              <th class="text-right">Saves</th>
+              <th class="text-right">Clicks</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.top_pins.map((p) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2 font-medium">
+                  {p.pin_url ? (
+                    <a href={p.pin_url} target="_blank" rel="noopener">{p.title || p.pin_id}</a>
+                  ) : (
+                    p.title || p.pin_id
+                  )}
+                </td>
+                <td class="text-xs">{p.style || '—'}</td>
+                <td class="text-right font-mono text-xs">{fmt(p.impressions_30d)}</td>
+                <td class="text-right font-mono text-xs">{fmt(p.saves_30d)}</td>
+                <td class="text-right font-mono text-xs">{fmt(p.outbound_clicks_30d)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      How Pinterest stats land here
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong>W15</strong> polls Pinterest API daily 08:00 ET → per-pin stats into Airtable Content.</li>
+      <li>• <strong>W16</strong> cascades blog publishes → 5 pin drafts per post.</li>
+      <li>• <strong>W44 Branch A</strong> regenerates 5 evergreen variants for top-10 posts every Monday 09:00.</li>
+      <li>• <strong>W44 Branch B</strong> auto-variants any pin that breaches top-10% performance.</li>
+      <li>• <strong>W44 Branch C</strong> generates Idea Pin + Video Pin for new posts every Friday 14:00.</li>
+      <li>• Aggregates write to <code>ops/cache/pinterest.json</code>.</li>
+    </ul>
+  </section>
+</Layout>

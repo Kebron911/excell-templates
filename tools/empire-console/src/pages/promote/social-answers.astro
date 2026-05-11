@@ -1,0 +1,110 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readSocialAnswers } from '@/lib/data/social-answers';
+
+const data = await readSocialAnswers();
+const pct = (n: number) => `${(n * 100).toFixed(0)}%`;
+const lastRows = data.rows
+  .slice()
+  .sort((a, b) => (b.surfaced_at || '').localeCompare(a.surfaced_at || ''))
+  .slice(0, 50);
+---
+<Layout title="Promote · Reddit / Quora answers" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Reddit / Quora answers</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Questions surfaced by <strong>W41</strong> + manually-posted answers.
+        Source: <code>ops/social-answers.ndjson</code>.
+      </p>
+    </div>
+    <span class="badge badge-ok">W41 active</span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Surfaced (7d)" value={data.surfaced7d} />
+    <Scorecard label="Answered (7d)" value={data.answered7d}
+               tone={data.answered7d === 0 && data.surfaced7d > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Conv. rate (7d)" value={pct(data.conversionRate7d)} />
+    <Scorecard label="Est. visits (30d)" value={data.estVisits30d} />
+  </section>
+
+  {Object.keys(data.byPlatform).length > 0 && (
+    <section class="mb-8">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        By platform (all-time)
+      </h2>
+      <div class="card">
+        <div class="flex flex-wrap gap-3 text-sm">
+          {Object.entries(data.byPlatform).map(([p, n]) => (
+            <span class="badge badge-p2">{p} · {n}</span>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Recent (last 50)
+    </h2>
+    <div class="card">
+      {lastRows.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          No rows yet. W41 will start surfacing questions once activated in n8n.
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Surfaced</th>
+              <th>Source</th>
+              <th>Title</th>
+              <th>Answered</th>
+              <th class="text-right">Visits</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lastRows.map((r) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2 font-mono text-xs">{r.surfaced_at?.slice(0, 10) || '—'}</td>
+                <td class="text-xs">{r.platform} · {r.subreddit_or_topic}</td>
+                <td class="max-w-md truncate">
+                  {r.question_url ? (
+                    <a href={r.question_url} target="_blank" rel="noopener" class="font-medium">
+                      {r.title || r.question_url}
+                    </a>
+                  ) : (
+                    r.title || '—'
+                  )}
+                </td>
+                <td>
+                  {r.answered ? (
+                    <span class="badge badge-ok">yes</span>
+                  ) : (
+                    <span class="badge badge-p2">no</span>
+                  )}
+                </td>
+                <td class="text-right font-mono text-xs">{r.est_visits || '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      How rows land here
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong>W41</strong> polls Reddit/HN/Google Alerts every 30 min, classifies via Claude haiku, drafts an answer with Claude sonnet.</li>
+      <li>• Slack card in <code>#str-platform-traffic</code> with <code>[Posted]</code> button — Daniel posts manually then clicks Posted.</li>
+      <li>• Row appended to <code>ops/social-answers.ndjson</code> with <code>answered=true</code> + <code>answer_url</code>.</li>
+      <li>• <code>est_visits</code> backfilled later from referrer logs.</li>
+    </ul>
+  </section>
+</Layout>

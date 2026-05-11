@@ -1,13 +1,19 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
 import { readNewsletter } from '@/lib/data/newsletter';
-import { readBacklinksPipeline, readInfluencersPipeline, readPressPipeline } from '@/lib/data/pipelines';
+import { readCitations } from '@/lib/data/citations';
+import { readSocialAnswers } from '@/lib/data/social-answers';
+import { readPinterest } from '@/lib/data/pinterest';
+import { readIndexNow } from '@/lib/data/indexnow';
+import { readCustomerEmbeds } from '@/lib/data/customer-embeds';
 
-const [newsletter, backlinks, influencers, press] = await Promise.all([
+const [newsletter, citations, social, pinterest, indexnow, embeds] = await Promise.all([
   readNewsletter(),
-  readBacklinksPipeline(),
-  readInfluencersPipeline(),
-  readPressPipeline(),
+  readCitations(),
+  readSocialAnswers(),
+  readPinterest(),
+  readIndexNow(),
+  readCustomerEmbeds(),
 ]);
 
 interface Tile {
@@ -15,9 +21,30 @@ interface Tile {
   signal?: string; tone?: 'ok' | 'warn' | 'bad'; disabled?: boolean;
 }
 
-const groups: Array<{ title: string; tiles: Tile[] }> = [
+const groups: Array<{ title: string; subtitle?: string; tiles: Tile[] }> = [
+  {
+    title: 'Traffic Engines',
+    subtitle: 'Where visits come from now. Free or near-free; no reputation prerequisite. See docs/backlink-automation-plan.md.',
+    tiles: [
+      { href: '/promote/citations', title: 'Citations', desc: 'Free profile + directory backlinks (Phase 0 sprints).',
+        signal: `${citations.counts.live}/${citations.counts.total} live`,
+        tone: citations.counts.pending > 5 ? 'warn' : 'ok' },
+      { href: '/promote/pinterest', title: 'Pinterest perf', desc: 'Pin volume · impressions · top performers · outbound clicks. (W15 + W44)',
+        signal: pinterest.isCacheReady
+          ? `${pinterest.outbound_clicks_30d.toLocaleString()} clicks/30d`
+          : 'cache pending',
+        tone: pinterest.isCacheReady ? 'ok' : 'warn' },
+      { href: '/promote/social-answers', title: 'Reddit / Quora answers', desc: 'Questions surfaced + answered + traffic earned. (W41)',
+        signal: `${social.answered7d}/${social.surfaced7d} answered (7d)`,
+        tone: social.surfaced7d > 0 && social.answered7d === 0 ? 'warn' : 'ok' },
+      { href: '#', title: 'Etsy referral', desc: 'Etsy → site visits + email signups + top-referring listings.', disabled: true },
+      { href: '#', title: 'IndexNow + GSC submit', desc: `Submissions: ${indexnow.submissions_7d}/7d, ${indexnow.errors_7d} errors. (W43)`, disabled: true },
+      { href: '#', title: 'Customer embeds', desc: `Active: ${embeds.active.length}. Free calculator widgets earning links forever. (W45/W36)`, disabled: true },
+    ],
+  },
   {
     title: 'Content',
+    subtitle: 'What feeds the engines.',
     tiles: [
       { href: '/promote/newsletter', title: 'Newsletter', desc: 'Subscribers · cadence · per-send performance.',
         signal: newsletter.daysSinceLastSend !== null
@@ -33,23 +60,18 @@ const groups: Array<{ title: string; tiles: Tile[] }> = [
     ],
   },
   {
-    title: 'Acquisition',
+    title: 'Long Game (deferred)',
+    subtitle: 'Reactivate when reputation built. See trigger conditions in docs/backlink-automation-plan.md.',
     tiles: [
-      { href: '/promote/backlinks',    title: 'Backlinks',    desc: 'Outreach pipeline + acquired log.',
-        signal: `${backlinks.outreach.total} in flight · ${backlinks.outreach.overdue} overdue`,
-        tone: backlinks.outreach.overdue > 0 ? 'warn' : 'ok' },
-      { href: '/promote/influencers',  title: 'Influencers',  desc: 'Prospect list + active partnerships.',
-        signal: `${influencers.prospects.total} prospects · ${influencers.active.count} active`,
-        tone: influencers.prospects.overdue > 0 ? 'warn' : 'ok' },
-      { href: '/promote/affiliates',   title: 'Affiliates',   desc: 'Leaderboard + payouts due.' },
-      { href: '/promote/press',        title: 'Press / PR',   desc: 'Podcasts + HARO + guest posts + mentions.',
-        signal: `${press.podcasts.total + press.guestPosts.total} in flight · ${press.podcasts.overdue + press.guestPosts.overdue} overdue`,
-        tone: (press.podcasts.overdue + press.guestPosts.overdue) > 0 ? 'warn' : 'ok' },
-      { href: '/promote/paid',         title: 'Paid',         desc: 'Promoted Listings · Pinterest · Meta.' },
-      { href: '/promote/partnerships', title: 'Partnerships', desc: 'PMS integrations + co-marketing.', disabled: true },
-      { href: '#',                      title: 'Social',       desc: 'Reddit + FB + X + LinkedIn + IG queue.', disabled: true },
-      { href: '#',                      title: 'Pinterest perf', desc: 'Top pin + saves + clicks.', disabled: true },
-      { href: '#',                      title: 'Keyword opportunities', desc: 'GSC striking-distance + content gaps.', disabled: true },
+      { href: '/promote/backlinks',    title: 'Backlinks (outreach)',    desc: 'Direct outreach pursuit. Deferred — needs first placements.',
+        signal: 'Deferred · MRR > $3k', tone: 'warn' },
+      { href: '/promote/press',        title: 'Press / PR',   desc: 'Podcasts + HARO + guest posts. Deferred — needs prior credibility.',
+        signal: 'Deferred · Mo 4–6+', tone: 'warn' },
+      { href: '/promote/influencers',  title: 'Influencers',  desc: 'Influencer partnerships. Deferred — needs MRR.',
+        signal: 'Deferred · MRR > $3k', tone: 'warn' },
+      { href: '/promote/affiliates',   title: 'Affiliates',   desc: 'Leaderboard + payouts due. Active — every affiliate page = a link.' },
+      { href: '/promote/partnerships', title: 'Partnerships', desc: 'PMS integrations + co-marketing. Deferred — needs 50+ buyers/mo.', disabled: true },
+      { href: '/promote/paid',         title: 'Paid',         desc: 'Promoted Listings · Pinterest · Meta. Optional accelerant.' },
       { href: '/promote/competitors',   title: 'Competitor watch', desc: 'Direct · adjacent · aspirational players.' },
     ],
   },
@@ -69,14 +91,20 @@ const groups: Array<{ title: string; tiles: Tile[] }> = [
 <Layout title="Grow" section="promote">
   <header class="mb-8">
     <h1 class="font-display text-4xl font-semibold">Grow</h1>
-    <p class="text-sm" style="color: rgb(var(--c-muted))">Content production · traffic acquisition · customer service.</p>
+    <p class="text-sm" style="color: rgb(var(--c-muted))">
+      Traffic-first. Distribution &gt; acquisition for new brands.
+      Plan: <code>docs/backlink-automation-plan.md</code>.
+    </p>
   </header>
 
   {groups.map((group) => (
     <section class="mb-10">
-      <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      <h2 class="mb-1 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
         {group.title}
       </h2>
+      {group.subtitle && (
+        <p class="mb-4 text-xs" style="color: rgb(var(--c-muted))">{group.subtitle}</p>
+      )}
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {group.tiles.map((t) => (
           <a href={t.disabled ? '#' : t.href}

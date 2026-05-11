@@ -95,6 +95,11 @@
 | W28 | **Refund Reply Intake** | Inbound email reply pattern | **P1** | L. |
 | W29 | **NPS Day-30 Collection** | Cron daily 08:00 | **P1** | L. |
 | W30 | **Annual "What Changed" Distribution** | Cron January 20 annually | **P1** | L. |
+| W41 | **Social Question Watcher** (Reddit/HN/Quora) | Cron 30 min | **P1** | I. Research / off-page |
+| W42 | **Citation / Profile Refresher** | Airtable Identity change + Cron Sun 23:00 | **P2** | I. |
+| W43 | **IndexNow + GSC URL Submit** | Webhook content-published + Cron daily 06:00 | **P1** | I. |
+| W44 | **Pinterest Volume Crank** | Cron Mon 09:00 + Webhook + Cron Fri 14:00 | **P1** | I. |
+| W45 | **Customer → Review / Embed Loop** | Cron daily 10:30 + Webhook + Cron Sun 22:00 | **P2** | I. |
 
 The course workflows (W23–W30) form the "Owner family L — Course." They share several conventions:
 
@@ -843,6 +848,25 @@ If something didn't work, hit reply. I'll fix it.
 
 ---
 
+---
+
+## Owner family I — Research / off-page (W41–W45)
+
+The five workflows in this family implement the **new-brand traffic-first** philosophy
+in `docs/backlink-automation-plan.md`. They share several conventions:
+
+- Free or near-free: no Ahrefs / Featured / Brand24 / Mailgun dependency
+- Reuse existing creds (Claude id 7, Slack id 3, IS id 2, GSC id 5, Pinterest id 12, Vista id 18)
+- Write their cache/log files into `ops/` for the Empire Console `/promote/*` pages
+- W43, W44, W45 chain off existing triggers (W16, W15, W13 respectively) — no new Airtable schemas required for those three
+- Per-workflow specs in `infrastructure/n8n/workflows/W41–W45.md`. Treat those as the source of truth.
+
+Reputation-gated activity (direct link outreach, Featured/Qwoted, podcast tour, PMS
+partner pages) stays deferred per `docs/backlink-automation-plan.md` until MRR > $3k/mo
+OR 1–2 podcast appearances OR first data study OR 50+ active customers.
+
+---
+
 ## Build sequence (maps to Lane B tasks in plan)
 
 ### Phase 1 — Week 1–2 (P0 core — plan Task B8, B9, B11)
@@ -878,6 +902,18 @@ If something didn't work, hit reply. I'll fix it.
 20. **W20 Affiliate Commission Cycle** — with affiliate program launch.
 21. **W21 Research Outreach Pipeline** — when ScrapeBox + Instantly are set up.
 22. **W22 Template Update Notification** — when first major version bump occurs.
+
+### Phase 4 — Traffic Engines (Owner family I)
+
+Build these in this order. None require new vendors; cost delta is ~$10–25/mo in Claude API only.
+
+31. **W43 IndexNow + GSC URL Submit** — chains off existing W16 trigger; 2-day build; zero risk. Build first.
+32. **W41 Social Question Watcher** — pure Slack-alerting; Daniel does manual posting; no outbound risk.
+33. **W44 Pinterest Volume Crank** (Branch A first) — primary traffic engine for STR niche; reuses Vista Create from W16.
+34. **W42 Citation Refresher** — depends on `ops/citations.yaml` being populated in Phase 0 (Daniel's weekend sprints).
+35. **W45 Customer → Embed Loop** — needs W13 to have written `Review_left` / `Review_rating` for some customers first.
+
+After W43+W41+W44 are stable, expand W44 to Branches B/C. Save W45 Branch B (embed-detection) until first calculator widget exists.
 
 ### Phase 5 — Course launch (Owner family L)
 
@@ -1106,4 +1142,5 @@ n8n glues the world together. It is not a replacement for any of these tools' na
 
 - `2026-04-22` — Initial workflow universe documented (22 workflows)
 - `2026-04-29` — Added Owner family L (Course): W23–W30. W01 + W02 gain a course-SKU Switch node forwarding `course-*` orders to W23's `/webhook/course-onboarding`.
+- `2026-05-10` — Added Owner family I (Research / off-page): W41–W45 (Traffic Engines). Per `docs/backlink-automation-plan.md`, these implement the new-brand traffic-first philosophy. Heavy-cost outreach (Featured/Qwoted/podcast tour/PMS partners) remains deferred until reputation triggers hit. W43 chains off the same Content `Status=Published` trigger as W16. W44 extends W15+W16. W45 extends W13. W41 + W42 are net-new triggers.
 - (future entries as the map evolves)

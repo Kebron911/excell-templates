@@ -2,8 +2,12 @@
 import Layout from '@/components/chrome/Layout.astro';
 import Scorecard from '@/components/widgets/Scorecard.astro';
 import { readBacklinksPipeline } from '@/lib/data/pipelines';
+import { readCitations } from '@/lib/data/citations';
 
-const data = await readBacklinksPipeline();
+const [data, citations] = await Promise.all([
+  readBacklinksPipeline(),
+  readCitations(),
+]);
 ---
 <Layout title="Promote · Backlinks" section="promote">
   <header class="mb-6 flex items-baseline justify-between">
@@ -11,29 +15,56 @@ const data = await readBacklinksPipeline();
       <h1 class="font-display text-3xl font-semibold">Backlinks</h1>
       <p class="text-sm" style="color: rgb(var(--c-muted))">
         Outreach pipeline + acquired log. Source: <code>ops/backlinks-pipeline.yaml</code>.
-        GSC + Ahrefs population in Phase 4.
       </p>
     </div>
-    <span class="badge badge-p2">Phase 4 stub</span>
+    <span class="badge badge-p1">Deferred — focus on Traffic Engines first</span>
   </header>
 
+  <section class="card mb-8" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Why this is deferred
+    </h3>
+    <p class="mb-3 text-sm">
+      The plan in <code>docs/backlink-automation-plan.md</code> moves direct outreach,
+      Featured/Qwoted, podcast tour, and PMS partner pages to <strong>Month 4–6+</strong>.
+      A new brand without prior placements gets ignored by journalists who Google the source.
+      For now, do the cheaper Phase 0 work that doesn't need reputation.
+    </p>
+    <div class="flex flex-wrap gap-3 text-sm">
+      <a href="/promote/citations" class="font-medium" style="color: rgb(var(--c-accent))">
+        → Phase 0: Citations & directories
+      </a>
+      <span style="color: rgb(var(--c-muted))">·</span>
+      <a href="#" class="font-medium" style="color: rgb(var(--c-muted))">
+        → Pinterest perf (W44, coming)
+      </a>
+      <span style="color: rgb(var(--c-muted))">·</span>
+      <a href="#" class="font-medium" style="color: rgb(var(--c-muted))">
+        → Reddit/Quora answers (W41, coming)
+      </a>
+    </div>
+    <p class="mt-3 text-xs" style="color: rgb(var(--c-muted))">
+      Trigger to revisit this page: MRR > $3k/mo OR 1–2 podcast appearances landed OR first data study published.
+    </p>
+  </section>
+
   <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+    <Scorecard label="Citations live" value={citations.counts.live}
+               tone={citations.counts.live > 0 ? 'ok' : 'warn'} />
+    <Scorecard label="Citations pending" value={citations.counts.pending}
+               tone={citations.counts.pending > 5 ? 'warn' : 'ok'} />
     <Scorecard label="Outreach in flight" value={data.outreach.total} />
-    <Scorecard label="Next-action ≤7d" value={data.outreach.nextActions7d}
-               tone={data.outreach.nextActions7d > 0 ? 'warn' : 'ok'} />
-    <Scorecard label="Outreach overdue" value={data.outreach.overdue}
-               tone={data.outreach.overdue > 0 ? 'bad' : 'ok'} />
     <Scorecard label="Backlinks acquired" value={data.acquired.count} />
   </section>
 
   <section class="mb-8">
     <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
-      Outreach pipeline
+      Outreach pipeline (read-only history)
     </h2>
     <div class="card">
       {data.outreach.items.length === 0 ? (
         <p class="text-sm" style="color: rgb(var(--c-muted))">
-          Edit <code>ops/backlinks-pipeline.yaml</code> to add prospects.
+          No active pursuits. Don't add new ones until the deferral conditions clear.
         </p>
       ) : (
         <table class="w-full text-sm">
@@ -65,13 +96,13 @@ const data = await readBacklinksPipeline();
 
   <section class="card" style="background: rgb(var(--c-surface-2))">
     <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
-      How backlinks land in this view
+      How backlinks land here (when this page reactivates)
     </h3>
     <ul class="space-y-1 text-sm">
-      <li>• <strong>Manual outreach</strong>: edit YAML; <code>outreach-followup-watch</code> P1s on overdue follow-ups.</li>
-      <li>• <strong>Acquired (auto)</strong>: GSC backlink data via <code>nightly-refresh</code> writes the <code>acquired</code> array.</li>
-      <li>• <strong>Lost-link recovery</strong>: <code>backlink-watch</code> (weekly Sun) P1s on any acquired backlink that disappeared from GSC.</li>
-      <li>• <strong>Anchor health</strong>: surfaces over-optimized anchors (>30% same exact-match) for natural-language tuning.</li>
+      <li>• <strong>Acquired (auto):</strong> GSC backlink data via <code>nightly-refresh</code> writes the <code>acquired</code> array.</li>
+      <li>• <strong>Lost-link recovery:</strong> <code>backlink-watch</code> (weekly Sun) P1s on any acquired backlink that disappeared from GSC.</li>
+      <li>• <strong>Inbound 404 reclaim (W31):</strong> deferred to month 9–12. New site has no inbound 404s with link equity yet.</li>
+      <li>• <strong>Anchor health:</strong> meaningful only after 100+ links. Until then, default to ~95% branded anchors.</li>
     </ul>
   </section>
 </Layout>

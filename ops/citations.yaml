@@ -1,0 +1,179 @@
+# ops/citations.yaml — profile + directory citation log
+#
+# Read by:
+#   - tools/empire-console — /promote/citations
+#   - infrastructure/n8n/flows/W42 (profile refresher — when built)
+#
+# Philosophy:
+#   For a new brand without reputation, citations are the cheapest backlink/branded-SERP
+#   work available. Each entry = a free dofollow profile or directory listing earned in
+#   one weekend (Phase 0 sprints in docs/backlink-automation-plan.md).
+#
+# State machine:
+#   pending  → not yet created (do this weekend)
+#   live     → profile created, link active
+#   stale    → bio/headshot more than 90 days behind Identity table
+#   broken   → URL returns 404 or profile suspended
+#
+# Tier:
+#   T1  Universal trust signals (Crunchbase, LinkedIn, Trustpilot, G2, Capterra)
+#   T2  Niche-relevant (STR/Airbnb directories, host-tool indexes, REI communities)
+#   T3  Founder-brand (About.me, Substack, Medium, AngelList founder profile)
+
+citations:
+  # ---------- T1: Universal trust ----------
+  - platform: Crunchbase
+    tier: T1
+    url: ""
+    state: pending
+    last_refresh: null
+    bio_version: null
+    notes: Company page. Pulls into branded SERP knowledge panel candidates.
+
+  - platform: LinkedIn Company Page
+    tier: T1
+    url: ""
+    state: pending
+    last_refresh: null
+    bio_version: null
+
+  - platform: Trustpilot
+    tier: T1
+    url: ""
+    state: pending
+    last_refresh: null
+    bio_version: null
+    notes: Lets future customers leave reviews. Branded-SERP shield.
+
+  - platform: G2
+    tier: T1
+    url: ""
+    state: pending
+    last_refresh: null
+    bio_version: null
+    notes: List Excel templates as a "tool". Free vendor profile.
+
+  - platform: Capterra
+    tier: T1
+    url: ""
+    state: pending
+    last_refresh: null
+
+  - platform: GetApp
+    tier: T1
+    url: ""
+    state: pending
+    last_refresh: null
+
+  - platform: Software Advice
+    tier: T1
+    url: ""
+    state: pending
+    last_refresh: null
+
+  # ---------- T3: Founder brand ----------
+  - platform: Product Hunt (Maker)
+    tier: T3
+    url: ""
+    state: pending
+    last_refresh: null
+    notes: Sets up future product launch.
+
+  - platform: Indie Hackers
+    tier: T3
+    url: ""
+    state: pending
+    last_refresh: null
+
+  - platform: AngelList / Wellfound
+    tier: T3
+    url: ""
+    state: pending
+    last_refresh: null
+    notes: Company + founder profile.
+
+  - platform: BetaList
+    tier: T3
+    url: ""
+    state: pending
+    last_refresh: null
+    notes: One-time launch listing — defer until launch event.
+
+  - platform: About.me
+    tier: T3
+    url: ""
+    state: pending
+    last_refresh: null
+
+  - platform: Substack publication
+    tier: T3
+    url: ""
+    state: pending
+    last_refresh: null
+    notes: Cross-post blog content with canonical link back. Email-list growth side-effect.
+
+  - platform: Medium publication
+    tier: T3
+    url: ""
+    state: pending
+    last_refresh: null
+    notes: Use rel=canonical pointing to thestrledger.com.
+
+  - platform: Reddit user profile (link in bio)
+    tier: T3
+    url: ""
+    state: pending
+    last_refresh: null
+
+  - platform: YouTube channel about + banner
+    tier: T3
+    url: ""
+    state: pending
+    last_refresh: null
+
+  - platform: Pinterest profile (verified domain)
+    tier: T3
+    url: ""
+    state: pending
+    last_refresh: null
+    notes: Already exists for W15/W16; verify the domain badge is set.
+
+  # ---------- T2: STR-niche directories (Sprint 0.2) ----------
+  - platform: HostTools.io directory
+    tier: T2
+    url: ""
+    state: pending
+    last_refresh: null
+
+  - platform: Hospitable resources page
+    tier: T2
+    url: ""
+    state: pending
+    last_refresh: null
+
+  - platform: OwnerRez integrations / resources
+    tier: T2
+    url: ""
+    state: pending
+    last_refresh: null
+    notes: API integration unlocks deeper listing; tools section accepts free submissions.
+
+  - platform: BNB Wizards / SmartBnB resources
+    tier: T2
+    url: ""
+    state: pending
+    last_refresh: null
+
+  - platform: Awesome Airbnb / STR GitHub list
+    tier: T2
+    url: ""
+    state: pending
+    last_refresh: null
+    notes: Submit a one-line PR adding the template library.
+
+  - platform: Vertex42 / Spreadsheet123 user submissions
+    tier: T2
+    url: ""
+    state: pending
+    last_refresh: null
+    notes: Submit a free lead-magnet template version.

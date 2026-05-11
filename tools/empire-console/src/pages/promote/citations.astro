@@ -1,0 +1,104 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readCitations, type Citation } from '@/lib/data/citations';
+
+const data = await readCitations();
+
+const tierLabel: Record<'T1' | 'T2' | 'T3', string> = {
+  T1: 'T1 — Universal trust',
+  T2: 'T2 — STR-niche directories',
+  T3: 'T3 — Founder brand',
+};
+
+const stateBadge: Record<Citation['state'], string> = {
+  live: 'badge-ok',
+  pending: 'badge-p2',
+  stale: 'badge-p1',
+  broken: 'badge-p0',
+};
+---
+<Layout title="Promote · Citations" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Citations</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Free profile + directory backlinks. Phase 0 sprint targets — see <code>docs/backlink-automation-plan.md</code>.
+        Cheapest, highest-leverage link work for a new brand. Source: <code>ops/citations.yaml</code>.
+      </p>
+    </div>
+    <span class="badge badge-ok">Phase 0 — do this weekend</span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Live" value={data.counts.live} tone="ok" />
+    <Scorecard label="Pending" value={data.counts.pending}
+               tone={data.counts.pending > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Stale (>90d)" value={data.counts.stale}
+               tone={data.counts.stale > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Broken" value={data.counts.broken}
+               tone={data.counts.broken > 0 ? 'bad' : 'ok'} />
+  </section>
+
+  {(['T1', 'T2', 'T3'] as const).map((tier) => (
+    <section class="mb-8">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        {tierLabel[tier]} · {data.byTier[tier].length}
+      </h2>
+      <div class="card">
+        {data.byTier[tier].length === 0 ? (
+          <p class="text-sm" style="color: rgb(var(--c-muted))">
+            No entries. Add to <code>ops/citations.yaml</code>.
+          </p>
+        ) : (
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b text-left text-xs uppercase tracking-wide"
+                  style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+                <th class="py-2">Platform</th>
+                <th>State</th>
+                <th>URL</th>
+                <th class="text-right">Last refresh</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.byTier[tier].map((c) => (
+                <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                  <td class="py-2 font-medium">
+                    {c.platform}
+                    {c.notes && <div class="text-xs" style="color: rgb(var(--c-muted))">{c.notes}</div>}
+                  </td>
+                  <td>
+                    <span class:list={['badge', stateBadge[c.state]]}>{c.state}</span>
+                  </td>
+                  <td class="truncate">
+                    {c.url ? (
+                      <a href={c.url} target="_blank" rel="noopener" class="font-mono text-xs">
+                        {c.url.replace(/^https?:\/\//, '').slice(0, 50)}
+                      </a>
+                    ) : (
+                      <span style="color: rgb(var(--c-muted))">—</span>
+                    )}
+                  </td>
+                  <td class="text-right font-mono text-xs">{c.last_refresh ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </section>
+  ))}
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      How citations get to <code>live</code>
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong>Manual (Phase 0):</strong> create the profile, paste URL into <code>ops/citations.yaml</code>, set <code>state: live</code> + <code>last_refresh</code> to today.</li>
+      <li>• <strong>Auto-refresh (W42):</strong> when <code>Identity</code> bio changes, n8n updates each platform with API where available; queues manual ones in Slack.</li>
+      <li>• <strong>Stale detection:</strong> any <code>live</code> entry older than 90 days auto-flags as <code>stale</code>.</li>
+      <li>• <strong>Why this matters:</strong> 12–25 free dofollow citations, branded-SERP shield, no reputation prerequisite. Highest-ROI weekend a new brand can spend.</li>
+    </ul>
+  </section>
+</Layout>

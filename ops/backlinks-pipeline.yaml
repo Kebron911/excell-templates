@@ -5,16 +5,32 @@
 #   - infrastructure/n8n/flows/outreach-followup-watch
 #   - infrastructure/n8n/flows/backlink-watch (lost-link recovery)
 #
-# Two sections:
-#   - outreach: targets you're pursuing
-#   - acquired: backlinks won (for monitoring)
+# ⚠️  STATUS: DEFERRED for new-brand stage. See docs/backlink-automation-plan.md.
 #
-# State machine for outreach:
+#     Direct outreach to high-authority sites without prior placements gets ignored.
+#     Cheaper, higher-leverage Phase 0 work runs first:
+#       - Citations (ops/citations.yaml) — 12–25 free dofollow profiles in one weekend
+#       - Pinterest crank (W44) — primary traffic engine for STR niche
+#       - Reddit/Quora answers (W41) — high-intent visits
+#       - IndexNow + GSC submit (W43) — fast indexing
+#
+#     Reactivate outreach when ANY trigger hits:
+#       - MRR > $3k/mo
+#       - 1–2 podcast appearances landed
+#       - First original data study published (e.g. STR Tax Survey)
+#       - 50+ active customers (PMS partner pages then reachable)
+#
+# Two sections:
+#   - outreach: targets you're pursuing (keep empty during deferral)
+#   - acquired: backlinks won (auto-populated by GSC; safe to accumulate)
+#
+# State machine for outreach (when reactivated):
 #   prospect → contacted → replied → published | declined | ghosted
 #
 # Notes:
-#   - GSC + (eventually) Ahrefs/DataForSEO will populate `acquired` automatically
-#     in Phase 4. Until then, log manually.
+#   - GSC + (eventually) Ahrefs/DataForSEO populate `acquired` automatically.
+#   - The two `outreach` entries below are PLACEHOLDERS from the original stub —
+#     historical, not active pursuits.
 
 outreach:
   - target_domain: bigpockets.com
