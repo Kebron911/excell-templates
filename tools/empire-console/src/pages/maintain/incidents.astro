@@ -1,0 +1,182 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readIncidents } from '@/lib/data/incidents';
+import { formatDateTime } from '@/lib/format';
+
+const i = await readIncidents();
+
+function fmtDuration(min: number | null): string {
+  if (min === null) return '—';
+  if (min < 60) return `${min}m`;
+  if (min < 1440) return `${(min / 60).toFixed(1)}h`;
+  return `${(min / 1440).toFixed(1)}d`;
+}
+
+// Precompute rows outside JSX (Astro chokes on `<` in expression blocks).
+const rows = i.incidents.map((inc) => {
+  const sevBadge =
+    inc.severity === 'SEV1' ? 'badge-p0' :
+    inc.severity === 'SEV2' ? 'badge-p1' :
+                              'badge-p2';
+  const statusBadge =
+    inc.status === 'open'      ? 'badge-p0' :
+    inc.status === 'mitigated' ? 'badge-p1' :
+                                 'badge-ok';
+  return { inc, sevBadge, statusBadge };
+});
+
+const exampleEntry = `{
+  "id": "${'2026-' + new Date().toISOString().slice(5,10) + '-01'}",
+  "title": "n8n nightly-refresh failed — Etsy auth expired",
+  "severity": "SEV2",
+  "status": "resolved",
+  "alertedAt": "${new Date().toISOString()}",
+  "acknowledgedAt": "${new Date(Date.now() + 12*60000).toISOString()}",
+  "resolvedAt": "${new Date(Date.now() + 95*60000).toISOString()}",
+  "source": "n8n-self-watch",
+  "summary": "Etsy API token expired silently; nightly-refresh wrote a zeroed money.json for 2 days before noticed.",
+  "rootCause": "Etsy tokens auto-rotate every 90d; no renewal flow + no expiry alert.",
+  "fix": "Re-authorized in Etsy dev portal, updated n8n credential, manually re-ran nightly-refresh.",
+  "prevention": "Add etsy-token-expiry-watch flow (P1 at 14d, P0 at 3d). Track expiry in ops/credentials-inventory.md.",
+  "affectedAreas": ["money", "etsy"]
+}`;
+---
+<Layout title="Run · Incidents" section="maintain">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Incidents — postmortems & MTTR</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Append-only log at <code>ops/incidents.ndjson</code>. One entry per
+        meaningful "something broke" event — what happened, what was done,
+        what prevents next time.
+      </p>
+    </div>
+    <span class:list={['badge', i.totals.open > 0 ? 'badge-p0' : i.totals.mitigated > 0 ? 'badge-p1' : 'badge-ok']}>
+      {i.totals.open} open · {i.totals.mitigated} mitigated
+    </span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Total logged" value={i.totals.total} />
+    <Scorecard label="Open"
+               value={i.totals.open}
+               tone={i.totals.open > 0 ? 'bad' : 'ok'} />
+    <Scorecard label="MTTA (mean ack)"
+               value={fmtDuration(i.totals.mttaMinutes)}
+               hint="time alerted → acknowledged" />
+    <Scorecard label="MTTR (mean resolve)"
+               value={fmtDuration(i.totals.mttrMinutes)}
+               hint="time alerted → resolved" />
+  </section>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+    <div class="card">
+      <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">SEV1 (page)</div>
+      <div class="mt-1 font-display text-2xl font-semibold">{i.totals.bySeverity.SEV1}</div>
+    </div>
+    <div class="card">
+      <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">SEV2 (daily)</div>
+      <div class="mt-1 font-display text-2xl font-semibold">{i.totals.bySeverity.SEV2}</div>
+    </div>
+    <div class="card">
+      <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">SEV3 (weekly)</div>
+      <div class="mt-1 font-display text-2xl font-semibold">{i.totals.bySeverity.SEV3}</div>
+    </div>
+  </section>
+
+  {i.incidents.length === 0 ? (
+    <EmptyState
+      title="No incidents logged"
+      body="Either you've had no incidents (nice) or none have been written to the log. Capture is manual for now — paste an entry into ops/incidents.ndjson, one JSON object per line, matching this shape:"
+      exampleCommand={exampleEntry}
+    />
+  ) : (
+    <section class="mb-8">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Timeline
+      </h2>
+      <div class="space-y-4">
+        {rows.map(({ inc, sevBadge, statusBadge }) => (
+          <div class="card">
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
+              <div class="flex items-baseline gap-2">
+                <span class:list={['badge', sevBadge]}>{inc.severity}</span>
+                <span class:list={['badge', statusBadge]}>{inc.status}</span>
+                <h3 class="font-display text-lg font-semibold">{inc.title}</h3>
+              </div>
+              <span class="font-mono text-xs" style="color: rgb(var(--c-muted))">
+                {formatDateTime(inc.alertedAt)}
+              </span>
+            </div>
+            {inc.summary && (
+              <p class="mt-2 text-sm">{inc.summary}</p>
+            )}
+            <dl class="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs md:grid-cols-4">
+              <div>
+                <dt style="color: rgb(var(--c-muted))">Source</dt>
+                <dd class="font-mono">{inc.source || '—'}</dd>
+              </div>
+              <div>
+                <dt style="color: rgb(var(--c-muted))">Ack</dt>
+                <dd class="font-mono">{inc.acknowledgedAt ? formatDateTime(inc.acknowledgedAt) : '—'}</dd>
+              </div>
+              <div>
+                <dt style="color: rgb(var(--c-muted))">Resolved</dt>
+                <dd class="font-mono">{inc.resolvedAt ? formatDateTime(inc.resolvedAt) : '—'}</dd>
+              </div>
+              <div>
+                <dt style="color: rgb(var(--c-muted))">Affected</dt>
+                <dd class="font-mono">{inc.affectedAreas.join(' · ') || '—'}</dd>
+              </div>
+            </dl>
+            {(inc.rootCause || inc.fix || inc.prevention) && (
+              <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3 text-xs">
+                {inc.rootCause && (
+                  <div>
+                    <div class="font-semibold" style="color: rgb(var(--c-muted))">Root cause</div>
+                    <div class="mt-1">{inc.rootCause}</div>
+                  </div>
+                )}
+                {inc.fix && (
+                  <div>
+                    <div class="font-semibold" style="color: rgb(var(--c-muted))">Fix</div>
+                    <div class="mt-1">{inc.fix}</div>
+                  </div>
+                )}
+                {inc.prevention && (
+                  <div>
+                    <div class="font-semibold" style="color: rgb(var(--c-muted))">Prevention</div>
+                    <div class="mt-1">{inc.prevention}</div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="mt-8 card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Severity meaning
+    </h3>
+    <ul class="space-y-1 text-sm list-disc pl-5">
+      <li><strong>SEV1</strong> — money lost, site down, P0 alert. Page the on-call (= you). Write a postmortem regardless of resolution time.</li>
+      <li><strong>SEV2</strong> — degraded but not bleeding (e.g. cache stale, single SKU broken). P1 alert, daily channel.</li>
+      <li><strong>SEV3</strong> — papercut or unusual but recoverable. P2 alert, weekly digest. Postmortem optional but log the title.</li>
+    </ul>
+    <p class="mt-3 text-xs" style="color: rgb(var(--c-muted))">
+      Capture is manual for now. Phase 5+ may auto-draft from any P0 alert
+      that fires (incident-from-alert flow) — but worth manually logging a
+      few first so the format stays useful before automating.
+    </p>
+  </section>
+
+  <SourceFooter source="ops/incidents.ndjson (manual append)"
+                lastRefresh={new Date()}
+                notes={`${i.totals.daysSinceLast === null ? 'no incidents yet' : `${i.totals.daysSinceLast}d since last`}`} />
+</Layout>

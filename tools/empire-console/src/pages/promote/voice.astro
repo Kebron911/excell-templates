@@ -1,0 +1,91 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readVoice } from '@/lib/data/customer-voice';
+import { formatDateTime } from '@/lib/format';
+
+const entries = await readVoice(200);
+const counts = entries.reduce<Record<string, number>>((acc, e) => {
+  acc[e.category] = (acc[e.category] ?? 0) + 1; return acc;
+}, {});
+
+const categoryColor: Record<string, string> = {
+  positive: 'badge-ok',
+  pain: 'badge-p1',
+  'feature-ask': 'badge-p2',
+  objection: 'badge-p1',
+  'usage-pattern': 'badge-p2',
+  'churn-reason': 'badge-p0',
+};
+---
+<Layout title="Customer voice" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Customer voice</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Quotes from customers — Etsy convos · Gumroad messages · email · DMs · reviews.
+        Source: <code>ops/customer-voice.ndjson</code> (append-only).
+      </p>
+    </div>
+    <a href="/inbox" class="text-xs">capture quotes via inbox →</a>
+  </header>
+
+  <section class="mb-6 grid grid-cols-2 gap-3 md:grid-cols-6">
+    <Scorecard label="Positive"      value={counts.positive ?? 0}      tone={(counts.positive ?? 0) > 0 ? 'ok' : 'neutral'} />
+    <Scorecard label="Pain"          value={counts.pain ?? 0}          tone={(counts.pain ?? 0) > 0 ? 'warn' : 'neutral'} />
+    <Scorecard label="Feature ask"   value={counts['feature-ask'] ?? 0} />
+    <Scorecard label="Objection"     value={counts.objection ?? 0}     tone={(counts.objection ?? 0) > 0 ? 'warn' : 'neutral'} />
+    <Scorecard label="Usage pattern" value={counts['usage-pattern'] ?? 0} />
+    <Scorecard label="Churn"         value={counts['churn-reason'] ?? 0} tone={(counts['churn-reason'] ?? 0) > 0 ? 'bad' : 'neutral'} />
+  </section>
+
+  {entries.length === 0 ? (
+    <EmptyState
+      title="No customer quotes yet"
+      body="Capture customer language as it arrives — even one quote a week compounds."
+      yamlPath="ops/customer-voice.ndjson"
+      ctaHref="/inbox"
+      ctaLabel="Quick capture (i)"
+    />
+  ) : (
+    <ul class="space-y-3">
+      {entries.map((e) => (
+        <li class="card">
+          <div class="flex items-baseline justify-between gap-3">
+            <span class:list={['badge', categoryColor[e.category] ?? 'badge-p2']}>{e.category}</span>
+            <span class="text-xs" style="color: rgb(var(--c-muted))">
+              {formatDateTime(e.ts)} · {e.source}
+              {e.sku && <> · SKU: <code>{e.sku}</code></>}
+            </span>
+          </div>
+          <blockquote class="mt-3 border-l-4 pl-4 text-base italic"
+                      style={`border-color: rgb(var(--c-${e.category === 'pain' || e.category === 'churn-reason' ? 'bad' : 'accent'}))`}>
+            "{e.quote}"
+          </blockquote>
+          {e.tags.length > 0 && (
+            <div class="mt-2 flex gap-2">
+              {e.tags.map((t) => <span class="badge badge-p2">#{t}</span>)}
+            </div>
+          )}
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <section class="mt-8 card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Why customer voice
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• Customer language → product copy. Use their exact words on landing pages, listings, email subject lines.</li>
+      <li>• <strong>Pain</strong> + <strong>objection</strong> entries surface what's blocking purchases. Address in product or copy.</li>
+      <li>• <strong>Feature-ask</strong> entries feed the roadmap. 3+ same ask = strong signal.</li>
+      <li>• <strong>Churn-reason</strong> entries are gold — they tell you what to fix to keep buyers.</li>
+      <li>• Review monthly during product planning.</li>
+    </ul>
+  </section>
+
+  <SourceFooter source="ops/customer-voice.ndjson" lastRefresh={new Date()} />
+</Layout>

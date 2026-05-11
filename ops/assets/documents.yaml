@@ -1,0 +1,175 @@
+# ops/assets/documents.yaml — important business documents
+#
+# Read by:
+#   - tools/empire-console — /maintain/assets/documents
+#   - infrastructure/n8n/flows/document-expiry-watch
+#       (weekly Mon, P1 if expires ≤30d, P0 if expired)
+#
+# Schema:
+#   id:           string
+#   name:         string
+#   category:     legal | finance | tax | banking | insurance | identity |
+#                 contract | compliance | brand
+#   storage:      vaultwarden | drive | dropbox | physical | repo
+#   location_ref: vault entry name OR file path OR cabinet shelf
+#   issued:       YYYY-MM-DD
+#   expires:      YYYY-MM-DD (optional — for renewable docs)
+#   issuer:       string
+#   owner:        Daniel | TBD
+#   notes:        optional
+#
+# DO NOT put document contents in here. This is an INDEX.
+# Real docs live in Vaultwarden / encrypted Drive folders / physical safe.
+
+documents:
+  # Identity / formation (PLACEHOLDER — fill with real values)
+  - id: doc-llc-cert
+    name: LLC certificate of formation
+    category: legal
+    storage: vaultwarden
+    location_ref: empire/legal/llc-cert
+    issued: TBD
+    issuer: State filing office
+    owner: Daniel
+    notes: PLACEHOLDER. State + filing date here once formed.
+
+  - id: doc-ein
+    name: EIN letter (federal)
+    category: tax
+    storage: vaultwarden
+    location_ref: empire/tax/ein-letter
+    issued: TBD
+    issuer: IRS
+    owner: Daniel
+
+  - id: doc-operating-agreement
+    name: LLC operating agreement
+    category: legal
+    storage: vaultwarden
+    location_ref: empire/legal/operating-agreement
+    issued: TBD
+    owner: Daniel
+
+  # Banking
+  - id: doc-business-bank
+    name: Business bank account info
+    category: banking
+    storage: vaultwarden
+    location_ref: empire/banking/business-checking
+    issued: TBD
+    owner: Daniel
+
+  - id: doc-business-credit-card
+    name: Business credit card info
+    category: banking
+    storage: vaultwarden
+    location_ref: empire/banking/business-cc
+    issued: TBD
+    owner: Daniel
+
+  # Platform agreements
+  - id: doc-stripe-account
+    name: Stripe account credentials + connect agreement
+    category: contract
+    storage: vaultwarden
+    location_ref: empire/platforms/stripe
+    issued: TBD
+    owner: Daniel
+
+  - id: doc-etsy-seller
+    name: Etsy seller account + ToS acceptance
+    category: contract
+    storage: vaultwarden
+    location_ref: empire/platforms/etsy
+    issued: TBD
+    owner: Daniel
+
+  - id: doc-gumroad-account
+    name: Gumroad seller account
+    category: contract
+    storage: vaultwarden
+    location_ref: empire/platforms/gumroad
+    issued: TBD
+    owner: Daniel
+
+  - id: doc-influencersoft-account
+    name: Influencersoft account
+    category: contract
+    storage: vaultwarden
+    location_ref: empire/platforms/influencersoft
+    issued: TBD
+    owner: Daniel
+
+  # Tax + sales tax
+  - id: doc-cpa-engagement
+    name: CPA engagement letter
+    category: tax
+    storage: vaultwarden
+    location_ref: empire/tax/cpa-engagement
+    issued: TBD
+    issuer: TBD CPA firm
+    owner: Daniel
+    notes: Per PROGRESS §P9.2 — establish before Year 1 close OR log explicit DIY decision.
+
+  - id: doc-sales-tax-permit
+    name: Sales tax permit (state TBD)
+    category: tax
+    storage: vaultwarden
+    location_ref: empire/tax/sales-tax-permits
+    issued: TBD
+    owner: Daniel
+    notes: Per P0.0 sales-tax-posture doc.
+
+  # Insurance
+  - id: doc-business-liability
+    name: Business liability insurance policy
+    category: insurance
+    storage: vaultwarden
+    location_ref: empire/insurance/general-liability
+    issued: TBD
+    expires: TBD
+    owner: Daniel
+
+  # Compliance / legal
+  - id: doc-privacy-policy
+    name: Privacy policy (live at /privacy)
+    category: compliance
+    storage: repo
+    location_ref: docs/legal/privacy-policy.md
+    issued: TBD
+    owner: Daniel
+    notes: Must be live before any EU email is captured (PROGRESS §P9.6).
+
+  - id: doc-terms-of-service
+    name: Terms of service
+    category: compliance
+    storage: repo
+    location_ref: docs/legal/terms-of-service.md
+    issued: TBD
+    owner: Daniel
+
+  - id: doc-refund-policy
+    name: Refund policy
+    category: compliance
+    storage: repo
+    location_ref: docs/legal/refund-policy.md
+    issued: TBD
+    owner: Daniel
+
+  # Backups / recovery
+  - id: doc-vault-recovery-codes
+    name: Vaultwarden recovery codes (master backup)
+    category: identity
+    storage: physical
+    location_ref: home safe — top shelf
+    issued: TBD
+    owner: Daniel
+    notes: Test restoration quarterly.
+
+  - id: doc-domain-registrar-creds
+    name: Domain registrar credentials reference
+    category: identity
+    storage: vaultwarden
+    location_ref: empire/infra/registrar
+    issued: TBD
+    owner: Daniel

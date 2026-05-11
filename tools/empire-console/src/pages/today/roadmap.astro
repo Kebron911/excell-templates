@@ -1,0 +1,81 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readRoadmap, type RoadmapItem } from '@/lib/data/roadmap';
+
+const r = await readRoadmap();
+
+const statusBadge: Record<RoadmapItem['status'], string> = {
+  'in-progress': 'badge-ok',
+  'blocked': 'badge-p0',
+  'committed': 'badge-p1',
+  'exploring': 'badge-p2',
+};
+
+const columns: Array<{ key: 'now' | 'next' | 'later'; label: string; sub: string; items: RoadmapItem[] }> = [
+  { key: 'now',   label: 'Now',   sub: 'in flight this week / next week', items: r.now },
+  { key: 'next',  label: 'Next',  sub: '30–60 days',                       items: r.next },
+  { key: 'later', label: 'Later', sub: '60–180 days',                      items: r.later },
+];
+---
+<Layout title="Roadmap" section="today">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <a href="/" class="text-xs">← back to Today</a>
+      <h1 class="mt-1 font-display text-3xl font-semibold">Roadmap</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Above the PROGRESS.md task level. Source: <code>ops/roadmap.yaml</code>.
+        Update weekly during Tuesday Trajectory review.
+      </p>
+    </div>
+    {r.blocked > 0 && <span class="badge badge-p0">{r.blocked} blocked</span>}
+  </header>
+
+  {r.now.length === 0 && r.next.length === 0 && r.later.length === 0 ? (
+    <EmptyState
+      title="No roadmap items"
+      body="Edit ops/roadmap.yaml to add Now/Next/Later items."
+      yamlPath="ops/roadmap.yaml"
+    />
+  ) : (
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {columns.map((col) => (
+        <section>
+          <header class="mb-3">
+            <h2 class="font-display text-xl font-semibold">{col.label}</h2>
+            <p class="text-xs" style="color: rgb(var(--c-muted))">{col.sub} · {col.items.length} item{col.items.length === 1 ? '' : 's'}</p>
+          </header>
+          {col.items.length === 0 ? (
+            <p class="text-sm" style="color: rgb(var(--c-muted))">empty</p>
+          ) : (
+            <ul class="space-y-3">
+              {col.items.map((item) => (
+                <li class={`card ${item.status === 'blocked' ? 'card-critical' : ''}`}>
+                  <div class="flex items-baseline justify-between gap-2">
+                    <h3 class="font-display text-base font-semibold leading-tight">{item.title}</h3>
+                    <span class:list={['badge', statusBadge[item.status], 'shrink-0']}>{item.status}</span>
+                  </div>
+                  <p class="mt-2 text-sm" style="color: rgb(var(--c-muted))">{item.why}</p>
+                  {item.blocker && (
+                    <p class="mt-2 text-xs" style="color: rgb(var(--c-bad))">
+                      <strong>Blocked:</strong> {item.blocker}
+                    </p>
+                  )}
+                  {item.relates && (
+                    <p class="mt-2 text-xs font-mono" style="color: rgb(var(--c-muted))">
+                      → {item.relates}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ))}
+    </div>
+  )}
+
+  <SourceFooter source="ops/roadmap.yaml" lastRefresh={new Date()}
+                notes="Edit weekly during Tuesday Trajectory review" />
+</Layout>

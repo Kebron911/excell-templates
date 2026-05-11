@@ -65,7 +65,7 @@ Each manual:
 - **PDF storage:** Hostinger filesystem under `/private/manuals/` (outside web root) — served via Node `/api/download` endpoint with HMAC-signed tokens (24h expiry) + per-buyer watermarking via `pdf-lib` at stream time
 - **Email + sequences:** **InfluencerSoft** (cluster-wide), orchestrated through n8n. Single contact pool with tag-based segmentation per the cluster tag dictionary
 - **Analytics:** Plausible (privacy-friendly, lightweight)
-- **One platform, one email vendor:** Matches the unified Hostinger Business + InfluencerSoft cluster decision — no Cloudflare/AWS, no Postmark/ConvertKit
+- **One platform, one email vendor:** Matches the unified Hostinger Business + InfluencerSoft cluster decision — no third-party edge/CDN, no Postmark/ConvertKit
 - **CMS:** MDX content files in repo (no headless CMS overhead)
 
 ## 9. Build order

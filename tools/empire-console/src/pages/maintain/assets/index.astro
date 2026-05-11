@@ -1,0 +1,126 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readAssets, isStale, type AssetType } from '@/lib/data/assets';
+
+const report = await readAssets();
+
+const typeMeta: Record<AssetType, { label: string; href: string; desc: string }> = {
+  'lead-magnet':    { label: 'Lead magnets',    href: '/maintain/assets/lead-magnets',    desc: 'PDFs given away to capture emails.' },
+  'tool':           { label: 'Tools',           href: '/maintain/assets/tools',           desc: 'Built tools across the cluster (PDF gens, AI gens, calculators).' },
+  'document':       { label: 'Documents',       href: '/maintain/assets/documents',       desc: 'LLC, banking, tax, insurance, contracts. Vault-backed.' },
+  'brand-asset':    { label: 'Brand assets',    href: '/maintain/assets/brand',           desc: 'Logos · palette · fonts · OG templates · press kit.' },
+  'email-template': { label: 'Email templates', href: '/maintain/assets/email-templates', desc: 'IS sequences + transactional templates.' },
+  'page':           { label: 'Pages',           href: '/maintain/assets/pages',           desc: 'High-value landing pages with explicit conversion goals.' },
+};
+
+const allFlat = Object.values(report.byType).flat();
+const recent = [...allFlat]
+  .filter((a) => a.last_updated)
+  .sort((a, b) => new Date(b.last_updated!).getTime() - new Date(a.last_updated!).getTime())
+  .slice(0, 8);
+---
+<Layout title="Maintain · Assets" section="maintain">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Asset registry</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Unified index of every lead magnet, tool, document, brand asset, email template, and page.
+        Source: <code>ops/assets/*.yaml</code>. Add new items as the empire grows.
+      </p>
+    </div>
+    <span class:list={['badge', report.staleCount > 0 ? 'badge-p1' : 'badge-ok']}>
+      {report.staleCount} stale
+    </span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Total assets" value={report.grandTotal} />
+    <Scorecard label="Lead magnets" value={report.totals['lead-magnet']} />
+    <Scorecard label="Tools" value={report.totals['tool']} />
+    <Scorecard label="Documents" value={report.totals['document']} />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      By type
+    </h2>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {(Object.keys(typeMeta) as AssetType[]).map((type) => {
+        const meta = typeMeta[type];
+        const count = report.totals[type];
+        return (
+          <a href={meta.href} class="card no-underline transition hover:shadow-md">
+            <div class="flex items-baseline justify-between">
+              <h3 class="font-display text-lg font-semibold">{meta.label}</h3>
+              <span class="font-mono text-sm" style="color: rgb(var(--c-muted))">{count}</span>
+            </div>
+            <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">{meta.desc}</p>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <section class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="card">
+      <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Recently updated
+      </h3>
+      {recent.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">No timestamped assets yet.</p>
+      ) : (
+        <ul class="space-y-2 text-sm">
+          {recent.map((a) => (
+            <li class="flex items-baseline justify-between">
+              <span>
+                <span class="font-medium">{a.name}</span>
+                <span class="ml-2 text-xs" style="color: rgb(var(--c-muted))">{a.type}</span>
+              </span>
+              <span class="font-mono text-xs">{a.last_updated}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+
+    <div class="card">
+      <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Stale (no update in {365}d)
+      </h3>
+      {(() => {
+        const staleItems = allFlat.filter((a) => isStale(a.last_updated)).slice(0, 8);
+        if (staleItems.length === 0) {
+          return <p class="text-sm" style="color: rgb(var(--c-muted))">None — every asset has a fresh timestamp.</p>;
+        }
+        return (
+          <ul class="space-y-2 text-sm">
+            {staleItems.map((a) => (
+              <li class="flex items-baseline justify-between">
+                <span>
+                  <span class="font-medium">{a.name}</span>
+                  <span class="ml-2 text-xs" style="color: rgb(var(--c-muted))">{a.type}</span>
+                </span>
+                <span class="font-mono text-xs" style="color: rgb(var(--c-muted))">
+                  {a.last_updated ?? 'undated'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        );
+      })()}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      How the registry stays accurate
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong>Manual entry:</strong> documents, brand assets, lead magnets, email templates — edit YAML directly.</li>
+      <li>• <strong>Auto-detection (Phase 4):</strong> tools.yaml gets cross-checked against each sister site's <code>src/pages/</code> tree; new tools surface as "untracked".</li>
+      <li>• <strong>SKU registry:</strong> the 65 templates already have their own tracker (<code>manifest_check.py</code>). Not duplicated here.</li>
+      <li>• <strong>Stale watch:</strong> n8n <code>asset-stale-watch</code> P2 weekly digest of anything &gt;365d.</li>
+    </ul>
+  </section>
+</Layout>

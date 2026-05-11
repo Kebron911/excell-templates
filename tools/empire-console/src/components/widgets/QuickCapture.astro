@@ -1,0 +1,145 @@
+---
+/* Quick-capture modal — opens with `i` shortcut from anywhere in the console.
+ *
+ * Phase 4: POSTs to n8n capture-receiver webhook for direct persistence.
+ * On failure (n8n down, offline, no webhook configured): falls back to
+ * localStorage queue. /inbox page surfaces queue + offers retry.
+ *
+ * Webhook URL injected at build time via PUBLIC_N8N_WEBHOOK_BASE.
+ */
+const webhookBase = import.meta.env.PUBLIC_N8N_WEBHOOK_BASE || '';
+---
+<script is:inline define:vars={{ webhookBase }}>
+  // Expose to all client-side scripts (capture, inbox, time-log, etc.)
+  window.__EMPIRE_WEBHOOK_BASE__ = webhookBase;
+</script>
+<div id="capture-overlay" class="hidden fixed inset-0 z-50"
+     style="background: rgba(0,0,0,0.45)"
+     role="dialog" aria-modal="true" aria-label="Quick capture">
+  <div class="mx-4 mt-12 md:mx-auto md:mt-20 max-w-xl rounded-lg shadow-2xl"
+       style="background: rgb(var(--c-paper)); border: 1px solid rgb(var(--c-border))">
+    <div class="border-b px-5 py-3 text-xs"
+         style="border-color: rgb(var(--c-border)); color: rgb(var(--c-muted))">
+      <strong>Quick capture →</strong> saves locally; review at <code>/inbox</code>.
+    </div>
+    <textarea id="capture-text"
+              class="w-full px-5 py-4 text-base"
+              rows="3"
+              placeholder="Idea? Customer quote? Competitor move? Type and hit ⌘↵"
+              style="background: rgb(var(--c-paper)); color: rgb(var(--c-ink)); border: none; outline: none; resize: vertical"
+              autocomplete="off"></textarea>
+    <div class="flex items-center justify-between gap-2 border-t px-5 py-3"
+         style="border-color: rgb(var(--c-border))">
+      <select id="capture-category"
+              class="rounded border px-2 py-1 text-sm"
+              style="background: rgb(var(--c-surface)); border-color: rgb(var(--c-border)); color: rgb(var(--c-ink))">
+        <option value="idea">idea</option>
+        <option value="quote">customer quote</option>
+        <option value="competitor">competitor move</option>
+        <option value="seed">seed (future spike)</option>
+        <option value="todo">todo</option>
+        <option value="question">question</option>
+        <option value="note">note</option>
+      </select>
+      <div class="flex gap-2 text-xs">
+        <button id="capture-cancel" type="button"
+                class="rounded border px-3 py-1.5"
+                style="border-color: rgb(var(--c-border))">Cancel</button>
+        <button id="capture-save" type="button"
+                class="rounded px-3 py-1.5 font-medium"
+                style="background: rgb(var(--c-accent)); color: white">Save · ⌘↵</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast for save confirmation -->
+<div id="capture-toast" class="hidden fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-lg"
+     style="background: rgb(var(--c-ink)); color: rgb(var(--c-paper))" role="status"></div>
+
+<script is:inline>
+  (function () {
+    const overlay = document.getElementById('capture-overlay');
+    const textarea = document.getElementById('capture-text');
+    const category = document.getElementById('capture-category');
+    const saveBtn = document.getElementById('capture-save');
+    const cancelBtn = document.getElementById('capture-cancel');
+    const toast = document.getElementById('capture-toast');
+    const STORE = 'empire-inbox-pending';
+
+    function loadPending() {
+      try { return JSON.parse(localStorage.getItem(STORE) || '[]'); } catch { return []; }
+    }
+    function savePending(arr) { localStorage.setItem(STORE, JSON.stringify(arr)); }
+
+    function open() {
+      overlay.classList.remove('hidden');
+      textarea.value = '';
+      category.value = 'idea';
+      setTimeout(() => textarea.focus(), 0);
+    }
+    function close() { overlay.classList.add('hidden'); }
+
+    async function save() {
+      const text = textarea.value.trim();
+      if (!text) return;
+      const payload = { category: category.value, text, tags: [] };
+
+      // Try the n8n webhook first. Fall back to localStorage on any failure.
+      const base = window.__EMPIRE_WEBHOOK_BASE__;
+      if (base) {
+        try {
+          const res = await fetch(`${base}/empire-capture`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'inbox', payload }),
+          });
+          if (res.ok) {
+            showToast('Captured · synced ✓');
+            close();
+            return;
+          }
+        } catch { /* fall through to local queue */ }
+      }
+
+      const entry = {
+        id: (crypto.randomUUID && crypto.randomUUID()) || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
+        ts: new Date().toISOString(),
+        ...payload,
+      };
+      const pending = loadPending();
+      pending.push(entry);
+      savePending(pending);
+      showToast(`Captured · ${pending.length} pending (offline)`);
+      close();
+    }
+
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 2400);
+    }
+
+    saveBtn.addEventListener('click', save);
+    cancelBtn.addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+    textarea.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); save(); }
+      else if (e.key === 'Escape') { e.preventDefault(); close(); }
+    });
+
+    // Global shortcut: 'i' from anywhere (when not in input/textarea)
+    document.addEventListener('keydown', (e) => {
+      const tag = (e.target?.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === 'i' && overlay.classList.contains('hidden')) {
+        e.preventDefault();
+        open();
+      }
+    });
+
+    window.empireCapture = { open, close, count: () => loadPending().length };
+  })();
+</script>

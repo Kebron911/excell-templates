@@ -524,7 +524,7 @@ Claude (MCP) → Airtable (SSOT) → n8n (spine) → IS + Etsy + Gumroad + Payhi
 | Pinterest native scheduler (fallback only if Creasquare's Pinterest integration feels thin) | $0 |
 | Tailwind (deferred — Month 3 re-eval) | $0 now / $15 if reactivated |
 | Claude API | $50–150 |
-| Domain + Cloudflare | $2 |
+| Domain + Hostinger | $2 |
 | **Phase 1 total** | **~$135–250** |
 | Instantly (Phase 2) | +$97 |
 | **Phase 2+ total** | **~$230–350** |
@@ -550,7 +550,7 @@ Claude (MCP) → Airtable (SSOT) → n8n (spine) → IS + Etsy + Gumroad + Payhi
 - 2FA everywhere
 - Vaultwarden centralizes all credentials
 - Monthly VA access audit
-- n8n VPS hardened: SSH keys only, fail2ban, Cloudflare Tunnel
+- n8n VPS hardened: SSH keys only, fail2ban, Caddy reverse proxy on VPS
 
 ### 8.7 — AI ops interface examples
 

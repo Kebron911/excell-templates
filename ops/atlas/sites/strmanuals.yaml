@@ -1,0 +1,49 @@
+# ops/atlas/sites/strmanuals.yaml — STRManuals (manuscripts + companion site)
+
+site:
+  id: strmanuals
+  name: STRManuals
+  role: manuscripts
+  description: STR Manuals — long-form practitioner guides (TAX, REV, LGL series). Single Hostinger Business + Astro hybrid + InfluencerSoft email vendor. PDFs served via HMAC-signed download tokens with per-buyer pdf-lib watermarking.
+  live_url: ""
+  domain: ""
+  repo_path: STRManuals/
+
+local_dev:
+  start_command: "pnpm dev (in STRManuals/site/)"
+  port_static: 4321
+  notes: "Astro hybrid (SSR for /api/download). PDFs in private/manuals/ are not served by Astro directly."
+
+hosting:
+  provider: Hostinger
+  notes: Hybrid Astro + Node API for HMAC-signed PDF download.
+
+ci:
+  workflow_paths: []
+  smoke_path: null
+
+sections:
+  - id: charter
+    label: Charter + design
+    items:
+      - { name: Charter,                       url: STRManuals/charter.md,         kind: doc }
+      - { name: Design spec,                   url: STRManuals/design-spec.md,     kind: doc }
+      - { name: Integration patches,           url: STRManuals/integration-patches.md, kind: doc }
+      - { name: CLAUDE.md (agent instructions), url: STRManuals/CLAUDE.md,         kind: doc }
+
+  - id: manuscripts
+    label: Manuscripts
+    items:
+      - { name: TAX-01 STR tax loophole playbook,        url: STRManuals/manuscripts/TAX-01-str-tax-loophole-playbook.md, kind: doc }
+      - { name: TAX-02 Material participation survival,  url: STRManuals/manuscripts/TAX-02-material-participation-survival-kit.md, kind: doc }
+      - { name: REV-01 Why are my bookings down,         url: STRManuals/manuscripts/REV-01-why-are-my-bookings-down.md, kind: doc }
+      - { name: REV-02 Direct bookings starter,          url: STRManuals/manuscripts/REV-02-direct-bookings-starter.md, kind: doc }
+      - { name: LGL-01 Permit + regulation survival,     url: STRManuals/manuscripts/LGL-01-permit-regulation-survival-guide.md, kind: doc }
+
+  - id: site
+    label: Companion site
+    items:
+      - { name: Site root,                     url: STRManuals/site/,                     kind: code }
+      - { name: Stub generator script,         url: STRManuals/site/scripts/generate-stubs.mjs, kind: code }
+      - { name: PDF private folder,            url: STRManuals/site/private/manuals/,     kind: code }
+      - { name: .env.example,                  url: STRManuals/site/.env.example,         kind: code }

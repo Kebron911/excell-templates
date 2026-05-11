@@ -1,0 +1,188 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readSeo } from '@/lib/data/seo';
+
+const s = await readSeo();
+---
+<Layout title="Check · SEO" section="check">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">SEO</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Search Console performance + Core Web Vitals + indexing health
+        across thestrledger.com + 4 sister sites.
+      </p>
+    </div>
+    {s.isCacheReady
+      ? <span class="badge badge-ok">live</span>
+      : <span class="badge badge-p2">awaiting n8n nightly-refresh</span>}
+  </header>
+
+  {!s.isCacheReady && (
+    <div class="mb-6 card" style="background: rgb(var(--c-surface-2))">
+      <p class="text-sm">
+        <strong>No cache yet.</strong> <code>ops/cache/seo.json</code> is written by the
+        n8n <code>nightly-refresh</code> flow (Search Console API + PageSpeed Insights).
+      </p>
+    </div>
+  )}
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+    <Scorecard label="Impressions (28d)" value={s.gsc.impressions} />
+    <Scorecard label="Clicks (28d)" value={s.gsc.clicks}
+               hint={`${(s.gsc.ctr * 100).toFixed(2)}% CTR`} />
+    <Scorecard label="Avg position" value={s.gsc.avgPosition.toFixed(1)} />
+    <Scorecard
+      label="Indexing errors"
+      value={s.gsc.indexingErrors}
+      tone={s.gsc.indexingErrors > 0 ? 'bad' : 'ok'}
+    />
+  </section>
+
+  <section class="mb-8 card">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Core Web Vitals
+    </h2>
+    <div class="grid grid-cols-3 gap-4 text-center text-sm">
+      <div>
+        <div class="font-display text-2xl font-semibold" style="color: rgb(var(--c-ok))">{s.cwv.pagesGood}</div>
+        <div style="color: rgb(var(--c-muted))">Good</div>
+      </div>
+      <div>
+        <div class="font-display text-2xl font-semibold" style="color: rgb(var(--c-warn))">{s.cwv.pagesNeedsImprovement}</div>
+        <div style="color: rgb(var(--c-muted))">Needs improvement</div>
+      </div>
+      <div>
+        <div class="font-display text-2xl font-semibold" style="color: rgb(var(--c-bad))">{s.cwv.pagesPoor}</div>
+        <div style="color: rgb(var(--c-muted))">Poor</div>
+      </div>
+    </div>
+    {(s.cwv.worstLcpMs !== null || s.cwv.worstCls !== null || s.cwv.worstInpMs !== null) && (
+      <dl class="mt-4 grid grid-cols-3 gap-2 text-xs" style="color: rgb(var(--c-muted))">
+        <div><dt>Worst LCP</dt><dd class="font-mono">{s.cwv.worstLcpMs === null ? '—' : `${s.cwv.worstLcpMs}ms`}</dd></div>
+        <div><dt>Worst INP</dt><dd class="font-mono">{s.cwv.worstInpMs === null ? '—' : `${s.cwv.worstInpMs}ms`}</dd></div>
+        <div><dt>Worst CLS</dt><dd class="font-mono">{s.cwv.worstCls === null ? '—' : s.cwv.worstCls.toFixed(3)}</dd></div>
+      </dl>
+    )}
+    <p class="mt-4 text-xs" style="color: rgb(var(--c-muted))">
+      Source: PageSpeed Insights / CrUX dataset. The n8n <code>cwv-watch</code> flow fires
+      a P1 if any cluster page exits "Good" thresholds (LCP &lt;2.5s · INP &lt;200ms · CLS &lt;0.1).
+    </p>
+  </section>
+
+  {s.indexingIssues.length > 0 && (
+    <section class="mb-8">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Indexing issues
+      </h2>
+      <div class="card border-2" style="border-color: rgb(var(--c-accent))">
+        <ul class="space-y-2 text-sm">
+          {s.indexingIssues.map((i) => (
+            <li class="flex items-baseline justify-between">
+              <code class="text-xs">{i.url}</code>
+              <span class="badge badge-p1">{i.status}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Top queries (28d)
+    </h2>
+    <div class="card">
+      {s.topQueries.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          Will populate from Search Console API on first nightly-refresh.
+          Weekly digest fires Mon 08:00 as P2 with position deltas.
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Query</th>
+              <th class="text-right">Impr</th>
+              <th class="text-right">Clicks</th>
+              <th class="text-right">Pos</th>
+              <th class="text-right">Δ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {s.topQueries.map((q) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2">{q.query}</td>
+                <td class="text-right font-mono">{q.impressions}</td>
+                <td class="text-right font-mono">{q.clicks}</td>
+                <td class="text-right font-mono">{q.position.toFixed(1)}</td>
+                <td class="text-right font-mono">
+                  {q.deltaPosition === 0 ? '—' : (
+                    <span style={`color: rgb(var(--c-${q.deltaPosition < 0 ? 'ok' : 'warn'}))`}>
+                      {q.deltaPosition < 0 ? '↑' : '↓'}{Math.abs(q.deltaPosition).toFixed(1)}
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Striking-distance queries (positions 5–20)
+    </h2>
+    <div class="card">
+      {s.strikingDistance.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          Queries closest to ranking. Feed into Promote → Keyword opportunities (Phase 4).
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Query</th>
+              <th class="text-right">Pos</th>
+              <th class="text-right">Impr</th>
+              <th>Page</th>
+            </tr>
+          </thead>
+          <tbody>
+            {s.strikingDistance.map((q) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2">{q.query}</td>
+                <td class="text-right font-mono">{q.position.toFixed(1)}</td>
+                <td class="text-right font-mono">{q.impressions}</td>
+                <td class="text-xs" style="color: rgb(var(--c-muted))">
+                  {q.page ? <code>{q.page}</code> : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      AI search visibility (manual log)
+    </h3>
+    <p class="text-sm">
+      Programmatic checks for ChatGPT Search / Perplexity / Google AI Overviews are unstable
+      (Phase 5+). For now, log monthly spot-checks at <code>ops/ai-visibility-log.md</code>:
+      ask each tool the cluster's beachhead queries and record citation status.
+    </p>
+  </section>
+
+  <SourceFooter source="ops/cache/seo.json (n8n nightly-refresh)"
+                lastRefresh={s.generatedAt ?? null}
+                notes="Search Console + PageSpeed Insights" />
+</Layout>

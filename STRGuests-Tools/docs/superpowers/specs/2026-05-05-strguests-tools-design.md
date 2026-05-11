@@ -90,7 +90,7 @@
 - **Vitest** for prompt + PDF unit tests
 - **Playwright** for one smoke test per generator
 - **pnpm** workspace inside `STRGuests-Tools/`
-- **Deploy target:** Hostinger Business shared hosting (already provisioned) — static Astro `dist/` + Node.js API + MySQL. Bundled Cloudflare CDN enabled.
+- **Deploy target:** Hostinger Business shared hosting (already provisioned) — static Astro `dist/` + Node.js API + MySQL. Bundled Hostinger CDN enabled.
 
 ---
 
@@ -319,7 +319,7 @@ Same core stack as strhost.tools, plus:
 - Hostinger Business shared hosting (single platform; MySQL for rate-limit)
 - Static Astro sites: deployed via Git push or FTP to subdomain directories
 - Node.js API: deployed via Hostinger Apps (always-on Node process)
-- Bundled Cloudflare CDN enabled for static assets
+- Bundled Hostinger CDN enabled for static assets
 - Domain registration: confirm before deploy
 - **OpenAI API key** in Node.js server env (never client-side); MySQL credentials in env
 

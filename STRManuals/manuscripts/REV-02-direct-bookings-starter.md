@@ -198,7 +198,7 @@ For Path 1 (Lodgify) — the recommended starting point:
 - Set up confirmation and check-in email templates.
 
 **Day 3 (2 hours):**
-- Add your custom domain (yourproperty.com — buy via Cloudflare, $10/year).
+- Add your custom domain (yourproperty.com — buy via Hostinger, $10/year).
 - Test a fake booking end-to-end.
 - Run through the welcome email and confirm it looks right.
 

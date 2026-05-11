@@ -24,7 +24,7 @@
 
 | # | Task | Tech | Prereq | Review gate |
 |---|---|---|---|---|
-| B1 | Write all DNS records for `thestrledger.com` zone: Google Workspace MX + SPF + DKIM + DMARC, `blog.thestrledger.com` CNAME (Ghost), `app.thestrledger.com` CNAME (IS), `n8n.thestrledger.com` CNAME (Cloudflare Tunnel), Pinterest domain-verify TXT, root A record to IS if IS is hosting the hub | Cloudflare API via Terraform or direct REST | 1.5 Cloudflare API token added | `dig` each record resolves correctly |
+| B1 | DNS record values for `thestrledger.com` zone: Google Workspace MX + SPF + DKIM + DMARC, `blog.thestrledger.com` CNAME (Ghost), `app.thestrledger.com` CNAME (IS), `n8n.thestrledger.com` CNAME (VPS reverse proxy), Pinterest domain-verify TXT, root A record to IS if IS is hosting the hub. Daniel pastes into Hostinger hPanel DNS by hand. | Hostinger hPanel DNS (manual) | 1.5 Hostinger DNS access confirmed | `dig` each record resolves correctly |
 
 ---
 
@@ -34,7 +34,7 @@
 |---|---|---|---|---|
 | C1 | Ansible playbook: VPS hardening (non-root user, SSH key, UFW 22/80/443, fail2ban, unattended-upgrades) | Ansible | 1.6 VPS up + SSH key | `ssh-audit` + `lynis audit system` clean |
 | C2 | Docker compose for n8n (image, volumes, encryption key, basic auth, backup mount) | docker-compose.yml in git | C1 | `curl localhost:5678` returns 401 basic-auth |
-| C3 | Cloudflare Tunnel config + systemd unit for `n8n.thestrledger.com` → `localhost:5678` | `cloudflared` config.yml | C2 + B1 | `https://n8n.thestrledger.com` prompts basic-auth |
+| C3 | Caddy/nginx reverse proxy + systemd unit for `n8n.thestrledger.com` → `localhost:5678` (Let's Encrypt for SSL) | Caddyfile or nginx.conf | C2 + B1 | `https://n8n.thestrledger.com` prompts basic-auth |
 | C4 | Import STR-Ledger credentials into existing Vaultwarden (no new instance needed) | `bw` CLI | A1 | spot-check 3 entries |
 | C5 | Weekly cron on VPS: dump `/var/lib/docker/volumes/n8n_data` + Vaultwarden `/bw-data` (if colocated) → encrypt with age → upload to Google Drive | `restic` or `rclone` + `age` | C1 | dry run succeeds, backup lands in Drive |
 
@@ -144,7 +144,7 @@ G4 + G5 + G6 + G7 → 5.8 launch approved → G4 publish + I1 flip live
 6. **Gumroad API** — stable, no known blockers.
 7. **Ghost Admin API** — full-featured, no known blockers.
 8. **Stripe API** — full-featured, no known blockers.
-9. **Cloudflare API** — full-featured, no known blockers.
+9. **Hostinger DNS** — manual via hPanel UI (no public API for shared hosting plans). Claude provides record values; Daniel pastes.
 
 If any ⚠️ API-risk item falls back to browser automation, Claude builds the Playwright script. If it falls back further to a human SOP, that SOP gets added to `user-manual-todo.md` with a note on why.
 

@@ -1,0 +1,176 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readNewsletter } from '@/lib/data/newsletter';
+
+const report = await readNewsletter();
+---
+<Layout title="Promote · Newsletter" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Newsletter</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Subscriber count · cadence · per-broadcast performance.
+        Source: <code>ops/newsletter-pipeline.yaml</code> + IS API (Phase 4).
+      </p>
+    </div>
+    <span class="badge badge-p2">Phase 4 stub</span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+    <Scorecard
+      label="Subscribers"
+      value={report.totalSubscribers ?? '—'}
+      hint="IS tag-segmented (Phase 4)"
+    />
+    <Scorecard
+      label="Last send"
+      value={report.daysSinceLastSend === null ? '—' : `${report.daysSinceLastSend}d ago`}
+      tone={report.isCadenceStale ? 'warn' : 'ok'}
+      hint={report.isCadenceStale ? 'cadence drift (>14d)' : 'on cadence'}
+    />
+    <Scorecard
+      label="Avg open (last 5)"
+      value={report.recentAvgOpenRate === null ? '—' : `${(report.recentAvgOpenRate * 100).toFixed(0)}%`}
+      tone={report.recentAvgOpenRate !== null && report.recentAvgOpenRate < 0.20 ? 'warn' : 'ok'}
+    />
+    <Scorecard
+      label="Avg click (last 5)"
+      value={report.recentAvgClickRate === null ? '—' : `${(report.recentAvgClickRate * 100).toFixed(1)}%`}
+    />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Newsletters configured
+    </h2>
+    <div class="card">
+      {report.newsletters.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          Edit <code>ops/newsletter-pipeline.yaml</code> to add newsletters.
+        </p>
+      ) : (
+        <ul class="space-y-3 text-sm">
+          {report.newsletters.map((n) => (
+            <li class="flex items-baseline justify-between">
+              <div>
+                <span class="font-medium">{n.name}</span>
+                <span class="ml-2 font-mono text-xs" style="color: rgb(var(--c-muted))">
+                  {n.list_source} · {n.is_tag ?? '—'}
+                </span>
+              </div>
+              <div class="flex gap-2 text-xs">
+                <span class="badge badge-p2">{n.cadence}</span>
+                {n.planned_send_day && <span class="badge badge-p2">{n.planned_send_day}</span>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+
+  <section class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="card">
+      <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Drafts ({report.drafts.length})
+      </h3>
+      {report.drafts.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">No drafts in flight.</p>
+      ) : (
+        <ul class="space-y-2 text-sm">
+          {report.drafts.map((d) => (
+            <li>
+              <span class="font-medium">{d.subject}</span>
+              <div class="mt-1 text-xs" style="color: rgb(var(--c-muted))">
+                {d.body_path && <code>{d.body_path}</code>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+
+    <div class="card">
+      <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Scheduled ({report.scheduled.length})
+      </h3>
+      {report.scheduled.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">Nothing scheduled.</p>
+      ) : (
+        <ul class="space-y-2 text-sm">
+          {report.scheduled.map((s) => (
+            <li class="flex items-baseline justify-between">
+              <span class="font-medium">{s.subject}</span>
+              <span class="font-mono text-xs">{s.scheduled_for}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Recent sends
+    </h2>
+    <div class="card">
+      {report.sent.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          Phase 4 auto-populates this from IS broadcast history. Until then, log manually
+          in <code>ops/newsletter-pipeline.yaml</code> under <code>sent:</code>.
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Sent</th>
+              <th>Subject</th>
+              <th class="text-right">Recipients</th>
+              <th class="text-right">Open</th>
+              <th class="text-right">Click</th>
+              <th class="text-right">Unsub</th>
+              <th class="text-right">Replies</th>
+            </tr>
+          </thead>
+          <tbody>
+            {report.sent.slice(0, 12).map((b) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2 font-mono text-xs">
+                  {new Date(b.sent_at).toLocaleDateString()}
+                </td>
+                <td class="font-medium">{b.subject}</td>
+                <td class="text-right font-mono">{b.recipients ?? '—'}</td>
+                <td class="text-right font-mono">
+                  {b.open_rate !== undefined
+                    ? `${(b.open_rate * 100).toFixed(0)}%`
+                    : '—'}
+                </td>
+                <td class="text-right font-mono">
+                  {b.click_rate !== undefined
+                    ? `${(b.click_rate * 100).toFixed(1)}%`
+                    : '—'}
+                </td>
+                <td class="text-right font-mono">{b.unsubs ?? '—'}</td>
+                <td class="text-right font-mono">{b.replies ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Newsletter alerts
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong><code>newsletter-cadence-watch</code></strong> — weekly Mon, P1 if no broadcast in 14d (cadence drift).</li>
+      <li>• <strong><code>newsletter-perf-watch</code></strong> — on each send, P1 if open &lt;20% or unsub &gt;0.5%.</li>
+      <li>• Subscriber growth + churn rolls into <a href="/check/contacts">Check → Contacts</a> at the macro level.</li>
+      <li>• Send action triggers from <a href="/promote/broadcasts">Promote → Broadcasts</a> (Phase 4) — this page is the *view*; that page is the *send*.</li>
+    </ul>
+  </section>
+</Layout>

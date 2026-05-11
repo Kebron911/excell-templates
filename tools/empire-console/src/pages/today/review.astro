@@ -1,0 +1,146 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readWeeklyReview } from '@/lib/data/weekly-review';
+import { formatDate } from '@/lib/format';
+
+const [thisWeek, lastWeek] = await Promise.all([
+  readWeeklyReview(0),
+  readWeeklyReview(1),
+]);
+
+function fmtHm(m: number): string {
+  if (m === 0) return '0h';
+  const h = Math.floor(m / 60);
+  return `${h}h`;
+}
+---
+<Layout title="Weekly review" section="today">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <a href="/" class="text-xs">← back to Today</a>
+      <h1 class="mt-1 font-display text-3xl font-semibold">Weekly review</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Auto-generated from this week's data. No editing — just read and reflect.
+        Saturday n8n cron emits a permanent <code>ops/reviews/&lt;week&gt;.md</code> in Phase 4.
+      </p>
+    </div>
+  </header>
+
+  <!-- This week -->
+  <section class="mb-10">
+    <header class="mb-4 flex items-baseline justify-between">
+      <h2 class="font-display text-2xl font-semibold">This week</h2>
+      <span class="text-xs" style="color: rgb(var(--c-muted))">
+        {formatDate(thisWeek.weekStart)} → {formatDate(thisWeek.weekEnd)}
+      </span>
+    </header>
+
+    <div class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+      <Scorecard label="P0 alerts" value={thisWeek.alertsByPriority.P0}
+                 tone={thisWeek.alertsByPriority.P0 > 0 ? 'bad' : 'ok'}
+                 tier={thisWeek.alertsByPriority.P0 > 0 ? 'critical' : 'normal'} />
+      <Scorecard label="Decisions" value={thisWeek.decisionsLogged}
+                 hint={thisWeek.decisionsLogged === 0 ? 'log at least 1' : 'logged'} />
+      <Scorecard label="Customer quotes" value={thisWeek.voiceCaptured}
+                 hint={thisWeek.voiceCaptured === 0 ? 'capture more' : 'captured'} />
+      <Scorecard label="Time logged" value={fmtHm(thisWeek.timeMinutes)}
+                 hint={thisWeek.topTimeDomain ? `top: ${thisWeek.topTimeDomain}` : 'no sessions'} />
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div class="card">
+        <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-ok))">
+          Highlights
+        </h3>
+        {thisWeek.highlights.length === 0 ? (
+          <p class="text-sm" style="color: rgb(var(--c-muted))">No highlights computed — week-in-progress.</p>
+        ) : (
+          <ul class="space-y-2 text-sm">
+            {thisWeek.highlights.map((h) => <li>✓ {h}</li>)}
+          </ul>
+        )}
+      </div>
+      <div class="card">
+        <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-warn))">
+          Needs attention
+        </h3>
+        {thisWeek.attention.length === 0 ? (
+          <p class="text-sm" style="color: rgb(var(--c-muted))">Nothing flagged — quiet week.</p>
+        ) : (
+          <ul class="space-y-2 text-sm">
+            {thisWeek.attention.map((a) => <li>⚠ {a}</li>)}
+          </ul>
+        )}
+      </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+      <Scorecard label="Newsletter sends" value={thisWeek.newsletterSends} />
+      <Scorecard label="Inbox captures" value={thisWeek.inboxCaptured} />
+      <Scorecard label="Targets ahead/on-pace" value={thisWeek.targetsAhead} tone="ok" />
+      <Scorecard label="Targets behind" value={thisWeek.targetsBehind}
+                 tone={thisWeek.targetsBehind > 0 ? 'warn' : 'ok'} />
+    </div>
+  </section>
+
+  <!-- Last week -->
+  <section class="mb-10">
+    <header class="mb-4 flex items-baseline justify-between">
+      <h2 class="font-display text-2xl font-semibold">Last week</h2>
+      <span class="text-xs" style="color: rgb(var(--c-muted))">
+        {formatDate(lastWeek.weekStart)} → {formatDate(lastWeek.weekEnd)}
+      </span>
+    </header>
+
+    <div class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+      <Scorecard label="P0 alerts" value={lastWeek.alertsByPriority.P0}
+                 tone={lastWeek.alertsByPriority.P0 > 0 ? 'bad' : 'ok'} />
+      <Scorecard label="Decisions" value={lastWeek.decisionsLogged} />
+      <Scorecard label="Customer quotes" value={lastWeek.voiceCaptured} />
+      <Scorecard label="Newsletter sends" value={lastWeek.newsletterSends} />
+    </div>
+
+    {lastWeek.highlights.length > 0 && (
+      <div class="card mb-4">
+        <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-ok))">
+          Last week highlights
+        </h3>
+        <ul class="space-y-1 text-sm">
+          {lastWeek.highlights.map((h) => <li>✓ {h}</li>)}
+        </ul>
+      </div>
+    )}
+    {lastWeek.attention.length > 0 && (
+      <div class="card">
+        <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-warn))">
+          Last week needed attention
+        </h3>
+        <ul class="space-y-1 text-sm">
+          {lastWeek.attention.map((a) => <li>⚠ {a}</li>)}
+        </ul>
+      </div>
+    )}
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      What feeds this view
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong>Alerts</strong> from <code>ops/alerts.ndjson</code> (n8n-fed)</li>
+      <li>• <strong>Decisions</strong> from <code>ops/decisions.ndjson</code></li>
+      <li>• <strong>Customer voice</strong> from <code>ops/customer-voice.ndjson</code></li>
+      <li>• <strong>Inbox captures</strong> from <code>ops/inbox.ndjson</code></li>
+      <li>• <strong>Newsletter sends</strong> from <code>ops/newsletter-pipeline.yaml</code> · <code>sent</code></li>
+      <li>• <strong>Time logged</strong> from <code>ops/time-log.ndjson</code></li>
+      <li>• <strong>Targets</strong> from <code>ops/targets.yaml</code></li>
+    </ul>
+    <p class="mt-3 text-xs" style="color: rgb(var(--c-muted))">
+      Phase 4 adds an n8n flow that emits a permanent markdown snapshot to <code>ops/reviews/&lt;week&gt;.md</code> every Saturday.
+    </p>
+  </section>
+
+  <SourceFooter source="synthesized from 7 ops/* sources" lastRefresh={new Date()} />
+</Layout>

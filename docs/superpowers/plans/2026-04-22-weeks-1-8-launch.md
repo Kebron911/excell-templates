@@ -6,7 +6,7 @@
 
 **Architecture:** Influencersoft is the hub. Airtable is the single source of truth. n8n (self-hosted on a VPS) is the automation spine. Ghost serves the SEO blog on a subdomain. Etsy and Gumroad are discovery storefronts. Stripe Tax handles compliance. Claude connects via MCP to Airtable so operations are agent-driven.
 
-**Tech Stack:** Influencersoft, Stripe + Stripe Tax, Ghost, Airtable, n8n (self-hosted), Google Workspace, Vista Create Pro (lifetime), Creasquare (lifetime — multi-platform scheduler covering IG, LinkedIn, YouTube, TikTok, FB, and Pinterest), Cloudflare, Hetzner/DigitalOcean VPS, Vaultwarden (self-hosted, master credential vault), Claude Code MCP. Excel (.xlsx) is the product substrate.
+**Tech Stack:** Influencersoft, Stripe + Stripe Tax, Ghost, Airtable, n8n (self-hosted), Google Workspace, Vista Create Pro (lifetime), Creasquare (lifetime — multi-platform scheduler covering IG, LinkedIn, YouTube, TikTok, FB, and Pinterest), Hostinger, Hetzner/DigitalOcean VPS, Vaultwarden (self-hosted, master credential vault), Claude Code MCP. Excel (.xlsx) is the product substrate.
 
 **Pinterest scheduling note:** Creasquare's Pinterest integration is the primary tool for Months 1–3. Pinterest native scheduler is the documented fallback if Creasquare's Pinterest features feel shallow. Tailwind (deferred) is the Month-3-re-eval upgrade if Pinterest becomes a proven channel and needs SmartLoop/Tribes.
 
@@ -170,7 +170,7 @@ cat > ops/credentials-inventory.md <<'EOF'
 | Stripe | dashboard.stripe.com | (pending) | pending | Vaultwarden + IS | Stripe Tax enabled |
 | Ghost | (pending host) | (pending) | pending | Vaultwarden | Subdomain blog.thestrledger.com |
 | Google Workspace | admin.google.com | (pending) | pending | Vaultwarden | Used for backups |
-| Cloudflare | dash.cloudflare.com | (pending) | pending | Vaultwarden | DNS + tunnel |
+| Hostinger | hpanel.hostinger.com | (pending) | pending | Vaultwarden | DNS + tunnel |
 | Hetzner/DO VPS | (pending host) | (pending) | pending | SSH keys + Vaultwarden | n8n host |
 | Vista Create Pro | create.vista.com | (pending) | pending | Vaultwarden | Brand kit lives here |
 | Creasquare | app.creasquare.io | (pending) | pending | Vaultwarden | Multi-platform scheduler: IG, LinkedIn, YouTube, TikTok, FB, **and Pinterest**. Lifetime deal owned. Pinterest native scheduler is fallback if Creasquare's Pinterest features feel shallow. |
@@ -209,7 +209,7 @@ Drop 10 candidates into `brand/brand-decisions.md`. Target vibe: business-grade,
 
 For each candidate:
 1. Etsy search — is there a shop with this name? → https://www.etsy.com/search?q=<name>
-2. Domain — is .com available? Check via Namecheap, Porkbun, or Cloudflare Registrar
+2. Domain — is .com available? Check via Namecheap, Porkbun, or Hostinger
 3. Instagram handle available?
 4. Trademark conflict? Quick USPTO TESS search → https://tmsearch.uspto.gov/
 
@@ -268,11 +268,11 @@ git commit -m "brand: lock name, identity, and tone"
 
 - [ ] **Step 1: Purchase domain**
 
-Recommended: Cloudflare Registrar (near-wholesale prices, free WHOIS privacy, no upsells). Account: sign up at dash.cloudflare.com. Buy the .com domain locked in Task A1.
+Recommended: Hostinger (near-wholesale prices, free WHOIS privacy, no upsells). Account: sign up at hpanel.hostinger.com. Buy the .com domain locked in Task A1.
 
 - [ ] **Step 2: Point DNS**
 
-In Cloudflare DNS, add:
+In Hostinger DNS, add:
 - `A` record `@` → placeholder `192.0.2.1` (will update when hub is live)
 - `MX` records for your chosen email host (Google Workspace, Fastmail, or Zoho)
 
@@ -288,7 +288,7 @@ From another address, email `hello@thestrledger.com` with subject "test". Confir
 
 ```bash
 # Update brand/brand-decisions.md with domain confirmation
-# Update ops/credentials-inventory.md with Cloudflare + Google Workspace owners
+# Update ops/credentials-inventory.md with Hostinger + Google Workspace owners
 git add brand/brand-decisions.md ops/credentials-inventory.md
 git commit -m "infra: register domain, provision email"
 ```
@@ -855,7 +855,7 @@ Expected: new row appears in Airtable. Then ask Claude to delete it.
 
 **Files:** `infrastructure/n8n/install.md`
 
-**Acceptance criteria:** n8n is reachable at `n8n.thestrledger.com` via Cloudflare Tunnel (not public IP), logged in with admin credentials stored in Vaultwarden.
+**Acceptance criteria:** n8n is reachable at `n8n.thestrledger.com` via Caddy reverse proxy on VPS (not public IP), logged in with admin credentials stored in Vaultwarden.
 
 - [ ] **Step 1: Provision a VPS**
 
@@ -887,7 +887,7 @@ systemctl restart ssh
 apt update && apt install -y fail2ban
 systemctl enable --now fail2ban
 
-# Firewall — allow 22 only (Cloudflare Tunnel handles ingress)
+# Firewall — allow 22 only (Caddy reverse proxy on VPS handles ingress)
 ufw default deny incoming
 ufw default allow outgoing
 ufw allow 22/tcp
@@ -932,9 +932,9 @@ docker compose up -d
 docker compose logs -f  # watch for successful startup
 ```
 
-- [ ] **Step 5: Configure Cloudflare Tunnel**
+- [ ] **Step 5: Configure Caddy reverse proxy on VPS**
 
-On Cloudflare dashboard → Zero Trust → Tunnels → create tunnel "n8n-host". Install the connector on the VPS per Cloudflare instructions. Route `n8n.thestrledger.com` → `http://localhost:5678`.
+On Hostinger hPanel → Zero Trust → Tunnels → create tunnel "n8n-host". Install the connector on the VPS per Hostinger instructions. Route `n8n.thestrledger.com` → `http://localhost:5678`.
 
 No public IP exposure. Good.
 
@@ -950,7 +950,7 @@ cat > infrastructure/n8n/install.md <<'EOF'
 
 - Host: <Hetzner CX22 / DO Basic>, Ubuntu 24.04
 - Access: SSH keys only (fail2ban active, UFW restricts to port 22)
-- Tunnel: Cloudflare Tunnel, `n8n.thestrledger.com` → localhost:5678
+- Tunnel: Caddy reverse proxy on VPS, `n8n.thestrledger.com` → localhost:5678
 - Auth: basic auth, credentials in Vaultwarden
 - Data volume: /home/daniel/n8n/data (host-mapped)
 - Encryption key: stored in Vaultwarden (critical — needed for restore)
@@ -963,7 +963,7 @@ cat > infrastructure/n8n/install.md <<'EOF'
 `docker compose pull && docker compose up -d`
 EOF
 git add infrastructure/n8n/install.md
-git commit -m "infra: n8n provisioned on hardened VPS via Cloudflare Tunnel"
+git commit -m "infra: n8n provisioned on hardened VPS via Caddy reverse proxy on VPS"
 ```
 
 Update `ops/credentials-inventory.md` with VPS + n8n rows.
@@ -982,7 +982,7 @@ Follow IS's getting-started flow. Brand name from A1, primary color from A1.
 
 - [ ] **Step 2: Connect domain**
 
-In IS → Settings → Domain → add `thestrledger.com` (main site) and `app.thestrledger.com` or similar per IS's conventions. Follow their CNAME instructions, add the records in Cloudflare DNS.
+In IS → Settings → Domain → add `thestrledger.com` (main site) and `app.thestrledger.com` or similar per IS's conventions. Follow their CNAME instructions, add the records in Hostinger DNS.
 
 - [ ] **Step 3: Connect Stripe**
 
@@ -990,7 +990,7 @@ In IS → Integrations → Stripe → connect. Verify test-mode transactions wor
 
 - [ ] **Step 4: Configure email sending**
 
-In IS → Email → sender identity. Add `hello@thestrledger.com` and verify DNS (SPF, DKIM, DMARC records) in Cloudflare. Critical for deliverability.
+In IS → Email → sender identity. Add `hello@thestrledger.com` and verify DNS (SPF, DKIM, DMARC records) in Hostinger. Critical for deliverability.
 
 - [ ] **Step 5: Survey IS's API / integration options**
 
@@ -1012,7 +1012,7 @@ cat > infrastructure/influencersoft/config.md <<'EOF'
 
 ## Email sender
 - Address: hello@thestrledger.com
-- SPF, DKIM, DMARC: verified in Cloudflare DNS
+- SPF, DKIM, DMARC: verified in Hostinger DNS
 
 ## Stripe
 - Connected in live mode (test mode verified first)
@@ -1070,7 +1070,7 @@ Update `config.md` with Stripe Tax confirmation and commit.
 
 **Option A (simpler, $9/mo):** Ghost(Pro) managed hosting at ghost.org/pricing. No VPS needed.
 
-**Option B (free, more work):** Self-host Ghost on the same VPS that runs n8n. Uses Docker, needs another Cloudflare Tunnel route.
+**Option B (free, more work):** Self-host Ghost on the same VPS that runs n8n. Uses Docker, needs another Caddy reverse proxy on VPS route.
 
 - [ ] **Step 1: Pick option and provision**
 
@@ -1078,7 +1078,7 @@ For this plan, default to **Option A (Ghost Pro $9/mo)** — simpler, let Ghost 
 
 - [ ] **Step 2: Set up Ghost Pro**
 
-Go to ghost.org → Start a trial. Use `hello@thestrledger.com`. Custom domain = `blog.thestrledger.com`. Follow DNS instructions (CNAME in Cloudflare).
+Go to ghost.org → Start a trial. Use `hello@thestrledger.com`. Custom domain = `blog.thestrledger.com`. Follow DNS instructions (CNAME in Hostinger hPanel DNS).
 
 - [ ] **Step 3: Choose and customize theme**
 
@@ -1460,7 +1460,7 @@ cat > docs/runbooks/disaster-recovery.md <<'EOF'
 4. Restore n8n data volume from latest rsync backup (credentials, execution history)
 
 ## Scenario 4: Domain lost / transferred
-1. Recovery path via Cloudflare Registrar 60-day-hold mechanism
+1. Recovery path via Hostinger 60-day-hold mechanism
 2. If lost: activate mirror domain (reserved in Task A1-adjacent — TODO for Phase 2)
 
 ## Annual drill
@@ -1529,7 +1529,7 @@ git commit -m "content: first 10 blog posts planned"
 
 - [ ] **Step 1: Create Pinterest business account**
 
-pinterest.com/business. Sign up with `hello@thestrledger.com`. Enable 2FA. Claim your domain (add DNS TXT record in Cloudflare).
+pinterest.com/business. Sign up with `hello@thestrledger.com`. Enable 2FA. Claim your domain (add DNS TXT record in Hostinger hPanel DNS).
 
 - [ ] **Step 2: Create 5 boards**
 
@@ -1736,12 +1736,12 @@ Complete on the last day of Week 8. Any unticked item = a follow-up task.
 - [ ] Shop policies and about section published
 
 ## Lane B — Hub Infrastructure
-- [ ] Domain registered and pointed to Cloudflare
+- [ ] Domain registered and DNS managed in Hostinger
 - [ ] Influencersoft hub configured on thestrledger.com
 - [ ] Stripe Tax enabled and tested
 - [ ] Ghost blog live at blog.thestrledger.com
 - [ ] Airtable base with 5 tables live, Claude MCP connected
-- [ ] n8n running on hardened VPS via Cloudflare Tunnel
+- [ ] n8n running on hardened VPS via Caddy reverse proxy on VPS
 - [ ] n8n Order Ingestion workflow (P0) — tested with real purchase
 - [ ] n8n Product Catalog Sync workflow (P0)
 - [ ] Hero lead magnet + /47 landing page live and delivering

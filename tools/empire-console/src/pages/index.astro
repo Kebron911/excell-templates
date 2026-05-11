@@ -1,0 +1,343 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import AlertFeed from '@/components/widgets/AlertFeed.astro';
+import NextSixtyMinutes from '@/components/widgets/NextSixtyMinutes.astro';
+import SinceLastVisit from '@/components/widgets/SinceLastVisit.astro';
+import StreakBadge from '@/components/widgets/StreakBadge.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readProgress } from '@/lib/data/progress';
+import { readRunbooks } from '@/lib/data/runbooks';
+import { readCalendar } from '@/lib/data/calendar';
+import { readInfrastructure } from '@/lib/data/infrastructure';
+import { readTargets, worstStatus } from '@/lib/data/targets';
+import { readRisks } from '@/lib/data/risks';
+import { readMoney } from '@/lib/data/money';
+import { readSyncLog } from '@/lib/data/sync-log';
+import { formatDate } from '@/lib/format';
+
+const [progress, runbooks, calendar, infra, targets, risks, money, syncLog] = await Promise.all([
+  readProgress(),
+  readRunbooks(),
+  readCalendar(),
+  readInfrastructure(),
+  readTargets(),
+  readRisks(),
+  readMoney(),
+  readSyncLog(),
+]);
+const worstMetric = worstStatus(targets);
+
+const staleRunbooks = runbooks.filter((r) => r.isStale);
+const dueSoon = calendar.items.filter((i) => i.isOverdue || i.isDueSoon).slice(0, 5);
+
+// Daniel's weekly domain rhythm (per CLAUDE.md)
+const day = new Date().getDay();
+const rhythm = [
+  { key: 'sun', label: 'Social',     focus: 'connections + content seeding',  link: '/promote',           tile: 'Grow' },
+  { key: 'mon', label: 'Money',      focus: 'revenue · burn · scoreboard',    link: '/money',             tile: 'Money' },
+  { key: 'tue', label: 'Trajectory', focus: 'roadmap · key bets · big rocks', link: '/check',             tile: 'Watch' },
+  { key: 'wed', label: 'Wisdom',     focus: 'learnings · content plan',       link: '/promote',           tile: 'Grow (atomization)' },
+  { key: 'thu', label: 'Thrive',     focus: 'health · ops · maintenance',     link: '/maintain',          tile: 'Run' },
+  { key: 'fri', label: 'Freedom',    focus: 'automation · delegation',        link: '/maintain/runbooks', tile: 'Run (runbooks)' },
+  { key: 'sat', label: 'Self',       focus: 'review · reflection',            link: '/check/alerts',      tile: 'Watch (alerts)' },
+][day];
+
+// Tier the scorecards: critical/notable/normal based on actual state
+const p0Tier = progress.nextActions.length > 5 ? 'critical' : progress.nextActions.length > 0 ? 'notable' : 'normal';
+const dueTier = calendar.overdue > 0 ? 'critical' : calendar.dueWithin7d > 0 ? 'notable' : 'normal';
+const staleTier = staleRunbooks.length > 0 ? 'notable' : 'normal';
+const domainTier = infra.expiringP0 > 0 ? 'critical' : infra.expiringSoon > 0 ? 'notable' : 'normal';
+---
+<Layout title="Today" section="today">
+  <SinceLastVisit />
+
+  <NextSixtyMinutes />
+
+  <div class="mt-3 flex flex-wrap gap-2">
+    <a href="/today/routine"
+       class="inline-block rounded border px-3 py-1.5 text-xs no-underline"
+       style="border-color: rgb(var(--c-border)); color: rgb(var(--c-muted))">
+      Routine →
+    </a>
+    <a href="/today/targets"
+       class="inline-block rounded border px-3 py-1.5 text-xs no-underline"
+       style="border-color: rgb(var(--c-border)); color: rgb(var(--c-muted))">
+      Targets →
+    </a>
+    <a href="/today/roadmap"
+       class="inline-block rounded border px-3 py-1.5 text-xs no-underline"
+       style="border-color: rgb(var(--c-border)); color: rgb(var(--c-muted))">
+      Roadmap →
+    </a>
+    <a href="/today/review"
+       class="inline-block rounded border px-3 py-1.5 text-xs no-underline"
+       style="border-color: rgb(var(--c-border)); color: rgb(var(--c-muted))">
+      Weekly review →
+    </a>
+    <a href="/today/progress"
+       class="inline-block rounded border px-3 py-1.5 text-xs no-underline"
+       style="border-color: rgb(var(--c-border)); color: rgb(var(--c-muted))">
+      PROGRESS →
+    </a>
+    <a href="/today/time"
+       class="inline-block rounded border px-3 py-1.5 text-xs no-underline"
+       style="border-color: rgb(var(--c-border)); color: rgb(var(--c-muted))">
+      Time →
+    </a>
+    <a href="/inbox"
+       class="inline-block rounded border px-3 py-1.5 text-xs no-underline"
+       style="border-color: rgb(var(--c-border)); color: rgb(var(--c-muted))">
+      Inbox (i)
+    </a>
+  </div>
+
+  <header class="mt-8 mb-6 flex items-start justify-between gap-4">
+    <div>
+      <h1 class="font-display text-4xl font-semibold">Today</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        PROGRESS last reviewed: <strong>{formatDate(progress.lastReviewed)}</strong>
+      </p>
+      <div class="mt-3"><StreakBadge /></div>
+    </div>
+    <a href={rhythm.link} class="card no-underline" style="background: rgb(var(--c-surface-2)); max-width: 280px">
+      <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">{rhythm.label}</div>
+      <div class="mt-1 font-display text-base font-semibold">{rhythm.focus}</div>
+      <div class="mt-1 text-xs" style="color: rgb(var(--c-accent))">→ {rhythm.tile}</div>
+    </a>
+  </header>
+
+  <section class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4" aria-label="Daily scorecards">
+    <Scorecard
+      label="Open P0 actions"
+      value={progress.nextActions.length}
+      hint={`${progress.totalUnchecked} unchecked total`}
+      tone={progress.nextActions.length > 0 ? 'warn' : 'ok'}
+      tier={p0Tier}
+      tooltip="Unchecked items in P0/P0.0/P0.5 sections of PROGRESS.md"
+    />
+    <Scorecard
+      label="Due ≤7d"
+      value={calendar.dueWithin7d}
+      hint={calendar.overdue > 0 ? `${calendar.overdue} overdue` : `${calendar.dueWithin30d} within 30d`}
+      tone={calendar.overdue > 0 ? 'bad' : calendar.dueWithin7d > 0 ? 'warn' : 'ok'}
+      tier={dueTier}
+      tooltip="Tax dates, sales tax, vendor renewals from ops/calendar.yaml"
+    />
+    <Scorecard
+      label="Stale runbooks"
+      value={staleRunbooks.length}
+      hint={`${runbooks.length} indexed`}
+      tone={staleRunbooks.length > 0 ? 'warn' : 'ok'}
+      tier={staleTier}
+      tooltip="Runbooks with no last_reviewed in >180 days"
+    />
+    <Scorecard
+      label="Domain ≤60d"
+      value={infra.expiringSoon}
+      hint={infra.expiringP0 > 0 ? `${infra.expiringP0} ≤7d!` : `${infra.domains.length} tracked`}
+      tone={infra.expiringP0 > 0 ? 'bad' : infra.expiringSoon > 0 ? 'warn' : 'ok'}
+      tier={domainTier}
+      tooltip="Registrar expiry from ops/infrastructure.yaml"
+    />
+  </section>
+
+  <a href="/check/money" class="card mb-6 block no-underline transition hover:shadow-md"
+     style={money.aboveTheLineRatio !== null && money.aboveTheLineRatio < 1
+       ? 'border-left: 4px solid rgb(var(--c-bad))'
+       : (money.aboveTheLineRatio !== null ? 'border-left: 4px solid rgb(var(--c-ok))' : '')}>
+    <div class="flex flex-wrap items-baseline justify-between gap-4">
+      <div>
+        <div class="flex items-baseline gap-2">
+          <h3 class="font-display text-base font-semibold">Money pulse</h3>
+          {syncLog.staleness === 'ok'   && <span class="badge badge-ok">{syncLog.ageHours!.toFixed(0)}h fresh</span>}
+          {syncLog.staleness === 'warn' && <span class="badge badge-p1">{syncLog.ageHours!.toFixed(0)}h stale</span>}
+          {syncLog.staleness === 'bad'  && syncLog.ageHours !== null && <span class="badge badge-p0">{syncLog.ageHours.toFixed(0)}h stale</span>}
+          {syncLog.staleness === 'missing' && <span class="badge badge-p2">no cache yet</span>}
+        </div>
+        <p class="mt-1 text-xs" style="color: rgb(var(--c-muted))">
+          {money.isCacheReady
+            ? 'Live from ops/cache/money.json (n8n nightly-refresh)'
+            : 'Awaiting first nightly-refresh — values are zeros until n8n writes the cache'}
+        </p>
+      </div>
+      <div class="flex items-baseline gap-6 text-sm">
+        <div>
+          <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">Yesterday</div>
+          <div class="mt-0.5 font-mono text-base">
+            ${money.yesterday.revenue.toFixed(0)}
+            <span class="ml-1 text-xs" style="color: rgb(var(--c-muted))">
+              · {money.yesterday.orders} orders
+            </span>
+          </div>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">MTD revenue</div>
+          <div class="mt-0.5 font-mono text-base">${money.mtd.revenue.toFixed(0)}</div>
+        </div>
+        <div>
+          <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">Above the line</div>
+          <div class="mt-0.5 font-display text-xl font-semibold"
+               style={money.aboveTheLineRatio !== null && money.aboveTheLineRatio < 1
+                 ? 'color: rgb(var(--c-bad))'
+                 : (money.aboveTheLineRatio !== null ? 'color: rgb(var(--c-ok))' : '')}>
+            {money.aboveTheLineRatio === null ? '—' : `${money.aboveTheLineRatio.toFixed(1)}×`}
+          </div>
+        </div>
+        {money.refundSpikes.length > 0 && (
+          <span class="badge badge-p0">{money.refundSpikes.length} refund spike</span>
+        )}
+      </div>
+    </div>
+  </a>
+
+  <section class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+    <a href="/today/targets" class="card no-underline transition hover:shadow-md"
+       style={worstMetric?.status === 'critical' ? 'border-left: 4px solid rgb(var(--c-bad))' :
+              worstMetric?.status === 'behind' ? 'border-left: 4px solid rgb(var(--c-warn))' : ''}>
+      <div class="flex items-baseline justify-between gap-3">
+        <h3 class="font-display text-base font-semibold">Targets — pace</h3>
+        {worstMetric ? (
+          <span class:list={['badge',
+            worstMetric.status === 'critical' ? 'badge-p0' :
+            worstMetric.status === 'behind' ? 'badge-p1' :
+            'badge-ok']}>
+            {worstMetric.status === 'on-pace' ? 'on pace' : worstMetric.status}
+          </span>
+        ) : (
+          <span class="badge badge-p2">no targets set</span>
+        )}
+      </div>
+      {worstMetric ? (
+        <p class="mt-2 text-sm" style="color: rgb(var(--c-muted))">
+          Worst: <strong>{worstMetric.metric}</strong> · {(worstMetric.progressRatio * 100).toFixed(0)}% achieved at {(worstMetric.paceRatio * 100).toFixed(0)}% of period
+        </p>
+      ) : (
+        <p class="mt-2 text-sm" style="color: rgb(var(--c-muted))">
+          Set monthly + quarterly targets in <code>ops/targets.yaml</code>.
+        </p>
+      )}
+    </a>
+    <a href="/maintain/risks" class="card no-underline transition hover:shadow-md"
+       style={risks.critical > 0 ? 'border-left: 4px solid rgb(var(--c-bad))' : ''}>
+      <div class="flex items-baseline justify-between gap-3">
+        <h3 class="font-display text-base font-semibold">Risks — single-points-of-failure</h3>
+        <span class:list={['badge', risks.critical > 0 ? 'badge-p0' : risks.high > 0 ? 'badge-p1' : 'badge-ok']}>
+          {risks.critical} critical · {risks.high} high
+        </span>
+      </div>
+      <p class="mt-2 text-sm" style="color: rgb(var(--c-muted))">
+        {risks.staleCount > 0
+          ? `${risks.staleCount} risks have not been reviewed in >180d`
+          : `${risks.risks.length} tracked, all reviewed within 180d`}
+      </p>
+    </a>
+  </section>
+
+  <section class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="card">
+      <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Due this week
+      </h3>
+      {dueSoon.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">Nothing due in the next 7 days.</p>
+      ) : (
+        <ol class="space-y-2 text-sm">
+          {dueSoon.map((d) => (
+            <li class="flex items-baseline justify-between gap-3">
+              <span class="min-w-0 flex-1">
+                <span class:list={['badge', d.isOverdue ? 'badge-p0' : 'badge-p1']}>
+                  {d.isOverdue ? `${Math.abs(d.daysUntil)}d late` : `${d.daysUntil}d`}
+                </span>
+                <span class="ml-2">{d.label}</span>
+              </span>
+              <span class="font-mono text-xs" style="color: rgb(var(--c-muted))">{formatDate(d.next_due)}</span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+
+    <AlertFeed />
+  </section>
+
+  <section class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div class="card">
+      <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Next P0 actions
+        <span class="tooltip ml-2 text-xs" data-tooltip="Parsed from PROGRESS.md regex — review monthly for drift" tabindex="0">ⓘ</span>
+      </h3>
+      {progress.nextActions.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">All P0 items checked. Pour a coffee.</p>
+      ) : (
+        <ol class="space-y-2 text-sm">
+          {progress.nextActions.map((a) => (
+            <li>
+              <span class="font-mono text-xs" style="color: rgb(var(--c-muted))">{a.section}</span>
+              <span class="ml-2">{a.text}</span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+
+    <div class="card">
+      <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Domain expiry
+      </h3>
+      {infra.domains.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          No domains tracked. Edit <code>ops/infrastructure.yaml</code>.
+        </p>
+      ) : (
+        <ul class="space-y-2 text-sm">
+          {infra.domains.slice(0, 6).map((d) => (
+            <li class="flex items-baseline justify-between gap-3">
+              <span class="min-w-0 flex-1 font-medium">{d.domain}</span>
+              <span class:list={[
+                'font-mono text-xs',
+                d.isExpiringP0 ? 'badge badge-p0' : d.isExpiringSoon ? 'badge badge-p1' : '',
+              ]}>
+                {d.daysToExpiry === null ? '—' : `${d.daysToExpiry}d`}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+
+  <section class="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+    <a href="/money" class="card card-tight no-underline transition hover:shadow-md">
+      <h3 class="font-display text-base font-semibold">Money →</h3>
+    </a>
+    <a href="/promote" class="card card-tight no-underline transition hover:shadow-md">
+      <h3 class="font-display text-base font-semibold">Grow →</h3>
+    </a>
+    <a href="/check" class="card card-tight no-underline transition hover:shadow-md">
+      <h3 class="font-display text-base font-semibold">Watch →</h3>
+    </a>
+    <a href="/maintain" class="card card-tight no-underline transition hover:shadow-md">
+      <h3 class="font-display text-base font-semibold">Run →</h3>
+    </a>
+  </section>
+
+  <a href="/atlas" class="card block no-underline transition hover:shadow-md"
+     style="background: rgb(var(--c-surface-2))">
+    <div class="flex items-baseline justify-between">
+      <div>
+        <h3 class="font-display text-lg font-semibold">Atlas — directory of everything →</h3>
+        <p class="mt-1 text-xs" style="color: rgb(var(--c-muted))">
+          Every registry · external tool · runbook · spec · n8n flow · code location.
+          Press <kbd>⌘K</kbd> anywhere to find anything fast.
+        </p>
+      </div>
+      <span class="text-xs" style="color: rgb(var(--c-muted))">/atlas</span>
+    </div>
+  </a>
+
+  <SourceFooter source="filesystem (PROGRESS.md, ops/*.yaml, ops/alerts.ndjson)"
+                lastRefresh={new Date()}
+                nextRefresh="every page load (live)" />
+</Layout>

@@ -1,0 +1,49 @@
+# ops/atlas/sites/strbuyers.yaml — strbuyers.tools
+
+site:
+  id: strbuyers
+  name: strbuyers.tools
+  role: site
+  description: Free tools for STR property buyers (acquisition lifecycle stage). v0.1.0 launched 2026-05-08.
+  live_url: https://strbuyers.tools
+  domain: strbuyers.tools
+  repo_path: STRBuyers-Tools/
+
+local_dev:
+  start_command: "pnpm dev"
+  port_static: 4321
+
+hosting:
+  provider: Hostinger
+  doc_root: ~/domains/strbuyers.tools/public_html/
+
+ci:
+  workflow_paths:
+    - STRBuyers-Tools/.github/workflows/ci.yml
+    - STRBuyers-Tools/.github/workflows/deploy.yml
+  smoke_path: STRBuyers-Tools/scripts/smoke.mjs
+
+sections:
+  - id: planning
+    label: Planning + state
+    items:
+      - { name: STATE.md,              url: STRBuyers-Tools/.planning/STATE.md, kind: doc }
+      - { name: ROADMAP.md,            url: STRBuyers-Tools/.planning/ROADMAP.md, kind: doc }
+      - { name: README.md,             url: STRBuyers-Tools/README.md, kind: doc, status: placeholder }
+      - { name: CLAUDE.md,             url: STRBuyers-Tools/CLAUDE.md, kind: doc }
+      - { name: MEMORY.md,             url: STRBuyers-Tools/MEMORY.md, kind: doc }
+      - { name: docs/,                 url: STRBuyers-Tools/docs/, kind: code }
+
+  - id: code
+    label: Code
+    items:
+      - { name: src/,                  url: STRBuyers-Tools/src/, kind: code }
+      - { name: scripts/,              url: STRBuyers-Tools/scripts/, kind: code }
+      - { name: tests/,                url: STRBuyers-Tools/tests/, kind: code }
+      - { name: public/,               url: STRBuyers-Tools/public/, kind: code }
+
+  - id: launch
+    label: v0.1.0 launch
+    items:
+      - { name: Homepage,              url: https://strbuyers.tools, kind: external }
+      - { name: Launch tag,            url: STRBuyers-Tools/CHANGELOG.md, kind: doc, status: placeholder }

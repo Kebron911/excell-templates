@@ -24,7 +24,7 @@ Fifth site in the STR ecosystem cluster.
 6. `BUNDLE-01` — All Five ($99, save $46)
 
 ## Tech
-Hostinger Business · Node.js + Astro (hybrid output) · Stripe Checkout · **InfluencerSoft** (cluster-wide email + sequences, orchestrated through n8n). PDFs live on the Hostinger filesystem under `/private/manuals/` and are served by `/api/download` with HMAC-signed tokens (24h expiry) and per-buyer `pdf-lib` watermarking at stream time. **No Cloudflare/AWS, no Postmark/ConvertKit** — one platform, one email vendor, matches the cluster.
+Hostinger Business · Node.js + Astro (hybrid output) · Stripe Checkout · **InfluencerSoft** (cluster-wide email + sequences, orchestrated through n8n). PDFs live on the Hostinger filesystem under `/private/manuals/` and are served by `/api/download` with HMAC-signed tokens (24h expiry) and per-buyer `pdf-lib` watermarking at stream time. **No third-party edge/CDN, no Postmark/ConvertKit** — one platform, one email vendor, matches the cluster.
 
 ## Email integration (InfluencerSoft via n8n)
 

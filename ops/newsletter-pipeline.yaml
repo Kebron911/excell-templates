@@ -1,0 +1,56 @@
+# ops/newsletter-pipeline.yaml — newsletter broadcasts (drafts, scheduled, sent)
+#
+# Read by:
+#   - tools/empire-console — /promote/newsletter
+#   - infrastructure/n8n/flows/newsletter-cadence-watch  (weekly Mon, P1 if no send in 14d)
+#   - infrastructure/n8n/flows/newsletter-perf-watch     (on send, P1 if open <20% or unsub >0.5%)
+#
+# Two layers:
+#   1. METADATA — declarative: target list (IS tag), planned cadence, owner
+#   2. DRAFTS / SCHEDULED — what's next out the door
+#   3. SENT — historical log (also auto-populated from IS API in Phase 4)
+
+newsletters:
+  - id: str-ledger-weekly
+    name: The STR Ledger Weekly
+    list_source: influencersoft
+    is_tag: newsletter-weekly
+    cadence: weekly
+    planned_send_day: thursday
+    owner: Daniel
+    notes: Primary broadcast newsletter — anchor for the empire's owned channel.
+
+  # Add a Ghost newsletter if blog.thestrledger.com Ghost members get a separate digest.
+  # - id: ghost-blog-digest
+  #   name: STR Ledger Blog Digest
+  #   list_source: ghost
+  #   cadence: weekly
+  #   owner: Daniel
+
+drafts:
+  # Sample shape:
+  # - newsletter_id: str-ledger-weekly
+  #   subject: "Q2 estimated tax — what STR hosts miss"
+  #   body_path: copy/newsletter/2026-W22-tax.md
+  #   state: draft | scheduled | sent
+  #   scheduled_for: 2026-05-29T13:00:00Z
+  #   sent_at: null
+  #   notes: ""
+
+scheduled:
+  # populated as drafts get scheduled
+
+sent:
+  # populated automatically from IS API in Phase 4 (broadcast history pull).
+  # Sample shape:
+  # - newsletter_id: str-ledger-weekly
+  #   subject: ""
+  #   sent_at: 2026-05-08T13:00:00Z
+  #   recipients: 0
+  #   opens: 0
+  #   open_rate: 0
+  #   clicks: 0
+  #   click_rate: 0
+  #   unsubs: 0
+  #   complaints: 0
+  #   replies: 0

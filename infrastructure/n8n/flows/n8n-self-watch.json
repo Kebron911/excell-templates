@@ -1,0 +1,84 @@
+{
+  "name": "n8n-self-watch",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "*/30 * * * *" }] }
+      },
+      "id": "cron",
+      "name": "Every 30min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.N8N_INTERNAL_API }}/api/v1/executions?status=error&limit=20",
+        "options": { "timeout": 10000 },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "n8nApi"
+      },
+      "id": "exec-api",
+      "name": "Fetch recent failures",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [400, 300],
+      "credentials": { "n8nApi": { "id": "REPLACE", "name": "n8n-internal-api" } }
+    },
+    {
+      "parameters": {
+        "functionCode": "const data = $input.item.json.data || [];\nconst now = Date.now();\nconst failures = data.filter(e => {\n  const stopped = e.stoppedAt ? new Date(e.stoppedAt).getTime() : 0;\n  return now - stopped < 30 * 60 * 1000; // last 30min only\n});\nif (failures.length === 0) {\n  // Heartbeat — also ping external uptime so the watchdog has a watchdog\n  return [{ json: { _heartbeat: true } }];\n}\nconst byFlow = {};\nfor (const f of failures) {\n  const name = f.workflowData?.name || 'unknown';\n  byFlow[name] = (byFlow[name] || 0) + 1;\n}\nconst lines = Object.entries(byFlow).map(([n, c]) => `• ${n}: ${c} failure${c > 1 ? 's' : ''}`);\nreturn [{ json: {\n  priority: failures.length > 5 ? 'P0' : 'P1',\n  source: 'n8n-self-watch',\n  message: `${failures.length} flow execution failure${failures.length > 1 ? 's' : ''} in last 30min:\\n${lines.join('\\n')}`,\n  url: ($env.N8N_PUBLIC_URL || 'https://n8n.thestrledger.com') + '/executions'\n}}];"
+      },
+      "id": "decide",
+      "name": "Decide alert vs heartbeat",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [{ "operation": "equal", "value1": "={{ $json._heartbeat }}", "value2": true }]
+        }
+      },
+      "id": "switch",
+      "name": "Heartbeat or alert?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [800, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.UPTIME_HEARTBEAT_URL }}",
+        "options": { "timeout": 5000 }
+      },
+      "id": "ping",
+      "name": "Ping external uptime",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1000, 200],
+      "continueOnFail": true,
+      "notes": "External uptime service (UptimeRobot, betterstack, healthchecks.io) pings on success. If heartbeats stop, the external service alerts via its own channel — watchdog of watchdog."
+    },
+    {
+      "parameters": {
+        "source": "parameter",
+        "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID"
+      },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [1000, 400]
+    }
+  ],
+  "connections": {
+    "Every 30min":           { "main": [[{ "node": "Fetch recent failures",    "type": "main", "index": 0 }]] },
+    "Fetch recent failures": { "main": [[{ "node": "Decide alert vs heartbeat","type": "main", "index": 0 }]] },
+    "Decide alert vs heartbeat": { "main": [[{ "node": "Heartbeat or alert?", "type": "main", "index": 0 }]] },
+    "Heartbeat or alert?":   { "main": [[{ "node": "Ping external uptime",     "type": "main", "index": 0 }], [{ "node": "→ telegram-router", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P0" }]
+}

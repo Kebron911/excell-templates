@@ -84,7 +84,7 @@
 - **Tailwind**, tokens shared with strhost.tools
 - **Vitest** + **Playwright**
 - **pnpm** workspace inside `STROps-Tools/`
-- **Deploy target:** Hostinger Business shared hosting (already provisioned). Static `dist/` deployed via Git push or FTP. Bundled Cloudflare CDN enabled.
+- **Deploy target:** Hostinger Business shared hosting (already provisioned). Static `dist/` deployed via Git push or FTP. Bundled Hostinger CDN enabled.
 
 ---
 
@@ -285,7 +285,7 @@ Same stack as strhost.tools:
 - CI: GitHub Actions — typecheck, vitest, playwright, build
 - Deploy preview per PR
 - Hostinger Business shared hosting (already provisioned). Static Astro `dist/` deployed via Git push or FTP to subdomain directory.
-- Bundled Cloudflare CDN enabled for cache + TTFB
+- Bundled Hostinger CDN enabled for cache + TTFB
 - Domain registration: confirm before deploy
 
 ---

@@ -1,0 +1,54 @@
+{
+  "name": "sitemap-freshness",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * *" }] }
+      },
+      "id": "cron",
+      "name": "Daily 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cd {{ $env.EMPIRE_REPO_PATH }} && for d in STRGuests-Tools STRHost-Tools STROps-Tools STRBuyers-Tools; do for s in dist/sitemap.xml dist/sitemap-index.xml; do f=\"$d/$s\"; if [ -f \"$f\" ]; then echo \"$d $(stat -c %Y \"$f\" 2>/dev/null || stat -f %m \"$f\")\"; break; fi; done; done"
+      },
+      "id": "stat",
+      "name": "Stat each sitemap",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const now = Math.floor(Date.now() / 1000);\nconst rows = ($input.item.json.stdout || '').trim().split('\\n').filter(Boolean).map(l => l.split(' '));\nconst stale = [];\nconst missing = [];\nconst expectedSites = ['STRGuests-Tools','STRHost-Tools','STROps-Tools','STRBuyers-Tools'];\nfor (const site of expectedSites) {\n  const row = rows.find(r => r[0] === site);\n  if (!row) { missing.push(site); continue; }\n  const ageHours = (now - parseInt(row[1], 10)) / 3600;\n  if (ageHours > 168) stale.push(`${site}: ${ageHours.toFixed(0)}h old`);\n}\nif (stale.length === 0 && missing.length === 0) return [];\nconst lines = [\n  ...missing.map(s => `• ${s}: sitemap missing — build broken?`),\n  ...stale.map(line => `• ${line}`)\n];\nreturn [{ json: {\n  priority: 'P0',\n  source: 'sitemap-freshness',\n  message: `${missing.length} missing · ${stale.length} stale (>7d):\\n${lines.join('\\n')}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/audits'\n}}];"
+      },
+      "id": "decide",
+      "name": "Find stale or missing",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": {
+        "source": "parameter",
+        "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID"
+      },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "Daily 08:00":             { "main": [[{ "node": "Stat each sitemap",       "type": "main", "index": 0 }]] },
+    "Stat each sitemap":       { "main": [[{ "node": "Find stale or missing",   "type": "main", "index": 0 }]] },
+    "Find stale or missing":   { "main": [[{ "node": "→ telegram-router",       "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P0" }]
+}

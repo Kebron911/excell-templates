@@ -38,6 +38,9 @@ credentials.json
 dist/
 build/
 
+# Empire console — Phase 3 cache (n8n-written, holds privileged API data)
+ops/cache/*.json
+
 # Logs
 *.log
 logs/

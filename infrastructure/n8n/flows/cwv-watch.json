@@ -1,0 +1,51 @@
+{
+  "name": "cwv-watch",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 4 * * *" }] }
+      },
+      "id": "cron",
+      "name": "Daily 04:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cat {{ $env.EMPIRE_REPO_PATH }}/ops/cache/seo.json 2>/dev/null || echo '{}'"
+      },
+      "id": "read",
+      "name": "Read seo.json",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "let cache;\ntry { cache = JSON.parse($input.item.json.stdout || '{}'); } catch { return []; }\nconst c = cache.cwv || {};\nconst poor = c.pagesPoor || 0;\nconst worst = [];\nif (c.worstLcpMs && c.worstLcpMs > 2500) worst.push(`LCP ${c.worstLcpMs}ms (>2500)`);\nif (c.worstInpMs && c.worstInpMs > 200)  worst.push(`INP ${c.worstInpMs}ms (>200)`);\nif (c.worstCls  && c.worstCls  > 0.1)   worst.push(`CLS ${c.worstCls.toFixed(3)} (>0.1)`);\nif (poor === 0 && worst.length === 0) return [];\nreturn [{ json: {\n  priority: 'P1',\n  source: 'cwv-watch',\n  message: `Core Web Vitals breach:\\n• ${poor} page(s) in Poor bucket\\n• ${worst.join(' · ') || 'thresholds within range'}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/seo'\n} }];"
+      },
+      "id": "decide",
+      "name": "Check thresholds",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": { "source": "parameter", "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID" },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "Daily 04:00":      { "main": [[{ "node": "Read seo.json",     "type": "main", "index": 0 }]] },
+    "Read seo.json":    { "main": [[{ "node": "Check thresholds",  "type": "main", "index": 0 }]] },
+    "Check thresholds": { "main": [[{ "node": "→ telegram-router", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P1" }]
+}

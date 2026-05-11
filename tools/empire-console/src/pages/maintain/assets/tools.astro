@@ -1,0 +1,76 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readAssetsByType } from '@/lib/data/assets';
+
+const items = await readAssetsByType('tool');
+const active = items.filter((a) => a.status === 'active' || a.status === 'beta').length;
+const aiTools = items.filter((a) => Array.isArray(a.raw.uses_api) && (a.raw.uses_api as unknown[]).includes('openai')).length;
+const gated = items.filter((a) => a.raw.email_gate === true).length;
+---
+<Layout title="Maintain · Tools" section="maintain">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Tools</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Built tools across the cluster. Source: <code>ops/assets/tools.yaml</code>.
+      </p>
+    </div>
+    <a href="/maintain/assets" class="text-xs">← back to registry</a>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Total" value={items.length} />
+    <Scorecard label="Active or beta" value={active} tone="ok" />
+    <Scorecard label="AI-backed" value={aiTools} hint="OpenAI behind email gate" />
+    <Scorecard label="Email-gated" value={gated} />
+  </section>
+
+  {items.length === 0 ? (
+    <div class="card">
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        No tools tracked yet. Edit <code>ops/assets/tools.yaml</code>.
+      </p>
+    </div>
+  ) : (
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b text-left text-xs uppercase tracking-wide"
+            style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+          <th class="py-2">Name</th>
+          <th>Site</th>
+          <th>Type</th>
+          <th>Tech</th>
+          <th>API</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((a) => (
+          <tr class="border-b" style="border-color: rgb(var(--c-border))">
+            <td class="py-3">
+              <div class="font-medium">{a.name}</div>
+              {typeof a.raw.url === 'string' && (
+                <a href={a.raw.url} target="_blank" rel="noopener noreferrer" class="text-xs">{a.raw.url} ↗</a>
+              )}
+            </td>
+            <td style="color: rgb(var(--c-muted))">{String(a.raw.site ?? '—')}</td>
+            <td class="font-mono text-xs">{String(a.raw.tool_type ?? '—')}</td>
+            <td class="font-mono text-xs">{String(a.raw.tech ?? '—')}</td>
+            <td class="font-mono text-xs">
+              {Array.isArray(a.raw.uses_api) ? (a.raw.uses_api as unknown[]).join(', ') : '—'}
+            </td>
+            <td>
+              <span class:list={[
+                'badge',
+                a.status === 'active' ? 'badge-ok' :
+                a.status === 'beta' ? 'badge-p1' :
+                a.status === 'draft' ? 'badge-p2' : 'badge-p2',
+              ]}>{a.status ?? '—'}</span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</Layout>

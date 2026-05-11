@@ -1,0 +1,17 @@
+# pnpm workspace — covers all Astro/Node projects under this monorepo
+#
+# With this in place:
+#   - Shared dependencies install once at the root, symlinked into each project
+#   - `pnpm -r typecheck` runs typecheck across every project
+#   - `pnpm -r test` runs every test suite
+#   - `pnpm -r build` builds every site
+#
+# Each project keeps its own package.json + lockfile entry; this file just
+# tells pnpm "these are siblings, treat them as a workspace."
+
+packages:
+  - 'STRBuyers-Tools'
+  - 'STRGuests-Tools'
+  - 'STRHost-Tools'
+  - 'STROps-Tools'
+  - 'tools/empire-console'

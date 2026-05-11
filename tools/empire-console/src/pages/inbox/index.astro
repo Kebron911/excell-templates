@@ -1,0 +1,190 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import { readInbox } from '@/lib/data/inbox';
+import { formatDateTime } from '@/lib/format';
+
+const persisted = await readInbox(100);
+const byCategory = persisted.reduce<Record<string, number>>((acc, e) => {
+  acc[e.category] = (acc[e.category] ?? 0) + 1; return acc;
+}, {});
+---
+<Layout title="Inbox" section="today">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Inbox</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Quick capture for ideas · customer quotes · competitor moves · seeds.
+        Press <kbd class="rounded border px-1.5 py-0.5" style="border-color: rgb(var(--c-border))">i</kbd> from anywhere.
+      </p>
+    </div>
+    <button id="inbox-capture-btn" type="button"
+            class="rounded border px-4 py-2 text-sm font-medium"
+            style="border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent))">
+      + Capture (i)
+    </button>
+  </header>
+
+  <!-- Pending captures (localStorage) -->
+  <section id="inbox-pending-section" class="mb-8 hidden">
+    <h2 class="mb-3 text-xs font-semibold uppercase tracking-wide" style="color: rgb(var(--c-warn))">
+      Pending captures (local) · <span id="inbox-pending-count">0</span>
+    </h2>
+    <div class="card card-notable">
+      <p class="text-sm">
+        Pending captures stored locally — happens when n8n is offline or webhook isn't configured.
+        <span class="block mt-1 text-xs" style="color: rgb(var(--c-muted))">
+          <strong>Sync to n8n</strong> POSTs each to the capture-receiver flow which appends to <code>ops/inbox.ndjson</code>.
+          <strong>Copy</strong> is the offline fallback — paste-append manually.
+        </span>
+      </p>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <button id="inbox-sync-pending" type="button"
+                class="rounded px-3 py-1.5 text-sm font-medium"
+                style="background: rgb(var(--c-ok)); color: white">
+          Sync to n8n
+        </button>
+        <button id="inbox-copy-pending" type="button"
+                class="rounded border px-3 py-1.5 text-sm"
+                style="border-color: rgb(var(--c-border))">
+          Copy → clipboard (offline)
+        </button>
+        <button id="inbox-clear-pending" type="button"
+                class="rounded border px-3 py-1.5 text-sm"
+                style="border-color: rgb(var(--c-border))">
+          Clear (after sync/paste)
+        </button>
+      </div>
+      <p id="inbox-sync-status" class="mt-2 text-xs" style="color: rgb(var(--c-muted))"></p>
+      <ul id="inbox-pending-list" class="mt-4 space-y-2 text-sm"></ul>
+    </div>
+  </section>
+
+  <!-- Persisted entries (file) -->
+  <section class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Ideas" value={byCategory.idea ?? 0} />
+    <Scorecard label="Customer quotes" value={byCategory.quote ?? 0} />
+    <Scorecard label="Competitor moves" value={byCategory.competitor ?? 0} />
+    <Scorecard label="Other" value={(byCategory.seed ?? 0) + (byCategory.todo ?? 0) + (byCategory.question ?? 0) + (byCategory.note ?? 0)} />
+  </section>
+
+  <h2 class="mb-3 text-xs font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+    Persisted entries (newest first)
+  </h2>
+  {persisted.length === 0 ? (
+    <EmptyState
+      title="Inbox is empty"
+      body="Press i to capture your first idea. Saves locally until you copy → paste into ops/inbox.ndjson."
+      yamlPath="ops/inbox.ndjson"
+    />
+  ) : (
+    <ul class="space-y-2">
+      {persisted.map((e) => (
+        <li class="card card-tight">
+          <div class="flex items-baseline justify-between gap-3">
+            <span class="badge badge-p2 shrink-0">{e.category}</span>
+            <span class="text-xs" style="color: rgb(var(--c-muted))">{formatDateTime(e.ts)}</span>
+          </div>
+          <p class="mt-2 text-sm">{e.text}</p>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', () => {
+      const STORE = 'empire-inbox-pending';
+      const section = document.getElementById('inbox-pending-section');
+      const countEl = document.getElementById('inbox-pending-count');
+      const listEl = document.getElementById('inbox-pending-list');
+      const captureBtn = document.getElementById('inbox-capture-btn');
+      const copyBtn = document.getElementById('inbox-copy-pending');
+      const clearBtn = document.getElementById('inbox-clear-pending');
+
+      function load() { try { return JSON.parse(localStorage.getItem(STORE) || '[]'); } catch { return []; } }
+      function save(arr) { localStorage.setItem(STORE, JSON.stringify(arr)); }
+      function escape(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
+
+      function render() {
+        const pending = load();
+        countEl.textContent = String(pending.length);
+        if (pending.length === 0) { section.classList.add('hidden'); return; }
+        section.classList.remove('hidden');
+        listEl.innerHTML = pending.map((e) =>
+          `<li class="rounded border p-2" style="border-color: rgb(var(--c-border))">
+            <div class="flex items-baseline justify-between gap-3">
+              <span class="badge badge-p1">${escape(e.category)}</span>
+              <span class="text-xs" style="color: rgb(var(--c-muted))">${escape(new Date(e.ts).toLocaleString())}</span>
+            </div>
+            <p class="mt-1 text-sm">${escape(e.text)}</p>
+          </li>`
+        ).join('');
+      }
+
+      captureBtn?.addEventListener('click', () => window.empireCapture?.open());
+
+      const syncBtn = document.getElementById('inbox-sync-pending');
+      const syncStatus = document.getElementById('inbox-sync-status');
+      syncBtn?.addEventListener('click', async () => {
+        const base = window.__EMPIRE_WEBHOOK_BASE__;
+        if (!base) {
+          syncStatus.textContent = 'No webhook configured. Set PUBLIC_N8N_WEBHOOK_BASE at build time.';
+          syncStatus.style.color = 'rgb(var(--c-bad))';
+          return;
+        }
+        const pending = load();
+        if (pending.length === 0) {
+          syncStatus.textContent = 'Nothing to sync.';
+          return;
+        }
+        syncBtn.disabled = true;
+        syncBtn.textContent = `Syncing 0/${pending.length}…`;
+        let sent = 0;
+        const remaining = [];
+        for (const e of pending) {
+          try {
+            const res = await fetch(`${base}/empire-capture`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'inbox', payload: { category: e.category, text: e.text, tags: e.tags || [] } }),
+            });
+            if (res.ok) sent++;
+            else remaining.push(e);
+          } catch { remaining.push(e); }
+          syncBtn.textContent = `Syncing ${sent}/${pending.length}…`;
+        }
+        save(remaining);
+        syncStatus.textContent = `✓ Synced ${sent} · ${remaining.length} remaining`;
+        syncStatus.style.color = remaining.length === 0 ? 'rgb(var(--c-ok))' : 'rgb(var(--c-warn))';
+        syncBtn.disabled = false;
+        syncBtn.textContent = 'Sync to n8n';
+        render();
+      });
+
+      copyBtn?.addEventListener('click', async () => {
+        const pending = load();
+        const lines = pending.map((e) => JSON.stringify(e)).join('\n');
+        try {
+          await navigator.clipboard.writeText(lines + (lines ? '\n' : ''));
+          copyBtn.textContent = '✓ Copied — paste into ops/inbox.ndjson';
+          setTimeout(() => { copyBtn.textContent = 'Copy pending → clipboard'; }, 3000);
+        } catch {
+          alert('Copy failed. Pending entries:\n\n' + lines);
+        }
+      });
+      clearBtn?.addEventListener('click', () => {
+        if (!confirm('Clear pending captures? Only do this AFTER pasting them into ops/inbox.ndjson.')) return;
+        save([]);
+        render();
+      });
+
+      render();
+      // Re-render whenever this tab regains focus or when capture saves
+      window.addEventListener('focus', render);
+      window.addEventListener('storage', render);
+      // Poll because same-tab localStorage writes don't fire 'storage' event
+      setInterval(render, 1500);
+    });
+  </script>
+</Layout>

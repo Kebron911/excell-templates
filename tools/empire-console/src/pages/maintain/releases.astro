@@ -1,0 +1,144 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readReleases } from '@/lib/data/releases';
+import { formatDate } from '@/lib/format';
+
+const r = await readReleases();
+---
+<Layout title="Releases" section="maintain">
+  <header class="mb-6">
+    <h1 class="font-display text-3xl font-semibold">Releases</h1>
+    <p class="text-sm" style="color: rgb(var(--c-muted))">
+      Per-SKU version tracking. PROGRESS §P8.1 W-update workflow: bump <code>VERSION</code> →
+      n8n emails prior buyers + updates Etsy listing files + writes <code>update-shipped:&lt;sku&gt;:&lt;version&gt;</code> tag.
+    </p>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-3">
+    <Scorecard label="Total SKUs" value={r.versions.length} />
+    <Scorecard label="With VERSION" value={r.totalWithVersion} tone="ok" />
+    <Scorecard label="Missing VERSION" value={r.totalMissingVersion}
+               tone={r.totalMissingVersion > 0 ? 'warn' : 'ok'}
+               hint="add VERSION file to start versioning" />
+  </section>
+
+  {r.versions.length === 0 ? (
+    <EmptyState title="No SKU delivery folders" body="Expected templates/_delivery/<sku>-<slug>/" />
+  ) : (
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b text-left text-xs uppercase tracking-wide"
+            style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+          <th class="py-2">SKU</th>
+          <th>Version</th>
+          <th>Release notes</th>
+          <th class="text-right">Last bumped</th>
+          <th class="text-right">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {r.versions.map((v) => (
+          <tr class="border-b" style="border-color: rgb(var(--c-border))">
+            <td class="py-3 font-mono">{v.sku}</td>
+            <td>
+              {v.version
+                ? <span class="badge badge-ok">{v.version}</span>
+                : <span class="badge badge-p2">untagged</span>}
+            </td>
+            <td class="text-xs" style="color: rgb(var(--c-muted))">
+              {v.releaseNotesPath ? <code>{v.releaseNotesPath}</code> : '—'}
+            </td>
+            <td class="text-right font-mono text-xs">
+              {v.lastBumped ? formatDate(v.lastBumped) : '—'}
+            </td>
+            <td class="text-right">
+              {v.version && (
+                <button type="button"
+                        class="js-ship-update rounded border px-2 py-1 text-xs"
+                        style="border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent))"
+                        data-sku={v.sku}
+                        data-version={v.version}
+                        data-release-notes-path={v.releaseNotesPath ?? ''}
+                        title="POST to n8n release-shipped webhook">
+                  Ship update
+                </button>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+
+  <section class="mt-8 card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      W-update pipeline (Phase 4)
+    </h3>
+    <ol class="space-y-1 text-sm list-decimal pl-5">
+      <li>Edit <code>templates/_delivery/&lt;sku&gt;-&lt;slug&gt;/VERSION</code> → bump version (e.g. v1.0.1)</li>
+      <li>Write <code>release-notes.md</code> in the same folder describing the change</li>
+      <li>Click <strong>Ship update</strong> here → POST to n8n <code>release-shipped</code> webhook</li>
+      <li>n8n: updates Etsy listing files via API · emails prior buyers via IS · writes <code>update-shipped:&lt;sku&gt;:&lt;version&gt;</code> tag</li>
+      <li>P1 confirmation Telegram on success</li>
+    </ol>
+    <p class="mt-3 text-xs" style="color: rgb(var(--c-muted))">
+      Wired via <code>infrastructure/n8n/flows/release-shipped.json</code>.
+      Requires <code>PUBLIC_N8N_WEBHOOK_BASE</code> set at build time + the flow imported and active in n8n.
+    </p>
+  </section>
+
+  <div id="ship-result" class="mt-4 hidden card" role="status" aria-live="polite"></div>
+
+  <SourceFooter source="templates/_delivery/<sku>/VERSION + release-notes.md" lastRefresh={new Date()} />
+</Layout>
+
+<script is:inline>
+(function () {
+  const result = document.getElementById('ship-result');
+  function show(kind, msg) {
+    if (!result) return;
+    result.classList.remove('hidden');
+    const tone = kind === 'ok' ? 'badge-ok' : kind === 'warn' ? 'badge-p1' : 'badge-p0';
+    result.innerHTML = '<span class="badge ' + tone + '">' + kind + '</span> <span class="ml-2">' + msg + '</span>';
+  }
+  document.querySelectorAll('.js-ship-update').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      const sku = btn.getAttribute('data-sku');
+      const version = btn.getAttribute('data-version');
+      if (!sku || !version) return;
+      if (!confirm('Ship ' + sku + ' ' + version + '?\n\nThis emails every prior buyer of ' + sku + ' via Influencersoft and updates the Etsy listing. Not reversible.')) return;
+      const base = window.__EMPIRE_WEBHOOK_BASE__;
+      if (!base) { show('bad', 'No PUBLIC_N8N_WEBHOOK_BASE configured at build time.'); return; }
+      btn.setAttribute('disabled', 'true');
+      btn.textContent = 'Shipping…';
+      try {
+        const res = await fetch(base + '/release-shipped', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sku: sku, version: version, releaseNotes: '' }),
+        });
+        const body = await res.json().catch(function () { return {}; });
+        if (res.ok && body.ok) {
+          show('ok', 'Shipped ' + sku + ' ' + version + ' — tag: ' + (body.tag || '—'));
+          btn.textContent = 'Shipped';
+        } else if (res.status === 409) {
+          show('warn', 'Version mismatch — VERSION on disk: ' + ((body.detail && body.detail.onDisk) || '?') + ', requested: ' + ((body.detail && body.detail.requested) || '?') + '. Bump VERSION first.');
+          btn.removeAttribute('disabled');
+          btn.textContent = 'Ship update';
+        } else {
+          show('bad', 'Failed — ' + (body.error || ('HTTP ' + res.status)));
+          btn.removeAttribute('disabled');
+          btn.textContent = 'Ship update';
+        }
+      } catch (err) {
+        show('bad', 'Network error — ' + (err && err.message ? err.message : String(err)));
+        btn.removeAttribute('disabled');
+        btn.textContent = 'Ship update';
+      }
+    });
+  });
+})();
+</script>

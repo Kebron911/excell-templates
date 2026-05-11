@@ -1,0 +1,63 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readVendors } from '@/lib/data/vendors';
+
+const report = await readVendors();
+---
+<Layout title="Maintain · Vendors" section="maintain">
+  <header class="mb-6">
+    <h1 class="font-display text-3xl font-semibold">Vendor inventory</h1>
+    <p class="text-sm" style="color: rgb(var(--c-muted))">
+      Source: <code>ops/vendor-inventory.yaml</code>. Edit YAML directly; reload to refresh.
+    </p>
+  </header>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+    <Scorecard label="Monthly burn" value={`$${report.monthlyBurn.toFixed(0)}`} />
+    <Scorecard label="Annualized" value={`$${report.annualBurn.toFixed(0)}`} hint="includes annual-only addons" />
+    <Scorecard
+      label="Renewals ≤30d"
+      value={report.upcomingRenewals}
+      tone={report.upcomingRenewals > 0 ? 'warn' : 'ok'}
+    />
+  </section>
+
+  {report.vendors.length === 0 ? (
+    <div class="card">
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        No vendors yet. Seed <code>ops/vendor-inventory.yaml</code> to populate this view.
+      </p>
+    </div>
+  ) : (
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b text-left text-xs uppercase tracking-wide"
+            style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+          <th class="py-2">Vendor</th>
+          <th>Plan</th>
+          <th class="text-right">Monthly</th>
+          <th class="text-right">Renews</th>
+          <th class="text-right">Days</th>
+        </tr>
+      </thead>
+      <tbody>
+        {report.vendors.map((v) => (
+          <tr class="border-b" style="border-color: rgb(var(--c-border))">
+            <td class="py-3 font-medium">{v.vendor}</td>
+            <td style="color: rgb(var(--c-muted))">{v.plan ?? '—'}</td>
+            <td class="text-right font-mono">${v.monthly_cost.toFixed(0)}</td>
+            <td class="text-right font-mono">{v.renewal_date ?? '—'}</td>
+            <td class="text-right font-mono">
+              {v.daysToRenewal !== null ? (
+                <span class:list={[v.isRenewingSoon ? 'text-warn' : '']}>
+                  {v.daysToRenewal}d
+                </span>
+              ) : '—'}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</Layout>

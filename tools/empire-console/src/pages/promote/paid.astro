@@ -1,0 +1,89 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+
+// Phase 4 stub. Wires when Etsy Promoted + Pinterest Ads + Meta APIs land in nightly-refresh.
+const stub = {
+  channels: [
+    { id: 'etsy_promoted', name: 'Etsy Promoted Listings', spend: 0, revenue: 0, roas: null as number | null },
+    { id: 'pinterest_ads', name: 'Pinterest Ads',          spend: 0, revenue: 0, roas: null },
+    { id: 'meta_retarget', name: 'Meta retargeting',       spend: 0, revenue: 0, roas: null },
+    { id: 'newsletter_sponsor', name: 'Newsletter sponsorships', spend: 0, revenue: 0, roas: null },
+  ],
+  capDailyUsd: 50,        // safety cap from PROGRESS §P5.6
+  organicCvrGate: 0.025,  // organic CVR threshold before paid is unlocked
+};
+
+const totalSpend = stub.channels.reduce((s, c) => s + c.spend, 0);
+const totalRevenue = stub.channels.reduce((s, c) => s + c.revenue, 0);
+const blendedRoas = totalSpend > 0 ? (totalRevenue / totalSpend) : null;
+---
+<Layout title="Promote · Paid" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Paid acquisition</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Promoted Listings · Pinterest Ads · Meta retargeting · newsletter sponsorships.
+        Phase 4. Gated behind organic-CVR threshold per PROGRESS §P5.6.
+      </p>
+    </div>
+    <span class="badge badge-p2">Phase 4 stub</span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+    <Scorecard label="MTD spend" value={`$${totalSpend.toFixed(0)}`} hint={`Daily cap: $${stub.capDailyUsd}`} />
+    <Scorecard label="MTD revenue" value={`$${totalRevenue.toFixed(0)}`} />
+    <Scorecard
+      label="Blended ROAS"
+      value={blendedRoas === null ? '—' : `${blendedRoas.toFixed(2)}×`}
+      tone={blendedRoas !== null && blendedRoas < 1 ? 'bad' : 'ok'}
+      hint="<1× = unprofitable"
+    />
+    <Scorecard label="Organic CVR gate" value={`${(stub.organicCvrGate * 100).toFixed(1)}%`}
+               hint="paid unlocked above this" />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Channels (MTD)
+    </h2>
+    <div class="card">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b text-left text-xs uppercase tracking-wide"
+              style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+            <th class="py-2">Channel</th>
+            <th class="text-right">Spend</th>
+            <th class="text-right">Revenue</th>
+            <th class="text-right">ROAS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {stub.channels.map((c) => (
+            <tr class="border-b" style="border-color: rgb(var(--c-border))">
+              <td class="py-3 font-medium">{c.name}</td>
+              <td class="text-right font-mono">${c.spend.toFixed(0)}</td>
+              <td class="text-right font-mono">${c.revenue.toFixed(0)}</td>
+              <td class="text-right font-mono">
+                <span class:list={[c.roas !== null && c.roas < 1 ? 'badge badge-p1' : '']}>
+                  {c.roas === null ? '—' : `${c.roas.toFixed(2)}×`}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Safety rails
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong>Daily cap:</strong> ${stub.capDailyUsd}/day blended. <code>ad-spend-cap-watch</code> hourly P0 if &gt;2× planned.</li>
+      <li>• <strong>ROAS floor:</strong> <code>paid-roas-watch</code> daily P1 if any channel ROAS &lt;1× over rolling 7d.</li>
+      <li>• <strong>Organic gate:</strong> paid budgets stay $0 until organic CVR ≥ {(stub.organicCvrGate * 100).toFixed(1)}% per PROGRESS §P5.6.</li>
+    </ul>
+  </section>
+</Layout>

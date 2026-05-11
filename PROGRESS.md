@@ -31,7 +31,7 @@
 
 **Email plumbing** — so `hello@thestrledger.com` actually delivers
 
-- [ ] DNS records written via Cloudflare API: MX (Google Workspace), SPF, DKIM (Workspace key), DMARC (`p=quarantine; rua=mailto:postmaster@thestrledger.com`), A/CNAME for root + `www`
+- [ ] DNS records written via Hostinger DNS (manual): MX (Google Workspace), SPF, DKIM (Workspace key), DMARC (`p=quarantine; rua=mailto:postmaster@thestrledger.com`), A/CNAME for root + `www`
 - [ ] Mail-tester.com score ≥ 9/10 from `hello@thestrledger.com`
 - [ ] Test send lands in Gmail / Outlook / iCloud inboxes (not spam)
 - [ ] 🚦 "email plumbing green"
@@ -112,7 +112,7 @@ These block everything downstream. Order doesn't matter inside this group, but a
 
 - [ ] **Etsy seller account opened** — `hello@thestrledger.com`, bank+tax submitted, 2FA on, dev API app registered (client ID + OAuth secret in Vaultwarden) — [user-manual-todo.md §1.1](ops/user-manual-todo.md)
 - [ ] **Stripe account confirmed** — bank, tax ID, 2FA on authenticator, restricted CLI key generated → Vaultwarden — [§1.2](ops/user-manual-todo.md)
-- [ ] **Domain `thestrledger.com` purchased** at Cloudflare; Cloudflare API token (Zone:DNS:Edit) → Vaultwarden — [§1.5](ops/user-manual-todo.md)
+- [ ] **Domain `thestrledger.com` confirmed** at Hostinger; DNS managed via hPanel; hPanel login → Vaultwarden — [§1.5](ops/user-manual-todo.md)
 - [ ] **Google Workspace** signed up; `hello@thestrledger.com` primary inbox; 2FA on — [§1.5](ops/user-manual-todo.md)
 - [ ] **Gumroad account opened** — bank+tax+2FA, API token → Vaultwarden — [§1.3](ops/user-manual-todo.md)
 - [ ] 🚦 **Signal "Etsy account open + API app registered"** — unlocks Etsy listing API publish
@@ -383,7 +383,7 @@ Drafted: [copy/email-sequences/welcome-book-magnet.md](copy/email-sequences/welc
 > Email plumbing, IS instance, and analytics already moved to P0.0 — by the time P3 starts they are already running. This section is the rest of the own-site stack.
 
 - [ ] **VPS provisioned** (Hetzner CX22 / DO Basic, Ubuntu 24.04) → [user-manual-todo §1.6](ops/user-manual-todo.md)
-- [ ] Ansible hardening + Docker + Cloudflare Tunnel applied (automation queue C1–C4)
+- [ ] Ansible hardening + Docker + Caddy reverse proxy on VPS applied (automation queue C1–C4)
 - [ ] Vaultwarden running, credentials imported via `bw` CLI
 - [ ] Migrate Influencersoft instance from staging into production own-site (if it landed elsewhere in P0.0)
 - [ ] **Ghost(Pro)** blog at `blog.thestrledger.com`, Admin API key → Vaultwarden
@@ -589,7 +589,7 @@ Per-SKU remaining work for the 13 Phase-6 SKUs: Etsy copy ▢ · product-page co
 ### P5.1 — Pinterest
 
 - [ ] Pinterest Business account + 2FA + OAuth to Creasquare
-- [ ] Domain claim TXT record live (Cloudflare API)
+- [ ] Domain claim TXT record live (Hostinger DNS (manual))
 - [ ] First 30 pins rendered from [pin-catalog-first-30.md](copy/pinterest/pin-catalog-first-30.md) + 12 SKU catalogs in [design-system/visual-briefs/pinterest/](design-system/visual-briefs/pinterest/)
 - [ ] 🚦 "pins 1–10 approved" / "pins 11–20" / "pins 21–30"
 - [ ] Pins scheduled via Creasquare
@@ -787,7 +787,7 @@ Per-SKU remaining work for the 13 Phase-6 SKUs: Etsy copy ▢ · product-page co
 ### P9.3 — Vendor + tool inventory
 
 - [ ] Master vendor inventory → `ops/vendor-inventory.md` with columns: vendor, account email, plan, billing date, cost/mo, annual cost, replaceability (1–5), contract end
-- [ ] Covers at minimum: Etsy / Stripe / Gumroad fees (variable), Influencersoft, Cloudflare, Hetzner-or-DO, Ghost(Pro), n8n hosting, Google Workspace, Plausible, Creasquare, eRank, Vaultwarden host
+- [ ] Covers at minimum: Etsy / Stripe / Gumroad fees (variable), Influencersoft, Hostinger, Hetzner-or-DO, Ghost(Pro), n8n hosting, Google Workspace, Plausible, Creasquare, eRank, Vaultwarden host
 - [ ] Annual roll-up + monthly burn computed (single number Daniel knows by heart)
 - [ ] Quarterly cost audit on calendar — kill anything not earning its keep
 - [ ] Renewal-date Airtable view with 30-day-out alert
@@ -798,7 +798,7 @@ Per-SKU remaining work for the 13 Phase-6 SKUs: Etsy copy ▢ · product-page co
 - [ ] Sev1 runbook: 5-min triage → comms template (`hello@` autoresponder banner + FB group post + email broadcast if widespread) → fix → postmortem within 48h
 - [ ] Postmortem template → `ops/runbooks/postmortem-template.md` (what / impact / timeline / root cause / fix / prevention)
 - [ ] Incident log (append-only) → `ops/incident-log.md`
-- [ ] Upstream status monitors: Etsy / Stripe / Cloudflare / IS status feeds → n8n → ops alert channel (so Daniel knows before customers do)
+- [ ] Upstream status monitors: Etsy / Stripe / Hostinger / IS status feeds → n8n → ops alert channel (so Daniel knows before customers do)
 - [ ] Public Statuspage.io page deferred until subscriber base > 1k — decision logged
 
 ### P9.5 — SOP / runbook index

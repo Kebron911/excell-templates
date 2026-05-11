@@ -1,0 +1,191 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+---
+<Layout title="Data backup" section="today">
+  <header class="mb-6">
+    <h1 class="font-display text-3xl font-semibold">Data backup &amp; restore</h1>
+    <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+      Browser-side state lives in <code>localStorage</code>: pending Inbox captures · pending time-log sessions ·
+      Cmd⌘K favorites &amp; recents · last-visit · theme · daily routine state. Clearing browser data wipes all of it.
+      Export weekly to back up.
+    </p>
+  </header>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="card">
+      <h2 class="font-display text-xl font-semibold">Export</h2>
+      <p class="mt-2 text-sm" style="color: rgb(var(--c-muted))">
+        Downloads all <code>empire-*</code> localStorage keys as a JSON file.
+        Save somewhere durable — Drive, Vaultwarden, an encrypted folder.
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <button id="export-btn" type="button"
+                class="rounded px-4 py-2 text-sm font-medium"
+                style="background: rgb(var(--c-accent)); color: white">
+          Download backup .json
+        </button>
+        <button id="copy-btn" type="button"
+                class="rounded border px-4 py-2 text-sm"
+                style="border-color: rgb(var(--c-border))">
+          Copy to clipboard
+        </button>
+      </div>
+      <pre id="export-preview" class="mt-4 hidden max-h-64 overflow-auto rounded p-3 text-xs"
+           style="background: rgb(var(--c-surface-2)); color: rgb(var(--c-muted))"></pre>
+    </div>
+
+    <div class="card">
+      <h2 class="font-display text-xl font-semibold">Restore</h2>
+      <p class="mt-2 text-sm" style="color: rgb(var(--c-muted))">
+        Upload a previously-exported backup. <strong>Overwrites</strong> matching keys in your current browser.
+      </p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <input id="import-file" type="file" accept="application/json,.json" class="text-xs" />
+        <button id="import-btn" type="button"
+                class="rounded px-4 py-2 text-sm font-medium"
+                style="background: rgb(var(--c-accent)); color: white"
+                disabled>
+          Restore
+        </button>
+      </div>
+      <p id="import-status" class="mt-3 text-sm"></p>
+    </div>
+  </section>
+
+  <section class="mb-8 card" style="background: rgb(var(--c-surface-2))">
+    <h2 class="mb-3 font-display text-lg font-semibold">What's stored locally</h2>
+    <ul id="storage-summary" class="space-y-1 text-sm font-mono"></ul>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Why localStorage exists at all
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• The console is static-built (Astro). No backend = no DB writes from the browser.</li>
+      <li>• Phase 4 wires an n8n webhook so Inbox captures + time-log sessions persist directly into <code>ops/*.ndjson</code>.</li>
+      <li>• Until then: <strong>export weekly</strong>. Pending captures bleed away if browser data clears.</li>
+      <li>• Favorites + recents + theme are nice-to-have — losing them is annoying, not catastrophic.</li>
+    </ul>
+  </section>
+
+  <SourceFooter source="browser localStorage (empire-* keys)" lastRefresh={new Date()}
+                notes="Phase 4: n8n webhook persistence" />
+</Layout>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const exportBtn = document.getElementById('export-btn');
+    const copyBtn = document.getElementById('copy-btn');
+    const importFile = document.getElementById('import-file');
+    const importBtn = document.getElementById('import-btn');
+    const importStatus = document.getElementById('import-status');
+    const preview = document.getElementById('export-preview');
+    const summary = document.getElementById('storage-summary');
+
+    function collect() {
+      const out = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key || !key.startsWith('empire-')) continue;
+        out[key] = localStorage.getItem(key);
+      }
+      return out;
+    }
+
+    function renderSummary() {
+      const data = collect();
+      const keys = Object.keys(data);
+      if (keys.length === 0) {
+        summary.innerHTML = '<li style="opacity: 0.7">No empire-* keys in localStorage yet.</li>';
+        return;
+      }
+      summary.innerHTML = keys.map((k) => {
+        const v = data[k] || '';
+        const size = (v.length / 1024).toFixed(1);
+        let preview = v;
+        try {
+          const parsed = JSON.parse(v);
+          if (Array.isArray(parsed)) preview = `array · ${parsed.length} items`;
+          else if (typeof parsed === 'object') preview = `object · ${Object.keys(parsed).length} keys`;
+          else preview = String(parsed);
+        } catch {
+          preview = v.slice(0, 60);
+        }
+        return `<li>${k.padEnd(30, ' ')} <span style="color: rgb(var(--c-muted))">${size}KB · ${preview}</span></li>`;
+      }).join('');
+    }
+
+    function buildBackup() {
+      return {
+        empireConsoleVersion: 1,
+        exportedAt: new Date().toISOString(),
+        keys: collect(),
+      };
+    }
+
+    exportBtn?.addEventListener('click', () => {
+      const json = JSON.stringify(buildBackup(), null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `empire-console-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      preview.classList.remove('hidden');
+      preview.textContent = json;
+    });
+
+    copyBtn?.addEventListener('click', async () => {
+      const json = JSON.stringify(buildBackup(), null, 2);
+      try {
+        await navigator.clipboard.writeText(json);
+        copyBtn.textContent = '✓ Copied';
+        setTimeout(() => { copyBtn.textContent = 'Copy to clipboard'; }, 2000);
+        preview.classList.remove('hidden');
+        preview.textContent = json;
+      } catch {
+        alert('Copy failed. Use the download button instead.');
+      }
+    });
+
+    importFile?.addEventListener('change', () => {
+      importBtn.disabled = !importFile.files || importFile.files.length === 0;
+    });
+
+    importBtn?.addEventListener('click', async () => {
+      const file = importFile.files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        if (!data || typeof data !== 'object' || !data.keys || typeof data.keys !== 'object') {
+          throw new Error('Backup file does not match expected shape (missing `keys` object).');
+        }
+        const keys = Object.keys(data.keys);
+        if (keys.length === 0) {
+          importStatus.textContent = 'Backup contains no keys. Nothing to restore.';
+          importStatus.style.color = 'rgb(var(--c-muted))';
+          return;
+        }
+        if (!confirm(`Restore ${keys.length} key${keys.length === 1 ? '' : 's'}? This OVERWRITES matching keys in your current browser.`)) return;
+        for (const k of keys) {
+          if (!k.startsWith('empire-')) continue;
+          localStorage.setItem(k, String(data.keys[k]));
+        }
+        importStatus.textContent = `✓ Restored ${keys.length} key${keys.length === 1 ? '' : 's'}. Refreshing page to reflect new state…`;
+        importStatus.style.color = 'rgb(var(--c-ok))';
+        setTimeout(() => location.reload(), 1500);
+      } catch (err) {
+        importStatus.textContent = `✗ Import failed: ${err instanceof Error ? err.message : String(err)}`;
+        importStatus.style.color = 'rgb(var(--c-bad))';
+      }
+    });
+
+    renderSummary();
+  });
+</script>

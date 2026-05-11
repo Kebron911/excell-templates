@@ -1,0 +1,68 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readClusterBlog } from '@/lib/data/cluster-blog';
+import { formatDate } from '@/lib/format';
+
+const r = await readClusterBlog();
+---
+<Layout title="Cluster blog" section="check">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <a href="/check/cluster" class="text-xs">← back to cluster</a>
+      <h1 class="mt-1 font-display text-3xl font-semibold">Cluster blog index</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Every blog post across thestrledger.com + 4 sister sites. Walks each site's
+        <code>src/content/blog/</code> or <code>src/pages/blog/</code>.
+      </p>
+    </div>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Total posts" value={r.totals.total} />
+    <Scorecard label="Published" value={r.totals.published} tone="ok" />
+    <Scorecard label="Drafts" value={r.totals.drafts}
+               tone={r.totals.drafts > 0 ? 'warn' : 'neutral'} />
+    <Scorecard label="Sites with blogs" value={Object.keys(r.bySite).length} />
+  </section>
+
+  {r.totals.total === 0 ? (
+    <EmptyState
+      title="No blog posts found"
+      body="Sister sites don't have any *.md/*.mdx in src/content/blog/ or src/pages/blog/ yet."
+    />
+  ) : (
+    Object.entries(r.bySite).sort(([a], [b]) => a.localeCompare(b)).map(([site, posts]) => (
+      <section class="mb-8">
+        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+          {site} <span style="color: rgb(var(--c-ink))">({posts.length} post{posts.length === 1 ? '' : 's'})</span>
+        </h2>
+        <ul class="space-y-2">
+          {posts.map((p) => (
+            <li class="card card-tight">
+              <div class="flex items-baseline justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                  <span class="font-medium">{p.title}</span>
+                  {p.draft && <span class="ml-2 badge badge-p1">draft</span>}
+                  {p.description && (
+                    <p class="mt-1 text-xs line-clamp-2" style="color: rgb(var(--c-muted))">
+                      {p.description}
+                    </p>
+                  )}
+                  <p class="mt-1 text-xs font-mono" style="color: rgb(var(--c-muted))">{p.source}</p>
+                </div>
+                <span class="font-mono text-xs whitespace-nowrap" style="color: rgb(var(--c-muted))">
+                  {p.publishDate ? formatDate(p.publishDate) : `mtime ${formatDate(p.mtime)}`}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  )}
+
+  <SourceFooter source="STR{Guests,Host,Ops,Buyers}-Tools/src/{content,pages}/blog/" lastRefresh={new Date()} />
+</Layout>

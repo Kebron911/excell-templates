@@ -1,0 +1,51 @@
+{
+  "name": "cache-staleness-watch",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 10 * * *" }] }
+      },
+      "id": "cron",
+      "name": "Daily 10:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=set -e\nf=\"{{ $env.EMPIRE_REPO_PATH }}/ops/cache/sync-log.json\"\nif [ ! -f \"$f\" ]; then echo '{\"present\":false}'; exit 0; fi\nmtime=$(date -u -r \"$f\" +%s 2>/dev/null || stat -c %Y \"$f\")\nnow=$(date -u +%s)\nage_hours=$(awk -v n=\"$now\" -v m=\"$mtime\" 'BEGIN{printf \"%.2f\", (n-m)/3600}')\nprintf '{\"present\":true,\"ageHours\":%s}\\n' \"$age_hours\""
+      },
+      "id": "probe",
+      "name": "Probe sync-log mtime",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "let info;\ntry { info = JSON.parse(($input.item.json.stdout || '{}').trim()); } catch { info = {}; }\nconst url = ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/money';\nif (info.present === false) {\n  return [{ json: {\n    priority: 'P1',\n    source: 'cache-staleness-watch',\n    message: 'ops/cache/sync-log.json missing — nightly-refresh has never written a cache cycle.',\n    url\n  } }];\n}\nconst age = parseFloat(info.ageHours);\nif (!isFinite(age)) return [];\nif (age >= 50) {\n  return [{ json: {\n    priority: 'P0',\n    source: 'cache-staleness-watch',\n    message: `Cache is ${age.toFixed(1)}h stale (≥50h). nightly-refresh has skipped at least 2 cycles. Dashboard money/traffic/SEO/contacts is showing old data.`,\n    url\n  } }];\n}\nif (age >= 26) {\n  return [{ json: {\n    priority: 'P1',\n    source: 'cache-staleness-watch',\n    message: `Cache is ${age.toFixed(1)}h stale (≥26h). nightly-refresh probably missed a cycle.`,\n    url\n  } }];\n}\nreturn [];"
+      },
+      "id": "decide",
+      "name": "Decide staleness",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": { "source": "parameter", "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID" },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "Daily 10:00":         { "main": [[{ "node": "Probe sync-log mtime", "type": "main", "index": 0 }]] },
+    "Probe sync-log mtime": { "main": [[{ "node": "Decide staleness",   "type": "main", "index": 0 }]] },
+    "Decide staleness":    { "main": [[{ "node": "→ telegram-router",   "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "phase-3" }, { "name": "P0" }]
+}

@@ -46,7 +46,7 @@ A footer block on every page links to the other three tool sites + The STR Ledge
 
 ## Specific Instructions
 
-- **Architecture deviation:** This is the only cluster that breaks pure-static. AI generators (#5, #6, #7) require a thin serverless layer — Cloudflare Workers (preferred) or Vercel Edge Functions. Tools #1–#4 stay client-side.
+- **Architecture deviation:** This is the only cluster that breaks pure-static. AI generators (#5, #6, #7) require a thin serverless layer — Hostinger Workers (preferred) or Vercel Edge Functions. Tools #1–#4 stay client-side.
 - **PDF generation** is browser-side via `pdf-lib` (more layout control than jsPDF).
 - **Email gate on PDF download** — soft gate (PDF downloads anyway, email captures opportunistically). 30%+ optin per the brief.
 - **AI rate limit** — 5 generations / hour / IP without email; 50 / day with verified email. Prevents API cost runaway.

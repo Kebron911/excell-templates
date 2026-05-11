@@ -1,0 +1,62 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+
+// Phase 4 — wired when Stripe Connect + IS tag webhook + nightly-refresh land.
+const stub = {
+  affiliates: 0,
+  pendingPayouts: 0,
+  paidThisMonth: 0,
+  payoutsDue: 0,
+  topAffiliates: [] as Array<{ name: string; code: string; conversions: number; commission: number }>,
+};
+---
+<Layout title="Promote · Affiliates" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Affiliate program</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        30% commission · 60-day cookie · Stripe Connect payout (PROGRESS §P5.7).
+        Source: Stripe + IS tags (cached). Phase 4.
+      </p>
+    </div>
+    <span class="badge badge-p2">Phase 4 stub</span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+    <Scorecard label="Affiliates" value={stub.affiliates} />
+    <Scorecard label="Pending commissions" value={`$${stub.pendingPayouts}`}
+               tone={stub.pendingPayouts > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Paid this month" value={`$${stub.paidThisMonth}`} />
+    <Scorecard label="Payouts overdue" value={stub.payoutsDue}
+               tone={stub.payoutsDue > 0 ? 'bad' : 'ok'} />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Top affiliates (this month)
+    </h2>
+    <div class="card">
+      {stub.topAffiliates.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          No affiliates yet. Founding-affiliates list of 10 STR coaches goes here once Stripe Connect is live.
+        </p>
+      ) : (
+        <ul>{stub.topAffiliates.map((a) => <li>{a.name} — ${a.commission}</li>)}</ul>
+      )}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Program structure
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong>Commission:</strong> 30% on first sale (per PROGRESS §P5.7).</li>
+      <li>• <strong>Cookie:</strong> 60 days, last-click attribution.</li>
+      <li>• <strong>Payout:</strong> Stripe Connect, monthly on the 15th if balance ≥$50.</li>
+      <li>• <strong>Customer referral (separate):</strong> 20% off next purchase + give friend 20% off; payout = store credit.</li>
+      <li>• n8n <code>affiliate-payout-watch</code> P1s on any payout overdue.</li>
+    </ul>
+  </section>
+</Layout>

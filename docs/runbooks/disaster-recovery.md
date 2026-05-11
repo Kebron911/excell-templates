@@ -10,7 +10,7 @@ When things break. Read top to bottom before an incident, not during.
 - [ ] Vaultwarden server data directory snapshotted weekly (restic/borg to off-host storage)
 - [ ] n8n encryption key stored in multiple safe places
 - [ ] Domain set to auto-renew
-- [ ] SSL certs auto-renew (Cloudflare handles)
+- [ ] SSL certs auto-renew (Hostinger AutoSSL handles cluster sites; Let's Encrypt + Caddy handles n8n VPS)
 - [ ] 2FA recovery codes saved for every tool
 
 ## Scenario 1: Influencersoft platform outage or data loss
@@ -33,7 +33,7 @@ When things break. Read top to bottom before an incident, not during.
    - Set prices per `infrastructure/airtable/schema.md` (Price — Payhip column)
 
 3. **Redirect traffic (2 hours):**
-   - Cloudflare DNS: point `thestrledger.com` A record to Payhip's custom-domain instructions
+   - Hostinger hPanel → DNS: point `thestrledger.com` A record to Payhip's custom-domain instructions
    - Update Etsy listing Lite upgrade CTA to Payhip URL temporarily
    - Update Pinterest pin destinations via Creasquare bulk-edit if available, else manually via Pinterest UI (Pinterest native scheduler has no bulk-edit — if pin volume >30 and Creasquare's bulk tools are insufficient, queue an n8n workflow against the Pinterest API)
 
@@ -105,12 +105,12 @@ When things break. Read top to bottom before an incident, not during.
 **Response:**
 
 1. **If expired but within grace period (30–60 days):**
-   - Log into Cloudflare Registrar
+   - Log into Hostinger hPanel
    - Pay renewal + any late fee
    - Site resumes within 1–4 hours of DNS propagation
 
 2. **If transferred without consent:**
-   - Contact Cloudflare Registrar support immediately
+   - Contact Hostinger support immediately
    - File ICANN dispute if needed
    - This is why 2FA on registrar is non-negotiable
 
@@ -138,7 +138,7 @@ When things break. Read top to bottom before an incident, not during.
 
 ## Scenario 6: Vaultwarden host outage or vault corruption
 
-**Why this scenario matters:** Vaultwarden centralizes every other credential. If it goes down before you log into Cloudflare, Stripe, the VPS, or Etsy, the entire stack is frozen until it's back. This is the highest-leverage DR scenario — drill it annually before any of the others.
+**Why this scenario matters:** Vaultwarden centralizes every other credential. If it goes down before you log into Hostinger, Stripe, the VPS, or Etsy, the entire stack is frozen until it's back. This is the highest-leverage DR scenario — drill it annually before any of the others.
 
 **Recognition signals:**
 - Can't reach the Vaultwarden URL
@@ -169,7 +169,7 @@ When things break. Read top to bottom before an incident, not during.
 **Prevention:**
 - Monthly encrypted vault export to Google Drive (see Prevention checklist above)
 - Weekly rsync / restic / borg snapshot of the Vaultwarden data directory to separate host
-- 2FA backup codes printed and stored offline for at minimum: Cloudflare, Stripe, Google Workspace, domain registrar, the Vaultwarden host provider itself
+- 2FA backup codes printed and stored offline for at minimum: Hostinger, Stripe, Google Workspace, the Vaultwarden host provider itself
 - Consider hosting Vaultwarden on a different VPS than n8n so a single-host failure doesn't take both down — correlated-failure risk is real if they share hardware
 
 ---

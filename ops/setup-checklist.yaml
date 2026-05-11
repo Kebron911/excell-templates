@@ -1,0 +1,261 @@
+# ops/setup-checklist.yaml — Phase 5 activation checklist
+#
+# Source of truth for what's between "code merged" and "production live."
+# Read by /maintain/setup. Edit `status` field to mark items off:
+#   pending      — not started
+#   in-progress  — partial / blocked on something
+#   done         — finished
+#   skipped      — explicitly chose not to do (record why in note)
+#
+# `category` groups items on the page. `requires` is a free-text dependency
+# hint (not a hard graph). `link` is an optional URL to take you to the thing.
+
+categories:
+  - id: hosting
+    label: Hosting & DNS (Hostinger)
+    description: One-time infrastructure setup for dashboard.thestrledger.com
+    items:
+      - id: hostinger-subdomain
+        title: Create subdomain dashboard.thestrledger.com in hPanel
+        status: pending
+        link: https://hpanel.hostinger.com
+        note: |
+          hPanel → Domains → thestrledger.com → Subdomains → Create.
+          Point doc root to a fresh directory (e.g. ~/domains/thestrledger.com/public_html/dashboard).
+          DNS A record auto-creates. SSL provisions within ~15min via Hostinger's Let's Encrypt integration.
+
+      - id: htpasswd
+        title: Add .htpasswd basic auth above doc root
+        status: pending
+        requires: hostinger-subdomain
+        note: |
+          Place .htpasswd ABOVE the doc root (e.g. ~/domains/thestrledger.com/.htpasswd-dashboard)
+          so it's not web-readable. Reference from the dashboard's .htaccess via AuthUserFile.
+          Use a strong password — this is the only gate between the public internet and your
+          empire's operational data. Generate: `htpasswd -c .htpasswd daniel`.
+
+      - id: htaccess
+        title: Drop .htaccess into dashboard doc root
+        status: pending
+        requires: htpasswd
+        note: |
+          The repo's tools/empire-console/public/.htaccess already has the right shape
+          (AuthType Basic + AuthUserFile pointing at ~/domains/thestrledger.com/.htpasswd-dashboard).
+          Gets copied into dist/ on build, deployed via the existing deploy-empire-console workflow.
+
+  - id: github
+    label: GitHub secrets
+    description: Required for the deploy workflow to push to Hostinger
+    items:
+      - id: ssh-key
+        title: STR_SSH_KEY repository secret
+        status: done
+        link: https://github.com/Kebron911/excell-templates/settings/secrets/actions
+        note: |
+          Already set — the same cluster-shared key powers the 4 sister-site deploys.
+          Rotate annually (next rotation due ~May 2027).
+
+      - id: webhook-base
+        title: PUBLIC_N8N_WEBHOOK_BASE repository secret
+        status: pending
+        link: https://github.com/Kebron911/excell-templates/settings/secrets/actions
+        note: |
+          Set to https://n8n.thestrledger.com/webhook (or wherever n8n lives in prod).
+          Inlined into the static build at compile time — clients hit /release-shipped,
+          /delist-sku, /gdpr-intake, /empire-capture from this base URL.
+          Without this, every Phase 4 button on the dashboard does nothing.
+
+  - id: n8n-infra
+    label: n8n infrastructure (Telegram + env vars)
+    description: One-time bootstrap before importing the flow JSONs
+    items:
+      - id: telegram-bot
+        title: Create Telegram bot via @BotFather
+        status: pending
+        link: https://t.me/BotFather
+        note: |
+          /newbot → name "STR Ledger Empire" → save token in n8n credentials as `telegram-empire-bot`.
+
+      - id: telegram-channels
+        title: Create 3 Telegram channels (P0/P1/P2) + add bot as admin
+        status: pending
+        requires: telegram-bot
+        note: |
+          @strledger-p0 (sound on, page immediately)
+          @strledger-p1 (silent, daily digest 08:00)
+          @strledger-p2 (silent, weekly Mon 08:00)
+          Add the bot as admin to each. Record channel IDs (forward a message to @userinfobot
+          to read the chat_id). Set as TELEGRAM_P0_CHAT / P1_CHAT / P2_CHAT env vars.
+
+      - id: n8n-env-vars-core
+        title: Set 4 core env vars in n8n (Settings → Variables)
+        status: pending
+        note: |
+          EMPIRE_REPO_PATH        — absolute path to the cloned repo on the n8n host
+          EMPIRE_CONSOLE_BASE_URL — https://dashboard.thestrledger.com (or http://localhost:4327 for dev)
+          N8N_INTERNAL_API        — http://localhost:5678 (for n8n-self-watch)
+          UPTIME_HEARTBEAT_URL    — UptimeRobot / healthchecks.io heartbeat URL
+
+      - id: n8n-env-vars-phase3
+        title: Set 3 Phase 3 cache env vars (money/etsy/IS)
+        status: pending
+        note: |
+          MONTHLY_BURN   — operational monthly burn in USD (drives above-the-line ratio)
+          ETSY_SHOP_ID   — your Etsy shop's numeric ID
+          IS_API_BASE    — Influencersoft API base URL
+
+      - id: n8n-pat
+        title: Generate n8n Personal Access Token
+        status: pending
+        note: |
+          n8n Settings → Personal Access Tokens. Save as `n8n-internal-api` credential.
+          Used by n8n-self-watch to read the executions API.
+
+  - id: n8n-creds
+    label: n8n credentials (Phase 3 APIs)
+    description: API tokens for the nightly-refresh flow
+    items:
+      - id: cred-stripe
+        title: Stripe restricted key
+        status: pending
+        link: https://dashboard.stripe.com/apikeys
+        note: |
+          Create restricted key — read-only on Charges, Refunds, Payment Intents.
+          Save as `STRIPE_SECRET` credential. Rotate every 6 months.
+
+      - id: cred-etsy
+        title: Etsy API v3 keystring
+        status: pending
+        link: https://www.etsy.com/developers/your-apps
+        note: |
+          Register an app, save the keystring as `ETSY_API_KEY` credential.
+          OAuth2 flow needed for write operations (release-shipped, delist-sku).
+
+      - id: cred-gumroad
+        title: Gumroad access token
+        status: pending
+        link: https://app.gumroad.com/settings/advanced
+        note: |
+          Settings → Advanced → Generate token. Save as `GUMROAD_TOKEN`.
+
+      - id: cred-plausible
+        title: Plausible Stats API token
+        status: pending
+        link: https://plausible.io/settings/api-keys
+        note: |
+          Account → API Keys → Stats-API scope. Save as `PLAUSIBLE_TOKEN`.
+
+      - id: cred-gsc
+        title: Search Console OAuth2 client
+        status: pending
+        link: https://console.cloud.google.com/apis/credentials
+        note: |
+          Google Cloud → OAuth 2.0 Client ID → enable Search Console API.
+          Save as `GSC_OAUTH` (oAuth2Api type).
+
+      - id: cred-is
+        title: Influencersoft API key
+        status: pending
+        note: |
+          IS Settings → API → generate. Save as `IS_API_KEY` credential.
+
+  - id: n8n-imports
+    label: Import n8n flows
+    description: 19 JSON exports → n8n workflows. Activate each after import.
+    items:
+      - id: import-shared
+        title: shared/telegram-router.json (priority sink)
+        status: pending
+        requires: telegram-channels
+        note: |
+          Import first — every other flow ends in this router. After import,
+          edit each downstream flow's "→ telegram-router" node to point at this
+          workflow's ID (replaces REPLACE_WITH_TELEGRAM_ROUTER_ID).
+
+      - id: import-phase1
+        title: 8 Phase 1 cron flows + capture-receiver
+        status: pending
+        requires: import-shared
+        note: |
+          vendor-renewal-watch · runbook-staleness · cluster-smoke-fs · cert-watch ·
+          domain-watch · due-soon-watch · n8n-self-watch · capture-receiver.
+          All read from ops/*.yaml or webhook input. Activate as you import.
+
+      - id: import-phase2
+        title: 2 Phase 2 audit flows
+        status: pending
+        requires: import-shared
+        note: |
+          sitemap-freshness · broken-link-watch.
+
+      - id: import-phase3
+        title: 10 Phase 3 cache flows (nightly-refresh + 9 watchers)
+        status: pending
+        requires: [import-shared, n8n-env-vars-phase3, cred-stripe, cred-etsy, cred-gumroad, cred-plausible, cred-gsc, cred-is]
+        note: |
+          nightly-refresh · revenue-watch · refund-spike-watch · weekly-pnl-digest ·
+          traffic-anomaly-watch · gsc-digest · cwv-watch · indexing-watch ·
+          funnel-dropout-watch · cache-staleness-watch.
+
+      - id: import-phase4
+        title: 4 Phase 4 webhook flows + backup-restore-test
+        status: pending
+        requires: import-shared
+        note: |
+          release-shipped · delist-sku · gdpr-intake · backup-restore-test.
+          The Ship update / Preview / Delist buttons on the dashboard
+          will start working as soon as these are imported + active +
+          PUBLIC_N8N_WEBHOOK_BASE is set.
+
+  - id: ship
+    label: Ship the dashboard
+    description: Open the PR and merge to main
+    items:
+      - id: open-pr
+        title: Open PR for the empire-console branch
+        status: pending
+        link: https://github.com/Kebron911/excell-templates/compare/main...claude/thirsty-boyd-e2cbda
+        note: |
+          `gh pr create` from the worktree. CI runs validate (typecheck + ops + atlas
+          + drift), tests, and build. Currently 12 commits ahead of main covering
+          Phase 1-4 + drift detector + STANDARDS.md + full /maintain coverage.
+
+      - id: merge-pr
+        title: Merge to main → triggers deploy workflow
+        status: pending
+        requires: [open-pr, hostinger-subdomain, htpasswd, htaccess, webhook-base]
+        note: |
+          The deploy-empire-console workflow runs on push to main:
+          pnpm install → pnpm validate → pnpm build → rsync dist/ → Hostinger doc root.
+          After this lands, dashboard.thestrledger.com (with basic auth) is live.
+
+  - id: post-ship
+    label: Post-launch validation
+    description: First-week checks once dashboard.thestrledger.com is live
+    items:
+      - id: smoke-test-flows
+        title: Manually trigger each webhook flow once
+        status: pending
+        requires: merge-pr
+        note: |
+          Phase 4 buttons (Preview/Delist on /check/kill-sku, Ship update on
+          /maintain/releases) — invoke each at least once to confirm the
+          plumbing works end-to-end before relying on them.
+
+      - id: verify-cache-cycle
+        title: Wait for first nightly-refresh + check /check/money
+        status: pending
+        requires: import-phase3
+        note: |
+          After 03:00 UTC, ops/cache/money.json should be populated and the Today
+          landing's Money pulse card should show the freshness badge as "ok"
+          (cache <26h). If not, check n8n executions log for the failed node.
+
+      - id: file-first-incident
+        title: Log a first incident to validate the format
+        status: pending
+        requires: merge-pr
+        note: |
+          /maintain/incidents — paste a small entry into ops/incidents.ndjson.
+          Goal: confirm the rootCause/fix/prevention shape captures the right info
+          for actual postmortems before Phase 5+ adds auto-drafting.

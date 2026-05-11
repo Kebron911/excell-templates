@@ -1,0 +1,86 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readOnboarding } from '@/lib/data/onboarding';
+import { formatDate } from '@/lib/format';
+
+const r = await readOnboarding();
+const stateBadge: Record<string, string> = {
+  received: 'badge-p0',
+  'first-contact': 'badge-p1',
+  'second-contact': 'badge-p1',
+  reviewed: 'badge-p2',
+  'case-study': 'badge-ok',
+  done: 'badge-ok',
+};
+---
+<Layout title="Onboarding" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Onboarding flow</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        First-100 white-glove buyer follow-through. Source: <code>ops/onboarding-flow.yaml</code>.
+        Phase 4 auto-pulls new buyers from Stripe + Etsy webhooks.
+      </p>
+    </div>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5">
+    <Scorecard label="Total buyers" value={r.total} />
+    <Scorecard label="Needs first contact" value={r.needsContact}
+               tone={r.needsContact > 0 ? 'bad' : 'ok'}
+               tier={r.needsContact > 0 ? 'critical' : 'normal'} />
+    <Scorecard label="Awaiting review" value={r.awaitingReview} />
+    <Scorecard label="Case-study candidates" value={r.caseStudyCandidates} />
+    <Scorecard label="Done" value={r.doneCount} tone="ok" />
+  </section>
+
+  {r.buyers.length === 0 ? (
+    <EmptyState
+      title="No buyers yet"
+      body="Until first sale lands. Then add each buyer here for white-glove follow-through."
+      yamlPath="ops/onboarding-flow.yaml"
+    />
+  ) : (
+    <ul class="space-y-3">
+      {r.buyers.map((b) => (
+        <li class="card">
+          <div class="flex flex-wrap items-baseline justify-between gap-3">
+            <div>
+              <h3 class="font-display text-lg font-semibold">{b.name}</h3>
+              {b.email && <span class="text-xs font-mono" style="color: rgb(var(--c-muted))">{b.email}</span>}
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+              {b.sku && <span class="badge badge-p2">{b.sku}</span>}
+              {b.channel && <span class="badge badge-p2">{b.channel}</span>}
+              <span class:list={['badge', stateBadge[b.state] ?? 'badge-p2']}>{b.state}</span>
+              {b.case_study_candidate && <span class="badge badge-ok">★ case-study</span>}
+            </div>
+          </div>
+          {b.notes && <p class="mt-3 text-sm">{b.notes}</p>}
+          <div class="mt-3 text-xs" style="color: rgb(var(--c-muted))">
+            Purchased: {formatDate(b.purchased)}
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <section class="mt-8 card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      State machine
+    </h3>
+    <div class="text-sm font-mono">
+      received → first-contact → second-contact → reviewed → case-study → done
+    </div>
+    <p class="mt-2 text-xs" style="color: rgb(var(--c-muted))">
+      <strong>received</strong> = bought, no contact yet · <strong>first-contact</strong> = welcome email sent ·
+      <strong>second-contact</strong> = check-in at +14d · <strong>reviewed</strong> = left review ·
+      <strong>case-study</strong> = great fit, asked for case study · <strong>done</strong> = closed loop.
+    </p>
+  </section>
+
+  <SourceFooter source="ops/onboarding-flow.yaml" lastRefresh={new Date()} />
+</Layout>

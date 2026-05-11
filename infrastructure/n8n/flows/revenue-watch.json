@@ -1,0 +1,51 @@
+{
+  "name": "revenue-watch",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 * * *" }] }
+      },
+      "id": "cron",
+      "name": "Daily 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cat {{ $env.EMPIRE_REPO_PATH }}/ops/cache/money.json 2>/dev/null || echo '{}'"
+      },
+      "id": "read",
+      "name": "Read money.json",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "let cache;\ntry { cache = JSON.parse($input.item.json.stdout || '{}'); } catch { return []; }\nconst y = cache.yesterday || { revenue: 0 };\nconst burn = (cache.mtd && cache.mtd.burn) || 0;\nconst dailyBurn = burn / 30;\nif (y.revenue >= dailyBurn) return [];\nconst pct = dailyBurn > 0 ? (1 - y.revenue / dailyBurn) * 100 : 0;\nreturn [{ json: {\n  priority: pct > 75 ? 'P0' : 'P1',\n  source: 'revenue-watch',\n  message: `Yesterday revenue $${y.revenue.toFixed(0)} below daily burn $${dailyBurn.toFixed(0)} (-${pct.toFixed(0)}%)`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/money'\n} }];"
+      },
+      "id": "decide",
+      "name": "Below-the-line check",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": { "source": "parameter", "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID" },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "Daily 09:00":         { "main": [[{ "node": "Read money.json",       "type": "main", "index": 0 }]] },
+    "Read money.json":     { "main": [[{ "node": "Below-the-line check",  "type": "main", "index": 0 }]] },
+    "Below-the-line check": { "main": [[{ "node": "→ telegram-router",    "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P1" }]
+}

@@ -1020,7 +1020,7 @@ Every API key used in n8n lives in **n8n's Credentials manager** (encrypted at r
 | Google Drive | OAuth | Annual |
 | Slack | Bot token | Annual |
 | Claude API | API key | Annual |
-| Cloudflare (for DNS updates) | API token | Annual, scoped to zone |
+| Hostinger DNS | manual via hPanel (no API on shared) | n/a |
 
 ### Webhook signature validation
 
@@ -1040,9 +1040,9 @@ Unsigned / unvalidated webhooks are dropped with 401.
 
 ### Network
 
-- n8n is behind Cloudflare Tunnel (not publicly routable)
+- n8n runs on a VPS with Caddy/nginx reverse proxy + Let's Encrypt SSL; only `n8n.thestrledger.com` is publicly routable
 - Only `/webhook/*` paths accept external POSTs
-- n8n admin UI accessible only via basic auth + Cloudflare Access (consider adding IP restriction for Daniel's home IP)
+- n8n admin UI accessible only via basic auth (add IP allowlist on the reverse proxy for Daniel's home IP if needed)
 
 ---
 

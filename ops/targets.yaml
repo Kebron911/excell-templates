@@ -1,0 +1,87 @@
+# ops/targets.yaml — quarterly + monthly empire targets
+#
+# Read by:
+#   - tools/empire-console — /today/targets + Today landing pace card
+#
+# `actual` is hand-set in v1; Phase 3 wires Stripe/IS/GA4 to populate it auto.
+#
+# Schema:
+#   metric:   string  (display name)
+#   unit:     usd | count | percent
+#   period:   month | quarter | year
+#   target:   number  (the goal)
+#   actual:   number  (current state — manually updated until Phase 3)
+#   updated:  YYYY-MM-DD
+#   notes:    optional
+
+quarter:
+  label: Q2 2026
+  start: 2026-04-01
+  end: 2026-06-30
+  metrics:
+    - metric: Gross revenue
+      unit: usd
+      period: quarter
+      target: 5000
+      actual: 0
+      updated: 2026-05-10
+      notes: First-revenue quarter — beachhead sales-tax launch.
+
+    - metric: New email subscribers
+      unit: count
+      period: quarter
+      target: 500
+      actual: 0
+      updated: 2026-05-10
+      notes: Across 47-deductions + 5 STRGuests lead magnets.
+
+    - metric: Cluster sessions
+      unit: count
+      period: quarter
+      target: 15000
+      actual: 0
+      updated: 2026-05-10
+      notes: Hub + 4 sister sites · primary metric is Plausible.
+
+    - metric: Etsy reviews (≥4 stars)
+      unit: count
+      period: quarter
+      target: 25
+      actual: 0
+      updated: 2026-05-10
+      notes: Star Seller path begins at first 5 reviews.
+
+month:
+  label: May 2026
+  start: 2026-05-01
+  end: 2026-05-31
+  metrics:
+    - metric: Monthly revenue
+      unit: usd
+      period: month
+      target: 1500
+      actual: 0
+      updated: 2026-05-10
+
+    - metric: New subscribers
+      unit: count
+      period: month
+      target: 150
+      actual: 0
+      updated: 2026-05-10
+
+    - metric: Newsletter sends
+      unit: count
+      period: month
+      target: 4
+      actual: 0
+      updated: 2026-05-10
+      notes: Weekly cadence on The STR Ledger Weekly.
+
+    - metric: Etsy listings live
+      unit: count
+      period: month
+      target: 65
+      actual: 60
+      updated: 2026-05-10
+      notes: 5 own-site-only by design (FIN-001, OPS-002/003, PAM-001, TAX-011).

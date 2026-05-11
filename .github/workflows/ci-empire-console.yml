@@ -1,0 +1,75 @@
+name: CI empire-console
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/empire-console/**'
+      - 'ops/**'
+      - '.github/workflows/ci-empire-console.yml'
+  pull_request:
+    paths:
+      - 'tools/empire-console/**'
+      - 'ops/**'
+      - '.github/workflows/ci-empire-console.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-empire-console-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Enough history for the process-bucket drift check (14d window)
+          fetch-depth: 50
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: tools/empire-console/pnpm-lock.yaml
+
+      - name: Install
+        working-directory: tools/empire-console
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        working-directory: tools/empire-console
+        run: pnpm typecheck
+
+      - name: Unit tests
+        working-directory: tools/empire-console
+        run: pnpm test
+
+      # E12 — runs every reader against every YAML/NDJSON; fails on schema mismatch
+      - name: Validate ops sources
+        working-directory: tools/empire-console
+        run: pnpm validate:ops
+
+      # E5 — asserts every internal Atlas URL resolves to a real Astro page
+      - name: Validate Atlas links
+        working-directory: tools/empire-console
+        run: pnpm validate:atlas
+
+      # Three-bucket drift check: structural (atlas paths) · conventions
+      # (required fields on SKUs/sites) · process (recent touches). Fails CI
+      # on 'bad' findings; warnings reported but don't block.
+      - name: Validate drift
+        working-directory: tools/empire-console
+        run: pnpm validate:drift
+
+      - name: Build
+        working-directory: tools/empire-console
+        run: pnpm build

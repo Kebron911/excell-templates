@@ -1,0 +1,59 @@
+# ops/assets/pages.yaml — high-value landing pages worth tracking
+#
+# This is NOT every page on every site — that would be auto-generated from
+# the Astro routes. This is for hand-curated landing pages that have an
+# explicit conversion goal: lead-magnet pages, hub homepage, beachhead
+# product pages, About, Press kit, etc.
+#
+# Schema:
+#   id, name, site, url, page_type, conversion_goal, last_updated, owner, notes
+
+pages:
+  # Hub
+  - id: page-hub-home
+    name: thestrledger.com — homepage
+    site: thestrledger
+    url: https://thestrledger.com
+    page_type: home
+    conversion_goal: email opt-in to 47-deductions
+    last_updated: 2026-04-22
+    owner: Daniel
+
+  - id: page-hub-47-deductions
+    name: 47 Deductions landing page
+    site: thestrledger
+    url: https://thestrledger.com/47-deductions
+    page_type: lead-magnet
+    conversion_goal: email opt-in
+    last_updated: 2026-04-22
+    owner: Daniel
+    notes: Beachhead conversion page.
+
+  - id: page-hub-press
+    name: Press / media kit
+    site: thestrledger
+    url: https://thestrledger.com/press
+    page_type: about
+    conversion_goal: press inquiries
+    last_updated: TBD
+    owner: Daniel
+    notes: Per PROGRESS §P5.7 press kit. Build before first podcast pitch.
+
+  # Sister-site landing pages
+  - id: page-strguests-home
+    name: strguests.tools — homepage
+    site: strguests
+    url: https://strguests.tools
+    page_type: home
+    conversion_goal: tool funnel routing
+    last_updated: 2026-05-06
+    owner: Daniel
+
+  - id: page-strguests-message-templates
+    name: Guest Message Templates pack landing
+    site: strguests
+    url: https://strguests.tools/lead-magnet/message-templates
+    page_type: lead-magnet
+    conversion_goal: email opt-in
+    last_updated: 2026-05-06
+    owner: Daniel

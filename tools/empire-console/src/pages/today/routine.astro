@@ -1,0 +1,378 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import { readAlerts } from '@/lib/data/alerts';
+import { readCalendar } from '@/lib/data/calendar';
+import { readProgress } from '@/lib/data/progress';
+import { readClusterStatus } from '@/lib/data/cluster';
+import { readInfrastructure } from '@/lib/data/infrastructure';
+import { readVendors } from '@/lib/data/vendors';
+import { readNewsletter } from '@/lib/data/newsletter';
+import { formatDate } from '@/lib/format';
+
+const [alerts, calendar, progress, cluster, infra, vendors, newsletter] = await Promise.all([
+  readAlerts(20),
+  readCalendar(),
+  readProgress(),
+  readClusterStatus(),
+  readInfrastructure(),
+  readVendors(),
+  readNewsletter(),
+]);
+
+const openP0 = alerts.filter((a) => a.priority === 'P0' && !a.acked);
+const openP1 = alerts.filter((a) => a.priority === 'P1' && !a.acked);
+const overdue = calendar.items.filter((i) => i.isOverdue);
+const dueSoon = calendar.items.filter((i) => !i.isOverdue && i.isDueSoon);
+const sitesGreen = cluster.filter((s) => s.status === 'ok').length;
+const sitesTotal = cluster.length;
+const expiringP0 = infra.domains.filter((d) => d.isExpiringP0);
+const renewingSoon = vendors.vendors.filter((v) => v.daysToRenewal !== null && v.daysToRenewal >= 0 && v.daysToRenewal <= 7);
+
+const day = new Date().getDay();
+const rhythm = [
+  { key: 'sun', label: 'Social',     focus: 'connections + content seeding' },
+  { key: 'mon', label: 'Money',      focus: 'revenue · burn · scoreboard' },
+  { key: 'tue', label: 'Trajectory', focus: 'roadmap · key bets · big rocks' },
+  { key: 'wed', label: 'Wisdom',     focus: 'learnings · content plan' },
+  { key: 'thu', label: 'Thrive',     focus: 'health · ops · maintenance' },
+  { key: 'fri', label: 'Freedom',    focus: 'automation · delegation' },
+  { key: 'sat', label: 'Self',       focus: 'review · reflection' },
+][day];
+
+const today = new Date().toISOString().slice(0, 10);
+---
+<Layout title="Morning routine" section="today">
+  <div class="mb-6 flex items-baseline justify-between">
+    <div>
+      <a href="/" class="text-xs">← back to Today</a>
+      <h1 class="mt-1 font-display text-3xl font-semibold">Morning routine</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        7 steps · ~3 minutes · {formatDate(new Date())}
+      </p>
+    </div>
+    <div class="flex items-baseline gap-2 text-sm" style="color: rgb(var(--c-muted))">
+      <span id="routine-progress-label">Step 1 of 7</span>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="mb-8 h-2 w-full overflow-hidden rounded" style="background: rgb(var(--c-surface-2))">
+    <div id="routine-progress-bar"
+         class="h-full rounded transition-all"
+         style="width: 14%; background: rgb(var(--c-accent))"></div>
+  </div>
+
+  <!-- STEP 1 — Acknowledge alerts -->
+  <section class="routine-step" data-step="1">
+    <div class="card">
+      <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">Step 1 · Alerts</div>
+      <h2 class="mt-1 font-display text-2xl font-semibold">Anything urgent overnight?</h2>
+      <p class="mt-2 text-sm" style="color: rgb(var(--c-muted))">
+        Open P0 alerts need handling before you start the day. P1 can wait until step 5.
+      </p>
+
+      {openP0.length === 0 && openP1.length === 0 ? (
+        <div class="mt-4 card-tight" style="background: rgb(var(--c-ok) / 0.08); border: 1px solid rgb(var(--c-ok) / 0.4); padding: 0.75rem 1rem; border-radius: 0.5rem">
+          <strong style="color: rgb(var(--c-ok))">All clear.</strong>
+          <span class="text-sm" style="color: rgb(var(--c-muted))"> · no open P0 or P1 alerts</span>
+        </div>
+      ) : (
+        <ul class="mt-4 space-y-2">
+          {openP0.map((a) => (
+            <li class="flex items-start gap-3">
+              <span class="badge badge-p0 shrink-0">P0</span>
+              <div class="flex-1 text-sm">
+                <div class="font-medium">{a.message}</div>
+                <div class="text-xs" style="color: rgb(var(--c-muted))">
+                  {a.source} · {formatDate(a.ts, 'relative')}
+                  {a.url && <> · <a href={a.url}>open →</a></>}
+                </div>
+              </div>
+            </li>
+          ))}
+          {openP1.slice(0, 3).map((a) => (
+            <li class="flex items-start gap-3">
+              <span class="badge badge-p1 shrink-0">P1</span>
+              <div class="flex-1 text-sm">
+                <div class="font-medium">{a.message}</div>
+                <div class="text-xs" style="color: rgb(var(--c-muted))">
+                  {a.source} · {formatDate(a.ts, 'relative')}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div class="mt-5 flex items-center gap-2">
+        <button class="routine-next rounded border px-4 py-2 text-sm font-medium"
+                style="border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent))">
+          Reviewed → next
+        </button>
+        <a href="/check/alerts" class="text-xs">drill into alert log</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 — Yesterday's numbers -->
+  <section class="routine-step hidden" data-step="2">
+    <div class="card">
+      <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">Step 2 · Money</div>
+      <h2 class="mt-1 font-display text-2xl font-semibold">Yesterday's numbers</h2>
+      <p class="mt-2 text-sm" style="color: rgb(var(--c-muted))">
+        Quick gut check on revenue, refunds, traffic.
+      </p>
+
+      <div class="mt-4 grid grid-cols-3 gap-3">
+        <div class="card-tight rounded border p-3" style="border-color: rgb(var(--c-border)); background: rgb(var(--c-surface-2))">
+          <div class="text-xs" style="color: rgb(var(--c-muted))">Revenue</div>
+          <div class="mt-1 font-display text-2xl font-semibold tabular-nums">—</div>
+          <div class="text-xs" style="color: rgb(var(--c-muted))">Phase 3 wires Stripe</div>
+        </div>
+        <div class="card-tight rounded border p-3" style="border-color: rgb(var(--c-border)); background: rgb(var(--c-surface-2))">
+          <div class="text-xs" style="color: rgb(var(--c-muted))">Refunds</div>
+          <div class="mt-1 font-display text-2xl font-semibold tabular-nums">—</div>
+          <div class="text-xs" style="color: rgb(var(--c-muted))">Phase 3</div>
+        </div>
+        <div class="card-tight rounded border p-3" style="border-color: rgb(var(--c-border)); background: rgb(var(--c-surface-2))">
+          <div class="text-xs" style="color: rgb(var(--c-muted))">Sessions</div>
+          <div class="mt-1 font-display text-2xl font-semibold tabular-nums">—</div>
+          <div class="text-xs" style="color: rgb(var(--c-muted))">Phase 3 (Plausible)</div>
+        </div>
+      </div>
+
+      <div class="mt-5 flex items-center gap-2">
+        <button class="routine-prev rounded border px-3 py-2 text-sm" style="border-color: rgb(var(--c-border))">← back</button>
+        <button class="routine-next rounded border px-4 py-2 text-sm font-medium"
+                style="border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent))">
+          Noted → next
+        </button>
+        <a href="/check/money" class="text-xs">drill into Money</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3 — Calendar -->
+  <section class="routine-step hidden" data-step="3">
+    <div class="card">
+      <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">Step 3 · Calendar</div>
+      <h2 class="mt-1 font-display text-2xl font-semibold">What's due this week?</h2>
+
+      {overdue.length === 0 && dueSoon.length === 0 ? (
+        <p class="mt-4 text-sm" style="color: rgb(var(--c-muted))">Nothing in the next 7 days.</p>
+      ) : (
+        <ul class="mt-4 space-y-2">
+          {overdue.map((d) => (
+            <li class="flex items-baseline justify-between">
+              <span>
+                <span class="badge badge-p0">{Math.abs(d.daysUntil)}d late</span>
+                <span class="ml-2">{d.label}</span>
+              </span>
+              <span class="font-mono text-xs" style="color: rgb(var(--c-muted))">{d.next_due}</span>
+            </li>
+          ))}
+          {dueSoon.map((d) => (
+            <li class="flex items-baseline justify-between">
+              <span>
+                <span class="badge badge-p1">{d.daysUntil}d</span>
+                <span class="ml-2">{d.label}</span>
+              </span>
+              <span class="font-mono text-xs" style="color: rgb(var(--c-muted))">{d.next_due}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div class="mt-5 flex items-center gap-2">
+        <button class="routine-prev rounded border px-3 py-2 text-sm" style="border-color: rgb(var(--c-border))">← back</button>
+        <button class="routine-next rounded border px-4 py-2 text-sm font-medium"
+                style="border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent))">
+          Reviewed → next
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 4 — Today's focus (rhythm) -->
+  <section class="routine-step hidden" data-step="4">
+    <div class="card card-notable">
+      <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">Step 4 · Focus</div>
+      <h2 class="mt-1 font-display text-2xl font-semibold">Today is <strong style="color: rgb(var(--c-accent))">{rhythm.label}</strong></h2>
+      <p class="mt-2 text-base">{rhythm.focus}.</p>
+      <p class="mt-3 text-sm" style="color: rgb(var(--c-muted))">
+        What's the <em>one</em> thing you'll move forward today? Name it.
+      </p>
+
+      <textarea id="routine-focus"
+                class="mt-3 w-full rounded border p-3 text-sm"
+                rows="2"
+                placeholder={`The one thing I'll do for ${rhythm.label} today is…`}
+                style="background: rgb(var(--c-surface)); border-color: rgb(var(--c-border)); color: rgb(var(--c-ink))"></textarea>
+
+      <div class="mt-5 flex items-center gap-2">
+        <button class="routine-prev rounded border px-3 py-2 text-sm" style="border-color: rgb(var(--c-border))">← back</button>
+        <button class="routine-next rounded border px-4 py-2 text-sm font-medium"
+                style="border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent))">
+          Committed → next
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 5 — Top P0 PROGRESS items -->
+  <section class="routine-step hidden" data-step="5">
+    <div class="card">
+      <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">Step 5 · Roadmap</div>
+      <h2 class="mt-1 font-display text-2xl font-semibold">Top P0 items right now</h2>
+      <p class="mt-2 text-sm" style="color: rgb(var(--c-muted))">
+        From PROGRESS.md. Glance — don't try to start them all.
+      </p>
+
+      {progress.nextActions.length === 0 ? (
+        <p class="mt-4 text-sm">All P0 items checked. Pick something from P1.</p>
+      ) : (
+        <ol class="mt-4 space-y-2 text-sm">
+          {progress.nextActions.slice(0, 5).map((a, i) => (
+            <li>
+              <span class="font-mono text-xs" style="color: rgb(var(--c-muted))">{i + 1}. {a.section}</span>
+              <span class="ml-2">{a.text}</span>
+            </li>
+          ))}
+        </ol>
+      )}
+
+      <div class="mt-5 flex items-center gap-2">
+        <button class="routine-prev rounded border px-3 py-2 text-sm" style="border-color: rgb(var(--c-border))">← back</button>
+        <button class="routine-next rounded border px-4 py-2 text-sm font-medium"
+                style="border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent))">
+          Noted → next
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 6 — Cluster + infrastructure -->
+  <section class="routine-step hidden" data-step="6">
+    <div class="card">
+      <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">Step 6 · Health</div>
+      <h2 class="mt-1 font-display text-2xl font-semibold">Empire health check</h2>
+
+      <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div class="card-tight rounded border p-3" style={`border-color: rgb(var(--c-${sitesGreen === sitesTotal ? 'ok' : 'warn'})); background: rgb(var(--c-${sitesGreen === sitesTotal ? 'ok' : 'warn'}) / 0.05)`}>
+          <div class="text-xs" style="color: rgb(var(--c-muted))">Sister sites</div>
+          <div class="mt-1 font-display text-xl font-semibold">{sitesGreen}/{sitesTotal} green</div>
+        </div>
+        <div class="card-tight rounded border p-3" style={`border-color: rgb(var(--c-${expiringP0.length === 0 ? 'ok' : 'bad'})); background: rgb(var(--c-${expiringP0.length === 0 ? 'ok' : 'bad'}) / 0.05)`}>
+          <div class="text-xs" style="color: rgb(var(--c-muted))">Domains ≤7d</div>
+          <div class="mt-1 font-display text-xl font-semibold">{expiringP0.length}</div>
+        </div>
+        <div class="card-tight rounded border p-3" style={`border-color: rgb(var(--c-${renewingSoon.length === 0 ? 'ok' : 'warn'})); background: rgb(var(--c-${renewingSoon.length === 0 ? 'ok' : 'warn'}) / 0.05)`}>
+          <div class="text-xs" style="color: rgb(var(--c-muted))">Renewals ≤7d</div>
+          <div class="mt-1 font-display text-xl font-semibold">{renewingSoon.length}</div>
+        </div>
+      </div>
+
+      <div class="mt-5 flex items-center gap-2">
+        <button class="routine-prev rounded border px-3 py-2 text-sm" style="border-color: rgb(var(--c-border))">← back</button>
+        <button class="routine-next rounded border px-4 py-2 text-sm font-medium"
+                style="border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent))">
+          Confirmed → next
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 7 — Done -->
+  <section class="routine-step hidden" data-step="7">
+    <div class="card card-notable" style="text-align: center">
+      <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">Step 7 · Done</div>
+      <h2 class="mt-3 font-display text-3xl font-semibold">Routine complete.</h2>
+      <p class="mt-2 text-sm" style="color: rgb(var(--c-muted))">
+        Today's focus: <strong id="routine-recap-focus" style="color: rgb(var(--c-ink))">—</strong>
+      </p>
+      <p class="mt-4 text-sm">
+        Empire is oriented. Now go build.
+      </p>
+      <div class="mt-6 flex items-center justify-center gap-3">
+        <a href="/" class="rounded border px-4 py-2 text-sm font-medium no-underline"
+           style="border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent))">
+          Back to Today →
+        </a>
+        <button class="routine-restart rounded border px-3 py-2 text-sm"
+                style="border-color: rgb(var(--c-border))">Restart routine</button>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<script is:inline define:vars={{ today }}>
+  (function () {
+    const STEPS = 7;
+    const KEY = `empire-routine-${today}`;
+    const FOCUS_KEY = `empire-routine-focus-${today}`;
+    const sections = Array.from(document.querySelectorAll('.routine-step'));
+    const progressBar = document.getElementById('routine-progress-bar');
+    const progressLabel = document.getElementById('routine-progress-label');
+    const focusInput = document.getElementById('routine-focus');
+    const focusRecap = document.getElementById('routine-recap-focus');
+
+    let current = Number(localStorage.getItem(KEY) || '1');
+    if (current < 1 || current > STEPS) current = 1;
+
+    if (focusInput) {
+      focusInput.value = localStorage.getItem(FOCUS_KEY) || '';
+      focusInput.addEventListener('input', () => {
+        localStorage.setItem(FOCUS_KEY, focusInput.value);
+      });
+    }
+
+    function show(n) {
+      current = n;
+      localStorage.setItem(KEY, String(n));
+      sections.forEach((s) => {
+        const stepNum = Number(s.getAttribute('data-step'));
+        s.classList.toggle('hidden', stepNum !== n);
+      });
+      progressBar.style.width = `${(n / STEPS) * 100}%`;
+      progressLabel.textContent = `Step ${n} of ${STEPS}`;
+      if (n === STEPS && focusRecap) {
+        focusRecap.textContent = localStorage.getItem(FOCUS_KEY) || '(none recorded)';
+      }
+      // Smooth-scroll to top of routine
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Focus the section's primary button
+      const firstBtn = sections[n - 1]?.querySelector('.routine-next, a[href="/"]');
+      setTimeout(() => firstBtn?.focus({ preventScroll: true }), 200);
+    }
+
+    document.querySelectorAll('.routine-next').forEach((btn) => {
+      btn.addEventListener('click', () => show(Math.min(STEPS, current + 1)));
+    });
+    document.querySelectorAll('.routine-prev').forEach((btn) => {
+      btn.addEventListener('click', () => show(Math.max(1, current - 1)));
+    });
+    document.querySelectorAll('.routine-restart').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        localStorage.removeItem(KEY);
+        localStorage.removeItem(FOCUS_KEY);
+        if (focusInput) focusInput.value = '';
+        show(1);
+      });
+    });
+
+    // Keyboard: ← / → to navigate steps
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+      if (e.key === 'ArrowRight' || e.key === 'Enter') {
+        e.preventDefault();
+        show(Math.min(STEPS, current + 1));
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        show(Math.max(1, current - 1));
+      }
+    });
+
+    show(current);
+  })();
+</script>

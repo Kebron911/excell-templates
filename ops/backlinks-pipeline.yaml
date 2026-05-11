@@ -1,0 +1,47 @@
+# ops/backlinks-pipeline.yaml — backlink outreach + acquired log
+#
+# Read by:
+#   - tools/empire-console — /promote/backlinks
+#   - infrastructure/n8n/flows/outreach-followup-watch
+#   - infrastructure/n8n/flows/backlink-watch (lost-link recovery)
+#
+# Two sections:
+#   - outreach: targets you're pursuing
+#   - acquired: backlinks won (for monitoring)
+#
+# State machine for outreach:
+#   prospect → contacted → replied → published | declined | ghosted
+#
+# Notes:
+#   - GSC + (eventually) Ahrefs/DataForSEO will populate `acquired` automatically
+#     in Phase 4. Until then, log manually.
+
+outreach:
+  - target_domain: bigpockets.com
+    target_url: ""
+    contact: ""
+    angle: STR-tax-template guest post — niche 47-deductions list
+    state: prospect
+    last_touch: null
+    next_action_date: 2026-05-20
+    owner: Daniel
+    notes: PLACEHOLDER. Replace with real prospect.
+
+  - target_domain: hostsonmission.com
+    contact: ""
+    angle: Newsletter sponsorship + reciprocal mention
+    state: prospect
+    last_touch: null
+    next_action_date: 2026-05-25
+    owner: Daniel
+
+acquired:
+  # populated automatically from GSC in Phase 4. Sample shape:
+  # - referring_domain: example.com
+  #   referring_url: https://example.com/post
+  #   target_url: https://thestrledger.com/...
+  #   anchor_text: "STR tax template"
+  #   first_seen: 2026-05-15
+  #   last_seen: 2026-05-15
+  #   dofollow: true
+  #   notes: ""

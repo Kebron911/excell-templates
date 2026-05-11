@@ -1,0 +1,49 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import { readClusterStatus } from '@/lib/data/cluster';
+
+const sites = await readClusterStatus();
+const allOk = sites.every((s) => s.status === 'ok');
+---
+<Layout title="Check · Cluster" section="check">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Cluster status</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        4 sister sites · filesystem-only check.
+        Live HTTP smoke at <a href="/check/cluster/smoke">/check/cluster/smoke</a> ·
+        blog index at <a href="/check/cluster/blog">/check/cluster/blog</a>.
+      </p>
+    </div>
+    <span class:list={['badge', allOk ? 'badge-ok' : 'badge-p1']}>
+      {allOk ? 'all green' : 'attention'}
+    </span>
+  </header>
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    {sites.map((s) => (
+      <div class="card">
+        <div class="flex items-baseline justify-between">
+          <h3 class="font-display text-xl font-semibold">{s.name}</h3>
+          <span class:list={[
+            'badge',
+            s.status === 'ok' ? 'badge-ok' : s.status === 'stale' ? 'badge-p1' : 'badge-p0',
+          ]}>{s.status}</span>
+        </div>
+        <dl class="mt-3 grid grid-cols-2 gap-2 text-sm">
+          <dt style="color: rgb(var(--c-muted))">dist/</dt>
+          <dd class="text-right font-mono">{s.hasDist ? '✓' : '—'}</dd>
+          <dt style="color: rgb(var(--c-muted))">last built</dt>
+          <dd class="text-right font-mono">
+            {s.lastBuiltAt ? new Date(s.lastBuiltAt).toLocaleDateString() : '—'}
+          </dd>
+          <dt style="color: rgb(var(--c-muted))">age</dt>
+          <dd class="text-right font-mono">
+            {s.ageHours !== null ? `${s.ageHours.toFixed(1)}h` : '—'}
+          </dd>
+          <dt style="color: rgb(var(--c-muted))">files</dt>
+          <dd class="text-right font-mono">{s.fileCount ?? '—'}</dd>
+        </dl>
+      </div>
+    ))}
+  </div>
+</Layout>

@@ -1,0 +1,44 @@
+# Hostinger / LiteSpeed — Empire Console
+#
+# 1. Basic auth gate (the .htpasswd file lives ABOVE the doc root):
+#    /home/u470667024/.htpasswd-dashboard
+#    Generate once with:  htpasswd -c /home/u470667024/.htpasswd-dashboard daniel
+#    (server-side; do NOT commit the .htpasswd file)
+#
+# 2. Standard security headers
+# 3. Astro single-page routing fallback (so /money etc. resolve to dist/money/index.html)
+
+# ─── Auth gate ─────────────────────────────────────────────
+AuthType Basic
+AuthName "Empire Console — authorized only"
+AuthUserFile /home/u470667024/.htpasswd-dashboard
+Require valid-user
+
+# ─── Security headers ──────────────────────────────────────
+<IfModule mod_headers.c>
+  Header set X-Frame-Options "DENY"
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+  Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+  # Atlas data — short cache
+  <FilesMatch "atlas-data\.json$">
+    Header set Cache-Control "public, max-age=60"
+  </FilesMatch>
+</IfModule>
+
+# ─── Astro static routing ──────────────────────────────────
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # If the file or dir doesn't exist, try with /index.html
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ /$1/index.html [L]
+</IfModule>
+
+# ─── Compression ───────────────────────────────────────────
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>

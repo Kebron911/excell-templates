@@ -1,0 +1,48 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+---
+<Layout title="LTV + cohort" section="money">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <a href="/money" class="text-xs">← back to Money</a>
+      <h1 class="mt-1 font-display text-3xl font-semibold">LTV + cohort</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Repeat-purchase rate, lifetime value, founding-buyer cohort retention.
+        Phase 3 wires Stripe customer object.
+      </p>
+    </div>
+    <span class="badge badge-p2">Phase 3 stub</span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="LTV (avg)" value="—" hint="Stripe lifetime per customer" />
+    <Scorecard label="Repeat rate (90d)" value="—" hint="% who bought 2nd time within 90d" />
+    <Scorecard label="Founding cohort retention" value="—" hint="first-100 buyers still engaged" />
+    <Scorecard label="Median time to repeat" value="—" hint="days between 1st and 2nd purchase" />
+  </section>
+
+  <section class="card mb-8" style="background: rgb(var(--c-surface-2))">
+    <h2 class="mb-3 font-display text-lg font-semibold">What lands in Phase 3</h2>
+    <ul class="space-y-2 text-sm">
+      <li>• <strong>Cohort grid</strong> — buyers grouped by purchase month, retention % at +30/+60/+90/+180 days</li>
+      <li>• <strong>LTV per channel</strong> — Etsy buyers vs Gumroad vs own-site, who has the highest LTV?</li>
+      <li>• <strong>LTV per first-SKU</strong> — does buying the tax tracker first lead to higher LTV than starting with a guest message pack?</li>
+      <li>• <strong>Founding-buyer retention</strong> — your first 100 buyers are your highest-signal cohort. How many still engage with newsletters / repeat-purchase?</li>
+    </ul>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Why this matters
+    </h3>
+    <p class="text-sm">
+      LTV decides paid-acquisition unlock. PROGRESS §P5.6 sets an organic-CVR gate before paid spend; once that gate clears,
+      paid CAC must be &lt;30% of blended LTV to be sustainable. Without LTV measurement, that math is guesswork.
+    </p>
+  </section>
+
+  <SourceFooter source="Stripe customer API + IS contact tags (Phase 3 nightly-refresh)"
+                lastRefresh={null} notes="Wired in Phase 3" />
+</Layout>

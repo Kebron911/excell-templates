@@ -11,8 +11,8 @@
 | Stripe | dashboard.stripe.com | (pending) | pending | Vaultwarden + IS | Stripe Tax enabled |
 | Ghost | (pending host) | (pending) | pending | Vaultwarden | Subdomain blog.thestrledger.com |
 | Google Workspace | admin.google.com | (pending) | pending | Vaultwarden | Used for backups + custom email |
-| Cloudflare | dash.cloudflare.com | (pending) | pending | Vaultwarden | DNS + Tunnel + Registrar |
-| Hetzner/DO VPS | (pending host) | (pending) | pending | SSH keys + Vaultwarden | n8n host |
+| Hostinger | hpanel.hostinger.com | (pending) | pending | Vaultwarden | Hosting + DNS + domain registrar + AutoSSL — single vendor for the cluster |
+| VPS (n8n host) | (pending) | (pending) | pending | SSH keys + Vaultwarden | n8n host (Hostinger VPS or other) |
 | Vista Create Pro | create.vista.com | (pending) | pending | Vaultwarden | Brand kit lives here — lifetime deal owned, no subscription |
 | Creasquare | app.creasquare.io | (pending) | pending | Vaultwarden | Multi-platform scheduler: IG, LinkedIn, YouTube, TikTok, FB, **and Pinterest**. Lifetime deal owned — replaces Buffer AND covers Pinterest scheduling for Months 1–3. Pinterest integration is basic per user reviews; Pinterest native scheduler is a documented fallback if Creasquare's Pinterest features prove limiting. |
 | Etsy | etsy.com | (pending) | pending | Vaultwarden + 2FA app | Seller account |
@@ -51,4 +51,4 @@ When hiring a VA, never share this file. Provision scoped access only:
 - Airtable: workspace collaborator, specific base, edit permission
 - IS: team member role, no billing access
 - Vista Create: team editor
-- No direct access to Stripe, Cloudflare, VPS, domain registrar, Vaultwarden
+- No direct access to Stripe, Hostinger hPanel, VPS, Vaultwarden

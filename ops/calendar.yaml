@@ -1,0 +1,88 @@
+# ops/calendar.yaml — recurring obligations
+#
+# Read by:
+#   - tools/empire-console — Today landing "Due this week" card + /maintain/calendar
+#   - infrastructure/n8n/flows/due-soon-watch — daily 07:00, P1 ≤7d, P0 if overdue
+#
+# Schema:
+#   label:    string  (human label shown on Today)
+#   category: tax | sales-tax | filing | insurance | renewal | content | review
+#   cadence:  monthly | quarterly | annual | one-off
+#   next_due: YYYY-MM-DD
+#   owner:    Daniel | TBD
+#   notes:    optional
+#
+# Add new items as they come up. Console auto-bumps `next_due` after the alert
+# fires once you mark the item complete (Phase 4 action).
+
+items:
+  # Federal estimated tax — quarterly
+  - label: Q2 estimated tax payment
+    category: tax
+    cadence: quarterly
+    next_due: 2026-06-15
+    owner: Daniel
+    notes: 1040-ES. Due Apr 15, Jun 15, Sep 15, Jan 15.
+
+  - label: Q3 estimated tax payment
+    category: tax
+    cadence: quarterly
+    next_due: 2026-09-15
+    owner: Daniel
+
+  - label: Q4 estimated tax payment
+    category: tax
+    cadence: quarterly
+    next_due: 2027-01-15
+    owner: Daniel
+
+  # Sales tax — placeholder until P9.2 sales-tax-posture decision lands
+  - label: Sales tax remittance (state TBD)
+    category: sales-tax
+    cadence: monthly
+    next_due: 2026-06-20
+    owner: Daniel
+    notes: PLACEHOLDER — set state(s) per P0.0 sales-tax-posture doc.
+
+  # Annual
+  - label: 1099-K reconciliation (Etsy + Stripe + Gumroad)
+    category: filing
+    cadence: annual
+    next_due: 2027-01-31
+    owner: Daniel
+
+  - label: Year-end CPA handoff package
+    category: filing
+    cadence: annual
+    next_due: 2027-02-15
+    owner: Daniel
+    notes: Trial balance, P&L, balance sheet, 1099s, depreciation schedule.
+
+  # Reviews
+  - label: Quarterly stale-runbook review
+    category: review
+    cadence: quarterly
+    next_due: 2026-08-01
+    owner: Daniel
+
+  - label: Quarterly vendor cost audit
+    category: review
+    cadence: quarterly
+    next_due: 2026-08-01
+    owner: Daniel
+
+  # Backups
+  - label: Monthly backup restore test
+    category: review
+    cadence: monthly
+    next_due: 2026-06-01
+    owner: Daniel
+    notes: P9.7 — restore IS export + Airtable export to scratch instance.
+
+  # Content cadences (PROGRESS §P5 / atomization engine)
+  - label: Weekly content atomization brief
+    category: content
+    cadence: weekly
+    next_due: 2026-05-11
+    owner: Daniel
+    notes: Monday Source Topic → 11 platform artifacts.

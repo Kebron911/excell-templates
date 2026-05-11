@@ -1,0 +1,81 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readClusterSmoke } from '@/lib/data/cluster-smoke';
+import { formatDateTime } from '@/lib/format';
+
+// This is heavy — runs each site's smoke.mjs against production over the network.
+// Triggered explicitly (not on every page load); page renders results from one run.
+const r = await readClusterSmoke();
+const passed = r.results.filter((x) => x.ok).length;
+const failed = r.results.filter((x) => !x.ok && x.smokePath).length;
+const noScript = r.results.filter((x) => !x.smokePath).length;
+---
+<Layout title="Cluster smoke (live)" section="check">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <a href="/check/cluster" class="text-xs">← back to cluster</a>
+      <h1 class="mt-1 font-display text-3xl font-semibold">Live smoke</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Runs each site's <code>scripts/smoke.mjs</code> against the production URL.
+        Phase 2 — replaces the filesystem-only cluster check.
+      </p>
+    </div>
+    <a href="/check/cluster/smoke" class="rounded border px-3 py-1.5 text-xs"
+       style="border-color: rgb(var(--c-accent)); color: rgb(var(--c-accent))">
+      Re-run
+    </a>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Sites tested" value={r.results.length} />
+    <Scorecard label="Passing" value={passed} tone="ok" />
+    <Scorecard label="Failing" value={failed}
+               tone={failed > 0 ? 'bad' : 'ok'}
+               tier={failed > 0 ? 'critical' : 'normal'} />
+    <Scorecard label="No smoke script" value={noScript}
+               tone={noScript > 0 ? 'warn' : 'ok'} />
+  </section>
+
+  {r.results.length === 0 ? (
+    <EmptyState title="No sites configured" body="paths.sites is empty in src/lib/paths.ts" />
+  ) : (
+    <ul class="space-y-3">
+      {r.results.map((res) => (
+        <li class={`card ${!res.ok && res.smokePath ? 'card-critical' : !res.smokePath ? 'card-notable' : ''}`}>
+          <div class="flex items-baseline justify-between gap-3">
+            <div>
+              <h3 class="font-display text-lg font-semibold">{res.name}</h3>
+              <p class="mt-1 text-xs font-mono" style="color: rgb(var(--c-muted))">
+                {res.smokePath ?? '(no scripts/smoke.mjs)'}
+              </p>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+              <span class:list={['badge', !res.smokePath ? 'badge-p1' : res.ok ? 'badge-ok' : 'badge-p0']}>
+                {!res.smokePath ? 'no script' : res.ok ? 'PASS' : 'FAIL'}
+              </span>
+              <span class="font-mono" style="color: rgb(var(--c-muted))">
+                {res.durationMs}ms · exit {res.exitCode ?? '—'}
+              </span>
+            </div>
+          </div>
+          {res.output && res.output.trim() && (
+            <details class="mt-3">
+              <summary class="cursor-pointer text-xs" style="color: rgb(var(--c-muted))">
+                Output (last 1.5KB)
+              </summary>
+              <pre class="mt-2 max-h-72 overflow-auto whitespace-pre-wrap text-xs"
+                   style="background: rgb(var(--c-surface-2)); padding: 0.5rem; border-radius: 0.25rem">{res.output}</pre>
+            </details>
+          )}
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <SourceFooter source="STR{Guests,Host,Ops,Buyers}-Tools/scripts/smoke.mjs (run live)"
+                lastRefresh={r.ranAt}
+                notes="Each smoke run can take up to 25s; refresh re-runs all sites in parallel" />
+</Layout>

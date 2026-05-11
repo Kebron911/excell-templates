@@ -1,0 +1,120 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readSkus, type Sku } from '@/lib/data/skus';
+import { formatDate } from '@/lib/format';
+
+export async function getStaticPaths() {
+  const report = await readSkus();
+  return report.skus.map((s) => ({
+    params: { sku: s.sku },
+    props: { sku: s },
+  }));
+}
+
+const { sku }: { sku: Sku } = Astro.props;
+const statusBadge = {
+  live:    'badge-ok',
+  partial: 'badge-p1',
+  draft:   'badge-p2',
+} as const;
+---
+<Layout title={`${sku.sku} · ${sku.name}`} section="check">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <a href="/check/catalog" class="text-xs">← back to catalog</a>
+      <h1 class="mt-1 font-display text-3xl font-semibold">
+        <span class="font-mono text-2xl" style="color: rgb(var(--c-muted))">{sku.sku}</span>
+        <span class="ml-3">{sku.name}</span>
+      </h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        {sku.categoryName}
+        {sku.tier && <> · Tier {sku.tier}</>}
+        {sku.wave && <> · Wave {sku.wave}</>}
+      </p>
+    </div>
+    <span class:list={['badge', statusBadge[sku.status]]}>{sku.status}</span>
+  </header>
+
+  {sku.campaign && (
+    <p class="mb-6 italic" style="color: rgb(var(--c-accent))">"{sku.campaign}"</p>
+  )}
+
+  <section class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="card">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Pricing
+      </h2>
+      {sku.etsyPrice ? <p class="text-sm"><strong>Etsy:</strong> {sku.etsyPrice}</p> : <p class="text-sm" style="color: rgb(var(--c-muted))">No Etsy price in brief</p>}
+      {sku.ownsitePrice ? <p class="mt-1 text-sm"><strong>Own site:</strong> {sku.ownsitePrice}</p> : <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">No own-site price in brief</p>}
+    </div>
+    <div class="card">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Build state
+      </h2>
+      <ul class="space-y-1 text-sm">
+        <li>{sku.hasDemo ? '✓' : '✗'} DEMO xlsx</li>
+        <li>{sku.hasBlank ? '✓' : '✗'} BLANK xlsx</li>
+        <li>{sku.hasHowtoPdf ? '✓' : '✗'} How-to PDF</li>
+        <li>{sku.hasLicensePdf ? '✓' : '✗'} License PDF</li>
+        <li>{sku.thumbCount > 0 ? '✓' : '✗'} Thumbnails ({sku.thumbCount})</li>
+        <li>{sku.hasEtsyCopy ? '✓' : '✗'} Etsy listing copy</li>
+        <li>{sku.hasProductCopy ? '✓' : '✗'} Product-page copy</li>
+      </ul>
+    </div>
+  </section>
+
+  {sku.briefDescription && (
+    <section class="mb-6 card">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        What this template does
+      </h2>
+      <pre class="whitespace-pre-wrap text-sm" style="font-family: inherit">{sku.briefDescription}</pre>
+    </section>
+  )}
+
+  <section class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div class="card">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Source files
+      </h2>
+      <ul class="space-y-1 text-sm font-mono">
+        {sku.briefPath && <li>📄 <code>{sku.briefPath}</code></li>}
+        {sku.etsyCopyPath && <li>📝 <code>{sku.etsyCopyPath}</code></li>}
+        {sku.productCopyPath && <li>📝 <code>{sku.productCopyPath}</code></li>}
+      </ul>
+    </div>
+    <div class="card">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Delivery files
+      </h2>
+      {sku.deliveryFiles.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          No delivery folder yet. Expected at <code>{sku.deliveryPath || `templates/_delivery/${sku.sku}-${sku.slug}/`}</code>
+        </p>
+      ) : (
+        <ul class="space-y-1 text-sm font-mono">
+          {sku.deliveryFiles.map((f) => (
+            <li class="truncate">
+              {f.endsWith('.png') ? '🖼' : f.endsWith('.pdf') ? '📕' : f.endsWith('.xlsx') ? '📊' : '📄'} {f}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Status guide
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li><strong style="color: rgb(var(--c-ok))">live</strong> — has howto PDF + license PDF + thumbnail + Etsy copy + product copy</li>
+      <li><strong style="color: rgb(var(--c-warn))">partial</strong> — build done but Etsy or product-page copy missing</li>
+      <li><strong style="color: rgb(var(--c-muted))">draft</strong> — missing howto / license / thumbnail (build incomplete)</li>
+    </ul>
+  </section>
+
+  <SourceFooter source="templates/_briefs/ + templates/_delivery/ + copy/etsy-listings/ + copy/product-pages/"
+                lastRefresh={sku.lastUpdated} />
+</Layout>

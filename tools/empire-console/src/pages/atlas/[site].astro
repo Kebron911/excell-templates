@@ -1,0 +1,164 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import { listSites, readSiteAtlas } from '@/lib/data/site-atlas';
+
+export async function getStaticPaths() {
+  const sites = await listSites();
+  return sites.map((s) => ({ params: { site: s.id } }));
+}
+
+const { site } = Astro.params;
+const atlas = await readSiteAtlas(String(site));
+if (!atlas) {
+  return Astro.redirect('/atlas');
+}
+
+const { meta, local_dev, hosting, ci, sections, derived, domainStatus, stateExcerpt, memoryExcerpt } = atlas;
+const allSections = [...derived, ...sections];
+
+const kindMeta = {
+  internal: { label: 'page',    cssClass: 'badge-ok',  isExternal: false },
+  external: { label: 'tool ↗',  cssClass: 'badge-p1',  isExternal: true  },
+  doc:      { label: 'doc',     cssClass: 'badge-p2',  isExternal: false },
+  runbook:  { label: 'runbook', cssClass: 'badge-p2',  isExternal: false },
+  yaml:     { label: 'yaml',    cssClass: 'badge-p2',  isExternal: false },
+  code:     { label: 'code',    cssClass: 'badge-p2',  isExternal: false },
+} as const;
+type Kind = keyof typeof kindMeta;
+---
+<Layout title={`Atlas · ${meta.name}`} section="today">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <a href="/atlas" class="text-xs">← back to empire atlas</a>
+      <h1 class="mt-1 font-display text-4xl font-semibold">{meta.name}</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        {meta.description}
+      </p>
+    </div>
+    <span class="badge badge-p2">{meta.role}</span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+    <div class="card">
+      <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">Live</h3>
+      {meta.live_url && <a href={meta.live_url} target="_blank" rel="noopener noreferrer" class="font-medium">{meta.live_url} ↗</a>}
+      {meta.blog_url && <div class="mt-1 text-xs"><a href={meta.blog_url} target="_blank" rel="noopener noreferrer">{meta.blog_url} ↗</a></div>}
+    </div>
+    <div class="card">
+      <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">Local dev</h3>
+      <div class="font-mono text-sm">{String(local_dev.start_command ?? '—')}</div>
+      <div class="mt-1 text-xs" style="color: rgb(var(--c-muted))">
+        {local_dev.port_static && `static :${local_dev.port_static}`}
+        {local_dev.port_server && ` · server :${local_dev.port_server}`}
+      </div>
+      <div class="mt-2 text-xs">
+        Repo: <code>{meta.repo_path}</code>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">Domain + hosting</h3>
+      <div class="text-sm">
+        {hosting.provider && <span><strong>{String(hosting.provider)}</strong> — </span>}
+        <code class="text-xs">{String(hosting.doc_root ?? '—')}</code>
+      </div>
+      <div class="mt-1 text-xs" style="color: rgb(var(--c-muted))">
+        {domainStatus.expires
+          ? <>expires {domainStatus.expires}{domainStatus.daysToExpiry !== null && domainStatus.daysToExpiry !== undefined && <> ({domainStatus.daysToExpiry}d)</>}</>
+          : <>no domain entry — add to <code>ops/infrastructure.yaml</code></>}
+        {domainStatus.sslProvider && <> · SSL: {domainStatus.sslProvider}</>}
+      </div>
+    </div>
+  </section>
+
+  {Array.isArray(ci?.workflow_paths) && (ci.workflow_paths as unknown[]).length > 0 && (
+    <section class="mb-8 card">
+      <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">CI / deploy</h3>
+      <ul class="space-y-1 text-sm">
+        {(ci.workflow_paths as string[]).map((p: string) => (
+          <li>📄 <code>{p}</code></li>
+        ))}
+        {ci.smoke_path && <li>🔥 smoke: <code>{String(ci.smoke_path)}</code></li>}
+      </ul>
+    </section>
+  )}
+
+  {(stateExcerpt || memoryExcerpt) && (
+    <section class="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      {stateExcerpt && (
+        <div class="card">
+          <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+            STATE.md (top of file)
+          </h3>
+          <pre class="max-h-96 overflow-auto whitespace-pre-wrap text-xs"
+               style="font-family: inherit; line-height: 1.5">{stateExcerpt}</pre>
+          <p class="mt-2 text-xs" style="color: rgb(var(--c-muted))">
+            <code>{meta.repo_path}.planning/STATE.md</code>
+          </p>
+        </div>
+      )}
+      {memoryExcerpt && (
+        <div class="card">
+          <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+            MEMORY.md (recent)
+          </h3>
+          <pre class="max-h-96 overflow-auto whitespace-pre-wrap text-xs"
+               style="font-family: inherit; line-height: 1.5">{memoryExcerpt}</pre>
+          <p class="mt-2 text-xs" style="color: rgb(var(--c-muted))">
+            <code>{meta.repo_path}MEMORY.md</code>
+          </p>
+        </div>
+      )}
+    </section>
+  )}
+
+  {allSections.map((sec) => (
+    <section class="mb-8">
+      <h2 class="mb-3 font-display text-xl font-semibold">{sec.label}</h2>
+      {sec.groups.map((grp) => (
+        <div class="mb-4">
+          {grp.label && (
+            <h3 class="mb-2 text-xs font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+              {grp.label}
+            </h3>
+          )}
+          <ul class="space-y-1">
+            {grp.items.map((item) => {
+              const meta = kindMeta[item.kind as Kind];
+              const target = meta.isExternal ? '_blank' : undefined;
+              const rel = meta.isExternal ? 'noopener noreferrer' : undefined;
+              const isPlaceholder = item.status === 'placeholder';
+              const hasUrl = item.url && item.url.length > 0;
+              return (
+                <li class="flex items-baseline justify-between gap-3 rounded px-3 py-2 hover:bg-[rgb(var(--c-surface-2))]">
+                  <div class="flex-1 min-w-0">
+                    {hasUrl ? (
+                      <a href={item.url} target={target} rel={rel}
+                         class="font-medium no-underline hover:underline"
+                         style={isPlaceholder ? 'opacity: 0.6' : ''}>
+                        {item.name}
+                      </a>
+                    ) : (
+                      <span class="font-medium" style="opacity: 0.6">{item.name}</span>
+                    )}
+                    {item.note && (
+                      <span class="ml-2 text-xs" style="color: rgb(var(--c-muted))">— {item.note}</span>
+                    )}
+                    {isPlaceholder && (
+                      <span class="ml-2 badge badge-p2">placeholder</span>
+                    )}
+                  </div>
+                  <div class="flex items-center gap-2 text-xs whitespace-nowrap">
+                    <span class:list={['badge', meta.cssClass]}>{meta.label}</span>
+                    {hasUrl && (
+                      <code class="text-xs" style="color: rgb(var(--c-muted))">{item.url}</code>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </section>
+  ))}
+</Layout>

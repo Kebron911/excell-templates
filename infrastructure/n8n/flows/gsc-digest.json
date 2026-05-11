@@ -1,0 +1,51 @@
+{
+  "name": "gsc-digest",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * 1" }] }
+      },
+      "id": "cron",
+      "name": "Mon 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cat {{ $env.EMPIRE_REPO_PATH }}/ops/cache/seo.json 2>/dev/null || echo '{}'"
+      },
+      "id": "read",
+      "name": "Read seo.json",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "let cache;\ntry { cache = JSON.parse($input.item.json.stdout || '{}'); } catch { cache = {}; }\nconst g = cache.gsc || { impressions: 0, clicks: 0, ctr: 0, avgPosition: 0 };\nconst climbers = (cache.topQueries || []).filter(q => q.deltaPosition < -1).sort((a,b) => a.deltaPosition - b.deltaPosition).slice(0, 3);\nconst fallers = (cache.topQueries || []).filter(q => q.deltaPosition > 1).sort((a,b) => b.deltaPosition - a.deltaPosition).slice(0, 3);\nconst climbersLine = climbers.length === 0 ? 'no climbers' : climbers.map(q => `${q.query} ↑${Math.abs(q.deltaPosition).toFixed(1)}`).join(' · ');\nconst fallersLine = fallers.length === 0 ? 'no fallers' : fallers.map(q => `${q.query} ↓${q.deltaPosition.toFixed(1)}`).join(' · ');\nreturn [{ json: {\n  priority: 'P2',\n  source: 'gsc-digest',\n  message: `Search Console weekly:\\n• ${g.impressions} impressions, ${g.clicks} clicks (${(g.ctr*100).toFixed(2)}% CTR)\\n• Avg pos ${g.avgPosition.toFixed(1)}\\n• Climbers: ${climbersLine}\\n• Fallers: ${fallersLine}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/seo'\n} }];"
+      },
+      "id": "decide",
+      "name": "Build digest",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": { "source": "parameter", "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID" },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "Mon 08:00":     { "main": [[{ "node": "Read seo.json",     "type": "main", "index": 0 }]] },
+    "Read seo.json": { "main": [[{ "node": "Build digest",      "type": "main", "index": 0 }]] },
+    "Build digest":  { "main": [[{ "node": "→ telegram-router", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P2" }, { "name": "digest" }]
+}

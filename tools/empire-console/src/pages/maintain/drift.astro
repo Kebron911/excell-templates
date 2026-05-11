@@ -1,0 +1,142 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import { readDrift, type DriftFinding } from '@/lib/data/drift';
+
+const d = await readDrift();
+
+function bySeverity(bucket: DriftFinding['bucket']) {
+  return {
+    bad:  d.findings.filter((f) => f.bucket === bucket && f.severity === 'bad'),
+    warn: d.findings.filter((f) => f.bucket === bucket && f.severity === 'warn'),
+    info: d.findings.filter((f) => f.bucket === bucket && f.severity === 'info'),
+  };
+}
+
+const structural = bySeverity('structural');
+const conventions = bySeverity('conventions');
+const procs       = bySeverity('process');
+
+const overallTone =
+  d.totals.bad  > 0 ? 'bad'  :
+  d.totals.warn > 0 ? 'warn' :
+  'ok';
+---
+<Layout title="Run · Drift detector" section="maintain">
+  <header class="mb-6 flex items-baseline justify-between gap-4">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Drift detector</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Catches the dashboard going stale as the rest of the program evolves.
+        Three buckets — <strong>structural</strong> (atlas paths broken),
+        <strong>conventions</strong> (required fields missing),
+        <strong>process</strong> (tracked files touched recently).
+      </p>
+    </div>
+    <span class:list={['badge', overallTone === 'bad' ? 'badge-p0' : overallTone === 'warn' ? 'badge-p1' : 'badge-ok']}>
+      {d.totals.bad} bad · {d.totals.warn} warn · {d.totals.info} info
+    </span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+    <Scorecard label="Structural"
+               value={`${structural.bad.length} bad`}
+               hint={`${structural.warn.length} warn · ${structural.info.length} info`}
+               tone={structural.bad.length > 0 ? 'bad' : structural.warn.length > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Conventions"
+               value={`${conventions.bad.length} bad`}
+               hint={`${conventions.warn.length} warn · ${conventions.info.length} info`}
+               tone={conventions.bad.length > 0 ? 'bad' : conventions.warn.length > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Process (14d)"
+               value={`${procs.info.length} touched`}
+               hint="atlas-tracked files modified recently"
+               tone="ok" />
+  </section>
+
+  <section class="mb-8 card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Run locally
+    </h3>
+    <pre class="text-xs" style="line-height: 1.5"><code>pnpm validate:drift           # fail CI on bad findings
+pnpm validate:drift --strict  # also fail on warnings
+pnpm validate                 # full chain (typecheck + ops + atlas + drift)</code></pre>
+  </section>
+
+  {d.findings.length === 0 ? (
+    <EmptyState title="Nothing drifting" body="Atlas and reality agree. Standards held." />
+  ) : (
+    <>
+      {structural.bad.length + structural.warn.length > 0 && (
+        <section class="mb-8">
+          <h2 class="mb-3 font-display text-xl font-semibold">Structural</h2>
+          <p class="mb-3 text-xs" style="color: rgb(var(--c-muted))">
+            Atlas points at paths that no longer resolve. Either restore the file or remove the entry.
+          </p>
+          <div class="card">
+            <ul class="space-y-2 text-sm">
+              {[...structural.bad, ...structural.warn].map((f) => (
+                <li>
+                  <div class="flex items-baseline gap-2">
+                    <span class:list={['badge', f.severity === 'bad' ? 'badge-p0' : 'badge-p1']}>{f.severity}</span>
+                    <code class="text-xs">{f.ref}</code>
+                  </div>
+                  <div class="mt-0.5 ml-1 text-sm">{f.message}</div>
+                  {f.hint && <div class="ml-1 text-xs" style="color: rgb(var(--c-muted))">→ {f.hint}</div>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {conventions.bad.length + conventions.warn.length + conventions.info.length > 0 && (
+        <section class="mb-8">
+          <h2 class="mb-3 font-display text-xl font-semibold">Conventions</h2>
+          <p class="mb-3 text-xs" style="color: rgb(var(--c-muted))">
+            Required fields missing on site yamls or SKU briefs. New code should land in the expected shape.
+          </p>
+          <div class="card">
+            <ul class="space-y-2 text-sm">
+              {[...conventions.bad, ...conventions.warn, ...conventions.info].map((f) => (
+                <li>
+                  <div class="flex items-baseline gap-2">
+                    <span class:list={['badge', f.severity === 'bad' ? 'badge-p0' : f.severity === 'warn' ? 'badge-p1' : 'badge-p2']}>{f.severity}</span>
+                    <code class="text-xs">{f.ref}</code>
+                  </div>
+                  <div class="mt-0.5 ml-1 text-sm">{f.message}</div>
+                  {f.hint && <div class="ml-1 text-xs" style="color: rgb(var(--c-muted))">→ {f.hint}</div>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {procs.info.length > 0 && (
+        <section class="mb-8">
+          <h2 class="mb-3 font-display text-xl font-semibold">Process — recent touches</h2>
+          <p class="mb-3 text-xs" style="color: rgb(var(--c-muted))">
+            Files modified in the last 14 days that the atlas references. Not failures — just spots to double-check the registry entries still describe reality.
+          </p>
+          <div class="card">
+            <ul class="space-y-1 text-sm">
+              {procs.info.map((f) => (
+                <li class="flex items-baseline gap-2">
+                  <span class="badge badge-p2">touched</span>
+                  <code class="text-xs">{f.ref}</code>
+                  <span class="ml-auto text-xs" style="color: rgb(var(--c-muted))">{f.message.replace(/^.*atlas refs /, '↪ ')}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+    </>
+  )}
+
+  <SourceFooter source="ops/atlas.yaml + ops/atlas/sites/ + templates/_briefs/ + git log (14d)"
+                lastRefresh={d.generatedAt}
+                notes="recomputed every page load — no cache" />
+</Layout>

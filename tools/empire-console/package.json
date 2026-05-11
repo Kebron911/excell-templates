@@ -1,0 +1,41 @@
+{
+  "name": "@strledger/empire-console",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Single internal interface to Promote, Check, and Maintain The STR Ledger empire.",
+  "bin": {
+    "empire": "./cli/empire.ts"
+  },
+  "scripts": {
+    "dev": "astro dev --port 4327 --host",
+    "build": "astro build",
+    "preview": "astro preview --port 4327",
+    "typecheck": "astro check && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "validate:ops": "tsx scripts/validate-ops.ts",
+    "validate:atlas": "tsx scripts/validate-atlas.ts",
+    "validate:drift": "tsx scripts/validate-drift.ts",
+    "validate": "pnpm typecheck && pnpm validate:ops && pnpm validate:atlas && pnpm validate:drift",
+    "cli": "tsx cli/empire.ts"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/tailwind": "^5.1.4",
+    "astro": "^4.16.0",
+    "tailwindcss": "^3.4.17",
+    "yaml": "^2.6.1",
+    "gray-matter": "^4.0.3",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

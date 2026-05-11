@@ -1,0 +1,93 @@
+---
+/* Single-instance confirm dialog. Mounted once in Layout; triggered via:
+ *
+ *   window.empireConfirm({
+ *     title: 'Send broadcast?',
+ *     body: 'Sends the latest draft to 2,847 subscribers.',
+ *     danger: false,           // true = uses red button + typed-confirm
+ *     typedConfirm: 'SEND',    // optional — for very destructive actions
+ *     onConfirm: () => fetch('/api/run/broadcast', { method: 'POST' })
+ *   });
+ *
+ * Pattern: 2-step confirm for irreversible actions. Toast + 5s undo (separate
+ * widget, planned for Phase 4) for reversible sends.
+ */
+---
+<dialog id="empire-confirm" class="rounded-lg p-0"
+        style="background: rgb(var(--c-paper)); border: 1px solid rgb(var(--c-border)); max-width: 28rem; color: rgb(var(--c-ink))"
+        aria-labelledby="empire-confirm-title">
+  <div class="p-6">
+    <h2 id="empire-confirm-title" class="font-display text-xl font-semibold"></h2>
+    <p id="empire-confirm-body" class="mt-2 text-sm" style="color: rgb(var(--c-muted))"></p>
+    <div id="empire-confirm-typed" class="mt-3 hidden">
+      <label class="text-xs" style="color: rgb(var(--c-muted))">
+        Type <strong id="empire-confirm-typed-word"></strong> to confirm:
+      </label>
+      <input id="empire-confirm-typed-input" type="text" autocomplete="off"
+             class="mt-1 w-full rounded border px-3 py-2 text-sm"
+             style="background: rgb(var(--c-surface)); border-color: rgb(var(--c-border)); color: rgb(var(--c-ink))" />
+    </div>
+    <div class="mt-5 flex justify-end gap-2">
+      <button id="empire-confirm-cancel" type="button"
+              class="rounded border px-4 py-2 text-sm"
+              style="border-color: rgb(var(--c-border))">Cancel</button>
+      <button id="empire-confirm-ok" type="button"
+              class="rounded px-4 py-2 text-sm font-medium"
+              style="background: rgb(var(--c-accent)); color: white">Confirm</button>
+    </div>
+  </div>
+</dialog>
+
+<script is:inline>
+  (function () {
+    const dlg = document.getElementById('empire-confirm');
+    const title = document.getElementById('empire-confirm-title');
+    const body = document.getElementById('empire-confirm-body');
+    const okBtn = document.getElementById('empire-confirm-ok');
+    const cancelBtn = document.getElementById('empire-confirm-cancel');
+    const typedWrap = document.getElementById('empire-confirm-typed');
+    const typedWord = document.getElementById('empire-confirm-typed-word');
+    const typedInput = document.getElementById('empire-confirm-typed-input');
+    let onConfirmFn = null;
+
+    window.empireConfirm = function (opts) {
+      title.textContent = opts.title || 'Are you sure?';
+      body.textContent = opts.body || '';
+      onConfirmFn = opts.onConfirm || null;
+
+      if (opts.danger) {
+        okBtn.style.background = 'rgb(var(--c-bad))';
+        okBtn.textContent = opts.confirmLabel || 'Yes, do it';
+      } else {
+        okBtn.style.background = 'rgb(var(--c-accent))';
+        okBtn.textContent = opts.confirmLabel || 'Confirm';
+      }
+
+      if (opts.typedConfirm) {
+        typedWrap.classList.remove('hidden');
+        typedWord.textContent = opts.typedConfirm;
+        typedInput.value = '';
+        okBtn.disabled = true;
+        okBtn.style.opacity = '0.5';
+        typedInput.oninput = () => {
+          const matches = typedInput.value === opts.typedConfirm;
+          okBtn.disabled = !matches;
+          okBtn.style.opacity = matches ? '1' : '0.5';
+        };
+      } else {
+        typedWrap.classList.add('hidden');
+        okBtn.disabled = false;
+        okBtn.style.opacity = '1';
+      }
+
+      dlg.showModal();
+    };
+
+    okBtn.addEventListener('click', () => {
+      dlg.close();
+      onConfirmFn?.();
+    });
+    cancelBtn.addEventListener('click', () => dlg.close());
+    dlg.addEventListener('close', () => { onConfirmFn = null; });
+  })();
+</script>

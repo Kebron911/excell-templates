@@ -1,0 +1,62 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readRecentCommits } from '@/lib/data/git-recent';
+import { formatDateTime } from '@/lib/format';
+
+const r = await readRecentCommits(50);
+const commitsLast24h = r.commits.filter(
+  (c) => Date.now() - new Date(c.date).getTime() < 86_400_000
+).length;
+const commitsLast7d = r.commits.filter(
+  (c) => Date.now() - new Date(c.date).getTime() < 7 * 86_400_000
+).length;
+---
+<Layout title="Recent commits" section="maintain">
+  <header class="mb-6">
+    <h1 class="font-display text-3xl font-semibold">Recent commits</h1>
+    <p class="text-sm" style="color: rgb(var(--c-muted))">
+      Empire activity feed — last 50 commits across the monorepo.
+      {r.branch && <> Branch: <code>{r.branch}</code>.</>}
+    </p>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Total shown" value={r.commits.length} />
+    <Scorecard label="Last 24h" value={commitsLast24h} tone="ok" />
+    <Scorecard label="Last 7d" value={commitsLast7d} />
+    <Scorecard label="Uncommitted files"
+               value={r.unstaged}
+               tone={r.unstaged > 0 ? 'warn' : 'ok'}
+               hint={r.unstaged > 0 ? 'work in flight' : 'clean tree'} />
+  </section>
+
+  {r.commits.length === 0 ? (
+    <EmptyState
+      title="No commits found"
+      body="Either git isn't on PATH or the repo has no history."
+    />
+  ) : (
+    <ul class="space-y-2">
+      {r.commits.map((c) => (
+        <li class="card card-tight">
+          <div class="flex items-baseline justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <span class="font-mono text-xs" style="color: rgb(var(--c-muted))">{c.shortSha}</span>
+              <span class="ml-2 font-medium">{c.subject}</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs whitespace-nowrap" style="color: rgb(var(--c-muted))">
+              {c.files > 0 && <span class="font-mono">{c.files} files</span>}
+              <span>{c.author}</span>
+              <span class="font-mono">{formatDateTime(c.date)}</span>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <SourceFooter source="git log -n50" lastRefresh={new Date()} />
+</Layout>

@@ -1,0 +1,54 @@
+{
+  "name": "due-soon-watch",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 7 * * *" }] }
+      },
+      "id": "cron",
+      "name": "Daily 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cat {{ $env.EMPIRE_REPO_PATH }}/ops/calendar.yaml"
+      },
+      "id": "readYaml",
+      "name": "Read calendar.yaml",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const yaml = require('js-yaml');\nconst doc = yaml.load($input.item.json.stdout || '') || { items: [] };\nconst now = Date.now();\nconst items = (doc.items || []).map(i => {\n  const due = new Date(i.next_due).getTime();\n  const daysUntil = Math.floor((due - now) / 86400000);\n  return { ...i, daysUntil };\n});\nconst overdue = items.filter(i => i.daysUntil < 0);\nconst dueSoon = items.filter(i => i.daysUntil >= 0 && i.daysUntil <= 7);\nif (overdue.length === 0 && dueSoon.length === 0) return [];\nconst priority = overdue.length > 0 ? 'P0' : 'P1';\nconst lines = [\n  ...overdue.map(i => `• OVERDUE ${Math.abs(i.daysUntil)}d: ${i.label}`),\n  ...dueSoon.map(i => `• ${i.daysUntil}d: ${i.label}`)\n];\nreturn [{ json: {\n  priority,\n  source: 'due-soon-watch',\n  message: `${overdue.length} overdue · ${dueSoon.length} due ≤7d:\\n${lines.join('\\n')}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/maintain/calendar'\n}}];"
+      },
+      "id": "decide",
+      "name": "Find due soon + overdue",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "source": "parameter",
+        "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID"
+      },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [800, 300]
+    }
+  ],
+  "connections": {
+    "Daily 07:00":              { "main": [[{ "node": "Read calendar.yaml",       "type": "main", "index": 0 }]] },
+    "Read calendar.yaml":       { "main": [[{ "node": "Find due soon + overdue", "type": "main", "index": 0 }]] },
+    "Find due soon + overdue":  { "main": [[{ "node": "→ telegram-router",        "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P0" }]
+}

@@ -1,0 +1,112 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readTargets, type EnrichedMetric } from '@/lib/data/targets';
+import { formatCurrency, formatNumber, formatPercent } from '@/lib/format';
+
+const report = await readTargets();
+
+function fmt(m: EnrichedMetric): string {
+  if (m.unit === 'usd')     return `${formatCurrency(m.actual)} / ${formatCurrency(m.target)}`;
+  if (m.unit === 'percent') return `${formatPercent(m.actual)} / ${formatPercent(m.target)}`;
+  return `${formatNumber(m.actual)} / ${formatNumber(m.target)}`;
+}
+
+const tierClass = {
+  ahead: 'card-reference',
+  'on-pace': 'card',
+  behind: 'card-notable',
+  critical: 'card-critical',
+} as const;
+
+const statusLabel = {
+  ahead: 'ahead',
+  'on-pace': 'on pace',
+  behind: 'behind',
+  critical: 'critical',
+} as const;
+
+const statusBadge = {
+  ahead: 'badge-ok',
+  'on-pace': 'badge-ok',
+  behind: 'badge-p1',
+  critical: 'badge-p0',
+} as const;
+---
+<Layout title="Targets" section="today">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <a href="/" class="text-xs">← back to Today</a>
+      <h1 class="mt-1 font-display text-3xl font-semibold">Goals & targets</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Edit <code>ops/targets.yaml</code>. Phase 3 auto-pulls actuals from Stripe + IS + GA4.
+      </p>
+    </div>
+  </header>
+
+  {!report.month && !report.quarter ? (
+    <EmptyState
+      title="No targets set"
+      body="Edit ops/targets.yaml to set monthly + quarterly targets."
+      yamlPath="ops/targets.yaml"
+    />
+  ) : (
+    <>
+      {report.month && (
+        <section class="mb-10">
+          <h2 class="mb-4 font-display text-xl font-semibold">Month — {report.month.label}</h2>
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {report.month.metrics.map((m) => (
+              <div class={`card ${tierClass[m.status]}`}>
+                <div class="flex items-baseline justify-between gap-3">
+                  <span class="text-sm font-medium">{m.metric}</span>
+                  <span class:list={['badge', statusBadge[m.status]]}>{statusLabel[m.status]}</span>
+                </div>
+                <div class="mt-2 font-display text-2xl font-semibold tabular-nums">{fmt(m)}</div>
+                <div class="mt-3 h-2 w-full overflow-hidden rounded" style="background: rgb(var(--c-surface-2))">
+                  <div class="h-full rounded transition-all"
+                       style={`width: ${Math.min(100, m.progressRatio * 100)}%; background: rgb(var(--c-${m.status === 'critical' ? 'bad' : m.status === 'behind' ? 'warn' : 'ok'}))`}></div>
+                </div>
+                <div class="mt-1 flex justify-between text-xs" style="color: rgb(var(--c-muted))">
+                  <span>{(m.progressRatio * 100).toFixed(0)}% achieved</span>
+                  <span>{(m.paceRatio * 100).toFixed(0)}% of period elapsed</span>
+                </div>
+                {m.notes && <p class="mt-2 text-xs" style="color: rgb(var(--c-muted))">{m.notes}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {report.quarter && (
+        <section class="mb-10">
+          <h2 class="mb-4 font-display text-xl font-semibold">Quarter — {report.quarter.label}</h2>
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {report.quarter.metrics.map((m) => (
+              <div class={`card ${tierClass[m.status]}`}>
+                <div class="flex items-baseline justify-between gap-3">
+                  <span class="text-sm font-medium">{m.metric}</span>
+                  <span class:list={['badge', statusBadge[m.status]]}>{statusLabel[m.status]}</span>
+                </div>
+                <div class="mt-2 font-display text-2xl font-semibold tabular-nums">{fmt(m)}</div>
+                <div class="mt-3 h-2 w-full overflow-hidden rounded" style="background: rgb(var(--c-surface-2))">
+                  <div class="h-full rounded transition-all"
+                       style={`width: ${Math.min(100, m.progressRatio * 100)}%; background: rgb(var(--c-${m.status === 'critical' ? 'bad' : m.status === 'behind' ? 'warn' : 'ok'}))`}></div>
+                </div>
+                <div class="mt-1 flex justify-between text-xs" style="color: rgb(var(--c-muted))">
+                  <span>{(m.progressRatio * 100).toFixed(0)}% achieved</span>
+                  <span>{(m.paceRatio * 100).toFixed(0)}% of period elapsed</span>
+                </div>
+                {m.notes && <p class="mt-2 text-xs" style="color: rgb(var(--c-muted))">{m.notes}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </>
+  )}
+
+  <SourceFooter source="ops/targets.yaml (manual until Phase 3 auto-pull from Stripe + IS + GA4)"
+                lastRefresh={new Date()} />
+</Layout>

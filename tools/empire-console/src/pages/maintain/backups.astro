@@ -1,0 +1,110 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readBackupTests } from '@/lib/data/backup-tests';
+import { formatDateTime } from '@/lib/format';
+
+const b = await readBackupTests();
+
+// Precompute presentation outside JSX — Astro chokes on `<` in expression blocks.
+const dst = b.totals.daysSinceLastTest;
+const dsp = b.totals.daysSinceLastPass;
+const cadenceTone =
+  dst === null ? 'bad'  :
+  dst <= 35    ? 'ok'   :
+  dst <= 60    ? 'warn' :
+                 'bad';
+const passTone =
+  dsp === null ? 'bad'  :
+  dsp <= 35    ? 'ok'   :
+  dsp <= 60    ? 'warn' :
+                 'bad';
+
+const rows = b.tests.map((t) => ({
+  t,
+  badge: t.passed ? 'badge-ok' : t.priority === 'P0' ? 'badge-p0' : 'badge-p1',
+  label: t.passed ? 'passed' : (t.priority === 'P0' ? 'failed' : 'stale'),
+}));
+---
+<Layout title="Run · Backups" section="maintain">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Backups — restore test log</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Monthly disaster-recovery probe: extract newest <code>.tar.gz</code> in
+        <code>$BACKUP_DIR</code>, assert sentinel files (PROGRESS.md + ops/atlas.yaml)
+        survive the round-trip. Source: <code>ops/backup-tests.ndjson</code>
+        (appended by n8n <code>backup-restore-test</code>, 1st of month 04:00).
+      </p>
+    </div>
+    <span class:list={['badge', cadenceTone === 'bad' ? 'badge-p0' : cadenceTone === 'warn' ? 'badge-p1' : 'badge-ok']}>
+      {dst === null ? 'never tested' : `${dst}d since last test`}
+    </span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Probes logged" value={b.totals.total} />
+    <Scorecard label="Passed" value={b.totals.passed} tone="ok" />
+    <Scorecard label="Failed" value={b.totals.failed}
+               tone={b.totals.failed > 0 ? 'bad' : 'ok'} />
+    <Scorecard label="Days since pass"
+               value={dsp === null ? '—' : dsp}
+               hint={dsp === null ? 'no successful restore on record' : (dsp <= 35 ? 'on cadence' : 'overdue')}
+               tone={passTone} />
+  </section>
+
+  {b.tests.length === 0 ? (
+    <EmptyState
+      title="No restore probes yet"
+      body="Either the n8n backup-restore-test flow hasn't fired yet, or BACKUP_DIR has never had a .tar.gz to probe."
+      exampleCommand={`# Trigger a manual test (with the flow imported + active):
+curl -X POST $N8N_BASE/webhook-test/backup-restore-test`}
+    />
+  ) : (
+    <section class="mb-8">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Recent probes
+      </h2>
+      <div class="card">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">When</th>
+              <th>Outcome</th>
+              <th>Priority</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(({ t, badge, label }) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2 font-mono text-xs">{formatDateTime(t.ts)}</td>
+                <td><span class:list={['badge', badge]}>{label}</span></td>
+                <td><span class="badge badge-p2">{t.priority}</span></td>
+                <td class="text-xs" style="color: rgb(var(--c-muted))">{t.message.slice(0, 120)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )}
+
+  <section class="mt-8 card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      What this proves & what it doesn't
+    </h3>
+    <ul class="space-y-1 text-sm list-disc pl-5">
+      <li><strong>Proves:</strong> a backup file exists, opens, contains the repo layout we expect (PROGRESS.md + ops/atlas.yaml present).</li>
+      <li><strong>Does NOT prove:</strong> every individual file is intact, n8n credentials are recoverable, Hostinger DNS state is captured (it's not — DNS is exported separately).</li>
+      <li><strong>Quarterly:</strong> run a manual full-restore on a scratch host. The monthly probe is the cheap regular check; a full quarterly restore is the real fire-drill. See <code>docs/runbooks/disaster-recovery.md</code>.</li>
+    </ul>
+  </section>
+
+  <SourceFooter source="ops/backup-tests.ndjson (n8n backup-restore-test)"
+                lastRefresh={new Date()}
+                notes="appended monthly 04:00 UTC" />
+</Layout>

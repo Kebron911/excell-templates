@@ -1,0 +1,69 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readInfrastructure } from '@/lib/data/infrastructure';
+
+const report = await readInfrastructure();
+---
+<Layout title="Check · Infrastructure" section="check">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Infrastructure</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Domains, SSL, registrar expiry. Source: <code>ops/infrastructure.yaml</code>.
+      </p>
+    </div>
+    <span class:list={['badge', report.expiringP0 > 0 ? 'badge-p0' : report.expiringSoon > 0 ? 'badge-p1' : 'badge-ok']}>
+      {report.expiringP0 > 0 ? `${report.expiringP0} ≤7d` : report.expiringSoon > 0 ? `${report.expiringSoon} ≤60d` : 'all clear'}
+    </span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+    <Scorecard label="Domains tracked" value={report.domains.length} />
+    <Scorecard label="Expiring ≤60d" value={report.expiringSoon} tone={report.expiringSoon > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Expiring ≤7d" value={report.expiringP0} tone={report.expiringP0 > 0 ? 'bad' : 'ok'} />
+  </section>
+
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b text-left text-xs uppercase tracking-wide"
+          style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+        <th class="py-2">Domain</th>
+        <th>Role</th>
+        <th>Registrar</th>
+        <th>SSL</th>
+        <th class="text-right">Expires</th>
+        <th class="text-right">Days</th>
+      </tr>
+    </thead>
+    <tbody>
+      {report.domains.map((d) => (
+        <tr class="border-b" style="border-color: rgb(var(--c-border))">
+          <td class="py-3 font-medium">{d.domain}</td>
+          <td style="color: rgb(var(--c-muted))">{d.role ?? '—'}</td>
+          <td style="color: rgb(var(--c-muted))">{d.registrar ?? '—'}</td>
+          <td style="color: rgb(var(--c-muted))">{d.ssl_provider ?? '—'}</td>
+          <td class="text-right font-mono">{d.expires ?? '—'}</td>
+          <td class="text-right font-mono">
+            {d.daysToExpiry === null ? '—' : (
+              <span class:list={[d.isExpiringP0 ? 'badge badge-p0' : d.isExpiringSoon ? 'badge badge-p1' : '']}>
+                {d.daysToExpiry}d
+              </span>
+            )}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <section class="mt-8 card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Live cert + DNS checks
+    </h3>
+    <p class="text-sm">
+      n8n flows <code>cert-watch</code> (daily 06:00) and <code>domain-watch</code> (weekly Mon 06:00)
+      probe each <code>ssl_check_url</code> for actual cert validity + remaining days, in addition to
+      the registrar dates above. Mismatch = flag a renewal that already happened but YAML is stale.
+    </p>
+  </section>
+</Layout>

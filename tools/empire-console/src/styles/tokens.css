@@ -1,0 +1,94 @@
+/* Empire Console design tokens — slate-leaning ops cave.
+ * Distinct from sister sites' hospitality-warm brand.
+ * Visual rule: this is where Daniel runs the empire, not where customers visit. */
+
+:root {
+  /* Light: cool slate paper, deep ink, single warm accent for action items only */
+  --c-paper: 248 249 251;
+  --c-ink: 18 24 32;
+  --c-muted: 96 112 132;
+  --c-accent: 184 99 51;       /* terracotta — brand family marker, used sparingly */
+  --c-ok: 22 128 88;
+  --c-warn: 196 138 16;
+  --c-bad: 184 35 51;
+
+  --c-surface: 255 255 255;
+  --c-surface-2: 240 244 250;
+  --c-surface-3: 226 232 240;  /* deeper slate for emphasis */
+  --c-border: 215 222 233;
+  --c-border-strong: 180 192 208;
+
+  /* Status hues for the 3-tier visual hierarchy */
+  --tier-critical: var(--c-bad);
+  --tier-notable: var(--c-warn);
+  --tier-reference: var(--c-muted);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --c-paper: 12 16 22;
+    --c-ink: 232 234 240;
+    --c-muted: 138 152 172;
+    --c-accent: 212 130 86;
+    --c-ok: 76 184 128;
+    --c-warn: 232 184 64;
+    --c-bad: 232 88 96;
+    --c-surface: 22 28 38;
+    --c-surface-2: 32 40 52;
+    --c-surface-3: 44 54 70;
+    --c-border: 50 60 76;
+    --c-border-strong: 70 84 104;
+  }
+}
+
+[data-theme="dark"] {
+  --c-paper: 12 16 22;
+  --c-ink: 232 234 240;
+  --c-muted: 138 152 172;
+  --c-accent: 212 130 86;
+  --c-ok: 76 184 128;
+  --c-warn: 232 184 64;
+  --c-bad: 232 88 96;
+  --c-surface: 22 28 38;
+  --c-surface-2: 32 40 52;
+  --c-surface-3: 44 54 70;
+  --c-border: 50 60 76;
+  --c-border-strong: 70 84 104;
+}
+
+[data-theme="light"] {
+  --c-paper: 248 249 251;
+  --c-ink: 18 24 32;
+  --c-muted: 96 112 132;
+  --c-accent: 184 99 51;
+  --c-ok: 22 128 88;
+  --c-warn: 196 138 16;
+  --c-bad: 184 35 51;
+  --c-surface: 255 255 255;
+  --c-surface-2: 240 244 250;
+  --c-surface-3: 226 232 240;
+  --c-border: 215 222 233;
+  --c-border-strong: 180 192 208;
+}
+
+html {
+  /* Bump base from default 16px → 17.5px so all rem-based sizes scale up.
+   * text-xs (0.75rem) → ~13.1px · text-sm (0.875rem) → ~15.3px ·
+   * text-base (1rem) → 17.5px · text-lg (1.125rem) → ~19.7px */
+  font-size: 17.5px;
+}
+
+html, body {
+  background: rgb(var(--c-paper));
+  color: rgb(var(--c-ink));
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.55;
+}
+
+/* Focus ring for keyboard nav (a11y) */
+*:focus-visible {
+  outline: 2px solid rgb(var(--c-accent));
+  outline-offset: 2px;
+  border-radius: 4px;
+}

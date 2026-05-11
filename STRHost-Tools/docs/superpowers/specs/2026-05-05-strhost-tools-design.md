@@ -81,7 +81,7 @@ Each tool's sidebar/footer links to the other six.
 - **Vitest** for calculator unit tests
 - **Playwright** for one smoke test per calculator
 - **pnpm** workspace inside `STRHost-Tools/`
-- **Deploy target:** Hostinger Business shared hosting (already provisioned). Static `dist/` deployed via Git push or FTP. Bundled Cloudflare CDN enabled for cache + TTFB.
+- **Deploy target:** Hostinger Business shared hosting (already provisioned). Static `dist/` deployed via Git push or FTP. Bundled Hostinger CDN enabled for cache + TTFB.
 
 ---
 
@@ -250,7 +250,7 @@ These do **not** block writing the implementation plan, but should be answered b
 
 1. **Domain** — confirmed `strhost.tools`, or still under consideration?
 2. **ESP** — which email service powers the lead-magnet form? (ConvertKit, Beehiiv, MailerLite, Mailchimp, other?) Should match Excel-Templates' IS import flow if that already exists.
-3. ~~**Hosting**~~ → **Resolved 2026-05-05: Hostinger Business shared hosting** (already provisioned). Bundled Cloudflare CDN enabled. Performance signal monitoring on launch — if Core Web Vitals regress, edge hosting is the upgrade path.
+3. ~~**Hosting**~~ → **Resolved 2026-05-05: Hostinger Business shared hosting** (already provisioned). Bundled Hostinger CDN enabled. Performance signal monitoring on launch — if Core Web Vitals regress, edge hosting is the upgrade path.
 4. **Analytics** — GA4 only, or GA4 + Plausible?
 
 ---

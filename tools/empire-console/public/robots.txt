@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /
+
+# Empire Console is a private operations dashboard.
+# Do not index. .htaccess basic auth enforces access at the Hostinger edge.

@@ -1,0 +1,93 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readProgressFull } from '@/lib/data/progress-full';
+
+const r = await readProgressFull();
+---
+<Layout title="Progress" section="today">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <a href="/" class="text-xs">← back to Today</a>
+      <h1 class="mt-1 font-display text-3xl font-semibold">Progress</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Phase-by-phase view of <code>PROGRESS.md</code>. Checked count + completion % per phase + per subsection.
+      </p>
+    </div>
+    <span class="font-mono text-2xl tabular-nums" style="color: rgb(var(--c-accent))">
+      {r.totals.checked}/{r.totals.total}
+    </span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Phases" value={r.phases.length} />
+    <Scorecard label="Items checked" value={r.totals.checked} />
+    <Scorecard label="Items total" value={r.totals.total} />
+    <Scorecard label="Overall %" value={`${(r.totals.pct * 100).toFixed(0)}%`} />
+  </section>
+
+  {r.phases.length === 0 ? (
+    <EmptyState title="PROGRESS.md not found" body="Expected at repo root." yamlPath="PROGRESS.md" />
+  ) : (
+    <ul class="space-y-3">
+      {r.phases.map((phase) => {
+        const tone = phase.pct >= 0.9 ? 'ok' : phase.pct >= 0.5 ? 'warn' : 'bad';
+        const barColor = tone === 'ok' ? 'rgb(var(--c-ok))' : tone === 'warn' ? 'rgb(var(--c-warn))' : 'rgb(var(--c-bad))';
+        return (
+          <li>
+            <details class="card">
+              <summary class="cursor-pointer">
+                <span class="font-display text-lg font-semibold">{phase.id}</span>
+                <span class="ml-2" style="color: rgb(var(--c-muted))">{phase.title}</span>
+                <span class="ml-3 font-mono text-sm tabular-nums">{phase.checked}/{phase.total}</span>
+                <span class="ml-2 text-xs" style="color: rgb(var(--c-muted))">({(phase.pct * 100).toFixed(0)}%)</span>
+                <div class="mt-2 h-1.5 w-full overflow-hidden rounded" style="background: rgb(var(--c-surface-2))">
+                  <div class="h-full rounded" style={`width: ${phase.pct * 100}%; background: ${barColor}`}></div>
+                </div>
+              </summary>
+
+              <div class="mt-4 space-y-4 pl-3">
+                {phase.subsections.map((sub) => (
+                  <div>
+                    <div class="flex items-baseline justify-between text-sm">
+                      <span>
+                        <span class="font-mono">{sub.id}</span>
+                        <span class="ml-2 font-medium">{sub.title}</span>
+                      </span>
+                      <span class="font-mono text-xs tabular-nums" style="color: rgb(var(--c-muted))">
+                        {sub.checked}/{sub.total}
+                      </span>
+                    </div>
+                    {sub.items.length > 0 && (
+                      <ul class="mt-2 space-y-1 pl-3 text-sm">
+                        {sub.items.slice(0, 50).map((it) => (
+                          <li class="flex items-baseline gap-2">
+                            <span style={`color: rgb(var(--c-${it.checked ? 'ok' : 'muted'}))`}>
+                              {it.checked ? '✓' : '○'}
+                            </span>
+                            <span style={it.checked ? 'opacity: 0.6; text-decoration: line-through' : ''}>
+                              {it.text}
+                            </span>
+                          </li>
+                        ))}
+                        {sub.items.length > 50 && (
+                          <li class="text-xs" style="color: rgb(var(--c-muted))">
+                            …and {sub.items.length - 50} more (open PROGRESS.md to see all)
+                          </li>
+                        )}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </details>
+          </li>
+        );
+      })}
+    </ul>
+  )}
+
+  <SourceFooter source="PROGRESS.md" lastRefresh={new Date()} />
+</Layout>

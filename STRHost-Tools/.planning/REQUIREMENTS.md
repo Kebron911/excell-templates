@@ -97,7 +97,7 @@ Every calculator page renders the canonical 12-element layout: H1+lede, calculat
 - GitHub Actions: typecheck → vitest → playwright smoke → build → deploy
 - Deploy preview per PR
 - Production deploy gated on green CI
-- FTP deploy to Hostinger Business shared hosting; Cloudflare CDN bundled
+- FTP deploy to Hostinger Business shared hosting; Hostinger CDN bundled
 
 **Verification:** Push to `main` produces a deployed dist on Hostinger; CI workflow visible green; deploy preview URL works.
 

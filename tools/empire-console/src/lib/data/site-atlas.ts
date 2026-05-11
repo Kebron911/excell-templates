@@ -1,0 +1,164 @@
+import { readFile, readdir } from 'node:fs/promises';
+import { join } from 'node:path';
+import { parse as parseYaml } from 'yaml';
+import { paths } from '../paths.js';
+import { readAssets } from './assets.js';
+import { readInfrastructure } from './infrastructure.js';
+import type { AtlasSection } from './atlas.js';
+
+export interface SiteMetadata {
+  id: string;
+  name: string;
+  role?: string;
+  description?: string;
+  live_url?: string;
+  blog_url?: string;
+  domain?: string;
+  repo_path?: string;
+}
+
+export interface SiteAtlas {
+  meta: SiteMetadata;
+  local_dev: Record<string, unknown>;
+  hosting: Record<string, unknown>;
+  ci: Record<string, unknown>;
+  sections: AtlasSection[];
+  /** Auto-derived sections from cross-referenced YAMLs. */
+  derived: AtlasSection[];
+  domainStatus: {
+    expires?: string | null;
+    daysToExpiry?: number | null;
+    sslProvider?: string | null;
+  };
+  /** First ~80 lines of <repo>/<site>/.planning/STATE.md (G3). */
+  stateExcerpt?: string | null;
+  /** First ~30 lines of <repo>/<site>/MEMORY.md (G9). */
+  memoryExcerpt?: string | null;
+}
+
+export async function listSites(): Promise<SiteMetadata[]> {
+  let entries;
+  try { entries = await readdir(paths.atlasSites); }
+  catch { return []; }
+  const out: SiteMetadata[] = [];
+  for (const entry of entries) {
+    if (!entry.endsWith('.yaml')) continue;
+    const meta = await readSiteMeta(entry.replace(/\.yaml$/, ''));
+    if (meta) out.push(meta);
+  }
+  return out.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+async function readSiteMeta(siteId: string): Promise<SiteMetadata | null> {
+  try {
+    const raw = await readFile(join(paths.atlasSites, `${siteId}.yaml`), 'utf8');
+    const data = (parseYaml(raw) ?? {}) as Record<string, unknown>;
+    const site = data.site as SiteMetadata | undefined;
+    if (!site || !site.id) return null;
+    return site;
+  } catch { return null; }
+}
+
+export async function readSiteAtlas(siteId: string): Promise<SiteAtlas | null> {
+  let raw: string;
+  try { raw = await readFile(join(paths.atlasSites, `${siteId}.yaml`), 'utf8'); }
+  catch { return null; }
+  const data = (parseYaml(raw) ?? {}) as Record<string, unknown>;
+  const meta = data.site as SiteMetadata | undefined;
+  if (!meta || !meta.id) return null;
+
+  // Per-site YAML supports a flat `items:` shorthand on each section.
+  // Normalize to the AtlasSection { groups: [{ items }] } shape the renderer expects.
+  const rawSections = (data.sections ?? []) as Array<Record<string, unknown>>;
+  const sections: AtlasSection[] = rawSections.map((s) => {
+    const groups = Array.isArray(s.groups) ? (s.groups as AtlasSection['groups']) : null;
+    const items = Array.isArray(s.items) ? (s.items as AtlasSection['groups'][number]['items']) : null;
+    return {
+      id: String(s.id ?? ''),
+      label: String(s.label ?? s.id ?? ''),
+      expanded: s.expanded !== false,
+      groups: groups ?? (items ? [{ label: '', items }] : []),
+    };
+  });
+  const local_dev = (data.local_dev ?? {}) as Record<string, unknown>;
+  const hosting   = (data.hosting   ?? {}) as Record<string, unknown>;
+  const ci        = (data.ci        ?? {}) as Record<string, unknown>;
+
+  // Auto-derive: lead magnets, tools, pages tagged with this site id.
+  const assetsReport = await readAssets();
+  const leadMagnets = assetsReport.byType['lead-magnet']
+    .filter((a) => String(a.raw.site ?? '') === siteId)
+    .map((a) => ({
+      name: a.name,
+      url: typeof a.raw.landing_url === 'string' ? a.raw.landing_url : '',
+      kind: 'external' as const,
+      note: typeof a.raw.is_tag === 'string' ? `IS tag: ${a.raw.is_tag}` : undefined,
+      status: a.status,
+    }));
+  const tools = assetsReport.byType['tool']
+    .filter((a) => String(a.raw.site ?? '') === siteId)
+    .map((a) => ({
+      name: a.name,
+      url: typeof a.raw.url === 'string' ? a.raw.url : '',
+      kind: 'external' as const,
+      note: [a.raw.tool_type, a.raw.tech].filter(Boolean).join(' · ') || undefined,
+      status: a.status,
+    }));
+  const pages = assetsReport.byType['page']
+    .filter((a) => String(a.raw.site ?? '') === siteId)
+    .map((a) => ({
+      name: a.name,
+      url: typeof a.raw.url === 'string' ? a.raw.url : '',
+      kind: 'external' as const,
+      note: typeof a.raw.conversion_goal === 'string' ? `goal: ${a.raw.conversion_goal}` : undefined,
+      status: a.status,
+    }));
+
+  const derived: AtlasSection[] = [];
+  if (leadMagnets.length) {
+    derived.push({ id: 'auto-lead-magnets', label: `Lead magnets on ${meta.name}`, expanded: true,
+      groups: [{ label: '', items: leadMagnets }] });
+  }
+  if (tools.length) {
+    derived.push({ id: 'auto-tools', label: `Tools on ${meta.name}`, expanded: true,
+      groups: [{ label: '', items: tools }] });
+  }
+  if (pages.length) {
+    derived.push({ id: 'auto-pages', label: `Tracked pages on ${meta.name}`, expanded: true,
+      groups: [{ label: '', items: pages }] });
+  }
+
+  // Domain status from infrastructure.yaml.
+  const infra = await readInfrastructure();
+  let domainStatus: SiteAtlas['domainStatus'] = {};
+  if (meta.domain) {
+    const match = infra.domains.find((d) => d.domain === meta.domain);
+    if (match) {
+      domainStatus = {
+        expires: match.expires ?? null,
+        daysToExpiry: match.daysToExpiry,
+        sslProvider: match.ssl_provider ?? null,
+      };
+    }
+  }
+
+  // G3 + G9: pull STATE.md + MEMORY.md excerpts if present.
+  const repoPath = meta.repo_path?.replace(/\/$/, '') ?? '';
+  let stateExcerpt: string | null = null;
+  let memoryExcerpt: string | null = null;
+  if (repoPath) {
+    const { join } = await import('node:path');
+    const stateAbs = join(paths.root, repoPath, '.planning', 'STATE.md');
+    const memoryAbs = join(paths.root, repoPath, 'MEMORY.md');
+    try {
+      const txt = await readFile(stateAbs, 'utf8');
+      stateExcerpt = txt.split(/\r?\n/).slice(0, 80).join('\n');
+    } catch { /* missing is fine */ }
+    try {
+      const txt = await readFile(memoryAbs, 'utf8');
+      memoryExcerpt = txt.split(/\r?\n/).slice(0, 30).join('\n');
+    } catch { /* missing is fine */ }
+  }
+
+  return { meta, local_dev, hosting, ci, sections, derived, domainStatus, stateExcerpt, memoryExcerpt };
+}

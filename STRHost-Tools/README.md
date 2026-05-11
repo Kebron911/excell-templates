@@ -1,6 +1,6 @@
 # STR Host Tools — strhost.tools
 
-Free calculators for short-term rental hosts. Astro 4 static site with React islands for the calculators. Sister property of [The STR Ledger](https://thestrledger.com); deployed to Hostinger Business with Cloudflare CDN.
+Free calculators for short-term rental hosts. Astro 4 static site with React islands for the calculators. Sister property of [The STR Ledger](https://thestrledger.com); deployed to Hostinger Business with Hostinger CDN.
 
 ## Dev
 

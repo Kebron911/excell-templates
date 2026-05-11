@@ -1,0 +1,51 @@
+{
+  "name": "indexing-watch",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 5 * * *" }] }
+      },
+      "id": "cron",
+      "name": "Daily 05:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=cat {{ $env.EMPIRE_REPO_PATH }}/ops/cache/seo.json 2>/dev/null || echo '{}'"
+      },
+      "id": "read",
+      "name": "Read seo.json",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "let cache;\ntry { cache = JSON.parse($input.item.json.stdout || '{}'); } catch { return []; }\nconst issues = cache.indexingIssues || [];\nconst errors = (cache.gsc && cache.gsc.indexingErrors) || 0;\nif (errors === 0 && issues.length === 0) return [];\nconst lines = issues.slice(0, 5).map(i => `• ${i.status} — ${i.url}`);\nreturn [{ json: {\n  priority: 'P1',\n  source: 'indexing-watch',\n  message: `Indexing issues:\\n• ${errors} total flagged in GSC\\n${lines.join('\\n')}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/check/seo'\n} }];"
+      },
+      "id": "decide",
+      "name": "Check indexing",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": { "source": "parameter", "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID" },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "Daily 05:00":    { "main": [[{ "node": "Read seo.json",     "type": "main", "index": 0 }]] },
+    "Read seo.json":  { "main": [[{ "node": "Check indexing",    "type": "main", "index": 0 }]] },
+    "Check indexing": { "main": [[{ "node": "→ telegram-router", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "P1" }]
+}

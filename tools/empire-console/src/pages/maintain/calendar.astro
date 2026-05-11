@@ -1,0 +1,157 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readCalendar } from '@/lib/data/calendar';
+import { formatDate } from '@/lib/format';
+
+const r = await readCalendar();
+const overdue = r.items.filter((i) => i.isOverdue);
+const dueSoon = r.items.filter((i) => !i.isOverdue && i.isDueSoon);
+const dueLater = r.items.filter((i) => !i.isOverdue && !i.isDueSoon);
+
+const categoryBadge: Record<string, string> = {
+  tax: 'badge-p0',
+  'sales-tax': 'badge-p0',
+  filing: 'badge-p1',
+  insurance: 'badge-p1',
+  renewal: 'badge-p1',
+  content: 'badge-p2',
+  review: 'badge-p2',
+};
+---
+<Layout title="Calendar" section="maintain">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Calendar</h1>
+      <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">
+        Recurring obligations — tax filings, sales-tax remittance, insurance,
+        monthly close, content cadences. Source: <code>ops/calendar.yaml</code>.
+      </p>
+    </div>
+    <a href="/maintain" class="text-xs">← back to Run</a>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard
+      label="Overdue"
+      value={r.overdue}
+      tone={r.overdue > 0 ? 'bad' : 'ok'}
+      tier={r.overdue > 0 ? 'critical' : 'normal'}
+      tooltip="Past due — n8n due-soon-watch fires P0 daily until cleared"
+    />
+    <Scorecard
+      label="Due ≤7d"
+      value={r.dueWithin7d}
+      tone={r.dueWithin7d > 0 ? 'warn' : 'ok'}
+      tier={r.dueWithin7d > 0 ? 'notable' : 'normal'}
+      tooltip="P1 alert via due-soon-watch"
+    />
+    <Scorecard label="Due ≤30d" value={r.dueWithin30d} />
+    <Scorecard label="Total tracked" value={r.items.length} />
+  </section>
+
+  {r.items.length === 0 ? (
+    <EmptyState
+      title="No calendar items"
+      body="Add tax dates · sales-tax remittance · monthly close · vendor renewals to ops/calendar.yaml"
+      yamlPath="ops/calendar.yaml"
+    />
+  ) : (
+    <>
+      {overdue.length > 0 && (
+        <section class="mb-8">
+          <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-bad))">
+            Overdue ({overdue.length})
+          </h2>
+          <ul class="space-y-2">
+            {overdue.map((it) => (
+              <li class="card card-critical flex items-baseline justify-between gap-3">
+                <div>
+                  <span class="badge badge-p0">{Math.abs(it.daysUntil)}d late</span>
+                  <span class:list={['ml-2 badge', categoryBadge[it.category] ?? 'badge-p2']}>{it.category}</span>
+                  <span class="ml-2 font-medium">{it.label}</span>
+                  {it.notes && <p class="mt-1 text-xs" style="color: rgb(var(--c-muted))">{it.notes}</p>}
+                </div>
+                <span class="font-mono text-xs whitespace-nowrap" style="color: rgb(var(--c-muted))">
+                  {formatDate(it.next_due)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {dueSoon.length > 0 && (
+        <section class="mb-8">
+          <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-warn))">
+            Due this week ({dueSoon.length})
+          </h2>
+          <ul class="space-y-2">
+            {dueSoon.map((it) => (
+              <li class="card card-notable flex items-baseline justify-between gap-3">
+                <div>
+                  <span class="badge badge-p1">{it.daysUntil}d</span>
+                  <span class:list={['ml-2 badge', categoryBadge[it.category] ?? 'badge-p2']}>{it.category}</span>
+                  <span class="ml-2 font-medium">{it.label}</span>
+                  {it.notes && <p class="mt-1 text-xs" style="color: rgb(var(--c-muted))">{it.notes}</p>}
+                </div>
+                <span class="font-mono text-xs whitespace-nowrap" style="color: rgb(var(--c-muted))">
+                  {formatDate(it.next_due)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section>
+        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+          Upcoming ({dueLater.length})
+        </h2>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Item</th>
+              <th>Category</th>
+              <th>Cadence</th>
+              <th>Owner</th>
+              <th class="text-right">Next due</th>
+              <th class="text-right">Days</th>
+            </tr>
+          </thead>
+          <tbody>
+            {dueLater.map((it) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-3 font-medium">{it.label}</td>
+                <td>
+                  <span class:list={['badge', categoryBadge[it.category] ?? 'badge-p2']}>{it.category}</span>
+                </td>
+                <td style="color: rgb(var(--c-muted))">{it.cadence}</td>
+                <td style="color: rgb(var(--c-muted))">{it.owner ?? '—'}</td>
+                <td class="text-right font-mono text-xs">{formatDate(it.next_due)}</td>
+                <td class="text-right font-mono text-xs">{it.daysUntil}d</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+    </>
+  )}
+
+  <section class="mt-8 card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      How calendar items get alerted
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong><code>due-soon-watch</code></strong> — daily 07:00, P1 if any item is due ≤7d, <strong>P0</strong> if anything is overdue.</li>
+      <li>• Today landing surfaces the next 5 due-or-overdue items in the "Due this week" card.</li>
+      <li>• After completing an item, edit <code>ops/calendar.yaml</code> to bump <code>next_due</code> by the cadence.</li>
+    </ul>
+  </section>
+
+  <SourceFooter source="ops/calendar.yaml" lastRefresh={new Date()}
+                notes="Quarterly review on the 1st of each new quarter" />
+</Layout>

@@ -4,7 +4,7 @@
 
 **Goal:** Ship strhost.tools — 7 STR calculators + 50 state lodging-tax pages + chrome + monetization + SEO + Hostinger deploy — production-ready.
 
-**Architecture:** Astro 4.x static site. Each calculator is a hydrated TSX island bound to a pure TS function. URL state encodes inputs for shareable/indexable results. Programmatic state pages are getStaticPaths over a JSON file. Two AdSlot placements + one inline email capture + one STR Ledger CTA per page. Deployed as static dist/ to Hostinger Business via FTP, with bundled Cloudflare CDN.
+**Architecture:** Astro 4.x static site. Each calculator is a hydrated TSX island bound to a pure TS function. URL state encodes inputs for shareable/indexable results. Programmatic state pages are getStaticPaths over a JSON file. Two AdSlot placements + one inline email capture + one STR Ledger CTA per page. Deployed as static dist/ to Hostinger Business via FTP, with bundled Hostinger CDN.
 
 **Tech Stack:** Astro 4.x, TypeScript, Tailwind, pdf-lib (NOT used here; for printing only), Vitest, Playwright, pnpm. Deploy via FTP-action to Hostinger.
 

@@ -1,0 +1,96 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import { readAssets } from '@/lib/data/assets';
+import { readRunbooks } from '@/lib/data/runbooks';
+import { readVendors } from '@/lib/data/vendors';
+import { readCalendar } from '@/lib/data/calendar';
+import { readRisks } from '@/lib/data/risks';
+import { readDecisions } from '@/lib/data/decisions';
+import { readDrift } from '@/lib/data/drift';
+import { readGdpr } from '@/lib/data/gdpr';
+import { readBackupTests } from '@/lib/data/backup-tests';
+import { readIncidents } from '@/lib/data/incidents';
+import { readSetup } from '@/lib/data/setup';
+
+const [assets, runbooks, vendors, calendar, risks, decisions, drift, gdpr, backups, incidents, setup] = await Promise.all([
+  readAssets(), readRunbooks(), readVendors(), readCalendar(), readRisks(), readDecisions(),
+  readDrift(), readGdpr(), readBackupTests(), readIncidents(), readSetup(),
+]);
+const backupDays = backups.totals.daysSinceLastPass;
+const backupTone: 'ok' | 'warn' | 'bad' =
+  backupDays === null ? 'bad'  :
+  backupDays <= 35    ? 'ok'   :
+  backupDays <= 60    ? 'warn' :
+                        'bad';
+const backupSignal =
+  backupDays === null ? 'never passed' :
+  backupDays <= 35    ? `${backupDays}d since pass` :
+                        `${backupDays}d since pass — overdue`;
+const stale = runbooks.filter((r) => r.isStale).length;
+
+interface Tile {
+  href: string; title: string; desc: string;
+  signal?: string; tone?: 'ok' | 'warn' | 'bad'; disabled?: boolean;
+}
+
+const tiles: Tile[] = [
+  { href: '/maintain/assets',     title: 'Asset registry',  desc: 'Lead magnets · tools · documents · brand · email · pages.',
+    signal: `${assets.grandTotal} entries · ${assets.staleCount} stale`,
+    tone: assets.staleCount > 0 ? 'warn' : 'ok' },
+  { href: '/maintain/runbooks',   title: 'Runbooks',        desc: 'SOP index · stale flag at >180d.',
+    signal: `${runbooks.length} runbooks · ${stale} stale`,
+    tone: stale > 0 ? 'warn' : 'ok' },
+  { href: '/maintain/vendors',    title: 'Vendors',         desc: 'Monthly burn · renewals ≤30d.',
+    signal: `$${vendors.monthlyBurn.toFixed(0)}/mo · ${vendors.upcomingRenewals} renewing`,
+    tone: vendors.upcomingRenewals > 0 ? 'warn' : 'ok' },
+  { href: '/maintain/calendar',   title: 'Calendar',        desc: 'Tax filings · sales tax · monthly close.',
+    signal: `${calendar.dueWithin7d} due ≤7d · ${calendar.overdue} overdue`,
+    tone: calendar.overdue > 0 ? 'bad' : calendar.dueWithin7d > 0 ? 'warn' : 'ok' },
+  { href: '/maintain/risks',      title: 'Risks',           desc: 'Single-points-of-failure · likelihood × impact.',
+    signal: risks.critical > 0 ? `${risks.critical} critical` : `${risks.risks.length} tracked`,
+    tone: risks.critical > 0 ? 'bad' : risks.high > 0 ? 'warn' : 'ok' },
+  { href: '/maintain/decisions',  title: 'Decisions log',   desc: 'Lightweight ADRs — context · alternatives · rationale.',
+    signal: `${decisions.length} logged`, tone: 'ok' },
+  { href: '/maintain/near-misses', title: 'Near-misses log', desc: '"Almost broke" moments + fix + prevention.' },
+  { href: '/maintain/network',    title: 'Network',         desc: 'Mentors · advisors · peers · partners.' },
+  { href: '/maintain/automations', title: 'Automations',    desc: 'n8n flow registry · Phase 4 wires live API.' },
+  { href: '/maintain/assets/brand', title: 'Brand assets', desc: 'Logo · palette · fonts · OG templates · kits.' },
+  { href: '/maintain/airtable',   title: 'Airtable schema', desc: 'Documented base structure (link out to Airtable).' },
+  { href: '/maintain/commits',    title: 'Recent commits',  desc: 'Last 50 commits across the monorepo.' },
+  { href: '/maintain/releases',   title: 'Releases',        desc: 'Per-SKU VERSION tracking + W-update pipeline.' },
+  { href: '/maintain/drift',      title: 'Drift detector',  desc: 'Atlas vs reality · convention checks · recent touches.',
+    signal: drift.totals.bad > 0 ? `${drift.totals.bad} bad` : drift.totals.warn > 0 ? `${drift.totals.warn} warn` : 'in sync',
+    tone: drift.totals.bad > 0 ? 'bad' : drift.totals.warn > 0 ? 'warn' : 'ok' },
+  { href: '/maintain/backups',    title: 'Backups',         desc: 'Monthly restore-test log · DR posture.',
+    signal: backupSignal, tone: backupTone },
+  { href: '/maintain/compliance', title: 'Compliance',      desc: 'GDPR/CCPA queue · 30-day SLA tracker.',
+    signal: gdpr.totals.overdue > 0 ? `${gdpr.totals.overdue} overdue` : gdpr.totals.open > 0 ? `${gdpr.totals.open} open` : 'none open',
+    tone: gdpr.totals.overdue > 0 ? 'bad' : gdpr.totals.open > 0 ? 'warn' : 'ok' },
+  { href: '/maintain/incidents',  title: 'Incidents',       desc: 'Postmortems · MTTA/MTTR · severity counts.',
+    signal: incidents.totals.open > 0 ? `${incidents.totals.open} open` : `${incidents.totals.total} logged`,
+    tone: incidents.totals.open > 0 ? 'bad' : incidents.totals.mitigated > 0 ? 'warn' : 'ok' },
+  { href: '/maintain/setup',      title: 'Setup checklist',  desc: 'Phase 5 activation — Hostinger · n8n · imports · ship.',
+    signal: `${setup.totals.percentComplete}% complete`,
+    tone: setup.totals.percentComplete === 100 ? 'ok' : setup.totals.percentComplete >= 50 ? 'warn' : 'bad' },
+];
+---
+<Layout title="Run" section="maintain">
+  <header class="mb-8">
+    <h1 class="font-display text-4xl font-semibold">Run</h1>
+    <p class="text-sm" style="color: rgb(var(--c-muted))">Keep the empire's lights on — registries · runbooks · costs · backups.</p>
+  </header>
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    {tiles.map((t) => (
+      <a href={t.disabled ? '#' : t.href}
+         class="card no-underline transition hover:shadow-md"
+         style={t.disabled ? 'opacity: 0.55; cursor: not-allowed' : ''}
+         aria-disabled={t.disabled ? 'true' : undefined}>
+        <div class="flex items-baseline justify-between gap-3">
+          <h3 class="font-display text-lg font-semibold">{t.title}</h3>
+          {t.signal && <span class:list={['badge', `badge-${t.tone === 'bad' ? 'p0' : t.tone === 'warn' ? 'p1' : 'ok'}`]}>{t.signal}</span>}
+        </div>
+        <p class="mt-1 text-sm" style="color: rgb(var(--c-muted))">{t.desc}</p>
+      </a>
+    ))}
+  </div>
+</Layout>

@@ -1,0 +1,98 @@
+# Vendor + tool inventory (ops/vendor-inventory.yaml)
+#
+# Source of truth for the empire's monthly burn. Read by:
+#   - tools/empire-console (Maintain → Vendors)
+#   - infrastructure/n8n/flows/vendor-renewal-watch (P1 alert if renewal ≤7d)
+#
+# Schema (per-vendor):
+#   vendor:           string  (required)
+#   account_email:    string
+#   plan:             string
+#   monthly_cost:     number  (USD; required, may be 0 for usage-based)
+#   annual_cost:      number  (USD; only if billed annually)
+#   billing_date:     YYYY-MM-DD
+#   renewal_date:     YYYY-MM-DD  (next renewal — drives the ≤30d / ≤7d alerts)
+#   replaceability:   1-5     (1 = locked-in, 5 = trivial swap)
+#   category:         string  (e.g. infra, marketing, finance)
+#   notes:            string
+#
+# Daniel: replace these placeholders with real values as you sign up. The console
+# reads this file on every page load — no restart needed.
+
+vendors:
+  - vendor: Etsy
+    plan: seller fees (variable)
+    monthly_cost: 0
+    category: storefront
+    notes: Listing $0.20/each + 6.5% transaction. Tracked via 1099-K reconciliation.
+    replaceability: 3
+
+  - vendor: Stripe
+    plan: standard
+    monthly_cost: 0
+    category: payments
+    notes: 2.9% + $0.30. Tax handled by Stripe Tax.
+    replaceability: 2
+
+  - vendor: Gumroad
+    plan: free tier
+    monthly_cost: 0
+    category: storefront
+    notes: 10% per sale on free tier. Move to flat tier at >$10k/mo GMV.
+    replaceability: 4
+
+  - vendor: Influencersoft
+    plan: TBD
+    monthly_cost: 0
+    category: email-and-funnel
+    notes: PLACEHOLDER — fill in when account opened. Hub for the funnel.
+    replaceability: 1
+
+  - vendor: Hostinger
+    plan: business shared
+    monthly_cost: 0
+    category: infra
+    notes: PLACEHOLDER — set monthly_cost and renewal_date.
+    replaceability: 3
+
+  - vendor: Ghost(Pro)
+    plan: TBD
+    monthly_cost: 0
+    category: blog
+    notes: blog.thestrledger.com. Decide self-host vs Pro before Wave 1.
+    replaceability: 4
+
+  - vendor: n8n self-hosted
+    plan: VPS
+    monthly_cost: 0
+    category: automation
+    notes: PLACEHOLDER — VPS cost goes here.
+    replaceability: 1
+
+  - vendor: Google Workspace
+    plan: TBD
+    monthly_cost: 0
+    category: ops
+    notes: PLACEHOLDER.
+    replaceability: 4
+
+  - vendor: Plausible
+    plan: TBD
+    monthly_cost: 0
+    category: analytics
+    notes: PLACEHOLDER. Privacy-first analytics across cluster.
+    replaceability: 4
+
+  - vendor: Vaultwarden
+    plan: self-hosted
+    monthly_cost: 0
+    category: ops
+    notes: Password vault on the same VPS as n8n.
+    replaceability: 3
+
+  - vendor: eRank
+    plan: TBD
+    monthly_cost: 0
+    category: marketing
+    notes: PLACEHOLDER. Etsy SEO research.
+    replaceability: 5

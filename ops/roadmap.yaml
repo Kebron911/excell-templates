@@ -1,0 +1,106 @@
+# ops/roadmap.yaml — 30/60/90d roadmap above the PROGRESS.md task level
+#
+# Three columns:
+#   now    — in flight this week / next week
+#   next   — 30–60d horizon (planned but not started)
+#   later  — 60–180d horizon (committed but flexible)
+#
+# Schema per item:
+#   id:       string
+#   title:    string
+#   why:      string  (the customer/business outcome — not the implementation)
+#   owner:    Daniel | TBD
+#   status:   in-progress | blocked | committed | exploring
+#   blocker:  optional — what's blocking
+#   relates:  optional — link to PROGRESS section / spec / SKU code
+#
+# Update weekly during Tuesday Trajectory review.
+
+now:
+  - id: rm-empire-console
+    title: Empire Console v1
+    why: One interface to run the empire — replaces 10-tab morning routine
+    owner: Daniel
+    status: in-progress
+    relates: docs/superpowers/specs/2026-05-10-empire-console-design.md
+
+  - id: rm-strguests-phase6
+    title: STRGuests-Tools Phase 6 — analytics + E2E + CI + deploy
+    why: Lock STRGuests into production-grade ops before AI generators ship
+    owner: Daniel
+    status: in-progress
+    relates: STRGuests-Tools/.planning/STATE.md
+
+  - id: rm-is-import
+    title: Influencersoft import — populate sequences + tags + forms
+    why: First-payment funnel can't run without IS live
+    owner: Daniel
+    status: blocked
+    blocker: IS account credentials not yet ready
+    relates: PROGRESS.md §P2.0
+
+  - id: rm-press-kit
+    title: Press kit + first podcast pitches
+    why: Backlinks + audience growth from first 3 podcast guesting
+    owner: Daniel
+    status: committed
+    relates: ops/press-pipeline.yaml
+
+next:
+  - id: rm-strguests-ai-tools
+    title: STRGuests-Tools Phase 3 — 3 AI generators (listing/review/messages)
+    why: Bigger lead-magnet surface area + AI-cost recovery economics
+    owner: Daniel
+    status: blocked
+    blocker: OPENAI_API_KEY + Hostinger Apps deploy decision
+    relates: STRGuests-Tools/.planning/ROADMAP.md
+
+  - id: rm-strops-launch
+    title: STROps-Tools v0.1 launch
+    why: 4th sister site live → cluster acquisition completes
+    owner: Daniel
+    status: committed
+    relates: STROps-Tools/.planning/STATE.md
+
+  - id: rm-affiliate-program
+    title: Affiliate program live (Stripe Connect + 30% / 60-day)
+    why: 10 founding affiliates seeded with free Vault tier — distribution unlock
+    owner: Daniel
+    status: committed
+    relates: PROGRESS.md §P5.7
+
+  - id: rm-newsletter-cadence
+    title: Weekly newsletter cadence — 4 sends/month sustained
+    why: Owned channel — only growth lever not dependent on platforms
+    owner: Daniel
+    status: committed
+    relates: ops/newsletter-pipeline.yaml
+
+later:
+  - id: rm-paid-acquisition
+    title: Paid acquisition unlock (post organic-CVR gate)
+    why: Etsy Promoted + Pinterest Ads after organic CVR ≥2.5%
+    owner: Daniel
+    status: committed
+    relates: PROGRESS.md §P5.6
+
+  - id: rm-empire-console-phase4
+    title: Empire Console Phase 4 — action layer + paid + reviews modules
+    why: Send-broadcast / ship-release / GDPR / refund-spike P0 wired
+    owner: Daniel
+    status: committed
+    relates: docs/superpowers/specs/2026-05-10-empire-console-design.md
+
+  - id: rm-strbuyers-v1
+    title: STRBuyers-Tools v1.0 — buyer-side calculators
+    why: Acquisition-stage tools complete the cluster
+    owner: Daniel
+    status: exploring
+    relates: STRBuyers-Tools/.planning/ROADMAP.md
+
+  - id: rm-paid-template-tier
+    title: Paid template tier ($79–$149) — premium pack
+    why: Higher-LTV products on top of the $9–$29 Etsy floor
+    owner: Daniel
+    status: exploring
+    relates: PROGRESS.md

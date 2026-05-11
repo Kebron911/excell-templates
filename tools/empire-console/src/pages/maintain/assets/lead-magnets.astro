@@ -1,0 +1,72 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readAssetsByType } from '@/lib/data/assets';
+
+const items = await readAssetsByType('lead-magnet');
+const active = items.filter((a) => a.status === 'active').length;
+const drafts = items.filter((a) => a.status === 'draft').length;
+const sites = new Set(items.map((a) => String(a.raw.site ?? 'unknown')));
+---
+<Layout title="Maintain · Lead magnets" section="maintain">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Lead magnets</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Source: <code>ops/assets/lead-magnets.yaml</code>. Add new items as you ship them.
+      </p>
+    </div>
+    <a href="/maintain/assets" class="text-xs">← back to registry</a>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Total" value={items.length} />
+    <Scorecard label="Active" value={active} tone="ok" />
+    <Scorecard label="Drafts" value={drafts} tone={drafts > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Sites covered" value={sites.size} hint={[...sites].join(' · ')} />
+  </section>
+
+  {items.length === 0 ? (
+    <div class="card">
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        No lead magnets yet. Edit <code>ops/assets/lead-magnets.yaml</code>.
+      </p>
+    </div>
+  ) : (
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b text-left text-xs uppercase tracking-wide"
+            style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+          <th class="py-2">Name</th>
+          <th>Site</th>
+          <th>IS tag</th>
+          <th>Sequence</th>
+          <th>Status</th>
+          <th class="text-right">Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((a) => (
+          <tr class="border-b" style="border-color: rgb(var(--c-border))">
+            <td class="py-3">
+              <div class="font-medium">{a.name}</div>
+              {typeof a.raw.landing_url === 'string' && (
+                <a href={a.raw.landing_url} target="_blank" rel="noopener noreferrer"
+                   class="text-xs">{a.raw.landing_url} ↗</a>
+              )}
+            </td>
+            <td style="color: rgb(var(--c-muted))">{String(a.raw.site ?? '—')}</td>
+            <td class="font-mono text-xs">{String(a.raw.is_tag ?? '—')}</td>
+            <td class="font-mono text-xs">{String(a.raw.welcome_sequence ?? '—')}</td>
+            <td>
+              <span class:list={['badge', a.status === 'active' ? 'badge-ok' : 'badge-p2']}>
+                {a.status ?? '—'}
+              </span>
+            </td>
+            <td class="text-right font-mono text-xs">{a.last_updated ?? '—'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</Layout>

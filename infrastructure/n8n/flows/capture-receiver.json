@@ -1,0 +1,97 @@
+{
+  "name": "capture-receiver",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "empire-capture",
+        "responseMode": "responseNode",
+        "options": { "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "{{ $env.EMPIRE_CONSOLE_BASE_URL || '*' }}" }] } }
+      },
+      "id": "webhook",
+      "name": "POST /webhook/empire-capture",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "webhookId": "empire-capture"
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = $input.item.json.body || $input.item.json;\nconst type = body.type;\nconst payload = body.payload || {};\nconst valid = ['inbox', 'voice', 'decisions', 'time-log', 'near-misses', 'console-actions'];\nif (!valid.includes(type)) {\n  return [{ json: { _error: `Unknown capture type: ${type}` } }];\n}\nconst id = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2,10)}`;\nconst entry = { id, ts: new Date().toISOString(), ...payload };\nconst fileMap = {\n  'inbox':           'ops/inbox.ndjson',\n  'voice':           'ops/customer-voice.ndjson',\n  'decisions':       'ops/decisions.ndjson',\n  'time-log':        'ops/time-log.ndjson',\n  'near-misses':     'ops/near-misses.ndjson',\n  'console-actions': 'ops/console-actions.ndjson'\n};\nreturn [{ json: { type, entry, file: fileMap[type] } }];"
+      },
+      "id": "validate",
+      "name": "Validate + route",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "rules": [{ "operation": "isNotEmpty", "value1": "={{ $json._error }}" }]
+        }
+      },
+      "id": "errCheck",
+      "name": "Has error?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { error: $json._error } }}",
+        "options": { "responseCode": 400 }
+      },
+      "id": "respond400",
+      "name": "Respond 400",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [800, 200]
+    },
+    {
+      "parameters": {
+        "command": "=echo {{ JSON.stringify(JSON.stringify($json.entry)) }} >> {{ $env.EMPIRE_REPO_PATH }}/{{ $json.file }}"
+      },
+      "id": "append",
+      "name": "Append to NDJSON",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [800, 400]
+    },
+    {
+      "parameters": {
+        "command": "=cd {{ $env.EMPIRE_REPO_PATH }} && git add {{ $('Validate + route').item.json.file }} && git commit -m \"capture: {{ $('Validate + route').item.json.type }} via console\" --no-verify && git push origin main"
+      },
+      "id": "gitSync",
+      "name": "Git commit + push",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1000, 400],
+      "continueOnFail": true,
+      "notes": "Optional: commit + push to keep ops/ in sync. Disable if you prefer to drain manually. Requires git credentials configured on the n8n host."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, id: $('Validate + route').item.json.entry.id, file: $('Validate + route').item.json.file } }}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "respond200",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1200, 400]
+    }
+  ],
+  "connections": {
+    "POST /webhook/empire-capture": { "main": [[{ "node": "Validate + route",  "type": "main", "index": 0 }]] },
+    "Validate + route":             { "main": [[{ "node": "Has error?",        "type": "main", "index": 0 }]] },
+    "Has error?":                   { "main": [[{ "node": "Respond 400",       "type": "main", "index": 0 }], [{ "node": "Append to NDJSON", "type": "main", "index": 0 }]] },
+    "Append to NDJSON":             { "main": [[{ "node": "Git commit + push", "type": "main", "index": 0 }]] },
+    "Git commit + push":            { "main": [[{ "node": "Respond 200",       "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "phase-4" }, { "name": "receiver" }]
+}

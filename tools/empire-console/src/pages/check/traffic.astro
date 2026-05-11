@@ -1,0 +1,132 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readTraffic } from '@/lib/data/traffic';
+
+const t = await readTraffic();
+const maxSiteSessions = Math.max(1, ...t.bySite.map((s) => s.sessions));
+---
+<Layout title="Check · Traffic" section="check">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Traffic</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Cluster-wide sessions across thestrledger.com + 4 sister sites.
+        Plausible is the primary number; GA4 for funnel drill-in.
+      </p>
+    </div>
+    {t.isCacheReady
+      ? <span class="badge badge-ok">live</span>
+      : <span class="badge badge-p2">awaiting n8n nightly-refresh</span>}
+  </header>
+
+  {!t.isCacheReady && (
+    <div class="mb-6 card" style="background: rgb(var(--c-surface-2))">
+      <p class="text-sm">
+        <strong>No cache yet.</strong> <code>ops/cache/traffic.json</code> is written by the
+        n8n <code>nightly-refresh</code> flow (Plausible → atomic JSON write).
+      </p>
+    </div>
+  )}
+
+  <section class="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+    <Scorecard label="Yesterday" value={t.yesterday.sessions} hint={`${t.yesterday.users} users`} />
+    <Scorecard label="This week" value={t.week.sessions} hint={`${t.week.users} users`} />
+    <Scorecard label="MTD" value={t.mtd.sessions} hint={`${t.mtd.users} users`} />
+  </section>
+
+  {t.anomalies.length > 0 && (
+    <section class="mb-8">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Traffic anomalies
+      </h2>
+      <div class="card border-2" style="border-color: rgb(var(--c-accent))">
+        <ul class="space-y-2">
+          {t.anomalies.map((a) => (
+            <li class="flex items-baseline justify-between text-sm">
+              <span class="font-medium">{a.siteId}</span>
+              <span>
+                <span class="font-mono">{a.yesterday}</span> vs 14d avg
+                <span class="font-mono"> {a.baseline14d.toFixed(0)}</span>
+                <span class="ml-2 badge badge-p1">{(a.dropPct * 100).toFixed(0)}% drop</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Sessions by site (MTD)
+    </h2>
+    <div class="card">
+      <table class="w-full text-sm">
+        <tbody>
+          {t.bySite.map((s) => (
+            <tr class="border-b last:border-0" style="border-color: rgb(var(--c-border))">
+              <td class="py-2 font-medium">
+                <a href={`/atlas/${s.id}`}>{s.name}</a>
+              </td>
+              <td class="py-2 w-1/2">
+                <div class="h-2 w-full overflow-hidden rounded" style="background: rgb(var(--c-surface-2))">
+                  <div class="h-full rounded"
+                       style={`width: ${(s.sessions / maxSiteSessions * 100).toFixed(0)}%; background: rgb(var(--c-accent))`}></div>
+                </div>
+              </td>
+              <td class="py-2 text-right font-mono">{s.sessions}</td>
+              <td class="py-2 pl-3 text-right text-xs" style="color: rgb(var(--c-muted))">
+                {s.deltaPct14d === null
+                  ? '—'
+                  : `${s.deltaPct14d >= 0 ? '+' : ''}${(s.deltaPct14d * 100).toFixed(0)}%`}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Top sources (MTD)
+    </h2>
+    <div class="card">
+      {t.topSources.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          Will populate from Plausible's referrers report on first nightly-refresh.
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <tbody>
+            {t.topSources.map((s) => (
+              <tr class="border-b last:border-0" style="border-color: rgb(var(--c-border))">
+                <td class="py-2">{s.source}</td>
+                <td class="py-2 text-right font-mono">{s.sessions}</td>
+                <td class="py-2 pl-3 text-right text-xs" style="color: rgb(var(--c-muted))">
+                  {(s.share * 100).toFixed(0)}%
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Anomaly detection
+    </h3>
+    <p class="text-sm">
+      The n8n <code>traffic-anomaly-watch</code> flow fires a P1 if yesterday's sessions
+      drop &gt;30% vs the trailing-14d average. Tuned per-site once 4 weeks of baseline accumulate.
+    </p>
+  </section>
+
+  <SourceFooter source="ops/cache/traffic.json (n8n nightly-refresh)"
+                lastRefresh={t.generatedAt ?? null}
+                notes="Plausible + GA4" />
+</Layout>

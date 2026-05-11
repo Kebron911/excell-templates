@@ -1,0 +1,29 @@
+# ops/onboarding-flow.yaml — first-100 buyer white-glove tracker
+#
+# Track each new buyer's onboarding state until first sale follow-through.
+# After 100 buyers, this drops to bulk-automation. Until then: high-touch.
+#
+# Phase 4 auto-pulls new buyers from Stripe + Etsy webhook. For now, manual.
+#
+# Schema:
+#   id:         string
+#   name:       string  (or pseudonym)
+#   email:      string
+#   sku:        first SKU bought
+#   purchased:  YYYY-MM-DD
+#   channel:    etsy | gumroad | own-site
+#   state:      received | first-contact | second-contact | reviewed | case-study | done
+#   notes:      optional
+#   case_study_candidate: bool
+
+buyers:
+  # Sample shape (replace with real after first sale):
+  # - id: buyer-001
+  #   name: Sarah K (Tahoe — 4 properties)
+  #   email: redacted@example.com
+  #   sku: TAX-001
+  #   purchased: 2026-06-01
+  #   channel: etsy
+  #   state: first-contact
+  #   notes: Sent personal welcome email + asked about her tax-prep pain
+  #   case_study_candidate: true
