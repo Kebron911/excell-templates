@@ -1,0 +1,40 @@
+---
+// FunnelBand — thin co-branded cluster bridge band. Sits above the footer.
+// Shows "Built by The STR Ledger" with UTM-tagged link.
+// Named slot: funnel-banner-override — replace entire band with a site-specific variant
+// (e.g. STRBuyers's 38-line city-page funnel band).
+
+import type { SiteConfig } from '@str/seo';
+
+interface Props {
+  siteConfig: SiteConfig;
+}
+
+const { siteConfig } = Astro.props;
+
+// UTM source derived from siteId
+const utmSource = `str${siteConfig.siteId}-tools`;
+---
+<slot name="funnel-banner-override">
+  <section class="funnel-band border-t border-rule bg-parchment-light">
+    <div class="mx-auto max-w-6xl px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <p class="text-small text-ink-2 leading-snug">
+        <span class="label text-navy mr-2">Built by</span>
+        <a
+          href="https://thestrledger.com"
+          class="font-serif text-h3 text-navy no-underline hover:text-navy-tint transition-colors duration-std"
+        >
+          The STR Ledger<span class="period-accent">.</span>
+        </a>
+        <span class="text-ink-2"> Excel templates and PDFs for short-term rental finance.</span>
+      </p>
+      <a
+        href={`https://thestrledger.com?utm_source=${utmSource}&utm_medium=funnel-band`}
+        class="text-ui text-navy no-underline whitespace-nowrap hover:text-[color:var(--accent-700)] group"
+      >
+        Visit The STR Ledger
+        <span class="text-[color:var(--accent-500)] inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true"> →</span>
+      </a>
+    </div>
+  </section>
+</slot>
