@@ -1,0 +1,40 @@
+{
+  "name": "W43 — IndexNow + GSC URL Submit",
+  "_stub": "Skeleton export. Build full nodes in n8n UI from W43-indexnow-gsc-submit.md spec, then re-export to overwrite this file.",
+  "nodes": [
+    {
+      "id": "w43-n01a",
+      "name": "Content Published Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 200],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "content-published",
+        "responseMode": "lastNode"
+      }
+    },
+    {
+      "id": "w43-n01b",
+      "name": "Cron Daily 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 400],
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "days", "daysInterval": 1, "triggerAtHour": 6 }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "executionTimeout": 300,
+    "timezone": "America/New_York"
+  },
+  "pinData": {}
+}
