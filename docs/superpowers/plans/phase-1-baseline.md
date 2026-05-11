@@ -97,11 +97,23 @@ CI uses `pnpm/action-setup@v4 with version: 9`, so 9.x is the target.
 5. **buildItemList shape change:** `@str/seo`'s `buildItemList` now requires `{ name, items[] }` wrapper instead of bare `items[]`. STRGuests Task 8 wiring updated callers; other apps will need similar updates when wired (Phase 3).
 
 **Known follow-ups for Phase 2:**
-- @str/ui-chrome and @str/ui-funnel extraction (Tier 2 UI packages)
+
+Process / scope:
+- @str/ui-chrome and @str/ui-funnel extraction (Tier 2 UI packages — main Phase 2 deliverable)
 - Visual regression suite for STRGuests (catches UI extraction drift)
-- Pre-existing TS2532 (`noUncheckedIndexedAccess`) errors in `@str/seo` test files (not introduced this phase; cleanup before Phase 2)
-- Pre-existing TS2322 (literal-boolean narrowing) errors in `@str/url-state` test files (not introduced this phase; cleanup before Phase 2)
 - empire-console upgrade from Astro 4.16 → 6.x (separate concern)
-- ESP-webhook adapter for `@str/email-gate` if STRBuyers/STRHost/STROps need email gating before MySQL backend desired
+
+Technical debt to address EARLY in Phase 2 (before fanout makes it costlier):
+1. Fix pre-existing TS2532 in `@str/seo` test files (`noUncheckedIndexedAccess` strictness — array-index access without bounds check)
+2. Fix pre-existing TS2322 in `@str/url-state/test/cross-app-compat.test.ts` and `serialize.test.ts` (literal-boolean narrowing in tests)
+3. Audit `buildItemList` callers in STRBuyers, STRHost, STROps before wiring — this function's shape changed in Phase 1 (`{ name, items[] }` wrapper required)
+
+Architectural decisions that need explicit resolution:
+4. **`@str/url-state` dual API:** Currently exposes both `serialize`/`parse` (1/0 booleans) and `encodeState`/`decodeState` (true/false booleans, arrays). Decide which wins as the canonical API and deprecate the other once all apps are wired (Phase 3).
+5. **`@str/email-gate` architecture:** STRGuests uses ESP webhook (in-tree), package is MySQL-based. Decide before Phase 3: (a) build ESP-webhook adapter as `@str/email-gate/esp-adapter` so all sites can share `EmailGate.astro` component, OR (b) MySQL is the standard going forward and apps migrate. Don't perpetually defer.
+6. **Single `SiteId` source of truth:** Currently `SiteId` is duplicated in `@str/seo/site-config.ts` and `@str/email-gate/schema.ts`. Pick one canonical source (likely a future `@str/types` package) before adding a 5th site.
+
+Documentation/process:
+- Consider creating `docs/decisions/` for ADRs (5 significant decisions made in Phase 1 are currently embedded in this baseline doc)
 
 Phase 1 done. Ready for Phase 2: Tier 2 UI packages (chrome + funnel).

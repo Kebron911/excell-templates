@@ -23,7 +23,7 @@ export interface SiteConfig {
     canonical: string; // e.g., 'https://strguests.tools'
     sitemap?: string[];
   };
-  emailGate: {
+  emailGate?: {
     listId: string;
     welcomeSubject: string;
   };
