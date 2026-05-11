@@ -5,7 +5,7 @@
 import { test, expect } from '@playwright/test';
 
 test('/disclosures renders editorial-independence + 4 vendor categories', async ({ page }) => {
-  await page.goto('/disclosures');
+  await page.goto('/disclosures/');
 
   // Page heading.
   await expect(page.getByRole('heading', { name: /affiliate disclosures/i, level: 1 })).toBeVisible();

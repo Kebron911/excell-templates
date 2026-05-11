@@ -35,7 +35,7 @@ async function expectAffiliateBlock(page: Page) {
 
 test.describe('DSCR loan calculator', () => {
   test('renders, computes, exposes affiliate block, persists to URL', async ({ page }) => {
-    await page.goto('/dscr-loan-calculator');
+    await page.goto('/dscr-loan-calculator/');
     await expect(page.getByRole('heading', { name: /DSCR loan calculator/i, level: 1 })).toBeVisible();
 
     // NOI $48k, debt service ~$36k → DSCR ~1.33 (qualifies A-tier).
@@ -54,7 +54,7 @@ test.describe('DSCR loan calculator', () => {
 
 test.describe('Down payment calculator', () => {
   test('renders rows, exposes affiliate block, persists to URL', async ({ page }) => {
-    await page.goto('/down-payment-calculator');
+    await page.goto('/down-payment-calculator/');
     await expect(page.getByRole('heading', { name: /down payment calculator/i, level: 1 })).toBeVisible();
 
     await fillNumber(page, 'Purchase price', 400000);
@@ -68,7 +68,7 @@ test.describe('Down payment calculator', () => {
 
 test.describe('Comp analyzer', () => {
   test('accepts 3 listings, computes averages, persists ADR to URL', async ({ page }) => {
-    await page.goto('/comp-analyzer');
+    await page.goto('/comp-analyzer/');
     await expect(page.getByRole('heading', { name: /comp analyzer/i, level: 1 })).toBeVisible();
 
     // Three comps: ADR 200/220/180, occ 0.6/0.65/0.55 → avgADR ~$200.
@@ -88,7 +88,7 @@ test.describe('Comp analyzer', () => {
 
 test.describe('Market score', () => {
   test('renders, computes a non-zero score, persists ADR to URL', async ({ page }) => {
-    await page.goto('/market-score');
+    await page.goto('/market-score/');
     await expect(page.getByRole('heading', { name: /market score/i, level: 1 })).toBeVisible();
 
     await fillNumber(page, 'Avg ADR for the market', 250);
@@ -108,7 +108,7 @@ test.describe('Market score', () => {
 
 test.describe('Cash-on-cash', () => {
   test('renders, computes 12% on $12k / $100k, persists to URL', async ({ page }) => {
-    await page.goto('/cash-on-cash-calculator');
+    await page.goto('/cash-on-cash-calculator/');
     await expect(page.getByRole('heading', { name: /cash[- ]on[- ]cash/i, level: 1 })).toBeVisible();
 
     await fillNumber(page, /Annual cash flow/i, 12000);
@@ -123,7 +123,7 @@ test.describe('Cash-on-cash', () => {
 
 test.describe('Year 1 cash needs', () => {
   test('renders, computes total, persists to URL', async ({ page }) => {
-    await page.goto('/year-1-cash-needs');
+    await page.goto('/year-1-cash-needs/');
     await expect(page.getByRole('heading', { name: /Year 1 cash needs/i, level: 1 })).toBeVisible();
 
     // Use values that differ from defaults so URL-state diff actually persists.
@@ -140,7 +140,7 @@ test.describe('Year 1 cash needs', () => {
 
 test.describe('Furnishing budget', () => {
   test('renders, computes total, persists sqft to URL', async ({ page }) => {
-    await page.goto('/furnishing-budget-calculator');
+    await page.goto('/furnishing-budget-calculator/');
     await expect(page.getByRole('heading', { name: /furnishing budget/i, level: 1 })).toBeVisible();
 
     // Defaults: beds=3, baths=2, sqft=1500. Use 1800 so URL-state diff persists.

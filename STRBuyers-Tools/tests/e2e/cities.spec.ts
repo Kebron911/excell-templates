@@ -24,7 +24,7 @@ const CITIES = [
 for (const city of CITIES) {
   test.describe(`/cities/${city.slug}`, () => {
     test(`renders hero, score badge, regulation callout, CTA, MDX, cluster funnel`, async ({ page }) => {
-      await page.goto(`/cities/${city.slug}`);
+      await page.goto(`/cities/${city.slug}/`);
 
       // Hero — h1 contains the city name.
       const heading = page.getByRole('heading', { level: 1 });
