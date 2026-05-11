@@ -1,9 +1,9 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
+import Layout from '@/components/AppLayout.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import tools from '@/data/tools.json';
 import { buildArticle } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
@@ -64,6 +64,7 @@ const articleLd = buildArticle(siteConfig, {
 ---
 
 <Layout
+  siteConfig={siteConfig}
   title={`${post.data.title} — STR Guests Tools`}
   description={post.data.description}
   path={`/blog/${slug}`}
@@ -94,7 +95,7 @@ const articleLd = buildArticle(siteConfig, {
     </div>
 
     <div class="mx-auto max-w-3xl px-5">
-      <AdSlot location="in-content" />
+      <AdSlot siteConfig={siteConfig} location="in-content" />
     </div>
 
     {related.length > 0 && (
@@ -145,14 +146,14 @@ const articleLd = buildArticle(siteConfig, {
     )}
 
     <div class="mx-auto max-w-3xl px-5 mt-9">
-      <EmailCaptureCard magnet="welcome-book-template" toolSlug={`blog-${slug}`} />
+      <EmailCaptureCard siteConfig={siteConfig} magnet="welcome-book-template" toolSlug={`blog-${slug}`} />
     </div>
 
     <div class="mx-auto max-w-3xl px-5 mt-7">
-      <STRLedgerCTA tool="welcome-book" />
+      <STRLedgerCTA siteConfig={siteConfig} tool="welcome-book" />
     </div>
 
-    <ClusterFunnelBlock currentCluster="guest-xp" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
   </article>
 </Layout>
 

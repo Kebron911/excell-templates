@@ -4,7 +4,7 @@ export const siteConfig: SiteConfig = {
   siteId: 'guests',
   brand: {
     name: 'STR Guests Tools',
-    wordmark: 'strguests.tools',
+    wordmark: 'STR Guests',
     tagline: 'Free generators for short-term rental hosts to delight guests.',
     primaryColor: '#c2410c', // terracotta / --accent-500 (orange-700 equivalent)
     logo: '/brand/logo.svg',
@@ -34,13 +34,13 @@ export const siteConfig: SiteConfig = {
       {
         title: 'Generators',
         links: [
-          { label: 'House Rules PDF', href: '/house-rules-pdf' },
-          { label: 'Welcome Book', href: '/welcome-book' },
-          { label: 'Wi-Fi Sign', href: '/wifi-sign' },
-          { label: 'Check-in Instructions', href: '/check-in-instructions' },
-          { label: 'Listing Description', href: '/listing-description' },
-          { label: 'Review Response', href: '/review-response' },
-          { label: 'Guest Messages', href: '/guest-messages' },
+          { label: 'House rules', href: '/house-rules-pdf' },
+          { label: 'Welcome book', href: '/welcome-book' },
+          { label: 'Wi-Fi sign', href: '/wifi-sign' },
+          { label: 'Check-in', href: '/check-in-instructions' },
+          { label: 'Listing', href: '/listing-description' },
+          { label: 'Review response', href: '/review-response' },
+          { label: 'Guest messages', href: '/guest-messages' },
         ],
       },
       {

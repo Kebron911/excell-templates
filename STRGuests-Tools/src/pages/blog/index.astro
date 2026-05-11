@@ -1,8 +1,9 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@/components/AppLayout.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import { siteConfig } from '@/data/site.config';
 import { getCollection } from 'astro:content';
 
 const all = await getCollection('posts');
@@ -28,6 +29,7 @@ const formatDate = (iso: string) =>
 ---
 
 <Layout
+  siteConfig={siteConfig}
   title="Blog — STR Guests Tools"
   description="Field-tested guides on the host-guest interface. House rules, welcome books, check-in flow, review responses, message templates — written by hosts for hosts."
   path="/blog"
@@ -84,15 +86,15 @@ const formatDate = (iso: string) =>
 
   <section class="bg-parchment border-t border-rule">
     <div class="mx-auto max-w-6xl px-5 py-9">
-      <EmailCaptureCard magnet="welcome-book-template" toolSlug="blog-index" />
+      <EmailCaptureCard siteConfig={siteConfig} magnet="welcome-book-template" toolSlug="blog-index" />
     </div>
   </section>
 
   <section class="bg-parchment-light border-t border-rule">
     <div class="mx-auto max-w-6xl px-5 py-9">
-      <STRLedgerCTA tool="welcome-book" />
+      <STRLedgerCTA siteConfig={siteConfig} tool="welcome-book" />
     </div>
   </section>
 
-  <ClusterFunnelBlock currentCluster="guest-xp" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
 </Layout>

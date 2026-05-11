@@ -1,8 +1,16 @@
 ---
+// AppSidebar — site-level Sidebar that shows shortName + tagline per item.
+// Preserves the 2-line card style from the in-tree chrome/Sidebar.
+// Replaces @str/ui-chrome/Sidebar for STRGuests-Tools pages.
+
 import tools from '@/data/tools.json';
+import type { SiteConfig } from '@str/seo';
 
 interface Props {
+  /** Key of the current tool — excluded from related links. */
   current: keyof typeof tools;
+  /** Accepted for API compat with @str/ui-chrome/Sidebar; not used by this component. */
+  siteConfig?: SiteConfig;
 }
 
 const { current } = Astro.props;

@@ -1,10 +1,10 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@/components/AppLayout.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import CopyButton from '@/components/templates/CopyButton.tsx';
 import { buildScenarioArticle, buildBreadcrumb } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
@@ -70,6 +70,7 @@ const breadcrumbLd = buildBreadcrumb(siteConfig, [
 const categoryLabel = entry.category.replace(/-/g, ' ');
 ---
 <Layout
+  siteConfig={siteConfig}
   title={`${entry.name} — Airbnb message template · strguests.tools`}
   description={entry.scenario}
   path={path}
@@ -129,7 +130,7 @@ const categoryLabel = entry.category.replace(/-/g, ' ');
       </section>
     )}
 
-    <AdSlot location="in-content" />
+    <AdSlot siteConfig={siteConfig} location="in-content" />
 
     {related.length > 0 && (
       <section class="mt-9" aria-labelledby="related-label">
@@ -153,6 +154,7 @@ const categoryLabel = entry.category.replace(/-/g, ' ');
     <RelatedPosts toolKey="guest-messages" />
 
     <EmailCaptureCard
+      siteConfig={siteConfig}
       magnet="message-template-bundle"
       toolSlug="guest-messages"
       headline="Get the full Guest Message Template Pack"
@@ -160,10 +162,10 @@ const categoryLabel = entry.category.replace(/-/g, ' ');
       cta="Email me the template pack"
     />
 
-    <STRLedgerCTA tool="guest-messages" />
+    <STRLedgerCTA siteConfig={siteConfig} tool="guest-messages" />
 
-    <AdSlot location="footer" />
+    <AdSlot siteConfig={siteConfig} location="footer" />
   </article>
 
-  <ClusterFunnelBlock currentCluster="guest-xp" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
 </Layout>

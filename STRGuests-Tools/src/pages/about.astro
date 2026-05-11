@@ -1,10 +1,12 @@
----
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+﻿---
+import Layout from '@/components/AppLayout.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import { siteConfig } from '@/data/site.config';
 ---
 <Layout
-  title="About — strguests.tools"
+  siteConfig={siteConfig}
+  title="About â€” strguests.tools"
   description="strguests.tools is a free generator + template library for short-term rental hosts who want to delight their guests. Built by the team behind The STR Ledger."
   path="/about"
 >
@@ -24,7 +26,7 @@ import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
     <section class="mt-9">
       <h2 class="font-serif text-h2 text-navy">Who builds this</h2>
       <p class="mt-3 text-body text-graphite leading-relaxed">
-        strguests.tools is built by the team behind <a href="https://thestrledger.com" class="text-[color:var(--accent-700)]">The STR Ledger</a> —
+        strguests.tools is built by the team behind <a href="https://thestrledger.com" class="text-[color:var(--accent-700)]">The STR Ledger</a> â€”
         a small studio making Excel and Notion templates for short-term rental
         finance. We host properties ourselves; everything on this site exists
         because we needed it.
@@ -45,7 +47,7 @@ import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
         <li><strong class="text-navy">Sell your email.</strong> We use email captures for the lead magnet and product launches, nothing else. Unsubscribe link in every email.</li>
         <li><strong class="text-navy">Run popups, exit-intent modals, or sticky ads.</strong> Use the tool, leave when you're done.</li>
         <li><strong class="text-navy">Hide formulas behind a paywall.</strong> Everything the generators do is documented on each tool's page.</li>
-        <li><strong class="text-navy">Upload your data.</strong> PDF generation runs in your browser. Property details never leave your laptop. The AI generators (when they ship) call our server, but only with the prompt — we don't store the output.</li>
+        <li><strong class="text-navy">Upload your data.</strong> PDF generation runs in your browser. Property details never leave your laptop. The AI generators (when they ship) call our server, but only with the prompt â€” we don't store the output.</li>
       </ul>
     </section>
 
@@ -54,12 +56,12 @@ import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
       <ul class="mt-4 space-y-3 text-body text-graphite leading-relaxed">
         <li><strong class="text-navy">Verify content annually.</strong> Each template has a <code>lastVerified</code> ISO date. We re-check copy against current host-coaching guidance every year.</li>
         <li><strong class="text-navy">Add tools as we hear what hosts need.</strong> The seven launch tools cover the highest-volume guest-XP scenarios. New tools land when there's a clear demand signal.</li>
-        <li><strong class="text-navy">Listen to bug reports.</strong> If a calculator gives wrong math or a PDF rendering breaks, message us — we fix it within a week.</li>
+        <li><strong class="text-navy">Listen to bug reports.</strong> If a calculator gives wrong math or a PDF rendering breaks, message us â€” we fix it within a week.</li>
       </ul>
     </section>
 
-    <STRLedgerCTA tool="welcome-book" />
+    <STRLedgerCTA siteConfig={siteConfig} tool="welcome-book" />
   </article>
 
-  <ClusterFunnelBlock currentCluster="guest-xp" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
 </Layout>

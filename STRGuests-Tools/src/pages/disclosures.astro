@@ -1,12 +1,14 @@
----
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+﻿---
+import Layout from '@/components/AppLayout.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import { siteConfig } from '@/data/site.config';
 
 const today = new Date().toISOString().slice(0, 10);
 ---
 <Layout
-  title="Disclosures — strguests.tools"
-  description="Affiliate disclosures, sponsorship policy, and how strguests.tools makes money — plain English."
+  siteConfig={siteConfig}
+  title="Disclosures â€” strguests.tools"
+  description="Affiliate disclosures, sponsorship policy, and how strguests.tools makes money â€” plain English."
   path="/disclosures"
 >
   <article class="mx-auto max-w-3xl px-5 py-12 prose">
@@ -50,5 +52,5 @@ const today = new Date().toISOString().slice(0, 10);
     </section>
   </article>
 
-  <ClusterFunnelBlock currentCluster="guest-xp" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
 </Layout>

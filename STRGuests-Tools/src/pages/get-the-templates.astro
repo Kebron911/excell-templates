@@ -1,10 +1,12 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import Layout from '@/components/AppLayout.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import { siteConfig } from '@/data/site.config';
 ---
 <Layout
+  siteConfig={siteConfig}
   title="Get the free Guest Message Template Pack — strguests.tools"
   description="Drop your email and we'll send the editable bundle of all 26 hand-written Airbnb host message templates the day the AI generator ships. Free, no spam."
   path="/get-the-templates"
@@ -53,6 +55,7 @@ import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 
     <section class="mt-9">
       <EmailCaptureCard
+        siteConfig={siteConfig}
         magnet="message-template-bundle"
         toolSlug="get-the-templates"
         headline="Email me the template pack"
@@ -77,9 +80,9 @@ import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
     </section>
 
     <section class="mt-9">
-      <STRLedgerCTA tool="guest-messages" />
+      <STRLedgerCTA siteConfig={siteConfig} tool="guest-messages" />
     </section>
   </article>
 
-  <ClusterFunnelBlock currentCluster="guest-xp" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
 </Layout>
