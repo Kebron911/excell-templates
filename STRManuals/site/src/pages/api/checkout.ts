@@ -6,7 +6,7 @@ import Stripe from 'stripe';
 const getStripe = () => {
   const key = import.meta.env.STRIPE_SECRET || process.env.STRIPE_SECRET;
   if (!key) throw new Error('STRIPE_SECRET not set');
-  return new Stripe(key, { apiVersion: '2024-12-18.acacia' as Stripe.LatestApiVersion });
+  return new Stripe(key, { apiVersion: '2026-04-22.dahlia' as Stripe.LatestApiVersion });
 };
 
 const SITE = (): string =>

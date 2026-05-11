@@ -134,7 +134,7 @@ if (!process.env.STRIPE_SECRET) {
 
 const Stripe = (await import('stripe')).default;
 const stripe = new Stripe(process.env.STRIPE_SECRET, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2026-04-22.dahlia',
 });
 
 const results = [];
