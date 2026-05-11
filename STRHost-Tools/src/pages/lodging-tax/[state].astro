@@ -9,7 +9,7 @@ import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import LodgingTaxCalculator from '@/components/calculators/LodgingTaxCalculator.tsx';
 import { buildWebApplication, buildFAQPage, buildBreadcrumb } from '@/lib/seo';
 import { formatPercent } from '@/lib/format';
-import { getEntry } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import type { LodgingTaxData } from '@/data/lodging-tax-by-state.schema';
 
 export async function getStaticPaths() {
@@ -27,14 +27,17 @@ interface Props {
 
 const { code, entry } = Astro.props as Props;
 
-// Optional narrative MDX from content collection (5 launch states have this; rest fall back).
+// Optional narrative MDX from content collection. When present, the page
+// renders the MDX body. When absent, the auto-generated fallback runs.
+// Astro 6 uses `render(entry)` from astro:content — the older
+// `entry.render()` form is removed and silently fails to render.
 let narrative: Awaited<ReturnType<typeof getEntry>> | undefined;
 try {
   narrative = await getEntry('states', code);
 } catch {
   narrative = undefined;
 }
-const Narrative = narrative?.render ? (await narrative.render()).Content : null;
+const Narrative = narrative ? (await render(narrative)).Content : null;
 
 const platformsCollect = entry.platformCollects.length > 0
   ? entry.platformCollects.map((p) => p === 'airbnb' ? 'Airbnb' : 'Vrbo').join(' and ')
