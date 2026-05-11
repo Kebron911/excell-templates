@@ -1,0 +1,72 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+---
+<Layout
+  title="Page not found — strbuyers.tools"
+  description="The page you're looking for doesn't exist. Try a free calculator, browse 219 city market reports, or grab the Buyer Pre-Purchase Checklist."
+  path="/404"
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9">
+      <p class="label text-accent">404 — Page not found</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy max-w-2xl leading-tight">
+        That page doesn't exist<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2 max-w-2xl">
+        The URL you followed is broken or the page has moved. Here are the
+        most useful entry points on strbuyers.tools — pick the one you came in for.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-5xl px-5 py-9">
+      <p class="label text-accent">Calculators</p>
+      <h2 class="mt-2 font-serif text-h2 text-navy">The seven calculators.</h2>
+      <ul class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <li><a href="/dscr-loan-calculator" class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-accent hover:shadow-card transition-all"><p class="font-serif text-h3 text-navy leading-snug">DSCR loan</p><p class="mt-2 text-small text-ink-2 leading-snug">Will your STR cash-flow qualify a DSCR mortgage?</p><p class="mt-3 text-caption text-accent">Open →</p></a></li>
+        <li><a href="/down-payment-calculator" class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-accent hover:shadow-card transition-all"><p class="font-serif text-h3 text-navy leading-snug">Down payment</p><p class="mt-2 text-small text-ink-2 leading-snug">What you'll need to put down by loan type.</p><p class="mt-3 text-caption text-accent">Open →</p></a></li>
+        <li><a href="/comp-analyzer" class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-accent hover:shadow-card transition-all"><p class="font-serif text-h3 text-navy leading-snug">Comp analyzer</p><p class="mt-2 text-small text-ink-2 leading-snug">Paste three listings, see honest revenue ranges.</p><p class="mt-3 text-caption text-accent">Open →</p></a></li>
+        <li><a href="/market-score" class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-accent hover:shadow-card transition-all"><p class="font-serif text-h3 text-navy leading-snug">Market score</p><p class="mt-2 text-small text-ink-2 leading-snug">Is this city worth buying in? One score.</p><p class="mt-3 text-caption text-accent">Open →</p></a></li>
+        <li><a href="/cash-on-cash-calculator" class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-accent hover:shadow-card transition-all"><p class="font-serif text-h3 text-navy leading-snug">Cash-on-cash</p><p class="mt-2 text-small text-ink-2 leading-snug">Real first-year return vs your cash invested.</p><p class="mt-3 text-caption text-accent">Open →</p></a></li>
+        <li><a href="/year-1-cash-needs" class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-accent hover:shadow-card transition-all"><p class="font-serif text-h3 text-navy leading-snug">Year 1 cash</p><p class="mt-2 text-small text-ink-2 leading-snug">Closing + furnishing + reserves, in one number.</p><p class="mt-3 text-caption text-accent">Open →</p></a></li>
+        <li><a href="/furnishing-budget-calculator" class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-accent hover:shadow-card transition-all"><p class="font-serif text-h3 text-navy leading-snug">Furnishing budget</p><p class="mt-2 text-small text-ink-2 leading-snug">Realistic per-bedroom outfit cost ranges.</p><p class="mt-3 text-caption text-accent">Open →</p></a></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-5xl px-5 py-9">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <a href="/cities" class="group block rounded-md border border-rule bg-parchment-light p-5 no-underline hover:border-accent hover:shadow-card transition-all">
+          <p class="label text-accent">Markets</p>
+          <p class="mt-2 font-serif text-h3 text-navy leading-snug">219 city reports</p>
+          <p class="mt-2 text-small text-ink-2 leading-snug">
+            Sortable by market score, ADR, occupancy. Filter by regulation status and saturation tier.
+          </p>
+          <p class="mt-4 text-caption text-accent">Browse cities →</p>
+        </a>
+        <a href="/get-the-buyer-checklist" class="group block rounded-md border border-rule bg-parchment-light p-5 no-underline hover:border-accent hover:shadow-card transition-all">
+          <p class="label text-accent">Lead magnet</p>
+          <p class="mt-2 font-serif text-h3 text-navy leading-snug">Buyer Pre-Purchase Checklist</p>
+          <p class="mt-2 text-small text-ink-2 leading-snug">
+            Free 47-item PDF: financing, market, regulation, inspection, insurance, Year 1 cash.
+          </p>
+          <p class="mt-4 text-caption text-accent">Get the checklist →</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-3xl px-5 py-9">
+      <p class="text-body text-ink-2 leading-snug">
+        Or head back to the <a href="/" class="text-accent hover:underline">homepage</a>
+        to pick from the full toolkit.
+      </p>
+    </div>
+  </section>
+
+  <ClusterFunnelBlock currentCluster="acquisition" />
+</Layout>

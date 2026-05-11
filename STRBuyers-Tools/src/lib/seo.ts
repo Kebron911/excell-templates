@@ -35,7 +35,11 @@ export function buildOrganization(): JsonLd {
       url: PUBLISHER_URL,
     },
     sameAs: [
-      // Filled in as social presences come online.
+      'https://thestrledger.com',
+      'https://strhost.tools',
+      'https://strguests.tools',
+      'https://strops.tools',
+      'https://strmanuals.com',
     ],
   };
 }
@@ -174,10 +178,110 @@ export function buildPlace(input: PlaceInput): JsonLd {
 /**
  * Returns the canonical URL for a path. Used by Layout for
  * <link rel="canonical"> and astro-seo's `canonical` prop.
+ *
+ * Trailing-slash convention: every non-root path is normalized to a
+ * trailing slash to match the sitemap output (`@astrojs/sitemap` emits
+ * `/about/`-style URLs by default). Aligning canonical with sitemap
+ * removes a duplicate-content signal Google was previously seeing.
  */
 export function canonical(path: string): string {
   const cleaned = path.startsWith('/') ? path : `/${path}`;
-  return `${SITE_URL}${cleaned}`;
+  if (cleaned === '/') return `${SITE_URL}/`;
+  const withSlash = cleaned.endsWith('/') ? cleaned : `${cleaned}/`;
+  return `${SITE_URL}${withSlash}`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Breadcrumb / HowTo / ItemList builders                             */
+/* ------------------------------------------------------------------ */
+
+export interface BreadcrumbItem {
+  /** Visible name, e.g. "Cities" */
+  name: string;
+  /** Site-relative path, e.g. "/cities" — pass `undefined` for the
+   *  current page (last item) to omit the URL per schema.org guidance. */
+  path?: string;
+}
+
+/**
+ * BreadcrumbList JSON-LD. Pass items in order from root to current page.
+ * Example: `buildBreadcrumb([{name:'Home',path:'/'},{name:'Cities',path:'/cities'},{name:'Austin, TX'}])`
+ */
+export function buildBreadcrumb(items: BreadcrumbItem[]): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: item.name,
+      ...(item.path ? { item: canonical(item.path) } : {}),
+    })),
+  };
+}
+
+export interface HowToStep {
+  name: string;
+  text: string;
+}
+
+export interface HowToInput {
+  name: string;
+  description: string;
+  steps: HowToStep[];
+  totalTime?: string; // ISO 8601 duration, e.g. "PT5M"
+}
+
+/**
+ * HowTo JSON-LD for stepwise calculators (DSCR, down-payment, year-1, furnishing).
+ */
+export function buildHowTo(input: HowToInput): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: input.name,
+    description: input.description,
+    ...(input.totalTime ? { totalTime: input.totalTime } : {}),
+    step: input.steps.map((step, idx) => ({
+      '@type': 'HowToStep',
+      position: idx + 1,
+      name: step.name,
+      text: step.text,
+    })),
+  };
+}
+
+export interface ItemListEntry {
+  name: string;
+  /** Site-relative path, e.g. "/cities/austin-tx" */
+  path: string;
+}
+
+export interface ItemListInput {
+  name: string;
+  description?: string;
+  items: ItemListEntry[];
+}
+
+/**
+ * ItemList JSON-LD. Used by /cities (219 items) and any future directory
+ * page. Emits a `SummaryList` of `ListItem` with `url` only — keeps the
+ * payload manageable when the list is large.
+ */
+export function buildItemList(input: ItemListInput): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: input.name,
+    ...(input.description ? { description: input.description } : {}),
+    numberOfItems: input.items.length,
+    itemListElement: input.items.map((entry, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: entry.name,
+      url: canonical(entry.path),
+    })),
+  };
 }
 
 /**
