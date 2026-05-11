@@ -19,11 +19,11 @@
     "pdf:lgl-01": "node scripts/build-pdf.mjs lgl-01",
     "pdf:free": "node scripts/build-pdf.mjs free",
     "stripe:import": "node scripts/stripe-import-strmanuals.mjs",
-    "stripe:import:live": "node scripts/stripe-import-strmanuals.mjs --live"
+    "stripe:import:live": "node scripts/stripe-import-strmanuals.mjs --live",
+    "smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.0",
-    "@astrojs/node": "^9.5.5",
     "@astrojs/sitemap": "^3.2.0",
     "@tailwindcss/vite": "^4.0.0",
     "astro": "^5.0.0",

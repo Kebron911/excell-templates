@@ -1,14 +1,6 @@
 ---
+export const prerender = false;
 import Base from '../layouts/Base.astro';
-
-// Path B (static-only): the email form posts directly to the n8n
-// lead-magnet webhook (W08). n8n responds with a 303 redirect back
-// to /free/?confirmed=1 once the contact is in IS. PUBLIC_-prefixed
-// vars are inlined into client HTML at build time.
-const N8N_BASE = import.meta.env.PUBLIC_N8N_WEBHOOK_BASE ?? '';
-const FORM_ACTION = N8N_BASE
-  ? `${N8N_BASE.replace(/\/$/, '')}/webhook/lead-magnet-strmanuals-tax-explainer`
-  : '';
 const confirmed = Astro.url.searchParams.get('confirmed') === '1';
 ---
 <Base
@@ -64,38 +56,23 @@ const confirmed = Astro.url.searchParams.get('confirmed') === '1';
               <li class="flex gap-3"><span style="color: var(--color-accent);">—</span> What to do before tax season starts</li>
             </ul>
 
-            {FORM_ACTION ? (
-              <form action={FORM_ACTION} method="POST" class="flex flex-col gap-3 max-w-md">
-                <input
-                  type="hidden"
-                  name="landing_page"
-                  value="strmanuals.com/free"
-                />
-                <input
-                  type="hidden"
-                  name="magnet"
-                  value="str-tax-loophole-explainer"
-                />
-                <input
-                  type="email"
-                  name="email"
-                  required
-                  placeholder="your@email.com"
-                  class="input-text"
-                />
-                <button type="submit" class="btn-secondary">
-                  Send me the PDF →
-                </button>
-              </form>
-            ) : (
-              <div class="p-6" style="background: var(--color-paper-2); border: 1px solid var(--color-rule);">
-                <p class="font-medium mb-2">Coming soon.</p>
-                <p class="text-sm" style="color: var(--color-mute);">
-                  The free preview goes live the moment our email automation finishes
-                  wiring up. Bookmark this page or check back in a few days.
-                </p>
-              </div>
-            )}
+            <form action="/api/subscribe" method="POST" class="flex flex-col gap-3 max-w-md">
+              <input
+                type="hidden"
+                name="landing_page"
+                value="strmanuals.com/free"
+              />
+              <input
+                type="email"
+                name="email"
+                required
+                placeholder="your@email.com"
+                class="input-text"
+              />
+              <button type="submit" class="btn-secondary">
+                Send me the PDF →
+              </button>
+            </form>
             <p class="text-xs mt-3" style="color: var(--color-mute);">
               You'll also get one new manual preview every other week. Unsubscribe in one click.
             </p>

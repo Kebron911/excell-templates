@@ -1,0 +1,141 @@
+name: Deploy strmanuals.com
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'STRManuals/site/**'
+      - '.github/workflows/deploy-strmanuals.yml'
+  pull_request:
+    paths:
+      - 'STRManuals/site/**'
+      - '.github/workflows/deploy-strmanuals.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-strmanuals
+  cancel-in-progress: false
+
+# strmanuals.com is a pure-static Astro build (Path B). No /api/* routes
+# at runtime — fulfillment runs through n8n (Stripe destination posts to
+# n8n directly; n8n emails the PDF link via IS). See STRManuals/DEPLOY-STATUS.md.
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install (root workspace)
+        run: pnpm install --frozen-lockfile
+
+      - name: Build static site
+        working-directory: STRManuals/site
+        env:
+          # Stripe payment links — public URLs, safe to commit as secrets
+          STRIPE_LINK_TAX_01: ${{ secrets.STRMANUALS_STRIPE_LINK_TAX_01 }}
+          STRIPE_LINK_TAX_02: ${{ secrets.STRMANUALS_STRIPE_LINK_TAX_02 }}
+          STRIPE_LINK_REV_01: ${{ secrets.STRMANUALS_STRIPE_LINK_REV_01 }}
+          STRIPE_LINK_REV_02: ${{ secrets.STRMANUALS_STRIPE_LINK_REV_02 }}
+          STRIPE_LINK_LGL_01: ${{ secrets.STRMANUALS_STRIPE_LINK_LGL_01 }}
+          STRIPE_LINK_BUNDLE: ${{ secrets.STRMANUALS_STRIPE_LINK_BUNDLE }}
+          # n8n webhook base for the /free magnet form's action attribute
+          PUBLIC_N8N_WEBHOOK_BASE: ${{ secrets.PUBLIC_N8N_WEBHOOK_BASE }}
+        run: pnpm build
+
+      - name: Verify build output
+        working-directory: STRManuals/site
+        run: |
+          set -e
+          test -f dist/index.html
+          test -f dist/bundle/index.html
+          test -f dist/free/index.html
+          test -f dist/manuals/tax-01/index.html
+          test -f dist/manuals/tax-02/index.html
+          test -f dist/manuals/rev-01/index.html
+          test -f dist/manuals/rev-02/index.html
+          test -f dist/manuals/lgl-01/index.html
+          test -f dist/thank-you/index.html
+          test -f dist/about/index.html
+          test -f dist/privacy/index.html
+          test -f dist/terms/index.html
+          test -f dist/refund/index.html
+          test -f dist/disclosures/index.html
+          test -f dist/sitemap-index.xml
+          test -f dist/robots.txt
+          # Critical: confirm Buy buttons resolve to Stripe payment links.
+          # If env vars were missing at build time, hrefs collapse to "#"
+          # and customers can't pay.
+          grep -q 'href="https://buy.stripe.com/' dist/manuals/tax-01/index.html
+          grep -q 'href="https://buy.stripe.com/' dist/bundle/index.html
+          echo "Build output OK"
+
+      # Deploy-status gate: refuse to deploy if DEPLOY-STATUS.md still
+      # contains the DRAFT marker. The pattern mirrors deploy-strledger.yml.
+      - name: Check DEPLOY-STATUS gate
+        id: deploy_gate
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: |
+          set -e
+          status_file=STRManuals/DEPLOY-STATUS.md
+          if [ ! -f "$status_file" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if grep -q 'DRAFT.*DO NOT DEPLOY' "$status_file"; then
+            if [ "${{ secrets.STRMANUALS_DEPLOY_CONFIRM }}" = "1" ]; then
+              echo "deploy=true" >> "$GITHUB_OUTPUT"
+              echo "DRAFT marker present but STRMANUALS_DEPLOY_CONFIRM=1 — bypassing."
+            else
+              echo "deploy=false" >> "$GITHUB_OUTPUT"
+              echo "=== DEPLOY BLOCKED: STRManuals/DEPLOY-STATUS.md still marks status DRAFT ==="
+            fi
+          else
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up SSH key
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STR_SSH_KEY }}
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null && echo "Key parses OK"
+          ssh-keyscan -p 65002 -t ed25519,rsa,ecdsa 195.35.15.247 >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy via rsync over SSH
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        run: |
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            -e 'ssh -i ~/.ssh/id_ed25519 -p 65002 -o StrictHostKeyChecking=accept-new' \
+            ./STRManuals/site/dist/ \
+            u470667024@195.35.15.247:/home/u470667024/domains/strmanuals.com/public_html/
+
+      - name: Post-deploy smoke
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        working-directory: STRManuals/site
+        env:
+          SMOKE_BASE_URL: https://strmanuals.com
+        run: node scripts/smoke.mjs
