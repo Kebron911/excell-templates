@@ -38,6 +38,7 @@ import { readSyncLog } from '../src/lib/data/sync-log.js';
 import { readGdpr } from '../src/lib/data/gdpr.js';
 import { readBackupTests } from '../src/lib/data/backup-tests.js';
 import { readIncidents } from '../src/lib/data/incidents.js';
+import { readSetup } from '../src/lib/data/setup.js';
 
 interface Check { name: string; run: () => Promise<unknown>; }
 
@@ -77,6 +78,7 @@ const checks: Check[] = [
   { name: 'gdpr-requests',    run: () => readGdpr() },
   { name: 'backup-tests',     run: () => readBackupTests() },
   { name: 'incidents',        run: () => readIncidents() },
+  { name: 'setup-checklist',  run: () => readSetup() },
 ];
 
 async function main() {

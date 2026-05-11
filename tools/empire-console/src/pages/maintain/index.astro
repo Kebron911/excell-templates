@@ -10,10 +10,11 @@ import { readDrift } from '@/lib/data/drift';
 import { readGdpr } from '@/lib/data/gdpr';
 import { readBackupTests } from '@/lib/data/backup-tests';
 import { readIncidents } from '@/lib/data/incidents';
+import { readSetup } from '@/lib/data/setup';
 
-const [assets, runbooks, vendors, calendar, risks, decisions, drift, gdpr, backups, incidents] = await Promise.all([
+const [assets, runbooks, vendors, calendar, risks, decisions, drift, gdpr, backups, incidents, setup] = await Promise.all([
   readAssets(), readRunbooks(), readVendors(), readCalendar(), readRisks(), readDecisions(),
-  readDrift(), readGdpr(), readBackupTests(), readIncidents(),
+  readDrift(), readGdpr(), readBackupTests(), readIncidents(), readSetup(),
 ]);
 const backupDays = backups.totals.daysSinceLastPass;
 const backupTone: 'ok' | 'warn' | 'bad' =
@@ -68,6 +69,9 @@ const tiles: Tile[] = [
   { href: '/maintain/incidents',  title: 'Incidents',       desc: 'Postmortems · MTTA/MTTR · severity counts.',
     signal: incidents.totals.open > 0 ? `${incidents.totals.open} open` : `${incidents.totals.total} logged`,
     tone: incidents.totals.open > 0 ? 'bad' : incidents.totals.mitigated > 0 ? 'warn' : 'ok' },
+  { href: '/maintain/setup',      title: 'Setup checklist',  desc: 'Phase 5 activation — Hostinger · n8n · imports · ship.',
+    signal: `${setup.totals.percentComplete}% complete`,
+    tone: setup.totals.percentComplete === 100 ? 'ok' : setup.totals.percentComplete >= 50 ? 'warn' : 'bad' },
 ];
 ---
 <Layout title="Run" section="maintain">

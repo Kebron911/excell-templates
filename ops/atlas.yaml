@@ -92,6 +92,7 @@ sections:
           - { name: Compliance (GDPR queue),      url: /maintain/compliance,                kind: internal, note: "ops/gdpr-requests.ndjson · 30-day SLA" }
           - { name: Backups (restore probe log),  url: /maintain/backups,                   kind: internal, note: "ops/backup-tests.ndjson · monthly DR self-test" }
           - { name: Incidents (postmortems),      url: /maintain/incidents,                 kind: internal, note: "ops/incidents.ndjson · MTTA/MTTR" }
+          - { name: Setup checklist (Phase 5),    url: /maintain/setup,                     kind: internal, note: "ops/setup-checklist.yaml · activation steps" }
           - { name: Copy library,                 url: /promote/copy,                       kind: internal }
           - { name: Atomization decks,            url: /promote/atomization,                kind: internal }
           - { name: Email sequences,              url: /promote/email-sequences,            kind: internal }
@@ -271,6 +272,7 @@ sections:
           - { name: Competitors YAML,             url: ops/competitors.yaml,                kind: yaml }
           - { name: Onboarding flow YAML,         url: ops/onboarding-flow.yaml,            kind: yaml }
           - { name: Network YAML,                 url: ops/network.yaml,                    kind: yaml }
+          - { name: Setup checklist YAML,         url: ops/setup-checklist.yaml,            kind: yaml, note: "Phase 5 activation steps · drives /maintain/setup" }
       - label: Solopreneur logs (append-only)
         items:
           - { name: Inbox NDJSON,                 url: ops/inbox.ndjson,                    kind: yaml }

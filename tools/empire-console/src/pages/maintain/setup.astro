@@ -1,0 +1,143 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readSetup } from '@/lib/data/setup';
+
+const s = await readSetup();
+
+const statusBadge: Record<string, string> = {
+  done:          'badge-ok',
+  'in-progress': 'badge-p1',
+  pending:       'badge-p2',
+  skipped:       'badge-p2',
+};
+
+const statusGlyph: Record<string, string> = {
+  done:          '✓',
+  'in-progress': '◐',
+  pending:       '○',
+  skipped:       '⊘',
+};
+---
+<Layout title="Run · Setup" section="maintain">
+  <header class="mb-6 flex items-baseline justify-between gap-4">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Setup — Phase 5 activation</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Everything between "code merged" and "production live at
+        dashboard.thestrledger.com." Edit <code>ops/setup-checklist.yaml</code>
+        to mark items <code>done</code> · <code>in-progress</code> · <code>skipped</code>;
+        the dashboard re-reads on every page load.
+      </p>
+    </div>
+    <span class:list={['badge', s.totals.percentComplete === 100 ? 'badge-ok' : s.totals.percentComplete >= 50 ? 'badge-p1' : 'badge-p0']}>
+      {s.totals.percentComplete}% complete
+    </span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Total steps" value={s.totals.total} />
+    <Scorecard label="Done" value={s.totals.done} tone="ok" />
+    <Scorecard label="In progress" value={s.totals.inProgress}
+               tone={s.totals.inProgress > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Pending" value={s.totals.pending}
+               tone={s.totals.pending > 0 ? 'warn' : 'ok'} />
+  </section>
+
+  {s.nextAction && (
+    <a href={s.nextAction.item.link ?? '#'}
+       class="card mb-8 block no-underline transition hover:shadow-md"
+       style="border-left: 4px solid rgb(var(--c-accent))"
+       target={s.nextAction.item.link ? '_blank' : undefined}
+       rel={s.nextAction.item.link ? 'noopener noreferrer' : undefined}>
+      <div class="flex items-baseline justify-between gap-3">
+        <div>
+          <div class="text-xs uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+            Next action — {s.nextAction.categoryLabel}
+          </div>
+          <h3 class="mt-1 font-display text-lg font-semibold">{s.nextAction.item.title}</h3>
+        </div>
+        <span class:list={['badge', statusBadge[s.nextAction.item.status]]}>{s.nextAction.item.status}</span>
+      </div>
+      {s.nextAction.item.note && (
+        <pre class="mt-3 whitespace-pre-wrap text-xs"
+             style="color: rgb(var(--c-muted)); font-family: inherit; line-height: 1.5">{s.nextAction.item.note}</pre>
+      )}
+    </a>
+  )}
+
+  {s.categories.map((cat) => (
+    <section class="mb-8">
+      <header class="mb-3 flex items-baseline justify-between">
+        <div>
+          <h2 class="font-display text-xl font-semibold">{cat.label}</h2>
+          {cat.description && (
+            <p class="text-xs" style="color: rgb(var(--c-muted))">{cat.description}</p>
+          )}
+        </div>
+        <span class="text-xs font-mono" style="color: rgb(var(--c-muted))">
+          {cat.items.filter((i) => i.status === 'done' || i.status === 'skipped').length}/{cat.items.length}
+        </span>
+      </header>
+      <div class="card">
+        <ul class="space-y-3">
+          {cat.items.map((item) => (
+            <li class="flex items-start gap-3">
+              <span class="font-mono text-lg leading-none"
+                    style={item.status === 'done' ? 'color: rgb(var(--c-ok))' :
+                            item.status === 'in-progress' ? 'color: rgb(var(--c-warn))' :
+                            item.status === 'skipped' ? 'color: rgb(var(--c-muted)); opacity: 0.5' :
+                            'color: rgb(var(--c-muted))'}>
+                {statusGlyph[item.status]}
+              </span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-baseline justify-between gap-2">
+                  <h3 class="font-medium" style={item.status === 'done' || item.status === 'skipped' ? 'color: rgb(var(--c-muted)); text-decoration: line-through' : ''}>
+                    {item.title}
+                  </h3>
+                  <div class="flex items-baseline gap-2 shrink-0">
+                    <span class:list={['badge', statusBadge[item.status]]}>{item.status}</span>
+                    {item.link && (
+                      <a href={item.link} target="_blank" rel="noopener noreferrer" class="text-xs">↗</a>
+                    )}
+                  </div>
+                </div>
+                {item.requires.length > 0 && (
+                  <div class="mt-1 text-xs" style="color: rgb(var(--c-muted))">
+                    requires: <code>{item.requires.join(', ')}</code>
+                  </div>
+                )}
+                {item.note && (
+                  <pre class="mt-2 whitespace-pre-wrap text-xs"
+                       style="color: rgb(var(--c-muted)); font-family: inherit; line-height: 1.5">{item.note}</pre>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  ))}
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      How to use
+    </h3>
+    <ol class="space-y-1 text-sm list-decimal pl-5">
+      <li>Pick the next pending or in-progress item (the highlighted card up top).</li>
+      <li>Click through the link, do the thing.</li>
+      <li>Edit <code>ops/setup-checklist.yaml</code> → set <code>status: done</code> on that item.</li>
+      <li>Refresh this page. The next action card advances automatically.</li>
+    </ol>
+    <p class="mt-3 text-xs" style="color: rgb(var(--c-muted))">
+      Marked <code>skipped</code> counts as complete for the percentage but stays visible
+      with a strike-through. Useful when a step doesn't apply (e.g. you choose a different
+      auth method than .htpasswd).
+    </p>
+  </section>
+
+  <SourceFooter source="ops/setup-checklist.yaml (manual edits)"
+                lastRefresh={new Date()}
+                notes="re-read on every page load" />
+</Layout>
