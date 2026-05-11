@@ -275,3 +275,31 @@ These are the actual resolved versions at baseline — useful for post-upgrade d
 - OG: PASS (105 images — matches baseline)
 - Unit tests: 34/34 (matches baseline 34/34) — 13 files, vitest 2.1.9
 - E2E: PASS — 24/24 tests passed (12.2s, chromium); dev server auto-started via Playwright webServer config
+
+---
+
+## Phase 0 complete — final verification
+
+**Captured:** 2026-05-10 21:09 MDT
+**SHA:** df7d1e717e2d9810e3ee8e95a2500cce17d778e1
+
+| App | Astro | Vitest | Build | Unit tests | E2E | Notes |
+|---|---|---|---|---|---|---|
+| STROps-Tools | 6.3.1 (was 4.16.19) | 2.1.9 (was 2.1.9) | PASS (104 pages) | 34/34 | 24/24 | Content collections + render() migrated |
+| STRGuests-Tools | 6.3.1 (unchanged) | 2.1.9 (was 1.6.1) | PASS (41 pages) | 129/129 | not run | vitest only |
+| STRBuyers-Tools | 6.3.1 (unchanged) | 2.1.9 (was 1.6.1) | PASS (232 pages) | 84/84 + 7/7 server | not run | vitest only |
+| STRHost-Tools | 6.2.2 (unchanged) | 2.1.9 (was 1.6.1) | PASS (69 pages) | 73/73 | not run | vitest only |
+
+**Phase 0 exit criteria met:**
+- [x] STROps tests pass (34/34)
+- [x] STROps e2e green (24/24)
+- [x] STROps build succeeds (104 pages — matches baseline)
+- [x] STROps OG generation works (105 images — matches baseline)
+- [x] All 4 apps on vitest 2.1.9
+- [x] Baseline test counts preserved across all 4 apps
+
+**Known follow-ups for Phase 1:**
+- pnpm workspace walk-up: parent repo's `pnpm-workspace.yaml` causes `pnpm install` to walk up unless `--ignore-workspace` is used. Phase 1 will create a worktree-level `pnpm-workspace.yaml` that explicitly lists only the 4 apps under this tree, eliminating the issue.
+- @astrojs/tailwind 6.0.2 has a peer-dep warning about Astro 6.x being outside its declared range (^3-5). Cosmetic only; package functions correctly. Will resolve when @astrojs/tailwind ships an updated peer range.
+
+Phase 0 done. Ready for Phase 1: workspace + Tier 1 packages.
