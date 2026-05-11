@@ -16,7 +16,7 @@
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --project tsconfig.typecheck.json",
     "clean": "rm -rf dist"
   },
   "devDependencies": {

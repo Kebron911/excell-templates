@@ -38,7 +38,7 @@ export function formatAbbreviated(value: number): string {
   if (!Number.isFinite(value)) return DASH;
   const abs = Math.abs(value);
   const sign = value < 0 ? '-' : '';
-  if (abs < 1_000) return `${sign}${abs}`;
+  if (abs < 1_000) return formatNumber(value, { locale: 'en-US' });
 
   const tiers: Array<[number, string]> = [
     [1_000_000_000, 'B'],

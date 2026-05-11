@@ -131,6 +131,18 @@ describe('formatAbbreviated', () => {
   });
 });
 
+describe('formatAbbreviated under 1000 — uses locale formatting', () => {
+  it('formats 999 with no separator (correct in en-US)', () => {
+    expect(formatAbbreviated(999)).toBe('999');
+  });
+  it('formats fractional 999.5 with locale-aware decimal', () => {
+    expect(formatAbbreviated(999.5)).toBe('999.5');
+  });
+  it('formats negative under-1000 correctly', () => {
+    expect(formatAbbreviated(-500)).toBe('-500');
+  });
+});
+
 describe('parseNumberInput', () => {
   // Happy path
   it('parses plain integer string', () => {
@@ -193,5 +205,19 @@ describe('parseNumberInput', () => {
 
   it('parses zero', () => {
     expect(parseNumberInput('0')).toBe(0);
+  });
+});
+
+describe('parseNumberInput edge cases — scientific notation and Infinity', () => {
+  it('accepts scientific notation', () => {
+    expect(parseNumberInput('1e3')).toBe(1000);
+    expect(parseNumberInput('1.5e2')).toBe(150);
+  });
+  it('rejects Infinity string', () => {
+    expect(parseNumberInput('Infinity')).toBeNaN();
+    expect(parseNumberInput('-Infinity')).toBeNaN();
+  });
+  it('rejects NaN string', () => {
+    expect(parseNumberInput('NaN')).toBeNaN();
   });
 });

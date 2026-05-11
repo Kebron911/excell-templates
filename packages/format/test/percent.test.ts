@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { formatPercent } from '../src/percent';
 
 describe('formatPercent', () => {
-  // Happy path — decimal form (0 < |v| <= 1) auto-multiplied
+  // Happy path — decimal form (0 < |v| < 1) auto-multiplied
   it('converts 0.5 to 50%', () => {
     expect(formatPercent(0.5)).toBe('50%');
   });
@@ -11,8 +11,8 @@ describe('formatPercent', () => {
     expect(formatPercent(0.1)).toBe('10%');
   });
 
-  it('converts 1 (exactly) to 100%', () => {
-    expect(formatPercent(1)).toBe('100%');
+  it('treats 1 as already-percent (1%, not 100%) per new boundary rule', () => {
+    expect(formatPercent(1)).toBe('1%');
   });
 
   it('converts 0.856 to 85.6%', () => {
@@ -81,5 +81,23 @@ describe('formatPercent', () => {
   it('respects locale option', () => {
     const result = formatPercent(0.5, { locale: 'de-DE' });
     expect(result).toContain('%');
+  });
+});
+
+describe('boundary cases at |value| === 1', () => {
+  it('treats 1 as already-percent (1%, not 100%)', () => {
+    expect(formatPercent(1)).toBe('1%');
+  });
+  it('treats -1 as already-percent (-1%, not -100%)', () => {
+    expect(formatPercent(-1)).toBe('-1%');
+  });
+  it('treats 0.99 as decimal (99%)', () => {
+    expect(formatPercent(0.99)).toBe('99%');
+  });
+  it('treats -0.99 as decimal (-99%)', () => {
+    expect(formatPercent(-0.99)).toBe('-99%');
+  });
+  it('treats 1.01 as already-percent (1.01%)', () => {
+    expect(formatPercent(1.01, { decimals: 2 })).toBe('1.01%');
   });
 });

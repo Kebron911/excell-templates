@@ -1,9 +1,15 @@
 /**
  * Percent formatting helpers.
  *
- * Auto-detects decimal form: values with |v| in (0, 1] are treated as decimal
- * fractions and multiplied by 100 before display. Values with |v| > 1 are
- * treated as already-percentage.
+ * Auto-detects decimal form:
+ * - Values where 0 < |v| < 1 are treated as decimal form (multiplied by 100).
+ *   e.g. `formatPercent(0.5)` → `"50%"`, `formatPercent(0.99)` → `"99%"`.
+ * - Values where |v| >= 1 are treated as already-percent.
+ *   e.g. `formatPercent(1)` → `"1%"` (NOT "100%"), `formatPercent(15)` → `"15%"`.
+ * - Zero passes through as-is (`"0%"`).
+ *
+ * **Important boundary:** `formatPercent(1)` returns `"1%"`, not `"100%"`.
+ * If your data convention treats 1.0 as "100%", pre-multiply before calling.
  *
  * Non-finite inputs (NaN, Infinity) return the em-dash "—".
  */
@@ -22,9 +28,9 @@ export function formatPercent(value: number, opts: FormatPercentOptions = {}): s
   const { decimals, locale = 'en-US' } = opts;
 
   // Disambiguate decimal form vs already-percent form.
-  // |v| in (0, 1] → decimal; multiply by 100.
-  // |v| = 0 or |v| > 1 → already percent.
-  const isDecimalForm = Math.abs(value) > 0 && Math.abs(value) <= 1;
+  // |v| in (0, 1) → decimal; multiply by 100.
+  // |v| = 0 or |v| >= 1 → already percent.
+  const isDecimalForm = Math.abs(value) > 0 && Math.abs(value) < 1;
   const asPercent = isDecimalForm ? value * 100 : value;
 
   if (decimals !== undefined) {
