@@ -91,6 +91,7 @@ sections:
           - { name: Drift detector,               url: /maintain/drift,                     kind: internal, note: "atlas-vs-reality · conventions · recent touches" }
           - { name: Compliance (GDPR queue),      url: /maintain/compliance,                kind: internal, note: "ops/gdpr-requests.ndjson · 30-day SLA" }
           - { name: Backups (restore probe log),  url: /maintain/backups,                   kind: internal, note: "ops/backup-tests.ndjson · monthly DR self-test" }
+          - { name: Incidents (postmortems),      url: /maintain/incidents,                 kind: internal, note: "ops/incidents.ndjson · MTTA/MTTR" }
           - { name: Copy library,                 url: /promote/copy,                       kind: internal }
           - { name: Atomization decks,            url: /promote/atomization,                kind: internal }
           - { name: Email sequences,              url: /promote/email-sequences,            kind: internal }

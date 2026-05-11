@@ -9,9 +9,11 @@ import { readDecisions } from '@/lib/data/decisions';
 import { readDrift } from '@/lib/data/drift';
 import { readGdpr } from '@/lib/data/gdpr';
 import { readBackupTests } from '@/lib/data/backup-tests';
+import { readIncidents } from '@/lib/data/incidents';
 
-const [assets, runbooks, vendors, calendar, risks, decisions, drift, gdpr, backups] = await Promise.all([
-  readAssets(), readRunbooks(), readVendors(), readCalendar(), readRisks(), readDecisions(), readDrift(), readGdpr(), readBackupTests(),
+const [assets, runbooks, vendors, calendar, risks, decisions, drift, gdpr, backups, incidents] = await Promise.all([
+  readAssets(), readRunbooks(), readVendors(), readCalendar(), readRisks(), readDecisions(),
+  readDrift(), readGdpr(), readBackupTests(), readIncidents(),
 ]);
 const backupDays = backups.totals.daysSinceLastPass;
 const backupTone: 'ok' | 'warn' | 'bad' =
@@ -63,7 +65,9 @@ const tiles: Tile[] = [
   { href: '/maintain/compliance', title: 'Compliance',      desc: 'GDPR/CCPA queue · 30-day SLA tracker.',
     signal: gdpr.totals.overdue > 0 ? `${gdpr.totals.overdue} overdue` : gdpr.totals.open > 0 ? `${gdpr.totals.open} open` : 'none open',
     tone: gdpr.totals.overdue > 0 ? 'bad' : gdpr.totals.open > 0 ? 'warn' : 'ok' },
-  { href: '/maintain/incidents',  title: 'Incidents',       desc: 'Postmortems · MTTR.', disabled: true },
+  { href: '/maintain/incidents',  title: 'Incidents',       desc: 'Postmortems · MTTA/MTTR · severity counts.',
+    signal: incidents.totals.open > 0 ? `${incidents.totals.open} open` : `${incidents.totals.total} logged`,
+    tone: incidents.totals.open > 0 ? 'bad' : incidents.totals.mitigated > 0 ? 'warn' : 'ok' },
 ];
 ---
 <Layout title="Run" section="maintain">

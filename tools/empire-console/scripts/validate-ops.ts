@@ -37,6 +37,7 @@ import { readContacts } from '../src/lib/data/contacts.js';
 import { readSyncLog } from '../src/lib/data/sync-log.js';
 import { readGdpr } from '../src/lib/data/gdpr.js';
 import { readBackupTests } from '../src/lib/data/backup-tests.js';
+import { readIncidents } from '../src/lib/data/incidents.js';
 
 interface Check { name: string; run: () => Promise<unknown>; }
 
@@ -75,6 +76,7 @@ const checks: Check[] = [
   { name: 'cache/sync-log',   run: () => readSyncLog() },
   { name: 'gdpr-requests',    run: () => readGdpr() },
   { name: 'backup-tests',     run: () => readBackupTests() },
+  { name: 'incidents',        run: () => readIncidents() },
 ];
 
 async function main() {
