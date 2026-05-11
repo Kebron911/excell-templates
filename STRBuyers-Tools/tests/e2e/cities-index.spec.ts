@@ -12,13 +12,13 @@ function cards(page: Page) {
 
 test.describe('/cities index page', () => {
   test('renders at least 10 city cards on initial load', async ({ page }) => {
-    await page.goto('/cities');
+    await page.goto('/cities/');
     await expect(page.getByRole('heading', { name: /STR markets directory/i, level: 1 })).toBeVisible();
     expect(await cards(page).count()).toBeGreaterThanOrEqual(10);
   });
 
   test('ADR sort puts higher ADR cards above lower ones', async ({ page }) => {
-    await page.goto('/cities');
+    await page.goto('/cities/');
     await page.locator('select#cities-sort').selectOption('adr');
     await page.waitForTimeout(150);
 
@@ -43,7 +43,7 @@ test.describe('/cities index page', () => {
   });
 
   test('Banned regulation filter narrows the list to banned-only', async ({ page }) => {
-    await page.goto('/cities');
+    await page.goto('/cities/');
     const before = await cards(page).count();
     expect(before).toBeGreaterThan(0);
 
@@ -62,7 +62,7 @@ test.describe('/cities index page', () => {
   });
 
   test('Search "tex" narrows to Texas cities only', async ({ page }) => {
-    await page.goto('/cities');
+    await page.goto('/cities/');
     await page.locator('input#cities-search').fill('tex');
     await page.waitForTimeout(200);
 
