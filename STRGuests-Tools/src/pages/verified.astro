@@ -1,0 +1,22 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+---
+<Layout
+  title="Email verified — strguests.tools"
+  description="Your email is verified. You now have 50 AI generations per day."
+  path="/verified"
+  noIndex={true}
+>
+  <article class="mx-auto max-w-2xl px-5 py-12 text-center">
+    <p class="label text-[color:var(--accent-700)]">Email verified</p>
+    <h1 class="mt-3 font-serif text-h1 text-navy">You're in<span class="period-accent">.</span></h1>
+    <p class="mt-4 text-lead text-ink-2 leading-snug">
+      Your email is verified. You now have <strong class="text-navy">50 AI generations per day</strong> across the listing, review, and message tools — up from 5 per hour.
+    </p>
+    <div class="mt-8 flex flex-wrap justify-center gap-3">
+      <a href="/listing-description" class="rounded-md bg-[color:var(--accent-500)] px-5 py-2.5 font-medium text-white hover:bg-[color:var(--accent-700)]">Listing descriptions</a>
+      <a href="/review-response" class="rounded-md border border-rule px-5 py-2.5 font-medium text-navy hover:bg-parchment-light">Review responses</a>
+      <a href="/guest-messages" class="rounded-md border border-rule px-5 py-2.5 font-medium text-navy hover:bg-parchment-light">Guest messages</a>
+    </div>
+  </article>
+</Layout>

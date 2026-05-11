@@ -185,6 +185,39 @@ export function rateLimitMiddleware(toolSlug: string) {
   };
 }
 
+/**
+ * Read-only view of the current rate state for a request — does NOT consume.
+ *
+ * Used by GET /api/rate-limit-status (which the AiRateLimitNotice front-end polls)
+ * so visitors can see their remaining budget before they spend it.
+ */
+export async function peek(req: Request, toolSlug: string): Promise<RateState> {
+  const sc = resolveScope(req);
+  const windowStart = bucketWindowStart(sc.bucket);
+  const resetAt = nextWindowStart(sc.bucket, windowStart);
+  const indexKey = sc.scope === 'ip' ? sc.identifier : createHash('sha256').update(`email:${sc.email}`).digest('hex');
+
+  const row = await queryOne<{ count: number }>(
+    `SELECT count FROM rate_limits
+     WHERE ip_hash = ? AND tool_slug = ? AND bucket = ? AND window_start = ?
+     LIMIT 1`,
+    [indexKey, toolSlug, sc.bucket, windowStart],
+  );
+  const count = row?.count ?? 0;
+  return {
+    scope: sc.scope,
+    bucket: sc.bucket,
+    toolSlug,
+    identifier: sc.identifier,
+    email: sc.email,
+    limit: sc.limit,
+    count,
+    remaining: Math.max(0, sc.limit - count),
+    resetAt,
+    allowed: count < sc.limit,
+  };
+}
+
 export const __test = {
   ANON_LIMIT_PER_HOUR,
   VERIFIED_LIMIT_PER_DAY,
