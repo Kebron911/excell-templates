@@ -18,11 +18,11 @@
     "lint": "echo \"lint placeholder\""
   },
   "dependencies": {
-    "@astrojs/mdx": "^3.1.5",
-    "@astrojs/react": "^3.6.2",
-    "@astrojs/sitemap": "^3.2.1",
-    "@astrojs/tailwind": "^5.1.2",
-    "astro": "^4.16.0",
+    "@astrojs/mdx": "^5.0.4",
+    "@astrojs/react": "^5.0.4",
+    "@astrojs/sitemap": "^3.7.2",
+    "@astrojs/tailwind": "^6.0.2",
+    "astro": "^6.2.2",
     "ics": "^3.8.1",
     "mdast-util-to-string": "^4.0.0",
     "pdf-lib": "^1.17.1",
