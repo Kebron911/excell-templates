@@ -1,4 +1,6 @@
 ---
+import Wordmark from './Wordmark.astro';
+
 const tools = [
   { href: '/turnover-scheduler', label: 'Turnover scheduler' },
   { href: '/cleaner-dispatch', label: 'Cleaner dispatch' },
@@ -10,12 +12,10 @@ const tools = [
 ];
 ---
 <header class="site-header border-b border-rule bg-parchment">
-  <div class="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-    <a href="/" class="font-body font-semibold text-lg tracking-tight">
-      strops<span class="period-gold">.</span>tools
-    </a>
+  <div class="mx-auto max-w-6xl px-6 py-5 flex items-center justify-between gap-6">
+    <Wordmark size="md" theme="navy" class="shrink-0" />
     <nav aria-label="Primary" class="hidden md:flex gap-6 text-sm items-center">
-      {tools.map(t => <a href={t.href} class="text-ink2 hover:text-ink">{t.label}</a>)}
+      {tools.map(t => <a href={t.href} class="text-ink2 hover:text-ink whitespace-nowrap">{t.label}</a>)}
       <a href="/blog" class="text-ink2 hover:text-ink font-semibold">Blog</a>
     </nav>
   </div>
