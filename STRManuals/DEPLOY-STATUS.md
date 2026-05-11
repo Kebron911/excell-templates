@@ -21,12 +21,11 @@ yet wired:
   to `${PUBLIC_N8N_WEBHOOK_BASE}/webhook/lead-magnet-strmanuals-tax-explainer`.
   That endpoint must exist on n8n and 303-redirect back to
   `/free/?confirmed=1` for the success-state UI to render.
-- **PDF hosting for n8n delivery** — the 6 manuscript PDFs and the free
-  explainer live at `STRManuals/site/private/manuals/*.pdf` and
-  `STRManuals/site/private/free/tax-loophole-explainer.pdf`. They are
-  NOT served by the static site (private/ is outside docroot). n8n
-  needs a way to retrieve them (SSH/SFTP to Hostinger, or a separate
-  bucket).
+- ~~**PDF hosting for n8n delivery**~~ — RESOLVED 2026-05-11 via Option 1
+  (see `STRManuals/docs/PDF-HOSTING.md`). `STRManuals/site/scripts/copy-pdfs-to-dist.mjs`
+  copies the 6 manuscript PDFs + free explainer into `dist/dl/<HASH>/<slug>/v1.pdf`
+  at build time, gated on `STRMANUALS_DOWNLOAD_HASH` env var. W01b and
+  W08 read the same hash to compose the URL in the order/magnet email.
 - **CPA review** of TAX-01 / TAX-02 / LGL-01 — charter §11 risk-mitigation.
 
 If you deploy now, customers can buy and Stripe will charge them, but
@@ -89,7 +88,14 @@ the first deploy:
 | `STRMANUALS_STRIPE_LINK_LGL_01` | `https://buy.stripe.com/9B6eVd6SxcK8a0Nbmbb3q18` | same |
 | `STRMANUALS_STRIPE_LINK_BUNDLE` | `https://buy.stripe.com/6oU9ATa4J6lKeh3bmbb3q19` | same |
 | `PUBLIC_N8N_WEBHOOK_BASE` | `https://n8ncde.cdeprosperity.com/` | root `.env` `N8N_BASE_URL` |
+| `STRMANUALS_DOWNLOAD_HASH` | 32-hex unguessable segment, see `STRManuals/site/.env` | `STRManuals/docs/PDF-HOSTING.md` |
 | `STRMANUALS_DEPLOY_CONFIRM` | `1` (optional, one-time DRAFT-bypass) | — |
+
+**Mirror `STRMANUALS_DOWNLOAD_HASH` into n8n env** too — W01b and W08 read
+it to build the email's download URL. The site puts the PDFs at
+`dist/dl/<HASH>/<slug>/v1.pdf` at build time; rotating the hash means
+re-deploying *and* updating the n8n env var in lockstep, otherwise the
+URLs in fresh emails 404. See `STRManuals/docs/PDF-HOSTING.md`.
 
 ## Restoring Path A (Node SSR) later
 

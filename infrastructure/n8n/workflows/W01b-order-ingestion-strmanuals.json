@@ -1,0 +1,184 @@
+{
+  "name": "W01b — Order Ingestion (Stripe · strmanuals.com)",
+  "nodes": [
+    {
+      "id": "w01b-n01",
+      "name": "Stripe Webhook (strmanuals)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "order-stripe-strmanuals",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      }
+    },
+    {
+      "id": "w01b-n02",
+      "name": "Verify Stripe Signature",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\nconst input = $input.first();\nconst signatureHeader = input.json.headers['stripe-signature'];\nconst secret = $env.STRMANUALS_STRIPE_WEBHOOK_SECRET;\nif (!signatureHeader) throw new Error('Missing stripe-signature header');\nif (!secret) throw new Error('STRMANUALS_STRIPE_WEBHOOK_SECRET env var not set');\n\nconst rawBody = input.json.rawBody || JSON.stringify(input.json.body);\nconst parts = signatureHeader.split(',');\nconst timestamp = parts.find(p => p.startsWith('t=')).split('=')[1];\nconst v1 = parts.find(p => p.startsWith('v1=')).split('=')[1];\nconst signedPayload = `${timestamp}.${rawBody}`;\nconst expected = crypto.createHmac('sha256', secret).update(signedPayload).digest('hex');\nif (expected !== v1) throw new Error('Invalid Stripe signature');\nconst now = Math.floor(Date.now() / 1000);\nif (Math.abs(now - parseInt(timestamp, 10)) > 300) throw new Error('Stripe timestamp outside 5-min tolerance');\n\nconst event = typeof input.json.body === 'string' ? JSON.parse(input.json.body) : input.json.body;\nreturn [{ json: event }];"
+      }
+    },
+    {
+      "id": "w01b-n03",
+      "name": "Is strmanuals event?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 300],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "loose" },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.type }}",
+              "rightValue": "checkout.session.completed",
+              "operator": { "type": "string", "operation": "equals" }
+            },
+            {
+              "leftValue": "={{ $json.data.object.metadata && $json.data.object.metadata.source }}",
+              "rightValue": "strmanuals-v1",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w01b-n04",
+      "name": "Expand Stripe Line Items",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 200],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.stripe.com/v1/checkout/sessions/{{ $json.data.object.id }}/line_items",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": false,
+        "options": {}
+      },
+      "notes": "Auth header: 'Authorization: Bearer <STRIPE_SECRET>' via a saved n8n httpHeaderAuth credential."
+    },
+    {
+      "id": "w01b-n05",
+      "name": "Normalize Order",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 200],
+      "parameters": {
+        "jsCode": "const PRICE_TO_SLUG = {\n  'price_1TVyDuFz8hgT5NXg1OKTGV1X': 'str-tax-loophole-playbook',\n  'price_1TVyDvFz8hgT5NXgKaQ8ymLW': 'material-participation-survival-kit',\n  'price_1TVyDvFz8hgT5NXgTgeKWgyd': 'why-bookings-down',\n  'price_1TVyDwFz8hgT5NXgsjzWwmHM': 'direct-bookings-starter',\n  'price_1TVyDxFz8hgT5NXgMcCqMEfx': 'permit-regulation-survival',\n  'price_1TVyDyFz8hgT5NXgBdSUdZ5R': 'str-manuals-bundle'\n};\nconst SLUG_TO_SKU = {\n  'str-tax-loophole-playbook': 'MAN-TAX-01',\n  'material-participation-survival-kit': 'MAN-TAX-02',\n  'why-bookings-down': 'MAN-REV-01',\n  'direct-bookings-starter': 'MAN-REV-02',\n  'permit-regulation-survival': 'MAN-LGL-01',\n  'str-manuals-bundle': 'MAN-BUNDLE-01'\n};\nconst SLUG_TO_TITLE = {\n  'str-tax-loophole-playbook': 'The STR Tax Loophole Playbook',\n  'material-participation-survival-kit': 'Material Participation Survival Kit',\n  'why-bookings-down': 'Why Are My Bookings Down?',\n  'direct-bookings-starter': 'Direct Bookings Starter',\n  'permit-regulation-survival': 'STR Permit & Regulation Survival Guide',\n  'str-manuals-bundle': 'STR Manuals — All Five'\n};\nconst COMPANION = {\n  'str-tax-loophole-playbook':       { name: 'TAX-002 P&L Workbook',           url: 'https://thestrledger.com/templates/pl-single-property' },\n  'material-participation-survival-kit': { name: 'Hours Log Template',         url: 'https://thestrledger.com/templates/material-participation-log' },\n  'why-bookings-down':               { name: 'Break-Even Occupancy Workbook',  url: 'https://thestrledger.com/templates/break-even-occupancy' },\n  'direct-bookings-starter':         { name: 'Direct-Booking Email Pack',      url: 'https://thestrledger.com/templates/direct-booking-emails' },\n  'permit-regulation-survival':      { name: 'Permit Research Worksheet',      url: 'https://thestrledger.com/templates/permit-research' },\n  'str-manuals-bundle':              { name: 'All five companion workbooks',   url: 'https://thestrledger.com/templates/strmanuals-bundle' }\n};\nconst NEXT_MANUAL = {\n  'str-tax-loophole-playbook':       { title: 'Material Participation Survival Kit', url: 'https://strmanuals.com/manuals/tax-02/' },\n  'material-participation-survival-kit': { title: 'The STR Tax Loophole Playbook',   url: 'https://strmanuals.com/manuals/tax-01/' },\n  'why-bookings-down':               { title: 'Direct Bookings Starter',             url: 'https://strmanuals.com/manuals/rev-02/' },\n  'direct-bookings-starter':         { title: 'Why Are My Bookings Down?',           url: 'https://strmanuals.com/manuals/rev-01/' },\n  'permit-regulation-survival':      { title: 'The STR Tax Loophole Playbook',       url: 'https://strmanuals.com/manuals/tax-01/' },\n  'str-manuals-bundle':              { title: '', url: '' }\n};\n\nconst all = $input.all();\nconst event = all[0].json;\nconst lineItemsResp = all.length > 1 ? all[1].json : null;\nconst session = event.data.object;\n\nlet priceId = null;\nlet slug = session.metadata && session.metadata.slug;\nif (!slug && lineItemsResp && lineItemsResp.data && lineItemsResp.data[0]) {\n  priceId = lineItemsResp.data[0].price && lineItemsResp.data[0].price.id;\n  slug = PRICE_TO_SLUG[priceId] || null;\n}\nif (!slug) throw new Error('Cannot resolve strmanuals SKU from event — check line_items expansion');\n\nconst email = (session.customer_details && session.customer_details.email) || session.customer_email;\nif (!email) throw new Error('No buyer email on checkout session');\n\nconst firstName = ((session.customer_details && session.customer_details.name) || '').split(' ')[0] || '';\nconst orderId = session.id;\nconst amount = session.amount_total / 100;\nconst currency = (session.currency || 'usd').toUpperCase();\nconst paidAt = new Date(session.created * 1000).toISOString();\nconst sku = SLUG_TO_SKU[slug];\nconst title = SLUG_TO_TITLE[slug];\nconst companion = COMPANION[slug];\nconst next = NEXT_MANUAL[slug];\n\n// PDF delivery URL — Path B Option 1 (unguessable Hostinger path).\n// HASH must match STRMANUALS_DOWNLOAD_HASH in STRManuals/site/.env so\n// the URL points at a file that was actually copied to public_html/dl/.\n// See STRManuals/docs/PDF-HOSTING.md.\nconst HASH = $env.STRMANUALS_DOWNLOAD_HASH;\nif (!HASH) throw new Error('STRMANUALS_DOWNLOAD_HASH env var not set on n8n');\nconst baseUrl = $env.STRMANUALS_BASE_URL || 'https://strmanuals.com';\n\nconst isBundle = slug === 'str-manuals-bundle';\nconst downloadUrl = isBundle\n  ? `${baseUrl}/dl/${HASH}/str-tax-loophole-playbook/v1.pdf`\n  : `${baseUrl}/dl/${HASH}/${slug}/v1.pdf`;\nconst bundleUrls = isBundle ? [\n  `${baseUrl}/dl/${HASH}/str-tax-loophole-playbook/v1.pdf`,\n  `${baseUrl}/dl/${HASH}/material-participation-survival-kit/v1.pdf`,\n  `${baseUrl}/dl/${HASH}/why-bookings-down/v1.pdf`,\n  `${baseUrl}/dl/${HASH}/direct-bookings-starter/v1.pdf`,\n  `${baseUrl}/dl/${HASH}/permit-regulation-survival/v1.pdf`\n] : [];\n\nreturn [{\n  json: {\n    email,\n    first_name: firstName,\n    order_id: orderId,\n    amount,\n    currency,\n    paid_at: paidAt,\n    slug,\n    sku,\n    manual_title: title,\n    download_url: downloadUrl,\n    bundle_urls: bundleUrls,\n    companion_name: companion.name,\n    companion_url: companion.url,\n    next_manual_title: next.title,\n    next_manual_url: next.url,\n    is_bundle: isBundle\n  }\n}];"
+      }
+    },
+    {
+      "id": "w01b-n06",
+      "name": "IS · Tag contact (strmanuals)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1440, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://kebron.influencersoft.com/api/AddTag",
+        "sendBody": true,
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify({ rpsKey: $env.INFLUENCERSOFT_API_KEY, email: $json.email, tags: ['product:' + $json.slug, 'customer:strmanuals', 'source:strmanuals', 'audience:strmanuals-list'] }) }}",
+        "options": {}
+      },
+      "notes": "Method name (AddTag) is a placeholder — confirm with infrastructure/influencersoft/verify-tag-and-sequence-methods.sh"
+    },
+    {
+      "id": "w01b-n07",
+      "name": "IS · Assign to sequence",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1680, 200],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://kebron.influencersoft.com/api/AssignToSequence",
+        "sendBody": true,
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify({ rpsKey: $env.INFLUENCERSOFT_API_KEY, email: $json.email, sequence: 'strmanuals-order-confirmation', merge_vars: { first_name: $json.first_name, manual_sku: $json.sku, manual_title: $json.manual_title, download_url: $json.download_url, bundle_urls: $json.bundle_urls.join('\\n'), companion_name: $json.companion_name, companion_url: $json.companion_url, order_id: $json.order_id, next_manual_title: $json.next_manual_title, next_manual_url: $json.next_manual_url, is_bundle: $json.is_bundle } }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "w01b-n08",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1920, 300],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ received: true }) }}",
+        "options": { "responseCode": 200 }
+      }
+    },
+    {
+      "id": "w01b-n09",
+      "name": "Respond 200 (non-strmanuals)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [960, 480],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ received: true, ignored: 'not a strmanuals event' }) }}",
+        "options": { "responseCode": 200 }
+      }
+    },
+    {
+      "id": "w01b-n10",
+      "name": "Respond 400 (signature error)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [480, 480],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ received: false, error: $json.error && $json.error.message }) }}",
+        "options": { "responseCode": 400 }
+      }
+    }
+  ],
+  "connections": {
+    "Stripe Webhook (strmanuals)": {
+      "main": [[{ "node": "Verify Stripe Signature", "type": "main", "index": 0 }]]
+    },
+    "Verify Stripe Signature": {
+      "main": [
+        [{ "node": "Is strmanuals event?", "type": "main", "index": 0 }],
+        [{ "node": "Respond 400 (signature error)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Is strmanuals event?": {
+      "main": [
+        [{ "node": "Expand Stripe Line Items", "type": "main", "index": 0 }],
+        [{ "node": "Respond 200 (non-strmanuals)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Expand Stripe Line Items": {
+      "main": [[{ "node": "Normalize Order", "type": "main", "index": 0 }]]
+    },
+    "Normalize Order": {
+      "main": [[{ "node": "IS · Tag contact (strmanuals)", "type": "main", "index": 0 }]]
+    },
+    "IS · Tag contact (strmanuals)": {
+      "main": [[{ "node": "IS · Assign to sequence", "type": "main", "index": 0 }]]
+    },
+    "IS · Assign to sequence": {
+      "main": [[{ "node": "Respond 200", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

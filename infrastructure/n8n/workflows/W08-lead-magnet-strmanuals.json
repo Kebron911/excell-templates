@@ -1,0 +1,125 @@
+{
+  "name": "W08 — Lead Magnet (strmanuals.com / tax explainer)",
+  "nodes": [
+    {
+      "id": "w08-n01",
+      "name": "Magnet form webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-magnet-strmanuals-tax-explainer",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "w08-n02",
+      "name": "Validate email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "jsCode": "const b = $input.first().json.body || {};\nconst email = (b.email || '').trim().toLowerCase();\nif (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {\n  throw new Error('invalid email');\n}\nreturn [{ json: {\n  email,\n  landing_page: b.landing_page || 'strmanuals.com/free',\n  magnet: b.magnet || 'str-tax-loophole-explainer',\n  submitted_at: new Date().toISOString()\n} }];"
+      }
+    },
+    {
+      "id": "w08-n03",
+      "name": "Build magnet download URL",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 240],
+      "parameters": {
+        "jsCode": "const HASH = $env.STRMANUALS_DOWNLOAD_HASH;\nif (!HASH) throw new Error('STRMANUALS_DOWNLOAD_HASH env var not set on n8n');\nconst baseUrl = $env.STRMANUALS_BASE_URL || 'https://strmanuals.com';\nconst download_url = `${baseUrl}/dl/${HASH}/free/tax-loophole-explainer.pdf`;\nreturn [{ json: { ...$json, download_url } }];"
+      }
+    },
+    {
+      "id": "w08-n04",
+      "name": "IS · Tag contact (magnet)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 240],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://kebron.influencersoft.com/api/AddTag",
+        "sendBody": true,
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify({ rpsKey: $env.INFLUENCERSOFT_API_KEY, email: $json.email, tags: ['magnet:' + $json.magnet, 'source:strmanuals', 'audience:strmanuals-list'] }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "w08-n05",
+      "name": "IS · Assign to sequence",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1200, 240],
+      "onError": "continueErrorOutput",
+      "parameters": {
+        "method": "POST",
+        "url": "https://kebron.influencersoft.com/api/AssignToSequence",
+        "sendBody": true,
+        "contentType": "json",
+        "jsonBody": "={{ JSON.stringify({ rpsKey: $env.INFLUENCERSOFT_API_KEY, email: $json.email, sequence: 'strmanuals-free-magnet', merge_vars: { landing_page: $json.landing_page, submitted_at: $json.submitted_at, download_url: $json.download_url } }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "w08-n06",
+      "name": "Respond 303 → /free/?confirmed=1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1440, 240],
+      "parameters": {
+        "respondWith": "noData",
+        "options": {
+          "responseCode": 303,
+          "responseHeaders": {
+            "entries": [
+              { "name": "Location", "value": "https://strmanuals.com/free/?confirmed=1" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "w08-n07",
+      "name": "Respond 400 (bad email)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [720, 420],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ error: 'invalid_email' }) }}",
+        "options": { "responseCode": 400 }
+      }
+    }
+  ],
+  "connections": {
+    "Magnet form webhook": {
+      "main": [[{ "node": "Validate email", "type": "main", "index": 0 }]]
+    },
+    "Validate email": {
+      "main": [
+        [{ "node": "Build magnet download URL", "type": "main", "index": 0 }],
+        [{ "node": "Respond 400 (bad email)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Build magnet download URL": {
+      "main": [[{ "node": "IS · Tag contact (magnet)", "type": "main", "index": 0 }]]
+    },
+    "IS · Tag contact (magnet)": {
+      "main": [[{ "node": "IS · Assign to sequence", "type": "main", "index": 0 }]]
+    },
+    "IS · Assign to sequence": {
+      "main": [[{ "node": "Respond 303 → /free/?confirmed=1", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

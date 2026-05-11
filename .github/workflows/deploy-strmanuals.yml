@@ -54,6 +54,8 @@ jobs:
           STRIPE_LINK_BUNDLE: ${{ secrets.STRMANUALS_STRIPE_LINK_BUNDLE }}
           # n8n webhook base for the /free magnet form's action attribute
           PUBLIC_N8N_WEBHOOK_BASE: ${{ secrets.PUBLIC_N8N_WEBHOOK_BASE }}
+          # Unguessable path segment for PDF delivery (see PDF-HOSTING.md Option 1)
+          STRMANUALS_DOWNLOAD_HASH: ${{ secrets.STRMANUALS_DOWNLOAD_HASH }}
         run: pnpm build
 
       - name: Verify build output
@@ -81,6 +83,12 @@ jobs:
           # and customers can't pay.
           grep -q 'href="https://buy.stripe.com/' dist/manuals/tax-01/index.html
           grep -q 'href="https://buy.stripe.com/' dist/bundle/index.html
+          # Critical: confirm hashed PDF copies landed in dist/dl/. If
+          # STRMANUALS_DOWNLOAD_HASH was missing, the script exits non-zero
+          # and the build already failed by now — this is defense in depth.
+          test -d dist/dl
+          ls dist/dl/*/str-tax-loophole-playbook/v1.pdf >/dev/null
+          ls dist/dl/*/str-manuals-bundle 2>/dev/null || true  # bundle has no single file; OK if missing
           echo "Build output OK"
 
       # Deploy-status gate: refuse to deploy if DEPLOY-STATUS.md still
