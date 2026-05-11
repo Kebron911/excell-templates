@@ -2,6 +2,7 @@
 
 **Captured:** 2026-05-10  
 **Branch:** `claude/focused-cray-dddf7c`  
+**SHA:** b6fefda  
 **Git status:** clean (`nothing to commit, working tree clean`)  
 **Purpose:** Record what "passing" looks like before any dependency upgrades, so post-upgrade parity can be confirmed.
 
@@ -165,6 +166,19 @@ Duration: 914ms
 
 Status: **84/84 PASS**
 
+### Server tests (vitest run, server/vitest.config.ts)
+
+```
+vitest v1.6.1 — 1 test file, 7 tests, 0 failed
+Duration: 1.07s
+```
+
+| Test file | Tests |
+|---|---|
+| tests/click.test.ts | 7 |
+
+Status: **7/7 PASS**
+
 ### E2E
 
 Not run — requires dev server.
@@ -230,6 +244,10 @@ These are the actual resolved versions at baseline — useful for post-upgrade d
 | react | 18.3.1 | 18.3.1 | 18.3.1 | 18.3.1 |
 | sharp | 0.33.5 | 0.33.5 | 0.33.5 | 0.33.5 |
 | satori | 0.11.3 | 0.10.14 | 0.10.14 | 0.10.14 |
+
+*All 4 apps resolve `@playwright/test` to the same version (latest compatible at capture time) despite different floor specifiers. Post-upgrade parity should still expect uniform resolution.*
+
+*Note: STROps uses `satori 0.11.x` while the other 3 apps use `0.10.x`. Phase 0 upgrade will align this — direction TBD based on @astrojs/* compatibility.*
 
 ---
 
