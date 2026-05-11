@@ -6,6 +6,12 @@ import ClusterFunnelBlock from '../src/ClusterFunnelBlock.astro';
 import AdSlot from '../src/AdSlot.astro';
 import type { SiteConfig } from '@str/seo';
 
+function normalizeForSnapshot(html: string): string {
+  // Strip <script type="module" src="..."></script> tags — they embed
+  // absolute file paths from the test worktree and aren't portable.
+  return html.replace(/<script type="module" src="[^"]*"><\/script>/g, '');
+}
+
 const fixtureSite: SiteConfig = {
   siteId: 'guests',
   brand: {
@@ -48,7 +54,7 @@ describe('@str/ui-funnel snapshots', () => {
     expect(html).toContain('Get your free template');
     expect(html).toContain('Send it to me');
     expect(html).toContain('/api/email-gate');
-    expect(html).toMatchSnapshot();
+    expect(normalizeForSnapshot(html)).toMatchSnapshot();
   });
 
   it('STRLedgerCTA renders with known tool slug', async () => {
@@ -62,7 +68,7 @@ describe('@str/ui-funnel snapshots', () => {
     expect(html).toContain('STR Ledger');
     expect(html).toContain('thestrledger.com');
     expect(html).toContain('house-rules-pdf');
-    expect(html).toMatchSnapshot();
+    expect(normalizeForSnapshot(html)).toMatchSnapshot();
   });
 
   it('STRLedgerCTA renders fallback for unknown tool', async () => {
@@ -74,7 +80,7 @@ describe('@str/ui-funnel snapshots', () => {
       },
     });
     expect(html).toContain('Browse The STR Ledger');
-    expect(html).toMatchSnapshot();
+    expect(normalizeForSnapshot(html)).toMatchSnapshot();
   });
 
   it('ClusterFunnelBlock renders 3 links (excludes current cluster)', async () => {
@@ -89,7 +95,7 @@ describe('@str/ui-funnel snapshots', () => {
     expect(html).toContain('strhost.tools');
     expect(html).toContain('strops.tools');
     expect(html).not.toContain('strguests.tools');
-    expect(html).toMatchSnapshot();
+    expect(normalizeForSnapshot(html)).toMatchSnapshot();
   });
 
   it('AdSlot renders placeholder when AdSense not enabled', async () => {
@@ -102,6 +108,6 @@ describe('@str/ui-funnel snapshots', () => {
     });
     expect(html).toContain('ad-slot');
     expect(html).toContain('in-content');
-    expect(html).toMatchSnapshot();
+    expect(normalizeForSnapshot(html)).toMatchSnapshot();
   });
 });

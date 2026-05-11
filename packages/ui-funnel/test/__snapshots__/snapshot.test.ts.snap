@@ -65,7 +65,7 @@ exports[`@str/ui-funnel snapshots > EmailCaptureCard renders with magnet and end
   </p>
 </aside>
 
-<script type="module" src="C:/Users/Kebron/Desktop/Claude OS/Wealth/Businesses/Excel-Templates/.claude/worktrees/phase-2-ui-pkgs-1778525182/packages/ui-funnel/src/EmailCaptureCard.astro?astro&type=script&index=0&lang.ts"></script>"
+"
 `;
 
 exports[`@str/ui-funnel snapshots > STRLedgerCTA renders fallback for unknown tool 1`] = `
@@ -85,7 +85,7 @@ exports[`@str/ui-funnel snapshots > STRLedgerCTA renders fallback for unknown to
   </div>
 </aside>
 
-<script type="module" src="C:/Users/Kebron/Desktop/Claude OS/Wealth/Businesses/Excel-Templates/.claude/worktrees/phase-2-ui-pkgs-1778525182/packages/ui-funnel/src/STRLedgerCTA.astro?astro&type=script&index=0&lang.ts"></script>"
+"
 `;
 
 exports[`@str/ui-funnel snapshots > STRLedgerCTA renders with known tool slug 1`] = `
@@ -105,5 +105,5 @@ exports[`@str/ui-funnel snapshots > STRLedgerCTA renders with known tool slug 1`
   </div>
 </aside>
 
-<script type="module" src="C:/Users/Kebron/Desktop/Claude OS/Wealth/Businesses/Excel-Templates/.claude/worktrees/phase-2-ui-pkgs-1778525182/packages/ui-funnel/src/STRLedgerCTA.astro?astro&type=script&index=0&lang.ts"></script>"
+"
 `;
