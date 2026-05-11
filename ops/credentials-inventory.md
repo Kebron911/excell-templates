@@ -10,11 +10,12 @@
 | GitHub | github.com/Kebron911 | Kebron911 | ✅ | Vaultwarden | gh CLI authenticated |
 | Airtable | airtable.com | (pending) | pending | Vaultwarden + MCP env | PAT to be created for MCP |
 | Influencersoft | kebron.influencersoft.com | Kebron | pending | `./.env` → `INFLUENCERSOFT_API_KEY` + Vaultwarden | LTD license owned. Tenant subdomain `kebron`. API base = `https://kebron.influencersoft.com/api/<Method>` (PascalCase). Live probe 2026-05-11 confirmed `GetAllGroups` + `GetGoods` return 200 OK. |
-| Stripe | dashboard.stripe.com | (pending) | pending | Vaultwarden + IS | Stripe Tax enabled |
+| Stripe | dashboard.stripe.com | Kebron | pending | `STRManuals/site/.env` → `STRIPE_SECRET` + `STRIPE_WEBHOOK_SECRET` + Vaultwarden | Live key `sk_live_...` (107 chars). 66 STR Ledger products + payment links populated 2026-05-11 via `scripts/stripe-bulk-import.mjs`. Statement descriptor `STR LEDGER` (cohort metadata: `source=bulk-import-v1`). Stripe Tax enabled. |
+| n8n | https://n8ncde.cdeprosperity.com/ | Kebron | pending | `./.env` → `N8N_API_KEY` + `N8N_BASE_URL` + Vaultwarden | Self-hosted on VPS at `n8ncde.cdeprosperity.com`. JWT-style API key (207 chars). Auth header = `X-N8N-API-KEY` (not Bearer — n8n convention). Used for empire-wide automation: Stripe webhooks → IS tagging, scheduled tasks, deploy orchestration. |
 | Ghost | (pending host) | (pending) | pending | Vaultwarden | Subdomain blog.thestrledger.com |
 | Google Workspace | admin.google.com | (pending) | pending | Vaultwarden | Used for backups + custom email |
 | Hostinger | hpanel.hostinger.com | (pending) | pending | Vaultwarden | Hosting + DNS + domain registrar + AutoSSL — single vendor for the cluster |
-| VPS (n8n host) | (pending) | (pending) | pending | SSH keys + Vaultwarden | n8n host (Hostinger VPS or other) |
+| VPS (n8n host) | n8ncde.cdeprosperity.com | Kebron | pending | SSH keys + Vaultwarden | n8n host (separate from Hostinger cluster). See n8n row above for API access. |
 | Vista Create Pro | create.vista.com | (pending) | pending | Vaultwarden | Brand kit lives here — lifetime deal owned, no subscription |
 | Creasquare | app.creasquare.io | (pending) | pending | Vaultwarden | Multi-platform scheduler: IG, LinkedIn, YouTube, TikTok, FB, **and Pinterest**. Lifetime deal owned — replaces Buffer AND covers Pinterest scheduling for Months 1–3. Pinterest integration is basic per user reviews; Pinterest native scheduler is a documented fallback if Creasquare's Pinterest features prove limiting. |
 | Etsy | etsy.com | (pending) | pending | Vaultwarden + 2FA app | Seller account |
