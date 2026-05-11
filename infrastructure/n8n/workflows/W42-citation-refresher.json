@@ -1,0 +1,40 @@
+{
+  "name": "W42 — Citation / Profile Refresher",
+  "_stub": "Skeleton export. Build full nodes in n8n UI from W42-citation-refresher.md spec, then re-export to overwrite this file.",
+  "nodes": [
+    {
+      "id": "w42-n01a",
+      "name": "Identity Changed Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 200],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "identity-changed",
+        "responseMode": "lastNode"
+      }
+    },
+    {
+      "id": "w42-n01b",
+      "name": "Cron Sunday 23:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 400],
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "weeks", "weeksInterval": 1, "triggerAtDay": [0], "triggerAtHour": 23 }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "executionTimeout": 600,
+    "timezone": "America/New_York"
+  },
+  "pinData": {}
+}
