@@ -20,3 +20,4 @@ packages:
   - 'STRManuals/site'
   - 'STROps-Tools'
   - 'tools/empire-console'
+  - 'packages/*'  # Phase 1 shared packages
