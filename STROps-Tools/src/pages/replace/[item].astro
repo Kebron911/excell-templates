@@ -4,7 +4,7 @@ import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
 import AdSlot from '@components/ads/AdSlot.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { howToJsonLd, faqJsonLd } from '@lib/seo';
+import { howToJsonLd, faqJsonLd, breadcrumbJsonLd } from '@lib/seo';
 import { getEntry } from 'astro:content';
 import itemsData from '@data/items.json';
 import type { ItemCatalog } from '@lib/types';
@@ -54,6 +54,11 @@ const steps = [
     <JsonLd data={[
       howToJsonLd({ name: `Replace a ${lowerName} in an STR`, description: 'Replacement steps and capex hygiene.', steps }),
       faqJsonLd(faqs),
+      breadcrumbJsonLd([
+        { name: 'Home', url: 'https://strops.tools/' },
+        { name: 'Replacement cost', url: 'https://strops.tools/replace/' },
+        { name: it.name, url },
+      ]),
     ]} />
   </Fragment>
   <article class="prose mx-auto max-w-3xl px-6 py-10">

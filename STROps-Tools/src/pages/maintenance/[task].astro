@@ -4,7 +4,7 @@ import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
 import AdSlot from '@components/ads/AdSlot.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { howToJsonLd, faqJsonLd } from '@lib/seo';
+import { howToJsonLd, faqJsonLd, breadcrumbJsonLd } from '@lib/seo';
 import { getEntry } from 'astro:content';
 import tasksData from '@data/tasks.json';
 import type { TaskCatalog } from '@lib/types';
@@ -58,6 +58,11 @@ const steps = [
     <JsonLd data={[
       howToJsonLd({ name: t.name, description: t.consequencesOfSkipping, steps }),
       faqJsonLd(faqs),
+      breadcrumbJsonLd([
+        { name: 'Home', url: 'https://strops.tools/' },
+        { name: 'Maintenance', url: 'https://strops.tools/maintenance/' },
+        { name: t.name, url },
+      ]),
     ]} />
   </Fragment>
   <article class="prose mx-auto max-w-3xl px-6 py-10">

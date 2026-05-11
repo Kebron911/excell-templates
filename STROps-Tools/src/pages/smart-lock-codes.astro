@@ -30,7 +30,7 @@ const faqs = [
     <article class="flex-1 prose">
       <h1>Smart Lock Code Generator</h1>
       <p class="lead">Generate per-booking lock codes you can re-derive on demand. Same booking ID + secret produces the same code, every time.</p>
-      <SmartLockCodes client:load />
+      <SmartLockCodes client:visible />
       <AdSlot location="in-content" />
       <h2>How it works</h2>
       <p>We compute HMAC-SHA-256 of your booking ID using your secret as the key, then take the result mod 10^digits and zero-pad to length. The output is deterministic and unique-by-booking — no storage required.</p>
