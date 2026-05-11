@@ -1,0 +1,54 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+
+const today = new Date().toISOString().slice(0, 10);
+---
+<Layout
+  title="Disclosures — strguests.tools"
+  description="Affiliate disclosures, sponsorship policy, and how strguests.tools makes money — plain English."
+  path="/disclosures"
+>
+  <article class="mx-auto max-w-3xl px-5 py-12 prose">
+    <header>
+      <p class="label text-[color:var(--accent-700)]">Legal</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">Disclosures<span class="period-accent">.</span></h1>
+      <p class="mt-3 text-caption text-ink-3 font-mono">
+        Last updated <time datetime={today}>{today}</time>
+      </p>
+    </header>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">How this site makes money</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        strguests.tools is free for hosts to use. We fund the work through three
+        channels: (1) affiliate commissions from third-party tools we recommend
+        (Touch Stay, Hostfully Guidebook, YourWelcome, Canva Pro, printing
+        services); (2) cross-sells to The STR Ledger paid Excel workbooks; (3)
+        the occasional sponsorship on the blog, always labeled.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Affiliate links</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        Links to third-party products may be affiliate links. If you click and
+        purchase, we earn a small commission at no additional cost to you. We
+        recommend tools only when we've used them or vetted them against hosts
+        we trust. Affiliate status does not change which tools we recommend.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">No personalized advice</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        Generators, templates, and blog posts on this site are informational.
+        They are not legal, tax, or compliance advice. Always check
+        platform-specific rules and your local jurisdiction before sending
+        anything to a guest or publishing it on a listing.
+      </p>
+    </section>
+  </article>
+
+  <ClusterFunnelBlock currentCluster="guest-xp" />
+</Layout>
