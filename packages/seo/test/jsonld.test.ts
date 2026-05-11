@@ -182,12 +182,12 @@ describe('buildFAQPage()', () => {
 
   it('each entry has Question type', () => {
     const entity = buildFAQPage(faqs).mainEntity as Record<string, unknown>[];
-    expect(entity[0]['@type']).toBe('Question');
+    expect(entity[0]!['@type']).toBe('Question');
   });
 
   it('answer text is preserved', () => {
     const entity = buildFAQPage(faqs).mainEntity as Record<string, unknown>[];
-    const answer = entity[0].acceptedAnswer as Record<string, unknown>;
+    const answer = entity[0]!.acceptedAnswer as Record<string, unknown>;
     expect(answer.text).toBe('A tool.');
   });
 
@@ -298,8 +298,8 @@ describe('buildBreadcrumb()', () => {
       string,
       unknown
     >[];
-    expect(items[0].position).toBe(1);
-    expect(items[2].position).toBe(3);
+    expect(items[0]!.position).toBe(1);
+    expect(items[2]!.position).toBe(3);
   });
 
   it('absolute URL is kept as-is', () => {
@@ -307,7 +307,7 @@ describe('buildBreadcrumb()', () => {
       string,
       unknown
     >[];
-    expect(items[0].item).toBe('https://strguests.tools/');
+    expect(items[0]!.item).toBe('https://strguests.tools/');
   });
 
   it('relative URL is resolved against siteConfig canonical', () => {
@@ -315,7 +315,7 @@ describe('buildBreadcrumb()', () => {
       string,
       unknown
     >[];
-    expect(items[1].item).toBe('https://strguests.tools/templates/');
+    expect(items[1]!.item).toBe('https://strguests.tools/templates/');
   });
 
   it('uses correct canonical for buyers site', () => {
@@ -327,7 +327,7 @@ describe('buildBreadcrumb()', () => {
       string,
       unknown
     >[];
-    expect(items[0].item).toBe('https://strbuyers.tools/');
+    expect(items[0]!.item).toBe('https://strbuyers.tools/');
   });
 });
 
@@ -354,8 +354,8 @@ describe('buildHowTo()', () => {
 
   it('steps have 1-based position', () => {
     const steps = buildHowTo(input).step as Record<string, unknown>[];
-    expect(steps[0].position).toBe(1);
-    expect(steps[1].position).toBe(2);
+    expect(steps[0]!.position).toBe(1);
+    expect(steps[1]!.position).toBe(2);
   });
 
   it('totalTime is omitted when not given', () => {
@@ -395,7 +395,7 @@ describe('buildItemList()', () => {
 
   it('item URL is absolute using canonical()', () => {
     const items = buildItemList(fixtureSite, input).itemListElement as Record<string, unknown>[];
-    expect(items[0].url).toBe(
+    expect(items[0]!.url).toBe(
       'https://strguests.tools/templates/late-checkout-request/',
     );
   });
@@ -409,7 +409,7 @@ describe('buildItemList()', () => {
       string,
       unknown
     >[];
-    expect(items[0].url).toBe('https://strbuyers.tools/cities/austin-tx/');
+    expect(items[0]!.url).toBe('https://strbuyers.tools/cities/austin-tx/');
   });
 
   it('description is included when provided', () => {
