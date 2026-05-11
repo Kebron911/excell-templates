@@ -15,6 +15,16 @@ const d = manual.data;
 const all = (await getCollection('manuals')).sort((a, b) => a.data.order - b.data.order);
 const related = all.filter((m) => m.id !== manual.id).slice(0, 2);
 
+const PRICE_ID_BY_SKU: Record<string, string | undefined> = {
+  'MAN-TAX-01': import.meta.env.STRIPE_PRICE_TAX_01,
+  'MAN-TAX-02': import.meta.env.STRIPE_PRICE_TAX_02,
+  'MAN-REV-01': import.meta.env.STRIPE_PRICE_REV_01,
+  'MAN-REV-02': import.meta.env.STRIPE_PRICE_REV_02,
+  'MAN-LGL-01': import.meta.env.STRIPE_PRICE_LGL_01,
+  'MAN-BUNDLE-01': import.meta.env.STRIPE_PRICE_BUNDLE,
+};
+const resolvedPriceId = d.stripePriceId ?? PRICE_ID_BY_SKU[d.sku];
+
 // SEO: Product + Offer (eligible for merchant-listings rich results),
 // FAQPage (eligible for FAQ rich results), BreadcrumbList. These three
 // were the audit's #1 pre-launch finding for strmanuals.com.
@@ -67,7 +77,7 @@ const pageLds = [productLd, breadcrumbLd, ...(faqLd ? [faqLd] : [])];
           <span class="price-mono" style="font-size: 1.75rem;">${d.price}</span>
           <span class="price-mono text-sm" style="color: var(--color-mute);">{d.pages} pages</span>
         </div>
-        <BuyButton price={d.price} stripePriceId={d.stripePriceId} size="large" />
+        <BuyButton price={d.price} stripePriceId={resolvedPriceId} size="large" />
         <p class="text-xs mt-4" style="color: var(--color-mute);">Instant download · 14-day refund · Free updates within v1</p>
       </div>
     </div>

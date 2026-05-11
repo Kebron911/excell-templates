@@ -14,12 +14,12 @@
 
 ```yaml
 # strmanuals.com SKUs (added 2026-05-05)
-product:str-tax-loophole-playbook        # TAX-01 — $29
-product:material-participation-survival-kit  # TAX-02 — $29
-product:why-bookings-down                 # REV-01 — $19
-product:direct-bookings-starter           # REV-02 — $25
-product:permit-regulation-survival        # LGL-01 — $25
-product:str-manuals-bundle                # BUNDLE-01 — $99
+product:str-tax-loophole-playbook        # MAN-TAX-01 — $29
+product:material-participation-survival-kit  # MAN-TAX-02 — $29
+product:why-bookings-down                 # MAN-REV-01 — $19
+product:direct-bookings-starter           # MAN-REV-02 — $25
+product:permit-regulation-survival        # MAN-LGL-01 — $25
+product:str-manuals-bundle                # MAN-BUNDLE-01 — $99
 ```
 
 **Add to the `magnet:` namespace:**

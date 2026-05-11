@@ -17,7 +17,9 @@
     "pdf:rev-01": "node scripts/build-pdf.mjs rev-01",
     "pdf:rev-02": "node scripts/build-pdf.mjs rev-02",
     "pdf:lgl-01": "node scripts/build-pdf.mjs lgl-01",
-    "pdf:free": "node scripts/build-pdf.mjs free"
+    "pdf:free": "node scripts/build-pdf.mjs free",
+    "stripe:import": "node scripts/stripe-import-strmanuals.mjs",
+    "stripe:import:live": "node scripts/stripe-import-strmanuals.mjs --live"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.0",
