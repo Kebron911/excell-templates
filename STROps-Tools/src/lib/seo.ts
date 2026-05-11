@@ -6,7 +6,13 @@ export const orgJsonLd = () => ({
   '@type': 'Organization',
   name: 'strops.tools',
   url: 'https://strops.tools',
-  sameAs: ['https://thestrledger.com'],
+  sameAs: [
+    'https://thestrledger.com',
+    'https://strhost.tools',
+    'https://strguests.tools',
+    'https://strbuyers.tools',
+    'https://strmanuals.com',
+  ],
 });
 
 export const webApplicationJsonLd = (opts: { name: string; url: string; description: string; }) => ({

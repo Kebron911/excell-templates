@@ -1,0 +1,56 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+
+const today = new Date().toISOString().slice(0, 10);
+---
+<Layout
+  title="Privacy — strbuyers.tools"
+  description="How strbuyers.tools handles email addresses, analytics, and affiliate referral links. Plain English, short."
+  path="/privacy"
+>
+  <article class="mx-auto max-w-3xl px-5 py-12 prose">
+    <header>
+      <p class="label text-accent">Legal</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">Privacy<span class="period-accent">.</span></h1>
+      <p class="mt-3 text-caption text-ink-3 font-mono">
+        Last updated <time datetime={today}>{today}</time>
+      </p>
+    </header>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">What we collect</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        strbuyers.tools is operated by The STR Ledger. The site is a static set
+        of free calculators and city market reports; we collect only what's
+        necessary to deliver the tools and the optional lead-magnet email follow-ups.
+      </p>
+      <ul class="mt-3 text-body text-ink-2 leading-relaxed list-disc pl-5">
+        <li><strong class="text-navy">Email address</strong> — only when you submit one through the lead-magnet form (Buyer Pre-Purchase Checklist) or a newsletter signup. Stored with our email provider and used to send the requested PDF and follow-up resources.</li>
+        <li><strong class="text-navy">Analytics</strong> — Google Analytics 4 records anonymized pageviews and aggregated tool usage. No personally identifying information is sent.</li>
+        <li><strong class="text-navy">Calculator inputs</strong> — values you type into a calculator never leave your browser. All math runs client-side; nothing is logged server-side.</li>
+        <li><strong class="text-navy">Affiliate clicks</strong> — outbound clicks on affiliate links (DSCR lenders, STR insurance, data tools, furniture vendors) are tracked at the partner network level. See <a href="/disclosures" class="text-accent">/disclosures</a>.</li>
+      </ul>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">What we don't do</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        We do not sell, rent, or share email addresses. We do not run third-party
+        retargeting pixels. We do not require an account to use any calculator
+        or city report.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Removal requests</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        Every email we send includes an unsubscribe link. To remove an email
+        address from our list outside the unsubscribe flow, contact us at
+        <a href="/contact" class="text-accent">/contact</a>.
+      </p>
+    </section>
+  </article>
+
+  <ClusterFunnelBlock currentCluster="acquisition" />
+</Layout>

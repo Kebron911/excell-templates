@@ -1,11 +1,31 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import { orgJsonLd, breadcrumbJsonLd } from '@lib/seo';
 
 const url = 'https://strops.tools/contact';
 const title = 'Contact strops.tools';
 const description = 'Bug reports, tool requests, partnership questions — the fastest channels into strops.tools.';
+
+const contactPageJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: title,
+  url,
+  description,
+};
 ---
 <Layout title={title} description={description} canonical={url} ogImage="/og/contact.png">
+  <Fragment slot="head">
+    <JsonLd data={[
+      orgJsonLd(),
+      contactPageJsonLd,
+      breadcrumbJsonLd([
+        { name: 'Home', url: 'https://strops.tools/' },
+        { name: 'Contact', url },
+      ]),
+    ]} />
+  </Fragment>
   <article class="prose mx-auto max-w-2xl px-6 py-12">
     <div class="text-label uppercase tracking-widest text-accent mb-2">Contact</div>
     <h1>Get in touch</h1>
@@ -23,18 +43,20 @@ const description = 'Bug reports, tool requests, partnership questions — the f
 
     <h2>Send a note</h2>
     <p class="text-ink2 text-sm">
-      Form-backed channel — replace the action URL with your Formspree (or equivalent) endpoint when wiring goes live.
+      This form opens your default email client with your message pre-filled to
+      <code>hello@strops.tools</code>. No backend, no tracking — your message goes directly to us.
     </p>
     <form
       class="border border-rule bg-parchment-alt p-6 my-6"
-      action="https://formspree.io/f/REPLACE_ME"
+      action="mailto:hello@strops.tools"
       method="post"
+      enctype="text/plain"
     >
       <label class="block text-sm font-semibold">
-        Email
+        Your email (so we can reply)
         <input
           type="email"
-          name="email"
+          name="From"
           required
           placeholder="you@host.com"
           class="block w-full border border-rule px-3 py-2 mt-1 bg-parchment font-normal"
@@ -43,7 +65,7 @@ const description = 'Bug reports, tool requests, partnership questions — the f
       <label class="block text-sm font-semibold mt-4">
         Message
         <textarea
-          name="message"
+          name="Message"
           required
           rows="5"
           placeholder="What would help?"
@@ -54,7 +76,7 @@ const description = 'Bug reports, tool requests, partnership questions — the f
         type="submit"
         class="bg-accent text-parchment px-4 py-2 mt-4 font-semibold hover:bg-accent-deep"
       >
-        Send
+        Open email client
       </button>
     </form>
   </article>

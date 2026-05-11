@@ -6,7 +6,7 @@ import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import CopyButton from '@/components/templates/CopyButton.tsx';
-import { buildScenarioArticle } from '@/lib/seo';
+import { buildScenarioArticle, buildBreadcrumb } from '@/lib/seo';
 import templatesData from '@/data/templates.json';
 
 interface TemplateEntry {
@@ -60,6 +60,11 @@ const articleLd = buildScenarioArticle({
   slug: scenario,
   datePublished: entry.lastVerified,
 });
+const breadcrumbLd = buildBreadcrumb([
+  { name: 'Home', url: '/' },
+  { name: 'Templates', url: '/templates/' },
+  { name: entry.name, url: path },
+]);
 
 const categoryLabel = entry.category.replace(/-/g, ' ');
 ---
@@ -67,7 +72,7 @@ const categoryLabel = entry.category.replace(/-/g, ' ');
   title={`${entry.name} — Airbnb message template · strguests.tools`}
   description={entry.scenario}
   path={path}
-  jsonLd={[articleLd]}
+  jsonLd={[articleLd, breadcrumbLd]}
 >
   <article class="generator-page mx-auto max-w-3xl px-5 py-8">
     <header>

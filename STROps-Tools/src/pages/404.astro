@@ -1,0 +1,95 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
+import { orgJsonLd } from '@lib/seo';
+import tools from '@data/tools.json';
+
+type ToolEntry = { title: string; primary_keyword: string; magnet: string; blurb: string; affiliates: string[] };
+const list = Object.entries(tools as Record<string, ToolEntry>);
+
+const magnets = [
+  { href: '/get-the-cleaner-sop', title: 'STR Cleaner SOP' },
+  { href: '/get-the-maintenance-checklist', title: 'STR Maintenance Checklist' },
+  { href: '/get-the-supply-par', title: 'STR Supply Par-Level Sheet' },
+];
+
+const url = 'https://strops.tools/404';
+const title = 'Page not found — strops.tools';
+const description = 'That page does not exist. Browse the seven free STR operations tools, three printable PDFs, the operations blog, or the maintenance and replacement-cost indexes.';
+---
+<Layout
+  title={title}
+  description={description}
+  canonical={url}
+  ogImage="/og/default.png"
+  noindex={true}
+>
+  <Fragment slot="head">
+    <JsonLd data={[orgJsonLd()]} />
+  </Fragment>
+
+  <section class="mx-auto max-w-5xl px-6 py-16">
+    <div class="text-label uppercase tracking-widest text-accent mb-3">404</div>
+    <h1 class="display text-5xl mb-3">
+      That page is on a different turn.
+    </h1>
+    <p class="lead text-xl text-ink2 max-w-2xl">
+      The URL you tried does not exist on strops.tools. Pick a tool, grab a printable, or jump back to the index below.
+    </p>
+    <div class="mt-6 flex flex-wrap gap-3">
+      <a href="/" class="bg-accent text-parchment px-4 py-2 font-semibold hover:bg-accent-deep no-underline">Home</a>
+      <a href="/blog" class="border border-rule bg-parchment px-4 py-2 font-semibold hover:border-accent no-underline">Blog</a>
+      <a href="/contact" class="border border-rule bg-parchment px-4 py-2 font-semibold hover:border-accent no-underline">Contact</a>
+    </div>
+  </section>
+
+  <section class="border-t border-rule">
+    <div class="mx-auto max-w-5xl px-6 py-12">
+      <div class="text-label uppercase tracking-widest text-ink3 mb-4">Tools</div>
+      <div class="grid md:grid-cols-2 gap-6">
+        {list.map(([slug, t]) => (
+          <a
+            href={`/${slug}`}
+            class="block border border-rule bg-parchment p-5 hover:border-accent transition-colors"
+          >
+            <div class="font-semibold text-lg">{t.title}</div>
+            <p class="text-ink2 text-sm mt-1">{t.blurb}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-rule bg-parchment-alt">
+    <div class="mx-auto max-w-5xl px-6 py-12">
+      <div class="text-label uppercase tracking-widest text-ink3 mb-4">Free downloads</div>
+      <div class="grid md:grid-cols-3 gap-6">
+        {magnets.map(m => (
+          <a
+            href={m.href}
+            class="block border border-rule bg-parchment p-5 hover:border-accent transition-colors"
+          >
+            <div class="font-semibold">{m.title}</div>
+            <div class="text-xs text-ink3 mt-3 uppercase tracking-widest">PDF</div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-rule">
+    <div class="mx-auto max-w-5xl px-6 py-12">
+      <div class="text-label uppercase tracking-widest text-ink3 mb-4">Programmatic indexes</div>
+      <div class="grid md:grid-cols-2 gap-6">
+        <a href="/maintenance/" class="block border border-rule bg-parchment p-5 hover:border-accent transition-colors">
+          <div class="font-semibold text-lg">Maintenance index</div>
+          <p class="text-ink2 text-sm mt-1">How often to handle every recurring STR task.</p>
+        </a>
+        <a href="/replace/" class="block border border-rule bg-parchment p-5 hover:border-accent transition-colors">
+          <div class="font-semibold text-lg">Replacement cost index</div>
+          <p class="text-ink2 text-sm mt-1">What it costs to replace items in a short-term rental.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>

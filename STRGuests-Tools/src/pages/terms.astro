@@ -1,0 +1,63 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+
+const today = new Date().toISOString().slice(0, 10);
+---
+<Layout
+  title="Terms — strguests.tools"
+  description="Terms of use for strguests.tools — free generators are provided as-is for informational purposes. Not legal, tax, or compliance advice."
+  path="/terms"
+>
+  <article class="mx-auto max-w-3xl px-5 py-12 prose">
+    <header>
+      <p class="label text-[color:var(--accent-700)]">Legal</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">Terms<span class="period-accent">.</span></h1>
+      <p class="mt-3 text-caption text-ink-3 font-mono">
+        Last updated <time datetime={today}>{today}</time>
+      </p>
+    </header>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Use of the tools</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        The generators, templates, and downloadable PDFs on strguests.tools are
+        provided free of charge for use by short-term rental hosts. You may use
+        the output for your own properties or client properties without
+        attribution. You may not resell the templates or the generated output
+        as a paid product without written permission.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">No warranty</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        The site and its tools are provided "as is" without warranty of any
+        kind. Generated content — house rules, messages, listings — is
+        informational and should be reviewed for accuracy against the rules of
+        your specific platform, jurisdiction, and property before use. Nothing
+        on strguests.tools is legal, tax, or compliance advice.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Liability</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        The STR Ledger, the operator of strguests.tools, is not liable for any
+        damages arising from the use or inability to use the tools, templates,
+        or downloads — including lost bookings, listing penalties, or guest
+        disputes.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Changes</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        We may update these terms as the product evolves. Continued use of the
+        site after an update means you accept the updated terms.
+      </p>
+    </section>
+  </article>
+
+  <ClusterFunnelBlock currentCluster="guest-xp" />
+</Layout>

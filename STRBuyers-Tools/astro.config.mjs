@@ -8,12 +8,17 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://strbuyers.tools',
   output: 'static',
-  trailingSlash: 'ignore',
+  trailingSlash: 'always',
   integrations: [
     tailwind({ applyBaseStyles: false }),
     react(),
     mdx(),
-    sitemap()
+    sitemap({
+      // /blog/* slugs were pre-listed in the sitemap before the blog
+      // directory existed. Filter them out until src/pages/blog/* ships,
+      // so crawlers don't discover 404s.
+      filter: (page) => !page.includes('/blog'),
+    })
   ],
   build: {
     assets: '_assets',

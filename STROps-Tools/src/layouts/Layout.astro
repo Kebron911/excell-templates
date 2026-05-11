@@ -31,7 +31,22 @@ const {
   articleSection,
   noindex = false,
 } = Astro.props;
-const url = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
+// Normalize canonical to match sitemap's trailing-slash convention.
+// Sitemap integration emits trailing-slash URLs by default; canonical must agree.
+const rawUrl = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
+const url = (() => {
+  try {
+    const parsed = new URL(rawUrl);
+    // Leave file-like paths (e.g. /feed.xml, /sitemap.xml) alone.
+    const hasExtension = /\.[a-z0-9]+$/i.test(parsed.pathname);
+    if (!hasExtension && !parsed.pathname.endsWith('/')) {
+      parsed.pathname = parsed.pathname + '/';
+    }
+    return parsed.toString();
+  } catch {
+    return rawUrl;
+  }
+})();
 const ga4Id = import.meta.env.PUBLIC_GA4_ID;
 ---
 <!doctype html>

@@ -27,7 +27,7 @@ const faqs = [
     <article class="flex-1 prose">
       <h1>Maintenance Schedule Generator</h1>
       <p class="lead">Get a year-out schedule of every recurring maintenance task — PDF for your binder, .ics for your calendar app.</p>
-      <MaintenanceSchedule client:load />
+      <MaintenanceSchedule client:visible />
       <AdSlot location="in-content" />
       <h2>How it works</h2>
       <p>Each task has a recurring cadence (60 days for HVAC filters, 90 for smoke detectors, 365 for chimney sweeps, etc.). We project occurrences from your start date out to your horizon, filter by property traits (HVAC, fireplace), and emit both a printable PDF and a calendar-ready .ics file.</p>

@@ -37,7 +37,11 @@ export function buildOrganization(): JsonLd {
       url: PUBLISHER_URL,
     },
     sameAs: [
-      // Filled in as social presences come online.
+      'https://thestrledger.com',
+      'https://strhost.tools',
+      'https://strops.tools',
+      'https://strbuyers.tools',
+      'https://strmanuals.com',
     ],
   };
 }
@@ -130,6 +134,35 @@ export function buildArticle(input: ArticleInput): JsonLd {
 }
 
 /**
+ * BreadcrumbList JSON-LD builder.
+ *
+ * Use on /templates/[scenario] (Home → Templates → {Scenario}),
+ * /blog/[slug] (Home → Blog → {Post}), and any nested route where
+ * the navigation chain helps Google parse the URL hierarchy.
+ *
+ * Pass crumbs in order from root to leaf. URLs may be absolute or
+ * site-relative ("/templates/late-checkout-request"); relative URLs are
+ * resolved against SITE_URL automatically.
+ */
+export interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+export function buildBreadcrumb(crumbs: BreadcrumbItem[]): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map((crumb, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: crumb.name,
+      item: crumb.url.startsWith('http') ? crumb.url : `${SITE_URL}${crumb.url.startsWith('/') ? crumb.url : `/${crumb.url}`}`,
+    })),
+  };
+}
+
+/**
  * Convenience wrapper for /templates/[scenario] programmatic pages.
  * Identical to buildArticle with pathPrefix: 'templates'.
  */
@@ -142,7 +175,13 @@ export function buildScenarioArticle(input: Omit<ArticleInput, 'pathPrefix'>): J
  * <link rel="canonical">.
  */
 export function canonical(path: string): string {
-  const cleaned = path.startsWith('/') ? path : `/${path}`;
+  let cleaned = path.startsWith('/') ? path : `/${path}`;
+  // Align canonicals with @astrojs/sitemap output, which appends trailing
+  // slashes to non-root URLs. Without this, sitemap and canonical disagree
+  // and Google may treat the pair as duplicates.
+  if (cleaned !== '/' && !cleaned.endsWith('/')) {
+    cleaned = `${cleaned}/`;
+  }
   return `${SITE_URL}${cleaned}`;
 }
 

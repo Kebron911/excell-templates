@@ -7,7 +7,7 @@ import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import LodgingTaxCalculator from '@/components/calculators/LodgingTaxCalculator.tsx';
-import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import { buildWebApplication, buildFAQPage, buildBreadcrumb } from '@/lib/seo';
 import { formatPercent } from '@/lib/format';
 import { getEntry } from 'astro:content';
 import type { LodgingTaxData } from '@/data/lodging-tax-by-state.schema';
@@ -76,6 +76,11 @@ const jsonLd = [
     toolPath: `/lodging-tax/${code}`,
   }),
   buildFAQPage(faqs),
+  buildBreadcrumb([
+    { name: 'Home', url: '/' },
+    { name: 'Lodging Tax', url: '/lodging-tax' },
+    { name: entry.name, url: `/lodging-tax/${code}` },
+  ]),
 ];
 ---
 
@@ -102,7 +107,7 @@ const jsonLd = [
 
         <div class="mt-7">
           <LodgingTaxCalculator
-            client:load
+            client:visible
             stateCode={code}
             stateRate={entry.stateRate}
             localMin={entry.localAddOnRange[0]}

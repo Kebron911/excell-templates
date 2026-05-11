@@ -30,7 +30,7 @@ const faqs = [
     <article class="flex-1 prose">
       <h1>Airbnb Turnover Scheduler</h1>
       <p class="lead">Paste your bookings, set your turnover window, and see every tight changeover and overlap at a glance.</p>
-      <TurnoverScheduler client:load />
+      <TurnoverScheduler client:visible />
       <AdSlot location="in-content" />
       <h2>How it works</h2>
       <p>Each booking gets a check-out time of 11:00 UTC and the next a check-in of 15:00 UTC. We sort per-property, compute the gap in hours, and flag any below your "turnover hours required" threshold. Same-property check-out before the previous check-out is reported as a conflict.</p>
