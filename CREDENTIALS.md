@@ -8,12 +8,14 @@
 
 ## Platform → file path map
 
-| Platform | Secret name | Lives at | Subdomain / account | Status |
+> **Status = "✅ set" means the value has length >3 in the env file.** Empty `KEY=` lines do NOT count as set. Always re-audit with the bash command below when in doubt.
+
+| Platform | Secret name | Lives at | Subdomain / account | Status (verified 2026-05-11) |
 |---|---|---|---|---|
-| **InfluencerSoft** | `INFLUENCERSOFT_API_KEY` | `./.env` (repo root) | `kebron.influencersoft.com` | ✅ key set, subdomain known |
-| **Stripe** | `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET` | `STRManuals/site/.env` | dashboard.stripe.com (pending account confirm) | ✅ key set |
-| **OpenAI** | `OPENAI_API_KEY` | `STRGuests-Tools/.env.local` | n/a — model `gpt-4o-mini` | ✅ key set |
-| **MySQL (strguests)** | `MYSQL_HOST/PORT/USER/PASSWORD/DATABASE` | `STRGuests-Tools/.env.local` | Hostinger Business MySQL | ⚠️ unverified against prod |
+| **InfluencerSoft** | `INFLUENCERSOFT_API_KEY` | `./.env` (repo root) | `kebron.influencersoft.com` | ✅ set (32 chars) — live probe confirmed |
+| **Stripe** | `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET` | `STRManuals/site/.env` | dashboard.stripe.com | ❌ **placeholder lines exist but values are empty** — key needs to be pasted in before any live import |
+| **OpenAI** | `OPENAI_API_KEY` | `STRGuests-Tools/.env.local` | n/a — model `gpt-4o-mini` | ✅ set (164 chars) |
+| **MySQL (strguests)** | `MYSQL_HOST/PORT/USER/PASSWORD/DATABASE` | `STRGuests-Tools/.env.local` | Hostinger Business MySQL | ⚠️ host/user/db set, **password empty** — only dev-friendly so far |
 | **Hostinger SSH** | GitHub Actions secret `STR_SSH_KEY` | repo Actions → Secrets | hpanel.hostinger.com | ✅ deploy active |
 | **GA4** | `PUBLIC_GA4_ID` (public, build-time) | `STRGuests-Tools/.env.local` | — | ❌ measurement ID pending |
 | **Email verify HMAC** | `EMAIL_VERIFY_SECRET` | `STRGuests-Tools/.env.local` | — | ✅ set (32+ bytes random) |
@@ -40,10 +42,17 @@ Get-ChildItem -Path . -Recurse -Force -Include .env,.env.local | ForEach-Object 
 ```
 
 ```bash
-# Same in bash
+# Same in bash — checks the VALUE length, not just the line presence
+# (an empty "KEY=" line is NOT a set key)
 for f in $(find . -maxdepth 4 -name ".env*" -not -path "*/node_modules/*"); do
   echo "--- $f ---"
-  grep -oE '^[A-Z_]+\s*=' "$f" | sort -u
+  while IFS= read -r line; do
+    if [[ "$line" =~ ^([A-Z_]+)=(.*)$ ]]; then
+      key="${BASH_REMATCH[1]}"
+      val="${BASH_REMATCH[2]}"
+      if [ ${#val} -gt 3 ]; then echo "$key=<set len=${#val}>"; else echo "$key=<EMPTY>"; fi
+    fi
+  done < "$f"
 done
 ```
 
