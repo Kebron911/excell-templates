@@ -29,6 +29,20 @@ import re
 import sys
 from pathlib import Path
 
+# Windows default console codepage (cp1252) can't encode the Unicode
+# box-drawing characters ('──', '───') this script prints in section
+# headers. Reconfigure stdout/stderr to UTF-8 with a replace-fallback
+# so the hook can never crash before it does any real check.
+# Python 3.7+; no-op on TTYs already using UTF-8.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError):
+        # Stream may already be wrapped (e.g. by pytest capture) or
+        # not reconfigurable; safe to skip — encoding errors will then
+        # fall back to the existing codepage.
+        pass
+
 REPO = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(REPO / "templates" / "_delivery" / "_shared"))
 sys.path.insert(0, str(REPO / "templates" / "_delivery" / "_bundles"))
