@@ -78,6 +78,20 @@ describe('buildOrganization()', () => {
   it('@context is https://schema.org', () => {
     expect(buildOrganization(fixtureSite)['@context']).toBe('https://schema.org');
   });
+
+  it('sameAs does NOT include own URL (trailing-slash safe)', () => {
+    const sameAs = buildOrganization(fixtureSite).sameAs as string[];
+    // fixtureSite uses 'https://strguests.tools' — must not appear, with or without trailing slash
+    expect(sameAs).not.toContain('https://strguests.tools');
+    expect(sameAs).not.toContain('https://strguests.tools/');
+  });
+
+  it('sameAs handles canonical with trailing slash correctly', () => {
+    const siteWithSlash = { ...fixtureSite, url: { canonical: 'https://strguests.tools/' } };
+    const sameAs = buildOrganization(siteWithSlash).sameAs as string[];
+    expect(sameAs).not.toContain('https://strguests.tools');
+    expect(sameAs).not.toContain('https://strguests.tools/');
+  });
 });
 
 // ---------- buildWebApplication ----------
@@ -86,11 +100,11 @@ describe('buildWebApplication()', () => {
   const input = { name: 'My Tool', description: 'A tool', toolPath: '/my-tool' };
 
   it('url is canonical + toolPath', () => {
-    expect(buildWebApplication(fixtureSite, input).url).toBe('https://strguests.tools/my-tool');
+    expect(buildWebApplication(fixtureSite, input).url).toBe('https://strguests.tools/my-tool/');
   });
 
   it('url uses correct site canonical', () => {
-    expect(buildWebApplication(buyersSite, input).url).toBe('https://strbuyers.tools/my-tool');
+    expect(buildWebApplication(buyersSite, input).url).toBe('https://strbuyers.tools/my-tool/');
   });
 
   it('default applicationCategory is FinanceApplication', () => {
@@ -115,6 +129,37 @@ describe('buildWebApplication()', () => {
     const publisher = buildWebApplication(fixtureSite, input).publisher as Record<string, unknown>;
     expect(publisher.name).toBe(PUBLISHER_NAME);
     expect(publisher.url).toBe(PUBLISHER_URL);
+  });
+});
+
+// ---------- URL normalization edge cases ----------
+
+describe('URL normalization edge cases', () => {
+  it('buildWebApplication accepts toolPath without leading slash', () => {
+    const out = buildWebApplication(fixtureSite, { name: 'Foo', description: 'Foo tool', toolPath: 'foo-tool' });
+    expect(out.url).toBe('https://strguests.tools/foo-tool/');
+  });
+
+  it('buildArticle handles pathPrefix with leading slash', () => {
+    const out = buildArticle(fixtureSite, {
+      slug: 'test',
+      headline: 't',
+      description: 'd',
+      datePublished: '2026-01-01',
+      pathPrefix: '/blog',
+    });
+    expect(out.url).toBe('https://strguests.tools/blog/test/');
+  });
+
+  it('buildArticle handles pathPrefix with trailing slash', () => {
+    const out = buildArticle(fixtureSite, {
+      slug: 'test',
+      headline: 't',
+      description: 'd',
+      datePublished: '2026-01-01',
+      pathPrefix: 'blog/',
+    });
+    expect(out.url).toBe('https://strguests.tools/blog/test/');
   });
 });
 
@@ -163,16 +208,16 @@ describe('buildArticle()', () => {
   };
 
   it('url defaults to /blog/{slug}', () => {
-    expect(buildArticle(fixtureSite, input).url).toBe('https://strguests.tools/blog/test-post');
+    expect(buildArticle(fixtureSite, input).url).toBe('https://strguests.tools/blog/test-post/');
   });
 
   it('uses correct site canonical in url', () => {
-    expect(buildArticle(buyersSite, input).url).toBe('https://strbuyers.tools/blog/test-post');
+    expect(buildArticle(buyersSite, input).url).toBe('https://strbuyers.tools/blog/test-post/');
   });
 
   it('pathPrefix overrides url segment', () => {
     const ld = buildArticle(fixtureSite, { ...input, pathPrefix: 'templates' });
-    expect(ld.url).toBe('https://strguests.tools/templates/test-post');
+    expect(ld.url).toBe('https://strguests.tools/templates/test-post/');
   });
 
   it('dateModified defaults to datePublished', () => {
@@ -211,7 +256,7 @@ describe('buildScenarioArticle()', () => {
 
   it('url uses /templates/ prefix', () => {
     expect(buildScenarioArticle(fixtureSite, input).url).toBe(
-      'https://strguests.tools/templates/late-checkout-request',
+      'https://strguests.tools/templates/late-checkout-request/',
     );
   });
 
@@ -221,7 +266,7 @@ describe('buildScenarioArticle()', () => {
 
   it('works on buyers site', () => {
     expect(buildScenarioArticle(buyersSite, input).url).toBe(
-      'https://strbuyers.tools/templates/late-checkout-request',
+      'https://strbuyers.tools/templates/late-checkout-request/',
     );
   });
 
@@ -375,6 +420,12 @@ describe('buildItemList()', () => {
   it('description is omitted when not provided', () => {
     expect(buildItemList(fixtureSite, input).description).toBeUndefined();
   });
+
+  it('handles empty items array (numberOfItems: 0)', () => {
+    const out = buildItemList(fixtureSite, { name: 'Empty Directory', items: [] });
+    expect(out.numberOfItems).toBe(0);
+    expect(out.itemListElement).toEqual([]);
+  });
 });
 
 // ---------- buildPlace ----------
@@ -396,7 +447,7 @@ describe('buildPlace()', () => {
   });
 
   it('url uses buyers canonical + /cities/{slug}', () => {
-    expect(buildPlace(buyersSite, input).url).toBe('https://strbuyers.tools/cities/austin-tx');
+    expect(buildPlace(buyersSite, input).url).toBe('https://strbuyers.tools/cities/austin-tx/');
   });
 
   it('url is omitted when no slug given', () => {
@@ -430,7 +481,6 @@ describe('buildBlogPosting()', () => {
     headline: 'Managing Cleaners',
     description: 'How to dispatch cleaners efficiently.',
     url: 'https://strops.tools/blog/managing-cleaners',
-    slug: 'managing-cleaners',
     image: 'https://strops.tools/og/managing-cleaners.png',
     datePublished: '2026-01-15',
     dateModified: '2026-01-20',

@@ -50,7 +50,9 @@ export function buildOrganization(siteConfig: SiteConfig): JsonLd {
       name: PUBLISHER_NAME,
       url: PUBLISHER_URL,
     },
-    sameAs: NETWORK_URLS.filter(u => u !== siteConfig.url.canonical),
+    sameAs: NETWORK_URLS.filter(u =>
+      u.replace(/\/$/, '') !== siteConfig.url.canonical.replace(/\/$/, '')
+    ),
   };
 }
 
@@ -70,11 +72,12 @@ export function buildWebApplication(
   siteConfig: SiteConfig,
   input: WebApplicationInput,
 ): JsonLd {
+  const normalizedPath = input.toolPath.startsWith('/') ? input.toolPath : `/${input.toolPath}`;
   return {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
     name: input.name,
-    url: `${siteConfig.url.canonical}${input.toolPath}`,
+    url: canonical(siteConfig, normalizedPath),
     description: input.description,
     applicationCategory: input.applicationCategory ?? 'FinanceApplication',
     operatingSystem: 'Any',
@@ -132,13 +135,13 @@ export interface ArticleInput {
 }
 
 export function buildArticle(siteConfig: SiteConfig, input: ArticleInput): JsonLd {
-  const prefix = input.pathPrefix ?? 'blog';
+  const prefix = (input.pathPrefix ?? 'blog').replace(/^\//, '').replace(/\/$/, '');
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: input.headline,
     description: input.description,
-    url: `${siteConfig.url.canonical}/${prefix}/${input.slug}`,
+    url: canonical(siteConfig, `/${prefix}/${input.slug}`),
     datePublished: input.datePublished,
     dateModified: input.dateModified ?? input.datePublished,
     author: {
@@ -288,7 +291,7 @@ export interface PlaceInput {
  */
 export function buildPlace(siteConfig: SiteConfig, input: PlaceInput): JsonLd {
   const { city, addressRegion, addressCountry = 'US', geo, slug, description } = input;
-  const url = slug ? `${siteConfig.url.canonical}/cities/${slug}` : undefined;
+  const url = slug ? canonical(siteConfig, `/cities/${slug}`) : undefined;
   return {
     '@context': 'https://schema.org',
     '@type': 'Place',
@@ -319,7 +322,6 @@ export interface BlogPostingInput {
   headline: string;
   description: string;
   url: string; // caller supplies absolute URL
-  slug: string;
   image: string;
   datePublished: string;
   dateModified: string;
@@ -330,7 +332,10 @@ export interface BlogPostingInput {
 }
 
 /**
- * BlogPosting JSON-LD (STROps blog/[slug]).
+ * Build BlogPosting JSON-LD.
+ * NOTE: caller passes absolute `url`; caller is responsible for trailing-slash consistency
+ * with their site's canonical convention. Use canonical() from @str/seo to construct it.
+ *
  * STROps uses BlogPosting (richer than Article) with Person author.
  * publisher name/url come from siteConfig to avoid hardcoding.
  */

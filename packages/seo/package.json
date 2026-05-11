@@ -19,9 +19,6 @@
     "typecheck": "tsc --project tsconfig.typecheck.json",
     "clean": "rm -rf dist"
   },
-  "dependencies": {
-    "@str/format": "workspace:*"
-  },
   "devDependencies": {
     "typescript": "^5.5.3",
     "vitest": "^2.1.1"
