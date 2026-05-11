@@ -1,0 +1,97 @@
+---
+title: "Analyzing Airbnb comps before you buy: how to read three listings honestly"
+description: "Three listings, four data points each. The framework underwriters and seasoned hosts use to estimate revenue without buying an AirDNA subscription."
+datePublished: "2026-05-12"
+author: "The STR Ledger"
+category: "underwriting"
+keyword: "airbnb comp analyzer"
+relatedTools: ["comp-analyzer", "market-score", "cash-on-cash"]
+readMinutes: 6
+---
+
+You don't need AirDNA to underwrite a short-term rental. You need three real listings in the immediate area, four pieces of data per listing, and the discipline to pick comps your property could realistically replace.
+
+This post is the framework. The [Comp Analyzer tool](/comp-analyzer/) does the math; this is the part that tells you which three listings to paste in.
+
+## The 60-second version
+
+1. Find **three active listings** of similar bed count, similar square footage, within roughly half a mile (urban) or 2 miles (rural/resort) of your subject property.
+2. For each, capture: **nightly ADR (last 30 days), occupancy (last 90 days), cleaning fee, total reviews**.
+3. Apply a **discount to the median**: take 80% of median ADR × 75% of median occupancy. That's your underwriting revenue baseline.
+4. **Stress test**: drop occupancy another 10%. If the deal still works, it's a buy. If it only works at the optimistic numbers, walk.
+
+The discount looks pessimistic. It isn't — it accounts for the gap between operator skill at scale and a brand-new listing's first 6 months. Most under-performance in year 1 isn't market collapse; it's slow ramp.
+
+## Picking the three comps (this is the whole game)
+
+**Bed count must match.** A 3-bedroom and a 2-bedroom + den are not comparable. Guests filter by bedrooms.
+
+**Square footage within ±20%.** A 1,200 sf 3-bed and a 2,400 sf 3-bed produce different ADRs even at the same bed count.
+
+**Distance**:
+- Urban (Phoenix, Nashville, Charlotte): 0.5 mile radius
+- Suburban: 1 mile
+- Resort/rural (Sedona, Asheville, Smokies): 2–3 miles or "same submarket" (e.g., same valley, same lake)
+
+**Activity**:
+- Must have **at least 12 reviews** to be a real comp. New listings have unstable numbers.
+- Must show **bookings in the last 90 days** (look at the calendar — unavailable nights = bookings).
+
+**Avoid as comps**:
+- Listings owned by the subject's seller (they may be inflated to support the asking price)
+- "Unique experience" listings (treehouses, A-frames, glamping) unless you're buying a similar unique
+- Listings with paid promotion / featured-listing badges
+
+## What "nightly ADR" actually means
+
+ADR = Average Daily Rate, **net of platform fees, gross of cleaning fee**. On Airbnb's calendar view, you can read approximate ADR by:
+
+1. Look at the last 30 days of unavailable (booked) nights
+2. The nightly price for an upcoming booked-equivalent date is your proxy
+3. If the listing varies weekday/weekend, average them weighted by weekend share (typically 28%)
+
+The Comp Analyzer tool accepts the nightly rate you can see and the cleaning fee separately. **Always input the rate net of guest service fees** — that's what the host actually receives.
+
+## What "occupancy" actually means
+
+90-day occupancy = unavailable nights / 90.
+
+Look at the listing's calendar for the next 90 days. Count nights blocked. **A "minimum-stay-3-nights" listing showing 60 of next 90 booked is at 67% occupancy** for underwriting purposes — that's good in most markets.
+
+Two gotchas:
+1. **Host-blocked nights** (owner personal use) show as unavailable but aren't bookings. If you see large multi-week blocks in the calendar, mentally exclude them.
+2. **Future-loaded calendar**: a brand-new listing might show high occupancy for the next 60 days that doesn't reflect last-12-month performance. Cross-check with review velocity — a listing with 12 reviews and 60 future bookings is real; one with 3 reviews and 60 future bookings is suspicious.
+
+## The 80% × 75% discount, explained
+
+Once you have median ADR and median occupancy across your three comps, **discount both**:
+
+- **ADR × 0.80** — your property will not be the top-priced unit on day 1. Reviews are the moat; you don't have them yet.
+- **Occupancy × 0.75** — first 6 months of a new listing typically run 15–25% below stabilized. Algorithms favor proven units.
+
+Together, that's **annual revenue × 0.60 of median comp expectation**. If the deal works at 60% of comp median, you have a deal. If it requires 95% to clear, you don't.
+
+## Worked example
+
+Three Asheville 3-bed comps:
+- Comp A: $285 ADR, 76% occupancy
+- Comp B: $310 ADR, 72% occupancy
+- Comp C: $260 ADR, 80% occupancy
+
+Medians: ADR $285, Occupancy 76%.
+
+**Discounted underwriting**:
+- ADR: $285 × 0.80 = **$228**
+- Occupancy: 76% × 0.75 = **57%**
+- Annual revenue: $228 × 365 × 0.57 = **$47,433**
+
+If the deal needs $65,000 to cash-flow at 25% down, **walk**. If it cash-flows at $45,000, you have margin. The discount is the safety net.
+
+## What this connects to
+
+- [Comp Analyzer](/comp-analyzer/) — paste three listings, see the discount math run automatically.
+- [Cash-on-Cash Return Calculator](/cash-on-cash-calculator/) — what the discounted revenue translates to in actual return.
+- [Market Score Tool](/market-score/) — if your three comps disagree wildly, the market may be in flux — check the macro view.
+- [DSCR Loan vs. Conventional for Airbnb](/blog/dscr-loan-vs-conventional-for-airbnb/) — your discounted revenue is what the lender will underwrite to anyway.
+
+The cheapest way to lose $40,000 on a short-term rental is to underwrite to the optimistic median. The second cheapest is to underwrite without comps at all. The discount method is the floor — pay attention to anyone selling you a deal that requires optimistic occupancy to work.
