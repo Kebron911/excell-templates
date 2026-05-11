@@ -1,0 +1,109 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`@str/ui-funnel snapshots > AdSlot renders placeholder when AdSense not enabled 1`] = `
+"<aside class="ad-slot my-7 print:hidden" data-ad-slot data-location="in-content" aria-label="In-content ad slot">
+  <div class="rounded-md border border-dashed border-rule bg-parchment-light px-5 py-4 flex items-center justify-center" style="min-height:90px;">
+      <p class="text-caption text-ink-3 uppercase tracking-widest">
+        Ad slot · in-content · pending AdSense approval
+      </p>
+    </div>
+</aside>
+
+"
+`;
+
+exports[`@str/ui-funnel snapshots > ClusterFunnelBlock renders 3 links (excludes current cluster) 1`] = `
+"<section class="cluster-funnel-block bg-parchment-alt border-y border-rule">
+  <div class="mx-auto max-w-6xl px-5 py-7">
+    <p class="label text-navy">More tools across the STR cluster</p>
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <a href="https://strbuyers.tools" class="group block rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-[color:var(--accent-500)] hover:shadow-card transition-all duration-std">
+          <p class="wordmark text-navy group-hover:text-[color:var(--accent-700)]">strbuyers.tools</p>
+          <p class="mt-2 text-small text-ink-2 leading-snug">Pre-buy: DSCR, market score, comp analysis.</p>
+          <p class="mt-3 text-caption text-[color:var(--accent-700)] group-hover:text-[color:var(--accent-500)]">
+            Visit
+            <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true"> →</span>
+          </p>
+        </a><a href="https://strhost.tools" class="group block rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-[color:var(--accent-500)] hover:shadow-card transition-all duration-std">
+          <p class="wordmark text-navy group-hover:text-[color:var(--accent-700)]">strhost.tools</p>
+          <p class="mt-2 text-small text-ink-2 leading-snug">Analyzing: profit, RevPAR, break-even.</p>
+          <p class="mt-3 text-caption text-[color:var(--accent-700)] group-hover:text-[color:var(--accent-500)]">
+            Visit
+            <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true"> →</span>
+          </p>
+        </a><a href="https://strops.tools" class="group block rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-[color:var(--accent-500)] hover:shadow-card transition-all duration-std">
+          <p class="wordmark text-navy group-hover:text-[color:var(--accent-700)]">strops.tools</p>
+          <p class="mt-2 text-small text-ink-2 leading-snug">Running: turnover, dispatch, smart locks.</p>
+          <p class="mt-3 text-caption text-[color:var(--accent-700)] group-hover:text-[color:var(--accent-500)]">
+            Visit
+            <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true"> →</span>
+          </p>
+        </a>
+    </div>
+  </div>
+</section>"
+`;
+
+exports[`@str/ui-funnel snapshots > EmailCaptureCard renders with magnet and endpoint 1`] = `
+"<aside class="email-capture-card my-7 rounded-md border border-rule bg-parchment-light p-5 print:hidden" aria-label="Get free guest-XP templates by email" data-site-id="guests">
+  <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+    <div class="flex-1 min-w-0">
+      <p class="font-serif text-h3 text-navy leading-snug">Get your free template</p>
+      <p class="mt-1 text-small text-ink-2 leading-snug">We&#39;ll email you the editable Welcome Book master template. Branded printable, 8 sections, no signup gymnastics.</p>
+    </div>
+
+    <form class="flex flex-col sm:flex-row gap-2 sm:w-auto sm:items-stretch" data-email-capture data-magnet="house-rules-pdf" data-tool="unknown" data-site="guests" data-endpoint="/api/email-gate" method="post" novalidate>
+      <label class="sr-only" for="email-house-rules-pdf">Email address</label>
+      <input id="email-house-rules-pdf" name="email" type="email" required autocomplete="email" placeholder="you@yourdomain.com" class="rounded-md border border-rule bg-parchment px-4 py-2 text-ui text-navy placeholder:text-ink-3 focus:outline-none focus:border-[color:var(--accent-500)] focus:shadow-focus">
+      <button type="submit" class="rounded-md bg-navy text-parchment px-5 py-2 text-ui hover:bg-navy-tint transition-colors duration-std focus:outline-none focus:shadow-focus">
+        Send it to me
+      </button>
+    </form>
+  </div>
+  <p class="mt-3 text-caption text-ink-3 leading-snug" data-email-capture-status role="status" aria-live="polite">
+    No spam. One template per email. Unsubscribe anytime.
+  </p>
+</aside>
+
+<script type="module" src="C:/Users/Kebron/Desktop/Claude OS/Wealth/Businesses/Excel-Templates/.claude/worktrees/phase-2-ui-pkgs-1778525182/packages/ui-funnel/src/EmailCaptureCard.astro?astro&type=script&index=0&lang.ts"></script>"
+`;
+
+exports[`@str/ui-funnel snapshots > STRLedgerCTA renders fallback for unknown tool 1`] = `
+"<aside class="str-ledger-cta my-7 print:hidden" aria-label="Related product on The STR Ledger">
+  <div class="rounded-md surface-navy p-6">
+    <p class="label text-[color:var(--accent-500)]">From The STR Ledger</p>
+    <p class="mt-3 font-serif text-h3 text-parchment max-w-2xl leading-snug">
+      Track every property in The STR Ledger.
+    </p>
+    <p class="mt-3 text-small text-parchment opacity-90 max-w-2xl leading-snug">
+      Excel templates and PDFs that turn guest-XP work into your monthly bookkeeping rhythm.
+    </p>
+    <a href="https://thestrledger.com/?utm_source=guests-tools&#38;utm_medium=cta&#38;utm_content=unknown-tool" class="mt-5 inline-flex items-center gap-2 rounded-md text-navy px-5 py-2.5 text-ui no-underline transition-colors duration-std focus:outline-none focus:shadow-focus" style="background: var(--accent-500);" data-str-ledger-cta data-tool="unknown-tool">
+      Browse The STR Ledger
+      <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</aside>
+
+<script type="module" src="C:/Users/Kebron/Desktop/Claude OS/Wealth/Businesses/Excel-Templates/.claude/worktrees/phase-2-ui-pkgs-1778525182/packages/ui-funnel/src/STRLedgerCTA.astro?astro&type=script&index=0&lang.ts"></script>"
+`;
+
+exports[`@str/ui-funnel snapshots > STRLedgerCTA renders with known tool slug 1`] = `
+"<aside class="str-ledger-cta my-7 print:hidden" aria-label="Related product on The STR Ledger">
+  <div class="rounded-md surface-navy p-6">
+    <p class="label text-[color:var(--accent-500)]">From The STR Ledger</p>
+    <p class="mt-3 font-serif text-h3 text-parchment max-w-2xl leading-snug">
+      Track guest violations and damage incidents.
+    </p>
+    <p class="mt-3 text-small text-parchment opacity-90 max-w-2xl leading-snug">
+      The STR Ledger Incident Log workbook captures rule violations, severity, and resolution — auditable for your platform.
+    </p>
+    <a href="https://thestrledger.com/products/incident-log?utm_source=guests-tools&#38;utm_medium=cta&#38;utm_content=house-rules-pdf" class="mt-5 inline-flex items-center gap-2 rounded-md text-navy px-5 py-2.5 text-ui no-underline transition-colors duration-std focus:outline-none focus:shadow-focus" style="background: var(--accent-500);" data-str-ledger-cta data-tool="house-rules-pdf">
+      See the incident log
+      <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</aside>
+
+<script type="module" src="C:/Users/Kebron/Desktop/Claude OS/Wealth/Businesses/Excel-Templates/.claude/worktrees/phase-2-ui-pkgs-1778525182/packages/ui-funnel/src/STRLedgerCTA.astro?astro&type=script&index=0&lang.ts"></script>"
+`;

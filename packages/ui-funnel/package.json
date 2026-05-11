@@ -1,0 +1,38 @@
+{
+  "name": "@str/ui-funnel",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./EmailCaptureCard.astro": "./src/EmailCaptureCard.astro",
+    "./STRLedgerCTA.astro": "./src/STRLedgerCTA.astro",
+    "./ClusterFunnelBlock.astro": "./src/ClusterFunnelBlock.astro",
+    "./AdSlot.astro": "./src/AdSlot.astro"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --project tsconfig.typecheck.json",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@str/seo": "workspace:*",
+    "@str/ui-chrome": "workspace:*"
+  },
+  "devDependencies": {
+    "@astrojs/compiler": "^4.0.0",
+    "astro": "^6.2.2",
+    "typescript": "^5.5.3",
+    "vitest": "^2.1.1"
+  },
+  "peerDependencies": {
+    "astro": "^6.2.2"
+  }
+}
