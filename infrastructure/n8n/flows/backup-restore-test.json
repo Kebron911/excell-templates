@@ -33,18 +33,42 @@
       "position": [620, 300]
     },
     {
+      "parameters": {
+        "functionCode": "const a = $('Assess restore').first().json;\n// Strip ANSI noise + parse the original probe blob from the Telegram message-ish payload.\nconst priority = a.priority || 'P2';\nconst passed = priority !== 'P0';\nconst entry = {\n  ts: new Date().toISOString(),\n  priority,\n  passed,\n  // Pull what we can out of the message text — the source-of-truth probe object is the previous node's stdout.\n  message: a.message || ''\n};\nreturn [{ json: entry }];"
+      },
+      "id": "buildLog",
+      "name": "Build log entry",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [820, 200]
+    },
+    {
+      "parameters": {
+        "command": "=set -e\nrepo=\"{{ $env.EMPIRE_REPO_PATH }}\"\nmkdir -p \"$repo/ops\"\nprintf '%s\\n' '{{ JSON.stringify($json) }}' >> \"$repo/ops/backup-tests.ndjson\""
+      },
+      "id": "writeLog",
+      "name": "Append to backup-tests.ndjson",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1020, 200]
+    },
+    {
       "parameters": { "source": "parameter", "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID" },
       "id": "router",
       "name": "→ telegram-router",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1,
-      "position": [820, 300]
+      "position": [820, 400]
     }
   ],
   "connections": {
     "1st of month 04:00":          { "main": [[{ "node": "Find + restore latest backup", "type": "main", "index": 0 }]] },
     "Find + restore latest backup": { "main": [[{ "node": "Assess restore",              "type": "main", "index": 0 }]] },
-    "Assess restore":              { "main": [[{ "node": "→ telegram-router",            "type": "main", "index": 0 }]] }
+    "Assess restore":              { "main": [[
+                                     { "node": "Build log entry",                    "type": "main", "index": 0 },
+                                     { "node": "→ telegram-router",                  "type": "main", "index": 0 }
+                                   ]] },
+    "Build log entry":             { "main": [[{ "node": "Append to backup-tests.ndjson", "type": "main", "index": 0 }]] }
   },
   "settings": { "executionOrder": "v1" },
   "tags": [{ "name": "empire-console" }, { "name": "phase-4" }, { "name": "P0" }]

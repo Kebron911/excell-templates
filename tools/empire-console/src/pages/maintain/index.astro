@@ -8,10 +8,21 @@ import { readRisks } from '@/lib/data/risks';
 import { readDecisions } from '@/lib/data/decisions';
 import { readDrift } from '@/lib/data/drift';
 import { readGdpr } from '@/lib/data/gdpr';
+import { readBackupTests } from '@/lib/data/backup-tests';
 
-const [assets, runbooks, vendors, calendar, risks, decisions, drift, gdpr] = await Promise.all([
-  readAssets(), readRunbooks(), readVendors(), readCalendar(), readRisks(), readDecisions(), readDrift(), readGdpr(),
+const [assets, runbooks, vendors, calendar, risks, decisions, drift, gdpr, backups] = await Promise.all([
+  readAssets(), readRunbooks(), readVendors(), readCalendar(), readRisks(), readDecisions(), readDrift(), readGdpr(), readBackupTests(),
 ]);
+const backupDays = backups.totals.daysSinceLastPass;
+const backupTone: 'ok' | 'warn' | 'bad' =
+  backupDays === null ? 'bad'  :
+  backupDays <= 35    ? 'ok'   :
+  backupDays <= 60    ? 'warn' :
+                        'bad';
+const backupSignal =
+  backupDays === null ? 'never passed' :
+  backupDays <= 35    ? `${backupDays}d since pass` :
+                        `${backupDays}d since pass — overdue`;
 const stale = runbooks.filter((r) => r.isStale).length;
 
 interface Tile {
@@ -47,7 +58,8 @@ const tiles: Tile[] = [
   { href: '/maintain/drift',      title: 'Drift detector',  desc: 'Atlas vs reality · convention checks · recent touches.',
     signal: drift.totals.bad > 0 ? `${drift.totals.bad} bad` : drift.totals.warn > 0 ? `${drift.totals.warn} warn` : 'in sync',
     tone: drift.totals.bad > 0 ? 'bad' : drift.totals.warn > 0 ? 'warn' : 'ok' },
-  { href: '/maintain/backups',    title: 'Backups',         desc: 'Monthly restore test log.', disabled: true },
+  { href: '/maintain/backups',    title: 'Backups',         desc: 'Monthly restore-test log · DR posture.',
+    signal: backupSignal, tone: backupTone },
   { href: '/maintain/compliance', title: 'Compliance',      desc: 'GDPR/CCPA queue · 30-day SLA tracker.',
     signal: gdpr.totals.overdue > 0 ? `${gdpr.totals.overdue} overdue` : gdpr.totals.open > 0 ? `${gdpr.totals.open} open` : 'none open',
     tone: gdpr.totals.overdue > 0 ? 'bad' : gdpr.totals.open > 0 ? 'warn' : 'ok' },
