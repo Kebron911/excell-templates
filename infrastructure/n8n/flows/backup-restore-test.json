@@ -1,0 +1,51 @@
+{
+  "name": "backup-restore-test",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 4 1 * *" }] }
+      },
+      "id": "cron",
+      "name": "1st of month 04:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "command": "=set -e\nrepo=\"{{ $env.EMPIRE_REPO_PATH }}\"\nbackup_dir=\"${BACKUP_DIR:-/var/backups/strledger}\"\ntmp=\"/tmp/strledger-restore-test-$$\"\nmkdir -p \"$tmp\"\n\n# Find the newest .tar.gz backup\nlatest=$(ls -1t \"$backup_dir\"/*.tar.gz 2>/dev/null | head -1 || true)\nif [ -z \"$latest\" ]; then\n  printf '{\"ok\":false,\"reason\":\"no-backups-found\",\"backupDir\":\"%s\"}\\n' \"$backup_dir\"\n  exit 0\nfi\nbackup_age_days=$(awk -v n=\"$(date -u +%s)\" -v m=\"$(date -u -r \"$latest\" +%s 2>/dev/null || stat -c %Y \"$latest\")\" 'BEGIN{printf \"%.1f\", (n-m)/86400}')\n\n# Extract into tmp and probe a sentinel file\nif ! tar -xzf \"$latest\" -C \"$tmp\" 2>/dev/null; then\n  printf '{\"ok\":false,\"reason\":\"extract-failed\",\"backup\":\"%s\"}\\n' \"$latest\"\n  rm -rf \"$tmp\"\n  exit 0\nfi\n\n# Sentinels: PROGRESS.md + ops/atlas.yaml must exist after extract\nfound_progress=0; found_atlas=0\n[ -f \"$tmp/PROGRESS.md\" ] && found_progress=1\n[ -f \"$tmp/ops/atlas.yaml\" ] && found_atlas=1\n# Sometimes archives root inside a folder; check one level deep too.\nif [ \"$found_progress\" = \"0\" ]; then\n  if find \"$tmp\" -mindepth 2 -maxdepth 2 -name PROGRESS.md -print -quit | grep -q .; then found_progress=1; fi\nfi\nif [ \"$found_atlas\" = \"0\" ]; then\n  if find \"$tmp\" -mindepth 2 -maxdepth 3 -path '*/ops/atlas.yaml' -print -quit | grep -q .; then found_atlas=1; fi\nfi\n\nfile_count=$(find \"$tmp\" -type f | wc -l | tr -d ' ')\nrm -rf \"$tmp\"\n\nok=true\nreason=\"\"\nif [ \"$found_progress\" = \"0\" ] || [ \"$found_atlas\" = \"0\" ]; then\n  ok=false\n  reason=\"sentinel-files-missing\"\nfi\nprintf '{\"ok\":%s,\"reason\":\"%s\",\"backup\":\"%s\",\"backupAgeDays\":%s,\"fileCount\":%s,\"foundProgress\":%s,\"foundAtlas\":%s}\\n' \"$ok\" \"$reason\" \"$latest\" \"$backup_age_days\" \"$file_count\" \"$found_progress\" \"$found_atlas\""
+      },
+      "id": "restore",
+      "name": "Find + restore latest backup",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "let probe;\ntry { probe = JSON.parse(($input.item.json.stdout || '{}').trim()); } catch { probe = { ok: false, reason: 'probe-parse-error' }; }\nconst url = ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/maintain/runbooks';\nconst ageDays = parseFloat(probe.backupAgeDays || '0');\n\nif (probe.reason === 'no-backups-found') {\n  return [{ json: {\n    priority: 'P0',\n    source: 'backup-restore-test',\n    message: `No backups found in ${probe.backupDir}. Disaster recovery posture is broken — restore cannot succeed because there is nothing to restore.`,\n    url\n  } }];\n}\nif (!probe.ok) {\n  return [{ json: {\n    priority: 'P0',\n    source: 'backup-restore-test',\n    message: `Monthly restore probe FAILED · reason: ${probe.reason} · backup: ${probe.backup} (${ageDays}d old) · found PROGRESS.md: ${probe.foundProgress} · found ops/atlas.yaml: ${probe.foundAtlas}`,\n    url\n  } }];\n}\n// Restore passed. Flag stale backups (>40d) at P1, otherwise P2 confirmation.\nif (ageDays > 40) {\n  return [{ json: {\n    priority: 'P1',\n    source: 'backup-restore-test',\n    message: `Restore probe PASSED but latest backup is ${ageDays}d old (>40d threshold). Backup cadence may have drifted. Backup: ${probe.backup}, ${probe.fileCount} files.`,\n    url\n  } }];\n}\nreturn [{ json: {\n  priority: 'P2',\n  source: 'backup-restore-test',\n  message: `Monthly restore probe PASSED · backup: ${probe.backup} (${ageDays}d old) · ${probe.fileCount} files · sentinels present.`,\n  url\n} }];"
+      },
+      "id": "decide",
+      "name": "Assess restore",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [620, 300]
+    },
+    {
+      "parameters": { "source": "parameter", "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID" },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [820, 300]
+    }
+  ],
+  "connections": {
+    "1st of month 04:00":          { "main": [[{ "node": "Find + restore latest backup", "type": "main", "index": 0 }]] },
+    "Find + restore latest backup": { "main": [[{ "node": "Assess restore",              "type": "main", "index": 0 }]] },
+    "Assess restore":              { "main": [[{ "node": "→ telegram-router",            "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "phase-4" }, { "name": "P0" }]
+}
