@@ -1,21 +1,22 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 const maintenance = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/maintenance' }),
   schema: z.object({
     narrativeOverride: z.boolean().default(true),
   }),
 });
 
 const replacement = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/replacement' }),
   schema: z.object({
     narrativeOverride: z.boolean().default(true),
   }),
 });
 
 const tools = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/tools' }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -23,7 +24,7 @@ const tools = defineCollection({
 });
 
 const posts = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/posts' }),
   schema: z.object({
     title: z.string().max(70),
     description: z.string().min(100).max(170),
