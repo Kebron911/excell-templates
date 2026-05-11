@@ -34,6 +34,8 @@ anything past 180d.
 - [Template production process](../../docs/runbooks/template-production-process.md)
 - [Weekly content atomization](../../docs/runbooks/weekly-content-atomization.md)
 - [Cluster blog standard](../../docs/CLUSTER-BLOG-STANDARD.md)
+- [Phase 0 Citation Sprints](./phase-0-citation-sprints.md) — weekend execution: 12–25 free dofollow citations
+- [IndexNow Setup](./indexnow-setup.md) — one-time wiring of Bing/Yandex URL submission for W43
 
 ## Runbooks (planned per PROGRESS §P9.5)
 
