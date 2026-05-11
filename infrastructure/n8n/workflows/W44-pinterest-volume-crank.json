@@ -1,0 +1,54 @@
+{
+  "name": "W44 — Pinterest Volume Crank",
+  "_stub": "Skeleton export. Build full nodes in n8n UI from W44-pinterest-volume-crank.md spec (three branches: A=evergreen Mon, B=top-performer webhook, C=Idea/Video Fri), then re-export to overwrite this file.",
+  "nodes": [
+    {
+      "id": "w44-nA1",
+      "name": "Cron Mon 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 200],
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "weeks", "weeksInterval": 1, "triggerAtDay": [1], "triggerAtHour": 9 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w44-nB1",
+      "name": "Top Performer Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 400],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "top-performer-flagged",
+        "responseMode": "lastNode"
+      }
+    },
+    {
+      "id": "w44-nC1",
+      "name": "Cron Fri 14:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 600],
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "weeks", "weeksInterval": 1, "triggerAtDay": [5], "triggerAtHour": 14 }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "executionTimeout": 1800,
+    "timezone": "America/New_York"
+  },
+  "pinData": {}
+}
