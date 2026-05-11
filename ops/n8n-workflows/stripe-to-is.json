@@ -1,0 +1,166 @@
+{
+  "name": "Stripe → InfluencerSoft post-purchase tagger",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "stripe-to-is",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "node-webhook",
+      "name": "Stripe Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "stripe-to-is"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Verify Stripe webhook signature. The Stripe-Signature header is of the form:\n//   t=<timestamp>,v1=<signature>[,v0=<deprecated>]\n// signature = HMAC-SHA256(`${timestamp}.${payload}`, STRIPE_WEBHOOK_SECRET)\n//\n// We accept a 5-minute clock skew window. Reject anything older.\n\nconst crypto = require('crypto');\n\nconst secret = $env.STRIPE_WEBHOOK_SECRET;\nif (!secret) throw new Error('STRIPE_WEBHOOK_SECRET env var not set on n8n host');\n\nconst headers = $input.first().json.headers || {};\nconst sigHeader = headers['stripe-signature'] || headers['Stripe-Signature'];\nif (!sigHeader) throw new Error('Missing Stripe-Signature header');\n\nconst rawBody = $input.first().json.body;\nconst payload = typeof rawBody === 'string' ? rawBody : JSON.stringify(rawBody);\n\nconst parts = Object.fromEntries(sigHeader.split(',').map((p) => p.split('=')));\nconst t = parseInt(parts.t, 10);\nconst v1 = parts.v1;\nif (!t || !v1) throw new Error('Malformed Stripe-Signature');\n\nconst nowSec = Math.floor(Date.now() / 1000);\nif (Math.abs(nowSec - t) > 300) throw new Error('Stripe timestamp outside 5-minute window');\n\nconst signedPayload = `${t}.${payload}`;\nconst expected = crypto.createHmac('sha256', secret).update(signedPayload).digest('hex');\n\n// Constant-time compare.\nconst a = Buffer.from(expected, 'hex');\nconst b = Buffer.from(v1, 'hex');\nif (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {\n  throw new Error('Stripe signature mismatch');\n}\n\nconst event = typeof rawBody === 'string' ? JSON.parse(rawBody) : rawBody;\nreturn [{ json: event }];\n"
+      },
+      "id": "node-verify",
+      "name": "Verify Stripe signature",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "is-checkout-completed",
+              "leftValue": "={{ $json.type }}",
+              "rightValue": "checkout.session.completed",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-filter",
+      "name": "Is checkout.session.completed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract the buyer's email + SKU list from the Stripe Checkout Session.\n//\n// The webhook event for checkout.session.completed does NOT inline line_items by default.\n// We rely on Stripe's `metadata.sku` on the Product (set by our bulk-import-v1) AND on\n// `customer_details.email` (always present once the session completes).\n//\n// If line_items aren't inlined (default), we fall back to a second fetch in a later node\n// — but most setups configure Stripe to include line_items.data.price.product in expansion.\n// For this v1 workflow we just tag with the customer:stripe bucket; SKU-level tagging\n// is a Phase-2 enhancement once line_items expansion is enabled.\n\nconst event = $input.first().json;\nconst session = event.data && event.data.object;\nif (!session) throw new Error('No session payload in event');\n\nconst email = (session.customer_details && session.customer_details.email)\n  || session.customer_email\n  || null;\nif (!email) throw new Error('No email on session');\n\nconst skus = [];\nconst items = (session.line_items && session.line_items.data) || [];\nfor (const it of items) {\n  const sku = it.price && it.price.product && it.price.product.metadata && it.price.product.metadata.sku;\n  if (sku) skus.push(sku);\n}\n\nreturn [{\n  json: {\n    email,\n    skus,\n    sessionId: session.id,\n    amountTotal: session.amount_total,\n    currency: session.currency,\n    receivedAt: new Date().toISOString(),\n  },\n}];\n"
+      },
+      "id": "node-extract",
+      "name": "Extract email + SKUs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 220]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://kebron.influencersoft.com/api/AddUpdateLead",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "rpsKey", "value": "={{ $env.INFLUENCERSOFT_API_KEY }}" },
+            { "name": "lead_email", "value": "={{ $json.email }}" },
+            { "name": "add_tags", "value": "customer:stripe" }
+          ]
+        },
+        "options": { "timeout": 10000 }
+      },
+      "id": "node-is-upsert",
+      "name": "IS AddUpdateLead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 220]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "node-split-skus",
+      "name": "For each SKU",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1340, 220]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://kebron.influencersoft.com/api/AddTagToLead",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            { "name": "rpsKey", "value": "={{ $env.INFLUENCERSOFT_API_KEY }}" },
+            { "name": "lead_email", "value": "={{ $('Extract email + SKUs').item.json.email }}" },
+            { "name": "tag_name", "value": "=purchased:{{ $json }}" }
+          ]
+        },
+        "options": { "timeout": 10000 }
+      },
+      "id": "node-is-tag-sku",
+      "name": "IS AddTagToLead per SKU",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "OK",
+        "options": {}
+      },
+      "id": "node-respond",
+      "name": "Respond 200 OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [900, 460]
+    }
+  ],
+  "connections": {
+    "Stripe Webhook": {
+      "main": [[{ "node": "Verify Stripe signature", "type": "main", "index": 0 }]]
+    },
+    "Verify Stripe signature": {
+      "main": [[{ "node": "Is checkout.session.completed?", "type": "main", "index": 0 }]]
+    },
+    "Is checkout.session.completed?": {
+      "main": [
+        [{ "node": "Extract email + SKUs", "type": "main", "index": 0 }],
+        [{ "node": "Respond 200 OK", "type": "main", "index": 0 }]
+      ]
+    },
+    "Extract email + SKUs": {
+      "main": [[{ "node": "IS AddUpdateLead", "type": "main", "index": 0 }]]
+    },
+    "IS AddUpdateLead": {
+      "main": [[{ "node": "For each SKU", "type": "main", "index": 0 }]]
+    },
+    "For each SKU": {
+      "main": [
+        [{ "node": "IS AddTagToLead per SKU", "type": "main", "index": 0 }],
+        [{ "node": "Respond 200 OK", "type": "main", "index": 0 }]
+      ]
+    },
+    "IS AddTagToLead per SKU": {
+      "main": [[{ "node": "For each SKU", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 30,
+    "timezone": "America/Denver"
+  },
+  "staticData": null
+}

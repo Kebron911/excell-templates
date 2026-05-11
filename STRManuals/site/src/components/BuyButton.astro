@@ -1,20 +1,28 @@
 ---
+// Path B (static-only): buyers go straight to Stripe-hosted payment
+// links (https://buy.stripe.com/...). No /api/checkout server round-trip.
+// `paymentLink` is the preferred prop; `stripePriceId` is kept as a
+// fallback in case a future caller wants to use the API checkout route
+// — but in static mode it falls back to # and is non-functional.
 interface Props {
   price: number;
+  paymentLink?: string;
   stripePriceId?: string;
   label?: string;
   size?: 'default' | 'large';
 }
-const { price, stripePriceId, label = 'Buy', size = 'default' } = Astro.props;
-const href = stripePriceId ? `/api/checkout?price=${stripePriceId}` : '#';
+const { price, paymentLink, stripePriceId, label = 'Buy', size = 'default' } = Astro.props;
+const href = paymentLink ?? (stripePriceId ? `/api/checkout?price=${stripePriceId}` : '#');
 const padding = size === 'large' ? '1rem 2rem' : '0.75rem 1.5rem';
 const fontSize = size === 'large' ? '1.0625rem' : '1rem';
+const disabled = href === '#';
 ---
 <a
   href={href}
   class="btn-primary"
-  style={`padding: ${padding}; font-size: ${fontSize};`}
+  style={`padding: ${padding}; font-size: ${fontSize};${disabled ? ' opacity: 0.5; pointer-events: none;' : ''}`}
   data-stripe-price={stripePriceId}
+  aria-disabled={disabled ? 'true' : undefined}
 >
   {label} <span class="price-mono">— ${price}</span>
 </a>

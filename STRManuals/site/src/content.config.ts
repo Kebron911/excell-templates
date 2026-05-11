@@ -23,6 +23,7 @@ const manuals = defineCollection({
       .array(z.object({ q: z.string(), a: z.string() }))
       .optional(),
     stripePriceId: z.string().optional(),
+    paymentLink: z.string().url().optional(),
     legalDisclaimer: z.boolean().default(false),
     order: z.number(),
   }),

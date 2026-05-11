@@ -1,0 +1,124 @@
+# n8n workflow definitions
+
+> Source-of-truth workflow JSON for the empire's n8n automations. Each `.json` file is a complete n8n workflow that can be uploaded via `deploy-workflow.mjs`. The repo holds the canonical definition; n8n is the runtime.
+
+---
+
+## Why JSON in the repo (not just in n8n)
+
+n8n's UI is great for tinkering. Production workflows belong in version control because:
+
+- **Recovery** — if the VPS dies or a workflow gets accidentally deleted in the UI, we can re-deploy from the JSON in 30 seconds.
+- **Code review** — workflow changes go through PRs like everything else; reviewers see exactly which nodes are added/removed/edited.
+- **Diffability** — diffing two workflow JSONs is straightforward; eyeballing two n8n UI screenshots is not.
+- **Multi-environment** — staging vs prod can both pull from the same JSON, swapping env vars on the host.
+
+The flow is **edit JSON in repo → deploy via script → tweak in n8n UI for one-off testing → re-export and commit if the tweak is keep-worthy**.
+
+---
+
+## Workflows in this directory
+
+| File | Trigger | Status | What it does |
+|---|---|---|---|
+| [stripe-to-is.json](stripe-to-is.json) | Stripe webhook `checkout.session.completed` | **not yet deployed** | Verifies Stripe signature → extracts buyer email + SKUs from session → upserts contact in InfluencerSoft with `customer:stripe` tag → loops SKUs and applies `purchased:<SKU>` tag per item. |
+
+(More to come: `stripe-to-sheets-ledger`, `refund-recovery`, `daily-winback-scan`.)
+
+---
+
+## Deploy a workflow
+
+From the repo root:
+
+```bash
+# Dry-run first to see node summary + auth check
+node ops/n8n-workflows/deploy-workflow.mjs ops/n8n-workflows/stripe-to-is.json --dry
+
+# Upload (leaves workflow INACTIVE — webhook URL printed)
+node ops/n8n-workflows/deploy-workflow.mjs ops/n8n-workflows/stripe-to-is.json
+
+# Activate explicitly (flips the toggle that makes the production webhook live)
+node ops/n8n-workflows/deploy-workflow.mjs ops/n8n-workflows/stripe-to-is.json --activate
+```
+
+The script:
+- Reads `N8N_BASE_URL` + `N8N_API_KEY` from repo-root `.env`.
+- POSTs to create, or PUT to update if a workflow with the same `name` already exists.
+- Prints the test + production webhook URLs after a successful upload.
+
+---
+
+## Required environment variables on the n8n VPS
+
+The workflow JSON references `$env.<NAME>` for secrets. n8n reads these from the **n8n process's own environment**, NOT from a `.env` file in the repo. You must set them on the VPS:
+
+| Env var | Source | Used by |
+|---|---|---|
+| `STRIPE_WEBHOOK_SECRET` | Stripe Dashboard → Developers → Webhooks → endpoint signing secret | `stripe-to-is` (signature verification) |
+| `INFLUENCERSOFT_API_KEY` | repo root `.env` | `stripe-to-is` (IS API calls) |
+
+### Setting them (Docker example)
+
+```bash
+# Edit /etc/n8n/n8n.env or wherever your n8n unit's EnvironmentFile points
+echo 'STRIPE_WEBHOOK_SECRET=whsec_...' >> /etc/n8n/n8n.env
+echo 'INFLUENCERSOFT_API_KEY=...'       >> /etc/n8n/n8n.env
+docker compose restart n8n
+```
+
+Or for a non-Docker n8n setup:
+
+```bash
+sudo systemctl edit n8n
+# Add:
+#   [Service]
+#   Environment="STRIPE_WEBHOOK_SECRET=whsec_..."
+#   Environment="INFLUENCERSOFT_API_KEY=..."
+sudo systemctl restart n8n
+```
+
+After setting, validate from inside n8n's container/host:
+
+```bash
+docker exec n8n env | grep -E "STRIPE|INFLUENCERSOFT"
+# should print both lines with values
+```
+
+If a Code node throws `STRIPE_WEBHOOK_SECRET env var not set on n8n host`, you missed this step.
+
+---
+
+## Stripe webhook setup
+
+After uploading the workflow + setting the env vars + activating, configure Stripe to fire events at the n8n webhook URL:
+
+1. Stripe Dashboard → Developers → Webhooks → **Add endpoint**.
+2. Endpoint URL: `https://n8ncde.cdeprosperity.com/webhook/stripe-to-is`
+3. Events to send: `checkout.session.completed` (and `charge.refunded` once the refund-recovery workflow lands).
+4. After creation, copy the **Signing secret** (starts with `whsec_...`) and set it as `STRIPE_WEBHOOK_SECRET` on the n8n VPS (see above).
+5. Click **Send test webhook** → choose `checkout.session.completed` → check n8n executions list. You should see the workflow run + a 200 OK response.
+
+---
+
+## Failure modes worth knowing
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| "Stripe signature mismatch" in execution log | wrong `STRIPE_WEBHOOK_SECRET` or n8n didn't reload after env var change | Verify the secret matches Stripe's endpoint signing secret; restart n8n |
+| "Stripe timestamp outside 5-minute window" | clock skew between Stripe and the n8n VPS | `timedatectl set-ntp true` on the VPS |
+| IS HTTP nodes return `error_code: 1, "Not transferred hash"` | API 1.0 hash signing required, not API 2.0 | Confirm endpoint URL uses PascalCase `/api/AddUpdateLead` (this workflow does); legacy 1.0 endpoints use lowercase |
+| `For each SKU` loops forever | line_items not in the session payload | Stripe needs to be configured to send `checkout.session.completed` with line_items expanded — set "Include line_items" in the webhook config |
+| 404 on the test webhook URL | workflow exists but is INACTIVE | re-run `deploy-workflow.mjs --activate` or flip the toggle in n8n UI |
+
+---
+
+## Re-export from n8n UI
+
+If you tweaked the workflow in the n8n UI and want to bring the change back into the repo:
+
+1. n8n UI → workflow → top-right menu → **Download** (saves `<workflow-name>.json`)
+2. Replace `ops/n8n-workflows/<name>.json` with the downloaded content (or diff and merge selectively)
+3. Commit + PR
+
+The `id` field inside the JSON is fine to keep or strip — `deploy-workflow.mjs` matches by `name`, not `id`.
