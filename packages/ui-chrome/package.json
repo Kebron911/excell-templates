@@ -17,7 +17,10 @@
     "./Wordmark.astro": "./src/Wordmark.astro",
     "./FunnelBand.astro": "./src/FunnelBand.astro"
   },
-  "files": ["dist", "src"],
+  "files": [
+    "dist",
+    "src"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
@@ -29,6 +32,7 @@
     "@str/seo": "workspace:*"
   },
   "devDependencies": {
+    "@astrojs/compiler": "^4.0.0",
     "astro": "^6.2.2",
     "typescript": "^5.5.3",
     "vitest": "^2.1.1"
