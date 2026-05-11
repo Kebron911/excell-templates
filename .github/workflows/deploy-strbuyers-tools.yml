@@ -102,15 +102,16 @@ jobs:
           path: STRBuyers-Tools/playwright-report
           retention-days: 14
 
-      # Deploy only on push to main. PRs run through the verification gates
-      # above (typecheck/test/build/e2e) but do not deploy.
+      # Deploy on push to main OR manual workflow_dispatch. PRs run through
+      # the verification gates above (typecheck/test/build/e2e) but do not
+      # deploy.
       #
       # SSH-based deploy. Uses the master Hostinger account u470667024 + the
       # shared cluster SSH key in secret STR_SSH_KEY. Sidesteps per-domain
       # FTP sub-user provisioning — the strbuyers FTP sub-account was never
       # provisioned by Hostinger; SSH master always works.
       - name: Set up SSH key
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           SSH_PRIVATE_KEY: ${{ secrets.STR_SSH_KEY }}
         run: |
@@ -126,7 +127,7 @@ jobs:
           echo "known_hosts entries: $(wc -l < ~/.ssh/known_hosts)"
 
       - name: Deploy via rsync over SSH
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
           rsync -av --delete \
             --exclude='.git' \
@@ -136,7 +137,7 @@ jobs:
             u470667024@195.35.15.247:/home/u470667024/domains/strbuyers.tools/public_html/
 
       - name: Pre-launch smoke
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: STRBuyers-Tools
         env:
           SMOKE_BASE_URL: https://strbuyers.tools
