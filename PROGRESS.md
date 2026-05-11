@@ -672,6 +672,47 @@ Per-SKU remaining work for the 13 Phase-6 SKUs: Etsy copy ▢ · product-page co
 - [ ] **Email-list segmentation strategy** → `infrastructure/influencersoft/segmentation.md` — beyond persona/source tags, document engaged-vs-cold, behavior-based ("clicked in last 30d"), buyer-of-X-not-Y segments → drives which segments get which seasonal push
 - [ ] 🚦 "annual promo calendar approved"
 
+### P5.9 — Traffic Engines (W41–W45) 🆕
+
+> New-brand-stage automation layer. Free or near-free; no reputation prerequisite. Implements the philosophy in [docs/backlink-automation-plan.md](docs/backlink-automation-plan.md) — distribution > acquisition. Plumbing for W41–W45 is committed; this section tracks activation.
+>
+> Reputation-gated tactics (Featured/Qwoted, podcast tour, PMS partner pages) stay in P5.7 above as Month 4–6+ deferred work.
+
+**Phase 0 — manual weekend sprints (Daniel)**
+- [ ] Execute [ops/runbooks/phase-0-citation-sprints.md](ops/runbooks/phase-0-citation-sprints.md) — flip 18–22 of 24 rows in `ops/citations.yaml` from `pending` to `live`
+- [ ] Sprint 0.1 (T1, 4 hrs): Crunchbase, LinkedIn, Trustpilot, G2, Capterra/GetApp/Software Advice, Product Hunt, Indie Hackers, AngelList, About.me
+- [ ] Sprint 0.2 (T2, 2 hrs): HostTools.io, Hospitable, OwnerRez, BNB Wizards, Awesome STR list PR, Vertex42/Spreadsheet123
+- [ ] Sprint 0.3 (T3, 1 hr): Substack publication, Medium publication, Reddit profile, YouTube banner+about, Pinterest domain verify
+- [ ] 🚦 "Phase 0 complete" — `/promote/citations` shows 15+ live
+
+**One-time setup (Daniel)**
+- [ ] IndexNow key generated + uploaded to Hostinger SFTP per [ops/runbooks/indexnow-setup.md](ops/runbooks/indexnow-setup.md)
+- [ ] `INDEXNOW_KEY` env var set in n8n
+- [ ] Customer-embed badge SVG live at `https://thestrledger.com/badges/built-with-strledger.svg`
+- [ ] Airtable Identity table populated: `bio_short`, `bio_long`, `headshot_url`, `tagline`, `product_count`, `version` (autonumber)
+- [ ] Airtable Customer table extended for W45: `Embed_ask_sent`, `Embed_ask_sent_at`, `Embed_utm`, `Embed_active`, `Embed_first_detected`, `Customer_link_count`
+- [ ] Google Alerts RSS feeds configured for W41 (`"airbnb tax" OR "vacation rental tax" OR "STR bookkeeping"`)
+- [ ] Slack channel `#str-platform-traffic` created and n8n bot added
+
+**n8n workflow builds (Daniel, in n8n UI)**
+- [ ] W43 IndexNow + GSC URL Submit — build from [infrastructure/n8n/workflows/W43-indexnow-gsc-submit.md](infrastructure/n8n/workflows/W43-indexnow-gsc-submit.md) — *build first; zero risk*
+- [ ] W41 Social Question Watcher — build from [infrastructure/n8n/workflows/W41-social-question-watcher.md](infrastructure/n8n/workflows/W41-social-question-watcher.md)
+- [ ] W44 Pinterest Volume Crank (Branch A first) — build from [infrastructure/n8n/workflows/W44-pinterest-volume-crank.md](infrastructure/n8n/workflows/W44-pinterest-volume-crank.md)
+- [ ] W42 Citation Refresher — build from [infrastructure/n8n/workflows/W42-citation-refresher.md](infrastructure/n8n/workflows/W42-citation-refresher.md) — *depends on Phase 0 populating citations.yaml*
+- [ ] W45 Customer → Embed Loop (Branch A first) — build from [infrastructure/n8n/workflows/W45-customer-embed-loop.md](infrastructure/n8n/workflows/W45-customer-embed-loop.md) — *depends on W13 having Review data*
+
+**Verification (Empire Console)**
+- [ ] `/promote/citations` — 15+ T1/T2/T3 entries live
+- [ ] `/promote/pinterest` — cache populated, first pin batch impressions tracking
+- [ ] `/promote/social-answers` — first 5+ questions surfaced; first 1+ answered
+- [ ] `/promote/etsy-referral` — Etsy share visible in topSources
+- [ ] `/check/seo` — IndexNow submissions counter > 0
+- [ ] `/promote/customer-embeds` — at least 1 active embed (requires customers + 21-day Day-21 cycle)
+
+**Cost:** $10–25/mo Claude API (no other vendor delta). All paid options (Ahrefs $140/mo, Featured Pro $199/mo, Brand24 $69/mo) explicitly deferred per plan triggers.
+
+**Trigger to add the paid tier:** any of — MRR > $3k/mo · 1–2 podcast appearances · first STR Tax Survey published · 50+ active customers.
+
 ---
 
 ## P6 — INFRASTRUCTURE / AUTOMATION (parallel to P3-P5)
