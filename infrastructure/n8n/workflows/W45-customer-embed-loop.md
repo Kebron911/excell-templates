@@ -109,7 +109,7 @@ Row shape:
 - IS API (cred `2`) for the send
 - Referrer-log source (Plausible export OR GA4 BigQuery export) — feeds B1
 - `ops/customer-embeds.ndjson` writable
-- Brand asset: `https://thestrledger.com/badges/built-with-strledger.svg` (one-time design task)
+- Brand asset: `https://thestrledger.com/badges/built-with-strledger.svg` — SVG sources committed at `brand/assets/badges/` (light + dark variants + README). One-time upload to Hostinger `public_html/badges/` required.
 
 ## Outputs
 
@@ -158,7 +158,7 @@ Row shape:
 
 ## Deployment
 
-1. Design + host the badge SVG at `https://thestrledger.com/badges/built-with-strledger.svg` (one-time Daniel task — Vista Create or hand-design).
+1. Upload pre-built badge SVGs from `brand/assets/badges/` to Hostinger `public_html/badges/` per the README in that folder. Both light and dark variants ship committed.
 2. Add Airtable Customer columns: `Embed_ask_sent`, `Embed_ask_sent_at`, `Embed_utm`, `Embed_active`, `Embed_first_detected`, `Customer_link_count`.
 3. Create IS email template `embed-ask` (Daniel review the Claude default once; lock).
 4. Build Plausible referrer-export polling flow (separate, simple — 30 min build) feeding B1.
