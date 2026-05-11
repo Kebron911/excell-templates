@@ -37,6 +37,7 @@ credentials.json
 # Build / dist
 dist/
 build/
+*.tsbuildinfo
 
 # Empire console — Phase 3 cache (n8n-written, holds privileged API data)
 ops/cache/*.json
