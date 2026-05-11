@@ -5,7 +5,7 @@ import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
 import AdSlot from '@components/ads/AdSlot.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { howToJsonLd, faqJsonLd } from '@lib/seo';
-import { getEntry } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import tasksData from '@data/tasks.json';
 import type { TaskCatalog } from '@lib/types';
 
@@ -19,7 +19,7 @@ export async function getStaticPaths() {
 const { task } = Astro.params;
 const t = tasks[task!]!;
 const narrative = await getEntry('maintenance', task!);
-const NarrativeContent = narrative ? (await narrative.render()).Content : null;
+const NarrativeContent = narrative ? (await render(narrative)).Content : null;
 const url = `https://strops.tools/maintenance/${task}/`;
 const monthsNum = t.cadenceDays / 30;
 const months = monthsNum >= 1 ? monthsNum.toFixed(1).replace(/\.0$/, '') : monthsNum.toFixed(2);

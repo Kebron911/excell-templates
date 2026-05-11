@@ -5,7 +5,7 @@ import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
 import AdSlot from '@components/ads/AdSlot.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { howToJsonLd, faqJsonLd } from '@lib/seo';
-import { getEntry } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import itemsData from '@data/items.json';
 import type { ItemCatalog } from '@lib/types';
 
@@ -21,7 +21,7 @@ const it = items[item!]!;
 const url = `https://strops.tools/replace/${item}/`;
 const lowerName = it.name.toLowerCase();
 const narrative = await getEntry('replacement', item!);
-const NarrativeContent = narrative ? (await narrative.render()).Content : null;
+const NarrativeContent = narrative ? (await render(narrative)).Content : null;
 
 const faqs = [
   {

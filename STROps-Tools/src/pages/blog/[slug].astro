@@ -10,7 +10,7 @@ import {
   faqJsonLd,
 } from '@lib/seo';
 import tools from '@data/tools.json';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 type ToolEntry = { title: string; primary_keyword: string; magnet: string; blurb: string };
 
@@ -31,7 +31,7 @@ export async function getStaticPaths() {
 
 const { post, newer, older } = Astro.props;
 const slug = post.id.replace(/\.mdx?$/, '');
-const { Content, headings, remarkPluginFrontmatter } = await post.render();
+const { Content, headings, remarkPluginFrontmatter } = await render(post);
 
 const toolMap = tools as Record<string, ToolEntry>;
 const related = (post.data.relatedTools ?? [])
