@@ -29,7 +29,7 @@ sections:
     items:
       - { name: STATE.md,              url: STRBuyers-Tools/.planning/STATE.md, kind: doc }
       - { name: ROADMAP.md,            url: STRBuyers-Tools/.planning/ROADMAP.md, kind: doc }
-      - { name: README.md,             url: STRBuyers-Tools/README.md, kind: doc }
+      - { name: README.md,             url: STRBuyers-Tools/README.md, kind: doc, status: placeholder }
       - { name: CLAUDE.md,             url: STRBuyers-Tools/CLAUDE.md, kind: doc }
       - { name: MEMORY.md,             url: STRBuyers-Tools/MEMORY.md, kind: doc }
       - { name: docs/,                 url: STRBuyers-Tools/docs/, kind: code }

@@ -16,7 +16,8 @@
     "test:watch": "vitest",
     "validate:ops": "tsx scripts/validate-ops.ts",
     "validate:atlas": "tsx scripts/validate-atlas.ts",
-    "validate": "pnpm typecheck && pnpm validate:ops && pnpm validate:atlas",
+    "validate:drift": "tsx scripts/validate-drift.ts",
+    "validate": "pnpm typecheck && pnpm validate:ops && pnpm validate:atlas && pnpm validate:drift",
     "cli": "tsx cli/empire.ts"
   },
   "dependencies": {

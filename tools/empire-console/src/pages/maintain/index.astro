@@ -6,9 +6,10 @@ import { readVendors } from '@/lib/data/vendors';
 import { readCalendar } from '@/lib/data/calendar';
 import { readRisks } from '@/lib/data/risks';
 import { readDecisions } from '@/lib/data/decisions';
+import { readDrift } from '@/lib/data/drift';
 
-const [assets, runbooks, vendors, calendar, risks, decisions] = await Promise.all([
-  readAssets(), readRunbooks(), readVendors(), readCalendar(), readRisks(), readDecisions(),
+const [assets, runbooks, vendors, calendar, risks, decisions, drift] = await Promise.all([
+  readAssets(), readRunbooks(), readVendors(), readCalendar(), readRisks(), readDecisions(), readDrift(),
 ]);
 const stale = runbooks.filter((r) => r.isStale).length;
 
@@ -42,6 +43,9 @@ const tiles: Tile[] = [
   { href: '/maintain/airtable',   title: 'Airtable schema', desc: 'Documented base structure (link out to Airtable).' },
   { href: '/maintain/commits',    title: 'Recent commits',  desc: 'Last 50 commits across the monorepo.' },
   { href: '/maintain/releases',   title: 'Releases',        desc: 'Per-SKU VERSION tracking + W-update pipeline.' },
+  { href: '/maintain/drift',      title: 'Drift detector',  desc: 'Atlas vs reality · convention checks · recent touches.',
+    signal: drift.totals.bad > 0 ? `${drift.totals.bad} bad` : drift.totals.warn > 0 ? `${drift.totals.warn} warn` : 'in sync',
+    tone: drift.totals.bad > 0 ? 'bad' : drift.totals.warn > 0 ? 'warn' : 'ok' },
   { href: '/maintain/backups',    title: 'Backups',         desc: 'Monthly restore test log.', disabled: true },
   { href: '/maintain/compliance', title: 'Compliance',      desc: 'GDPR/CCPA queue.', disabled: true },
   { href: '/maintain/incidents',  title: 'Incidents',       desc: 'Postmortems · MTTR.', disabled: true },

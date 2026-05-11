@@ -41,7 +41,7 @@ sections:
       - { name: templates/ root,      url: templates/, kind: code }
       - { name: Manifest check (Python), url: templates/_build/manifest_check.py, kind: code }
       - { name: Bundles directory,    url: templates/_delivery/_bundles/, kind: code }
-      - { name: Shared assets,        url: templates/_shared/, kind: code }
+      - { name: Shared assets,        url: templates/_shared/, kind: code, status: placeholder }
       - { name: Catalog manifest (in console), url: /check/catalog, kind: internal }
 
   - id: blog
