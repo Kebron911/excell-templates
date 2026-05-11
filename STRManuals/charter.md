@@ -35,12 +35,14 @@ Each manual:
 
 | ID | Title | Price | Pages | Companion | Anchor search intent |
 |----|-------|-------|-------|-----------|---------------------|
-| TAX-01 | The STR Tax Loophole Playbook | $29 | ~48 | TAX-002 P&L workbook | "STR tax loophole how it works" |
-| TAX-02 | Material Participation Survival Kit | $29 | ~36 | Hours log template | "material participation 100 hours STR" |
-| REV-01 | Why Are My Bookings Down? Diagnostic | $19 | ~28 | Break-even occupancy workbook | "airbnb bookings down 2026" |
-| REV-02 | Direct Bookings Starter | $25 | ~32 | Email sequence pack | "how to get direct bookings airbnb" |
-| LGL-01 | STR Permit & Regulation Survival Guide | $25 | ~30 | Permit research worksheet | "is airbnb legal in my city" |
-| BUNDLE-01 | All Five Manuals | $99 | ~174 | All companions | — |
+| MAN-TAX-01 | The STR Tax Loophole Playbook | $29 | ~48 | TAX-002 P&L workbook | "STR tax loophole how it works" |
+| MAN-TAX-02 | Material Participation Survival Kit | $29 | ~36 | Hours log template | "material participation 100 hours STR" |
+| MAN-REV-01 | Why Are My Bookings Down? Diagnostic | $19 | ~28 | Break-even occupancy workbook | "airbnb bookings down 2026" |
+| MAN-REV-02 | Direct Bookings Starter | $25 | ~32 | Email sequence pack | "how to get direct bookings airbnb" |
+| MAN-LGL-01 | STR Permit & Regulation Survival Guide | $25 | ~30 | Permit research worksheet | "is airbnb legal in my city" |
+| MAN-BUNDLE-01 | All Five Manuals | $99 | ~174 | All companions | — |
+
+> **SKU namespace note (2026-05-11):** strmanuals SKUs use the `MAN-` prefix to avoid collision with the Excel-Templates / Ledger Stripe catalog (e.g. existing `BUNDLE-01` is the First-Year Host Bundle at $97). Cluster automation routes by **slug** (`str-tax-loophole-playbook`, `str-manuals-bundle`, etc.) not SKU, so this rename is cosmetic + Stripe `metadata.sku` only — does not affect tag dictionary or W01/W08 routing.
 
 ## 6. Monetization model
 - **Primary:** Direct PDF sale via Stripe Checkout (no Gumroad/Etsy fees on manuals)

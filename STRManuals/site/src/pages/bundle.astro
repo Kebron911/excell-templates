@@ -8,10 +8,11 @@ const total = manuals.reduce((sum, m) => sum + m.data.price, 0);
 const bundlePrice = 99;
 const savings = total - bundlePrice;
 const totalPages = manuals.reduce((sum, m) => sum + m.data.pages, 0);
+const bundlePriceId = import.meta.env.STRIPE_PRICE_BUNDLE;
 ---
 <Base title="The Bundle" description={`All five manuals — ${totalPages} pages — for $${bundlePrice}.`}>
   <section class="container-page pt-20 pb-12 text-center">
-    <p class="eyebrow mb-6">BUNDLE-01</p>
+    <p class="eyebrow mb-6">MAN-BUNDLE-01</p>
     <h1 class="mx-auto measure mb-6">All five manuals.</h1>
     <p class="mx-auto measure text-lg mb-10" style="color: var(--color-mute);">
       Every launch manual — taxes, revenue diagnostics, direct bookings, regulation —
@@ -23,7 +24,7 @@ const totalPages = manuals.reduce((sum, m) => sum + m.data.pages, 0);
       <span class="price-mono text-lg" style="color: var(--color-mute); text-decoration: line-through;">${total}</span>
     </div>
 
-    <BuyButton price={bundlePrice} label="Buy the bundle" size="large" />
+    <BuyButton price={bundlePrice} stripePriceId={bundlePriceId} label="Buy the bundle" size="large" />
     <p class="text-xs mt-4" style="color: var(--color-mute);">Instant download · 14-day refund · Free updates within v1</p>
   </section>
 
@@ -53,7 +54,7 @@ const totalPages = manuals.reduce((sum, m) => sum + m.data.pages, 0);
       <p class="eyebrow mb-4">Total package</p>
       <p class="text-2xl mb-2">{manuals.length} manuals · {totalPages} pages · 5 companion workbooks</p>
       <p class="mb-8" style="color: var(--color-mute);">For the price of a decent dinner.</p>
-      <BuyButton price={bundlePrice} label="Buy the bundle" size="large" />
+      <BuyButton price={bundlePrice} stripePriceId={bundlePriceId} label="Buy the bundle" size="large" />
     </div>
   </section>
 </Base>
