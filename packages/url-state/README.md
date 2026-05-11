@@ -24,6 +24,16 @@ const replace = createDebouncedReplaceState(200);
 replace({ price: 250000, bedrooms: 3, isPet: true }, defaults);
 ```
 
+## Cross-App URL Compatibility
+
+This package's `parse()` and `decodeState()` are LENIENT — they accept booleans as both `1`/`0` (STRGuests/STRBuyers/STRHost convention) and `true`/`false` (STROps convention). This allows URLs shared between sites to decode correctly regardless of origin.
+
+The encoders preserve the producing site's convention:
+- `serialize()` emits `1`/`0` (STRGuests/STRBuyers/STRHost compatible)
+- `encodeState()` emits `true`/`false` (STROps compatible)
+
+When wiring a new site to this package, prefer `serialize`/`parse` for new code (more compact wire format) but use `encodeState`/`decodeState` if migrating from STROps' in-tree implementation to preserve URL backward compatibility.
+
 ### Extended (encodeState / decodeState / withState)
 
 ```ts
