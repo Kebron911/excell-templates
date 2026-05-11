@@ -5,6 +5,7 @@ import Footer from '../src/Footer.astro';
 import Sidebar from '../src/Sidebar.astro';
 import Wordmark from '../src/Wordmark.astro';
 import FunnelBand from '../src/FunnelBand.astro';
+import AppSidebar from '../src/AppSidebar.astro';
 import type { SiteConfig } from '@str/seo';
 
 const fixtureSite: SiteConfig = {
@@ -72,4 +73,39 @@ describe('@str/ui-chrome snapshots', () => {
 
   // Layout snapshots are omitted because Layout renders a full html/head/body document
   // which produces large, volatile snapshots. Covered by visual regression tests in Task 7-8.
+
+  it('AppSidebar renders 2-line card when description present', async () => {
+    const container = await AstroContainer.create();
+    const html = await container.renderToString(AppSidebar, {
+      props: {
+        siteConfig: fixtureSite,
+        items: [
+          { slug: 'house-rules', label: 'House Rules', description: 'PDF generator', href: '/house-rules-pdf' },
+          { slug: 'wifi-sign', label: 'Wi-Fi Sign', description: 'Print-ready PDF' },
+        ],
+        current: 'wifi-sign',
+      },
+    });
+    expect(html).toContain('House Rules');
+    expect(html).toContain('PDF generator');
+    expect(html).not.toContain('Wi-Fi Sign');
+    expect(html).toMatchSnapshot();
+  });
+
+  it('AppSidebar renders 1-line nav when description absent', async () => {
+    const container = await AstroContainer.create();
+    const html = await container.renderToString(AppSidebar, {
+      props: {
+        siteConfig: fixtureSite,
+        items: [
+          { slug: 'turnover-scheduler', label: 'Turnover scheduler' },
+          { slug: 'cleaner-dispatch', label: 'Cleaner dispatch' },
+        ],
+        current: 'turnover-scheduler',
+      },
+    });
+    expect(html).toContain('Cleaner dispatch');
+    expect(html).not.toContain('Turnover scheduler');
+    expect(html).toMatchSnapshot();
+  });
 });

@@ -1,5 +1,34 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`@str/ui-chrome snapshots > AppSidebar renders 1-line nav when description absent 1`] = `
+"<aside class="related-generators" aria-label="Related generators">
+  <p class="label text-navy">Related generators</p>
+
+  <ul class="mt-4 space-y-3">
+    <li>
+          <a href="/cleaner-dispatch" class="block text-ink hover:text-accent text-sm">
+            Cleaner dispatch
+          </a>
+        </li>
+  </ul>
+</aside>"
+`;
+
+exports[`@str/ui-chrome snapshots > AppSidebar renders 2-line card when description present 1`] = `
+"<aside class="related-generators" aria-label="Related generators">
+  <p class="label text-navy">Related generators</p>
+
+  <ul class="mt-4 space-y-3">
+    <li>
+          <a href="/house-rules-pdf" class="block group rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-[color:var(--accent-500)] hover:shadow-card transition-all duration-std">
+            <p class="text-ui text-navy group-hover:text-[color:var(--accent-700)] font-semibold">House Rules</p>
+            <p class="mt-1 text-caption text-ink-2 leading-snug">PDF generator</p>
+          </a>
+        </li>
+  </ul>
+</aside>"
+`;
+
 exports[`@str/ui-chrome snapshots > Footer renders with siteConfig footer sections 1`] = `
 "<footer class="surface-navy mt-7">
   <div class="mx-auto max-w-6xl px-5 py-8">

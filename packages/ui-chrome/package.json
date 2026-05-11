@@ -15,7 +15,8 @@
     "./Sidebar.astro": "./src/Sidebar.astro",
     "./Layout.astro": "./src/Layout.astro",
     "./Wordmark.astro": "./src/Wordmark.astro",
-    "./FunnelBand.astro": "./src/FunnelBand.astro"
+    "./FunnelBand.astro": "./src/FunnelBand.astro",
+    "./AppSidebar.astro": "./src/AppSidebar.astro"
   },
   "files": [
     "dist",

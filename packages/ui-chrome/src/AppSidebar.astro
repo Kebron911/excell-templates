@@ -1,0 +1,62 @@
+---
+// AppSidebar — flexible sidebar accepting an explicit items array.
+// Renders 2-line card when `description` is present (STRGuests style),
+// or 1-line nav link when `description` is absent (STROps style).
+
+import type { SiteConfig } from '@str/seo';
+
+export interface SidebarItem {
+  /** Unique identifier; used to match against `current`. */
+  slug: string;
+  /** Primary label — always shown. */
+  label: string;
+  /** Optional second line. Renders 2-line card when present; 1-line nav when absent. */
+  description?: string;
+  /** Optional explicit href. Defaults to `/${slug}`. */
+  href?: string;
+}
+
+interface Props {
+  siteConfig: SiteConfig;
+  items: SidebarItem[];
+  /** Slug of the current page — excluded from the rendered list. */
+  current?: string;
+  /** Max items to show. Defaults to 6. */
+  maxItems?: number;
+}
+
+const { items, current, maxItems = 6 } = Astro.props;
+
+const others = items
+  .filter(item => item.slug !== current)
+  .slice(0, maxItems);
+---
+<aside class="related-generators" aria-label="Related generators">
+  <p class="label text-navy">Related generators</p>
+
+  <ul class="mt-4 space-y-3">
+    {others.map(item => {
+      const href = item.href ?? `/${item.slug}`;
+      return item.description ? (
+        <li>
+          <a
+            href={href}
+            class="block group rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-[color:var(--accent-500)] hover:shadow-card transition-all duration-std"
+          >
+            <p class="text-ui text-navy group-hover:text-[color:var(--accent-700)] font-semibold">{item.label}</p>
+            <p class="mt-1 text-caption text-ink-2 leading-snug">{item.description}</p>
+          </a>
+        </li>
+      ) : (
+        <li>
+          <a
+            href={href}
+            class="block text-ink hover:text-accent text-sm"
+          >
+            {item.label}
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</aside>
