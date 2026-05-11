@@ -1,0 +1,44 @@
+---
+title: "The 1099-NEC Tracker"
+slug: "TAX-003"
+sku: "TAX-003"
+description: "1099-NEC tracker for Airbnb and STR hosts. Auto-flags every contractor over $600. W-9 status tracked. January in 15 minutes."
+price: 17
+category: "Tax & Compliance"
+pitch: "The $600 threshold, tracked automatically."
+inside:
+  - "Contractor directory — name, EIN/SSN, address, W-9 status (on file / requested / missing), service type, payment method."
+  - "Payment log — date, contractor, amount, method (check/Venmo/Zelle/cash), description, project. Auto-rolls per contractor."
+  - "$600 threshold dashboard — every contractor's YTD total with red-flag at $600+. The list you actually need on January 1."
+  - "W-9 status tab — who you still need a W-9 from. Send-request templates included (email + SMS)."
+  - "Form-1099 prep — pre-filled per contractor at year-end. Print or upload to your e-filer (Track1099, Tax1099, etc.). Boxes 1, 4, 7 mapped."
+  - "Payment-method exclusions — auto-excludes credit-card and PayPal-business payments (those are 1099-K, not 1099-NEC). Built-in rule."
+  - "Settings — active tax year, threshold ($600 default), state e-file flag (CA, OR, others require state copies)."
+faqs:
+  - q: "Excel or Google Sheets?"
+    a: "Both. Threshold formulas, W-9 dropdowns, and rollup logic work natively in either."
+  - q: "Does it auto-exclude credit-card and PayPal payments?"
+    a: "Yes. The payment-method column has a rule that excludes credit card, PayPal business, and merchant-services rails — those are 1099-K obligations, not yours to file."
+  - q: "Does it generate the 1099-NEC forms?"
+    a: "It generates the data file your e-filer (Track1099, Tax1099, etc.) uses. The workbook isn't an e-filer itself — that part is a $2–$5 per-form service."
+  - q: "Multiple properties?"
+    a: "Yes. Properties and contractors are dropdown-sourced; YTD totals roll up per contractor across the portfolio."
+  - q: "What's your refund policy?"
+    a: "14 days, no questions. Email hello@thestrledger.com."
+---
+
+## The 30-second pitch
+
+The IRS wants a 1099-NEC for every non-corp contractor you paid $600+ during the year. Most STR hosts don't track this — they reconstruct it in March, miss two contractors, and either (a) skip filing and hope or (b) pay their CPA to dig through Venmo history.
+
+This workbook flips it: log payments as you go; the threshold dashboard shows you the list on January 1.
+
+## Who it's for
+
+- Hosts paying cleaners, handymen, designers, photographers, copywriters, lawn services
+- Anyone who's gotten a CP-2100 notice from the IRS (or wants to never get one)
+- Operators who pay through Venmo / Zelle / check and have to track 1099-NEC themselves (credit card auto-routes to 1099-K)
+
+## Math that earns the price
+
+Penalty for failure to file a 1099-NEC is $60–$330 per form. Miss two and the workbook ($17) returns 7–38×. Avoiding a CP-2100 follow-up letter saves more.

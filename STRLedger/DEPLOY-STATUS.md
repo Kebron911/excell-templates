@@ -30,29 +30,39 @@ purely organizational and does NOT trigger deploy.
 
 ---
 
-## Catalog gap
+## Catalog parity
 
-The live site shows **12 workbook SKUs**. This scaffold has **2** seeded.
+The live site shows **12 workbook SKUs**. This scaffold has **12 seeded** — full parity.
 
 | SKU | Title | Price | Wave | Live? | Scaffold? |
 |---|---|---|---|---|---|
 | TAX-001 | The Mileage Log | $17 | Wave 1 | yes | **yes** |
-| GST-001 | The Welcome Book | $17 | Wave 1 | yes | missing |
-| OPS-001 | The Turnover Checklist | $12 | Wave 1 | yes | missing |
-| TAX-002 | The P&L Tracker | $27 | Wave 2 | yes | missing |
-| TAX-003 | The 1099-NEC Tracker | $17 | Wave 2 | yes | missing |
-| TAX-004 | The Schedule E Workbook | $47 | featured | yes | missing |
-| GST-002 | The House Rules Builder | $17 | — | yes | missing |
-| OPS-002 | The Damage Claim Log | $17 | — | yes | missing |
-| FIN-001 | The RevPAR Dashboard | $27 | — | yes | missing |
-| FIN-003 | The Cash-Flow Forecaster | $47 | — | yes | missing |
+| GST-001 | The Welcome Book | $17 | Wave 1 | yes | **yes** |
+| OPS-001 | The Turnover Checklist | $12 | Wave 1 | yes | **yes** |
+| TAX-002 | The P&L Tracker | $27 | Wave 2 | yes | **yes** |
+| TAX-003 | The 1099-NEC Tracker | $17 | Wave 2 | yes | **yes** |
+| TAX-004 | The Schedule E Workbook | $47 | featured | yes | **yes** |
+| GST-002 | The House Rules Builder | $17 | — | yes | **yes** |
+| OPS-002 | The Damage Claim Log | $17 | — | yes | **yes** |
+| FIN-001 | The RevPAR Dashboard | $27 | — | yes | **yes** |
+| FIN-003 | The Cash-Flow Forecaster | $47 | — | yes | **yes** |
 | ACQ-001 | The Deal Analyzer | $27 | — | yes | **yes** |
-| (1 more) | (truncated in fetch) | — | — | yes | missing |
+| LGL-001 | The Renewal Calendar | $17 | — | yes | **yes** |
 
-Each missing SKU needs an MDX file under `src/content/products/{SKU}.mdx`
-matching the schema in `src/content.config.ts`. The two seeded SKUs
-(TAX-001 + ACQ-001) follow the right slug-as-SKU pattern and serve as
-templates.
+Slug-as-SKU pattern (e.g. `slug: "GST-001"`) emits routes that match live
+(`/products/GST-001/`). Body copy was written against the live product
+pages, not invented.
+
+**What product MDX still lacks vs. live:**
+
+- `etsyUrl` — live site has a "Buy on Etsy" button on every card; scaffold's
+  `BuyButton` is internal-only. Add `etsyUrl?: string` to the schema and
+  surface a second button.
+- `cover` image — `image: z.string().optional()` in the schema; covers are
+  not yet sourced. Live uses `/covers/TAX-001.svg`-style paths.
+- `aggregateRating` — once review data exists, lift it from Etsy + Stripe
+  reviews. Currently omitted (correctly — fake ratings invite a Google
+  manual action).
 
 ---
 
