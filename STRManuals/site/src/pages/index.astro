@@ -3,10 +3,19 @@ import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import ManualCard from '../components/ManualCard.astro';
 import EmailCapture from '../components/EmailCapture.astro';
+import { buildItemList, buildWebSite } from '../lib/seo';
 
 const manuals = (await getCollection('manuals')).sort((a, b) => a.data.order - b.data.order);
+
+const websiteLd = buildWebSite();
+const itemListLd = buildItemList(
+  manuals.map((m) => ({
+    name: m.data.title,
+    path: `/manuals/${m.id}`,
+  })),
+);
 ---
-<Base title="STR Manuals">
+<Base title="STR Manuals" path="/" jsonLd={[websiteLd, itemListLd]}>
   <!-- Hero -->
   <section class="container-page pt-24 pb-20 text-center">
     <p class="eyebrow mb-6">For short-term rental owners</p>

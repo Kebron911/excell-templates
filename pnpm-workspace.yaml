@@ -12,9 +12,11 @@
 packages:
   # STRLedger is the parent brand site (thestrledger.com).
   # The *-Tools entries below are sister sites — free tools that funnel back here.
+  # STRManuals/site is the paid-PDF storefront (strmanuals.com).
   - 'STRLedger'
   - 'STRBuyers-Tools'
   - 'STRGuests-Tools'
   - 'STRHost-Tools'
+  - 'STRManuals/site'
   - 'STROps-Tools'
   - 'tools/empire-console'

@@ -1,0 +1,57 @@
+---
+import Base from '../layouts/Base.astro';
+const today = new Date().toISOString().slice(0, 10);
+---
+<Base title="Disclosures" description="Affiliate and editorial disclosures for strmanuals.com. No paid placements. Tax content is education, not advice." path="/disclosures">
+  <section class="container-page py-20">
+    <div class="max-w-2xl mx-auto measure">
+      <p class="eyebrow mb-4">Disclosures</p>
+      <h1 class="mb-3">Disclosures.</h1>
+      <p class="text-sm price-mono mb-10" style="color: var(--color-mute);">Last updated <time datetime={today}>{today}</time></p>
+
+      <h2 class="mt-10 mb-3" style="font-size: 1.25rem;">Editorial independence</h2>
+      <p class="text-base mb-6" style="color: var(--color-ink);">
+        strmanuals.com is operated by The STR Ledger. No vendor, software,
+        lender, accountant, or law firm has paid for placement in any manual.
+        Every recommendation is based on first-hand experience or research,
+        not on a commercial relationship.
+      </p>
+
+      <h2 class="mt-10 mb-3" style="font-size: 1.25rem;">Affiliate relationships</h2>
+      <p class="text-base mb-6" style="color: var(--color-ink);">
+        Manuals may include outbound links — for example, to STR insurance
+        carriers, accounting software, or lender resources. Some of those
+        links carry a referral or affiliate code. Where they do, the manual
+        notes it inline. Affiliate revenue does not influence whether a tool
+        is included or how it's ranked.
+      </p>
+
+      <h2 class="mt-10 mb-3" style="font-size: 1.25rem;">Tax content is education, not advice</h2>
+      <p class="text-base mb-6" style="color: var(--color-ink);">
+        Manuals categorized as <em>tax</em> are written to explain how the
+        rules work, not to replace a CPA. Sample numbers and worked examples
+        do not constitute tax advice for any specific situation. Confirm
+        every position with a qualified preparer before filing.
+      </p>
+
+      <h2 class="mt-10 mb-3" style="font-size: 1.25rem;">Regulatory content</h2>
+      <p class="text-base mb-6" style="color: var(--color-ink);">
+        Permit and zoning material (LGL-01) reflects municipal regulations
+        as of each manual's publication date. STR ordinances change often —
+        always verify with the current authority before any acquisition or
+        operational change.
+      </p>
+
+      <h2 class="mt-10 mb-3" style="font-size: 1.25rem;">Sister sites</h2>
+      <p class="text-base mb-6" style="color: var(--color-ink);">
+        The STR Ledger operates a cluster of sites:
+        <a href="https://thestrledger.com">thestrledger.com</a> (parent brand),
+        <a href="https://strhost.tools">strhost.tools</a>,
+        <a href="https://strguests.tools">strguests.tools</a>,
+        <a href="https://strops.tools">strops.tools</a>,
+        <a href="https://strbuyers.tools">strbuyers.tools</a>.
+        Cross-links between sites are organizational, not paid placements.
+      </p>
+    </div>
+  </section>
+</Base>

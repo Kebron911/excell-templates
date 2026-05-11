@@ -1,0 +1,39 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+
+const manuals = (await getCollection('manuals')).sort((a, b) => a.data.order - b.data.order);
+---
+<Base title="Page not found" description="The page you're looking for doesn't exist. Browse the manual library, the bundle, or the free TAX-01 explainer." path="/404" noIndex>
+  <section class="container-page py-20">
+    <p class="eyebrow mb-4">404 · Page not found</p>
+    <h1 class="mb-6 max-w-2xl">That page doesn't exist.</h1>
+    <p class="text-lg max-w-2xl mb-10" style="color: var(--color-mute);">
+      The link you followed is broken or the manual has moved. Try one of these instead.
+    </p>
+  </section>
+
+  <section class="container-page pb-20">
+    <div class="flex items-baseline justify-between mb-6 pb-3" style="border-bottom: 1px solid var(--color-rule);">
+      <h2>The library</h2>
+      <p class="price-mono text-sm" style="color: var(--color-mute);">{manuals.length} manuals</p>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6">
+      {manuals.map((m) => (
+        <a href={`/manuals/${m.id}`} class="card no-underline block">
+          <p class="eyebrow mb-2">{m.data.sku}</p>
+          <h3 class="mb-2" style="font-size: 1.25rem;">{m.data.title}</h3>
+          <p class="text-sm" style="color: var(--color-mute);">{m.data.promise}</p>
+          <p class="price-mono text-sm mt-4">${m.data.price} · {m.data.pages} pages</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-page py-12" style="border-top: 1px solid var(--color-rule);">
+    <p class="text-base" style="color: var(--color-mute);">
+      Looking for the bundle? <a href="/bundle">All five manuals, $99</a>. Or grab the
+      <a href="/free">free TAX-01 explainer</a> — no email gate, instant download.
+    </p>
+  </section>
+</Base>

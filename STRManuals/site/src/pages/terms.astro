@@ -1,0 +1,47 @@
+---
+import Base from '../layouts/Base.astro';
+const today = new Date().toISOString().slice(0, 10);
+---
+<Base title="Terms" description="Terms of use for strmanuals.com. Paid PDFs, instant download, 14-day refund." path="/terms">
+  <section class="container-page py-20">
+    <div class="max-w-2xl mx-auto measure">
+      <p class="eyebrow mb-4">Legal</p>
+      <h1 class="mb-3">Terms.</h1>
+      <p class="text-sm price-mono mb-10" style="color: var(--color-mute);">Last updated <time datetime={today}>{today}</time></p>
+
+      <h2 class="mt-10 mb-3" style="font-size: 1.25rem;">What you're buying</h2>
+      <p class="text-base mb-6" style="color: var(--color-ink);">
+        Each manual is a downloadable PDF, watermarked at the time of purchase. You
+        receive a single-user license: download for personal reference, do not
+        redistribute, do not resell. Bundles and companion workbooks have the same
+        terms.
+      </p>
+
+      <h2 class="mt-10 mb-3" style="font-size: 1.25rem;">Not professional advice</h2>
+      <p class="text-base mb-6" style="color: var(--color-ink);">
+        Manuals categorized as <em>tax</em> or <em>legal</em> are plain-English
+        education, not professional advice. Every taxpayer and every jurisdiction
+        is different. Consult a CPA or attorney before making filings, payments,
+        or decisions based on a manual's content. We disclaim liability for
+        actions taken on the strength of any manual.
+      </p>
+
+      <h2 class="mt-10 mb-3" style="font-size: 1.25rem;">Refunds</h2>
+      <p class="text-base mb-6" style="color: var(--color-ink);">
+        14 days, no questions. See <a href="/refund">/refund</a>.
+      </p>
+
+      <h2 class="mt-10 mb-3" style="font-size: 1.25rem;">Updates</h2>
+      <p class="text-base mb-6" style="color: var(--color-ink);">
+        Free updates within the same major version (v1 → v1.x). Major-version
+        upgrades (v1 → v2) are sold separately at a discount for existing buyers.
+      </p>
+
+      <h2 class="mt-10 mb-3" style="font-size: 1.25rem;">Changes to these terms</h2>
+      <p class="text-base mb-6" style="color: var(--color-ink);">
+        We may update these terms. Material changes will be reflected by an
+        updated "Last updated" date at the top of this page.
+      </p>
+    </div>
+  </section>
+</Base>

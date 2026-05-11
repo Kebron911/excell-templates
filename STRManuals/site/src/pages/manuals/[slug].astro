@@ -2,6 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import BuyButton from '../../components/BuyButton.astro';
+import { buildProduct, buildFAQPage, buildBreadcrumb } from '../../lib/seo';
 
 export async function getStaticPaths() {
   const manuals = await getCollection('manuals');
@@ -13,8 +14,34 @@ const { Content } = await render(manual);
 const d = manual.data;
 const all = (await getCollection('manuals')).sort((a, b) => a.data.order - b.data.order);
 const related = all.filter((m) => m.id !== manual.id).slice(0, 2);
+
+// SEO: Product + Offer (eligible for merchant-listings rich results),
+// FAQPage (eligible for FAQ rich results), BreadcrumbList. These three
+// were the audit's #1 pre-launch finding for strmanuals.com.
+const productLd = buildProduct({
+  sku: d.sku,
+  name: d.title,
+  description: d.promise,
+  url: `/manuals/${manual.id}`,
+  price: d.price,
+  image: d.cover,
+  category: d.category,
+});
+const faqLd = d.faq && d.faq.length > 0 ? buildFAQPage(d.faq) : null;
+const breadcrumbLd = buildBreadcrumb([
+  { name: 'Home', path: '/' },
+  { name: 'Manuals', path: '/' },
+  { name: d.title },
+]);
+const pageLds = [productLd, breadcrumbLd, ...(faqLd ? [faqLd] : [])];
 ---
-<Base title={d.title} description={d.promise}>
+<Base
+  title={d.title}
+  description={d.promise}
+  path={`/manuals/${manual.id}`}
+  ogImage={d.cover}
+  jsonLd={pageLds}
+>
   <!-- Hero / above fold -->
   <section class="container-page pt-12 pb-16">
     <div class="grid md:grid-cols-2 gap-12 items-start">

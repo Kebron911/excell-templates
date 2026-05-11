@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# /downloads is HMAC-token gated and 24h-expiring; not for crawlers.
+Disallow: /downloads/
+
+Sitemap: https://strmanuals.com/sitemap-index.xml

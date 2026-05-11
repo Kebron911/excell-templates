@@ -2,15 +2,35 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { buildOrganization, canonical } from '../lib/seo';
 
 interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  /** Site-relative path for canonical (default: Astro.url.pathname). */
+  path?: string;
+  /** Page-level JSON-LD (Product, FAQPage, Breadcrumb, etc.). */
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
+  noIndex?: boolean;
 }
 
-const { title, description = 'Plain-English manuals for short-term rental owners.', ogImage } = Astro.props;
+const {
+  title,
+  description = 'Plain-English manuals for short-term rental owners.',
+  ogImage,
+  path,
+  jsonLd,
+  noIndex = false,
+} = Astro.props;
+
 const fullTitle = title === 'STR Manuals' ? title : `${title} · STR Manuals`;
+const canonicalUrl = canonical(path ?? Astro.url.pathname);
+
+// Organization emitted on every page; page-level schema layered on top.
+const orgLd = buildOrganization();
+const pageLds = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+const allLds = [orgLd, ...pageLds];
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -19,7 +39,9 @@ const fullTitle = title === 'STR Manuals' ? title : `${title} · STR Manuals`;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    {noIndex && <meta name="robots" content="noindex,nofollow" />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -31,7 +53,15 @@ const fullTitle = title === 'STR Manuals' ? title : `${title} · STR Manuals`;
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
     {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    {allLds.map((ld) => (
+      <script type="application/ld+json" set:html={JSON.stringify(ld)} />
+    ))}
   </head>
   <body>
     <Header />
