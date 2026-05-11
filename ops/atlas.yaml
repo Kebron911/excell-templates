@@ -89,6 +89,7 @@ sections:
           - { name: Link health (cross-cluster),  url: /check/links,                        kind: internal }
           - { name: Releases (per-SKU VERSION),   url: /maintain/releases,                  kind: internal }
           - { name: Drift detector,               url: /maintain/drift,                     kind: internal, note: "atlas-vs-reality · conventions · recent touches" }
+          - { name: Compliance (GDPR queue),      url: /maintain/compliance,                kind: internal, note: "ops/gdpr-requests.ndjson · 30-day SLA" }
           - { name: Copy library,                 url: /promote/copy,                       kind: internal }
           - { name: Atomization decks,            url: /promote/atomization,                kind: internal }
           - { name: Email sequences,              url: /promote/email-sequences,            kind: internal }
@@ -347,7 +348,7 @@ sections:
           - { name: release-shipped (Phase 4),          url: infrastructure/n8n/flows/release-shipped.json,        kind: yaml, note: "POST /webhook/release-shipped — bound to /maintain/releases Ship update button" }
           - { name: delist-sku (Phase 4),               url: infrastructure/n8n/flows/delist-sku.json,             kind: yaml, note: "POST /webhook/delist-sku — bound to /check/kill-sku Delist button" }
           - { name: backup-restore-test (Phase 4),      url: infrastructure/n8n/flows/backup-restore-test.json,    kind: yaml, note: "monthly DR probe — extracts newest backup + checks sentinel files" }
-          - { name: gdpr-intake (Phase 4),              url: infrastructure/n8n/flows/gdpr-intake.json,            kind: yaml, status: placeholder }
+          - { name: gdpr-intake (Phase 4),              url: infrastructure/n8n/flows/gdpr-intake.json,            kind: yaml, note: "POST /webhook/gdpr-intake — surfaces on /maintain/compliance" }
 
   # ─────────────────────────────────────────────────────────────────
   # CODE — top-level repo dirs (for editing)

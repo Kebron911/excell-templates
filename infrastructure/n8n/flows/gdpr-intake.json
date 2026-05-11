@@ -1,0 +1,105 @@
+{
+  "name": "gdpr-intake",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gdpr-intake",
+        "responseMode": "responseNode",
+        "options": { "responseHeaders": { "entries": [{ "name": "Access-Control-Allow-Origin", "value": "*" }] } }
+      },
+      "id": "webhook",
+      "name": "POST /webhook/gdpr-intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "webhookId": "gdpr-intake"
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = $input.item.json.body || $input.item.json;\nconst email = (body.email || '').toString().trim().toLowerCase();\nconst type = (body.type || '').toString().toLowerCase();\nconst details = (body.details || '').toString().slice(0, 4000);\nconst origin = (body.origin || $input.item.json.headers?.referer || '').toString();\n// Basic email shape — not RFC-perfect but rejects junk.\nif (!/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email)) {\n  return [{ json: { _error: 'invalid-email' } }];\n}\nconst validTypes = ['access', 'erasure', 'portability', 'rectification', 'restriction', 'objection', 'other'];\nif (!validTypes.includes(type)) {\n  return [{ json: { _error: `invalid-type — must be one of: ${validTypes.join(', ')}` } }];\n}\nconst id = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2,10)}`;\n// SLA: GDPR Art. 12(3) — 1 month default, extendable to 3 months for complex requests.\nconst dueAt = new Date(Date.now() + 30 * 864e5).toISOString();\nreturn [{ json: { id, email, type, details, origin, ts: new Date().toISOString(), dueAt, status: 'open' } }];"
+      },
+      "id": "validate",
+      "name": "Validate request",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "rules": { "rules": [{ "operation": "isNotEmpty", "value1": "={{ $json._error }}" }] }
+      },
+      "id": "errCheck",
+      "name": "Has error?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": false, \"error\": \"{{ $json._error }}\"}",
+        "options": { "responseCode": 400 }
+      },
+      "id": "respErr",
+      "name": "400 error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [800, 200]
+    },
+    {
+      "parameters": {
+        "command": "=set -e\nrepo=\"{{ $env.EMPIRE_REPO_PATH }}\"\nmkdir -p \"$repo/ops\"\nf=\"$repo/ops/gdpr-requests.ndjson\"\nprintf '%s\\n' '{{ JSON.stringify($json) }}' >> \"$f\""
+      },
+      "id": "append",
+      "name": "Append to gdpr-requests.ndjson",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [800, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": true, \"id\": \"{{ $('Validate request').first().json.id }}\", \"dueAt\": \"{{ $('Validate request').first().json.dueAt }}\", \"note\": \"Request logged. You will receive a response within 30 days per GDPR Art. 12.\"}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "respOk",
+      "name": "200 OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1000, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "const v = $('Validate request').first().json;\nconst due = new Date(v.dueAt).toLocaleDateString();\nreturn [{ json: {\n  priority: 'P1',\n  source: 'gdpr-intake',\n  message: `New GDPR request · type: ${v.type} · email: ${v.email} · due by: ${due}\\n\\nDetails: ${v.details || '(none provided)'}`,\n  url: ($env.EMPIRE_CONSOLE_BASE_URL || 'http://localhost:4327') + '/maintain/compliance'\n} }];"
+      },
+      "id": "notify",
+      "name": "Build telegram alert",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1200, 400]
+    },
+    {
+      "parameters": { "source": "parameter", "workflowId": "REPLACE_WITH_TELEGRAM_ROUTER_ID" },
+      "id": "router",
+      "name": "→ telegram-router",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [1400, 400]
+    }
+  ],
+  "connections": {
+    "POST /webhook/gdpr-intake":     { "main": [[{ "node": "Validate request",   "type": "main", "index": 0 }]] },
+    "Validate request":              { "main": [[{ "node": "Has error?",         "type": "main", "index": 0 }]] },
+    "Has error?":                    { "main": [
+                                       [{ "node": "400 error",                    "type": "main", "index": 0 }],
+                                       [{ "node": "Append to gdpr-requests.ndjson", "type": "main", "index": 0 }]
+                                     ] },
+    "Append to gdpr-requests.ndjson": { "main": [[{ "node": "200 OK",            "type": "main", "index": 0 }]] },
+    "200 OK":                        { "main": [[{ "node": "Build telegram alert", "type": "main", "index": 0 }]] },
+    "Build telegram alert":          { "main": [[{ "node": "→ telegram-router",   "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": [{ "name": "empire-console" }, { "name": "phase-4" }, { "name": "webhook" }, { "name": "compliance" }]
+}

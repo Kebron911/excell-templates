@@ -1,0 +1,128 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import EmptyState from '@/components/widgets/EmptyState.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readGdpr } from '@/lib/data/gdpr';
+import { formatDate, formatDateTime } from '@/lib/format';
+
+const g = await readGdpr();
+
+function daysUntil(iso: string): number {
+  return Math.round((new Date(iso).getTime() - Date.now()) / 864e5);
+}
+
+// Precompute presentation per row outside JSX — Astro's compiler trips on
+// `<` inside expression blocks even for numeric compares.
+const rowsForDisplay = g.requests.map((r) => {
+  const due = daysUntil(r.dueAt);
+  const slaTone =
+    due < 0   ? 'badge-p0' :
+    due <= 7  ? 'badge-p1' :
+                'badge-ok';
+  const slaLabel = due < 0 ? `${Math.abs(due)}d late` : `${due}d`;
+  const statusBadge =
+    r.status === 'open'        ? 'badge-p1' :
+    r.status === 'in-progress' ? 'badge-p1' :
+    r.status === 'resolved'    ? 'badge-ok' :
+                                 'badge-p2';
+  return { r, slaTone, slaLabel, statusBadge };
+});
+---
+<Layout title="Run · Compliance" section="maintain">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Compliance — GDPR / CCPA queue</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Privacy requests routed via n8n <code>gdpr-intake</code> webhook → appended to
+        <code>ops/gdpr-requests.ndjson</code>. 30-day response SLA (GDPR Art. 12).
+      </p>
+    </div>
+    <span class:list={['badge', g.totals.overdue > 0 ? 'badge-p0' : g.totals.open > 0 ? 'badge-p1' : 'badge-ok']}>
+      {g.totals.open} open · {g.totals.overdue} overdue
+    </span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Total logged" value={g.totals.total} />
+    <Scorecard label="Open" value={g.totals.open}
+               tone={g.totals.open > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Overdue" value={g.totals.overdue}
+               tone={g.totals.overdue > 0 ? 'bad' : 'ok'}
+               hint="past GDPR 30-day SLA" />
+    <Scorecard label="Due ≤7d" value={g.totals.dueWithin7d}
+               tone={g.totals.dueWithin7d > 0 ? 'warn' : 'ok'} />
+  </section>
+
+  {g.requests.length === 0 ? (
+    <EmptyState
+      title="No privacy requests"
+      body="POST /webhook/gdpr-intake to file one. The n8n flow validates, logs, and pings P1 Telegram."
+      exampleCommand={`curl -X POST $N8N_BASE/webhook/gdpr-intake \\
+  -H 'Content-Type: application/json' \\
+  -d '{"email":"user@example.com","type":"erasure","details":"Delete my account"}'`}
+    />
+  ) : (
+    <section class="mb-8">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Open requests
+      </h2>
+      <div class="card">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Submitted</th>
+              <th>Email</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th class="text-right">Due</th>
+              <th class="text-right">SLA</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rowsForDisplay.map(({ r, slaTone, slaLabel, statusBadge }) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2 font-mono text-xs">{formatDateTime(r.ts)}</td>
+                <td class="text-xs">{r.email}</td>
+                <td><span class="badge badge-p2">{r.type}</span></td>
+                <td><span class:list={['badge', statusBadge]}>{r.status}</span></td>
+                <td class="text-right font-mono text-xs">{formatDate(r.dueAt)}</td>
+                <td class="text-right">
+                  <span class:list={['badge', slaTone]}>{slaLabel}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-3 text-xs" style="color: rgb(var(--c-muted))">
+        Edit <code>ops/gdpr-requests.ndjson</code> to mark status: in-progress / resolved / rejected.
+        The dashboard re-reads on every page load — no rebuild needed.
+      </p>
+    </section>
+  )}
+
+  <section class="card mt-8" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Handling SOP
+    </h3>
+    <ol class="space-y-1 text-sm list-decimal pl-5">
+      <li><strong>Acknowledge within 72h</strong> — reply to the email, confirm receipt + the request type.</li>
+      <li><strong>Verify identity</strong> — confirm the email matches an account in Stripe / Etsy / IS.</li>
+      <li><strong>Locate data</strong>
+        across Stripe (payments), Etsy (orders), Gumroad (purchases), Influencersoft (contacts),
+        and ops/inbox.ndjson / ops/customer-voice.ndjson if it's been logged there.</li>
+      <li><strong>Action by request type:</strong>
+        <code>access</code> = export and send · <code>erasure</code> = delete in IS, anonymize in Stripe,
+        suppress in Etsy · <code>portability</code> = export in machine-readable format ·
+        <code>rectification</code> = update · <code>restriction</code> = suspend processing.</li>
+      <li><strong>Reply within 30 days</strong> (extendable to 90 if complex — must notify within the first 30).</li>
+      <li><strong>Update status</strong> in <code>ops/gdpr-requests.ndjson</code>.</li>
+    </ol>
+  </section>
+
+  <SourceFooter source="ops/gdpr-requests.ndjson (n8n gdpr-intake)"
+                lastRefresh={new Date()}
+                notes="webhook-driven, no cache" />
+</Layout>
