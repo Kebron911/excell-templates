@@ -34,6 +34,11 @@ import { readTargets } from '../src/lib/data/targets';
 import { readTimeLog } from '../src/lib/data/time-log';
 import { readVendors } from '../src/lib/data/vendors';
 import { readConsoleActions } from '../src/lib/data/console-actions';
+import { readCitations } from '../src/lib/data/citations';
+import { readSocialAnswers } from '../src/lib/data/social-answers';
+import { readPinterest } from '../src/lib/data/pinterest';
+import { readIndexNow } from '../src/lib/data/indexnow';
+import { readCustomerEmbeds } from '../src/lib/data/customer-embeds';
 
 describe('readers — smoke tests against seeded ops/', () => {
   it('readAlerts resolves with array', async () => {
@@ -186,5 +191,53 @@ describe('readers — smoke tests against seeded ops/', () => {
   it('readConsoleActions resolves with array', async () => {
     const r = await readConsoleActions(10);
     expect(Array.isArray(r)).toBe(true);
+  });
+
+  it('readCitations resolves with citations + byTier + counts', async () => {
+    const r = await readCitations();
+    expect(Array.isArray(r.citations)).toBe(true);
+    expect(r.byTier.T1).toBeDefined();
+    expect(r.byTier.T2).toBeDefined();
+    expect(r.byTier.T3).toBeDefined();
+    expect(typeof r.counts.live).toBe('number');
+    expect(typeof r.counts.pending).toBe('number');
+    expect(typeof r.counts.stale).toBe('number');
+    expect(typeof r.counts.total).toBe('number');
+  });
+
+  it('readSocialAnswers resolves with aggregates + byPlatform', async () => {
+    const r = await readSocialAnswers();
+    expect(Array.isArray(r.rows)).toBe(true);
+    expect(typeof r.surfaced7d).toBe('number');
+    expect(typeof r.answered7d).toBe('number');
+    expect(typeof r.conversionRate7d).toBe('number');
+    expect(typeof r.estVisits30d).toBe('number');
+    expect(r.byPlatform).toBeDefined();
+  });
+
+  it('readPinterest resolves with cache shape + isCacheReady flag', async () => {
+    const r = await readPinterest();
+    expect(typeof r.isCacheReady).toBe('boolean');
+    expect(typeof r.pins_published_7d).toBe('number');
+    expect(typeof r.impressions_30d).toBe('number');
+    expect(typeof r.outbound_clicks_30d).toBe('number');
+    expect(Array.isArray(r.top_pins)).toBe(true);
+  });
+
+  it('readIndexNow resolves with submission aggregates + isCacheReady flag', async () => {
+    const r = await readIndexNow();
+    expect(typeof r.isCacheReady).toBe('boolean');
+    expect(typeof r.submissions_24h).toBe('number');
+    expect(typeof r.submissions_7d).toBe('number');
+    expect(typeof r.errors_7d).toBe('number');
+    expect(Array.isArray(r.recent_submissions)).toBe(true);
+  });
+
+  it('readCustomerEmbeds resolves with active/lost split + totals', async () => {
+    const r = await readCustomerEmbeds();
+    expect(Array.isArray(r.rows)).toBe(true);
+    expect(Array.isArray(r.active)).toBe(true);
+    expect(Array.isArray(r.lost)).toBe(true);
+    expect(typeof r.totalReferrerVisits30d).toBe('number');
   });
 });
