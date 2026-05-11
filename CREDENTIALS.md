@@ -13,7 +13,8 @@
 | Platform | Secret name | Lives at | Subdomain / account | Status (verified 2026-05-11) |
 |---|---|---|---|---|
 | **InfluencerSoft** | `INFLUENCERSOFT_API_KEY` | `./.env` (repo root) | `kebron.influencersoft.com` | ✅ set (32 chars) — live probe confirmed |
-| **Stripe** | `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET` | `STRManuals/site/.env` | dashboard.stripe.com | ❌ **placeholder lines exist but values are empty** — key needs to be pasted in before any live import |
+| **n8n** | `N8N_API_KEY`, `N8N_BASE_URL` | `./.env` (repo root) | `n8ncde.cdeprosperity.com` (self-hosted VPS) | ✅ set (key 207 chars JWT; URL 39 chars). Auth header = `X-N8N-API-KEY` (n8n's convention, not Bearer). |
+| **Stripe** | `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET` | `STRManuals/site/.env` | dashboard.stripe.com | ✅ set (sk_live 107 chars). 66 STR Ledger products + payment links populated 2026-05-11. |
 | **OpenAI** | `OPENAI_API_KEY` | `STRGuests-Tools/.env.local` | n/a — model `gpt-4o-mini` | ✅ set (164 chars) |
 | **MySQL (strguests)** | `MYSQL_HOST/PORT/USER/PASSWORD/DATABASE` | `STRGuests-Tools/.env.local` | Hostinger Business MySQL | ⚠️ host/user/db set, **password empty** — only dev-friendly so far |
 | **Hostinger SSH** | GitHub Actions secret `STR_SSH_KEY` | repo Actions → Secrets | hpanel.hostinger.com | ✅ deploy active |
@@ -75,4 +76,4 @@ When you (the user or any agent) add a new platform integration:
 2. Add a row to `ops/credentials-inventory.md` with account-level info.
 3. Commit both in the same commit. They must not drift.
 
-Last updated: 2026-05-11 (IS subdomain `kebron` confirmed; OpenAI key set).
+Last updated: 2026-05-11 (n8n key + base URL added; Stripe live key in + 66 products populated; OpenAI key set; IS subdomain `kebron` confirmed).
