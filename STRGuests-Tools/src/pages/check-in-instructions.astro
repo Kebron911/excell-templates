@@ -9,13 +9,14 @@ import PdfDownloadButton from '@/components/generator/PdfDownloadButton.astro';
 import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import CheckinInstructionsGenerator from '@/components/generators/CheckinInstructionsGenerator.tsx';
-import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import { buildWebApplication, buildFAQPage } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
 
 const tool = tools['check-in-instructions'];
 const path = tool.path;
 
-const webApp = buildWebApplication({
+const webApp = buildWebApplication(siteConfig, {
   name: tool.name,
   description: tool.tagline,
   toolPath: path,

@@ -21,6 +21,9 @@
     "db:migrate": "tsx server/db/migrate.ts"
   },
   "dependencies": {
+    "@str/format": "workspace:*",
+    "@str/seo": "workspace:*",
+    "@str/url-state": "workspace:*",
     "@astrojs/mdx": "^5.0.4",
     "@astrojs/react": "^5.0.4",
     "@astrojs/rss": "^4.0.18",

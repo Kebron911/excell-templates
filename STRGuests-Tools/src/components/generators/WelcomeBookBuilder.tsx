@@ -7,7 +7,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { buildWelcomeBookPdf, type WelcomeBookInput } from '@/lib/pdf/welcome-book';
-import { formatPhone } from '@/lib/format';
+import { formatPhone } from '@str/format';
 
 const TOOL_SLUG = 'welcome-book';
 

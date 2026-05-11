@@ -6,7 +6,8 @@ import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import TemplateIndex from '@/components/templates/TemplateIndex.tsx';
-import { buildWebApplication, buildItemList, buildBreadcrumb } from '@/lib/seo';
+import { buildWebApplication, buildItemList, buildBreadcrumb } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 import templatesData from '@/data/templates.json';
 
 interface TemplateEntry {
@@ -34,15 +35,16 @@ const rows = Object.entries(data.templates).map(([key, t]) => ({
 }));
 
 const path = '/templates/';
-const webAppLd = buildWebApplication({
+const webAppLd = buildWebApplication(siteConfig, {
   name: 'Airbnb Message Templates Library',
   description: 'Browse 26 hand-written Airbnb host message templates across pre-arrival, check-in, mid-stay, problem-resolution, and more — searchable, filterable, with example inputs and outputs.',
   toolPath: path,
 });
-const itemListLd = buildItemList(
-  rows.map((r) => ({ name: r.name, path: `/templates/${r.key}` })),
-);
-const breadcrumbLd = buildBreadcrumb([
+const itemListLd = buildItemList(siteConfig, {
+  name: 'Airbnb Message Templates Library',
+  items: rows.map((r) => ({ name: r.name, path: `/templates/${r.key}` })),
+});
+const breadcrumbLd = buildBreadcrumb(siteConfig, [
   { name: 'Home', url: 'https://strguests.tools/' },
   { name: 'Message Templates', url: 'https://strguests.tools/templates/' },
 ]);

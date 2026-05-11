@@ -135,6 +135,15 @@ importers:
       '@resvg/resvg-js':
         specifier: ^2.6.2
         version: 2.6.2
+      '@str/format':
+        specifier: workspace:*
+        version: link:../packages/format
+      '@str/seo':
+        specifier: workspace:*
+        version: link:../packages/seo
+      '@str/url-state':
+        specifier: workspace:*
+        version: link:../packages/url-state
       astro:
         specifier: ^6.2.2
         version: 6.3.1(@types/node@20.19.40)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.3)(tsx@4.21.0)(yaml@2.8.4)

@@ -5,7 +5,8 @@ import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import AdSlot from '@/components/ads/AdSlot.astro';
 import tools from '@/data/tools.json';
-import { buildArticle } from '@/lib/seo';
+import { buildArticle } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -52,7 +53,7 @@ const categoryLabels: Record<string, string> = {
   acquisition: 'Acquisition',
 };
 
-const articleLd = buildArticle({
+const articleLd = buildArticle(siteConfig, {
   headline: post.data.title,
   description: post.data.description,
   slug,

@@ -15,7 +15,7 @@
 import { StandardFonts } from 'pdf-lib';
 import type { PDFDocument, PDFPage, PDFFont } from 'pdf-lib';
 import { createBaseDoc, drawHeader, drawFooter, COLORS } from './base';
-import { formatPhone } from '@/lib/format';
+import { formatPhone } from '@str/format';
 
 export interface WelcomeBookInput {
   propertyName: string;

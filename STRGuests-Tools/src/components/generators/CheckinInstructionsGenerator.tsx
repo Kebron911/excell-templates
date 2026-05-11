@@ -13,7 +13,7 @@ import {
   type CheckinImage,
   type CheckinImageKind,
 } from '@/lib/pdf/checkin';
-import { formatPhone } from '@/lib/format';
+import { formatPhone } from '@str/format';
 
 const TOOL_SLUG = 'check-in-instructions';
 

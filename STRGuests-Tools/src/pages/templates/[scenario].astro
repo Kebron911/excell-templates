@@ -6,7 +6,8 @@ import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import CopyButton from '@/components/templates/CopyButton.tsx';
-import { buildScenarioArticle, buildBreadcrumb } from '@/lib/seo';
+import { buildScenarioArticle, buildBreadcrumb } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 import templatesData from '@/data/templates.json';
 
 interface TemplateEntry {
@@ -54,13 +55,13 @@ const related = Object.entries(data.templates)
   .slice(0, 3);
 
 const path = `/templates/${scenario}`;
-const articleLd = buildScenarioArticle({
+const articleLd = buildScenarioArticle(siteConfig, {
   headline: `${entry.name} — Airbnb message template`,
   description: entry.scenario,
   slug: scenario,
   datePublished: entry.lastVerified,
 });
-const breadcrumbLd = buildBreadcrumb([
+const breadcrumbLd = buildBreadcrumb(siteConfig, [
   { name: 'Home', url: '/' },
   { name: 'Templates', url: '/templates/' },
   { name: entry.name, url: path },
