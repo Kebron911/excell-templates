@@ -177,3 +177,57 @@ export function ogImageFor(path: string): string {
   const slug = path === '/' ? 'index' : path.replace(/^\//, '').replace(/\//g, '-');
   return `${SITE_URL}/og/${slug}.png`;
 }
+
+/* ------------------------------------------------------------------ */
+/* HowTo + ItemList builders (Tier 2 #6 of CLUSTER-SEO-ROLLUP)        */
+/* ------------------------------------------------------------------ */
+
+export interface HowToStep {
+  name: string;
+  text: string;
+}
+
+export interface HowToInput {
+  name: string;
+  description: string;
+  steps: HowToStep[];
+  totalTime?: string; // ISO 8601 duration, e.g. "PT5M"
+}
+
+/** HowTo JSON-LD for stepwise calculators. Google HowTo rich-result eligible. */
+export function buildHowTo(input: HowToInput): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: input.name,
+    description: input.description,
+    ...(input.totalTime ? { totalTime: input.totalTime } : {}),
+    step: input.steps.map((step, idx) => ({
+      '@type': 'HowToStep',
+      position: idx + 1,
+      name: step.name,
+      text: step.text,
+    })),
+  };
+}
+
+export interface ItemListEntry {
+  name: string;
+  /** Site-relative path, e.g. "/lodging-tax/texas" */
+  path: string;
+}
+
+/** ItemList JSON-LD. Used by directory pages (e.g. /lodging-tax index). */
+export function buildItemList(items: ItemListEntry[]): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    numberOfItems: items.length,
+    itemListElement: items.map((entry, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      name: entry.name,
+      url: canonical(entry.path),
+    })),
+  };
+}

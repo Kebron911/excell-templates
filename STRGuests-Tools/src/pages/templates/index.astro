@@ -6,7 +6,7 @@ import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import TemplateIndex from '@/components/templates/TemplateIndex.tsx';
-import { buildWebApplication } from '@/lib/seo';
+import { buildWebApplication, buildItemList, buildBreadcrumb } from '@/lib/seo';
 import templatesData from '@/data/templates.json';
 
 interface TemplateEntry {
@@ -39,12 +39,19 @@ const webAppLd = buildWebApplication({
   description: 'Browse 26 hand-written Airbnb host message templates across pre-arrival, check-in, mid-stay, problem-resolution, and more — searchable, filterable, with example inputs and outputs.',
   toolPath: path,
 });
+const itemListLd = buildItemList(
+  rows.map((r) => ({ name: r.name, path: `/templates/${r.key}` })),
+);
+const breadcrumbLd = buildBreadcrumb([
+  { name: 'Home', url: 'https://strguests.tools/' },
+  { name: 'Message Templates', url: 'https://strguests.tools/templates/' },
+]);
 ---
 <Layout
   title="Airbnb Message Templates — strguests.tools"
   description="26 hand-written Airbnb host message templates across 10 scenario categories. Searchable, filterable, with example inputs and outputs."
   path={path}
-  jsonLd={[webAppLd]}
+  jsonLd={[webAppLd, itemListLd, breadcrumbLd]}
 >
   <article class="mx-auto max-w-5xl px-5 py-8">
     <header>

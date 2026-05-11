@@ -1,11 +1,26 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
 import tasksData from '@data/tasks.json';
 import type { TaskCatalog } from '@lib/types';
+import { itemListJsonLd, breadcrumbJsonLd } from '@lib/seo';
 
 const tasks = tasksData as unknown as TaskCatalog;
 const list = Object.entries(tasks).sort(([, a], [, b]) => a.cadenceDays - b.cadenceDays);
 const url = 'https://strops.tools/maintenance/';
+
+const ld = [
+  itemListJsonLd(
+    list.map(([slug, task]) => ({
+      name: task.name,
+      url: `https://strops.tools/maintenance/${slug}/`,
+    })),
+  ),
+  breadcrumbJsonLd([
+    { name: 'Home', url: 'https://strops.tools/' },
+    { name: 'Maintenance schedule', url },
+  ]),
+];
 ---
 <Layout
   title="Airbnb maintenance schedule by task"
@@ -13,6 +28,7 @@ const url = 'https://strops.tools/maintenance/';
   canonical={url}
   ogImage="/og/maintenance.png"
 >
+  <JsonLd data={ld} />
   <article class="prose mx-auto max-w-4xl px-6 py-10">
     <h1>Maintenance index</h1>
     <p class="lead">

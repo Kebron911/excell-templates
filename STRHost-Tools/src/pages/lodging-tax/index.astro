@@ -8,7 +8,7 @@ import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import data from '@/data/lodging-tax-by-state.json';
 import type { LodgingTaxData } from '@/data/lodging-tax-by-state.schema';
 import { formatPercent } from '@/lib/format';
-import { buildWebApplication } from '@/lib/seo';
+import { buildWebApplication, buildItemList, buildBreadcrumb } from '@/lib/seo';
 
 const entries = Object.entries(data as unknown as LodgingTaxData)
   .map(([code, e]) => ({ code, ...e }))
@@ -20,6 +20,16 @@ const jsonLd = [
     description: 'State-by-state short-term rental lodging tax rates with source citations and verification dates. Free, sortable index of all 50 states + DC.',
     toolPath: '/lodging-tax',
   }),
+  buildItemList(
+    entries.map((e) => ({
+      name: `${e.name} Lodging Tax`,
+      path: `/lodging-tax/${e.code.toLowerCase()}`,
+    })),
+  ),
+  buildBreadcrumb([
+    { name: 'Home', url: 'https://strhost.tools/' },
+    { name: 'Lodging Tax', url: 'https://strhost.tools/lodging-tax/' },
+  ]),
 ];
 ---
 

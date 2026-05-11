@@ -109,3 +109,17 @@ export const breadcrumbJsonLd = (crumbs: BreadcrumbCrumb[]) => ({
     item: c.url,
   })),
 });
+
+/* ItemList builder for directory pages (/replace/, /maintenance/). */
+export interface ItemListEntry { name: string; url: string; }
+export const itemListJsonLd = (items: ItemListEntry[]) => ({
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  numberOfItems: items.length,
+  itemListElement: items.map((entry, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: entry.name,
+    url: entry.url,
+  })),
+});

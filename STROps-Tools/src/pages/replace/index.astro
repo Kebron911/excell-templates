@@ -1,11 +1,26 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import JsonLd from '@components/seo/JsonLd.astro';
 import itemsData from '@data/items.json';
 import type { ItemCatalog } from '@lib/types';
+import { itemListJsonLd, breadcrumbJsonLd } from '@lib/seo';
 
 const items = itemsData as unknown as ItemCatalog;
 const list = Object.entries(items).sort(([, a], [, b]) => a.name.localeCompare(b.name));
 const url = 'https://strops.tools/replace/';
+
+const ld = [
+  itemListJsonLd(
+    list.map(([slug, item]) => ({
+      name: item.name,
+      url: `https://strops.tools/replace/${slug}/`,
+    })),
+  ),
+  breadcrumbJsonLd([
+    { name: 'Home', url: 'https://strops.tools/' },
+    { name: 'Replacement costs', url },
+  ]),
+];
 ---
 <Layout
   title="STR replacement cost index"
@@ -13,6 +28,7 @@ const url = 'https://strops.tools/replace/';
   canonical={url}
   ogImage="/og/replace.png"
 >
+  <JsonLd data={ld} />
   <article class="prose mx-auto max-w-4xl px-6 py-10">
     <h1>Replacement cost index</h1>
     <p class="lead">
