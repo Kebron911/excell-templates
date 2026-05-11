@@ -1,0 +1,108 @@
+---
+// Layout — full page shell: <html>, <head>, <body>, Header, Footer, FunnelBand.
+// Consumers import their own styles via <slot name="head-styles" />.
+// Named slots:
+//   head-styles       — inject app-specific <link> / <style> tags into <head>
+//   head-extra        — additional <head> content (fonts, preloads, etc.)
+//   header-cta        — passed through to Header
+//   funnel-banner-override — passed through to FunnelBand
+//   footer-extra      — passed through to Footer
+//   default           — page body content
+
+import type { SiteConfig } from '@str/seo';
+import { canonical, ogImageFor, buildOrganization } from '@str/seo';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import FunnelBand from './FunnelBand.astro';
+
+interface Props {
+  siteConfig: SiteConfig;
+  title: string;
+  description: string;
+  path: string;          // e.g., "/welcome-book"
+  ogImage?: string;
+  noIndex?: boolean;
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
+}
+
+const { siteConfig, title, description, path, ogImage, noIndex = false, jsonLd } = Astro.props;
+const canonicalUrl = canonical(siteConfig, path);
+const ogImg = ogImage ?? ogImageFor(siteConfig, path);
+const orgLd = buildOrganization(siteConfig);
+
+const lds = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+---
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noIndex && <meta name="robots" content="noindex,follow" />}
+
+    {/* Open Graph */}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={ogImg} />
+    <meta property="og:site_name" content={siteConfig.brand.name} />
+
+    {/* Twitter */}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImg} />
+
+    {/* Favicon */}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    {/* RSS autodiscovery */}
+    <link rel="alternate" type="application/rss+xml" title={`${siteConfig.brand.name} — Blog`} href="/feed.xml" />
+
+    {/* JSON-LD */}
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(orgLd)} />
+    {lds.map(ld => (
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(ld)} />
+    ))}
+
+    {/* GA4 — only emitted when PUBLIC_GA4_ID is set. */}
+    {import.meta.env.PUBLIC_GA4_ID && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${import.meta.env.PUBLIC_GA4_ID}`} />
+        <script is:inline set:html={`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', '${import.meta.env.PUBLIC_GA4_ID}', {
+            linker: { domains: ['strhost.tools', 'thestrledger.com', 'strbuyers.tools', 'strops.tools', 'strguests.tools'] },
+            send_page_view: true
+          });
+        `} />
+      </>
+    )}
+
+    {/* App-specific styles injected by consumer */}
+    <slot name="head-styles" />
+    <slot name="head-extra" />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <Header siteConfig={siteConfig}>
+      <slot name="header-cta" slot="header-cta" />
+    </Header>
+    <main class="flex-1">
+      <slot />
+    </main>
+    <FunnelBand siteConfig={siteConfig}>
+      <slot name="funnel-banner-override" slot="funnel-banner-override" />
+    </FunnelBand>
+    <Footer siteConfig={siteConfig}>
+      <slot name="footer-extra" slot="footer-extra" />
+    </Footer>
+  </body>
+</html>
