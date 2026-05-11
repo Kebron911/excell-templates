@@ -44,50 +44,418 @@
     "lastVerified": "2026-05-05",
     "notes": "2.9% state sales tax plus local lodging taxes. Many resort towns add a Local Marketing District tax."
   },
-  "al": { "name": "Alabama", "stateRate": 0.04, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.07], "sourceUrl": "https://www.revenue.alabama.gov/", "lastVerified": "2026-05-05", "notes": "4% state lodging tax plus local lodging taxes." },
-  "ak": { "name": "Alaska", "stateRate": 0.0, "platformCollects": ["airbnb"], "localAddOnRange": [0.0, 0.12], "sourceUrl": "https://tax.alaska.gov/", "lastVerified": "2026-05-05", "notes": "No state-level lodging tax. Boroughs and cities levy bed taxes." },
-  "az": { "name": "Arizona", "stateRate": 0.055, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.06], "sourceUrl": "https://azdor.gov/business/transaction-privilege-tax", "lastVerified": "2026-05-05", "notes": "5.5% state TPT plus county and city transient lodging tax." },
-  "ar": { "name": "Arkansas", "stateRate": 0.065, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.05], "sourceUrl": "https://www.dfa.arkansas.gov/", "lastVerified": "2026-05-05", "notes": "6.5% state sales tax plus 2% short-term rental tax and local lodging taxes." },
-  "ct": { "name": "Connecticut", "stateRate": 0.15, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.0], "sourceUrl": "https://portal.ct.gov/DRS", "lastVerified": "2026-05-05", "notes": "15% state room occupancy tax." },
-  "de": { "name": "Delaware", "stateRate": 0.08, "platformCollects": ["airbnb"], "localAddOnRange": [0.0, 0.03], "sourceUrl": "https://revenue.delaware.gov/", "lastVerified": "2026-05-05", "notes": "8% state lodging tax plus optional local lodging tax." },
-  "ga": { "name": "Georgia", "stateRate": 0.04, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.08], "sourceUrl": "https://dor.georgia.gov/", "lastVerified": "2026-05-05", "notes": "4% state sales tax plus $5/night state hotel-motel fee and local hotel-motel tax." },
-  "hi": { "name": "Hawaii", "stateRate": 0.1025, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.03, 0.03], "sourceUrl": "https://tax.hawaii.gov/", "lastVerified": "2026-05-05", "notes": "10.25% Transient Accommodations Tax plus 4.712% GET and 3% county TAT." },
-  "id": { "name": "Idaho", "stateRate": 0.06, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.05], "sourceUrl": "https://tax.idaho.gov/", "lastVerified": "2026-05-05", "notes": "6% state sales tax plus 2% travel and convention tax and local resort taxes." },
-  "il": { "name": "Illinois", "stateRate": 0.06, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.075], "sourceUrl": "https://tax.illinois.gov/", "lastVerified": "2026-05-05", "notes": "6% state Hotel Operators' Occupation Tax plus local hotel taxes." },
-  "in": { "name": "Indiana", "stateRate": 0.07, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.10], "sourceUrl": "https://www.in.gov/dor/", "lastVerified": "2026-05-05", "notes": "7% state sales tax plus county innkeeper's tax." },
-  "ia": { "name": "Iowa", "stateRate": 0.05, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.07], "sourceUrl": "https://tax.iowa.gov/", "lastVerified": "2026-05-05", "notes": "5% state hotel/motel tax plus local hotel/motel tax up to 7%." },
-  "ks": { "name": "Kansas", "stateRate": 0.065, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.09], "sourceUrl": "https://www.ksrevenue.gov/", "lastVerified": "2026-05-05", "notes": "6.5% state sales tax plus local transient guest tax." },
-  "ky": { "name": "Kentucky", "stateRate": 0.06, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.085], "sourceUrl": "https://revenue.ky.gov/", "lastVerified": "2026-05-05", "notes": "6% state sales tax plus 1% transient room tax and local transient room tax." },
-  "la": { "name": "Louisiana", "stateRate": 0.0445, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.07], "sourceUrl": "https://revenue.louisiana.gov/", "lastVerified": "2026-05-05", "notes": "4.45% state sales tax plus parish and local hotel taxes." },
-  "me": { "name": "Maine", "stateRate": 0.09, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.0], "sourceUrl": "https://www.maine.gov/revenue/", "lastVerified": "2026-05-05", "notes": "9% state lodging tax. No general local add-on." },
-  "md": { "name": "Maryland", "stateRate": 0.06, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.095], "sourceUrl": "https://www.marylandtaxes.gov/", "lastVerified": "2026-05-05", "notes": "6% state sales tax plus county hotel rental tax." },
-  "ma": { "name": "Massachusetts", "stateRate": 0.057, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.06], "sourceUrl": "https://www.mass.gov/dor", "lastVerified": "2026-05-05", "notes": "5.7% state room occupancy excise plus local option, community impact, and Cape & Islands fees." },
-  "mi": { "name": "Michigan", "stateRate": 0.06, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.06], "sourceUrl": "https://www.michigan.gov/treasury", "lastVerified": "2026-05-05", "notes": "6% state use tax plus county accommodations tax." },
-  "mn": { "name": "Minnesota", "stateRate": 0.06875, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.10], "sourceUrl": "https://www.revenue.state.mn.us/", "lastVerified": "2026-05-05", "notes": "6.875% state sales tax plus city and special-district lodging taxes." },
-  "ms": { "name": "Mississippi", "stateRate": 0.07, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.04], "sourceUrl": "https://www.dor.ms.gov/", "lastVerified": "2026-05-05", "notes": "7% state sales tax plus local tourism and economic development taxes." },
-  "mo": { "name": "Missouri", "stateRate": 0.04225, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.075], "sourceUrl": "https://dor.mo.gov/", "lastVerified": "2026-05-05", "notes": "4.225% state sales tax plus local tourism tax." },
-  "mt": { "name": "Montana", "stateRate": 0.07, "platformCollects": ["airbnb"], "localAddOnRange": [0.0, 0.04], "sourceUrl": "https://mtrevenue.gov/", "lastVerified": "2026-05-05", "notes": "4% lodging facility use tax plus 4% lodging facility sales tax. Resort taxes in some towns." },
-  "ne": { "name": "Nebraska", "stateRate": 0.055, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.04], "sourceUrl": "https://revenue.nebraska.gov/", "lastVerified": "2026-05-05", "notes": "5.5% state sales tax plus 1% state lodging tax and local lodging tax." },
-  "nv": { "name": "Nevada", "stateRate": 0.0, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.10, 0.135], "sourceUrl": "https://tax.nv.gov/", "lastVerified": "2026-05-05", "notes": "No state-level transient lodging tax. Counties levy combined transient lodging tax up to 13.5%." },
-  "nh": { "name": "New Hampshire", "stateRate": 0.085, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.0], "sourceUrl": "https://www.revenue.nh.gov/", "lastVerified": "2026-05-05", "notes": "8.5% Meals and Rooms Tax. No local add-on." },
-  "nj": { "name": "New Jersey", "stateRate": 0.0625, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.06], "sourceUrl": "https://www.state.nj.us/treasury/taxation/", "lastVerified": "2026-05-05", "notes": "6.625% state sales tax plus 5% state occupancy fee and local occupancy taxes." },
-  "nm": { "name": "New Mexico", "stateRate": 0.04875, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.05], "sourceUrl": "https://www.tax.newmexico.gov/", "lastVerified": "2026-05-05", "notes": "4.875% state gross receipts tax plus local lodgers' tax up to 5%." },
-  "nc": { "name": "North Carolina", "stateRate": 0.0475, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.08], "sourceUrl": "https://www.ncdor.gov/", "lastVerified": "2026-05-05", "notes": "4.75% state sales tax plus county occupancy tax." },
-  "nd": { "name": "North Dakota", "stateRate": 0.05, "platformCollects": ["airbnb"], "localAddOnRange": [0.0, 0.03], "sourceUrl": "https://www.tax.nd.gov/", "lastVerified": "2026-05-05", "notes": "5% state sales tax plus local lodging and restaurant tax." },
-  "oh": { "name": "Ohio", "stateRate": 0.0575, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.10], "sourceUrl": "https://tax.ohio.gov/", "lastVerified": "2026-05-05", "notes": "5.75% state sales tax plus county and municipal lodging excise." },
-  "ok": { "name": "Oklahoma", "stateRate": 0.045, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.08], "sourceUrl": "https://oklahoma.gov/tax.html", "lastVerified": "2026-05-05", "notes": "4.5% state sales tax plus city lodging and tourism tax." },
-  "or": { "name": "Oregon", "stateRate": 0.015, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.115], "sourceUrl": "https://www.oregon.gov/dor/", "lastVerified": "2026-05-05", "notes": "1.5% state lodging tax plus local lodging taxes." },
-  "pa": { "name": "Pennsylvania", "stateRate": 0.06, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.10], "sourceUrl": "https://www.revenue.pa.gov/", "lastVerified": "2026-05-05", "notes": "6% state sales tax plus 1% hotel occupancy tax in Allegheny/Philadelphia and county hotel taxes." },
-  "ri": { "name": "Rhode Island", "stateRate": 0.07, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.06, 0.06], "sourceUrl": "https://tax.ri.gov/", "lastVerified": "2026-05-05", "notes": "7% state sales tax plus 6% state hotel tax (5% statewide + 1% local-share)." },
-  "sc": { "name": "South Carolina", "stateRate": 0.07, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.06], "sourceUrl": "https://dor.sc.gov/", "lastVerified": "2026-05-05", "notes": "5% sales tax + 2% accommodations tax plus local accommodations tax." },
-  "sd": { "name": "South Dakota", "stateRate": 0.045, "platformCollects": ["airbnb"], "localAddOnRange": [0.0, 0.04], "sourceUrl": "https://dor.sd.gov/", "lastVerified": "2026-05-05", "notes": "4.5% state sales tax plus 1.5% tourism tax (seasonal) and municipal taxes." },
-  "tn": { "name": "Tennessee", "stateRate": 0.07, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.06], "sourceUrl": "https://www.tn.gov/revenue.html", "lastVerified": "2026-05-05", "notes": "7% state sales tax plus county and city occupancy taxes." },
-  "ut": { "name": "Utah", "stateRate": 0.0485, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.07], "sourceUrl": "https://tax.utah.gov/", "lastVerified": "2026-05-05", "notes": "4.85% state sales tax plus 0.32% statewide and local transient room tax." },
-  "vt": { "name": "Vermont", "stateRate": 0.09, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.01], "sourceUrl": "https://tax.vermont.gov/", "lastVerified": "2026-05-05", "notes": "9% state meals and rooms tax. Some municipalities add 1%." },
-  "va": { "name": "Virginia", "stateRate": 0.053, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.08], "sourceUrl": "https://www.tax.virginia.gov/", "lastVerified": "2026-05-05", "notes": "5.3% state sales tax plus county and city transient occupancy tax." },
-  "wa": { "name": "Washington", "stateRate": 0.065, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.04], "sourceUrl": "https://dor.wa.gov/", "lastVerified": "2026-05-05", "notes": "6.5% state sales tax plus local sales tax and special hotel/motel tax." },
-  "wv": { "name": "West Virginia", "stateRate": 0.06, "platformCollects": ["airbnb"], "localAddOnRange": [0.0, 0.06], "sourceUrl": "https://tax.wv.gov/", "lastVerified": "2026-05-05", "notes": "6% state sales tax plus local hotel occupancy tax." },
-  "wi": { "name": "Wisconsin", "stateRate": 0.05, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.08], "sourceUrl": "https://www.revenue.wi.gov/", "lastVerified": "2026-05-05", "notes": "5% state sales tax plus county and municipal room tax." },
-  "wy": { "name": "Wyoming", "stateRate": 0.05, "platformCollects": ["airbnb"], "localAddOnRange": [0.0, 0.04], "sourceUrl": "https://revenue.wyo.gov/", "lastVerified": "2026-05-05", "notes": "4% state sales tax plus 5% statewide lodging tax and local lodging taxes." },
-  "dc": { "name": "District of Columbia", "stateRate": 0.1475, "platformCollects": ["airbnb", "vrbo"], "localAddOnRange": [0.0, 0.0], "sourceUrl": "https://otr.cfo.dc.gov/", "lastVerified": "2026-05-05", "notes": "14.75% sales tax on transient accommodations." }
+  "al": {
+    "name": "Alabama",
+    "stateRate": 0.04,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.07],
+    "sourceUrl": "https://www.revenue.alabama.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Alabama applies a 4% state lodging tax statewide, with a higher 5% rate in the Mountain Lakes and Gulf Coast areas designated as the 'Mountain Lakes' region. Beach-front cities like Gulf Shores and Orange Beach stack city lodging taxes that push the all-in rate near 13–15%. Hosts must register with the Alabama Department of Revenue and file monthly even when Airbnb collects the state portion, because most municipal lodging taxes are not on the marketplace facilitator schedule. Pass the tax through to the guest as a separate line so your reported revenue stays clean for income-tax purposes."
+  },
+  "ak": {
+    "name": "Alaska",
+    "stateRate": 0.0,
+    "platformCollects": ["airbnb"],
+    "localAddOnRange": [0.0, 0.12],
+    "sourceUrl": "https://tax.alaska.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Alaska levies no statewide lodging tax — every dollar of bed tax is set by boroughs and home-rule cities. Anchorage charges a 12% room tax, while Juneau and Sitka sit closer to 7–9%, and many small communities have no bed tax at all. Vrbo does not collect on your behalf in most Alaskan jurisdictions, so even if Airbnb remits, you will likely still file Vrbo bookings yourself. Verify with the local clerk before your first booking; bush communities often update their rate on a different cycle than the state fiscal year."
+  },
+  "az": {
+    "name": "Arizona",
+    "stateRate": 0.055,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.06],
+    "sourceUrl": "https://azdor.gov/business/transaction-privilege-tax",
+    "lastVerified": "2026-05-05",
+    "notes": "Arizona structures lodging tax through the Transaction Privilege Tax (TPT) at 5.5% statewide for transient lodging. Sedona, Flagstaff, and Phoenix add city TPT plus a separate Bed/Hotel/Restaurant tax that can push effective rates past 14%. Hosts must hold an Arizona TPT license even when Airbnb files for the state portion, because city-level filings are still your responsibility in most municipalities. SB 1168 (2022) gave cities authority to require STR registration, and many require an in-state emergency contact within 60 minutes of the property."
+  },
+  "ar": {
+    "name": "Arkansas",
+    "stateRate": 0.065,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.05],
+    "sourceUrl": "https://www.dfa.arkansas.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Arkansas charges 6.5% state sales tax plus a 2% short-term rental tax that applies specifically to stays under 30 days. Eureka Springs, Hot Springs, and Fayetteville add local advertising and promotion taxes (A&P) of 2–3% directly to lodging. Both Airbnb and Vrbo collect and remit the state portion, but the local A&P tax is generally not on their roadmap and remains the host's responsibility. Most cities want a separate hospitality permit on top of the state tax registration; check the city clerk before listing."
+  },
+  "ct": {
+    "name": "Connecticut",
+    "stateRate": 0.15,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.0],
+    "sourceUrl": "https://portal.ct.gov/DRS",
+    "lastVerified": "2026-05-05",
+    "notes": "Connecticut has one of the highest single-rate lodging taxes in the country at 15% on stays of 30 nights or fewer. There is no separate municipal bed tax, which simplifies compliance dramatically. The Department of Revenue Services treats short-term rentals as 'hotels and lodging houses' under Conn. Gen. Stat. §12-407(a)(2)(H). Both major platforms collect and remit, but you must still register for a Connecticut sales tax permit and file a return showing $0 due if all your bookings flow through marketplace facilitators."
+  },
+  "de": {
+    "name": "Delaware",
+    "stateRate": 0.08,
+    "platformCollects": ["airbnb"],
+    "localAddOnRange": [0.0, 0.03],
+    "sourceUrl": "https://revenue.delaware.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Delaware applies an 8% state lodging tax to rentals under 120 days, plus a 3% additional lodging tax that beach towns like Rehoboth, Bethany, and Lewes have adopted. Vrbo does not collect Delaware lodging tax automatically; if you list on Vrbo you must register with the Division of Revenue and remit yourself. The state requires an STR business license ($75 annually) and inspection compliance for properties in Sussex County coastal areas. Pass the tax through as a separate line on your booking summary."
+  },
+  "ga": {
+    "name": "Georgia",
+    "stateRate": 0.04,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.08],
+    "sourceUrl": "https://dor.georgia.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Georgia layers three things on every booking: 4% state sales tax, a flat $5/night state hotel-motel fee, and a county/city hotel-motel tax that ranges 3–8%. The flat $5 nightly fee is unusual — it applies regardless of nightly rate, so a $60 cabin and a $600 mansion both owe the same per-night fee. Atlanta charges 8% city tax on top of state. Both Airbnb and Vrbo collect the state portion, but the city/county hotel-motel tax is often the host's responsibility, so confirm with your county finance office."
+  },
+  "hi": {
+    "name": "Hawaii",
+    "stateRate": 0.1025,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.03, 0.03],
+    "sourceUrl": "https://tax.hawaii.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Hawaii's all-in tax stack is among the heaviest in the US: 10.25% state Transient Accommodations Tax (TAT), 4.712% General Excise Tax (visible-pass-through is allowed), and an additional 3% county TAT now adopted by every county. Effective combined rate exceeds 18% and is allowable to be charged to the guest. Honolulu and Maui require an STR registration with strict zoning and minimum-stay rules — much of Oahu is now off-limits below 90-night stays. Even when platforms remit TAT, you must file a GET return because the GET applies to the host's gross receipts including the TAT collected."
+  },
+  "id": {
+    "name": "Idaho",
+    "stateRate": 0.06,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.05],
+    "sourceUrl": "https://tax.idaho.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Idaho applies 6% state sales tax plus a 2% Travel and Convention tax on lodging — both collected by the platforms in most cases. Resort cities (McCall, Ketchum, Sun Valley, Driggs, Stanley) layer their own local-option resort taxes that range from 1% to 5% on lodging. The City Hall is the right contact for local-option compliance because it is not on the marketplace-facilitator schedule. Idaho does not require state-level STR registration, but counties may require a CC&R-style affidavit for properties in subdivisions."
+  },
+  "il": {
+    "name": "Illinois",
+    "stateRate": 0.06,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.075],
+    "sourceUrl": "https://tax.illinois.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Illinois assesses a 6% state Hotel Operators' Occupation Tax that applies to STRs of fewer than 30 days. Chicago is the headline jurisdiction: city hotel accommodations tax of 4.5%, plus a 1% Cook County tax, plus a 6% Vacation Rental and Shared Housing surcharge — total Chicago rate exceeds 17% on bookings. Smaller cities like Springfield and Rockford add 2–4%. Airbnb collects the state portion under a 2017 voluntary collection agreement; Chicago city tax is collected separately by Airbnb but not by Vrbo, so cross-platform hosts have a Chicago-specific compliance gap to mind."
+  },
+  "in": {
+    "name": "Indiana",
+    "stateRate": 0.07,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.10],
+    "sourceUrl": "https://www.in.gov/dor/",
+    "lastVerified": "2026-05-05",
+    "notes": "Indiana applies 7% state sales tax to lodging and authorizes counties to adopt a county innkeeper's tax up to 10%. Marion County (Indianapolis) sits at 10% — combined with state, that's a 17% effective rate during convention season. The 2018 Indiana STR law (HEA 1035) preempts most local STR bans but allows zoning regulation; cities can still require permits. Both Airbnb and Vrbo collect the state and most county innkeeper's taxes after recent agreements, but smaller counties may not be on the marketplace facilitator list."
+  },
+  "ia": {
+    "name": "Iowa",
+    "stateRate": 0.05,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.07],
+    "sourceUrl": "https://tax.iowa.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Iowa applies a 5% state hotel/motel tax (separate from the 6% state sales tax, which does not apply to lodging). Cities can adopt a local hotel/motel tax up to 7%, and most have done so — Des Moines and Iowa City are at 7%. The 5% state portion is collected by Airbnb and Vrbo under the 2018 marketplace facilitator law, but the local 7% piece is split: in many cities the platforms remit, in others the host must. Verify by city; the Department of Revenue publishes a quarterly local-tax matrix worth bookmarking."
+  },
+  "ks": {
+    "name": "Kansas",
+    "stateRate": 0.065,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.09],
+    "sourceUrl": "https://www.ksrevenue.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Kansas applies 6.5% state sales tax and authorizes cities to adopt a transient guest tax (TGT) of up to 9%. Wichita, Topeka, and Lawrence sit in the 6–7% TGT range, while Overland Park is at 9%. Airbnb and Vrbo collect the state sales tax automatically; transient guest tax collection by platforms varies — some cities have agreements, most do not. STRs of 28 days or fewer are taxable; longer stays drop out of the lodging tax base entirely. Register through the Kansas Customer Service Center for a sales-tax certificate even if you only host through marketplace facilitators."
+  },
+  "ky": {
+    "name": "Kentucky",
+    "stateRate": 0.06,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.085],
+    "sourceUrl": "https://revenue.ky.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Kentucky charges a 6% state sales tax plus a 1% statewide transient room tax dedicated to tourism marketing. Cities and counties layer their own transient room tax — Louisville is at 8.5% local for a combined effective rate around 15.5%. The 2019 Kentucky tax modernization law explicitly added 'short-term rentals' to the lodging tax base. Airbnb and Vrbo collect the state and statewide transient portions; local taxes are usually still the host's filing obligation. Ky. Rev. Stat. 91A.390 governs the convention and tourism tax."
+  },
+  "la": {
+    "name": "Louisiana",
+    "stateRate": 0.0445,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.07],
+    "sourceUrl": "https://revenue.louisiana.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Louisiana applies a 4.45% state sales tax to lodging plus parish (county-equivalent) and city occupancy taxes. Orleans Parish (New Orleans) is the headline: 5% state hotel-motel tax + 1.75% Ernest N. Morial Convention Center tax + 5% city occupancy tax — combined STR effective rate exceeds 16%. New Orleans bans whole-home STRs in most residential zones. Both major platforms collect state tax, but the New Orleans city occupancy tax has its own separate marketplace-facilitator agreement that you should confirm is active for your listing type."
+  },
+  "me": {
+    "name": "Maine",
+    "stateRate": 0.09,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.0],
+    "sourceUrl": "https://www.maine.gov/revenue/",
+    "lastVerified": "2026-05-05",
+    "notes": "Maine assesses a flat 9% state lodging tax with no general municipal add-on, which makes compliance straightforward by national standards. The rate applies to any rental of fewer than 28 consecutive days. Coastal towns like Bar Harbor and Portland have added STR registration ordinances (annual fee, owner-occupied vs. non-owner-occupied caps, life-safety inspections), but they do not levy an additional bed tax. Both Airbnb and Vrbo collect under marketplace facilitator agreements. Maine Revenue Services requires a sales tax registration even if you exclusively host through facilitators."
+  },
+  "md": {
+    "name": "Maryland",
+    "stateRate": 0.06,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.095],
+    "sourceUrl": "https://www.marylandtaxes.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Maryland applies 6% state sales tax to lodging plus county-level hotel rental tax that ranges 3–9.5%. Baltimore County sits at 9.5%, Worcester County (Ocean City) at 5%, Montgomery County (suburban DC) at 7%. The 2019 Maryland marketplace facilitator law (HB 1301) requires Airbnb and Vrbo to collect both state and county portions in most jurisdictions. Annapolis and Ocean City require additional STR licensing. Lodging stays of more than 90 consecutive days drop out of the tax base."
+  },
+  "ma": {
+    "name": "Massachusetts",
+    "stateRate": 0.057,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.06],
+    "sourceUrl": "https://www.mass.gov/dor",
+    "lastVerified": "2026-05-05",
+    "notes": "Massachusetts has the most layered lodging tax in New England: 5.7% state room occupancy excise, plus a local-option tax up to 6%, plus a 2.75% Cape Cod & Islands Wastewater fund tax in 15 specific towns, plus a Community Impact Fee up to 3% in towns that adopt it. Boston is at 14.45% combined. STRs are taxable as of the 2019 expansion law (Ch. 337); previously only properties with 4+ rentable units qualified. Both major platforms collect for the state and most local-option towns, but the Community Impact Fee is often left to the host."
+  },
+  "mi": {
+    "name": "Michigan",
+    "stateRate": 0.06,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.06],
+    "sourceUrl": "https://www.michigan.gov/treasury",
+    "lastVerified": "2026-05-05",
+    "notes": "Michigan applies 6% state use tax to STR bookings plus a county accommodations excise tax that ranges 2–6%. Wayne County (Detroit) is at 5%, Grand Traverse County at 5%, Mackinac County at 5%. The 2018 Michigan marketplace facilitator law brought Airbnb and Vrbo into mandatory collection for the state portion; county accommodations tax is collected by the platforms in most counties under separate voluntary agreements. House Bill 4722 (2023) preempts most local STR bans but allows ordinances on noise, parking, and life-safety."
+  },
+  "mn": {
+    "name": "Minnesota",
+    "stateRate": 0.06875,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.10],
+    "sourceUrl": "https://www.revenue.state.mn.us/",
+    "lastVerified": "2026-05-05",
+    "notes": "Minnesota's state sales tax of 6.875% applies to lodging, layered with city- and special-district-level lodging taxes that can push the all-in rate past 14%. Minneapolis combines 3% city lodging tax + 3% entertainment tax for downtown blocks, plus the state portion. Duluth charges 5.5% city lodging tax. Airbnb and Vrbo collect the state portion under marketplace facilitator law; Minneapolis and St. Paul also have direct collection agreements. Smaller resort towns (Brainerd, Ely) typically require host-direct filing for their local lodging tax."
+  },
+  "ms": {
+    "name": "Mississippi",
+    "stateRate": 0.07,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.04],
+    "sourceUrl": "https://www.dor.ms.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Mississippi applies 7% state sales tax to lodging plus city-level tourism, economic development, or convention center taxes that range 1–4%. Gulf Coast cities (Biloxi, Gulfport, Bay St. Louis) add 3% tourism tax for casino-corridor marketing. Jackson adds 1% tourism tax. The 2018 marketplace facilitator law brought Airbnb and Vrbo into mandatory state collection; local tourism taxes are split — some cities have agreements with the platforms, most do not. Stays beyond 89 days are exempt from sales tax."
+  },
+  "mo": {
+    "name": "Missouri",
+    "stateRate": 0.04225,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.075],
+    "sourceUrl": "https://dor.mo.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Missouri applies 4.225% state sales tax to lodging and authorizes cities to levy a tourism tax of up to 7.5%. Branson sits at 4% city tourism tax + 1% Tri-Lakes tax. Kansas City charges 7.5% convention and tourism tax. St. Louis charges 3.5% convention and tourism tax. Airbnb and Vrbo collect the state sales tax under SB 153 (2021); city tourism tax collection by platforms is patchy and often falls back to the host. Hosts file Form 53-1 monthly through MyTax Missouri. The 30-day exemption applies."
+  },
+  "mt": {
+    "name": "Montana",
+    "stateRate": 0.07,
+    "platformCollects": ["airbnb"],
+    "localAddOnRange": [0.0, 0.04],
+    "sourceUrl": "https://mtrevenue.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Montana has no general sales tax but levies two stacked lodging taxes: 4% lodging facility use tax + 4% lodging facility sales tax = 8% effective state rate. Resort tax communities (Big Sky, Whitefish, West Yellowstone, Red Lodge) add up to 4% local resort tax. Vrbo does not have a marketplace facilitator agreement with Montana, so Vrbo bookings require host filing; Airbnb collects the state lodging taxes but not the resort tax. Annual STR licensing through DPHHS is required if you host food or have a hot tub on-site."
+  },
+  "ne": {
+    "name": "Nebraska",
+    "stateRate": 0.055,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.04],
+    "sourceUrl": "https://revenue.nebraska.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Nebraska charges 5.5% state sales tax plus a 1% statewide lodging tax (combined for a 6.5% state-level effective rate). Cities and counties may add a county lodging tax up to 4% — Omaha sits at 4%, Lincoln at 4%, Grand Island at 2%. The marketplace facilitator law (LB 284, 2019) requires Airbnb and Vrbo to collect both state portions. County lodging tax is often collected by the platforms but worth confirming city-by-city. Nebraska Form 64 is the lodging tax return for non-marketplace bookings."
+  },
+  "nv": {
+    "name": "Nevada",
+    "stateRate": 0.0,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.10, 0.135],
+    "sourceUrl": "https://tax.nv.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Nevada has no state-level transient lodging tax — the entire bed tax is a county-level Combined Transient Lodging Tax that ranges from 10% in rural counties to 13.5% in Clark County (Las Vegas) and Washoe County (Reno). The Strip stacks a Live Entertainment Tax on top of lodging. Clark County prohibits STRs in most unincorporated areas as of 2024 enforcement; Henderson and Las Vegas city now require business licenses with strict caps. Vrbo and Airbnb collect Clark County lodging tax under separate agreements. Verify with county treasurer before listing."
+  },
+  "nh": {
+    "name": "New Hampshire",
+    "stateRate": 0.085,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.0],
+    "sourceUrl": "https://www.revenue.nh.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "New Hampshire applies a single flat 8.5% Meals and Rooms Tax on lodging stays under 185 consecutive days. There is no general state sales tax and no municipal lodging tax, which makes NH the simplest lodging-tax compliance picture in New England. Airbnb and Vrbo collect under voluntary agreements with the Department of Revenue Administration. Hosts must hold a Meals and Rooms Operator License (free), even if all bookings flow through marketplace facilitators. RSA 78-A is the governing statute."
+  },
+  "nj": {
+    "name": "New Jersey",
+    "stateRate": 0.0625,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.06],
+    "sourceUrl": "https://www.state.nj.us/treasury/taxation/",
+    "lastVerified": "2026-05-05",
+    "notes": "New Jersey applies 6.625% state sales tax to lodging plus a 5% state occupancy fee. Some municipalities add a 1–6% municipal occupancy tax — Jersey City and Newark are at 6%, Atlantic City has its own complex Luxury and Promotion stack. The 2018 Airbnb expansion law extended sales and occupancy fee to all 'transient accommodations' under 90 days. Both major platforms collect the state pieces; municipal occupancy is split. Jersey Shore towns (Asbury Park, Wildwood, Cape May) add seasonal STR registration requirements."
+  },
+  "nm": {
+    "name": "New Mexico",
+    "stateRate": 0.04875,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.05],
+    "sourceUrl": "https://www.tax.newmexico.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "New Mexico's lodging tax is the state Gross Receipts Tax (GRT) rate of 4.875% (the state portion; combined GRT with local GRT typically lands 6.5–9%). Cities additionally adopt a local Lodgers' Tax of up to 5% — Santa Fe is at 7% combined lodgers' tax, Albuquerque at 5%, Taos at 5%. The 2019 marketplace facilitator law (HB 6) brought Airbnb and Vrbo into mandatory state GRT collection; lodgers' tax collection is city-by-city and most often left to the host. Santa Fe and Taos require additional STR business licenses with annual renewal."
+  },
+  "nc": {
+    "name": "North Carolina",
+    "stateRate": 0.0475,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.08],
+    "sourceUrl": "https://www.ncdor.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "North Carolina applies 4.75% state sales tax to lodging plus a county occupancy tax that ranges 1–8%. Mecklenburg County (Charlotte) is at 8%, Buncombe County (Asheville) at 6%, Dare County (Outer Banks) at 6%. The 2017 marketplace facilitator law extended state collection to Airbnb and Vrbo; county occupancy tax is collected by Airbnb in 'opt-in' counties (most of the state) and by Vrbo in fewer counties — verify with the county finance office. Asheville's STR ordinance limits whole-home rentals to specific zones."
+  },
+  "nd": {
+    "name": "North Dakota",
+    "stateRate": 0.05,
+    "platformCollects": ["airbnb"],
+    "localAddOnRange": [0.0, 0.03],
+    "sourceUrl": "https://www.tax.nd.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "North Dakota applies 5% state sales tax to lodging and authorizes cities to add a local lodging and restaurant tax up to 3%. Fargo, Bismarck, and Grand Forks are at 3% city lodging tax. Airbnb collects state sales tax under a 2018 voluntary agreement; Vrbo does not have a North Dakota agreement, so Vrbo bookings require host registration with the Office of State Tax Commissioner and direct filing. Local lodging tax in most ND cities is host-direct filing regardless of platform. Stays beyond 30 days are exempt."
+  },
+  "oh": {
+    "name": "Ohio",
+    "stateRate": 0.0575,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.10],
+    "sourceUrl": "https://tax.ohio.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Ohio applies 5.75% state sales tax to lodging plus county and municipal lodging excise that can range 3–10%. Cuyahoga County (Cleveland) is at 5.5% lodging excise + Cleveland city 3% = 8.5% local. Franklin County (Columbus) is at 5.1%. The 2019 marketplace facilitator law brought Airbnb and Vrbo into mandatory state collection; lodging excise collection by platforms varies by county based on direct agreements. Ohio Rev. Code 5739.09 authorizes the local lodging tax. Stays of 30+ consecutive days fall out of the tax base."
+  },
+  "ok": {
+    "name": "Oklahoma",
+    "stateRate": 0.045,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.08],
+    "sourceUrl": "https://oklahoma.gov/tax.html",
+    "lastVerified": "2026-05-05",
+    "notes": "Oklahoma applies 4.5% state sales tax to lodging plus city lodging and tourism tax that ranges 2–8%. Oklahoma City sits at 5.5% city lodging tax, Tulsa at 5%, Edmond at 4%. The 2018 marketplace facilitator law (HB 1019) requires Airbnb and Vrbo to collect state sales tax; city lodging tax is split — most major Oklahoma cities have agreements with the platforms, smaller ones do not. The state requires a sales tax permit even when all bookings flow through marketplace facilitators; Oklahoma Tax Commission Form 13-9 is the application."
+  },
+  "or": {
+    "name": "Oregon",
+    "stateRate": 0.015,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.115],
+    "sourceUrl": "https://www.oregon.gov/dor/",
+    "lastVerified": "2026-05-05",
+    "notes": "Oregon has no general state sales tax but levies a 1.5% statewide transient lodging tax dedicated to tourism. Local lodging taxes are where the weight is: Portland is at 11.5% combined city/county/state, Bend at 10.4%, Eugene at 4.5%. Both Airbnb and Vrbo collect the state portion under ORS 320.300. City lodging tax collection by platforms is robust in Portland and Bend (direct agreements) but scattered elsewhere. Portland additionally requires an annual STR permit with primary-residence and accessory-dwelling-unit requirements."
+  },
+  "pa": {
+    "name": "Pennsylvania",
+    "stateRate": 0.06,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.10],
+    "sourceUrl": "https://www.revenue.pa.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Pennsylvania applies 6% state sales tax to lodging plus a 1% Local Sales tax in Allegheny County (Pittsburgh) and a 2% Local Sales tax in Philadelphia, plus county-level hotel occupancy tax. Philadelphia adds an 8.5% city hotel tax and a 1% PHLCVB hotel fee. Allegheny County adds 7% hotel/motel tax. The 2016 Airbnb agreement brought state sales tax under platform collection; Philadelphia hotel tax is collected by Airbnb directly, by Vrbo only since 2021. Stays beyond 30 days drop out of the lodging tax base."
+  },
+  "ri": {
+    "name": "Rhode Island",
+    "stateRate": 0.07,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.06, 0.06],
+    "sourceUrl": "https://tax.ri.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Rhode Island applies 7% state sales tax to lodging plus a 6% state hotel tax — the hotel tax is split as 5% statewide + 1% local-share returned to the city of stay. Total state-level lodging tax is therefore 13%, and there is no separate municipal bed tax beyond the local-share. Airbnb and Vrbo both collect under marketplace facilitator law. The 2015 RI Airbnb law extended hotel tax to all 'whole house' STR rentals; room-only rentals in owner-occupied homes have a separate, slightly different treatment. Newport requires an annual STR registration."
+  },
+  "sc": {
+    "name": "South Carolina",
+    "stateRate": 0.07,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.06],
+    "sourceUrl": "https://dor.sc.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "South Carolina stacks 5% state sales tax + 2% statewide accommodations tax = 7% state-level effective rate, plus county/city local accommodations tax of up to 6%. Charleston is at 14% combined, Hilton Head at 12%, Myrtle Beach at 13%. Airbnb and Vrbo collect the state pieces under the 2019 marketplace facilitator law; local accommodations tax is split — Charleston and Hilton Head have direct platform agreements, smaller cities do not. Charleston's STR ordinance restricts whole-home rentals to specific overlay districts and caps total permits."
+  },
+  "sd": {
+    "name": "South Dakota",
+    "stateRate": 0.045,
+    "platformCollects": ["airbnb"],
+    "localAddOnRange": [0.0, 0.04],
+    "sourceUrl": "https://dor.sd.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "South Dakota applies 4.5% state sales tax to lodging year-round plus a 1.5% state tourism tax that runs seasonally (June through September) on lodging in tourism districts. Cities can add a municipal gross receipts tax of up to 1% on lodging — Sioux Falls and Rapid City are at 1%. Airbnb collects state sales tax under a voluntary agreement; Vrbo does not have an SD agreement, so Vrbo bookings require host registration with the Department of Revenue. Tourism tax season is fixed and worth automating in your booking-export workflow."
+  },
+  "tn": {
+    "name": "Tennessee",
+    "stateRate": 0.07,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.06],
+    "sourceUrl": "https://www.tn.gov/revenue.html",
+    "lastVerified": "2026-05-05",
+    "notes": "Tennessee applies 7% state sales tax to lodging plus county and city occupancy taxes ranging 2–6%. Davidson County (Nashville) is at 6% county occupancy tax + Nashville city does not stack additional lodging tax = 13% combined. Sevier County (Pigeon Forge, Gatlinburg) is at 3% county + 3% city. The 2017 marketplace facilitator law brought Airbnb and Vrbo into mandatory state collection. County occupancy tax collection by platforms is robust in major tourism counties (Davidson, Sevier, Shelby) and patchy elsewhere. Nashville requires an STR permit with strict owner-occupied vs. non-owner-occupied caps."
+  },
+  "ut": {
+    "name": "Utah",
+    "stateRate": 0.0485,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.07],
+    "sourceUrl": "https://tax.utah.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Utah applies 4.85% state sales tax to lodging plus a 0.32% statewide transient room tax, plus county and city transient room tax up to 7%. Park City sits at 4.25% local TRT + 1.7% Resort Communities sales tax — combined effective rate exceeds 14%. Salt Lake City is at 12.32% combined. Airbnb and Vrbo collect the state pieces under the 2019 marketplace facilitator law; local TRT collection is robust in Summit, Wasatch, and Salt Lake counties via direct agreements, less so in rural Utah. Park City requires STR business licensing with annual fees and inspection."
+  },
+  "vt": {
+    "name": "Vermont",
+    "stateRate": 0.09,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.01],
+    "sourceUrl": "https://tax.vermont.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Vermont applies a flat 9% state Meals and Rooms Tax to lodging stays of fewer than 30 consecutive days, plus a 1% local-option tax that 21 municipalities have adopted (Burlington, Stowe, Killington, Manchester among them). The state portion is collected by Airbnb and Vrbo under marketplace facilitator law (Act 134, 2019); the 1% local-option tax is also collected by the platforms in adopting towns. Vermont Department of Taxes maintains a current list of local-option towns at tax.vermont.gov; verify before assuming the local 1% applies."
+  },
+  "va": {
+    "name": "Virginia",
+    "stateRate": 0.053,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.08],
+    "sourceUrl": "https://www.tax.virginia.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Virginia applies 5.3% state sales tax (4.3% state + 1% local) to lodging plus county and city transient occupancy tax of up to 8%. Arlington and Alexandria are at 7% TOT, Virginia Beach at 8%, Fairfax County at 6%. The 2019 marketplace facilitator law extended state collection to Airbnb and Vrbo; transient occupancy tax collection by platforms is robust in NOVA and Hampton Roads, less so in rural Virginia. Coastal cities (Virginia Beach, Sandbridge) require additional STR registration with annual renewal and life-safety attestation."
+  },
+  "wa": {
+    "name": "Washington",
+    "stateRate": 0.065,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.04],
+    "sourceUrl": "https://dor.wa.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Washington applies 6.5% state sales tax to lodging plus combined local sales tax (city + county + transit) that lands 1.5–3.5%, plus a special hotel/motel tax of up to 4%. Seattle is at 15.7% all-in for lodging when convention center and tourism promotion area assessments are included. The 2018 marketplace facilitator law brought Airbnb and Vrbo into mandatory collection of state and local sales tax; the special hotel/motel tax is collected by the platforms in most counties via Department of Revenue's Local Tax Tool. Seattle requires STR operator licensing with primary-residence rules."
+  },
+  "wv": {
+    "name": "West Virginia",
+    "stateRate": 0.06,
+    "platformCollects": ["airbnb"],
+    "localAddOnRange": [0.0, 0.06],
+    "sourceUrl": "https://tax.wv.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "West Virginia applies 6% state sales tax to lodging plus a county or municipal hotel occupancy tax that ranges 3–6%. Charleston, Morgantown, and Wheeling are at 6% local hotel occupancy. Airbnb collects the state portion under a 2018 voluntary agreement; Vrbo does not have a WV agreement, so Vrbo bookings require host registration with the State Tax Department and direct filing on Form WV/CST-200CU. Local hotel occupancy tax is host-direct filing in most WV jurisdictions regardless of platform. The 30-day exemption applies to extended stays."
+  },
+  "wi": {
+    "name": "Wisconsin",
+    "stateRate": 0.05,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.08],
+    "sourceUrl": "https://www.revenue.wi.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Wisconsin applies 5% state sales tax to lodging plus a 0.5% county sales tax in 68 of 72 counties, plus a city or village room tax of up to 8%. Milwaukee is at 9% city room tax + Milwaukee County 0.5%, Madison at 9% city room tax. The 2017 marketplace facilitator law brought Airbnb and Vrbo into mandatory state and county sales tax collection; municipal room tax collection by platforms is widespread in Milwaukee, Madison, Wisconsin Dells, and Door County, less so in smaller jurisdictions. Wisconsin Statute 66.0615 governs municipal room tax."
+  },
+  "wy": {
+    "name": "Wyoming",
+    "stateRate": 0.05,
+    "platformCollects": ["airbnb"],
+    "localAddOnRange": [0.0, 0.04],
+    "sourceUrl": "https://revenue.wyo.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Wyoming applies 4% state sales tax to lodging plus a 5% statewide lodging tax (passed 2020, effective 2021), for a 9% state-level effective rate. Counties and cities can layer additional local lodging tax up to 4% — Teton County (Jackson Hole) is at 4%, Park County (Cody) at 2%. Airbnb collects state sales and lodging taxes under a voluntary agreement; Vrbo does not have a Wyoming agreement, so Vrbo bookings require host registration with the Department of Revenue and direct filing. Jackson's STR ordinance is among the strictest in the West, with primary-residence requirements in most zones."
+  },
+  "dc": {
+    "name": "District of Columbia",
+    "stateRate": 0.1475,
+    "platformCollects": ["airbnb", "vrbo"],
+    "localAddOnRange": [0.0, 0.0],
+    "sourceUrl": "https://otr.cfo.dc.gov/",
+    "lastVerified": "2026-05-05",
+    "notes": "Washington DC applies a single 14.75% sales tax on transient accommodations — no county or sub-jurisdiction add-on, since DC is a unitary jurisdiction. The rate breaks down as 14.75% sales tax dedicated in part to the Convention Center and the Mayor's Office on Latino Affairs grant programs. Both Airbnb and Vrbo collect under DC marketplace facilitator law; you must still register for a DC sales and use tax certificate even if all bookings flow through facilitators. The DC STR Reform Act of 2018 caps non-primary-residence rentals at 90 days per calendar year and requires annual STR licensing through DLCP."
+  }
 }

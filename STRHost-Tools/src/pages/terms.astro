@@ -4,42 +4,49 @@ import { siteConfig } from '@/data/site.config';
 ---
 
 <Layout siteConfig={siteConfig}
-  title="Terms of Use — STR Host Tools"
-  description="Terms of use for strhost.tools. Calculators are informational, not financial or tax advice."
+  title="Terms — STR Host Tools"
+  description="Terms of use for STR Host Tools: free calculators provided as-is, no warranty, not financial or tax advice."
   path="/terms"
 >
-  <section class="bg-parchment">
-    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9">
-      <p class="label text-gold-deep">Legal</p>
-      <h1 class="mt-3 text-h1 font-serif text-navy leading-tight">
-        Terms of Use<span class="period-gold">.</span>
+  <article class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9 prose">
+      <h1 class="text-h1 font-serif text-navy leading-tight">
+        Terms<span class="period-gold">.</span>
       </h1>
-      <p class="mt-4 text-lead text-ink-2">
-        Full terms are in development. The short version: the calculators on strhost.tools are informational, free to use, and not a substitute for professional financial, accounting, or tax advice.
+      <p class="mt-3 text-lead text-ink-2">
+        Use the calculators freely. Don't sue us if a number is wrong.
+      </p>
+
+      <h2>Use of the site</h2>
+      <p>
+        Every tool on STR Host Tools is provided free of charge for personal and commercial use. You can bookmark, share, embed in spreadsheets, screenshot, print, and reference the math anywhere you like. You don't need to ask permission. Republishing entire pages verbatim is not allowed; quoting with a link back is.
+      </p>
+
+      <h2>No warranty</h2>
+      <p>
+        The calculators and lodging-tax data are provided "as is." Formulas are best-effort and based on publicly available platform fee structures and state Department of Revenue publications. Rates change. Bugs happen. We make no guarantee of accuracy, completeness, or fitness for any specific purpose.
+      </p>
+
+      <h2>Not financial or tax advice</h2>
+      <p>
+        Nothing on this site is financial, tax, legal, or investment advice. The numbers help you think; they do not replace a CPA, attorney, or licensed advisor. Before filing a return, signing a lease, or making a buy/sell decision on a short-term rental property, talk to a qualified professional in your jurisdiction.
+      </p>
+
+      <h2>Liability</h2>
+      <p>
+        To the maximum extent allowed by law, STR Host Tools and The STR Ledger are not liable for any direct, indirect, incidental, or consequential losses arising from use of this site or its calculators. If you find a bug, please report it via the <a href="/contact">contact page</a> so we can fix it.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        These terms may be updated as the site grows. Material changes will be noted in the footer "last updated" date.
       </p>
     </div>
-  </section>
-
-  <section class="bg-parchment-light border-t border-rule">
-    <div class="mx-auto max-w-3xl px-5 py-9 prose">
-      <h2 class="font-serif text-h2 text-navy">No advice</h2>
-      <p class="mt-3 text-body text-ink-2 leading-snug">
-        Outputs are estimates based on inputs you provide and assumptions documented on each page. Verify with a CPA, attorney, or other licensed professional before making financial or legal decisions.
-      </p>
-
-      <h2 class="mt-7 font-serif text-h2 text-navy">No warranty</h2>
-      <p class="mt-3 text-body text-ink-2 leading-snug">
-        The site is provided "as is." We work to keep rates and formulas accurate (lodging-tax data is reviewed annually), but we make no guarantee of accuracy, completeness, or fitness for any purpose.
-      </p>
-
-      <h2 class="mt-7 font-serif text-h2 text-navy">Acceptable use</h2>
-      <p class="mt-3 text-body text-ink-2 leading-snug">
-        Use the calculators for your own host operations or share scenarios with partners. Don't scrape the site at high volume, embed without attribution, or republish the underlying data as your own.
-      </p>
-
-      <p class="mt-7 text-caption text-ink-3 italic">
-        Last updated: this stub is a placeholder. See <a href="/privacy" class="text-navy">Privacy</a> and <a href="/disclosures" class="text-navy">Disclosures</a>.
-      </p>
-    </div>
-  </section>
+  </article>
 </Layout>
+
+<style>
+  .prose :global(h2) { font-family: var(--font-display); font-size: var(--t-h2-size); color: var(--brand-navy); margin-top: var(--sp-7); margin-bottom: var(--sp-3); line-height: 1.1; }
+  .prose :global(p) { color: var(--fg-1); margin-bottom: var(--sp-3); line-height: 1.6; }
+  .prose :global(a) { color: var(--brand-navy); text-decoration: underline; text-decoration-color: var(--brand-gold); text-underline-offset: 3px; }
+</style>
