@@ -17,4 +17,25 @@ const cities = defineCollection({
   }),
 });
 
-export const collections = { cities };
+/**
+ * `posts` content collection — buyer-side blog posts. Slug = filename
+ * without `.mdx`. The 8 slugs originally pre-listed in the sitemap
+ * (analyzing-airbnb-comps-before-you-buy, dscr-loan-vs-conventional-for-
+ * airbnb, etc.) map 1:1 to filenames here when published.
+ */
+const posts = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/posts' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    datePublished: z.string(),
+    dateModified: z.string().optional(),
+    author: z.string().default('The STR Ledger'),
+    category: z.enum(['financing', 'underwriting', 'regulation', 'insurance', 'startup-costs', 'market-selection']),
+    keyword: z.string(),
+    relatedTools: z.array(z.string()).default([]),
+    readMinutes: z.number().int().positive(),
+  }),
+});
+
+export const collections = { cities, posts };

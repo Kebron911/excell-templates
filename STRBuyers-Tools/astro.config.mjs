@@ -14,10 +14,10 @@ export default defineConfig({
     react(),
     mdx(),
     sitemap({
-      // /blog/* slugs were pre-listed in the sitemap before the blog
-      // directory existed. Filter them out until src/pages/blog/* ships,
-      // so crawlers don't discover 404s.
-      filter: (page) => !page.includes('/blog'),
+      // Sitemap auto-discovers /blog and /blog/[slug] from src/pages/.
+      // The 6 still-unbuilt slugs in docs/BLOG-ROADMAP.md won't render
+      // (no MDX yet) so they correctly do not appear in the sitemap.
+      filter: (page) => !page.includes('/404'),
     })
   ],
   build: {
