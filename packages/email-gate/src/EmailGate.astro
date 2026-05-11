@@ -1,0 +1,171 @@
+---
+/**
+ * EmailGate.astro — embeddable email capture form.
+ *
+ * Sub-export: @str/email-gate/EmailGate.astro
+ *
+ * The component renders a self-contained <form>. The caller is responsible
+ * for wiring a server endpoint (e.g. /api/subscribe) that calls submit()
+ * from @str/email-gate and returns JSON { ok, id } or { ok, error }.
+ *
+ * Props:
+ *   siteId       — 'guests' | 'buyers' | 'host' | 'ops'
+ *   listSegment  — audience segment label (e.g. "main", "waitlist")
+ *   action       — form POST endpoint, default "/api/subscribe"
+ *   source       — optional attribution tag forwarded to submit()
+ *   heading      — optional heading text
+ *   placeholder  — email input placeholder text
+ *   cta          — submit button label
+ *   successMsg   — message shown after successful submission
+ */
+
+export interface Props {
+  siteId: 'guests' | 'buyers' | 'host' | 'ops';
+  listSegment: string;
+  action?: string;
+  source?: string;
+  heading?: string;
+  placeholder?: string;
+  cta?: string;
+  successMsg?: string;
+}
+
+const {
+  siteId,
+  listSegment,
+  action = '/api/subscribe',
+  source = '',
+  heading = 'Stay in the loop',
+  placeholder = 'you@example.com',
+  cta = 'Subscribe',
+  successMsg = 'You\'re in! Check your inbox to confirm.',
+} = Astro.props;
+---
+
+<div class="email-gate" data-site-id={siteId}>
+  <form
+    class="email-gate__form"
+    method="POST"
+    action={action}
+    data-email-gate-form
+  >
+    <input type="hidden" name="siteId" value={siteId} />
+    <input type="hidden" name="listSegment" value={listSegment} />
+    {source && <input type="hidden" name="source" value={source} />}
+
+    {heading && <p class="email-gate__heading">{heading}</p>}
+
+    <div class="email-gate__row">
+      <input
+        class="email-gate__input"
+        type="email"
+        name="email"
+        placeholder={placeholder}
+        required
+        autocomplete="email"
+        aria-label="Email address"
+      />
+      <button class="email-gate__btn" type="submit">{cta}</button>
+    </div>
+
+    <p class="email-gate__success" aria-live="polite" hidden>{successMsg}</p>
+    <p class="email-gate__error" aria-live="polite" hidden></p>
+  </form>
+</div>
+
+<script>
+  // Progressive enhancement: submit via fetch, show inline feedback.
+  // Falls back to a full page POST if JS is unavailable.
+  document.querySelectorAll<HTMLFormElement>('[data-email-gate-form]').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const successEl = form.querySelector<HTMLElement>('.email-gate__success');
+      const errorEl = form.querySelector<HTMLElement>('.email-gate__error');
+      const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+      if (!successEl || !errorEl) return;
+
+      // Reset state
+      successEl.hidden = true;
+      errorEl.hidden = true;
+      if (btn) btn.disabled = true;
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(new FormData(form) as any).toString(),
+        });
+
+        const data: { ok: boolean; error?: string } = await res.json();
+
+        if (data.ok) {
+          successEl.hidden = false;
+          form.reset();
+        } else {
+          errorEl.textContent = data.error ?? 'Something went wrong. Please try again.';
+          errorEl.hidden = false;
+          if (btn) btn.disabled = false;
+        }
+      } catch {
+        errorEl.textContent = 'Network error. Please try again.';
+        errorEl.hidden = false;
+        if (btn) btn.disabled = false;
+      }
+    });
+  });
+</script>
+
+<style>
+  .email-gate {
+    font-family: inherit;
+  }
+
+  .email-gate__heading {
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+  }
+
+  .email-gate__row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .email-gate__input {
+    flex: 1 1 200px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+  }
+
+  .email-gate__btn {
+    padding: 0.5rem 1rem;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .email-gate__btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .email-gate__success {
+    margin-top: 0.5rem;
+    color: #16a34a;
+    font-size: 0.875rem;
+  }
+
+  .email-gate__error {
+    margin-top: 0.5rem;
+    color: #dc2626;
+    font-size: 0.875rem;
+  }
+</style>
