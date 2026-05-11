@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://strops.tools/sitemap-index.xml
+LLMs-txt: https://strops.tools/llms.txt

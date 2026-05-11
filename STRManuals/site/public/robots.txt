@@ -5,3 +5,4 @@ Allow: /
 Disallow: /downloads/
 
 Sitemap: https://strmanuals.com/sitemap-index.xml
+LLMs-txt: https://strmanuals.com/llms.txt

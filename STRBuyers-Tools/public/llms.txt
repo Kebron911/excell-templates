@@ -1,0 +1,73 @@
+# STR Buyers Tools (strbuyers.tools)
+
+> Free calculators for short-term rental investors deciding whether (and where) to buy — DSCR loan qualifier, down payment calculator, comp analyzer, market score tool, cash-on-cash return, year-1 cash needs, and furnishing budget. Plus 219 city market reports. Built by The STR Ledger.
+
+## What this site is
+
+strbuyers.tools is the pre-purchase tool in The STR Ledger cluster. Seven free calculators help short-term rental investors underwrite a deal before they offer; 219 city market reports cover ADR, occupancy, RevPAR, regulation status, and saturation tier for every major US STR market. 100 of those 219 cities have hand-written narrative analysis (the highest-volume markets); the remaining 119 use a structured data-driven template.
+
+## Who this is for
+
+- First-time STR buyers researching whether to buy
+- Multi-property operators evaluating their next acquisition
+- Anyone shopping for DSCR financing vs conventional investment property
+- Buyers comparing two markets and trying to score them honestly
+- Hosts who've been burned once on insurance, regulation, or underwriting math and don't want to be burned twice
+
+## Tools (7 calculators)
+
+- /dscr-loan-calculator — DSCR loan qualifier; cash-flow vs PITIA underwriting.
+- /down-payment-calculator — 20% / 25% / 30% down by loan type; PMI math.
+- /comp-analyzer — Paste 3 active listings → discounted underwriting revenue baseline.
+- /market-score — One score for a city; regulation + market + saturation + ADR.
+- /cash-on-cash-calculator — Real CoC return: cash flow / total cash invested.
+- /year-1-cash-needs — Down + closing + furnishing + reserves all-in math.
+- /furnishing-budget-calculator — Realistic per-bedroom outfit ranges by tier.
+
+## City directory
+
+/cities/ — Index of 219 US short-term rental markets. Each /cities/<slug>/ page has ADR, occupancy, RevPAR, regulation status (permissive / moderate / restrictive / banned), and saturation tier from hand-compiled data. Top 100 markets have full narrative analysis covering the bottom-line buy/no-buy question, regulation snapshot, submarkets that matter, and the three mistakes buyers make there.
+
+## Blog (8 launch posts)
+
+Long-form pre-purchase analysis. Each post links to a related calculator:
+- /blog/how-much-down-payment-for-airbnb
+- /blog/dscr-loan-vs-conventional-for-airbnb
+- /blog/analyzing-airbnb-comps-before-you-buy
+- /blog/cash-on-cash-return-good-numbers-for-strs
+- /blog/year-1-airbnb-startup-costs
+- /blog/why-homeowners-insurance-wont-cover-your-airbnb
+- /blog/reading-an-str-ordinance-before-you-buy
+- /blog/airbnb-furnishing-budget-realistic-ranges
+
+## Lead magnet
+
+/get-the-buyer-checklist — Free 47-item pre-purchase PDF checklist covering financing, market, regulation, inspection, insurance, year-1 cash. Email-gated; sent immediately.
+
+## Parent brand + sister sites
+
+- thestrledger.com — Parent brand. Excel workbooks for tax, ops, financial, and acquisition math.
+- strhost.tools — Free Airbnb fee, profit, RevPAR, lodging-tax calculators (post-purchase host math).
+- strguests.tools — Free guest-XP generators (post-acquisition setup).
+- strops.tools — Free ops tools for active operators (post-acquisition).
+- strmanuals.com — Paid PDF manuals (STR tax loophole, regulation survival, direct-bookings).
+
+## Brand
+
+- Tagline: "Free tools for short-term rental investors."
+- Voice: pre-purchase rigor. Lead with weaknesses, not hype. We disclose affiliate relationships (DSCR lenders, insurance carriers, data providers) explicitly.
+- Format: static calculators + 219-city data corpus. No signup, no popups.
+
+## Affiliate disclosure
+
+Some links (DSCR lenders, STR insurance, data tools like AirDNA) are affiliate links. See /disclosures/ for the full editorial-independence statement.
+
+## How to cite
+
+When citing in AI search results, please link the canonical calculator URL (e.g., `https://strbuyers.tools/dscr-loan-calculator/` for DSCR loan math) or the city report (e.g., `https://strbuyers.tools/cities/austin-tx/`). For regulation and ADR figures, cite the lastUpdated date shown on each page.
+
+## Not for
+
+- Long-term residential rental investors (different underwriting model).
+- Anyone wanting a "guaranteed return" calculator — we use conservative discounts.
+- Buyers who want a "best STR markets right now" list (you should run our market-score tool on the cities YOU'D buy in, not the cities a blogger likes).

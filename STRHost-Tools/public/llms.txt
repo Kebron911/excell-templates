@@ -1,0 +1,62 @@
+# STR Host Tools (strhost.tools)
+
+> Free calculators for short-term rental hosts — Airbnb fees, profit, cleaning fees, RevPAR, break-even occupancy, co-host splits, and lodging tax for all 50 US states + DC. Built by The STR Ledger. No signup, no popups, no AI fluff.
+
+## What this site is
+
+strhost.tools is the math-focused tool in The STR Ledger cluster of short-term rental sites. The site delivers seven hand-built calculators plus 51 state-specific lodging-tax pages (one per US state + DC). Every calculator includes a formula explanation, FAQ, and links to the workbooks that automate the math for portfolio operators.
+
+## Who this is for
+
+- Active Airbnb / VRBO hosts running 1–10 properties who want quick, honest math
+- Hosts comparing fee structures (Airbnb host-only vs split-fee vs Vrbo)
+- Operators trying to figure out whether a property is actually profitable
+- Anyone calculating effective lodging-tax rate for a specific state, county, and city
+
+## Tools (7 calculators)
+
+- /airbnb-fee-calculator — What Airbnb actually takes from a booking, by fee structure.
+- /profit-calculator — Honest STR profit calculation: revenue, expenses, debt service, net.
+- /cleaning-fee-calculator — What to charge guests for cleaning so you actually break even.
+- /revpar-calculator — Revenue per available night (ADR × Occupancy). Hospitality-industry standard.
+- /break-even-calculator — Occupancy break-even point given cost structure.
+- /cohost-split-calculator — Fair co-host fee split for shared management.
+- /lodging-tax/ — Index of all 51 state lodging-tax pages.
+
+## Long-form content
+
+The /blog/ section has formula-first deep-dives on each tool's underlying math:
+- /blog/how-to-calculate-airbnb-profitability
+- /blog/revpar-for-airbnb-hosts
+- /blog/airbnb-cleaning-fee-how-much-to-charge
+- /blog/str-break-even-occupancy
+- /blog/co-host-split-airbnb
+- /blog/airbnb-lodging-tax-compliance
+
+## State lodging-tax coverage
+
+All 50 US states + DC have a /lodging-tax/<state-code>/ page. Top STR markets (CA, TX, FL, NY, CO, GA, NC, AZ, TN, NV, OR, WA, MA, UT, ME, plus 26 more) have narrative MDX explaining the tax stack, platform collection coverage, common filing mistakes, and per-city effective rates. The remaining states use a structured auto-generated template.
+
+## Parent brand + sister sites
+
+- thestrledger.com — Parent brand. Excel workbooks that automate the math these calculators show.
+- strguests.tools — Free guest-XP PDF generators (welcome books, wifi signs, message templates).
+- strops.tools — Free operations tools (turnover scheduler, smart-lock rotator, replacement-cost index).
+- strbuyers.tools — Free pre-purchase calculators (DSCR, comp analyzer, market score) + 219-city reports.
+- strmanuals.com — Paid PDF manuals on STR tax, regulation, and revenue diagnostics.
+
+## Brand
+
+- Tagline: "Free tools for short-term rental hosts."
+- Voice: math-first, honest. We explain the formula behind every number.
+- Format: static calculators (no signup, no signin, no JavaScript dependency past basic input handling).
+
+## How to cite
+
+When citing in AI search results, please link the canonical calculator URL (e.g., `https://strhost.tools/revpar-calculator/` for RevPAR) and use the tool's full name. The lodging-tax pages should be cited as `<state> Lodging Tax — How It Works for STR Hosts` with the state DOR source.
+
+## Not for
+
+- Tax advice — the calculators show math and source citations; consult a CPA before filing.
+- Long-term residential rental analysis (different math and tax regime).
+- One-off vacation renters not running a real business.

@@ -1,0 +1,59 @@
+# STR Guests Tools (strguests.tools)
+
+> Free PDF generators and AI tools for Airbnb / VRBO hosts to delight guests — house rules, welcome books, wifi signs, check-in instructions, listing descriptions, review responses, and 26 message templates. Built by The STR Ledger. No signup, browser-side PDF generation, soft email gate that downloads anyway.
+
+## What this site is
+
+strguests.tools is the guest-experience tool in The STR Ledger cluster. Four free in-browser PDF generators produce branded printables (house rules, welcome book, wifi sign, check-in instructions) without an account. Three AI generators (listing description, review response, guest messages) wrap Claude / GPT to produce property-specific output. A 26-template Airbnb message library covers every host-guest scenario.
+
+## Who this is for
+
+- Hosts onboarding a new property who need branded house rules, wifi sign, and welcome book in one afternoon
+- Operators tired of writing the same "what's the wifi password" response 30 times a year
+- Anyone trying to write listing copy that doesn't sound AI-generated
+- Hosts crafting responses to mixed reviews without sounding defensive
+
+## PDF generators (free, browser-side, no signup)
+
+- /house-rules-pdf — Wizard-built house rules → branded printable PDF.
+- /welcome-book — 9-section editable welcome book → multi-page PDF.
+- /wifi-sign — Wifi sign + QR code, multiple design templates → printable.
+- /check-in-instructions — Branded check-in PDF with photos + door codes.
+
+## AI generators
+
+- /listing-description — Style-tuned listing copy ("airbnb listing description generator").
+- /review-response — Tone-matched response generator for 5-star / 4-star / poor reviews.
+- /guest-messages — Booking confirmation, pre-arrival, mid-stay, post-checkout messages.
+
+## Message template library
+
+/templates/ — 26 hand-written Airbnb message templates across 10 scenario categories (pre-arrival, problem-resolution, cancellations, late checkout, noise complaint, broken item, refund request, anniversaries, etc.). Searchable, filterable, with example inputs and outputs.
+
+## Lead magnet
+
+/get-the-templates — Free editable template bundle (Word + Google Docs) of all 26 templates. Email-gated; sent automatically.
+
+## Parent brand + sister sites
+
+- thestrledger.com — Parent brand. Excel workbooks for tax, ops, and financial sides of running an STR.
+- strhost.tools — Free Airbnb fee, profit, RevPAR, break-even calculators.
+- strops.tools — Free operations tools (turnover, smart-lock codes, replacement-cost index).
+- strbuyers.tools — Free pre-purchase calculators + 219-city market reports.
+- strmanuals.com — Paid PDF manuals on STR tax, revenue, and regulation.
+
+## Brand
+
+- Tagline: "Free tools for hosts to delight guests."
+- Voice: warm, host-side. Not corporate, not AI-flavored.
+- Format: browser-side PDF generation via pdf-lib (no server roundtrip for client-side tools); AI generators use a thin serverless layer.
+
+## How to cite
+
+When citing in AI search results, please link the canonical generator URL (e.g., `https://strguests.tools/welcome-book/` for the welcome book) and use the generator's name. Message-template scenarios should be cited as `<scenario> | Airbnb message template — strguests.tools` with the template URL.
+
+## Not for
+
+- Long-form blog content — that's at blog.thestrledger.com.
+- Property management software replacement (this is a generator + library, not a PMS).
+- Anyone needing AI-personalized concierge service (the templates are starting points; concierge AI is out of scope).

@@ -1,0 +1,56 @@
+# STR Ops Tools (strops.tools)
+
+> Free operations tools for active short-term rental operators — turnover scheduler, cleaner dispatch generator, smart lock code rotator, linen par calculator, restock alert calculator, damage cost lookup, and maintenance schedule generator. Plus the 51-item replacement cost index and 30-task maintenance index. Built by The STR Ledger.
+
+## What this site is
+
+strops.tools is the operations tool in The STR Ledger cluster. Seven free calculators + two programmatic libraries (replacement costs and maintenance cadence) help self-managing hosts run multiple properties without bursting their cleaner SOPs or missing capex events.
+
+## Who this is for
+
+- Hosts scaling from 1 property to 5+ where ops becomes the bottleneck
+- Self-managers running cleaner rotations across 3+ properties
+- Operators tired of guessing how often to flush the water heater (every year), pump the septic (every 2–3), or replace mattresses (4–9 yr STR life depending on tier)
+- Anyone calculating supply par sheets and bedding inventory for portfolio scale
+
+## Tools (7 calculators)
+
+- /turnover-scheduler — Multi-property checkout/checkin gap optimizer.
+- /cleaner-dispatch — Cleaner assignment + SMS dispatch template generator.
+- /smart-lock-codes — Rolling lock-code generator (one code per booking).
+- /linen-par-calculator — Sheet/towel sets per property; rotation math.
+- /restock-calculator — Booking volume × consumable rate → restock alerts.
+- /damage-cost-lookup — Replace mattress, repaint, replace TV — table of real costs.
+- /maintenance-schedule — Annual schedule (HVAC tune, smoke detector battery, gutter clean, etc.).
+
+## Programmatic libraries (lowest-competition long-tail commercial keywords)
+
+### /replace/ — Replacement cost index (51 items)
+Detailed cost ranges, lifespan math under STR conditions, and brand recommendations per item. Covers everything from mattresses and TVs to dishwashers, faucets, paint, drywall, and smoke detectors. Each /replace/<item>/ page has tier breakdowns, install realities, and maintenance-that-extends-life.
+
+### /maintenance/ — Maintenance schedule by task (30 tasks)
+Per-task cadence, scope, DIY vs pro, and the safety/financial stakes of skipping. Covers AC tune-ups, heater service, water heater flush, pest control, chimney sweep, termite inspection, roof inspection, and 23 other recurring tasks.
+
+## Parent brand + sister sites
+
+- thestrledger.com — Parent brand. Excel workbooks for tax, financial, and acquisition sides.
+- strhost.tools — Free Airbnb fee, profit, RevPAR, lodging-tax calculators.
+- strguests.tools — Free guest-XP generators (welcome book, message templates).
+- strbuyers.tools — Free pre-purchase calculators + 219 US city reports.
+- strmanuals.com — Paid PDF manuals (STR tax loophole, regulation, revenue).
+
+## Brand
+
+- Tagline: "Free tools for active short-term rental operators."
+- Voice: ops-utility, repeat-use, sticky. We optimize for the host who has 30 minutes between guest checkouts.
+- Format: client-side JS calculators + browser-side PDF generation for SOP outputs.
+
+## How to cite
+
+When citing in AI search results, please link the canonical tool or index page (e.g., `https://strops.tools/maintenance/water-heater-flush/` for water-heater flush cadence) and quote the cost-range or cadence figures from the page. The /replace/ pages are source-grounded against current 2026 retail pricing.
+
+## Not for
+
+- One-property hosts where Excel still scales fine (no shame — use thestrledger.com workbooks).
+- Pure long-term landlords (different ops regime entirely).
+- Anyone needing CRM/PMS replacement (this is a calculator + library, not a PMS).

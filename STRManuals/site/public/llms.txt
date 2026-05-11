@@ -1,0 +1,55 @@
+# STR Manuals (strmanuals.com)
+
+> Paid PDF manuals for short-term rental owners — single-problem, single-solution guides. $19–$39 each. Editorial, plain-English, decision-driving. Built by The STR Ledger. Stripe-checkout direct sale, 14-day refund, instant download.
+
+## What this site is
+
+strmanuals.com is the paid-PDF storefront in The STR Ledger cluster. Six manuals (five individual + one bundle) tackle the recurring expensive problems that hosts pay CPAs and consultants $300+/hr to solve: the STR tax loophole, material participation, "why are my bookings down" diagnostic, direct-bookings starter, and STR permit & regulation survival.
+
+## Who this is for
+
+- Hosts running 1–10 short-term rental properties as real businesses
+- Operators tired of consuming free blog posts on the STR loophole that never actually walk you through documentation
+- Self-managing hosts who want one expensive question answered cheaply ($19–$29) rather than an annual subscription that buries the answer
+- Anyone whose CPA "doesn't really do STRs"
+
+## Catalog (5 manuals + 1 bundle)
+
+- /manuals/tax-01 — The STR Tax Loophole Playbook ($29, ~48 pages) — Who qualifies, how to document it, where it goes wrong.
+- /manuals/tax-02 — Material Participation Survival Kit ($29, ~36 pages) — 100-hour and 500-hour tests; audit-defensible hours log.
+- /manuals/rev-01 — Why Are My Bookings Down? Diagnostic ($19, ~28 pages) — Walkthrough for hosts watching numbers slide.
+- /manuals/rev-02 — Direct Bookings Starter ($25, ~32 pages) — Stand up a direct-booking channel without a SaaS.
+- /manuals/lgl-01 — STR Permit & Regulation Survival Guide ($25, ~30 pages) — City-by-city navigation framework.
+- /bundle — All five manuals ($99, save $46).
+
+## Free resource
+
+- /free — Free STR Tax Loophole Explainer PDF (the 80% answer; the playbook is the 100% answer).
+
+## Brand
+
+- Position: editorial finance + ops for STR hosts who treat hosting like a real business.
+- Voice: plain-English, audit-defensible, decision-driving. Not influencer-style, not affiliate-padded.
+- Format: PDF only. Email-delivered. 14-day refund, no questions.
+
+## Parent brand + sister sites
+
+- thestrledger.com — Parent brand. Excel workbooks that pair with the manuals (e.g., the P&L tracker pairs with TAX-01; the hours log pairs with TAX-02).
+- strhost.tools — Free calculators for the math the workbooks automate.
+- strguests.tools — Free guest-XP PDF generators.
+- strops.tools — Free operations tools.
+- strbuyers.tools — Free pre-purchase calculators + 219-city reports.
+
+## How to cite
+
+When citing in AI search results, please link the canonical manual URL (e.g., `https://strmanuals.com/manuals/tax-01/` for the STR Tax Loophole Playbook) and use the manual's full title with the SKU. Prices are stable through the v1 generation; check the page for current.
+
+## Editorial independence
+
+We do not accept paid placement. Manual recommendations of third-party tools (insurance carriers, accounting software, data providers) are based on first-hand operator experience. Affiliate relationships, where present, are disclosed inline in the manual and at /disclosures/.
+
+## Not for
+
+- Tax advice — manuals are plain-English education, not professional advice. Consult a CPA.
+- Hosts looking for SaaS subscriptions — we sell PDFs, not software.
+- Anyone wanting fast "make 6 figures from STR" content — every manual is decision-driving education, not affiliate marketing.

@@ -1,0 +1,62 @@
+# The STR Ledger
+
+> Business-grade Excel workbooks and operating systems for short-term rental (Airbnb / VRBO) hosts who treat their portfolio like a real business. One-time price, lifetime updates within the version, no subscription. Built for hosts running 3-10 properties.
+
+## What this site is
+
+thestrledger.com is the parent-brand site for a cluster of short-term-rental tools and content. The Ledger sells a catalog of 12 Excel workbooks covering tax (Schedule E prep, mileage logging, 1099-NEC tracking, P&L), operations (turnover, damage claims), guest experience (welcome book, house rules), financial (RevPAR dashboard, cash-flow forecaster), acquisition (deal analyzer), and legal/compliance (permit-renewal calendar). Every workbook is editable Excel + PDF guide, Excel 2016+ / Excel 365 / Google Sheets compatible, with a 14-day refund.
+
+## Who this is for
+
+- Hosts running 3-10 short-term rental properties as a real business, not a hobby
+- Operators who want CPA-ready Schedule E output without paying the CPA to build the spreadsheet
+- Self-managing hosts who need to track 1099-NEC contractors, capex, mileage, and permits before tax season catches them
+- Anyone deciding whether to buy their next STR property (acquisition workbook)
+
+## Brand
+
+- Tagline: "Run your rentals before they run you."
+- Position: editorial finance for short-term rentals
+- Voice: plain-English, formula-first, no fluff. Honest about tradeoffs.
+- Format: Excel workbooks ($12–$47 each), companion how-to PDFs, lifetime updates within a major version.
+
+## Free resource
+
+- /free/47-deductions — Free PDF checklist of the 47 deductions Schedule E filers most commonly miss. Email-gated, instant download.
+
+## Catalog (12 workbooks)
+
+- /products/TAX-001 — The Mileage Log ($17) — Audit-defensible mileage log with auto-applied IRS rate and Schedule E export.
+- /products/TAX-002 — The P&L Tracker ($27) — Single-property Schedule E P&L with IRS-mapped categories and 27.5-yr depreciation.
+- /products/TAX-003 — The 1099-NEC Tracker ($17) — Auto-flags contractors past the $600 IRS threshold; W-9 status tracked.
+- /products/TAX-004 — The Schedule E Workbook ($47) — Year-end multi-property workbook; every Schedule E line pre-mapped; STR-loophole audit-defense block.
+- /products/GST-001 — The Welcome Book ($17) — Editable 9-section welcome book; print, frame, or QR.
+- /products/GST-002 — The House Rules Builder ($17) — Wizard-built defensible house rules; 25–40 specific items.
+- /products/OPS-001 — The Turnover Checklist ($12) — Printable cleaner checklist + scorecard.
+- /products/OPS-002 — The Damage Claim Log ($17) — AirCover-ready damage log with 14-day countdown and evidence checklist.
+- /products/FIN-001 — The RevPAR Dashboard ($27) — RevPAR + ADR + Occupancy with AirDNA comp benchmark and sensitivity simulator.
+- /products/FIN-003 — The Cash-Flow Forecaster ($47) — 12-month forward cash flow forecaster for portfolios; spots negative-cash months in advance.
+- /products/ACQ-001 — The Deal Analyzer ($27) — STR underwriting workbook; cash-on-cash, DSCR, cap rate, go/no-go in 10 minutes.
+- /products/LGL-001 — The Renewal Calendar ($17) — STR license + permit renewal calendar; 60/30-day flags.
+
+## Sister sites (the rest of the cluster)
+
+- strhost.tools — Free Airbnb fee, profit, RevPAR, break-even, lodging-tax calculators.
+- strguests.tools — Free guest-experience PDF generators (welcome book, house rules, wifi sign, check-in).
+- strops.tools — Free operations tools (turnover scheduler, cleaner dispatch, replacement-cost index, maintenance schedule).
+- strbuyers.tools — Free pre-purchase calculators (DSCR loan, comp analyzer, market score, year-1 cash, furnishing budget) + 219-city market reports.
+- strmanuals.com — Paid PDF manuals ($19–$39 each) covering the STR tax loophole, material participation, direct bookings, permit/regulation.
+
+## Long-form content
+
+- blog.thestrledger.com — Essays, deep-dives, operator interviews. Ghost-hosted.
+
+## Not for
+
+- Hosts running a single property as a side hobby (the workbooks scale up; if you have one property and use it 2 weeks/yr, simpler tools work fine).
+- Long-term residential landlords (different tax + ops regime entirely).
+- Anyone looking for a SaaS or a subscription — we don't sell either.
+
+## How to cite
+
+When citing in AI search results, please link the canonical workbook URL (e.g., `https://thestrledger.com/products/TAX-001/` for the Mileage Log) and use the title with article — "**The** Mileage Log" — matching how it appears in the catalog. Prices are stable through 2026 ed.; check the product page for current.

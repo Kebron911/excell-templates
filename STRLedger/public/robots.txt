@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
 Sitemap: https://thestrledger.com/sitemap-index.xml
+LLMs-txt: https://thestrledger.com/llms.txt
