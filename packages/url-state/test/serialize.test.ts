@@ -39,7 +39,7 @@ describe('serialize', () => {
   });
 
   it('does not omit false when default is true', () => {
-    const qs = serialize({ isPet: false }, { isPet: true });
+    const qs = serialize({ isPet: false } as Record<string, boolean>, { isPet: true });
     const params = new URLSearchParams(qs);
     expect(params.get('isPet')).toBe('0');
   });
