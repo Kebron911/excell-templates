@@ -1,0 +1,46 @@
+{
+  "name": "W41 — Social Question Watcher",
+  "_stub": "Skeleton export. Build full nodes in n8n UI from W41-social-question-watcher.md spec, then re-export to overwrite this file.",
+  "nodes": [
+    {
+      "id": "w41-n01",
+      "name": "Cron Every 30m",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "minutes", "minutesInterval": 30 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w41-n02",
+      "name": "Build Source Queries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// See W41-social-question-watcher.md Node 2 for full source list (Reddit subs + HN keywords + Google Alerts feeds).\nreturn [\n  { json: { source: 'reddit', endpoint: 'https://www.reddit.com/r/AirBnBHosts/new.json?limit=25', sub: 'AirBnBHosts' } },\n];"
+      }
+    }
+  ],
+  "connections": {
+    "Cron Every 30m": {
+      "main": [
+        [{ "node": "Build Source Queries", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "executionTimeout": 600,
+    "timezone": "America/New_York"
+  },
+  "pinData": {}
+}
