@@ -258,3 +258,20 @@ These are the actual resolved versions at baseline — useful for post-upgrade d
 - [x] All 4 apps: `pnpm build` succeeded (exit 0, "Complete!")
 - [x] All 4 apps: `pnpm test` all passed (320/320)
 - [ ] E2E: not captured — requires live dev server (out of scope for baseline)
+
+---
+
+## STROps post-upgrade (Task 7 verification)
+
+**Captured:** 2026-05-10 20:04 MDT
+**SHA:** 262014329670b7fd25cf7507675a830a50395d31
+
+- Astro: 6.3.1 (was 4.16.19)
+- @astrojs/mdx: 5.x (was 3.1.x)
+- @astrojs/react: 5.x (was 3.6.x)
+- @astrojs/sitemap: 3.7.x (was 3.2.x)
+- @astrojs/tailwind: 6.0.x (was 5.1.x)
+- Build: PASS (104 pages — matches baseline)
+- OG: PASS (105 images — matches baseline)
+- Unit tests: 34/34 (matches baseline 34/34) — 13 files, vitest 2.1.9
+- E2E: PASS — 24/24 tests passed (12.2s, chromium); dev server auto-started via Playwright webServer config
