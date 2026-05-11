@@ -1,0 +1,54 @@
+{
+  "name": "W45 — Customer → Review / Embed Loop",
+  "_stub": "Skeleton export. Build full nodes in n8n UI from W45-customer-embed-loop.md spec (Branch A = Day-21 cron embed-ask, Branch B = webhook embed-detected, Branch C = Sunday stale sweep), then re-export to overwrite this file.",
+  "nodes": [
+    {
+      "id": "w45-nA1",
+      "name": "Cron Daily 10:30",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 200],
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "days", "daysInterval": 1, "triggerAtHour": 10, "triggerAtMinute": 30 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "w45-nB1",
+      "name": "Embed Detected Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 400],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "embed-detected",
+        "responseMode": "lastNode"
+      }
+    },
+    {
+      "id": "w45-nC1",
+      "name": "Cron Sunday 22:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 600],
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "weeks", "weeksInterval": 1, "triggerAtDay": [0], "triggerAtHour": 22 }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "executionTimeout": 600,
+    "timezone": "America/New_York"
+  },
+  "pinData": {}
+}
