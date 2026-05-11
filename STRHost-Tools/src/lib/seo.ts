@@ -34,8 +34,37 @@ export function buildOrganization(): JsonLd {
       url: PUBLISHER_URL,
     },
     sameAs: [
-      // Filled in as social presences come online.
+      'https://thestrledger.com',
+      'https://strguests.tools',
+      'https://strops.tools',
+      'https://strbuyers.tools',
+      'https://strmanuals.com',
     ],
+  };
+}
+
+export interface BreadcrumbItem {
+  name: string;
+  url: string;  // absolute or path; absolute preferred
+}
+
+/**
+ * BreadcrumbList JSON-LD builder.
+ *
+ * Pass an ordered array Home → ... → current page. Relative paths are
+ * resolved against SITE_URL. The current page should appear last; its
+ * URL is still emitted (Google accepts both styles).
+ */
+export function buildBreadcrumb(crumbs: BreadcrumbItem[]): JsonLd {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map((c, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: c.name,
+      item: c.url.startsWith('http') ? c.url : canonical(c.url),
+    })),
   };
 }
 
@@ -126,10 +155,18 @@ export function buildArticle(input: ArticleInput): JsonLd {
 /**
  * Returns the canonical URL for a path. Used by Layout for
  * <link rel="canonical"> and astro-seo's `canonical` prop.
+ *
+ * Convention: trailing slash on every non-root path. Matches the live
+ * sitemap emitted by @astrojs/sitemap and prevents the dual-URL
+ * canonical drift that flagged in the SEO audit.
  */
 export function canonical(path: string): string {
   const cleaned = path.startsWith('/') ? path : `/${path}`;
-  return `${SITE_URL}${cleaned}`;
+  if (cleaned === '/') return `${SITE_URL}/`;
+  // Strip query/hash before adding trailing slash, then re-append.
+  const [pathOnly, ...rest] = cleaned.split(/(?=[?#])/);
+  const withSlash = pathOnly.endsWith('/') ? pathOnly : `${pathOnly}/`;
+  return `${SITE_URL}${withSlash}${rest.join('')}`;
 }
 
 /**

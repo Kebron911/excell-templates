@@ -1,0 +1,81 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import tools from '@/data/tools.json';
+
+const toolsList = Object.values(tools);
+---
+
+<Layout
+  title="Page not found — STR Host Tools"
+  description="That page doesn't exist on strhost.tools. Pick a calculator below, browse the lodging-tax index, or read the blog."
+  path="/404"
+  noIndex={true}
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-6xl px-5 pt-12 pb-9">
+      <p class="label text-gold-deep">404</p>
+      <h1 class="mt-3 text-h1 font-serif text-navy max-w-3xl leading-tight">
+        Page not found<span class="period-gold">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2 max-w-2xl">
+        The URL you followed doesn't match anything on strhost.tools. Maybe a stale link, a typo, or a tool we haven't built yet. Pick one below.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <p class="label text-gold-deep">Calculators</p>
+      <ul class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {toolsList.map((t) => (
+          <li>
+            <a
+              href={t.path}
+              class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-gold hover:shadow-card transition-all duration-std focus:outline-none focus:shadow-focus"
+            >
+              <p class="font-serif text-h3 text-navy leading-snug">{t.shortName}</p>
+              <p class="mt-2 text-small text-ink-2 leading-snug">{t.tagline}</p>
+              <p class="mt-4 text-caption text-gold-deep group-hover:text-gold flex items-center gap-1">
+                Open
+                <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-9">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
+        <div>
+          <p class="label text-gold-deep">Lodging tax — 50 states + DC</p>
+          <p class="mt-3 font-serif text-h2 text-navy leading-tight">
+            State-by-state lodging tax<span class="period-gold">.</span>
+          </p>
+          <a
+            href="/lodging-tax"
+            class="mt-4 inline-flex items-center gap-2 text-ui text-navy no-underline hover:text-navy-tint group"
+          >
+            See the 50-state index
+            <span class="text-gold inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div>
+          <p class="label text-gold-deep">Reading</p>
+          <p class="mt-3 font-serif text-h2 text-navy leading-tight">
+            From the notebook<span class="period-gold">.</span>
+          </p>
+          <a
+            href="/blog"
+            class="mt-4 inline-flex items-center gap-2 text-ui text-navy no-underline hover:text-navy-tint group"
+          >
+            Read the blog
+            <span class="text-gold inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
