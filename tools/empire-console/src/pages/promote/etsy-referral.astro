@@ -1,0 +1,116 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import SourceFooter from '@/components/widgets/SourceFooter.astro';
+import { readTraffic } from '@/lib/data/traffic';
+
+const t = await readTraffic();
+
+const etsyRow = t.topSources.find(
+  (s) => /etsy/i.test(s.source)
+);
+const totalSessions7d = t.week.sessions;
+const etsyShare = etsyRow?.share ?? 0;
+const etsySessions = etsyRow?.sessions ?? 0;
+const referredSessionsPct = (etsyShare * 100).toFixed(1);
+---
+<Layout title="Promote · Etsy referral" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Etsy referral</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Visits earned from Etsy listings → thestrledger.com. Etsy outbound links
+        are nofollow but drive direct referral traffic — the exact lever in
+        Sprint 0.3 of <code>docs/backlink-automation-plan.md</code>.
+        Source: <code>ops/cache/traffic.json</code>.
+      </p>
+    </div>
+    {t.isCacheReady
+      ? <span class="badge badge-ok">live</span>
+      : <span class="badge badge-p2">awaiting n8n nightly-refresh</span>}
+  </header>
+
+  {!t.isCacheReady && (
+    <div class="mb-6 card" style="background: rgb(var(--c-surface-2))">
+      <p class="text-sm">
+        <strong>No cache yet.</strong> <code>ops/cache/traffic.json</code> is written by
+        the n8n <code>nightly-refresh</code> flow (Plausible primary, GA4 secondary).
+      </p>
+    </div>
+  )}
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Etsy sessions (7d)" value={etsySessions.toLocaleString()}
+               tone={etsySessions > 0 ? 'ok' : 'neutral'} />
+    <Scorecard label="Share of all traffic" value={`${referredSessionsPct}%`}
+               hint="vs. all sources" />
+    <Scorecard label="Total sessions (7d)" value={totalSessions7d.toLocaleString()} />
+    <Scorecard label="MTD sessions" value={t.mtd.sessions.toLocaleString()} />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      All traffic sources (7d)
+    </h2>
+    <div class="card">
+      {t.topSources.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          Top-sources will populate on first nightly refresh after Plausible activation.
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Source</th>
+              <th class="text-right">Sessions</th>
+              <th class="text-right">Share</th>
+            </tr>
+          </thead>
+          <tbody>
+            {t.topSources.map((s) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2 font-medium">
+                  {s.source}
+                  {/etsy/i.test(s.source) && <span class="ml-2 badge badge-ok text-[10px]">Etsy</span>}
+                </td>
+                <td class="text-right font-mono">{s.sessions.toLocaleString()}</td>
+                <td class="text-right font-mono">{(s.share * 100).toFixed(1)}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  <section class="card mb-8" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Etsy → site bridge (Sprint 0.3 lever)
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• Add <code>thestrledger.com</code> link to each Etsy listing description bottom line</li>
+      <li>• Etsy shop About section: "Visit thestrledger.com for the full template library"</li>
+      <li>• Etsy post-purchase message: link to free bonus on the site</li>
+      <li>• UTM convention: <code>?utm_source=etsy&utm_medium=referral&utm_content=&lt;listing_id&gt;</code></li>
+      <li>• Bonus: tracking per-listing referral attribution lets you flag which Etsy listings drive site visits AND email signups (high-LTV bridge)</li>
+    </ul>
+  </section>
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Why nofollow doesn't matter here
+    </h3>
+    <p class="text-sm">
+      Etsy outbound links carry <code>rel=nofollow ugc</code> — they pass no ranking
+      authority. But they pass <strong>real human visitors</strong>. For a new brand,
+      that's exactly the kind of "link" the original prompt was reaching for:
+      a high-traffic page (Etsy product listing) with a referral link to your site.
+      The visitor lands warm — they already bought your work on Etsy.
+    </p>
+  </section>
+
+  <SourceFooter source="ops/cache/traffic.json (n8n nightly-refresh)"
+                lastRefresh={t.generatedAt ?? null}
+                notes="Plausible primary, GA4 secondary" />
+</Layout>

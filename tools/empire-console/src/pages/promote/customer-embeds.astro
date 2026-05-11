@@ -1,0 +1,127 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import Scorecard from '@/components/widgets/Scorecard.astro';
+import { readCustomerEmbeds } from '@/lib/data/customer-embeds';
+
+const data = await readCustomerEmbeds();
+const sortedActive = data.active
+  .slice()
+  .sort((a, b) => (b.referrer_visits_30d || 0) - (a.referrer_visits_30d || 0));
+const sortedLost = data.lost
+  .slice()
+  .sort((a, b) => (b.last_verified || '').localeCompare(a.last_verified || ''));
+---
+<Layout title="Promote · Customer embeds" section="promote">
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="font-display text-3xl font-semibold">Customer embeds</h1>
+      <p class="text-sm" style="color: rgb(var(--c-muted))">
+        Free attribution badges customers placed on their own STR-related sites.
+        Powered by <strong>W45</strong>. Source: <code>ops/customer-embeds.ndjson</code>.
+      </p>
+    </div>
+    <span class="badge badge-ok">W45 active</span>
+  </header>
+
+  <section class="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+    <Scorecard label="Active embeds" value={data.active.length}
+               tone={data.active.length > 0 ? 'ok' : 'neutral'} />
+    <Scorecard label="Lost embeds" value={data.lost.length}
+               tone={data.lost.length > 0 ? 'warn' : 'ok'} />
+    <Scorecard label="Total ever" value={data.rows.length} />
+    <Scorecard label="Referrer visits (30d)" value={data.totalReferrerVisits30d.toLocaleString()} />
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      Active embeds ({sortedActive.length})
+    </h2>
+    <div class="card">
+      {sortedActive.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          No active embeds yet. W45 detects them from referrer logs filtered on
+          <code>utm_source=customer-embed</code>. Conversion expected at 2–5% of happy customers.
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Embedder</th>
+              <th>Page</th>
+              <th>Widget</th>
+              <th>Linked customer</th>
+              <th class="text-right">Visits (30d)</th>
+              <th class="text-right">First seen</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedActive.map((e) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2 font-medium">{e.embedder_domain}</td>
+                <td class="max-w-md truncate text-xs">
+                  {e.embedder_url ? (
+                    <a href={e.embedder_url} target="_blank" rel="noopener" class="font-mono">
+                      {e.embedder_url.replace(/^https?:\/\//, '').slice(0, 60)}
+                    </a>
+                  ) : (
+                    <span style="color: rgb(var(--c-muted))">—</span>
+                  )}
+                </td>
+                <td class="text-xs">{e.widget_id || '—'}</td>
+                <td class="text-xs font-mono">{e.linked_customer_id || '—'}</td>
+                <td class="text-right font-mono">{(e.referrer_visits_30d || 0).toLocaleString()}</td>
+                <td class="text-right font-mono text-xs">{e.detected_at?.slice(0, 10) || '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  {sortedLost.length > 0 && (
+    <section class="mb-8">
+      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+        Lost embeds ({sortedLost.length})
+      </h2>
+      <div class="card" style="background: rgb(var(--c-surface-2))">
+        <p class="mb-3 text-xs" style="color: rgb(var(--c-muted))">
+          Embeds detected previously but no longer present in the linked page's HTML.
+          History preserved — useful for tracking churn vs growth.
+        </p>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">Embedder</th>
+              <th>Was on</th>
+              <th class="text-right">Last verified</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedLost.map((e) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="py-2">{e.embedder_domain}</td>
+                <td class="max-w-md truncate text-xs">{e.embedder_url || '—'}</td>
+                <td class="text-right font-mono text-xs">{e.last_verified?.slice(0, 10) || '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )}
+
+  <section class="card" style="background: rgb(var(--c-surface-2))">
+    <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      How embeds land here
+    </h3>
+    <ul class="space-y-1 text-sm">
+      <li>• <strong>W45 Branch A</strong> (Daily 10:30): finds Day-21 customers with 4+ star reviews, IS-emails them a one-line embed-ask with badge snippet pre-tagged with their <code>customer_id</code> UTM.</li>
+      <li>• <strong>W45 Branch B</strong>: when the badge tag appears in referrer logs, appends row to <code>ops/customer-embeds.ndjson</code> with <code>still_present=true</code> + Airtable flag.</li>
+      <li>• <strong>W45 Branch C</strong> (Sun 22:00): re-checks each active embed; flips <code>still_present=false</code> when HTML no longer contains the badge.</li>
+      <li>• Conversion target: 2–5% of happy customers act. Every link earned is hyper-relevant and lasts indefinitely.</li>
+    </ul>
+  </section>
+</Layout>

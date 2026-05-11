@@ -3,8 +3,9 @@ import Layout from '@/components/chrome/Layout.astro';
 import Scorecard from '@/components/widgets/Scorecard.astro';
 import SourceFooter from '@/components/widgets/SourceFooter.astro';
 import { readSeo } from '@/lib/data/seo';
+import { readIndexNow } from '@/lib/data/indexnow';
 
-const s = await readSeo();
+const [s, idx] = await Promise.all([readSeo(), readIndexNow()]);
 ---
 <Layout title="Check · SEO" section="check">
   <header class="mb-6 flex items-baseline justify-between">
@@ -163,6 +164,56 @@ const s = await readSeo();
                 <td class="text-xs" style="color: rgb(var(--c-muted))">
                   {q.page ? <code>{q.page}</code> : '—'}
                 </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide" style="color: rgb(var(--c-muted))">
+      IndexNow + GSC submission (W43)
+    </h2>
+    <div class="card">
+      <div class="mb-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <Scorecard label="Submissions (24h)" value={idx.submissions_24h} />
+        <Scorecard label="Submissions (7d)" value={idx.submissions_7d} />
+        <Scorecard label="Errors (7d)" value={idx.errors_7d}
+                   tone={idx.errors_7d > 0 ? 'warn' : 'ok'} />
+        <Scorecard label="Last submission" value={idx.last_submission_at?.slice(0, 10) ?? '—'} />
+      </div>
+      {idx.recent_submissions.length === 0 ? (
+        <p class="text-sm" style="color: rgb(var(--c-muted))">
+          No submissions yet. W43 (<code>infrastructure/n8n/workflows/W43-indexnow-gsc-submit.md</code>)
+          submits each published URL to GSC + Bing IndexNow + Yandex + Pinterest within ~60s of publish.
+          One-time prereq: <a href="/maintain/runbooks">IndexNow setup runbook</a>.
+        </p>
+      ) : (
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b text-left text-xs uppercase tracking-wide"
+                style="color: rgb(var(--c-muted)); border-color: rgb(var(--c-border))">
+              <th class="py-2">URL</th>
+              <th class="text-right">GSC</th>
+              <th class="text-right">Bing</th>
+              <th class="text-right">Yandex</th>
+              <th class="text-right">Pin</th>
+              <th class="text-right">When</th>
+            </tr>
+          </thead>
+          <tbody>
+            {idx.recent_submissions.slice(0, 25).map((row) => (
+              <tr class="border-b" style="border-color: rgb(var(--c-border))">
+                <td class="max-w-md truncate py-2 text-xs">
+                  <code>{row.url.replace(/^https?:\/\/[^/]+/, '')}</code>
+                </td>
+                <td class="text-right font-mono text-xs">{String(row.gsc_status ?? '—')}</td>
+                <td class="text-right font-mono text-xs">{String(row.bing_status ?? '—')}</td>
+                <td class="text-right font-mono text-xs">{String(row.yandex_status ?? '—')}</td>
+                <td class="text-right font-mono text-xs">{String(row.pinterest_status ?? '—')}</td>
+                <td class="text-right font-mono text-xs">{row.submitted_at?.slice(0, 10)}</td>
               </tr>
             ))}
           </tbody>
