@@ -106,3 +106,58 @@ None. All 5 apps build clean, all tests pass at baseline. Component inventory ma
 | STRBuyers server tests | 7/7 |
 | Chrome inventory matches plan | YES |
 | Funnel inventory matches plan | YES |
+
+---
+
+## Phase 2 complete — final verification
+
+**Captured:** 2026-05-11 16:14 MDT  
+**SHA:** `3d1b5d390b6834f5bbf1d4d7a62dff608bb83cc9`
+
+| Package | Tests | Typecheck |
+|---|---|---|
+| @str/format | 103/103 | PASS |
+| @str/url-state | 76/76 | PASS (TS errors fixed in Task 2) |
+| @str/seo | 86/86 | PASS (TS errors fixed in Task 1) |
+| @str/email-gate | 11/11 | PASS |
+| @str/ui-chrome | 5/5 snapshots | PASS |
+| @str/ui-funnel | 5/5 snapshots | PASS |
+
+| App | Build | Pages | Tests | Visual | Notes |
+|---|---|---|---|---|---|
+| STROps-Tools | PASS | 105 | 34/34 | — | Unchanged (Phase 3) |
+| STRGuests-Tools | PASS | 49 | 165/165 | 5/5 | Now on @str/ui-chrome (5/6 components) + @str/ui-funnel; AppSidebar STRGuests-specific |
+| STRBuyers-Tools | PASS | 244 | 84/84 | — | Unchanged (Phase 3) |
+| STRHost-Tools | PASS | 73 | 73/73 | — | Unchanged (Phase 3) |
+| tools/empire-console | PASS | 140 | 68/68 | — | Unchanged |
+
+**Phase 2 exit criteria met:**
+- [x] @str/ui-chrome + @str/ui-funnel built, tested, documented
+- [x] STRGuests pilot wired to consume both (with one app-specific AppSidebar override documented below)
+- [x] STRGuests visual regression preserved (5/5 baselines match)
+- [x] Phase 1 carry-forwards 1+2 fixed (TS errors in @str/seo + @str/url-state tests)
+- [x] Other apps + empire-console untouched
+
+**Decisions during Phase 2:**
+
+1. **AppSidebar.astro architectural split:** STRGuests's pre-Phase-2 chrome/Sidebar rendered 2-line cards using `tools.json` (shortName + tagline per item). `@str/ui-chrome/Sidebar` renders 1-line items from `siteConfig.nav`. The data shapes differ; unifying would require enriching the shared component to accept either format. For Phase 2, STRGuests created `src/components/AppSidebar.astro` (preserves the 2-line card design, reads from tools.json). 5 of 6 chrome components are shared (Header, Footer, Layout, Wordmark, FunnelBand); Sidebar is STRGuests-specific. Phase 3 should consider enriching `@str/ui-chrome/Sidebar` to accept an `items` prop with optional richer fields, then unify all 4 apps.
+
+2. **RelatedPosts.astro retained in-tree:** Only STRGuests + STRHost have it. Out of @str/ui-funnel scope this phase. Defer to Phase 3 if STRHost wiring needs it; consider extracting at that point.
+
+3. **vitest config workaround for Astro 6 + experimental_AstroContainer:** vitest 2 ships Vite 5; Astro 6 ships Vite 7. `getViteConfig` from Astro crashes against the mismatch. Both ui-chrome and ui-funnel use a custom `vitest.config.ts` with @astrojs/compiler@4 transform + TypeScript stripping + createMetadata shim. Future packages should either copy this pattern OR upgrade to vitest 3 (Vite 6, closer to Astro 7).
+
+**Carry-forwards for Phase 3 (STRBuyers/STRHost/STROps fanout):**
+
+Open from Phase 1, still open:
+- Decide @str/url-state dual-API canonicalization
+- Decide @str/email-gate architecture (MySQL vs ESP-webhook adapter)
+- Single SiteId source of truth (currently in @str/seo + @str/email-gate)
+- buildItemList caller audit in STRBuyers/STRHost/STROps
+
+New from Phase 2:
+- **STROps chrome reconciliation:** STROps Header is 22 lines vs canonical 61. Header/Footer/Sidebar all need substantial uplift, NOT drop-in. Layout + Wordmark MISSING entirely on STROps. Phase 3 STROps wiring is 2-3x heavier than STRBuyers/STRHost wiring.
+- **STRBuyers's outlier FunnelBand (38 lines) and ClusterFunnelBlock (73 lines):** wire via `<slot name="funnel-banner-override">` so its city-page customizations stay (or extract richer @str/ui-chrome variants).
+- **AppSidebar pattern:** STRBuyers and STRHost may have similar tools-json-based sidebars that don't fit `@str/ui-chrome/Sidebar`. Audit each before wiring; either create per-site AppSidebar or enrich @str/ui-chrome/Sidebar.
+- **vitest 3 upgrade consideration:** if Phase 3 adds more component packages, upgrade to vitest 3 in package.jsons rather than copying the workaround everywhere.
+
+Phase 2 done. Ready for Phase 3: fan Tier 1+2 packages out to STRBuyers, STRHost, STROps.
