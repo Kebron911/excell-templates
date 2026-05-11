@@ -12,7 +12,7 @@ import { paths } from '../paths.js';
  * MTTR = mean time to resolve   (alertedAt → resolvedAt)
  */
 
-const IncidentSchema = z.object({
+export const IncidentSchema = z.object({
   id: z.string(),
   title: z.string(),
   severity: z.enum(['SEV1', 'SEV2', 'SEV3']),

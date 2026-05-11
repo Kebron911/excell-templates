@@ -8,7 +8,7 @@ import { paths } from '../paths.js';
  * per request). Read by /maintain/compliance for triage.
  */
 
-const GdprRequestSchema = z.object({
+export const GdprRequestSchema = z.object({
   id: z.string(),
   email: z.string(),
   type: z.enum(['access', 'erasure', 'portability', 'rectification', 'restriction', 'objection', 'other']),

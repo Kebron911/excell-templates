@@ -8,7 +8,7 @@ import { paths } from '../paths.js';
  * on the 1st of each month. One line per probe. /maintain/backups reads it.
  */
 
-const BackupTestSchema = z.object({
+export const BackupTestSchema = z.object({
   ts: z.string(),
   priority: z.enum(['P0', 'P1', 'P2']).default('P2'),
   passed: z.boolean().default(false),
