@@ -1,17 +1,16 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import { buildWebSite } from '@/lib/seo';
 
-const cards = [
-  { href: '/products/',                  title: 'Workbooks',          blurb: 'Excel + PDF templates for tax, ops, pricing, acquisition. 60+ SKUs.' },
-  { href: '/free/47-deductions/',        title: 'Free 47-deductions PDF', blurb: 'The deductions most STR hosts miss. Email-gated, instant download.' },
-  { href: '/blog/',                      title: 'Blog',                blurb: 'Long-form notes from operators running real portfolios.' },
-  { href: 'https://strhost.tools',       title: 'Free calculators',    blurb: 'Fees, profit, RevPAR, break-even. Live at strhost.tools.', external: true },
-  { href: '/about/',                     title: 'About',               blurb: 'Who builds these workbooks and why.' },
-  { href: '/contact/',                   title: 'Contact',             blurb: 'hello@thestrledger.com. We answer within a week.' },
-];
+// Pull the full catalog. Featured SKU (per frontmatter) gets the hero block
+// matching live thestrledger.com (where TAX-004 leads).
+const products = (await getCollection('products') as CollectionEntry<'products'>[])
+  .sort((a, b) => a.data.sku.localeCompare(b.data.sku));
 
+const featured = products.find((p) => p.data.featured) ?? products[0];
+const wave1 = products.filter((p) => p.data.wave === '1');
 const websiteLd = buildWebSite();
 ---
 <Layout
@@ -20,56 +19,121 @@ const websiteLd = buildWebSite();
   path="/"
   jsonLd={websiteLd}
 >
+  <!-- Hero -->
   <section class="bg-parchment">
     <div class="mx-auto max-w-6xl px-5 pt-12 pb-9">
-      <p class="label text-gold-deep">Excel + PDF workbooks for short-term rentals</p>
+      <p class="label text-gold-deep">Editorial finance for short-term rentals</p>
       <h1 class="mt-3 font-serif text-h1 text-navy max-w-3xl leading-tight">
-        Run your rentals before they run you<span class="period-gold">.</span>
+        Run your rentals<br />before they run<span class="italic"> you</span><span class="period-gold">.</span>
       </h1>
       <p class="mt-4 text-lead text-ink-2 max-w-2xl">
-        Schedule E-ready workbooks. Formula-tight. Built for hosts running 3-10 properties as a real business — not a hobby.
+        Business-grade Excel workbooks and operating systems for Airbnb and VRBO hosts who treat their portfolio like a real business. One-time price. Lifetime updates. No subscription.
       </p>
       <div class="mt-6 flex flex-wrap gap-3">
         <a
-          href="/products/"
+          href="/free/47-deductions/"
           class="inline-flex items-center gap-2 bg-navy text-parchment px-5 py-3 rounded-md no-underline text-ui hover:bg-navy-tint transition-colors"
         >
-          Browse the workbooks
+          Get the 47 deductions guide — free
           <span class="text-gold" aria-hidden="true">→</span>
         </a>
         <a
-          href="/free/47-deductions/"
+          href="#catalog"
           class="inline-flex items-center gap-2 border border-rule-strong text-navy px-5 py-3 rounded-md no-underline text-ui hover:border-gold transition-colors"
         >
-          Free 47-deductions PDF
+          See the catalog
+          <span aria-hidden="true">↓</span>
         </a>
       </div>
     </div>
   </section>
 
-  <section class="bg-parchment-light border-t border-rule">
-    <div class="mx-auto max-w-6xl px-5 py-9">
-      <p class="label text-gold-deep">Start here</p>
-      <ul class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {cards.map((c) => (
-          <li>
-            <a
-              href={c.href}
-              class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-gold hover:shadow-card transition-all"
-            >
-              <p class="font-serif text-h3 text-navy leading-snug">
-                {c.title}{c.external ? <span class="text-gold ml-1" aria-hidden="true">↗</span> : null}
+  <!-- Featured product (matches live's TAX-004 hero card) -->
+  {featured && (
+    <section class="bg-parchment-light border-t border-rule">
+      <div class="mx-auto max-w-6xl px-5 py-12">
+        <p class="label text-gold-deep">2026 ed. · Tax season</p>
+        <div class="mt-3 flex flex-wrap items-end gap-x-6 gap-y-2">
+          <h2 class="font-serif text-h1 text-navy leading-tight">
+            <span class="italic font-normal">The</span> {featured.data.title.replace(/^The\s+/, '')}<span class="period-gold">.</span>
+          </h2>
+          <p class="font-mono text-caption text-gold-deep tracking-widest uppercase">
+            {featured.data.sku} · v2.6
+          </p>
+        </div>
+        <p class="mt-3 text-lead text-ink-2 max-w-2xl leading-relaxed">
+          {featured.data.description}
+        </p>
+        <div class="mt-6 flex flex-wrap items-center gap-4">
+          <span class="font-mono text-h2 text-navy">${featured.data.price}</span>
+          <a
+            href={`/products/${featured.data.slug}/`}
+            class="inline-flex items-center gap-2 bg-navy text-parchment px-5 py-3 rounded-md no-underline text-ui hover:bg-navy-tint transition-colors"
+          >
+            See inside →
+          </a>
+          <a
+            href={featured.data.etsyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 border border-rule-strong text-navy px-5 py-3 rounded-md no-underline text-ui hover:border-gold transition-colors"
+          >
+            Buy on Etsy →
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- The Catalog (matches live's "12 workbooks. Zero subscriptions") -->
+  <section id="catalog" class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-6xl px-5 py-12">
+      <p class="label text-gold-deep">The Catalog</p>
+      <h2 class="mt-3 font-serif text-h1 text-navy max-w-3xl leading-tight">
+        {products.length} workbooks. <span class="italic">Zero</span> subscriptions<span class="period-gold">.</span>
+      </h2>
+      <p class="mt-3 text-body text-ink-2">
+        <a href="mailto:hello@thestrledger.com" class="text-gold-deep no-underline hover:underline">Question about a workbook? Ask us →</a>
+      </p>
+
+      <ul class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {products.map((p) => (
+          <li class="rounded-md border border-rule bg-parchment-light p-5 flex flex-col">
+            <p class="font-mono text-caption text-gold-deep tracking-widest uppercase">
+              {p.data.sku} · ${p.data.price}{p.data.wave ? ` · Wave ${p.data.wave}` : ''}
+            </p>
+            <a href={`/products/${p.data.slug}/`} class="group no-underline mt-2 flex-1">
+              <p class="font-serif text-h3 text-navy leading-snug group-hover:text-navy-tint">
+                <span class="italic font-normal">The</span> {p.data.title.replace(/^The\s+/, '')}<span class="period-gold">.</span>
               </p>
-              <p class="mt-2 text-small text-ink-2 leading-snug">{c.blurb}</p>
-              <p class="mt-4 text-caption text-gold-deep group-hover:text-gold">
-                Open <span class="inline-block" aria-hidden="true">→</span>
-              </p>
+              <p class="mt-2 text-small text-ink-2 leading-snug">{p.data.description}</p>
             </a>
+            <div class="mt-4 flex items-center justify-between gap-3 border-t border-rule pt-3 text-caption">
+              <a href={`/products/${p.data.slug}/`} class="text-gold-deep hover:text-gold no-underline">See inside →</a>
+              <a
+                href={p.data.etsyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-gold-deep hover:text-gold no-underline"
+              >Buy now</a>
+            </div>
           </li>
         ))}
       </ul>
     </div>
   </section>
 
+  {wave1.length > 0 && (
+    <section class="bg-parchment-light border-t border-rule">
+      <div class="mx-auto max-w-6xl px-5 py-9">
+        <p class="label text-gold-deep">Wave 1 launch</p>
+        <p class="mt-2 text-body text-ink-2 max-w-2xl">
+          Three workbooks that ship together — the math your portfolio runs on every month. Mileage, welcome book, turnover. ${wave1.reduce((sum, p) => sum + p.data.price, 0)} for all three; cheaper than a single hour with a CPA.
+        </p>
+      </div>
+    </section>
+  )}
+
+  <!-- Funnel to sister sites -->
   <ClusterFunnelBlock />
 </Layout>

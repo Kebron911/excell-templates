@@ -109,18 +109,34 @@ pages, not invented.
 ## Suggested next-step order
 
 1. ~~Fill the catalog gap~~ — **DONE** (commit `a8f7657`, 12/12 SKUs).
-2. **Add `etsyUrl` to schema** and surface "Buy now" buttons.
-3. **Match the live homepage** hero + section structure (currently the
-   scaffold homepage uses the cluster funnel block; live uses a curated
-   hero featuring TAX-004).
-4. **Decide blog strategy** (Ghost vs. migrate from blog.thestrledger.com).
-5. **Wire `/free/47-deductions`** form to Influencersoft via n8n.
-6. **Source cover images** for each product (`/covers/<SKU>.svg` per the
-   live convention).
+2. ~~Add `etsyUrl` to schema~~ — **DONE** (etsyUrl field added with
+   shop-root default; surfaced as "Buy on Etsy" buttons on every
+   product detail page, the /products/ catalog index, and each
+   homepage product card).
+3. ~~Match the live homepage~~ — **DONE** (Hero copy mirrors live's
+   "Run your rentals before they run you" with the same italic "you"
+   styling; featured-product hero block surfaces TAX-004 with
+   "See inside" + "Buy on Etsy" CTAs; 12-card catalog grid matches
+   live's "12 workbooks. Zero subscriptions" section).
+4. ~~Decide blog strategy~~ — **DONE** (`blog.thestrledger.com` Ghost
+   subdomain is canonical; `/blog/` landing on the main site now links
+   readers to Ghost prominently and only optionally surfaces any
+   on-site MDX as "Also on this site").
+5. ~~Wire `/free/47-deductions` form~~ — **DONE** (form posts to the
+   webhook at `PUBLIC_N8N_MAGNET_URL`; falls back to a `mailto:` with
+   a friendly subject when the env var is unset, with a visible note
+   to the operator that the env var needs to be set in production).
+6. ~~Source cover images~~ — **DONE** (12 placeholder SVGs at
+   `/public/covers/<SKU>.svg`, category-coloured, brand-typed; product
+   MDX `image` field now points at the cover so Product JSON-LD
+   emits it).
 7. **Soft-launch on preview URL** + smoke test (e.g.,
    `preview.thestrledger.com`).
 8. **Flip DNS** once smoke passes AND DEPLOY-STATUS marker flips to
    READY.
+
+All 6 content/code parity gaps closed in commits this session. What
+remains is operational: provisioning, secrets, soft-launch, smoke.
 
 Anything that touches Hostinger DNS or replaces deployed files is
 out of scope for this repo until step 8 — leave the live site alone.

@@ -42,19 +42,27 @@ const breadcrumb = buildBreadcrumb([
     <div class="mx-auto max-w-6xl px-5 py-9">
       <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {products.map((p) => (
-          <li>
-            <a
-              href={`/products/${p.data.slug}/`}
-              class="group block h-full rounded-md border border-rule bg-parchment p-5 no-underline hover:border-gold hover:shadow-card transition-all"
-            >
-              <p class="font-mono text-caption text-gold-deep tracking-widest uppercase">{p.data.sku}</p>
-              <p class="mt-2 font-serif text-h3 text-navy leading-snug">{p.data.title}</p>
+          <li class="rounded-md border border-rule bg-parchment p-5 flex flex-col">
+            <p class="font-mono text-caption text-gold-deep tracking-widest uppercase">
+              {p.data.sku}{p.data.wave ? ` · Wave ${p.data.wave}` : ''}
+            </p>
+            <a href={`/products/${p.data.slug}/`} class="group no-underline mt-2 flex-1">
+              <p class="font-serif text-h3 text-navy leading-snug group-hover:text-navy-tint">{p.data.title}</p>
               <p class="mt-2 text-small text-ink-2 leading-snug">{p.data.description}</p>
-              <p class="mt-4 flex items-center justify-between">
-                <span class="font-mono text-ui text-navy">${p.data.price}</span>
-                <span class="text-caption text-gold-deep group-hover:text-gold">View →</span>
-              </p>
             </a>
+            <div class="mt-4 flex items-center justify-between gap-3 border-t border-rule pt-3">
+              <span class="font-mono text-ui text-navy">${p.data.price}</span>
+              <div class="flex gap-2 text-caption">
+                <a href={`/products/${p.data.slug}/`} class="text-gold-deep hover:text-gold no-underline">See inside →</a>
+                <span class="text-ink-3" aria-hidden="true">·</span>
+                <a
+                  href={p.data.etsyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-gold-deep hover:text-gold no-underline"
+                >Buy on Etsy →</a>
+              </div>
+            </div>
           </li>
         ))}
       </ul>

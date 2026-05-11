@@ -85,10 +85,19 @@ const title = `${data.title} — ${data.sku} — The STR Ledger`;
               href="#buy"
               class="inline-flex items-center gap-2 bg-navy text-parchment px-5 py-3 rounded-md no-underline text-ui hover:bg-navy-tint transition-colors"
             >
-              Get the workbook
-              <span class="text-gold" aria-hidden="true">→</span>
+              See inside
+              <span class="text-gold" aria-hidden="true">↓</span>
             </a>
           )}
+          <a
+            href={data.etsyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 border border-rule-strong text-navy px-5 py-3 rounded-md no-underline text-ui hover:border-gold transition-colors"
+          >
+            Buy on Etsy
+            <span class="text-gold" aria-hidden="true">→</span>
+          </a>
         </div>
       </div>
     </div>
@@ -124,29 +133,49 @@ const title = `${data.title} — ${data.sku} — The STR Ledger`;
       <section id="buy" class="mt-9 border-t border-rule pt-7">
         <h2 class="font-serif text-h2 text-navy">Get the workbook</h2>
         <p class="mt-3 text-body text-ink-2 leading-relaxed">
-          Format: Excel .xlsx + how-to PDF. Excel 2016+, Excel 365, Google Sheets compatible. Instant download after checkout. 14-day refund, no questions.
+          Format: Excel .xlsx + how-to PDF. Excel 2016+, Excel 365, Google Sheets compatible. Instant download after checkout. 14-day refund, no questions. Lifetime updates within v1.
         </p>
-        {data.paymentUrl ? (
-          <a
-            href={data.paymentUrl}
-            class="mt-5 inline-flex items-center gap-2 bg-navy text-parchment px-5 py-3 rounded-md no-underline text-ui hover:bg-navy-tint transition-colors"
-            data-sku={data.sku}
-            data-stripe-product-id={data.stripeProductId}
-            data-stripe-price-id={data.stripePriceId}
-            rel="noopener"
-          >
-            Buy {data.sku} — ${data.price}
-            <span class="text-gold" aria-hidden="true">→</span>
-          </a>
-        ) : (
+        <div class="mt-5 flex flex-wrap gap-3">
+          {data.paymentUrl ? (
+            <a
+              href={data.paymentUrl}
+              class="inline-flex items-center gap-2 bg-navy text-parchment px-5 py-3 rounded-md no-underline text-ui hover:bg-navy-tint transition-colors"
+              data-sku={data.sku}
+              data-stripe-product-id={data.stripeProductId}
+              data-stripe-price-id={data.stripePriceId}
+              rel="noopener"
+            >
+              Buy {data.sku} — ${data.price}
+              <span class="text-gold" aria-hidden="true">→</span>
+            </a>
+          ) : (
+            <a
+              href={data.etsyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 bg-navy text-parchment px-5 py-3 rounded-md no-underline text-ui hover:bg-navy-tint transition-colors"
+            >
+              Buy on Etsy — ${data.price}
+              <span class="text-gold" aria-hidden="true">→</span>
+            </a>
+          )}
+          {data.paymentUrl && (
+            <a
+              href={data.etsyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 border border-rule-strong text-navy px-5 py-3 rounded-md no-underline text-ui hover:border-gold transition-colors"
+            >
+              Or buy on Etsy
+            </a>
+          )}
           <a
             href={`mailto:hello@thestrledger.com?subject=Order%20${data.sku}`}
-            class="mt-5 inline-flex items-center gap-2 bg-navy text-parchment px-5 py-3 rounded-md no-underline text-ui hover:bg-navy-tint transition-colors"
+            class="inline-flex items-center gap-2 border border-rule-strong text-navy px-5 py-3 rounded-md no-underline text-ui hover:border-gold transition-colors"
           >
-            Order {data.sku} — ${data.price}
-            <span class="text-gold" aria-hidden="true">→</span>
+            Email us instead
           </a>
-        )}
+        </div>
       </section>
     </div>
   </article>

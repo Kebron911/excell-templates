@@ -40,6 +40,22 @@ const products = defineCollection({
       .default([]),
     pitch: z.string().optional(),
     inside: z.array(z.string()).default([]),
+    /**
+     * Etsy shop URL for this SKU. Live thestrledger.com surfaces a
+     * "Buy on Etsy" button on every product card + detail page. Defaults
+     * to the shop root if not overridden per-SKU.
+     */
+    etsyUrl: z.string().url().default('https://www.etsy.com/shop/TheSTRLedger'),
+    /**
+     * Optional flag for the "Wave 1" homepage feature on live. Used by
+     * the homepage to surface the launch cluster.
+     */
+    wave: z.enum(['1', '2', '3']).optional(),
+    /**
+     * Optional flag to feature this SKU in the homepage hero block.
+     * Live thestrledger.com features TAX-004 in the hero today.
+     */
+    featured: z.boolean().default(false),
   }),
 });
 
