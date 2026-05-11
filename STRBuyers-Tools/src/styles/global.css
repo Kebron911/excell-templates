@@ -113,4 +113,41 @@
   }
 
   .prose { max-width: 680px; }
+  .prose > * + * { margin-top: var(--sp-4); }
+  .prose p { margin-top: var(--sp-4); line-height: 1.65; }
+  .prose h2 { margin-top: var(--sp-7); margin-bottom: var(--sp-3); }
+  .prose h3 { margin-top: var(--sp-6); margin-bottom: var(--sp-2); }
+  .prose h4 { margin-top: var(--sp-5); margin-bottom: var(--sp-2); }
+  .prose ul, .prose ol { margin-top: var(--sp-4); padding-left: var(--sp-5); }
+  .prose ul { list-style: disc; }
+  .prose ol { list-style: decimal; }
+  .prose li { margin-top: var(--sp-2); line-height: 1.6; }
+  .prose li > p { margin-top: var(--sp-2); }
+  .prose blockquote {
+    margin-top: var(--sp-5);
+    padding-left: var(--sp-4);
+    border-left: 3px solid var(--brand-gold);
+    color: var(--fg-2);
+    font-style: italic;
+  }
+  .prose pre {
+    margin-top: var(--sp-5);
+    padding: var(--sp-4);
+    background: var(--bg-calc-surface);
+    border: var(--border-hairline);
+    border-radius: var(--r-2);
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .prose :not(pre) > code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    padding: 2px 6px;
+    background: var(--bg-calc-surface);
+    border-radius: var(--r-1);
+  }
+  .prose hr { margin: var(--sp-7) 0; border: 0; border-top: 1px solid var(--brand-gold); width: 48px; }
+  .prose strong { font-weight: 600; color: var(--brand-navy); }
 }
