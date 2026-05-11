@@ -218,6 +218,122 @@ Automation failure log — every broken n8n workflow run posts here.
 
 ---
 
+## Table 7: Identity (Daniel + The STR Ledger)
+
+Single-row table. Source of truth for everything that goes on profile pages, schema markup, HARO/Featured pitches, embed badges. W42 reads this and re-publishes whenever a field changes.
+
+| Field name | Type | Options / Notes |
+|---|---|---|
+| `id` | Single line text (Primary) | Always `"primary"` — enforce single-row via Airtable formula |
+| `version` | Autonumber | Increments on every change; W42 uses this as the cache-key |
+| `name_legal` | Single line text | "Daniel Harrison" |
+| `name_brand` | Single line text | "The STR Ledger" |
+| `bio_short` | Long text | ≤160 chars — Crunchbase, Trustpilot one-liner |
+| `bio_long` | Long text | ≤500 chars — LinkedIn, About.me, About page |
+| `tagline` | Single line text | "Business-grade Excel financial systems for STR hosts" |
+| `headshot_url` | URL | 1000×1000 minimum, hosted on Hostinger or Vista |
+| `logo_url_square` | URL | 1024×1024 |
+| `logo_url_wide` | URL | 1200×630 OG-card size |
+| `product_count` | Number | Current SKU count — auto-rolled from Products table count |
+| `sameAs` | Long text | One URL per line — LinkedIn, X, GitHub, YouTube, Pinterest, Substack, Medium, Crunchbase — feeds JSON-LD `sameAs` array |
+| `expert_topics` | Multiple select | STR taxation, Schedule E vs C, material participation, 14-day rule, cost-seg, Airbnb bookkeeping, multi-property STR finance, STR market trends, tax-season survival, cleaning automation, dynamic pricing |
+| `domain_primary` | URL | "https://thestrledger.com" |
+| `domain_blog` | URL | "https://blog.thestrledger.com" |
+| `last_reviewed` | Date | Updated when Daniel manually verifies the record is current |
+| `notes` | Long text | Anything not covered above |
+
+**Single-row enforcement:** Airtable formula field `Validate` = `IF({id} = "primary", "✓", "❌ id must be 'primary'")`. Visible in row, blocks accidental duplicates.
+
+---
+
+## Table 8: Citations
+
+Profile + directory backlinks earned in Phase 0 sprints. Source of truth for `ops/citations.yaml` (n8n syncs both directions). W42 reads `state=live` rows on Identity-change events.
+
+| Field name | Type | Options / Notes |
+|---|---|---|
+| `Platform` | Single line text (Primary) | "Crunchbase", "LinkedIn Company Page", etc. |
+| `Tier` | Single select | T1 (Universal trust), T2 (STR-niche), T3 (Founder brand) |
+| `URL` | URL | Live profile URL |
+| `State` | Single select | pending, live, stale, broken |
+| `Last_refresh` | Date | Last successful sync or manual update |
+| `Bio_version` | Number | Matches Identity.version at last sync — n8n diffs to detect needed refresh |
+| `Has_write_api` | Checkbox | Whether n8n can PATCH it; false routes to manual Slack queue |
+| `Notes` | Long text | "API integration unlocks deeper listing", "submit free template", etc. |
+
+---
+
+## Table 9: Outreach Queue
+
+Used by W21 + W34 (unlinked-mention reclaim). State machine: New → Drafted → AwaitingApproval → Approved → Sent → Replied | Declined | Skip.
+
+| Field name | Type | Options / Notes |
+|---|---|---|
+| `Email` | Email (Primary) | Lowercased; unique |
+| `Name` | Single line text | |
+| `Website` | URL | Source page or publisher domain |
+| `Context` | Long text | Why this prospect — for W21 it's ScrapeBox enrichment; for W34 it's the unlinked-mention paragraph |
+| `Source` | Single select | scrapebox-csv, unlinked-mention-reclaim, broken-link-prospect, founder-podcast, other |
+| `Source_file` | Single line text | CSV file ID (W21) or mention URL (W34) |
+| `Mention_url` | URL | Where the unlinked mention lives (W34 only) |
+| `Mention_paragraph` | Long text | Excerpt that mentions us (W34 only) |
+| `Draft_subject` | Single line text | Claude-drafted; Daniel edits |
+| `Draft_body` | Long text | Claude-drafted; Daniel edits |
+| `Draft_reasoning` | Long text | Why Claude chose this angle — not sent, just for review |
+| `Status` | Single select | New, Drafted, AwaitingApproval, Approved, Sent, Replied, Declined, Skip |
+| `Imported_at` | Date & time | |
+| `Drafted_at` | Date & time | |
+| `Sent_at` | Date & time | |
+| `Replied_at` | Date & time | |
+| `Reply_payload` | Long text | Truncated reply body for context |
+| `Instantly_response` | Long text | Truncated send response |
+| `Owner` | Single line text | Default "Daniel" |
+
+---
+
+## Table 10: Expert Library
+
+Quotable case studies, data points, anonymized client outcomes. Loaded into Claude system prompts for W35 (Featured/Qwoted responder, when activated). Each entry is a self-contained 50–80 word block.
+
+| Field name | Type | Options / Notes |
+|---|---|---|
+| `Title` | Single line text (Primary) | "Schedule E vs C decision tree" |
+| `Topic` | Multiple select | (same options as Identity.expert_topics) |
+| `Quote_body` | Long text | The 50–80 word quotable block — must stand alone |
+| `Numbers_cited` | Single line text | "Saved $4,800 on cost-seg", "27% of hosts misclassify" — concrete numbers anchor the quote |
+| `Source` | Single line text | "Anonymized client X", "2024 client engagement", "Industry data — AirDNA Q3 2025" |
+| `Permission` | Single select | named, anonymized, embargoed, public-data-only |
+| `Times_cited` | Number | Auto-increment on each successful Featured placement that used this block |
+| `Last_cited` | Date | |
+| `Notes` | Long text | Caveats, regulatory carve-outs, audience-fit notes |
+
+**Pre-flight for tax season** (per `ops/runbooks/phase-0-citation-sprints.md` and `docs/backlink-automation-plan.md`):
+- Jan 12 each year: 8+ Expert Library blocks loaded
+- Each must cite a specific dollar outcome or counterintuitive statistic
+- Each must hold up under journalist fact-checking
+- Anonymized > Named (named requires written customer permission)
+
+---
+
+## Table 11: Mentions
+
+Detected brand mentions across the web. Written by W34 (unlinked-mention watcher) and W6/placement tracker. Used to compute reclaim conversion rate and identify amplification candidates.
+
+| Field name | Type | Options / Notes |
+|---|---|---|
+| `Mention_url` | URL (Primary) | The page mentioning us |
+| `Outlet` | Single line text | Domain or publication name |
+| `Mention_paragraph` | Long text | Excerpt — first 800 chars of context |
+| `Detected_at` | Date & time | When W34 found it |
+| `Source` | Single select | google-alerts, brand24, serpapi, reddit, hn, manual |
+| `Has_link` | Checkbox | Whether mention is already linked to thestrledger.com |
+| `Outreach_record_id` | Link → Outreach Queue | Set after W34 drafts reclaim ask |
+| `Link_added_at` | Date | Set when the publisher adds the link |
+| `Tier` | Single select | T1 (Forbes/Inc/WSJ/NYT/Skift), T2 (BiggerPockets/RentalScaleUp), T3 (niche blog), T4 (forum/social) |
+| `Notes` | Long text | |
+
+---
+
 ## Populate on Day 1
 
 As soon as Claude MCP is connected, Claude populates:
@@ -260,6 +376,7 @@ Seeded from `copy/blog-posts/content-plan.md` and upcoming pin catalog.
 When anyone modifies schema, record it here with date and reason. This is the audit log.
 
 - `2026-04-22` — Schema drafted (this document)
+- `2026-05-11` — Added Tables 7–11 for Traffic Engines (W41–W45): Identity (single-row, source of truth for profile pushes), Citations (mirrors `ops/citations.yaml`), Outreach Queue (shared by W21 + W34), Expert Library (W35 quotable blocks for Featured/Qwoted), Mentions (W34 detection log). See `docs/backlink-automation-plan.md` + `docs/decisions/2026-05-11-traffic-first-philosophy.md`.
 - (future entries as schema evolves)
 
 ---
