@@ -1,6 +1,7 @@
 ---
 import Layout from '@/components/AppLayout.astro';
-import Sidebar from '@/components/AppSidebar.astro';
+import Sidebar from '@str/ui-chrome/AppSidebar.astro';
+import { sidebarItems } from '@/data/sidebar-items';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
@@ -128,7 +129,7 @@ const faq = buildFAQPage([
 
     <AdSlot siteConfig={siteConfig} location="footer" />
 
-    <Sidebar siteConfig={siteConfig} current="check-in-instructions" />
+    <Sidebar siteConfig={siteConfig} items={sidebarItems} current="check-in-instructions" />
   </article>
 
   <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="guest-xp" />
