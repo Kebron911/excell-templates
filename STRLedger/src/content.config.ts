@@ -9,6 +9,17 @@ const products = defineCollection({
     sku: z.string(),
     description: z.string(),
     price: z.number().positive(),
+    /**
+     * Stripe Checkout payment-link URL. When present, the product page renders the live
+     * Stripe buy button; absent values fall back to a mailto: order link so a missing
+     * Stripe wire doesn't break the page. Source-of-truth: ops/stripe-import-live-results.csv
+     * (synced by scripts/strledger-sync-stripe-products.mjs).
+     */
+    paymentUrl: z.string().url().optional(),
+    stripeProductId: z.string().optional(),
+    stripePriceId: z.string().optional(),
+    /** 'sku' for individual templates, 'bundle' for multi-SKU packs. */
+    kind: z.enum(['sku', 'bundle']).default('sku'),
     image: z.string().optional(),
     gtin: z.string().optional(),
     category: z.string().optional(),

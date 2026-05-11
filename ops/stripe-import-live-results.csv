@@ -1,0 +1,67 @@
+sku,kind,name,price_usd,product_id,price_id,payment_url
+ACQ-001,sku,STR Deal Analyzer (Lite),47,prod_UUuaNQzkSTBijL,price_1TVuljFz8hgT5NXgnmoyPWbA,https://buy.stripe.com/fZuaEXccR8tSeh33TJb3q01
+ACQ-002,sku,Cost-to-Launch Calculator,27,prod_UUuaeDoclYQyXt,price_1TVulkFz8hgT5NXgHnidlu58,https://buy.stripe.com/5kQ9AT4Kp6lKeh361Rb3q02
+ACQ-003,sku,Rental Arbitrage Analyzer,47,prod_UUuavDXRJmWw5l,price_1TVullFz8hgT5NXglfIySqQH,https://buy.stripe.com/dRm7sLdgV25u7SFgGvb3q03
+ACQ-004,sku,3-Property Side-by-Side Comparison,27,prod_UUuaPsOLRdIWFR,price_1TVullFz8hgT5NXgBbdLXVvl,https://buy.stripe.com/3cI14n4Kp7pO3CpfCrb3q04
+ACQ-005,sku,AirDNA Data Integrator,27,prod_UUuanGY5XEsDLG,price_1TVulmFz8hgT5NXgRvlwHgRd,https://buy.stripe.com/aFadR90u9bG4c8V75Vb3q05
+ACQ-006,sku,Rehab Budget + ROI Projection,27,prod_UUua5ve7M3BZ2i,price_1TVulnFz8hgT5NXgtMTkbuWl,https://buy.stripe.com/aFaeVddgV4dC8WJgGvb3q06
+ACQ-007,sku,Furniture / Setup Budget Calculator,27,prod_UUuajHG9z2aBZu,price_1TVulnFz8hgT5NXgb8rKEFC4,https://buy.stripe.com/6oU4gzfp3eSggpb0Hxb3q07
+ACQ-008,sku,5-Year Pro Forma Builder,47,prod_UUubY0d7aN39KR,price_1TVuloFz8hgT5NXg1j6aecD8,https://buy.stripe.com/dRm7sLb8N39y7SFdujb3q08
+ACQ-009,sku,BRRRR-to-STR Refi Math,47,prod_UUubFA0jyfImwN,price_1TVulpFz8hgT5NXg3XQkRspo,https://buy.stripe.com/fZu14na4JdOcdcZcqfb3q09
+ACQ-010,sku,Seller-Finance Offer Calculator,27,prod_UUub6VGQCHOA0k,price_1TVulqFz8hgT5NXgDGSG1aUD,https://buy.stripe.com/28E6oH4Kp11q3Cpai7b3q0a
+ACQ-011,sku,1031 Exchange Tracker,47,prod_UUubAkTd2dmGxQ,price_1TVulqFz8hgT5NXgF9O88rwA,https://buy.stripe.com/dRm7sL2Ch4dC1uhbmbb3q0b
+ACQ-012,sku,STR vs LTR Yield Comparison,27,prod_UUub7CLGhBT6ZP,price_1TVulrFz8hgT5NXg9Q2GGAXY,https://buy.stripe.com/3cI8wP5OteSgeh3ai7b3q0c
+FIN-002,sku,Break-even Occupancy Calculator,17,prod_UUubV1s4WCG59d,price_1TVulsFz8hgT5NXgDAl7KPw7,https://buy.stripe.com/00w9ATfp38tS6OB0Hxb3q0d
+FIN-003,sku,12-Month Cash Flow Forecaster,47,prod_UUubovehqVpsmK,price_1TVultFz8hgT5NXgWNTC8KQv,https://buy.stripe.com/9B67sLekZ8tSb4R0Hxb3q0e
+FIN-004,sku,DSCR Tracker,27,prod_UUubLpWd8JYvW9,price_1TVuluFz8hgT5NXgLj5uNiEA,https://buy.stripe.com/5kQ3cvfp3eSg2ylbmbb3q0f
+FIN-005,sku,Year-Over-Year P&L Comparison,27,prod_UUubS2oj4zITwc,price_1TVuluFz8hgT5NXgwKqgv0vS,https://buy.stripe.com/6oU4gzfp3eSg5Kxcqfb3q0g
+FIN-006,sku,Multi-Entity Consolidated P&L,47,prod_UUubTSbY48uyfo,price_1TVulvFz8hgT5NXgI9ehNOSj,https://buy.stripe.com/28EaEXgt7cK8gpb0Hxb3q0h
+FIN-007,sku,Partnership Distribution Tracker,47,prod_UUub2VuoTi87XV,price_1TVulwFz8hgT5NXg2wVFzVIi,https://buy.stripe.com/cNieVd0u94dC2yleynb3q0i
+GST-001,sku,Airbnb Welcome Book Template,17,prod_UUuUES9uuBthvf,price_1TVuf3Fz8hgT5NXg1gqNP8q8,https://buy.stripe.com/bJe4gzccR5hGa0N75Vb3q00
+GST-002,sku,House Rules Builder,17,prod_UUubsAqEcckyzT,price_1TVulxFz8hgT5NXgixQ0IZqU,https://buy.stripe.com/9B68wPgt739ygpb9e3b3q0j
+GST-003,sku,Pet Policy Document Builder,17,prod_UUubbUdoze3FWa,price_1TVulyFz8hgT5NXgXO2258vB,https://buy.stripe.com/3cI8wPb8N5hGdcZfCrb3q0k
+LGL-001,sku,STR License Renewal Calendar,17,prod_UUuby87M2dNiAE,price_1TVulzFz8hgT5NXgcQs8Gciq,https://buy.stripe.com/8x27sLa4J39yb4R2PFb3q0l
+LGL-002,sku,TOT Filing Calendar,27,prod_UUub6DodntXYUE,price_1TVulzFz8hgT5NXgsoSiUj8h,https://buy.stripe.com/14A14nccR11qfl775Vb3q0m
+LGL-003,sku,Guest Screening Log + Ban List,17,prod_UUubtF47H25g7j,price_1TVum0Fz8hgT5NXg60H7E0h4,https://buy.stripe.com/aFacN5b8NeSgc8Vcqfb3q0n
+LGL-004,sku,Insurance Claim Log,17,prod_UUubUzIY9bpafN,price_1TVum1Fz8hgT5NXg938bLKPg,https://buy.stripe.com/bJefZha4Jh0oc8VgGvb3q0o
+MKT-001,sku,Listing SEO Audit,47,prod_UUub5Um5v58rpO,price_1TVum1Fz8hgT5NXgfEpFWgDU,https://buy.stripe.com/28E9AT7WBdOc5Kxdujb3q0p
+MKT-002,sku,Review Response Tracker,17,prod_UUubVqUAgkwOvU,price_1TVum3Fz8hgT5NXgW8huayU5,https://buy.stripe.com/dRm00j90FeSgc8Vbmbb3q0q
+MKT-003,sku,Referral + Repeat Guest CRM,27,prod_UUubWKhGJUoB8I,price_1TVum4Fz8hgT5NXgepyFk0QQ,https://buy.stripe.com/4gM7sLekZ39y8WJ3TJb3q0r
+OPS-001,sku,Cleaner Turnover Checklist + Scorecard,17,prod_UUubCrLT5vk4W3,price_1TVum4Fz8hgT5NXgXo9glxD4,https://buy.stripe.com/4gMfZh5Ot6lK0qd2PFb3q0s
+OPS-003,sku,License/Permit/STR-Reg Tracker,47,prod_UUubB0Rd70Bx7k,price_1TVum5Fz8hgT5NXgbMXhqU56,https://buy.stripe.com/7sY00j90FfWk1uh0Hxb3q0t
+OPS-004,sku,Cleaning Cost per Turnover Tracker,17,prod_UUubQ2MoIn4V5H,price_1TVum6Fz8hgT5NXg4ru3ToO8,https://buy.stripe.com/aFa28r5Oth0o0qd0Hxb3q0u
+OPS-005,sku,Supply Inventory + Par-Level Restock Calculator,17,prod_UUubUQmN3nWrgH,price_1TVum7Fz8hgT5NXgsiFrHV95,https://buy.stripe.com/eVqcN590FeSg5Kxai7b3q0v
+OPS-006,sku,Maintenance Log + Vendor CRM,27,prod_UUubtXRG2P6UuO,price_1TVum7Fz8hgT5NXgfatQcEIl,https://buy.stripe.com/4gM8wPdgV4dC5Kx2PFb3q0w
+OPS-007,sku,Utility Usage + Trend Tracker,17,prod_UUubvKYysxV0vu,price_1TVum8Fz8hgT5NXgDEPam8vq,https://buy.stripe.com/aFafZh4KpfWk0qdfCrb3q0x
+OPS-008,sku,Insurance Policy Tracker,17,prod_UUubjIQtpyt0LM,price_1TVum9Fz8hgT5NXgu59NMFfW,https://buy.stripe.com/eVqeVd6Sx4dCfl7gGvb3q0y
+PAM-002,sku,Cleaner CRM + Payroll,47,prod_UUubFf9y8fczdw,price_1TVumAFz8hgT5NXgvuf95Uoc,https://buy.stripe.com/aFa9ATekZ6lKgpb3TJb3q0z
+PAM-003,sku,Commission / Split Calculator for Co-Hosts,47,prod_UUuba4sJAyIIs6,price_1TVumAFz8hgT5NXgvw3eMOIT,https://buy.stripe.com/eVq9ATb8N4dC0qdai7b3q0A
+PAM-004,sku,Multi-Owner Consolidated Reporting,97,prod_UUubyfwAHndaDo,price_1TVumBFz8hgT5NXgGX6LLNEo,https://buy.stripe.com/bJecN5dgVeSgdcZ1LBb3q0B
+REV-001,sku,Cleaning Fee Optimizer,37,prod_UUubte5TXv9CxI,price_1TVumCFz8hgT5NXgD8ekiBt6,https://buy.stripe.com/8x29AT5Oth0o8WJ3TJb3q0C
+REV-002,sku,Dynamic Pricing Calculator,27,prod_UUubmgCcEF0D4H,price_1TVumDFz8hgT5NXg2w0bDr4V,https://buy.stripe.com/4gM3cv1ydcK8dcZeynb3q0D
+REV-003,sku,Competitor Rate Tracker,27,prod_UUubiYU6bdaUtM,price_1TVumDFz8hgT5NXge8ImVcbJ,https://buy.stripe.com/28E8wPccRbG45Kxai7b3q0E
+REV-004,sku,Minimum-Night-Stay Optimizer,27,prod_UUubtrfseERI3P,price_1TVumEFz8hgT5NXgRQtFgE7u,https://buy.stripe.com/3cIbJ1gt7h0oeh3eynb3q0F
+REV-005,sku,Holiday + Event Pricing Calendar,17,prod_UUubEo9JEAxBnS,price_1TVumFFz8hgT5NXg9yth6YdJ,https://buy.stripe.com/aFaeVddgV4dC6OBai7b3q0G
+REV-006,sku,Pricing Tool ROI Comparison,27,prod_UUubR448Av6DOZ,price_1TVumGFz8hgT5NXgoToVN9bn,https://buy.stripe.com/3cI6oHfp3bG4c8V9e3b3q0H
+SPC-001,sku,Glamping / Unique-Stay P&L,47,prod_UUub4Omxr7Y9SK,price_1TVumHFz8hgT5NXgRjOXX7ok,https://buy.stripe.com/8x26oHccR8tSb4R3TJb3q0I
+SPC-002,sku,Corporate Housing / Travel-Nurse Tracker,27,prod_UUubwvfVdbJmbG,price_1TVumIFz8hgT5NXghaJdjs8t,https://buy.stripe.com/00w9ATa4J9xW7SF75Vb3q0J
+STR-001,sku,Escape the W2 Planner,47,prod_UUubN6uExduzb2,price_1TVumIFz8hgT5NXggTfyU6oK,https://buy.stripe.com/00w7sLccRdOceh34XNb3q0K
+STR-002,sku,Portfolio Valuation Model,47,prod_UUubckTzU2QSVv,price_1TVumJFz8hgT5NXgpcYRBG9e,https://buy.stripe.com/00w7sL0u9fWkfl73TJb3q0L
+STR-003,sku,Refi-or-Sell Decision Matrix,47,prod_UUubjdAQFYiUNb,price_1TVumKFz8hgT5NXgDegsrZPa,https://buy.stripe.com/fZu5kD5OtdOc7SFeynb3q0M
+TAX-001,sku,STR Mileage Log,17,prod_UUubIvU3EF5ajO,price_1TVumKFz8hgT5NXg6we2w2ib,https://buy.stripe.com/28EcN53Gl25u0qd2PFb3q0N
+TAX-002,sku,Single-Property P&L Tracker,47,prod_UUubmkcCg5hZOM,price_1TVumLFz8hgT5NXg61UjQVeS,https://buy.stripe.com/00w3cv4Kph0oeh3gGvb3q0O
+TAX-003,sku,1099-NEC Contractor Tracker,17,prod_UUubxTKObhkEYn,price_1TVumMFz8hgT5NXgHHCk4TW3,https://buy.stripe.com/7sY00jekZeSg1uh0Hxb3q0P
+TAX-004,sku,Schedule E Tax-Prep Workbook,97,prod_UUubhyhVEwoGUC,price_1TVumNFz8hgT5NXgUpCsVdef,https://buy.stripe.com/aFadR9ekZbG43Cpeynb3q0Q
+TAX-005,sku,Quarterly Estimated Tax Calculator,27,prod_UUub3LVCj6yNiF,price_1TVumNFz8hgT5NXgLiq2EitB,https://buy.stripe.com/eVq4gz90F11qfl7fCrb3q0R
+TAX-006,sku,Home Office Deduction Allocator,27,prod_UUubyuqrQgwWHE,price_1TVumOFz8hgT5NXgsW9BUzre,https://buy.stripe.com/3cI7sL4Kp25u1uh9e3b3q0S
+TAX-007,sku,Per-Diem Meal Deduction Tracker,17,prod_UUubyMo8tyK6s1,price_1TVumPFz8hgT5NXgt2M909Rq,https://buy.stripe.com/00wbJ11yd9xW5Kx0Hxb3q0T
+TAX-008,sku,Self-Employment Tax Calculator,27,prod_UUub3qFvS4NPYA,price_1TVumQFz8hgT5NXgAkx8NxAH,https://buy.stripe.com/dRmdR92CheSg6OB1LBb3q0U
+TAX-009,sku,Section 179 Planner,27,prod_UUubxS2DkzdSvA,price_1TVumRFz8hgT5NXgn6TxCUUt,https://buy.stripe.com/00wbJ12ChbG41uh3TJb3q0V
+TAX-010,sku,Cost Segregation DIY Workbook,47,prod_UUubrDRQD7UoYo,price_1TVumRFz8hgT5NXg3SB6rxEm,https://buy.stripe.com/5kQbJ12ChbG42yl89Zb3q0W
+TAX-012,sku,Schedule C Tax Prep Workbook (Active STR),47,prod_UUub2EUIjV8RAj,price_1TVumSFz8hgT5NXgzq2EA5Lt,https://buy.stripe.com/bJe00jdgV8tS5Kxdujb3q0X
+TAX-013,sku,Depreciation Tracker (Full MACRS),47,prod_UUubdcmKPFQkUL,price_1TVumTFz8hgT5NXgvFdyO5df,https://buy.stripe.com/bJe00j6Sx9xW4GtfCrb3q0Y
+BUNDLE-01,bundle,First-Year Host Bundle,97,prod_UUubFbShmYsnnJ,price_1TVumTFz8hgT5NXg11ggx4vN,https://buy.stripe.com/14A28r90F11q4Gt75Vb3q0Z
+BUNDLE-02,bundle,Aspiring Host Bundle,97,prod_UUub2rDkqjnf9X,price_1TVumUFz8hgT5NXgI3MxSIpM,https://buy.stripe.com/7sY4gz90FaC01uhcqfb3q10
+BUNDLE-03,bundle,Year-2 Operator Bundle,147,prod_UUubp767nbWr0X,price_1TVumVFz8hgT5NXgbVOQfdai,https://buy.stripe.com/5kQ3cvgt75hG7SF61Rb3q11
+BUNDLE-04,bundle,Portfolio Bundle,397,prod_UUubgP7ZH5tsA6,price_1TVumWFz8hgT5NXgKjepbt8v,https://buy.stripe.com/4gMfZh1yd11q8WJ89Zb3q12
+BUNDLE-05,bundle,Pro Manager Bundle,497,prod_UUubOnGkZcbdF2,price_1TVumXFz8hgT5NXggCJTBIXq,https://buy.stripe.com/dRmfZh6Sx25u2yl9e3b3q13
