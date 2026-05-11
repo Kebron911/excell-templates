@@ -1,60 +1,82 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
+import Sidebar from '@/components/chrome/Sidebar.astro';
+import AdSlot from '@/components/ads/AdSlot.astro';
 import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import AiRateLimitNotice from '@/components/generator/AiRateLimitNotice.astro';
+import GuestMessageGenerator from '@/components/generators/GuestMessageGenerator.tsx';
+import { buildWebApplication, buildFAQPage } from '@/lib/seo';
 import tools from '@/data/tools.json';
 
 const tool = tools['guest-messages'];
 const path = tool.path;
+
+const webApp = buildWebApplication({ name: tool.name, description: tool.tagline, toolPath: path });
+const faq = buildFAQPage([
+  {
+    question: 'Why are there {{guestFirstName}} placeholders in the output?',
+    answer: 'They\'re Mustache-style placeholders the host swaps when pasting into Airbnb / VRBO. Same convention as our 26 starter templates at /templates — lets you reuse the message across multiple bookings without re-editing.',
+  },
+  {
+    question: 'Does it match the four-moment cadence (booking, pre-arrival, mid-stay, post-checkout)?',
+    answer: 'Yes — those are the stage toggles. The pre-arrival stage assumes a 2–3 day lead time; mid-stay assumes day 2 of the booking. Tweak the context field if your cadence differs.',
+  },
+  {
+    question: 'Can I use this for scenario messages like late checkout requests or refund replies?',
+    answer: 'For the four core moments, this generator is faster. For scenario edge cases (late checkout, noise complaint, broken item, refund request), use the scenario library at /templates — those are hand-curated.',
+  },
+]);
 ---
 <Layout
-  title="Airbnb Guest Message Generator — Free AI Tool · strguests.tools"
-  description="Booking confirmation, pre-arrival, mid-stay, and post-checkout messages — AI-customized for your property and tone. Coming when the serverless layer ships."
+  title={`${tool.name} — strguests.tools`}
+  description={tool.tagline}
   path={path}
+  jsonLd={[webApp, faq]}
 >
-  <article class="generator-page mx-auto max-w-3xl px-5 py-12">
+  <article class="generator-page mx-auto max-w-6xl px-5 py-8">
     <header>
-      <p class="label text-[color:var(--accent-700)]">AI generator · Coming soon</p>
+      <p class="label text-[color:var(--accent-700)]">AI generator · gpt-4o-mini</p>
       <h1 class="mt-2 font-serif text-h1 text-navy">
-        Guest Message Generator<span class="period-accent">.</span>
+        Guest Message Templates<span class="period-accent">.</span>
       </h1>
       <p class="mt-3 text-lead text-ink-2 max-w-2xl leading-snug">
-        Booking confirmation, pre-arrival, mid-stay, check-out, post-checkout —
-        AI-customized from the 26 hand-written templates in our library, in
-        your property's voice. Coming when the serverless layer ships.
-      </p>
-      <p class="mt-3 text-body text-ink-2 leading-snug">
-        Until then, browse the
-        <a href="/templates/" class="text-[color:var(--accent-700)] hover:underline">26 hand-written templates</a>
-        directly — searchable, filterable, with example inputs and outputs.
+        {tool.tagline} Under 120 words, with placeholder names you can swap per booking.
       </p>
     </header>
 
-    <section class="mt-8 rounded-md surface-gen p-6">
-      <p class="label text-[color:var(--accent-700)]">What it will do</p>
-      <ul class="mt-3 space-y-2 text-body text-graphite leading-relaxed list-disc pl-5">
-        <li>Pick a scenario (late-checkout, noise complaint, cancellation, etc.) — 26 scenarios in the library.</li>
-        <li>Customizes the template with your property name, host name, and tone.</li>
-        <li>Tone toggles: warm, professional, brief, apologetic.</li>
-        <li>Rate-limited — 5/hour without email, 50/day verified.</li>
-      </ul>
+    <AiRateLimitNotice toolSlug="guest-messages" />
+
+    <section class="mt-7">
+      <GuestMessageGenerator client:load />
     </section>
 
-    <section class="mt-9">
-      <EmailCaptureCard
-        magnet="message-template-bundle"
-        toolSlug="guest-messages"
-        headline="Email me when the message generator ships"
-        blurb="One email when the AI generator goes live. You'll also get the editable bundle of all 26 templates — same list, no spam."
-        cta="Email me when it ships"
-      />
+    <AdSlot location="in-content" />
+
+    <section class="mt-9 prose">
+      <h2 class="font-serif text-h2 text-navy">Why the four-moment cadence works</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        Booking confirmation, pre-arrival, mid-stay, post-checkout — four moments where a single short message dramatically lifts review scores without crossing into "over-communicating." See <a href="/blog/guest-message-cadence-pre-arrival-to-checkout">the cadence essay</a> for the timing rationale.
+      </p>
     </section>
 
     <RelatedPosts toolKey="guest-messages" />
 
+    <EmailCaptureCard
+      magnet="guest-messages"
+      toolSlug="guest-messages"
+      headline="Manage multiple properties?"
+      blurb="Verify your email for 50 generations/day instead of 5/hour. Speeds up the booking-confirmation flow across a portfolio."
+      cta="Send the verify link"
+    />
+
     <STRLedgerCTA tool="guest-messages" />
+
+    <AdSlot location="footer" />
+
+    <Sidebar current="guest-messages" />
   </article>
 
   <ClusterFunnelBlock currentCluster="guest-xp" />

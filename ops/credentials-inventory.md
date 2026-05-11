@@ -1,13 +1,15 @@
 # Credentials Inventory
 
 > Secrets never appear in this file. This is the map of where each secret lives.
+>
+> **Index lives at `CREDENTIALS.md` (repo root).** Read that file first for `.env` paths. This file = account-level / 2FA / vault-storage metadata.
 
 | Tool | URL | Account / Owner | 2FA | Secret storage | Notes |
 |---|---|---|---|---|---|
 | **Vaultwarden** (self-hosted) | (fill in your instance URL) | Daniel | ✅ required | Self-hosted server + monthly encrypted export to Google Drive `backups/vaultwarden/` | Master vault. If this dies, every other credential is inaccessible. Backup/DR plan: `docs/runbooks/disaster-recovery.md` §Scenario 6. |
 | GitHub | github.com/Kebron911 | Kebron911 | ✅ | Vaultwarden | gh CLI authenticated |
 | Airtable | airtable.com | (pending) | pending | Vaultwarden + MCP env | PAT to be created for MCP |
-| Influencersoft | (pending) | (pending) | pending | Vaultwarden | LTD license owned |
+| Influencersoft | kebron.influencersoft.com | Kebron | pending | `./.env` → `INFLUENCERSOFT_API_KEY` + Vaultwarden | LTD license owned. Tenant subdomain `kebron`. API base = `https://kebron.influencersoft.com/api/<Method>` (PascalCase). Live probe 2026-05-11 confirmed `GetAllGroups` + `GetGoods` return 200 OK. |
 | Stripe | dashboard.stripe.com | (pending) | pending | Vaultwarden + IS | Stripe Tax enabled |
 | Ghost | (pending host) | (pending) | pending | Vaultwarden | Subdomain blog.thestrledger.com |
 | Google Workspace | admin.google.com | (pending) | pending | Vaultwarden | Used for backups + custom email |
