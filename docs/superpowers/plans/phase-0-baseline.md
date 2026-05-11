@@ -285,7 +285,7 @@ These are the actual resolved versions at baseline — useful for post-upgrade d
 
 | App | Astro | Vitest | Build | Unit tests | E2E | Notes |
 |---|---|---|---|---|---|---|
-| STROps-Tools | 6.3.1 (was 4.16.19) | 2.1.9 (was 2.1.9) | PASS (104 pages) | 34/34 | 24/24 | Content collections + render() migrated |
+| STROps-Tools | 6.3.1 (was 4.16.19) | 2.1.9 (unchanged) | PASS (104 pages) | 34/34 | 24/24 | Content collections + render() migrated |
 | STRGuests-Tools | 6.3.1 (unchanged) | 2.1.9 (was 1.6.1) | PASS (41 pages) | 129/129 | not run | vitest only |
 | STRBuyers-Tools | 6.3.1 (unchanged) | 2.1.9 (was 1.6.1) | PASS (232 pages) | 84/84 + 7/7 server | not run | vitest only |
 | STRHost-Tools | 6.2.2 (unchanged) | 2.1.9 (was 1.6.1) | PASS (69 pages) | 73/73 | not run | vitest only |
@@ -300,6 +300,9 @@ These are the actual resolved versions at baseline — useful for post-upgrade d
 
 **Known follow-ups for Phase 1:**
 - pnpm workspace walk-up: parent repo's `pnpm-workspace.yaml` causes `pnpm install` to walk up unless `--ignore-workspace` is used. Phase 1 will create a worktree-level `pnpm-workspace.yaml` that explicitly lists only the 4 apps under this tree, eliminating the issue.
+- `packageManager` drift: STROps declares `pnpm@10.0.0`; STRGuests/STRBuyers/STRHost declare `pnpm@9.6.0`. Pre-existing (not introduced by Phase 0) but must align before workspace creation or corepack will reject installs. Phase 1 must pick one version and reconcile all 4 apps.
 - @astrojs/tailwind 6.0.2 has a peer-dep warning about Astro 6.x being outside its declared range (^3-5). Cosmetic only; package functions correctly. Will resolve when @astrojs/tailwind ships an updated peer range.
+- Test coverage gap: `STROps-Tools/src/pages/blog/index.astro` derives slugs via `.map(p => ({ slug: p.id.replace(/\.mdx?$/, ''), ...p.data }))` but is not covered by any e2e spec. Add a `blog.spec.ts` asserting at least one `<a href="/blog/...">` link renders, to prevent silent regressions.
+- Intentional broken-build commit: `c8be57c` (Astro dep bump) deliberately leaves the build broken; the next 2 commits complete the migration. If Phase 1 enables per-commit branch-protection CI, gate it to branch tip only — bisect-style green-per-commit checks would block this commit.
 
 Phase 0 done. Ready for Phase 1: workspace + Tier 1 packages.
