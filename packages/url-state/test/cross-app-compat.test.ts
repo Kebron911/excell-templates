@@ -44,14 +44,14 @@ describe('cross-app compat: STRGuests/STRBuyers/STRHost wire format (booleans 1/
   });
 
   it('serialize() emits booleans as 1/0 (STRGuests/STRBuyers/STRHost wire format)', () => {
-    const qs = serialize({ isPet: true, hasPool: false }, { isPet: false, hasPool: false });
+    const qs = serialize({ isPet: true, hasPool: false } as Record<string, boolean>, { isPet: false, hasPool: false });
     expect(qs).toContain('isPet=1');
     // hasPool matches default → omitted
     expect(qs).not.toContain('hasPool');
   });
 
   it('serialize() omits values matching defaults', () => {
-    const defaults = { price: 0, beds: 1, isPet: false };
+    const defaults: Record<string, number | boolean> = { price: 0, beds: 1, isPet: false };
     const qs = serialize({ price: 500000, beds: 1, isPet: false }, defaults);
     expect(qs).toContain('price=500000');
     expect(qs).not.toContain('beds');
@@ -165,7 +165,7 @@ describe('cross-app compat: lenient boolean decoding works for both APIs', () =>
 describe('cross-app compat: shared URLs decode correctly across sites', () => {
   it('URL serialized by STRBuyers (1/0 booleans) decodes correctly via STROps-style decodeState', () => {
     // STRBuyers-style encode via serialize (1/0 booleans, defaults-filtered)
-    const qs = serialize({ isPet: true, beds: 3 }, { isPet: false, beds: 0 });
+    const qs = serialize({ isPet: true, beds: 3 } as Record<string, number | boolean>, { isPet: false, beds: 0 });
     expect(qs).toContain('isPet=1'); // confirm wire format
 
     // STROps-style decode via decodeState (lenient, accepts 1 as true)
