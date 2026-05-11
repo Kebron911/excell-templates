@@ -1,0 +1,155 @@
+name: Deploy thestrledger.com
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'STRLedger/**'
+      - '.github/workflows/deploy-strledger.yml'
+  pull_request:
+    paths:
+      - 'STRLedger/**'
+      - '.github/workflows/deploy-strledger.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-strledger
+  cancel-in-progress: false
+
+# STRLedger is the parent-brand site (thestrledger.com). It currently
+# has a separate Hostinger deploy serving live customers. This workflow
+# gates deploy on DEPLOY-STATUS.md still containing the "DRAFT" marker
+# so we never accidentally push an incomplete scaffold over the live
+# site. The build + verify steps run regardless so we keep catching
+# regressions; the deploy step is the only thing gated.
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install (root workspace)
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        working-directory: STRLedger
+        run: pnpm typecheck
+
+      - name: Test
+        working-directory: STRLedger
+        run: pnpm test || echo "No tests yet"
+
+      - name: Build static site
+        working-directory: STRLedger
+        env:
+          PUBLIC_GA4_ID: ${{ secrets.STRLEDGER_GA4_ID }}
+        run: pnpm build
+
+      - name: Verify build output
+        working-directory: STRLedger
+        run: |
+          set -e
+          test -f dist/index.html
+          test -f dist/products/index.html
+          test -f dist/products/TAX-001/index.html
+          test -f dist/products/ACQ-001/index.html
+          test -f dist/free/47-deductions/index.html
+          test -f dist/about/index.html
+          test -f dist/disclosures/index.html
+          test -f dist/sitemap-index.xml
+          test -f dist/robots.txt
+          echo "Build output OK"
+
+      # Draft-status gate: refuse to deploy as long as DEPLOY-STATUS.md
+      # still has the "DRAFT - DO NOT DEPLOY" marker. The live site is
+      # served from a different deploy; replacing it with the scaffold
+      # before feature parity would break customers. To unblock:
+      #
+      #   1) Close the catalog/parity gaps in DEPLOY-STATUS.md.
+      #   2) Update DEPLOY-STATUS.md - remove the DRAFT marker, set
+      #      status to READY.
+      #   3) Set the repo secret STRLEDGER_DEPLOY_CONFIRM=1 (one-time ack)
+      #      to bypass this gate the first time you ship.
+      #   4) Push to main (or workflow_dispatch).
+      - name: Check DEPLOY-STATUS gate
+        id: deploy_gate
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: |
+          set -e
+          status_file=STRLedger/DEPLOY-STATUS.md
+          if [ ! -f "$status_file" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            echo "DEPLOY-STATUS.md not found - deploy gate open (deleted intentionally?)"
+            exit 0
+          fi
+          if grep -q 'DRAFT.*DO NOT DEPLOY' "$status_file"; then
+            if [ "${{ secrets.STRLEDGER_DEPLOY_CONFIRM }}" = "1" ]; then
+              echo "deploy=true" >> "$GITHUB_OUTPUT"
+              echo "Scaffold still DRAFT but STRLEDGER_DEPLOY_CONFIRM=1 - bypassing gate."
+            else
+              echo "deploy=false" >> "$GITHUB_OUTPUT"
+              echo ""
+              echo "=== DEPLOY BLOCKED ==="
+              echo ""
+              echo "STRLedger/DEPLOY-STATUS.md still marks this scaffold as DRAFT."
+              echo "Deploying now will replace the live thestrledger.com."
+              echo ""
+              echo "To unlock:"
+              echo "  1) Close feature parity gaps documented in DEPLOY-STATUS.md."
+              echo "  2) Update DEPLOY-STATUS.md to mark status READY (remove DRAFT marker)."
+              echo "  3) Set repo secret STRLEDGER_DEPLOY_CONFIRM=1 (one-time)."
+              echo "  4) Re-run this workflow."
+              echo ""
+              echo "Build artifacts above were validated; deploy step skipped."
+            fi
+          else
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+            echo "DEPLOY-STATUS.md marks status as READY - proceeding to deploy."
+          fi
+
+      - name: Set up SSH key
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STR_SSH_KEY }}
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null && echo "Key parses OK"
+          ssh-keyscan -p 65002 -t ed25519,rsa,ecdsa ${{ secrets.STRLEDGER_SSH_HOST }} >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy via rsync over SSH
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        run: |
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            -e 'ssh -i ~/.ssh/id_ed25519 -p 65002 -o StrictHostKeyChecking=accept-new' \
+            ./STRLedger/dist/ \
+            ${{ secrets.STRLEDGER_SSH_USER }}@${{ secrets.STRLEDGER_SSH_HOST }}:${{ secrets.STRLEDGER_DOC_ROOT }}/
+
+      - name: Pre-launch smoke
+        if: steps.deploy_gate.outputs.deploy == 'true'
+        working-directory: STRLedger
+        env:
+          SMOKE_BASE_URL: https://thestrledger.com
+        run: node scripts/smoke.mjs

@@ -10,7 +10,10 @@
     "astro": "astro",
     "typecheck": "astro check && tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "smoke": "node scripts/smoke.mjs",
+    "deploy": "powershell -ExecutionPolicy Bypass -File scripts/deploy.ps1",
+    "deploy:verify": "powershell -ExecutionPolicy Bypass -File scripts/deploy.ps1 -Verify"
   },
   "dependencies": {
     "@astrojs/mdx": "^5.0.4",

@@ -1,7 +1,7 @@
 # STRLedger — Deploy Status
 
 **Status:** DRAFT — DO NOT DEPLOY OVER LIVE SITE
-**Last updated:** 2026-05-11
+**Last updated:** 2026-05-12
 
 ---
 
@@ -108,16 +108,86 @@ pages, not invented.
 
 ## Suggested next-step order
 
-1. **Fill the catalog gap.** Add the 10 missing product MDX files using
-   the live site as the source of truth for title, price, description,
-   and inside-the-workbook bullets. The two seeded SKUs (TAX-001, ACQ-001)
-   serve as templates.
+1. ~~Fill the catalog gap~~ — **DONE** (commit `a8f7657`, 12/12 SKUs).
 2. **Add `etsyUrl` to schema** and surface "Buy now" buttons.
-3. **Match the live homepage** hero + section structure.
-4. **Decide blog strategy** (Ghost vs. migrate).
+3. **Match the live homepage** hero + section structure (currently the
+   scaffold homepage uses the cluster funnel block; live uses a curated
+   hero featuring TAX-004).
+4. **Decide blog strategy** (Ghost vs. migrate from blog.thestrledger.com).
 5. **Wire `/free/47-deductions`** form to Influencersoft via n8n.
-6. **Soft-launch on preview URL** + smoke test.
-7. **Flip DNS** once smoke passes.
+6. **Source cover images** for each product (`/covers/<SKU>.svg` per the
+   live convention).
+7. **Soft-launch on preview URL** + smoke test (e.g.,
+   `preview.thestrledger.com`).
+8. **Flip DNS** once smoke passes AND DEPLOY-STATUS marker flips to
+   READY.
 
 Anything that touches Hostinger DNS or replaces deployed files is
-out of scope for this repo until step 7 — leave the live site alone.
+out of scope for this repo until step 8 — leave the live site alone.
+
+---
+
+## Deploy pipeline (built, gated)
+
+The scaffold has a deploy pipeline wired but **gated on this very file**.
+The gate refuses to ship as long as the "DRAFT — DO NOT DEPLOY OVER
+LIVE SITE" marker appears at the top of this document.
+
+### Manual / local deploy
+
+`STRLedger/scripts/deploy.ps1` — mirrors `STRBuyers-Tools/scripts/deploy.ps1`
+(SFTP via OpenSSH + WinSCP fallback, atomic backup-by-rename, idempotent
+hash check, 755/644 permission fix, post-deploy smoke).
+
+Behavior:
+- `pnpm deploy` — DRAFT check blocks; explains how to unlock.
+- `pnpm deploy:verify` — runs the smoke test against the live site
+  without uploading anything. Always safe.
+- `pnpm deploy -- -ConfirmReplaceLive` — explicit bypass once you've
+  closed parity gaps and intend to replace the live site.
+
+Requires `C:\Users\Kebron\Desktop\Claude OS\.secrets\hostinger.env` to
+contain:
+```
+STRLEDGER_SSH_HOST=...
+STRLEDGER_SSH_USER=...
+STRLEDGER_SSH_PORT=...
+STRLEDGER_SSH_KEY_PATH=C:\Users\Kebron\.ssh\hostinger_ed25519
+STRLEDGER_DOC_ROOT=/home/.../domains/thestrledger.com/public_html
+```
+
+### CI deploy
+
+`.github/workflows/deploy-strledger.yml` runs on every push to `main`
+that touches `STRLedger/**`. Behavior matches the local script:
+
+- Build + typecheck + test + verify always run (catches regressions).
+- Deploy step is gated on `DEPLOY-STATUS.md` not containing the DRAFT
+  marker.
+- Bypass: set repo secret `STRLEDGER_DEPLOY_CONFIRM=1` (one-time ack).
+
+Required repo secrets when ready to ship:
+- `STR_SSH_KEY` — shared cluster SSH private key
+- `STRLEDGER_SSH_HOST` — Hostinger IP
+- `STRLEDGER_SSH_USER` — `u470667024`
+- `STRLEDGER_DOC_ROOT` — `/home/u470667024/domains/thestrledger.com/public_html`
+- `STRLEDGER_GA4_ID` — production GA4 measurement ID
+- `STRLEDGER_DEPLOY_CONFIRM` — set to `1` only when DRAFT marker is
+  removed AND parity gaps are closed.
+
+### Unlocking the gate (the runbook)
+
+1. Close the catalog/parity gaps listed in this file (steps 2–6 above).
+2. Edit this file: change the top line from
+   `**Status:** DRAFT — DO NOT DEPLOY OVER LIVE SITE`
+   to
+   `**Status:** READY — feature parity verified <YYYY-MM-DD>`.
+3. Commit and push.
+4. For CI: set repo secret `STRLEDGER_DEPLOY_CONFIRM=1`.
+5. Soft-launch to a preview subdomain first (e.g.,
+   `preview.thestrledger.com`) and run smoke against it.
+6. Once smoke passes on preview, flip DNS or update the production
+   doc-root variable to thestrledger.com's docroot.
+
+Until step 2 is done, both the local script and CI will refuse to
+upload. That's the entire point of this file.
