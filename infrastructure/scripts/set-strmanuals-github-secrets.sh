@@ -1,13 +1,40 @@
 #!/usr/bin/env bash
 # set-strmanuals-github-secrets.sh
 #
+# ⚠ KNOWN BUG (2026-05-12) — DO NOT RUN AS-IS ⚠
+# ─────────────────────────────────────────────
+# This script's `gh secret set "$name" --body "$value"` calls silently
+# write 1-char values instead of full secret values (verified by CI diag
+# on 2026-05-12: deployed .env had line lengths of 20 = "KEY=" + 1 char
+# for every secret set by this script). Running it CORRUPTS all 7
+# strmanuals secrets and breaks production deploys.
+#
+# Workaround that DOES work — set each secret individually via printf:
+#   printf 'https://buy.stripe.com/aFa5kD6SxaC00qdeynb3q14' \
+#     | gh secret set STRMANUALS_STRIPE_LINK_TAX_01 --repo Kebron911/excell-templates
+#
+# Suspected cause: --body flag handling in this environment's gh CLI
+# (Windows git-bash + bash 5 + gh 2.x) has a quoting/escaping quirk
+# with array-stored values. printf-piped --body-file (no --body) works
+# reliably.
+#
+# Fix needed: replace the `gh secret set ... --body "$value"` calls in
+# the loop below with `printf '%s' "$value" | gh secret set ...` (no
+# --body flag, value comes via stdin). Then this header warning can
+# be deleted.
+#
+# Until then: USE --check MODE ONLY, or set secrets individually via
+# the printf pattern above.
+# ─────────────────────────────────────────────
+#
 # One-shot bootstrap of every GitHub Actions repo secret the
 # deploy-strmanuals workflow needs. Idempotent — gh secret set
 # overwrites silently if the secret already exists.
 #
 # Usage:
-#   bash infrastructure/scripts/set-strmanuals-github-secrets.sh         # set all
-#   bash infrastructure/scripts/set-strmanuals-github-secrets.sh --dry   # print, no write
+#   bash infrastructure/scripts/set-strmanuals-github-secrets.sh --check  # SAFE: verify presence only
+#   bash infrastructure/scripts/set-strmanuals-github-secrets.sh --dry    # SAFE: print, no write
+#   bash infrastructure/scripts/set-strmanuals-github-secrets.sh          # ⚠ BROKEN — corrupts secrets, see header
 #   bash infrastructure/scripts/set-strmanuals-github-secrets.sh --check # verify presence only
 #
 # Requirements:
