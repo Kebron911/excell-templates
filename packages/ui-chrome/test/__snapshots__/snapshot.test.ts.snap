@@ -68,7 +68,7 @@ exports[`@str/ui-chrome snapshots > Footer renders with siteConfig footer sectio
         &copy; 2026 STR Guests Tools. Generated content is for informational purposes only — not legal or tax advice.
       </p>
       <p class="text-caption text-parchment opacity-70 font-mono">
-        Last updated <time datetime="2026-05-12">2026-05-12</time>
+        Last updated <time datetime="2026-01-15">2026-01-15</time>
       </p>
     </div>
   </div>

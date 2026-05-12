@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import Header from '../src/Header.astro';
 import Footer from '../src/Footer.astro';
@@ -33,6 +33,15 @@ const fixtureSite: SiteConfig = {
     ],
   },
 };
+
+beforeAll(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2026-01-15T12:00:00Z'));
+});
+
+afterAll(() => {
+  vi.useRealTimers();
+});
 
 describe('@str/ui-chrome snapshots', () => {
   it('Header renders with siteConfig nav', async () => {
