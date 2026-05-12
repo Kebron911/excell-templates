@@ -23,6 +23,40 @@
 | **IP hash salt** | `IP_HASH_SALT` | `STRGuests-Tools/.env.local` | — | ✅ set |
 | **Etsy** | OAuth client + secret + refresh token | Vaultwarden (pending) | seller account pending | ❌ shop not yet open |
 | **Anthropic (optional fallback)** | `ANTHROPIC_API_KEY` | not set — would go in `STRGuests-Tools/.env.local` if used | — | ❌ not used (OpenAI chosen) |
+| **n8n Docker host (SSH)** | `N8N_SSH_HOST/USER/KEY_PATH` + compose paths (see block below) | `./.env` (repo root) | same VPS as `n8ncde.cdeprosperity.com` | ⏳ template — fill in to enable platform-layer ops |
+
+---
+
+## n8n Docker host — SSH details
+
+> Enables operations the n8n REST API cannot do: install community nodes, edit `N8N_*` env vars, tail container logs, modify Traefik labels, restart services, back up the data volume.
+>
+> **Fill in the `<...>` placeholders.** Private SSH key stays on disk at the path below — never paste it into chat or commit it.
+
+```
+N8N_SSH_HOST          = 192.168.86.25
+N8N_SSH_PORT          = 22
+N8N_SSH_USER          = n8n-ops
+N8N_SSH_KEY_PATH      = C:\Users\Kebron\.ssh\n8n-ops_ed25519
+
+N8N_COMPOSE_DIR       = /home/kebron/git/mydocker
+N8N_SERVICE_NAME      = n8n
+N8N_CONTAINER_NAME    = n8n
+N8N_DATA_VOLUME       = /home/kebron/git/mydocker/n8n/data
+N8N_ENV_FILE          = /home/kebron/git/mydocker/n8n/data/config
+
+TRAEFIK_COMPOSE_DIR   = /home/kebron/git/mydocker
+TRAEFIK_SERVICE_NAME  = traefik
+TRAEFIK_NETWORK       = my_network
+TRAEFIK_DASHBOARD_URL = internal only
+
+N8N_ENCRYPTION_KEY    = <DO NOT COPY HERE — lives in N8N_ENV_FILE on box only>
+```
+
+**Notes**
+- SSH user `n8n-ops` is in the `docker` group, key-based auth only, no password (see setup steps in chat).
+- `N8N_ENCRYPTION_KEY` decrypts every credential stored in n8n — keep it on the box, back up separately to Vaultwarden.
+- If Traefik dashboard is publicly exposed, gate it behind basic-auth middleware before doing anything else.
 
 ---
 
@@ -76,4 +110,4 @@ When you (the user or any agent) add a new platform integration:
 2. Add a row to `ops/credentials-inventory.md` with account-level info.
 3. Commit both in the same commit. They must not drift.
 
-Last updated: 2026-05-11 (n8n key + base URL added; Stripe live key in + 66 products populated; OpenAI key set; IS subdomain `kebron` confirmed).
+Last updated: 2026-05-12 (n8n Docker host SSH template added — pending fill-in to enable platform-layer ops).

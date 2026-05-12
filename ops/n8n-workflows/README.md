@@ -1,6 +1,29 @@
-# n8n workflow definitions
+# n8n workflow definitions — STR Ledger / Excel-Templates project
 
-> Source-of-truth workflow JSON for the empire's n8n automations. Each `.json` file is a complete n8n workflow that can be uploaded via `deploy-workflow.mjs`. The repo holds the canonical definition; n8n is the runtime.
+> Source-of-truth workflow JSON for **this project's** n8n automations. Each `.json` file is a complete n8n workflow that can be uploaded via `deploy-workflow.mjs`. The repo holds the canonical definition; n8n is the runtime.
+
+---
+
+## Namespacing — this project vs others
+
+The n8n instance at `n8ncde.cdeprosperity.com` is **shared across multiple projects**. To prevent cross-project collisions:
+
+| Marker | Project | Tracked in |
+|---|---|---|
+| Name prefix `STR_*` **and** tag `str-ledger` | **STR Ledger / Excel-Templates** (this repo) | `ops/n8n-workflows/*.json` (this dir) |
+| Names `SBS_*`, `SUBFLOW: *`, DB-admin/emoji workflows | Other project | [Kebron911/n8n-builder](https://github.com/Kebron911/n8n-builder) |
+
+**Two-marker convention (prefix + tag) — why both:**
+- `sync-from-n8n.mjs` filters by the `str-ledger` **tag** (survives renames).
+- The `STR_` **prefix** is human-visible — when scrolling the n8n UI you can tell at a glance what belongs to which project.
+- Belt + suspenders: if you rename and drop the prefix, the tag still pulls it. If you drop the tag, the prefix is your fallback.
+
+**Creating a new workflow:**
+1. In n8n UI: name it `STR_Something_Descriptive`, add the `str-ledger` tag.
+2. Run `pwsh ops/n8n-workflows/sync-from-n8n.mjs` (or `node` if you're not on Windows) to pull it into git.
+3. Commit the new `STR_*.json` file.
+
+**Editing existing:** edit in n8n UI as usual, then re-run `sync-from-n8n.mjs` to update the JSON snapshot.
 
 ---
 
@@ -19,11 +42,11 @@ The flow is **edit JSON in repo → deploy via script → tweak in n8n UI for on
 
 ## Workflows in this directory
 
-| File | Trigger | Status | What it does |
-|---|---|---|---|
-| [stripe-to-is.json](stripe-to-is.json) | Stripe webhook `checkout.session.completed` | **not yet deployed** | Verifies Stripe signature → extracts buyer email + SKUs from session → upserts contact in InfluencerSoft with `customer:stripe` tag → loops SKUs and applies `purchased:<SKU>` tag per item. |
+| File | Workflow name in n8n | Trigger | Status | What it does |
+|---|---|---|---|---|
+| [STR_Stripe_InfluencerSoft_Tagger.json](STR_Stripe_InfluencerSoft_Tagger.json) | `STR_Stripe_InfluencerSoft_Tagger` | Stripe webhook `checkout.session.completed` | uploaded, **inactive** (id: `i3vRINfSQIb2tkHk`) | Verifies Stripe signature → extracts buyer email + SKUs from session → upserts contact in InfluencerSoft with `customer:stripe` tag → loops SKUs and applies `purchased:<SKU>` tag per item. |
 
-(More to come: `stripe-to-sheets-ledger`, `refund-recovery`, `daily-winback-scan`.)
+(More to come: `STR_Stripe_Sheets_Ledger`, `STR_Refund_Recovery`, `STR_Daily_Winback_Scan`.)
 
 ---
 
@@ -33,13 +56,13 @@ From the repo root:
 
 ```bash
 # Dry-run first to see node summary + auth check
-node ops/n8n-workflows/deploy-workflow.mjs ops/n8n-workflows/stripe-to-is.json --dry
+node ops/n8n-workflows/deploy-workflow.mjs ops/n8n-workflows/STR_Stripe_InfluencerSoft_Tagger.json --dry
 
 # Upload (leaves workflow INACTIVE — webhook URL printed)
-node ops/n8n-workflows/deploy-workflow.mjs ops/n8n-workflows/stripe-to-is.json
+node ops/n8n-workflows/deploy-workflow.mjs ops/n8n-workflows/STR_Stripe_InfluencerSoft_Tagger.json
 
 # Activate explicitly (flips the toggle that makes the production webhook live)
-node ops/n8n-workflows/deploy-workflow.mjs ops/n8n-workflows/stripe-to-is.json --activate
+node ops/n8n-workflows/deploy-workflow.mjs ops/n8n-workflows/STR_Stripe_InfluencerSoft_Tagger.json --activate
 ```
 
 The script:
@@ -55,8 +78,8 @@ The workflow JSON references `$env.<NAME>` for secrets. n8n reads these from the
 
 | Env var | Source | Used by |
 |---|---|---|
-| `STRIPE_WEBHOOK_SECRET` | Stripe Dashboard → Developers → Webhooks → endpoint signing secret | `stripe-to-is` (signature verification) |
-| `INFLUENCERSOFT_API_KEY` | repo root `.env` | `stripe-to-is` (IS API calls) |
+| `STRIPE_WEBHOOK_SECRET` | Stripe Dashboard → Developers → Webhooks → endpoint signing secret | `STR_Stripe_InfluencerSoft_Tagger` (signature verification) |
+| `INFLUENCERSOFT_API_KEY` | repo root `.env` | `STR_Stripe_InfluencerSoft_Tagger` (IS API calls) |
 
 ### Setting them (Docker example)
 
@@ -113,9 +136,21 @@ After uploading the workflow + setting the env vars + activating, configure Stri
 
 ---
 
-## Re-export from n8n UI
+## Re-export from n8n (preferred: `sync-from-n8n.mjs`)
 
-If you tweaked the workflow in the n8n UI and want to bring the change back into the repo:
+```bash
+# Pull every workflow tagged `str-ledger` and write JSON files here.
+node ops/n8n-workflows/sync-from-n8n.mjs
+
+# Dry-run first to see what would change
+node ops/n8n-workflows/sync-from-n8n.mjs --dry
+```
+
+The script filters by tag, not name — so as long as a workflow has `str-ledger` applied, it gets included regardless of what it's called. **Don't forget to apply the tag when creating new STR_* workflows in the UI.**
+
+### Manual fallback (UI download)
+
+If you'd rather download by hand:
 
 1. n8n UI → workflow → top-right menu → **Download** (saves `<workflow-name>.json`)
 2. Replace `ops/n8n-workflows/<name>.json` with the downloaded content (or diff and merge selectively)

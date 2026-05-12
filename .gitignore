@@ -11,6 +11,7 @@ desktop.ini
 *.swo
 *~
 .claude/
+.claire/
 
 # Temp / backup
 *.tmp
@@ -33,6 +34,19 @@ npm-debug.log*
 *.pem
 *.key
 credentials.json
+
+# SSH private keys (any naming convention, including mangled Windows-path drops)
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+*_rsa
+*_dsa
+*_ecdsa
+*_ed25519
+*_ed25519_*
+*ed25519
+.ssh/
 
 # Build / dist
 dist/
