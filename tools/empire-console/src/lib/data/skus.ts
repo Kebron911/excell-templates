@@ -59,9 +59,11 @@ const CATEGORY_NAMES: Record<string, string> = {
   OPS: 'Operations',
   PAM: 'Property Asset Management',
   GST: 'Guest Experience',
-  SAL: 'Sales / Marketing',
+  MKT: 'Marketing',
   REV: 'Revenue Management',
   LGL: 'Legal / Compliance',
+  SPC: 'Specialty Stays',
+  STR: 'STR Strategy',
 };
 
 function categoryNameFor(code: string): string {
@@ -88,10 +90,12 @@ async function mtimeOf(path: string): Promise<string | null> {
 export async function readSkus(): Promise<SkuReport> {
   const briefsDir = join(paths.templates, '_briefs');
   const deliveryDir = join(paths.templates, '_delivery');
+  const mastersDir = join(paths.templates, '_masters');
   const etsyDir = join(paths.root, 'copy', 'etsy-listings');
   const productDir = join(paths.root, 'copy', 'product-pages');
 
   const briefFiles = (await listSafe(briefsDir)).filter((f) => f.endsWith('.md'));
+  const masterFiles = new Set((await listSafe(mastersDir)).map((f) => f.toLowerCase()));
   const skus: Sku[] = [];
 
   for (const briefFile of briefFiles) {
@@ -118,8 +122,15 @@ export async function readSkus(): Promise<SkuReport> {
     const deliveryPath = join(deliveryDir, deliveryFolder);
     const deliveryFiles = await listSafe(deliveryPath);
 
-    const hasDemo = deliveryFiles.some((f) => /demo.*\.xlsx$/i.test(f) || /\bdemo\b/i.test(f));
-    const hasBlank = deliveryFiles.some((f) => /blank.*\.xlsx$/i.test(f) || /\bblank\b/i.test(f));
+    // Masters live in templates/_masters/ as <SKU>-<slug>-DEMO.xlsx / -BLANK.xlsx,
+    // not in the per-SKU delivery folder. Fall back to the delivery folder for legacy layouts.
+    const masterStem = `${sku}-${slug}`.replace(/-$/, '').toLowerCase();
+    const hasDemo =
+      masterFiles.has(`${masterStem}-demo.xlsx`) ||
+      deliveryFiles.some((f) => /demo.*\.xlsx$/i.test(f));
+    const hasBlank =
+      masterFiles.has(`${masterStem}-blank.xlsx`) ||
+      deliveryFiles.some((f) => /blank.*\.xlsx$/i.test(f));
     const hasHowtoPdf = deliveryFiles.some((f) => /howto\.pdf$/i.test(f));
     const hasLicensePdf = deliveryFiles.some((f) => /license\.pdf$/i.test(f));
     const thumbCount = deliveryFiles.filter((f) => /thumb-\d+\.png$/i.test(f)).length;
