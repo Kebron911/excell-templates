@@ -4,7 +4,7 @@
 >
 > **Last reviewed:** 2026-05-12
 >
-> **Account state:** Hostinger Business plan ✅ — domain `thestrledger.com` owned + DNS managed in Hostinger + AutoSSL active + SSH deploy live for sister sites + email hosting included. **Pending:** `hello@thestrledger.com` mailbox creation + `dashboard.thestrledger.com` subdomain + basic-auth file for the empire console.
+> **Account state:** Hostinger Business plan ✅ — domain `thestrledger.com` owned + DNS managed in Hostinger + AutoSSL active + SSH deploy live for sister sites + `hello@thestrledger.com` mailbox ✅ live (used for Etsy signup). **Pending:** verify SPF/DKIM/DMARC for outbound deliverability + `dashboard.thestrledger.com` subdomain + basic-auth file for the empire console.
 
 ---
 
@@ -22,19 +22,15 @@ Skip if you already know this is true. Re-verify anything that's been a year sin
 
 ---
 
-## Part 2 — Create `hello@thestrledger.com` email mailbox (10 min)
+## Part 2 — Verify `hello@thestrledger.com` deliverability (5 min)
 
-This is the login email for every downstream account (Etsy, Stripe, Gumroad, IS, Plausible, Pinterest). Without an actual inbox at that address, password resets + 2FA enrollment can't complete.
+`hello@thestrledger.com` mailbox is ✅ already live (used for Etsy seller signup). This step is about confirming MX/SPF/DKIM/DMARC so outbound mail (Stripe receipts, IS automated sequences, Etsy buyer confirmations) actually arrives in customer inboxes — not their spam folders.
 
-### 2.1 Create the mailbox
+### 2.1 Confirm mailbox + record password in Vaultwarden
 
-1. hPanel → **Emails** → **Email Accounts** (left sidebar).
-2. Select `thestrledger.com` as the domain.
-3. **Create email account.**
-   - Username: `hello`
-   - Password: strong, save to Vaultwarden immediately under `Hostinger Email — hello@thestrledger.com`
-   - Mailbox quota: 1 GB minimum (or higher if your plan allows; Business typically gives 10–50 GB per mailbox)
-4. Click **Create**.
+1. Sign in at https://webmail.hostinger.com with `hello@thestrledger.com`.
+2. Confirm inbox loads + you can send/receive.
+3. If not already done — save the mailbox password to Vaultwarden under `Hostinger Email — hello@thestrledger.com`.
 
 ### 2.2 Confirm MX records auto-configured
 
@@ -50,12 +46,13 @@ Hostinger Business email auto-configures MX records when you create the first ma
    - Value: `v=DMARC1; p=quarantine; rua=mailto:postmaster@thestrledger.com`
    - TTL: default
 
-### 2.3 Test the inbox
+### 2.3 Deliverability smoke-test
 
-1. Open https://webmail.hostinger.com (or hPanel → Emails → Webmail) and sign in as `hello@thestrledger.com`.
-2. From your personal email, send a test message to `hello@thestrledger.com`.
-3. Confirm it arrives in the Hostinger webmail inbox within 1 minute.
-4. Send a reply back to your personal email → confirm it arrives (proves outbound mail works).
+Already proven inbound works (Etsy signup verification arrived). Just confirm outbound deliverability isn't going to spam:
+
+1. From `hello@thestrledger.com`, send a test message to your personal Gmail.
+2. Check the personal Gmail inbox — it should arrive in **Inbox** (not Spam). If it lands in Spam, that's a sign SPF/DKIM/DMARC aren't fully wired — re-check 2.2.
+3. (Recommended) Run https://www.mail-tester.com — send a fresh email from `hello@` to the address it generates, then check the score. Should be 9–10/10. Anything below that indicates a deliverability gap to fix before sending customer receipts.
 
 ### 2.4 Configure on your local mail client (optional)
 
@@ -68,7 +65,7 @@ If you want `hello@thestrledger.com` in Outlook / Apple Mail / Thunderbird, use 
 
 Already done in Part 1.3 if you followed the baseline. The mailbox itself doesn't have separate 2FA — it's protected by the Hostinger account 2FA.
 
-→ **Tell Claude:** *"hello@thestrledger.com mailbox live, MX/SPF/DKIM/DMARC verified, test message received."*
+→ **Tell Claude:** *"hello@ deliverability verified (MX/SPF/DKIM/DMARC + mail-tester score)."*
 
 ---
 
@@ -168,11 +165,11 @@ Already done historically. Re-verify if you suspect rotation drift.
 ## Estimate
 
 - Baseline confirm: 5 min
-- Create hello@ mailbox + verify MX/SPF/DKIM/DMARC: 10 min
+- Verify hello@ deliverability (MX/SPF/DKIM/DMARC + mail-tester): 5 min
 - Create subdomain + wait for SSL: 15 min (mostly async wait)
 - Create .htpasswd: 10 min
 - Verify .htaccess + set GitHub secret: 5 min
-- **Total: ~40 min focused, ~55 min wall-clock with SSL wait**
+- **Total: ~35 min focused, ~50 min wall-clock with SSL wait**
 
 ---
 

@@ -24,7 +24,7 @@ Single source of truth for "what's left." Every row is something **only Daniel c
 
 | # | Task | Source-of-truth doc | Status |
 |---|---|---|---|
-| 1 | Hostinger Business `hello@thestrledger.com` mailbox + MX/SPF/DKIM/DMARC (replaces Google Workspace) | [hostinger-manual-setup-guide.md §Part 2](hostinger-manual-setup-guide.md) | ❌ pending |
+| 1 | `hello@thestrledger.com` deliverability verify — SPF/DKIM/DMARC + mail-tester score (mailbox already ✅ live) | [hostinger-manual-setup-guide.md §Part 2](hostinger-manual-setup-guide.md) | ⚠️ mailbox ✅ live + used for Etsy signup, deliverability records ❌ unverified |
 | 2 | Hostinger `dashboard.thestrledger.com` subdomain + .htpasswd + .htaccess + `PUBLIC_N8N_WEBHOOK_BASE` GitHub secret | [hostinger-manual-setup-guide.md](hostinger-manual-setup-guide.md) | ⚠️ partial (domain ✅, dashboard subdomain ❌) |
 | 3 | Telegram bot via @BotFather + 3 channels (P0/P1/P2) | [telegram-manual-setup-guide.md](telegram-manual-setup-guide.md) | ❌ pending |
 | 4 | Etsy seller account onboarding + developer API app | [etsy-manual-setup-guide.md](etsy-manual-setup-guide.md) | ⚠️ blank account created, onboarding + dev app ❌ |
@@ -164,7 +164,7 @@ This is the dependency-ordered version of registry rows 1–11. Pick this up whe
 | Plausible | ❌ pending | full guide — see [plausible-manual-setup-guide.md](plausible-manual-setup-guide.md) |
 | Pinterest Business | ❌ pending | full guide — see [pinterest-manual-setup-guide.md](pinterest-manual-setup-guide.md) |
 | Vista Create | ✅ in active use | record creds in Vaultwarden (no other setup) |
-| Email (Hostinger Business) | ❌ `hello@thestrledger.com` mailbox not yet created | see [hostinger-manual-setup-guide.md §Part 2](hostinger-manual-setup-guide.md) |
+| Email (Hostinger Business) | ✅ `hello@thestrledger.com` mailbox live + used for Etsy signup | ⚠️ SPF/DKIM/DMARC deliverability verify pending — see [hostinger-manual-setup-guide.md §Part 2](hostinger-manual-setup-guide.md) |
 
 ---
 
