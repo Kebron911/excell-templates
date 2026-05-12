@@ -88,10 +88,10 @@ const { toolSlug, filename, magnet, label = 'Download PDF' } = Astro.props;
 </div>
 
 <script>
-  // Soft email-gate flow (shared logic in @/lib/email-gate):
+  // Soft email-gate flow (shared logic in @str/email-gate):
   //   click -> trigger PDF download -> {gate dismissed? skip modal} -> open modal -> {submit | skip | esc}
   //   - PDF always downloads, regardless of modal interaction.
-  //   - Submit posts to ESP webhook via postEmailCapture().
+  //   - Submit posts to ESP webhook via submit().
   //   - Any close path (submit | skip | esc) marks the gate dismissed for
   //     this tab session, so the visitor isn't re-prompted on every download.
   //   - Skip / Escape close the modal silently.
@@ -99,8 +99,8 @@ const { toolSlug, filename, magnet, label = 'Download PDF' } = Astro.props;
     isGateDismissed,
     markGateDismissed,
     isValidEmail,
-    postEmailCapture,
-  } from '@/lib/email-gate';
+    submit,
+  } from '@str/email-gate';
 
   type PdfFn = () => Promise<Uint8Array> | Uint8Array;
 
@@ -154,7 +154,7 @@ const { toolSlug, filename, magnet, label = 'Download PDF' } = Astro.props;
         e.preventDefault();
         const email = (form.querySelector('input[name="email"]') as HTMLInputElement)?.value?.trim() ?? '';
         if (!isValidEmail(email)) return;
-        const ok = await postEmailCapture({ email, magnet, toolSlug: tool });
+        const ok = await submit({ siteId: 'guests', email, magnet, toolSlug: tool });
         if (ok) (window as any).gtag?.('event', 'email_captured', { tool, magnet });
         markGateDismissed(tool);
         modal.close();

@@ -150,6 +150,9 @@ importers:
       '@resvg/resvg-js':
         specifier: ^2.6.2
         version: 2.6.2
+      '@str/email-gate':
+        specifier: workspace:*
+        version: link:../packages/email-gate
       '@str/format':
         specifier: workspace:*
         version: link:../packages/format

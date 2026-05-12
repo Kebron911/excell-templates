@@ -21,6 +21,7 @@
     "db:migrate": "tsx server/db/migrate.ts"
   },
   "dependencies": {
+    "@str/email-gate": "workspace:*",
     "@str/format": "workspace:*",
     "@str/seo": "workspace:*",
     "@str/ui-chrome": "workspace:*",

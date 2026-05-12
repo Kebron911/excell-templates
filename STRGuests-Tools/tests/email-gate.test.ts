@@ -5,8 +5,8 @@ import {
   clearGateDismissed,
   isValidEmail,
   buildEspPayload,
-  postEmailCapture,
-} from '@/lib/email-gate';
+  submit,
+} from '@str/email-gate';
 
 // Lightweight sessionStorage stub. Vitest 'node' env has no DOM globals.
 class SessionStorageStub {
@@ -71,7 +71,7 @@ describe('isValidEmail', () => {
 describe('buildEspPayload', () => {
   it('returns the canonical strguests payload shape', () => {
     const t0 = Date.now();
-    const out = buildEspPayload({ email: '  daniel@example.com  ', magnet: 'wb', toolSlug: 'welcome-book' });
+    const out = buildEspPayload({ siteId: 'guests', email: '  daniel@example.com  ', magnet: 'wb', toolSlug: 'welcome-book' });
     expect(out.email).toBe('daniel@example.com'); // trimmed
     expect(out.magnet).toBe('wb');
     expect(out.source).toBe('strguests.tools');
@@ -83,13 +83,13 @@ describe('buildEspPayload', () => {
     expect(out.ts as number).toBeGreaterThanOrEqual(t0);
   });
 
-  it('honors a utm_medium override (e.g. for non-PDF email captures)', () => {
-    const out = buildEspPayload({ email: 'd@e.io', magnet: 'm', toolSlug: 't', utm_medium: 'card' });
+  it('honors a utmMedium override (e.g. for non-PDF email captures)', () => {
+    const out = buildEspPayload({ siteId: 'guests', email: 'd@e.io', magnet: 'm', toolSlug: 't', utmMedium: 'card' });
     expect(out.utm_medium).toBe('card');
   });
 });
 
-describe('postEmailCapture', () => {
+describe('submit (ESP webhook)', () => {
   beforeEach(() => {
     (globalThis as any).fetch = vi.fn(async () => ({ ok: true } as Response));
   });
@@ -99,16 +99,16 @@ describe('postEmailCapture', () => {
   });
 
   it('returns false for invalid email (no fetch made)', async () => {
-    const ok = await postEmailCapture({ email: 'not-an-email', magnet: 'm', toolSlug: 't' });
+    const ok = await submit({ siteId: 'guests', email: 'not-an-email' });
     expect(ok).toBe(false);
     expect((globalThis as any).fetch).not.toHaveBeenCalled();
   });
 
   it('logs (no fetch) when no webhook is provided — resolves true so caller flow continues', async () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const ok = await postEmailCapture(
-      { email: 'd@e.io', magnet: 'm', toolSlug: 't' },
-      '', // explicit empty override — bypasses import.meta.env lookup
+    const ok = await submit(
+      { siteId: 'guests', email: 'd@e.io', magnet: 'm', toolSlug: 't' },
+      { webhook: '' }, // explicit empty override — bypasses import.meta.env lookup
     );
     expect(ok).toBe(true);
     expect((globalThis as any).fetch).not.toHaveBeenCalled();
@@ -117,9 +117,9 @@ describe('postEmailCapture', () => {
   });
 
   it('POSTs JSON to the webhook when one is provided and returns res.ok', async () => {
-    const ok = await postEmailCapture(
-      { email: 'd@e.io', magnet: 'm', toolSlug: 't' },
-      'https://example.com/hook',
+    const ok = await submit(
+      { siteId: 'guests', email: 'd@e.io', magnet: 'm', toolSlug: 't' },
+      { webhook: 'https://example.com/hook' },
     );
     expect(ok).toBe(true);
     const fetchMock = (globalThis as any).fetch as ReturnType<typeof vi.fn>;
@@ -135,16 +135,19 @@ describe('postEmailCapture', () => {
 
   it('returns false when fetch rejects (network error)', async () => {
     (globalThis as any).fetch = vi.fn(async () => { throw new Error('network'); });
-    const ok = await postEmailCapture(
-      { email: 'd@e.io', magnet: 'm', toolSlug: 't' },
-      'https://example.com/hook',
+    const ok = await submit(
+      { siteId: 'guests', email: 'd@e.io', magnet: 'm', toolSlug: 't' },
+      { webhook: 'https://example.com/hook' },
     );
     expect(ok).toBe(false);
   });
 
   it('returns false when fetch is not available (SSR)', async () => {
     delete (globalThis as any).fetch;
-    const ok = await postEmailCapture({ email: 'd@e.io', magnet: 'm', toolSlug: 't' }, 'https://example.com/hook');
+    const ok = await submit(
+      { siteId: 'guests', email: 'd@e.io', magnet: 'm', toolSlug: 't' },
+      { webhook: 'https://example.com/hook' },
+    );
     expect(ok).toBe(false);
   });
 });
