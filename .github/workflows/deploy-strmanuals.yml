@@ -46,29 +46,24 @@ jobs:
       # not always from process.env injected by the workflow `env:` block.
       # Write .env from secrets so the build behaves identically to local
       # dev (which has STRManuals/site/.env populated).
+      #
+      # Templating injects the secret value directly into the shell command
+      # (vs. via env: block which had bash-expansion issues — heredoc
+      # produced empty values). Secrets are still masked in logs.
       - name: Write .env from secrets
         working-directory: STRManuals/site
-        env:
-          STRIPE_LINK_TAX_01: ${{ secrets.STRMANUALS_STRIPE_LINK_TAX_01 }}
-          STRIPE_LINK_TAX_02: ${{ secrets.STRMANUALS_STRIPE_LINK_TAX_02 }}
-          STRIPE_LINK_REV_01: ${{ secrets.STRMANUALS_STRIPE_LINK_REV_01 }}
-          STRIPE_LINK_REV_02: ${{ secrets.STRMANUALS_STRIPE_LINK_REV_02 }}
-          STRIPE_LINK_LGL_01: ${{ secrets.STRMANUALS_STRIPE_LINK_LGL_01 }}
-          STRIPE_LINK_BUNDLE: ${{ secrets.STRMANUALS_STRIPE_LINK_BUNDLE }}
-          PUBLIC_N8N_WEBHOOK_BASE: ${{ secrets.PUBLIC_N8N_WEBHOOK_BASE }}
-          STRMANUALS_DOWNLOAD_HASH: ${{ secrets.STRMANUALS_DOWNLOAD_HASH }}
         run: |
-          cat > .env <<EOF
-          STRIPE_LINK_TAX_01=$STRIPE_LINK_TAX_01
-          STRIPE_LINK_TAX_02=$STRIPE_LINK_TAX_02
-          STRIPE_LINK_REV_01=$STRIPE_LINK_REV_01
-          STRIPE_LINK_REV_02=$STRIPE_LINK_REV_02
-          STRIPE_LINK_LGL_01=$STRIPE_LINK_LGL_01
-          STRIPE_LINK_BUNDLE=$STRIPE_LINK_BUNDLE
-          PUBLIC_N8N_WEBHOOK_BASE=$PUBLIC_N8N_WEBHOOK_BASE
-          STRMANUALS_DOWNLOAD_HASH=$STRMANUALS_DOWNLOAD_HASH
-          EOF
-          echo ".env written ($(wc -l < .env) lines)"
+          {
+            echo "STRIPE_LINK_TAX_01=${{ secrets.STRMANUALS_STRIPE_LINK_TAX_01 }}"
+            echo "STRIPE_LINK_TAX_02=${{ secrets.STRMANUALS_STRIPE_LINK_TAX_02 }}"
+            echo "STRIPE_LINK_REV_01=${{ secrets.STRMANUALS_STRIPE_LINK_REV_01 }}"
+            echo "STRIPE_LINK_REV_02=${{ secrets.STRMANUALS_STRIPE_LINK_REV_02 }}"
+            echo "STRIPE_LINK_LGL_01=${{ secrets.STRMANUALS_STRIPE_LINK_LGL_01 }}"
+            echo "STRIPE_LINK_BUNDLE=${{ secrets.STRMANUALS_STRIPE_LINK_BUNDLE }}"
+            echo "PUBLIC_N8N_WEBHOOK_BASE=${{ secrets.PUBLIC_N8N_WEBHOOK_BASE }}"
+            echo "STRMANUALS_DOWNLOAD_HASH=${{ secrets.STRMANUALS_DOWNLOAD_HASH }}"
+          } > .env
+          echo ".env written ($(wc -l < .env) lines, $(wc -c < .env) bytes)"
 
       - name: Build static site
         working-directory: STRManuals/site
