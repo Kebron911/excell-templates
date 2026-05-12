@@ -553,6 +553,9 @@ importers:
 
   packages/ui-funnel:
     dependencies:
+      '@str/email-gate':
+        specifier: workspace:*
+        version: link:../email-gate
       '@str/seo':
         specifier: workspace:*
         version: link:../seo

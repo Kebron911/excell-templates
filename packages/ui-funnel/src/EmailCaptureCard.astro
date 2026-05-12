@@ -88,56 +88,44 @@ const {
 </aside>
 
 <script>
-  // Resolve endpoint: prefer explicit data-endpoint, fall back to PUBLIC_ESP_WEBHOOK env var.
-  // Payload shape is preserved for backward compat with existing ESP webhook handlers.
+  import { submit, isValidEmail } from '@str/email-gate';
+
+  type KnownSiteId = 'guests' | 'buyers' | 'host' | 'ops';
+  const KNOWN_SITE_IDS: KnownSiteId[] = ['guests', 'buyers', 'host', 'ops'];
+
+  function toSiteId(value: string): KnownSiteId {
+    return (KNOWN_SITE_IDS as string[]).includes(value)
+      ? (value as KnownSiteId)
+      : 'guests';
+  }
+
   document.querySelectorAll<HTMLFormElement>('form[data-email-capture]').forEach((form) => {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const input = form.querySelector<HTMLInputElement>('input[name="email"]');
       const status = form.parentElement?.querySelector<HTMLElement>('[data-email-capture-status]');
-      const email = input?.value?.trim();
+      const email = input?.value?.trim() ?? '';
       const magnet = form.dataset.magnet ?? '';
-      const tool = form.dataset.tool ?? '';
-      const site = form.dataset.site ?? '';
+      const toolSlug = form.dataset.tool ?? '';
+      const siteId = toSiteId(form.dataset.site ?? '');
 
-      // Resolve webhook: explicit endpoint prop > env var fallback
-      const webhook =
-        form.dataset.endpoint ||
-        (import.meta.env.PUBLIC_ESP_WEBHOOK as string | undefined) ||
-        '';
+      // Resolve webhook: explicit data-endpoint prop > @str/email-gate reads PUBLIC_ESP_WEBHOOK
+      const webhook = form.dataset.endpoint || undefined;
 
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      if (!isValidEmail(email)) {
         if (status) status.textContent = 'Please enter a valid email.';
         return;
       }
 
-      // Payload shape preserved — ESP webhook handlers keep working at Task 8 wire-up.
-      const payload = {
-        email,
-        magnet,
-        source: site || 'strguests.tools',
-        tool,
-        utm_source: `${site || 'strguests'}-tools`,
-        utm_medium: 'email-capture',
-        utm_content: tool,
-        ts: Date.now(),
-      };
-
       try {
-        if (webhook) {
-          await fetch(webhook, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-            keepalive: true,
-          });
-        } else {
-          console.warn('[EmailCaptureCard] No endpoint configured; payload:', payload);
-        }
-        (window as any).gtag?.('event', 'email_captured', { tool, magnet });
+        await submit(
+          { siteId, email, magnet, toolSlug, utmMedium: 'email-capture' },
+          { webhook },
+        );
+        (window as any).gtag?.('event', 'email_captured', { tool: toolSlug, magnet });
         if (status) status.textContent = 'Got it. Watch your inbox.';
         if (input) input.value = '';
-      } catch (err) {
+      } catch {
         if (status) status.textContent = 'Something went sideways. Try again in a minute.';
       }
     });

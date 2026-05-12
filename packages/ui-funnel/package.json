@@ -23,6 +23,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@str/email-gate": "workspace:*",
     "@str/seo": "workspace:*",
     "@str/ui-chrome": "workspace:*"
   },
