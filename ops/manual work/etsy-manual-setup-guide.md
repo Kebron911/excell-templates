@@ -2,11 +2,11 @@
 
 > **Manual step — Etsy requires SSN/EIN + bank account + government-ID upload through their seller onboarding flow.** Listings + thumbnails + post-purchase tagging are fully automatable via Etsy API v3 once the account exists and the developer app is registered. This guide covers the human-only legal/regulatory + dev-app-registration parts.
 >
-> **Last reviewed:** 2026-05-11
+> **Last reviewed:** 2026-05-12
 >
-> **Account state:** ❌ shop not yet opened. Per `CREDENTIALS.md` 2026-05-11: "Etsy — OAuth client + secret + refresh token — seller account pending."
+> **Account state:** ⚠️ **blank seller account created** (no shop config, no listings, no dev app, no payouts). Remaining manual work: finish onboarding (shop name, bank, tax ID, ID verification, 2FA) + register the developer API app + enable Vacation Mode until first publish.
 >
-> **Why this is gate #1 for revenue:** Wave-1 launches 5 Etsy SKUs (GST-001 / OPS-001 / TAX-001 / TAX-002 / TAX-003). Without a shop, there's nothing to publish to.
+> **Why this is gate #1 for revenue:** Wave-1 launches 5 Etsy SKUs (GST-001 / OPS-001 / TAX-001 / TAX-002 / TAX-003). Without onboarding complete + dev app, there's nothing for Claude to publish to.
 
 ---
 
@@ -26,14 +26,15 @@ Decide these BEFORE clicking "Sell on Etsy" so you don't backtrack mid-onboardin
 
 ---
 
-## Part 2 — Open the seller account (30 min)
+## Part 2 — Finish seller account onboarding (30 min)
 
-### 2.1 Start onboarding
+> Blank account already created. Sign in at https://www.etsy.com/your/shops/me with the existing credentials. The flow below picks up from wherever Etsy left you — usually mid-onboarding at "Shop preferences" or "Get paid".
 
-1. Go to https://www.etsy.com/sell.
-2. Click **Get started**.
-3. Sign up with `hello@thestrledger.com` (the Workspace inbox from the Google Workspace guide).
-4. Confirm email verification link from Etsy.
+### 2.1 Sign in + confirm email is `hello@thestrledger.com`
+
+1. Sign in at https://www.etsy.com/your/shops/me.
+2. **You → Account settings → Email** — confirm primary email is `hello@thestrledger.com` (now hosted on Hostinger Business per the [hostinger guide](hostinger-manual-setup-guide.md) Part 2). If it's a different email, change it now and verify via the link Etsy sends.
+3. Save the Etsy login email + password to Vaultwarden under `Etsy — The STR Ledger seller`.
 
 ### 2.2 Shop preferences
 

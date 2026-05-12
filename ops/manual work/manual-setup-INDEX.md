@@ -24,20 +24,20 @@ Single source of truth for "what's left." Every row is something **only Daniel c
 
 | # | Task | Source-of-truth doc | Status |
 |---|---|---|---|
-| 1 | Google Workspace signup + 2FA + MX/SPF/DKIM/DMARC | [google-workspace-manual-setup-guide.md](google-workspace-manual-setup-guide.md) | ❌ pending |
+| 1 | Hostinger Business `hello@thestrledger.com` mailbox + MX/SPF/DKIM/DMARC (replaces Google Workspace) | [hostinger-manual-setup-guide.md §Part 2](hostinger-manual-setup-guide.md) | ❌ pending |
 | 2 | Hostinger `dashboard.thestrledger.com` subdomain + .htpasswd + .htaccess + `PUBLIC_N8N_WEBHOOK_BASE` GitHub secret | [hostinger-manual-setup-guide.md](hostinger-manual-setup-guide.md) | ⚠️ partial (domain ✅, dashboard subdomain ❌) |
 | 3 | Telegram bot via @BotFather + 3 channels (P0/P1/P2) | [telegram-manual-setup-guide.md](telegram-manual-setup-guide.md) | ❌ pending |
-| 4 | Etsy seller account + developer API app | [etsy-manual-setup-guide.md](etsy-manual-setup-guide.md) | ❌ pending |
-| 5 | Stripe restricted keys + Stripe Tax verify + 2FA confirm | [stripe-manual-setup-guide.md](stripe-manual-setup-guide.md) | ⚠️ account ✅, restricted keys ❌ |
+| 4 | Etsy seller account onboarding + developer API app | [etsy-manual-setup-guide.md](etsy-manual-setup-guide.md) | ⚠️ blank account created, onboarding + dev app ❌ |
+| 5 | Stripe restricted keys + Stripe Tax verify + 2FA confirm | [stripe-manual-setup-guide.md](stripe-manual-setup-guide.md) | ⚠️ account + 66 products ✅, restricted keys ❌ |
 | 6 | Gumroad account + API token | [gumroad-manual-setup-guide.md](gumroad-manual-setup-guide.md) | ❌ pending |
-| 7 | n8n PAT + 11 env vars + 8 creds + 19 flow imports | [n8n-manual-setup-guide.md](n8n-manual-setup-guide.md) | ⚠️ instance ✅, flows ❌ |
+| 7 | n8n PAT + 11 env vars + 8 creds + 19 flow imports | [n8n-manual-setup-guide.md](n8n-manual-setup-guide.md) | ⚠️ instance ✅ live at n8ncde.cdeprosperity.com, flows ❌ |
 | 8 | Plausible account + 4 sites + Stats API token | [plausible-manual-setup-guide.md](plausible-manual-setup-guide.md) | ❌ pending |
-| 9 | Google Search Console + GA4 + OAuth client | [google-workspace-manual-setup-guide.md §3–4](google-workspace-manual-setup-guide.md) | ❌ pending |
+| 9 | Google Search Console + GA4 + OAuth client (free Google account, NOT Workspace) | [google-services-manual-setup-guide.md](google-services-manual-setup-guide.md) | ❌ pending |
 | 10 | Pinterest Business + domain claim + Creasquare OAuth + 5 boards | [pinterest-manual-setup-guide.md](pinterest-manual-setup-guide.md) | ❌ pending |
 | 11 | InfluencerSoft 2FA + 7 custom fields + 11 sequence paste | [influencersoft-manual-setup-guide.md](influencersoft-manual-setup-guide.md) | ⚠️ account ✅, sequences ❌ |
 | 12 | UptimeRobot / healthchecks.io heartbeat URL | inline in [n8n-manual-setup-guide.md prereqs](n8n-manual-setup-guide.md) | ❌ pending |
-| 13 | Vista Create Pro (account access via Vaultwarden, LTD already owned) | [user-manual-todo.md §1.7](user-manual-todo.md) | ⚠️ LTD ✅, vault entry ❌ |
-| 14 | Creasquare LTD account access (lifetime deal already owned) | [user-manual-todo.md §1.7](user-manual-todo.md) | ⚠️ LTD ✅, OAuth ❌ |
+| 13 | Vista Create Pro account access entry in Vaultwarden | [user-manual-todo.md §1.7](user-manual-todo.md) | ✅ in active use; just record creds in Vaultwarden |
+| 14 | Creasquare LTD account access (lifetime deal already owned) | [user-manual-todo.md §1.7](user-manual-todo.md) | ⚠️ LTD ✅, OAuth + Vaultwarden entry ❌ |
 | 15 | VPS (n8n host) credentials in Vaultwarden | inline in [n8n guide](n8n-manual-setup-guide.md) | ⚠️ live ✅, vault entry ❌ |
 
 ### A.2 — Security hygiene (one-time, then recurring)
@@ -156,13 +156,15 @@ This is the dependency-ordered version of registry rows 1–11. Pick this up whe
 | InfluencerSoft | ✅ live (`kebron.influencersoft.com`, API key set 2026-05-11) | ⚠️ 2FA verify + 7 custom fields + 11 sequence paste pending — see [influencersoft-manual-setup-guide.md](influencersoft-manual-setup-guide.md) |
 | n8n | ✅ running (`n8ncde.cdeprosperity.com`) | ⚠️ Telegram + env vars + flow imports + creds pending — see [n8n-manual-setup-guide.md](n8n-manual-setup-guide.md) |
 | Stripe | ✅ live (66 STR Ledger products imported 2026-05-11) | ⚠️ restricted keys + Stripe Tax verify pending — see [stripe-manual-setup-guide.md](stripe-manual-setup-guide.md) |
-| Hostinger | ✅ domain + SSH deploy live | ⚠️ `dashboard.thestrledger.com` subdomain + htpasswd pending — see [hostinger-manual-setup-guide.md](hostinger-manual-setup-guide.md) |
-| Etsy | ❌ shop not opened | full guide — see [etsy-manual-setup-guide.md](etsy-manual-setup-guide.md) |
+| Hostinger | ✅ Business plan live (domain + DNS + SSH deploy + email hosting) | ⚠️ `hello@` mailbox + `dashboard.thestrledger.com` subdomain + htpasswd pending — see [hostinger-manual-setup-guide.md](hostinger-manual-setup-guide.md) |
+| Etsy | ⚠️ blank seller account created, no onboarding/listings/dev app yet | finish onboarding + register dev app — see [etsy-manual-setup-guide.md](etsy-manual-setup-guide.md) |
 | Telegram | ❌ no bot, no channels | full guide — see [telegram-manual-setup-guide.md](telegram-manual-setup-guide.md) |
 | Gumroad | ❌ pending | full guide — see [gumroad-manual-setup-guide.md](gumroad-manual-setup-guide.md) |
-| Google Workspace + Search Console | ❌ pending | full guide — see [google-workspace-manual-setup-guide.md](google-workspace-manual-setup-guide.md) |
+| Google Search Console + GA4 | ❌ pending (uses free Google account, no Workspace) | full guide — see [google-services-manual-setup-guide.md](google-services-manual-setup-guide.md) |
 | Plausible | ❌ pending | full guide — see [plausible-manual-setup-guide.md](plausible-manual-setup-guide.md) |
 | Pinterest Business | ❌ pending | full guide — see [pinterest-manual-setup-guide.md](pinterest-manual-setup-guide.md) |
+| Vista Create | ✅ in active use | record creds in Vaultwarden (no other setup) |
+| Email (Hostinger Business) | ❌ `hello@thestrledger.com` mailbox not yet created | see [hostinger-manual-setup-guide.md §Part 2](hostinger-manual-setup-guide.md) |
 
 ---
 
@@ -170,15 +172,14 @@ This is the dependency-ordered version of registry rows 1–11. Pick this up whe
 
 Each row blocks one or more later rows. Don't skip ahead — if you do, Claude will be missing the env var / token / OAuth click downstream and the wired automations won't fire.
 
-### Wave 0 — Foundations (Day 1, ~2 hrs)
+### Wave 0 — Foundations (Day 1, ~1 hr)
 
-These have no upstream deps. Do them first; everything else depends on at least one of them.
+These have no upstream deps. Do them first; everything else depends on at least one of them. (Google Workspace removed — email lives on Hostinger Business; GSC + GA4 moved to Wave 3.)
 
 | # | Tool | Why first | Guide | Est. |
 |---|------|-----------|-------|------|
-| 1 | **Google Workspace** | `hello@thestrledger.com` is the login email for every other account below — block first | [google-workspace-manual-setup-guide.md](google-workspace-manual-setup-guide.md) | 15 min |
-| 2 | **Hostinger** | DNS for `thestrledger.com` + subdomain for the dashboard + SSL — blocks every public surface | [hostinger-manual-setup-guide.md](hostinger-manual-setup-guide.md) | 30 min |
-| 3 | **Telegram** | Bot + 3 channels — blocks every n8n flow's alert sink | [telegram-manual-setup-guide.md](telegram-manual-setup-guide.md) | 15 min |
+| 1 | **Hostinger (email + dashboard subdomain)** | Creates `hello@thestrledger.com` mailbox via Hostinger Business (login email for every other account below) + sets up `dashboard.thestrledger.com` subdomain + SSL — blocks every public surface | [hostinger-manual-setup-guide.md](hostinger-manual-setup-guide.md) | 45 min |
+| 2 | **Telegram** | Bot + 3 channels — blocks every n8n flow's alert sink | [telegram-manual-setup-guide.md](telegram-manual-setup-guide.md) | 15 min |
 
 → When all three signal phrases are sent, tell Claude: ***"Wave 0 done."***
 
@@ -211,7 +212,7 @@ These don't block the first sale, but they're needed before any marketing dollar
 | # | Tool | Why now | Guide | Est. |
 |---|------|---------|-------|------|
 | 8 | **Plausible** | Stats-API token feeds nightly-refresh + funnel-dropout watcher | [plausible-manual-setup-guide.md](plausible-manual-setup-guide.md) | 15 min |
-| 9 | **Google Search Console** | OAuth client for nightly indexing + GSC digest (covered in Workspace guide §3) | [google-workspace-manual-setup-guide.md](google-workspace-manual-setup-guide.md) §3 | 15 min |
+| 9 | **Google Search Console + GA4** | Free Google account (NOT Workspace) → GSC property + OAuth client for n8n nightly indexing. Optional GA4. | [google-services-manual-setup-guide.md](google-services-manual-setup-guide.md) | 20 min |
 | 10 | **Pinterest Business** | Domain claim + OAuth to Creasquare — blocks pin scheduling | [pinterest-manual-setup-guide.md](pinterest-manual-setup-guide.md) | 15 min |
 
 → Signal phrase: ***"Wave 3 done — analytics + traffic surfaces live."***
@@ -280,12 +281,12 @@ After Wave-1 publish, recurring manual work:
 ## Total wall-clock estimate
 
 **Account setup only (Waves 0–4):**
-- Wave 0: 2 hrs
-- Wave 1: 2 hrs
+- Wave 0: 1 hr (Hostinger email + dashboard subdomain + Telegram)
+- Wave 1: 2 hrs (Etsy onboarding-finish + Stripe restricted keys + Gumroad)
 - Wave 2: 90 min
 - Wave 3: 45 min
 - Wave 4: 3 hrs
-- **Account-setup subtotal: ~9 hrs spread across 3–4 days** (most async — Stripe verification, Workspace propagation, DNS wait-loops).
+- **Account-setup subtotal: ~9 hrs spread across 3–4 days** (most async — Stripe verification, DNS propagation + Hostinger SSL provisioning).
 
 **Non-account manual work (registry §A.2–A.8):**
 - Security hygiene (one-time): ~1 hr
@@ -327,6 +328,7 @@ After Wave-1 publish, recurring manual work:
 - **Buffer** — replaced by Creasquare (lifetime deal).
 - **Instantly (cold outreach)** — Phase 2+, not part of Wave 0–4.
 - **Airtable** — only needed if/when you formally adopt it as SSOT. n8n flows currently read from `ops/*.yaml` and `ops/cache/*.json`, not Airtable.
-- **Vista Create** — brand pack already produced. No further setup needed unless re-rendering an asset.
+- **Vista Create** — already in active use; just record Vaultwarden entry. No further setup needed unless re-rendering an asset.
+- **Google Workspace** — replaced by Hostinger Business email (the `hello@thestrledger.com` mailbox lives at Hostinger; GSC/GA4 use a free Google account, no Workspace subscription).
 - **Ghost blog** — host TBD; defer until blog content schedule starts.
 - **Creasquare** — OAuth-connect step is covered under each social account's flow (see Pinterest guide §3 for the Pinterest connect; FB/IG/LinkedIn/YouTube/TikTok connects are noted in `ops/user-manual-todo.md` §4.1).

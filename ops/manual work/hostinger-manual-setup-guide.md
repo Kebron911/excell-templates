@@ -1,10 +1,10 @@
 # Hostinger Manual Setup Guide
 
-> **Manual step — Hostinger hPanel is browser-only for DNS / subdomain / .htpasswd creation.** SSH-based deploys are already wired (`STR_SSH_KEY` GitHub Actions secret is live). This guide covers what hPanel must do that the cluster-shared key can't reach.
+> **Manual step — Hostinger hPanel is browser-only for DNS / subdomain / .htpasswd / email creation.** SSH-based deploys are already wired (`STR_SSH_KEY` GitHub Actions secret is live). This guide covers what hPanel must do that the cluster-shared key can't reach — including the `hello@thestrledger.com` mailbox via Hostinger Business email (no Google Workspace).
 >
-> **Last reviewed:** 2026-05-11
+> **Last reviewed:** 2026-05-12
 >
-> **Account state:** domain `thestrledger.com` owned + DNS managed in Hostinger + AutoSSL active + SSH deploy live for sister sites. **Pending:** `dashboard.thestrledger.com` subdomain + basic-auth file for the empire console.
+> **Account state:** Hostinger Business plan ✅ — domain `thestrledger.com` owned + DNS managed in Hostinger + AutoSSL active + SSH deploy live for sister sites + email hosting included. **Pending:** `hello@thestrledger.com` mailbox creation + `dashboard.thestrledger.com` subdomain + basic-auth file for the empire console.
 
 ---
 
@@ -16,12 +16,63 @@ Skip if you already know this is true. Re-verify anything that's been a year sin
 2. **Add login to Vaultwarden** if not already (`Hostinger` row in `ops/credentials-inventory.md` currently says "pending" — update it).
 3. **2FA on authenticator app** (NOT SMS) — Settings → Security → Two-Factor Authentication.
 4. Confirm `thestrledger.com` is the **active domain** and nameservers point to Hostinger's (not a stale registrar).
+5. Confirm you're on the **Business** plan (includes email hosting + 100+ mailboxes typically). If on Premium, email may still be included (depends on year of signup) — check plan details.
 
 → **Tell Claude:** *"Hostinger baseline confirmed."*
 
 ---
 
-## Part 2 — Create the `dashboard.thestrledger.com` subdomain (10 min)
+## Part 2 — Create `hello@thestrledger.com` email mailbox (10 min)
+
+This is the login email for every downstream account (Etsy, Stripe, Gumroad, IS, Plausible, Pinterest). Without an actual inbox at that address, password resets + 2FA enrollment can't complete.
+
+### 2.1 Create the mailbox
+
+1. hPanel → **Emails** → **Email Accounts** (left sidebar).
+2. Select `thestrledger.com` as the domain.
+3. **Create email account.**
+   - Username: `hello`
+   - Password: strong, save to Vaultwarden immediately under `Hostinger Email — hello@thestrledger.com`
+   - Mailbox quota: 1 GB minimum (or higher if your plan allows; Business typically gives 10–50 GB per mailbox)
+4. Click **Create**.
+
+### 2.2 Confirm MX records auto-configured
+
+Hostinger Business email auto-configures MX records when you create the first mailbox. Verify:
+
+1. hPanel → Domains → `thestrledger.com` → **DNS / Nameservers**.
+2. Look for MX records pointing to Hostinger's mail servers (typically `mx1.hostinger.com` priority 5 + `mx2.hostinger.com` priority 10 — exact names vary by data center; whatever Hostinger pre-fills is correct).
+3. Look for SPF TXT record (`v=spf1 include:_spf.mail.hostinger.com ~all` or similar). If missing, add it.
+4. Look for DKIM TXT record (Hostinger usually creates this as `hostingermail._domainkey` or similar). If missing, hPanel → Emails → DKIM → enable for the domain.
+5. Add DMARC TXT record (improves deliverability of outbound mail — receipts, verification emails):
+   - Type: `TXT`
+   - Name: `_dmarc`
+   - Value: `v=DMARC1; p=quarantine; rua=mailto:postmaster@thestrledger.com`
+   - TTL: default
+
+### 2.3 Test the inbox
+
+1. Open https://webmail.hostinger.com (or hPanel → Emails → Webmail) and sign in as `hello@thestrledger.com`.
+2. From your personal email, send a test message to `hello@thestrledger.com`.
+3. Confirm it arrives in the Hostinger webmail inbox within 1 minute.
+4. Send a reply back to your personal email → confirm it arrives (proves outbound mail works).
+
+### 2.4 Configure on your local mail client (optional)
+
+If you want `hello@thestrledger.com` in Outlook / Apple Mail / Thunderbird, use these IMAP/SMTP settings (verify exact values in hPanel → Emails → Email Accounts → manage):
+
+- **IMAP:** server `imap.hostinger.com`, port `993`, SSL/TLS, password from Vaultwarden
+- **SMTP:** server `smtp.hostinger.com`, port `465`, SSL/TLS, password from Vaultwarden
+
+### 2.5 Enable 2FA on Hostinger account (covers email login)
+
+Already done in Part 1.3 if you followed the baseline. The mailbox itself doesn't have separate 2FA — it's protected by the Hostinger account 2FA.
+
+→ **Tell Claude:** *"hello@thestrledger.com mailbox live, MX/SPF/DKIM/DMARC verified, test message received."*
+
+---
+
+## Part 3 — Create the `dashboard.thestrledger.com` subdomain (10 min)
 
 This is the one thing blocking the empire console launch (Phase 5).
 
@@ -36,7 +87,7 @@ This is the one thing blocking the empire console launch (Phase 5).
 
 ---
 
-## Part 3 — Create `.htpasswd` for the dashboard (10 min)
+## Part 4 — Create `.htpasswd` for the dashboard (10 min)
 
 The console will be the single public surface that exposes operational data (cache JSONs, ops state, financials). Basic auth via .htpasswd is the gate.
 
@@ -61,12 +112,12 @@ The console will be the single public surface that exposes operational data (cac
 
 ---
 
-## Part 4 — Confirm .htaccess will deploy with the dashboard (2 min)
+## Part 5 — Confirm .htaccess will deploy with the dashboard (2 min)
 
 You don't write this — it ships with the build. Just confirm the path matches.
 
 1. Open `tools/empire-console/public/.htaccess` in the repo.
-2. Confirm the `AuthUserFile` line points to the **absolute path** of the file you created in Part 3 — typically:
+2. Confirm the `AuthUserFile` line points to the **absolute path** of the file you created in Part 4 — typically:
    ```
    AuthUserFile "/home/<your-hostinger-username>/domains/thestrledger.com/.htpasswd-dashboard"
    ```
@@ -76,7 +127,7 @@ You don't write this — it ships with the build. Just confirm the path matches.
 
 ---
 
-## Part 5 — Set the GitHub Actions `PUBLIC_N8N_WEBHOOK_BASE` secret (3 min)
+## Part 6 — Set the GitHub Actions `PUBLIC_N8N_WEBHOOK_BASE` secret (3 min)
 
 The static console build inlines the n8n webhook base at compile time. Without this set, every "Ship update" / "Preview" / "Delist" button on the dashboard is a no-op.
 
@@ -92,7 +143,7 @@ The static console build inlines the n8n webhook base at compile time. Without t
 
 ---
 
-## Part 6 — Verify SSH deploy still works (1 min)
+## Part 7 — Verify SSH deploy still works (1 min)
 
 Already done historically. Re-verify if you suspect rotation drift.
 
@@ -117,10 +168,11 @@ Already done historically. Re-verify if you suspect rotation drift.
 ## Estimate
 
 - Baseline confirm: 5 min
+- Create hello@ mailbox + verify MX/SPF/DKIM/DMARC: 10 min
 - Create subdomain + wait for SSL: 15 min (mostly async wait)
 - Create .htpasswd: 10 min
 - Verify .htaccess + set GitHub secret: 5 min
-- **Total: ~30 min focused, ~45 min wall-clock with SSL wait**
+- **Total: ~40 min focused, ~55 min wall-clock with SSL wait**
 
 ---
 

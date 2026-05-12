@@ -19,7 +19,7 @@ Block on these — if any is missing, you'll have to back-fill in the middle of 
 - [ ] **Stripe** restricted keys `n8n-nightly-refresh` + `n8n-stripe-to-is` in Vaultwarden — see [stripe-manual-setup-guide.md](stripe-manual-setup-guide.md)
 - [ ] **Etsy** keystring + shop ID in Vaultwarden — see [etsy-manual-setup-guide.md](etsy-manual-setup-guide.md)
 - [ ] **Gumroad** access token in Vaultwarden — see [gumroad-manual-setup-guide.md](gumroad-manual-setup-guide.md)
-- [ ] **GSC** OAuth client ID + secret in Vaultwarden — see [google-workspace-manual-setup-guide.md](google-workspace-manual-setup-guide.md) Part 3
+- [ ] **GSC** OAuth client ID + secret in Vaultwarden — see [google-services-manual-setup-guide.md](google-services-manual-setup-guide.md) Part 3
 - [ ] **Plausible** Stats API token in Vaultwarden — see [plausible-manual-setup-guide.md](plausible-manual-setup-guide.md)
 - [ ] **InfluencerSoft** API key already in `./.env` as `INFLUENCERSOFT_API_KEY` (✅ done 2026-05-11)
 - [ ] **UptimeRobot or healthchecks.io** heartbeat URL — create one free account at https://healthchecks.io, make a new check named `n8n-empire-heartbeat`, save the ping URL
@@ -132,7 +132,7 @@ Settings → **Credentials** → **+ Add Credential**. Add each below.
 
 1. Type: **Google OAuth2 API** (NOT generic OAuth2 — n8n has a Google-specific node).
 2. Name: `GSC_OAUTH`.
-3. Client ID: from Google Cloud Console (workspace guide Part 3.2).
+3. Client ID: from Google Cloud Console (google-services guide Part 2.3).
 4. Client Secret: from same.
 5. Scope: `https://www.googleapis.com/auth/webmasters.readonly`.
 6. Click **Sign in with Google** — opens browser tab, sign in with `hello@thestrledger.com`, click **Allow**.
