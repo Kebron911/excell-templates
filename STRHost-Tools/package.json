@@ -17,6 +17,11 @@
     "lint": "eslint --ext .ts,.tsx,.astro src tests"
   },
   "dependencies": {
+    "@str/format": "workspace:*",
+    "@str/url-state": "workspace:*",
+    "@str/seo": "workspace:*",
+    "@str/ui-chrome": "workspace:*",
+    "@str/ui-funnel": "workspace:*",
     "@astrojs/mdx": "^5.0.4",
     "@astrojs/react": "^5.0.4",
     "@astrojs/rss": "^4.0.18",

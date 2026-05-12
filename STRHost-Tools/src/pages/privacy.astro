@@ -1,8 +1,9 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
+import Layout from '@str/ui-chrome/Layout.astro';
+import { siteConfig } from '@/data/site.config';
 ---
 
-<Layout
+<Layout siteConfig={siteConfig}
   title="Privacy Policy — STR Host Tools"
   description="Privacy policy for strhost.tools. How we handle the (very limited) data the site collects."
   path="/privacy"

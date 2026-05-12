@@ -1,9 +1,10 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import Layout from '@str/ui-chrome/Layout.astro';
+import { siteConfig } from '@/data/site.config';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 ---
 
-<Layout
+<Layout siteConfig={siteConfig}
   title="Contact — STR Host Tools"
   description="Contact STR Host Tools. Bug reports, calculator requests, and partnership inquiries welcome."
   path="/contact"
@@ -42,7 +43,7 @@ import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
       </p>
     </div>
 
-    <ClusterFunnelBlock currentCluster="math" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="math" />
   </article>
 </Layout>
 

@@ -1,11 +1,12 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
+import Layout from '@str/ui-chrome/Layout.astro';
+import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
 
 const toolsList = Object.values(tools);
 ---
 
-<Layout
+<Layout siteConfig={siteConfig}
   title="Page not found — STR Host Tools"
   description="That page doesn't exist on strhost.tools. Pick a calculator below, browse the lodging-tax index, or read the blog."
   path="/404"

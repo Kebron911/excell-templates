@@ -1,8 +1,9 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@str/ui-chrome/Layout.astro';
+import { siteConfig } from '@/data/site.config';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import tools from '@/data/tools.json';
 import { getCollection } from 'astro:content';
 
@@ -31,7 +32,7 @@ const categoryLabels: Record<string, string> = {
 };
 ---
 
-<Layout
+<Layout siteConfig={siteConfig}
   title="STR Host Tools — Free calculators for short-term rental hosts"
   description="Seven free calculators for Airbnb and Vrbo hosts: fees, profit, cleaning fees, RevPAR, break-even, co-host split, and lodging tax for all 50 states. No signup, no popups."
   path="/"
@@ -193,7 +194,7 @@ const categoryLabels: Record<string, string> = {
   {/* Lead magnet — soft, content-styled */}
   <section class="bg-parchment-alt border-t border-rule">
     <div class="mx-auto max-w-6xl px-5 py-9">
-      <EmailCaptureCard
+      <EmailCaptureCard siteConfig={siteConfig}
         magnet="str-host-income-report-2026"
         toolSlug="landing"
       />
@@ -203,9 +204,9 @@ const categoryLabels: Record<string, string> = {
   {/* STR Ledger funnel */}
   <section class="bg-parchment-light border-t border-rule">
     <div class="mx-auto max-w-6xl px-5 py-9">
-      <STRLedgerCTA tool="profit-calculator" />
+      <STRLedgerCTA siteConfig={siteConfig} tool="profit-calculator" />
     </div>
   </section>
 
-  <ClusterFunnelBlock currentCluster="math" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="math" />
 </Layout>

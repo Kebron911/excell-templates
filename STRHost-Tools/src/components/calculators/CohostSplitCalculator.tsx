@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { calculateCohostSplit, COHOST_DEFAULTS, type CohostMode } from '@/lib/calc/cohost-split';
-import { formatCurrency } from '@/lib/format';
-import { parse, createDebouncedReplaceState } from '@/lib/url-state';
+import { formatCurrency } from '@str/format';
+import { parse, createDebouncedReplaceState } from '@str/url-state';
 import { Field, Row, Actions } from './ui';
 
 type UrlState = {

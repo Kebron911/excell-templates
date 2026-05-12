@@ -1,14 +1,15 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import Sidebar from '@/components/chrome/Sidebar.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@str/ui-chrome/Layout.astro';
+import Sidebar from '@str/ui-chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import AirbnbFeeCalculator from '@/components/calculators/AirbnbFeeCalculator.tsx';
 import { Content as ToolCopy } from '@/content/tools/airbnb-fee-calculator.mdx';
-import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import { buildWebApplication, buildFAQPage } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
 
 const tool = tools['airbnb-fee-calculator'];
@@ -42,7 +43,7 @@ const faqs = [
 ];
 
 const jsonLd = [
-  buildWebApplication({
+  buildWebApplication(siteConfig, {
     name: 'Airbnb Fee Calculator',
     description:
       'Free Airbnb fee calculator. See the host fee, guest service fee, and your real payout — instantly.',
@@ -52,7 +53,7 @@ const jsonLd = [
 ];
 ---
 
-<Layout
+<Layout siteConfig={siteConfig}
   title="Airbnb Fee Calculator — STR Host Tools"
   description="Free Airbnb fee calculator. Enter nightly rate, nights, and cleaning fee — see what the guest pays, what Airbnb takes, and what you really receive."
   path="/airbnb-fee-calculator"
@@ -77,7 +78,7 @@ const jsonLd = [
         </div>
 
         {/* 3. In-content ad */}
-        <AdSlot location="in-content" />
+        <AdSlot siteConfig={siteConfig} location="in-content" />
 
         {/* 4 + 6 + 7. How it works / How to use / FAQ — content from MDX */}
         <div class="prose mt-7 max-w-2xl">
@@ -87,24 +88,24 @@ const jsonLd = [
         <RelatedPosts toolKey="airbnb-fee-calculator" />
 
         {/* 5. Email capture */}
-        <EmailCaptureCard
+        <EmailCaptureCard siteConfig={siteConfig}
           magnet="str-host-income-report-2026"
           toolSlug="airbnb-fee-calculator"
         />
 
         {/* 8. STR Ledger CTA */}
-        <STRLedgerCTA tool="airbnb-fee-calculator" />
+        <STRLedgerCTA siteConfig={siteConfig} tool="airbnb-fee-calculator" />
 
         {/* 9. Footer ad */}
-        <AdSlot location="footer" />
+        <AdSlot siteConfig={siteConfig} location="footer" />
       </div>
 
       {/* 10. Related calculators (Sidebar) — desktop right rail, mobile collapses below */}
-      <Sidebar current="airbnb-fee-calculator" />
+      <Sidebar siteConfig={siteConfig} current="airbnb-fee-calculator" />
     </div>
 
     {/* 11. Cluster funnel band */}
-    <ClusterFunnelBlock currentCluster="math" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="math" />
   </article>
 </Layout>
 

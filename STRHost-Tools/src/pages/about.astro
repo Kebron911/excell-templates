@@ -1,10 +1,11 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@str/ui-chrome/Layout.astro';
+import { siteConfig } from '@/data/site.config';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 ---
 
-<Layout
+<Layout siteConfig={siteConfig}
   title="About — STR Host Tools"
   description="Who built STR Host Tools and why. Free calculators for short-term rental hosts, built by The STR Ledger."
   path="/about"
@@ -51,10 +52,10 @@ import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
     </div>
 
     <div class="mx-auto max-w-3xl px-5">
-      <STRLedgerCTA tool="profit-calculator" />
+      <STRLedgerCTA siteConfig={siteConfig} tool="profit-calculator" />
     </div>
 
-    <ClusterFunnelBlock currentCluster="math" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="math" />
   </article>
 </Layout>
 

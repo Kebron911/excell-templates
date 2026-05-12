@@ -1,10 +1,11 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import Layout from '@str/ui-chrome/Layout.astro';
+import { siteConfig } from '@/data/site.config';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 ---
 
-<Layout
+<Layout siteConfig={siteConfig}
   title="STR Host Income Report 2026 — Free PDF"
   description="The STR Host Income Report 2026 — average ADR, RevPAR, occupancy, and host-fee data across 50 states. Free PDF, drops Q4 2026."
   path="/get-the-pdf"
@@ -46,7 +47,7 @@ import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
       </div>
 
       <div class="mt-7">
-        <EmailCaptureCard
+        <EmailCaptureCard siteConfig={siteConfig}
           magnet="str-host-income-report-2026"
           toolSlug="get-the-pdf"
           headline="Email me when the report ships"
@@ -60,6 +61,6 @@ import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
       </p>
     </div>
 
-    <ClusterFunnelBlock currentCluster="math" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="math" />
   </article>
 </Layout>

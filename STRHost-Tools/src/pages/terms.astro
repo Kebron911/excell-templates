@@ -1,8 +1,9 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
+import Layout from '@str/ui-chrome/Layout.astro';
+import { siteConfig } from '@/data/site.config';
 ---
 
-<Layout
+<Layout siteConfig={siteConfig}
   title="Terms of Use — STR Host Tools"
   description="Terms of use for strhost.tools. Calculators are informational, not financial or tax advice."
   path="/terms"

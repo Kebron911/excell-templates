@@ -5,7 +5,7 @@ import {
   formatNumber,
   formatAbbreviated,
   parseNumberInput,
-} from '@/lib/format';
+} from '@str/format';
 
 describe('formatCurrency', () => {
   it('formats whole dollars with two decimals', () => {
@@ -47,8 +47,8 @@ describe('formatPercent', () => {
     expect(formatPercent(8.5)).toBe('8.5%');
   });
 
-  it('handles 1 as 100% (unambiguous edge: caller wanted 100%)', () => {
-    expect(formatPercent(1)).toBe('100%');
+  it('handles 1 as 1% (package contract: |v|>=1 treated as already-percent)', () => {
+    expect(formatPercent(1)).toBe('1%');
   });
 
   it('handles 0 as 0%', () => {

@@ -1,8 +1,9 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
+import Layout from '@str/ui-chrome/Layout.astro';
+import { siteConfig } from '@/data/site.config';
 ---
 
-<Layout
+<Layout siteConfig={siteConfig}
   title="Disclosures — STR Host Tools"
   description="Affiliate, advertising, and editorial disclosures for strhost.tools."
   path="/disclosures"
