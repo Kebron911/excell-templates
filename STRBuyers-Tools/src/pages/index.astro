@@ -1,9 +1,10 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import DisclosureBanner from '@/components/affiliate/DisclosureBanner.astro';
 import tools from '@/data/tools.json';
+import { siteConfig } from '@/data/site.config';
 
 const toolsList = Object.entries(tools);
 
@@ -77,7 +78,7 @@ const featuredCities = [
     </ul>
   </section>
 
-  <AdSlot location="in-content" />
+  <AdSlot siteConfig={siteConfig} location="in-content" />
 
   {/* Cities highlight */}
   <section class="mx-auto max-w-6xl px-5 py-12">
@@ -137,7 +138,7 @@ const featuredCities = [
     </ul>
   </section>
 
-  <ClusterFunnelBlock currentCluster="acquisition" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="acquisition" />
 
-  <AdSlot location="footer" />
+  <AdSlot siteConfig={siteConfig} location="footer" />
 </Layout>

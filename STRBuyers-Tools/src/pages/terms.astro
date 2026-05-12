@@ -1,6 +1,7 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import { siteConfig } from '@/data/site.config';
 
 const today = new Date().toISOString().slice(0, 10);
 ---
@@ -70,5 +71,5 @@ const today = new Date().toISOString().slice(0, 10);
     </section>
   </article>
 
-  <ClusterFunnelBlock currentCluster="acquisition" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="acquisition" />
 </Layout>

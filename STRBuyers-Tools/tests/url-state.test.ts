@@ -3,7 +3,7 @@ import {
   serialize,
   parse,
   createDebouncedReplaceState,
-} from '@/lib/url-state';
+} from '@str/url-state';
 
 describe('serialize', () => {
   it('serializes a flat object to URLSearchParams string', () => {

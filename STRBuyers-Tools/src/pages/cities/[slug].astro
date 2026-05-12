@@ -1,13 +1,14 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import { getCollection, render } from 'astro:content';
 import { listCities, type CityEntry } from '@/data/cities';
-import { formatCurrency, formatPercent } from '@/lib/format';
-import { buildPlace } from '@/lib/seo';
+import { formatCurrency, formatPercent } from '@str/format';
+import { buildPlace } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 
 export async function getStaticPaths() {
   return listCities().map((city) => ({
@@ -57,7 +58,7 @@ const dataQualityLabel =
     ? 'Researched'
     : 'Estimated — community-sourced';
 
-const placeLd = buildPlace({
+const placeLd = buildPlace(siteConfig, {
   city: city.name,
   addressRegion: city.state,
   slug: city.slug,
@@ -141,8 +142,7 @@ const pageDesc = `${city.name}, ${city.stateName} STR market profile — ADR ${f
       )}
 
       {!Content && (
-        <EmailCaptureCard
-          magnet={`city-deep-dive-${city.slug}`}
+        <EmailCaptureCard siteConfig={siteConfig} magnet={`city-deep-dive-${city.slug}`}
           toolSlug={`cities-${city.slug}`}
           headline={`Get notified when in-depth analysis ships for ${city.name}`}
           blurb={`Regulatory deep-dive, neighborhoods to target, and pitfalls — drop your email and we'll send the ${city.name} brief when it ships.`}
@@ -152,9 +152,9 @@ const pageDesc = `${city.name}, ${city.stateName} STR market profile — ADR ${f
 
       <AffiliateBlock vendorIds={['airdna', 'mashvisor', 'pricelabs']} tool="market-score" />
 
-      <AdSlot location="in-content" />
+      <AdSlot siteConfig={siteConfig} location="in-content" />
 
-      <EmailCaptureCard magnet="str-buyer-playbook" toolSlug={`cities-${city.slug}`} />
+      <EmailCaptureCard siteConfig={siteConfig} magnet="str-buyer-playbook" toolSlug={`cities-${city.slug}`} />
 
       <p class="mt-7 text-caption text-ink-3 font-mono">
         Last reviewed <time datetime={city.lastReviewed}>{city.lastReviewed}</time>
@@ -165,7 +165,7 @@ const pageDesc = `${city.name}, ${city.stateName} STR market profile — ADR ${f
       </p>
     </div>
 
-    <ClusterFunnelBlock currentCluster="acquisition" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="acquisition" />
   </article>
 
   {/* GA4 city_view — fires once on mount via cluster-wide analytics convention. */}

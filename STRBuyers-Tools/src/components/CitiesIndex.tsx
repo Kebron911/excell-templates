@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { CityEntry, RegulationStatus, SaturationTier } from '@/data/cities';
-import { formatCurrency, formatPercent } from '@/lib/format';
+import { formatCurrency, formatPercent } from '@str/format';
 
 type SortKey = 'state' | 'score' | 'adr' | 'occ';
 

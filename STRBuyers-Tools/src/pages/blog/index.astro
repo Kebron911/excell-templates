@@ -1,7 +1,8 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import { getCollection } from 'astro:content';
+import { siteConfig } from '@/data/site.config';
 
 const all = await getCollection('posts');
 const posts = all
@@ -72,5 +73,5 @@ const formatDate = (iso: string) =>
     </div>
   </section>
 
-  <ClusterFunnelBlock currentCluster="acquisition" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="acquisition" />
 </Layout>

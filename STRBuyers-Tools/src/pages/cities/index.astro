@@ -1,10 +1,11 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import CitiesIndex from '@/components/CitiesIndex.tsx';
 import { listCities } from '@/data/cities';
+import { siteConfig } from '@/data/site.config';
 
 const cities = listCities();
 const total = cities.length;
@@ -30,11 +31,11 @@ const total = cities.length;
         <CitiesIndex client:visible cities={cities} />
       </div>
 
-      <AdSlot location="in-content" />
+      <AdSlot siteConfig={siteConfig} location="in-content" />
 
-      <EmailCaptureCard magnet="str-buyer-playbook" toolSlug="cities-index" />
+      <EmailCaptureCard siteConfig={siteConfig} magnet="str-buyer-playbook" toolSlug="cities-index" />
     </div>
 
-    <ClusterFunnelBlock currentCluster="acquisition" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="acquisition" />
   </article>
 </Layout>

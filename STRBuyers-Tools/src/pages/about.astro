@@ -1,7 +1,8 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import { siteConfig } from '@/data/site.config';
 ---
 <Layout
   title="About — strbuyers.tools"
@@ -72,8 +73,8 @@ import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
       </p>
     </section>
 
-    <STRLedgerCTA tool="strbuyers" />
+    <STRLedgerCTA siteConfig={siteConfig} tool="strbuyers" />
   </article>
 
-  <ClusterFunnelBlock currentCluster="acquisition" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="acquisition" />
 </Layout>
