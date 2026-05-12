@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { codeForAsync } from '@lib/calc/smart-lock-codes';
-import { serialize, parse, createDebouncedReplaceState } from '@str/url-state';
+import { parse, createDebouncedReplaceState } from '@str/url-state';
 import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = { secret: string; digits: number; bookings: string };
@@ -20,7 +20,7 @@ export default function SmartLockCodes() {
     }
   }, []);
   useEffect(() => {
-    replacer(serialize(s, defaults));
+    replacer(s, defaults);
   }, [s, replacer]);
 
   useEffect(() => {

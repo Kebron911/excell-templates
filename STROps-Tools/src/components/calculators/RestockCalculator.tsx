@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { computeRestock, type RestockItem } from '@lib/calc/restock';
-import { serialize, parse, createDebouncedReplaceState } from '@str/url-state';
+import { parse, createDebouncedReplaceState } from '@str/url-state';
 import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = {
@@ -39,7 +39,7 @@ export default function RestockCalculator() {
     }
   }, []);
   useEffect(() => {
-    replacer(serialize(s, defaults));
+    replacer(s, defaults);
   }, [s, replacer]);
 
   const items = useMemo(() => parseItems(s.items), [s.items]);

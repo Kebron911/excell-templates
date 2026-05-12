@@ -3,7 +3,7 @@ import { buildSchedule } from '@lib/calc/maintenance-schedule';
 import { buildSchedulePdf } from '@lib/pdf/maintenance-schedule';
 import { buildIcs, downloadIcs } from '@lib/calendar/ics';
 import { downloadBytes } from '@lib/pdf/base';
-import { serialize, parse, createDebouncedReplaceState } from '@str/url-state';
+import { parse, createDebouncedReplaceState } from '@str/url-state';
 import { track, markCalcRunOnce } from '@lib/analytics';
 import tasks from '@data/tasks.json';
 import type { TaskCatalog } from '@lib/types';
@@ -37,7 +37,7 @@ export default function MaintenanceSchedule() {
     }
   }, []);
   useEffect(() => {
-    replacer(serialize(s, defaults));
+    replacer(s, defaults);
   }, [s, replacer]);
 
   const result = useMemo(

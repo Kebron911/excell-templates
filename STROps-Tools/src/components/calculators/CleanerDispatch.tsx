@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { buildDispatch } from '@lib/calc/cleaner-dispatch';
 import { buildDispatchPdf } from '@lib/pdf/cleaner-dispatch';
 import { downloadBytes } from '@lib/pdf/base';
-import { serialize, parse, createDebouncedReplaceState } from '@str/url-state';
+import { parse, createDebouncedReplaceState } from '@str/url-state';
 import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = { date: string; turnovers: string; cleaners: string };
@@ -21,7 +21,7 @@ export default function CleanerDispatch() {
     }
   }, []);
   useEffect(() => {
-    replacer(serialize(s, defaults));
+    replacer(s, defaults);
   }, [s, replacer]);
 
   const turnovers = s.turnovers

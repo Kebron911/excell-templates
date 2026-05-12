@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { computeSchedule, type Booking } from '@lib/calc/turnover';
-import { serialize, parse, createDebouncedReplaceState } from '@str/url-state';
+import { parse, createDebouncedReplaceState } from '@str/url-state';
 import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = { turnoverHours: number; rows: string };
@@ -29,7 +29,7 @@ export default function TurnoverScheduler() {
     setState(parse(new URLSearchParams(window.location.search), defaults));
   }, []);
   useEffect(() => {
-    replacer(serialize(state, defaults));
+    replacer(state, defaults);
   }, [state, replacer]);
 
   const bookings = useMemo(() => parseRows(state.rows), [state.rows]);
