@@ -131,7 +131,7 @@ Full template library at thestrledger.com.
 2. `contractor tracker`
 3. `airbnb 1099`
 4. `rental 1099`
-5. `str contractor tracker`
+5. `1099 contractor log`
 6. `w9 tracker`
 7. `1099 prep template`
 8. `tax season template`

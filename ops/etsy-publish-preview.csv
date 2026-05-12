@@ -2,5 +2,5 @@ sku,name,price_usd,title_chars,desc_chars,tag_count,warnings,source
 GST-001,Airbnb Welcome Book Template,17,126,4704,13,,copy/etsy-listings/GST-001-welcome-book.md
 OPS-001,Cleaner Turnover Checklist + Scorecard,12,124,3131,13,,copy/etsy-listings/OPS-001-turnover-checklist.md
 TAX-001,STR Mileage Log,17,122,3938,13,,copy/etsy-listings/TAX-001-mileage-log.md
-TAX-002,Single-Property P&L Tracker,27,109,5550,13,"description 5550 > 5000 max; tags > 20 chars: depreciation calculator, rental property excel, landlord tax template",copy/etsy-listings/TAX-002-pl-single-property.md
-TAX-003,1099-NEC Contractor Tracker,17,105,3699,13,tags > 20 chars: str contractor tracker,copy/etsy-listings/TAX-003-1099-nec-tracker.md
+TAX-002,Single-Property P&L Tracker,27,109,4970,13,,copy/etsy-listings/TAX-002-pl-single-property.md
+TAX-003,1099-NEC Contractor Tracker,17,105,3699,13,,copy/etsy-listings/TAX-003-1099-nec-tracker.md
