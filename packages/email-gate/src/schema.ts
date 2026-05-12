@@ -1,7 +1,10 @@
 import { z } from 'zod';
+import type { SiteId } from '@str/seo';
+
+const SITE_IDS = ['guests', 'buyers', 'host', 'ops'] as const satisfies readonly SiteId[];
 
 export const SubmitInputSchema = z.object({
-  siteId: z.enum(['guests', 'buyers', 'host', 'ops']),
+  siteId: z.enum(SITE_IDS),
   listSegment: z.string().min(1).max(64),
   email: z.string().email().max(254),
   source: z.string().max(128).optional(),
