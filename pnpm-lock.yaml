@@ -265,6 +265,21 @@ importers:
       '@astrojs/tailwind':
         specifier: ^6.0.2
         version: 6.0.2(astro@6.3.1(@types/node@20.19.40)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.3)(tsx@4.21.0)(yaml@2.8.4))(tailwindcss@3.4.19(tsx@4.21.0)(yaml@2.8.4))
+      '@str/format':
+        specifier: workspace:*
+        version: link:../packages/format
+      '@str/seo':
+        specifier: workspace:*
+        version: link:../packages/seo
+      '@str/ui-chrome':
+        specifier: workspace:*
+        version: link:../packages/ui-chrome
+      '@str/ui-funnel':
+        specifier: workspace:*
+        version: link:../packages/ui-funnel
+      '@str/url-state':
+        specifier: workspace:*
+        version: link:../packages/url-state
       astro:
         specifier: ^6.2.2
         version: 6.3.1(@types/node@20.19.40)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.3)(tsx@4.21.0)(yaml@2.8.4)
@@ -397,6 +412,21 @@ importers:
       '@astrojs/tailwind':
         specifier: ^6.0.2
         version: 6.0.2(astro@6.3.1(@types/node@22.19.18)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.3)(tsx@4.21.0)(yaml@2.8.4))(tailwindcss@3.4.19(tsx@4.21.0)(yaml@2.8.4))
+      '@str/format':
+        specifier: workspace:*
+        version: link:../packages/format
+      '@str/seo':
+        specifier: workspace:*
+        version: link:../packages/seo
+      '@str/ui-chrome':
+        specifier: workspace:*
+        version: link:../packages/ui-chrome
+      '@str/ui-funnel':
+        specifier: workspace:*
+        version: link:../packages/ui-funnel
+      '@str/url-state':
+        specifier: workspace:*
+        version: link:../packages/url-state
       astro:
         specifier: ^6.2.2
         version: 6.3.1(@types/node@22.19.18)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.3)(tsx@4.21.0)(yaml@2.8.4)
@@ -467,6 +497,9 @@ importers:
 
   packages/email-gate:
     dependencies:
+      '@str/seo':
+        specifier: workspace:*
+        version: link:../seo
       mysql2:
         specifier: ^3.10.0
         version: 3.22.3(@types/node@24.12.3)
