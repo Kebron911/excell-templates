@@ -42,6 +42,34 @@ jobs:
       - name: Install (root workspace)
         run: pnpm install --frozen-lockfile
 
+      # Astro 6 / Vite 7 reads server-side env vars from .env files but
+      # not always from process.env injected by the workflow `env:` block.
+      # Write .env from secrets so the build behaves identically to local
+      # dev (which has STRManuals/site/.env populated).
+      - name: Write .env from secrets
+        working-directory: STRManuals/site
+        env:
+          STRIPE_LINK_TAX_01: ${{ secrets.STRMANUALS_STRIPE_LINK_TAX_01 }}
+          STRIPE_LINK_TAX_02: ${{ secrets.STRMANUALS_STRIPE_LINK_TAX_02 }}
+          STRIPE_LINK_REV_01: ${{ secrets.STRMANUALS_STRIPE_LINK_REV_01 }}
+          STRIPE_LINK_REV_02: ${{ secrets.STRMANUALS_STRIPE_LINK_REV_02 }}
+          STRIPE_LINK_LGL_01: ${{ secrets.STRMANUALS_STRIPE_LINK_LGL_01 }}
+          STRIPE_LINK_BUNDLE: ${{ secrets.STRMANUALS_STRIPE_LINK_BUNDLE }}
+          PUBLIC_N8N_WEBHOOK_BASE: ${{ secrets.PUBLIC_N8N_WEBHOOK_BASE }}
+          STRMANUALS_DOWNLOAD_HASH: ${{ secrets.STRMANUALS_DOWNLOAD_HASH }}
+        run: |
+          cat > .env <<EOF
+          STRIPE_LINK_TAX_01=$STRIPE_LINK_TAX_01
+          STRIPE_LINK_TAX_02=$STRIPE_LINK_TAX_02
+          STRIPE_LINK_REV_01=$STRIPE_LINK_REV_01
+          STRIPE_LINK_REV_02=$STRIPE_LINK_REV_02
+          STRIPE_LINK_LGL_01=$STRIPE_LINK_LGL_01
+          STRIPE_LINK_BUNDLE=$STRIPE_LINK_BUNDLE
+          PUBLIC_N8N_WEBHOOK_BASE=$PUBLIC_N8N_WEBHOOK_BASE
+          STRMANUALS_DOWNLOAD_HASH=$STRMANUALS_DOWNLOAD_HASH
+          EOF
+          echo ".env written ($(wc -l < .env) lines)"
+
       - name: Build static site
         working-directory: STRManuals/site
         env:
