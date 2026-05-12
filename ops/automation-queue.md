@@ -1,6 +1,6 @@
 # Automation Queue — The STR Ledger
 
-> **Scope:** everything Claude builds so Daniel doesn't have to click it. Paired with [user-manual-todo.md](user-manual-todo.md) — human actions gate each phase, Claude executes the automation, then a review gate returns to human.
+> **Scope:** everything Claude builds so Daniel doesn't have to click it. Paired with [manual work/user-manual-todo.md](manual%20work/user-manual-todo.md) — human actions gate each phase, Claude executes the automation, then a review gate returns to human.
 >
 > **Status convention:** `⏳ blocked on <prereq>` / `🔨 in progress` / `✅ done` / `🟡 needs review`. Update this file as work moves.
 >

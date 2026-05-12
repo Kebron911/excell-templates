@@ -19,7 +19,7 @@
 
 **Shipped today (2026-05-09):** Cluster CI alignment (3 PRs merged: [#24](https://github.com/Kebron911/excell-templates/pull/24) strguests, [#25](https://github.com/Kebron911/excell-templates/pull/25) strbuyers, [#26](https://github.com/Kebron911/excell-templates/pull/26) strhost). All four cluster sites now share one CI pattern: PR-gate + push-to-main deploy + post-deploy smoke. `strbuyers-tools-v0.1.0` tag pushed (was local-only). Abandoned source branch + stale worktree pruned.
 
-**The literal next thing to do:** Daniel completes [§1.1 Etsy seller account](ops/DANIEL-FIRST-PAYMENT-CHECKLIST.md#-11--etsy-seller-account-45-min). Everything else is downstream of account openings.
+**The literal next thing to do:** Daniel completes [§1.1 Etsy seller account](ops/manual%20work/DANIEL-FIRST-PAYMENT-CHECKLIST.md#-11--etsy-seller-account-45-min). Everything else is downstream of account openings.
 
 **Two parallel tracks once accounts open:**
 - **Track A — First-payment critical path** (Phases 1–5 below). Etsy alone gets you to first paid order.
@@ -83,7 +83,7 @@ After `test purchase pass`, signal: **`publish Wave 1`**. Claude pushes OPS-001 
 
 Phases 1–5 above are the **minimum path to first paid Etsy order**. These items are needed for the full multi-storefront stack (own site + email lifecycle + Pinterest funnel + analytics + community). They do **not** block G4 first payment except where flagged 🚦, but every day they slip is a day of post-launch attribution loss.
 
-Source-of-truth (more detail per item): [`ops/user-manual-todo.md`](ops/user-manual-todo.md).
+Source-of-truth (more detail per item): [`ops/manual%20work/user-manual-todo.md`](ops/manual%20work/user-manual-todo.md).
 
 ### Phase 6 — Additional account openings (parallel with Phase 1, ~2 hrs)
 
@@ -135,7 +135,7 @@ Each `approved` signal unblocks the next surface. Claude builds the artifact; Da
 | **Email sequence (hero magnet, 9 emails)** | `email sequence approved` | IS sequence load OR manual-send fallback | `copy/_atomization/email-sequences/` |
 | **Blog post drafts (×3)** | `blog post N approved` (per post) | Ghost publish | (drafts produced when 8.1 SKUs approved) |
 | **Pinterest pin batches (30 pins, ×3 batches of 10)** | `pins 1–10 approved`, `pins 11–20 approved`, `pins 21–30 approved` | Per-batch Pinterest scheduling | (rendered after 8.1 + 7.8) |
-| **Pre-launch go/no-go (Week 7)** | `launch approved` | All systems green; G4 publish gates open | full-stack dry-run checklist in [`ops/user-manual-todo.md`](ops/user-manual-todo.md) §5.8 |
+| **Pre-launch go/no-go (Week 7)** | `launch approved` | All systems green; G4 publish gates open | full-stack dry-run checklist in [`ops/manual%20work/user-manual-todo.md`](ops/manual%20work/user-manual-todo.md) §5.8 |
 
 ### Phase 10 — Ongoing human cadence (post-launch)
 
@@ -217,7 +217,7 @@ The implementations Daniel's sequence triggers are **already in this repo**. Not
 
 ## Reference
 
-- **Detailed Daniel sequence:** [`ops/DANIEL-FIRST-PAYMENT-CHECKLIST.md`](ops/DANIEL-FIRST-PAYMENT-CHECKLIST.md) (287 lines, per-step instructions)
+- **Detailed Daniel sequence:** [`ops/manual%20work/DANIEL-FIRST-PAYMENT-CHECKLIST.md`](ops/manual%20work/DANIEL-FIRST-PAYMENT-CHECKLIST.md) (287 lines, per-step instructions)
 - **Detailed Claude queue:** [`ops/automation-queue.md`](ops/automation-queue.md) (163 lines, Phases A–I)
 - **Master tracker:** [`PROGRESS.md`](PROGRESS.md) (886 lines, P0–P9 with gates)
 - **Domain credentials inventory:** [`ops/credentials-inventory.md`](ops/credentials-inventory.md)

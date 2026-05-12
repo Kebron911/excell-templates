@@ -35,10 +35,15 @@ infrastructure/
   n8n/workflows/           ← 30 ready-to-import n8n workflow .json + .md
   stripe/setup.md          ← Stripe Tax + Connect runbook (305 lines, ready)
 ops/
-  DANIEL-FIRST-PAYMENT-CHECKLIST.md  ← detailed Daniel sequence (287 lines)
+  manual work/                       ← all human-action setup guides + checklists
+    manual-setup-INDEX.md            ← master ordered walkthrough (Wave 0–4)
+    DANIEL-FIRST-PAYMENT-CHECKLIST.md  ← detailed Daniel sequence (287 lines)
+    user-manual-todo.md              ← legacy full manual-action manual
+    {etsy,stripe,n8n,hostinger,gumroad,google-workspace,plausible,pinterest,telegram,influencersoft}-manual-setup-guide.md
+    post-launch-tracking.md          ← daily/weekly Etsy listing tracking
+    pinterest-ab-test.md             ← Pinterest voice A/B test tracking log
   automation-queue.md                ← detailed Claude queue (Phases A–I)
   credentials-inventory.md
-  user-manual-todo.md
 templates/
   _build/                  ← 65 Python build scripts (1:1 with SKUs)
   _masters/                ← 130 master xlsx (BLANK + DEMO per SKU)

@@ -12,7 +12,7 @@
 > - **Single ordered path forward** → [`LAUNCH.md`](LAUNCH.md)
 > - Master strategy → [`docs/superpowers/specs/2026-04-22-str-tax-platform-design.md`](docs/superpowers/specs/2026-04-22-str-tax-platform-design.md)
 > - Launch design → [`docs/superpowers/specs/2026-04-22-first-5-etsy-products-design.md`](docs/superpowers/specs/2026-04-22-first-5-etsy-products-design.md)
-> - Daniel's detailed checklist → [`ops/DANIEL-FIRST-PAYMENT-CHECKLIST.md`](ops/DANIEL-FIRST-PAYMENT-CHECKLIST.md)
+> - Daniel's detailed checklist → [`ops/manual%20work/DANIEL-FIRST-PAYMENT-CHECKLIST.md`](ops/manual%20work/DANIEL-FIRST-PAYMENT-CHECKLIST.md)
 > - Claude's automation queue → [`ops/automation-queue.md`](ops/automation-queue.md)
 > - Cluster site planning → `STR{Buyers,Guests,Host,Ops}-Tools/.planning/STATE.md`
 
@@ -127,11 +127,11 @@ All four cluster sites use one CI pattern (PR-gate → push deploy → smoke). A
 
 These block everything downstream. Order doesn't matter inside this group, but all must clear before the shop can publish.
 
-- [ ] **Etsy seller account opened** — `hello@thestrledger.com`, bank+tax submitted, 2FA on, dev API app registered (client ID + OAuth secret in Vaultwarden) — [user-manual-todo.md §1.1](ops/user-manual-todo.md)
-- [ ] **Stripe account confirmed** — bank, tax ID, 2FA on authenticator, restricted CLI key generated → Vaultwarden — [§1.2](ops/user-manual-todo.md)
-- [ ] **Domain `thestrledger.com` confirmed** at Hostinger; DNS managed via hPanel; hPanel login → Vaultwarden — [§1.5](ops/user-manual-todo.md)
-- [ ] **Google Workspace** signed up; `hello@thestrledger.com` primary inbox; 2FA on — [§1.5](ops/user-manual-todo.md)
-- [ ] **Gumroad account opened** — bank+tax+2FA, API token → Vaultwarden — [§1.3](ops/user-manual-todo.md)
+- [ ] **Etsy seller account opened** — `hello@thestrledger.com`, bank+tax submitted, 2FA on, dev API app registered (client ID + OAuth secret in Vaultwarden) — [user-manual-todo.md §1.1](ops/manual%20work/user-manual-todo.md)
+- [ ] **Stripe account confirmed** — bank, tax ID, 2FA on authenticator, restricted CLI key generated → Vaultwarden — [§1.2](ops/manual%20work/user-manual-todo.md)
+- [ ] **Domain `thestrledger.com` confirmed** at Hostinger; DNS managed via hPanel; hPanel login → Vaultwarden — [§1.5](ops/manual%20work/user-manual-todo.md)
+- [ ] **Google Workspace** signed up; `hello@thestrledger.com` primary inbox; 2FA on — [§1.5](ops/manual%20work/user-manual-todo.md)
+- [ ] **Gumroad account opened** — bank+tax+2FA, API token → Vaultwarden — [§1.3](ops/manual%20work/user-manual-todo.md)
 - [ ] 🚦 **Signal "Etsy account open + API app registered"** — unlocks Etsy listing API publish
 
 ### P0.2 — Brand asset pack (A4) 🔥
@@ -399,7 +399,7 @@ Drafted: [copy/email-sequences/welcome-book-magnet.md](copy/email-sequences/welc
 
 > Email plumbing, IS instance, and analytics already moved to P0.0 — by the time P3 starts they are already running. This section is the rest of the own-site stack.
 
-- [ ] **VPS provisioned** (Hetzner CX22 / DO Basic, Ubuntu 24.04) → [user-manual-todo §1.6](ops/user-manual-todo.md)
+- [ ] **VPS provisioned** (Hetzner CX22 / DO Basic, Ubuntu 24.04) → [user-manual-todo §1.6](ops/manual%20work/user-manual-todo.md)
 - [ ] Ansible hardening + Docker + Caddy reverse proxy on VPS applied (automation queue C1–C4)
 - [ ] Vaultwarden running, credentials imported via `bw` CLI
 - [ ] Migrate Influencersoft instance from staging into production own-site (if it landed elsewhere in P0.0)
@@ -610,7 +610,7 @@ Per-SKU remaining work for the 13 Phase-6 SKUs: Etsy copy ▢ · product-page co
 - [ ] First 30 pins rendered from [pin-catalog-first-30.md](copy/pinterest/pin-catalog-first-30.md) + 12 SKU catalogs in [design-system/visual-briefs/pinterest/](design-system/visual-briefs/pinterest/)
 - [ ] 🚦 "pins 1–10 approved" / "pins 11–20" / "pins 21–30"
 - [ ] Pins scheduled via Creasquare
-- [ ] A/B test running per [ops/pinterest-ab-test.md](ops/pinterest-ab-test.md)
+- [ ] A/B test running per [ops/manual%20work/pinterest-ab-test.md](ops/manual%20work/pinterest-ab-test.md)
 
 ### P5.2 — FB group
 
@@ -802,7 +802,7 @@ Per-SKU remaining work for the 13 Phase-6 SKUs: Etsy copy ▢ · product-page co
 
 - [ ] Daily 5-min check (first 4 weeks): yesterday's orders, refunds, errors, CVR
 - [ ] Weekly view: per-SKU views, CVR, first-sale lag
-- [ ] Day 30 retro per [ops/post-launch-tracking.md](ops/post-launch-tracking.md)
+- [ ] Day 30 retro per [ops/manual%20work/post-launch-tracking.md](ops/manual%20work/post-launch-tracking.md)
 - [ ] Day 30 thumbnail-rewrite trigger if CTR < 1% on any SKU
 
 ### P8.1 — Product version + update shipping
