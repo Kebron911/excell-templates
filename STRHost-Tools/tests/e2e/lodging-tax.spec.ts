@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Lodging tax — index + per-state', () => {
   test('index lists all 51 states', async ({ page }) => {
-    await page.goto('/lodging-tax');
+    await page.goto('/lodging-tax/');
     await expect(page.getByRole('heading', { name: /lodging tax by state/i, level: 1 })).toBeVisible();
 
     // Spot-check a few states
@@ -16,7 +16,7 @@ test.describe('Lodging tax — index + per-state', () => {
   });
 
   test('Texas page loads and accepts subtotal change', async ({ page }) => {
-    await page.goto('/lodging-tax/tx');
+    await page.goto('/lodging-tax/tx/');
 
     await expect(page.getByRole('heading', { name: /texas lodging tax calculator/i, level: 1 })).toBeVisible();
     await expect(page.getByText(/Effective rate/i).first()).toBeVisible();
@@ -28,12 +28,12 @@ test.describe('Lodging tax — index + per-state', () => {
 
     // Back-to-index link works
     await page.getByRole('link', { name: /all states/i }).click();
-    await expect(page).toHaveURL(/\/lodging-tax$/);
+    await expect(page).toHaveURL(/\/lodging-tax\/?$/);
   });
 
   test('per-state pages render the auto-template fallback for non-MDX states', async ({ page }) => {
     // AL has no hand-authored MDX -> falls back to template
-    await page.goto('/lodging-tax/al');
+    await page.goto('/lodging-tax/al/');
     await expect(page.getByRole('heading', { name: /alabama lodging tax calculator/i, level: 1 })).toBeVisible();
     await expect(page.getByRole('heading', { name: /how alabama lodging tax works/i, level: 2 })).toBeVisible();
   });

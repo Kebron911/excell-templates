@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Profit calculator', () => {
   test('loads, accepts ADR change, persists to URL', async ({ page }) => {
-    await page.goto('/profit-calculator');
+    await page.goto('/profit-calculator/');
 
     await expect(page.getByRole('heading', { name: /profit calculator/i, level: 1 })).toBeVisible();
     await expect(page.getByText(/Net profit/i).first()).toBeVisible();
@@ -15,7 +15,7 @@ test.describe('Profit calculator', () => {
   });
 
   test('seeds from URL on load', async ({ page }) => {
-    await page.goto('/profit-calculator?adr=300&nights=22');
+    await page.goto('/profit-calculator/?adr=300&nights=22');
     await expect(page.getByLabel('ADR (avg nightly rate)')).toHaveValue('300');
     await expect(page.getByLabel('Nights booked')).toHaveValue('22');
   });
