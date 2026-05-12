@@ -61,7 +61,7 @@ jobs:
       - name: Verify build output
         working-directory: STRManuals/site
         run: |
-          set -e
+          set -ex
           test -f dist/index.html
           test -f dist/bundle/index.html
           test -f dist/free/index.html
