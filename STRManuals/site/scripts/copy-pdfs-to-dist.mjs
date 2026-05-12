@@ -98,5 +98,17 @@ console.log(
 // deferred. Document this in the n8n W01b spec.
 
 if (missing > 0) {
+  // CI-aware tolerance: in GitHub Actions (CI=true) the PDF source files
+  // are intentionally absent — they live in private storage that the runner
+  // doesn't have access to (n8n delivers via a separate path). We still log
+  // the warning so the issue is visible, but don't block the static site
+  // deploy. Locally, missing PDFs are a real dev-time problem → exit 1.
+  if (process.env.CI === 'true') {
+    console.warn(
+      `\n⚠ ${missing} PDF source(s) missing — site deploying without /dl/ files. ` +
+        `n8n delivery is the canonical path; this script is supplementary.`,
+    );
+    process.exit(0);
+  }
   process.exit(1);
 }
