@@ -29,28 +29,3 @@ export function createDebouncedReplaceState(delayMs = 200) {
   };
 }
 
-/**
- * Lower-level debounce helper (from STROps variant).
- * Wraps any string-replacement function with a debounced call.
- */
-export function makeReplacer(replace: (q: string) => void, ms = 200) {
-  let t: ReturnType<typeof setTimeout> | null = null;
-  let last = '';
-  return (q: string): void => {
-    last = q;
-    if (t) clearTimeout(t);
-    t = setTimeout(() => replace(last), ms);
-  };
-}
-
-/**
- * Browser-ready replacer that pushes to `window.history`.
- * SSR-safe: no-op when `window` is undefined.
- */
-export function browserReplacer(ms = 200) {
-  return makeReplacer((q) => {
-    if (typeof window === 'undefined') return;
-    const url = `${window.location.pathname}${q}${window.location.hash}`;
-    window.history.replaceState(null, '', url);
-  }, ms);
-}
