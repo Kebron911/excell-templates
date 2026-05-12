@@ -1,7 +1,12 @@
 import type { Config } from 'tailwindcss';
 
 export default {
-  content: ['./src/**/*.{astro,html,js,jsx,ts,tsx,md,mdx}'],
+  content: [
+    './src/**/*.{astro,html,js,jsx,ts,tsx,md,mdx}',
+    // Shared chrome lives outside this app — keep its classes from being purged.
+    '../packages/ui-chrome/src/**/*.{astro,ts,tsx}',
+    '../packages/ui-funnel/src/**/*.{astro,ts,tsx}',
+  ],
   theme: {
     extend: {
       colors: {

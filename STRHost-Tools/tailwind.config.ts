@@ -1,7 +1,15 @@
 import type { Config } from 'tailwindcss';
 
 export default {
-  content: ['./src/**/*.{astro,html,js,jsx,ts,tsx,md,mdx}'],
+  content: [
+    './src/**/*.{astro,html,js,jsx,ts,tsx,md,mdx}',
+    // Shared @str/ui-chrome + @str/ui-funnel chrome lives outside this app.
+    // Without scanning it, Tailwind purges classes it uses (e.g. flex-col on
+    // <body>), and the page collapses to a row-flex layout with a 0-width
+    // calculator column.
+    '../packages/ui-chrome/src/**/*.{astro,ts,tsx}',
+    '../packages/ui-funnel/src/**/*.{astro,ts,tsx}',
+  ],
   theme: {
     extend: {
       colors: {
