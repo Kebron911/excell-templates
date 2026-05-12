@@ -1,6 +1,6 @@
 # @str/ui-chrome
 
-Site shell components shared across STR-Tools apps: Header, Footer, Sidebar, Layout, Wordmark, FunnelBand.
+Site shell components shared across STR-Tools apps: Header, Footer, Layout, Wordmark, FunnelBand, AppSidebar.
 
 ## Usage
 
@@ -27,14 +27,7 @@ provided for genuinely site-unique cases:
 - `<slot name="footer-extra" />` — append to footer
 - `<slot name="funnel-banner-override" />` — replace FunnelBand entirely (e.g., STRBuyers's 38-line variant)
 
-## Sidebar vs AppSidebar
-
-| Component | When to use |
-|---|---|
-| `Sidebar` | Simple nav from `siteConfig.nav`. No item-level control. |
-| `AppSidebar` | Tool/page-level nav with an explicit `items` array. Supports 2-line cards and 1-line nav. |
-
-### AppSidebar API
+## AppSidebar API
 
 ```astro
 ---

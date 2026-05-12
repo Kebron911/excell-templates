@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { experimental_AstroContainer as AstroContainer } from 'astro/container';
 import Header from '../src/Header.astro';
 import Footer from '../src/Footer.astro';
-import Sidebar from '../src/Sidebar.astro';
 import Wordmark from '../src/Wordmark.astro';
 import FunnelBand from '../src/FunnelBand.astro';
 import AppSidebar from '../src/AppSidebar.astro';
@@ -58,12 +57,6 @@ describe('@str/ui-chrome snapshots', () => {
     const html = await container.renderToString(Footer, { props: { siteConfig: fixtureSite } });
     expect(html).toContain('Site');
     expect(html).toContain('Home');
-    expect(html).toMatchSnapshot();
-  });
-
-  it('Sidebar renders', async () => {
-    const container = await AstroContainer.create();
-    const html = await container.renderToString(Sidebar, { props: { siteConfig: fixtureSite } });
     expect(html).toMatchSnapshot();
   });
 

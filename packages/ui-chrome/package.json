@@ -12,7 +12,6 @@
     },
     "./Header.astro": "./src/Header.astro",
     "./Footer.astro": "./src/Footer.astro",
-    "./Sidebar.astro": "./src/Sidebar.astro",
     "./Layout.astro": "./src/Layout.astro",
     "./Wordmark.astro": "./src/Wordmark.astro",
     "./FunnelBand.astro": "./src/FunnelBand.astro",
