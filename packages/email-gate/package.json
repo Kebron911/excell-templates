@@ -17,18 +17,14 @@
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:integration": "vitest run -c vitest.integration.config.ts",
     "typecheck": "tsc --project tsconfig.typecheck.json",
     "clean": "rm -rf dist"
   },
   "dependencies": {
     "@str/seo": "workspace:*",
-    "mysql2": "^3.10.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@testcontainers/mysql": "^10.13.0",
-    "testcontainers": "^10.13.0",
     "typescript": "^5.5.3",
     "vitest": "^3.0.0"
   }

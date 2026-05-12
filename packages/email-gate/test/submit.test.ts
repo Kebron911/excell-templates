@@ -1,109 +1,84 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { submit } from '../src/submit.js';
-import type { Pool } from '../src/db.js';
+import { buildEspPayload } from '../src/payload.js';
 
-// Default mock: successful insert returning insertId 42
-function makeMockPool(insertId = 42): Pool {
-  return {
-    execute: vi.fn().mockResolvedValue([{ insertId }, []]),
-  } as unknown as Pool;
-}
-
-describe('submit — input validation', () => {
-  let pool: Pool;
-
-  beforeEach(() => {
-    pool = makeMockPool();
-  });
-
-  it('accepts valid input and returns ok:true with id', async () => {
-    const r = await submit({ siteId: 'guests', listSegment: 'main', email: 'a@b.co' }, pool);
-    expect(r.ok).toBe(true);
-    if (r.ok) expect(r.id).toBe(42);
+describe('submit (ESP webhook)', () => {
+  it('rejects invalid email', async () => {
+    const result = await submit({ siteId: 'guests', email: 'not-an-email' });
+    expect(result).toBe(false);
   });
 
   it('rejects bad siteId', async () => {
-    const r = await submit(
-      { siteId: 'foo' as any, listSegment: 'main', email: 'a@b.co' },
-      pool,
+    const result = await submit({ siteId: 'foo' as any, email: 'a@b.co' });
+    expect(result).toBe(false);
+  });
+
+  it('returns true and logs in dev mode (no webhook)', async () => {
+    const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const result = await submit(
+      { siteId: 'guests', email: 'a@b.co', magnet: 'house-rules', toolSlug: 'house-rules-pdf' },
+      { webhook: '' },
     );
-    expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toMatch(/invalid_enum_value|Invalid enum/i);
+    expect(result).toBe(true);
+    expect(consoleWarn).toHaveBeenCalled();
+    consoleWarn.mockRestore();
   });
 
-  it('rejects malformed email', async () => {
-    const r = await submit(
-      { siteId: 'guests', listSegment: 'main', email: 'not-an-email' },
-      pool,
+  it('POSTs to webhook with built payload', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    const result = await submit(
+      { siteId: 'guests', email: 'a@b.co', magnet: 'house-rules', toolSlug: 'house-rules-pdf' },
+      { webhook: 'https://hooks.example.com/x', fetchImpl: fetchMock as any },
     );
-    expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toMatch(/email/i);
+    expect(result).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0]!;
+    expect(url).toBe('https://hooks.example.com/x');
+    expect(init).toMatchObject({ method: 'POST', keepalive: true });
+    const body = JSON.parse(init.body);
+    expect(body).toMatchObject({
+      email: 'a@b.co',
+      source: 'strguests.tools',
+      utm_source: 'strguests-tools',
+      magnet: 'house-rules',
+      tool: 'house-rules-pdf',
+    });
   });
 
-  it('rejects empty listSegment', async () => {
-    const r = await submit({ siteId: 'guests', listSegment: '', email: 'a@b.co' }, pool);
-    expect(r.ok).toBe(false);
-  });
-
-  it('rejects oversized email (> 254 chars)', async () => {
-    const long = 'a'.repeat(246) + '@b.co'; // 252 chars — still valid length-wise; make it 255
-    const r = await submit(
-      { siteId: 'guests', listSegment: 'main', email: 'a'.repeat(250) + '@b.co' },
-      pool,
+  it('returns false when fetch throws', async () => {
+    const fetchMock = vi.fn().mockRejectedValue(new Error('network'));
+    const result = await submit(
+      { siteId: 'guests', email: 'a@b.co' },
+      { webhook: 'https://hooks.example.com/x', fetchImpl: fetchMock as any },
     );
-    expect(r.ok).toBe(false);
+    expect(result).toBe(false);
   });
 
-  it('rejects oversized listSegment (> 64 chars)', async () => {
-    const r = await submit(
-      { siteId: 'guests', listSegment: 'x'.repeat(65), email: 'a@b.co' },
-      pool,
+  it('returns false on non-2xx response', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: false });
+    const result = await submit(
+      { siteId: 'guests', email: 'a@b.co' },
+      { webhook: 'https://hooks.example.com/x', fetchImpl: fetchMock as any },
     );
-    expect(r.ok).toBe(false);
+    expect(result).toBe(false);
+  });
+});
+
+describe('buildEspPayload', () => {
+  it('uses correct site domain per siteId', () => {
+    expect(buildEspPayload({ siteId: 'guests', email: 'a@b.co' }).source).toBe('strguests.tools');
+    expect(buildEspPayload({ siteId: 'buyers', email: 'a@b.co' }).source).toBe('strbuyers.tools');
+    expect(buildEspPayload({ siteId: 'host', email: 'a@b.co' }).source).toBe('strhost.tools');
+    expect(buildEspPayload({ siteId: 'ops', email: 'a@b.co' }).source).toBe('strops.tools');
   });
 
-  it('accepts all valid siteId values', async () => {
-    const sites = ['guests', 'buyers', 'host', 'ops'] as const;
-    for (const siteId of sites) {
-      pool = makeMockPool();
-      const r = await submit({ siteId, listSegment: 'main', email: 'a@b.co' }, pool);
-      expect(r.ok, `siteId=${siteId} should be ok`).toBe(true);
-    }
+  it('defaults utm_medium to pdf-download', () => {
+    const p = buildEspPayload({ siteId: 'guests', email: 'a@b.co' });
+    expect(p.utm_medium).toBe('pdf-download');
   });
 
-  it('accepts optional source field', async () => {
-    const r = await submit(
-      { siteId: 'buyers', listSegment: 'waitlist', email: 'x@y.com', source: 'landing-page' },
-      pool,
-    );
-    expect(r.ok).toBe(true);
-  });
-
-  it('rejects oversized source (> 128 chars)', async () => {
-    const r = await submit(
-      {
-        siteId: 'guests',
-        listSegment: 'main',
-        email: 'a@b.co',
-        source: 's'.repeat(129),
-      },
-      pool,
-    );
-    expect(r.ok).toBe(false);
-  });
-
-  it('does not call pool.execute when validation fails', async () => {
-    const mockPool = makeMockPool();
-    await submit({ siteId: 'bad' as any, listSegment: 'main', email: 'a@b.co' }, mockPool);
-    expect((mockPool.execute as ReturnType<typeof vi.fn>).mock.calls.length).toBe(0);
-  });
-
-  it('returns ok:false when pool.execute rejects', async () => {
-    const failPool = {
-      execute: vi.fn().mockRejectedValue(new Error('connection refused')),
-    } as unknown as Pool;
-    const r = await submit({ siteId: 'guests', listSegment: 'main', email: 'a@b.co' }, failPool);
-    expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toContain('connection refused');
+  it('respects custom utmMedium', () => {
+    const p = buildEspPayload({ siteId: 'guests', email: 'a@b.co', utmMedium: 'email-capture' });
+    expect(p.utm_medium).toBe('email-capture');
   });
 });

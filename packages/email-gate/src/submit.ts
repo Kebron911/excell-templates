@@ -1,40 +1,63 @@
-import type { Pool } from './db.js';
-import { SubmitInputSchema, type SubmitInput, type SubmitResult } from './schema.js';
+import { EmailCapturePayloadSchema, type EmailCapturePayload } from './schema.js';
+import { buildEspPayload } from './payload.js';
+
+export interface SubmitOptions {
+  /** Override the webhook URL (default reads from PUBLIC_ESP_WEBHOOK env). */
+  webhook?: string;
+  /** Custom fetch impl (for testing). */
+  fetchImpl?: typeof fetch;
+}
 
 /**
- * Validates input and inserts (or idempotently updates) a subscriber row.
+ * POST email capture to ESP webhook. Returns true on success, false on
+ * any failure (validation, network, non-2xx).
  *
- * Idempotency: ON DUPLICATE KEY UPDATE keeps the existing row unchanged but
- * returns the original insertId via LAST_INSERT_ID(id). Re-submitting the
- * same (siteId, email) pair is safe and returns the original row id.
- *
- * @param input  Raw (unvalidated) subscriber data.
- * @param pool   mysql2 connection pool — injected for testability.
+ * When PUBLIC_ESP_WEBHOOK is unset (dev mode), logs the payload and
+ * returns true so caller flows still complete.
  */
-export async function submit(input: SubmitInput, pool: Pool): Promise<SubmitResult> {
-  const parsed = SubmitInputSchema.safeParse(input);
-  if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues.map(i => i.message).join('; ') };
-  }
+export async function submit(
+  input: EmailCapturePayload,
+  options: SubmitOptions = {},
+): Promise<boolean> {
+  const parsed = EmailCapturePayloadSchema.safeParse(input);
+  if (!parsed.success) return false;
 
-  const { siteId, listSegment, email, source } = parsed.data;
+  const fetchFn = options.fetchImpl ?? (typeof fetch !== 'undefined' ? fetch : undefined);
+  if (!fetchFn) return false;
+
+  const webhook =
+    options.webhook ??
+    (typeof import.meta !== 'undefined'
+      ? ((import.meta as any).env?.PUBLIC_ESP_WEBHOOK as string | undefined)
+      : undefined) ??
+    '';
+
+  const body = buildEspPayload(parsed.data);
+
+  if (!webhook) {
+    // eslint-disable-next-line no-console
+    console.warn('[email-gate] PUBLIC_ESP_WEBHOOK not set; payload:', body);
+    return true;
+  }
 
   try {
-    // execute() returns [ResultSetHeader, FieldPacket[]] for INSERT statements.
-    // Our minimal Pool interface types the first element as `any` to avoid
-    // mysql2's complex overload resolution across pnpm dependency paths.
-    const [result] = await pool.execute(
-      `INSERT INTO email_subscribers (site_id, list_segment, email, source)
-       VALUES (?, ?, ?, ?)
-       ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)`,
-      [siteId, listSegment, email, source ?? null],
-    );
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const insertId = (result as any).insertId as number;
-    return { ok: true, id: insertId };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
-    return { ok: false, error: message };
+    const res = await fetchFn(webhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      keepalive: true,
+    });
+    return res.ok;
+  } catch {
+    return false;
   }
+}
+
+/**
+ * Email validation matching what STRGuests's PdfDownloadButton + the
+ * EmailCaptureCard component use. Exposed so all surfaces share one regex.
+ */
+export function isValidEmail(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
