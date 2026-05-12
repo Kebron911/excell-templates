@@ -1,6 +1,6 @@
 ---
 import Layout from '@str/ui-chrome/Layout.astro';
-import Sidebar from '@str/ui-chrome/Sidebar.astro';
+import Sidebar from '@str/ui-chrome/AppSidebar.astro';
 import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
@@ -10,6 +10,7 @@ import ProfitCalculator from '@/components/calculators/ProfitCalculator.tsx';
 import { Content as ToolCopy } from '@/content/tools/profit-calculator.mdx';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
+import { sidebarItems } from '@/data/sidebar-items';
 import tools from '@/data/tools.json';
 
 const tool = tools['profit-calculator'];
@@ -93,7 +94,7 @@ const jsonLd = [
         <AdSlot siteConfig={siteConfig} location="footer" />
       </div>
 
-      <Sidebar siteConfig={siteConfig} current="profit-calculator" />
+      <Sidebar siteConfig={siteConfig} items={sidebarItems} current="profit-calculator" />
     </div>
 
     <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="math" />

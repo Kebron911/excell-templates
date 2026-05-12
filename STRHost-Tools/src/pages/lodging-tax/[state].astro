@@ -1,6 +1,6 @@
 ---
 import Layout from '@str/ui-chrome/Layout.astro';
-import Sidebar from '@str/ui-chrome/Sidebar.astro';
+import Sidebar from '@str/ui-chrome/AppSidebar.astro';
 import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
@@ -9,6 +9,7 @@ import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import LodgingTaxCalculator from '@/components/calculators/LodgingTaxCalculator.tsx';
 import { buildWebApplication, buildFAQPage, buildBreadcrumb } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
+import { sidebarItems } from '@/data/sidebar-items';
 import { formatPercent } from '@str/format';
 import { getEntry, render } from 'astro:content';
 import type { LodgingTaxData } from '@/data/lodging-tax-by-state.schema';
@@ -164,7 +165,7 @@ const jsonLd = [
         <AdSlot siteConfig={siteConfig} location="footer" />
       </div>
 
-      <Sidebar siteConfig={siteConfig} current="lodging-tax" />
+      <Sidebar siteConfig={siteConfig} items={sidebarItems} current="lodging-tax" />
     </div>
 
     <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="math" />

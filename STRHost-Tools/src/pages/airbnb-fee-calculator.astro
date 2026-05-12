@@ -1,6 +1,6 @@
 ---
 import Layout from '@str/ui-chrome/Layout.astro';
-import Sidebar from '@str/ui-chrome/Sidebar.astro';
+import Sidebar from '@str/ui-chrome/AppSidebar.astro';
 import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
@@ -10,6 +10,7 @@ import AirbnbFeeCalculator from '@/components/calculators/AirbnbFeeCalculator.ts
 import { Content as ToolCopy } from '@/content/tools/airbnb-fee-calculator.mdx';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
+import { sidebarItems } from '@/data/sidebar-items';
 import tools from '@/data/tools.json';
 
 const tool = tools['airbnb-fee-calculator'];
@@ -101,7 +102,7 @@ const jsonLd = [
       </div>
 
       {/* 10. Related calculators (Sidebar) — desktop right rail, mobile collapses below */}
-      <Sidebar siteConfig={siteConfig} current="airbnb-fee-calculator" />
+      <Sidebar siteConfig={siteConfig} items={sidebarItems} current="airbnb-fee-calculator" />
     </div>
 
     {/* 11. Cluster funnel band */}

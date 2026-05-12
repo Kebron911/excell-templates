@@ -1,6 +1,6 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
-import Sidebar from '@str/ui-chrome/Sidebar.astro';
+import Sidebar from '@str/ui-chrome/AppSidebar.astro';
 import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
@@ -9,6 +9,7 @@ import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import CompAnalyzer from '@/components/calculators/CompAnalyzer.tsx';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
+import { sidebarItems } from '@/data/sidebar-items';
 
 const faqs = [
   {
@@ -99,7 +100,7 @@ const jsonLd = [
         <AdSlot siteConfig={siteConfig} location="footer" />
       </div>
 
-      <Sidebar siteConfig={siteConfig} current="comp-analyzer" />
+      <Sidebar siteConfig={siteConfig} items={sidebarItems} current="comp-analyzer" />
     </div>
 
     <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="acquisition" />
