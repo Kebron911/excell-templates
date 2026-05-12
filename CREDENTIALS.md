@@ -21,7 +21,7 @@
 | **GA4** | `PUBLIC_GA4_ID` (public, build-time) | `STRGuests-Tools/.env.local` | — | ❌ measurement ID pending |
 | **Email verify HMAC** | `EMAIL_VERIFY_SECRET` | `STRGuests-Tools/.env.local` | — | ✅ set (32+ bytes random) |
 | **IP hash salt** | `IP_HASH_SALT` | `STRGuests-Tools/.env.local` | — | ✅ set |
-| **Etsy** | OAuth client + secret + refresh token | Vaultwarden (pending) | seller account pending | ❌ shop not yet open |
+| **Etsy** | `ETSY_API_KEY`, `ETSY_OAUTH_SECRET`, `ETSY_SHOP_ID` (+ refresh token after OAuth dance) | `./.env` (repo root) + Vaultwarden | `etsy.com/shop/thestrledger` (shop ID `65957104`) | ✅ app registered (keystring 24, shared secret 10, shop ID 8). Awaiting first OAuth dance to capture refresh token. |
 | **Anthropic (optional fallback)** | `ANTHROPIC_API_KEY` | not set — would go in `STRGuests-Tools/.env.local` if used | — | ❌ not used (OpenAI chosen) |
 
 ---
@@ -76,4 +76,4 @@ When you (the user or any agent) add a new platform integration:
 2. Add a row to `ops/credentials-inventory.md` with account-level info.
 3. Commit both in the same commit. They must not drift.
 
-Last updated: 2026-05-11 (n8n key + base URL added; Stripe live key in + 66 products populated; OpenAI key set; IS subdomain `kebron` confirmed).
+Last updated: 2026-05-12 (Etsy dev app registered: keystring + shared secret in `./.env`, shop ID `65957104`, handle `thestrledger`).
