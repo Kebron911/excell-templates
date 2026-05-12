@@ -1,8 +1,9 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@str/ui-chrome/Layout.astro';
+import { siteConfig } from '@/data/site.config';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import { getCollection } from 'astro:content';
 
 // Posts collection — sorted newest first.
@@ -26,7 +27,7 @@ const formatDate = (iso: string) =>
   new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
 ---
 
-<Layout
+<Layout siteConfig={siteConfig}
   title="Blog — STR Host Tools"
   description="Honest, formula-first writing for short-term rental hosts. Profit, RevPAR, break-even, cleaning fees, lodging tax, and co-host splits — without the fluff."
   path="/blog"
@@ -83,7 +84,7 @@ const formatDate = (iso: string) =>
 
   <section class="bg-parchment border-t border-rule">
     <div class="mx-auto max-w-6xl px-5 py-9">
-      <EmailCaptureCard
+      <EmailCaptureCard siteConfig={siteConfig}
         magnet="str-host-income-report-2026"
         toolSlug="blog-index"
       />
@@ -92,9 +93,9 @@ const formatDate = (iso: string) =>
 
   <section class="bg-parchment-light border-t border-rule">
     <div class="mx-auto max-w-6xl px-5 py-9">
-      <STRLedgerCTA tool="profit-calculator" />
+      <STRLedgerCTA siteConfig={siteConfig} tool="profit-calculator" />
     </div>
   </section>
 
-  <ClusterFunnelBlock currentCluster="math" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="math" />
 </Layout>

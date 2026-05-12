@@ -1,39 +1,41 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@str/ui-chrome/Layout.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import data from '@/data/lodging-tax-by-state.json';
 import type { LodgingTaxData } from '@/data/lodging-tax-by-state.schema';
-import { formatPercent } from '@/lib/format';
-import { buildWebApplication, buildItemList, buildBreadcrumb } from '@/lib/seo';
+import { formatPercent } from '@str/format';
+import { buildWebApplication, buildItemList, buildBreadcrumb } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 
 const entries = Object.entries(data as unknown as LodgingTaxData)
   .map(([code, e]) => ({ code, ...e }))
   .sort((a, b) => a.name.localeCompare(b.name));
 
 const jsonLd = [
-  buildWebApplication({
+  buildWebApplication(siteConfig, {
     name: 'Lodging Tax by State',
     description: 'State-by-state short-term rental lodging tax rates with source citations and verification dates. Free, sortable index of all 50 states + DC.',
     toolPath: '/lodging-tax',
   }),
-  buildItemList(
-    entries.map((e) => ({
+  buildItemList(siteConfig, {
+    name: 'Lodging Tax by State',
+    items: entries.map((e) => ({
       name: `${e.name} Lodging Tax`,
       path: `/lodging-tax/${e.code.toLowerCase()}`,
     })),
-  ),
-  buildBreadcrumb([
+  }),
+  buildBreadcrumb(siteConfig, [
     { name: 'Home', url: 'https://strhost.tools/' },
     { name: 'Lodging Tax', url: 'https://strhost.tools/lodging-tax/' },
   ]),
 ];
 ---
 
-<Layout
+<Layout siteConfig={siteConfig}
   title="Lodging Tax by State — STR Host Tools"
   description="State-by-state short-term rental lodging tax rates. All 50 states + DC. Sourced from each state's Department of Revenue, verified annually."
   path="/lodging-tax"
@@ -94,20 +96,20 @@ const jsonLd = [
         <strong>Disclaimer:</strong> rates change. Verify with each state's Department of Revenue before filing. The "platforms collect" column reflects best-known automatic collection for state-level tax — local taxes may still be your responsibility regardless.
       </p>
 
-      <AdSlot location="in-content" />
+      <AdSlot siteConfig={siteConfig} location="in-content" />
 
       <RelatedPosts toolKey="lodging-tax" variant="section" />
 
-      <EmailCaptureCard
+      <EmailCaptureCard siteConfig={siteConfig}
         magnet="str-host-income-report-2026"
         toolSlug="lodging-tax-index"
       />
 
-      <STRLedgerCTA tool="lodging-tax" />
+      <STRLedgerCTA siteConfig={siteConfig} tool="lodging-tax" />
 
-      <AdSlot location="footer" />
+      <AdSlot siteConfig={siteConfig} location="footer" />
     </div>
 
-    <ClusterFunnelBlock currentCluster="math" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="math" />
   </article>
 </Layout>

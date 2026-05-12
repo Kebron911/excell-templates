@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { calculateRevpar, REVPAR_DEFAULTS } from '@/lib/calc/revpar';
-import { formatCurrency, formatPercent } from '@/lib/format';
-import { parse, createDebouncedReplaceState } from '@/lib/url-state';
+import { formatCurrency, formatPercent } from '@str/format';
+import { parse, createDebouncedReplaceState } from '@str/url-state';
 import { Field, Row, Actions } from './ui';
 
 type UrlState = {

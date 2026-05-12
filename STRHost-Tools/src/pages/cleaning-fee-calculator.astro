@@ -1,14 +1,15 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import Sidebar from '@/components/chrome/Sidebar.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@str/ui-chrome/Layout.astro';
+import Sidebar from '@str/ui-chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import CleaningFeeCalculator from '@/components/calculators/CleaningFeeCalculator.tsx';
 import { Content as ToolCopy } from '@/content/tools/cleaning-fee-calculator.mdx';
-import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import { buildWebApplication, buildFAQPage } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
 
 const tool = tools['cleaning-fee-calculator'];
@@ -42,7 +43,7 @@ const faqs = [
 ];
 
 const jsonLd = [
-  buildWebApplication({
+  buildWebApplication(siteConfig, {
     name: 'Airbnb Cleaning Fee Calculator',
     description:
       'Free Airbnb cleaning fee calculator. Build a defensible cleaning fee bottom-up from labor, supplies, laundry, and buffer.',
@@ -52,7 +53,7 @@ const jsonLd = [
 ];
 ---
 
-<Layout
+<Layout siteConfig={siteConfig}
   title="Airbnb Cleaning Fee Calculator — STR Host Tools"
   description="Free Airbnb cleaning fee calculator. Build a defensible fee from cleaner labor, supplies, laundry, and buffer — see what's fair without losing the booking."
   path="/cleaning-fee-calculator"
@@ -74,7 +75,7 @@ const jsonLd = [
           <CleaningFeeCalculator client:visible />
         </div>
 
-        <AdSlot location="in-content" />
+        <AdSlot siteConfig={siteConfig} location="in-content" />
 
         <div class="prose mt-7 max-w-2xl">
           <ToolCopy />
@@ -82,20 +83,20 @@ const jsonLd = [
 
         <RelatedPosts toolKey="cleaning-fee-calculator" />
 
-        <EmailCaptureCard
+        <EmailCaptureCard siteConfig={siteConfig}
           magnet="str-host-income-report-2026"
           toolSlug="cleaning-fee-calculator"
         />
 
-        <STRLedgerCTA tool="cleaning-fee-calculator" />
+        <STRLedgerCTA siteConfig={siteConfig} tool="cleaning-fee-calculator" />
 
-        <AdSlot location="footer" />
+        <AdSlot siteConfig={siteConfig} location="footer" />
       </div>
 
-      <Sidebar current="cleaning-fee-calculator" />
+      <Sidebar siteConfig={siteConfig} current="cleaning-fee-calculator" />
     </div>
 
-    <ClusterFunnelBlock currentCluster="math" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="math" />
   </article>
 </Layout>
 

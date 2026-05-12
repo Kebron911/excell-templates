@@ -1,14 +1,15 @@
 ---
-import Layout from '@/components/chrome/Layout.astro';
-import Sidebar from '@/components/chrome/Sidebar.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import Layout from '@str/ui-chrome/Layout.astro';
+import Sidebar from '@str/ui-chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import LodgingTaxCalculator from '@/components/calculators/LodgingTaxCalculator.tsx';
-import { buildWebApplication, buildFAQPage, buildBreadcrumb } from '@/lib/seo';
-import { formatPercent } from '@/lib/format';
+import { buildWebApplication, buildFAQPage, buildBreadcrumb } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
+import { formatPercent } from '@str/format';
 import { getEntry, render } from 'astro:content';
 import type { LodgingTaxData } from '@/data/lodging-tax-by-state.schema';
 
@@ -73,13 +74,13 @@ const faqs = [
 ];
 
 const jsonLd = [
-  buildWebApplication({
+  buildWebApplication(siteConfig, {
     name: `${entry.name} Lodging Tax Calculator`,
     description: `${entry.name} short-term rental lodging tax: ${formatPercent(entry.stateRate)} state plus local add-ons up to ${formatPercent(entry.localAddOnRange[1])}. Free calculator and source links.`,
     toolPath: `/lodging-tax/${code}`,
   }),
   buildFAQPage(faqs),
-  buildBreadcrumb([
+  buildBreadcrumb(siteConfig, [
     { name: 'Home', url: '/' },
     { name: 'Lodging Tax', url: '/lodging-tax' },
     { name: entry.name, url: `/lodging-tax/${code}` },
@@ -87,7 +88,7 @@ const jsonLd = [
 ];
 ---
 
-<Layout
+<Layout siteConfig={siteConfig}
   title={`${entry.name} Lodging Tax Calculator — STR Host Tools`}
   description={`${entry.name} short-term rental lodging tax: ${formatPercent(entry.stateRate)} state plus local add-ons. Free calculator with source links and verification date.`}
   path={`/lodging-tax/${code}`}
@@ -121,7 +122,7 @@ const jsonLd = [
           />
         </div>
 
-        <AdSlot location="in-content" />
+        <AdSlot siteConfig={siteConfig} location="in-content" />
 
         <div class="prose mt-7 max-w-2xl">
           {Narrative ? (
@@ -153,20 +154,20 @@ const jsonLd = [
 
         <RelatedPosts toolKey="lodging-tax" />
 
-        <EmailCaptureCard
+        <EmailCaptureCard siteConfig={siteConfig}
           magnet="str-host-income-report-2026"
           toolSlug={`lodging-tax-${code}`}
         />
 
-        <STRLedgerCTA tool="lodging-tax" />
+        <STRLedgerCTA siteConfig={siteConfig} tool="lodging-tax" />
 
-        <AdSlot location="footer" />
+        <AdSlot siteConfig={siteConfig} location="footer" />
       </div>
 
-      <Sidebar current="lodging-tax" />
+      <Sidebar siteConfig={siteConfig} current="lodging-tax" />
     </div>
 
-    <ClusterFunnelBlock currentCluster="math" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="math" />
   </article>
 </Layout>
 

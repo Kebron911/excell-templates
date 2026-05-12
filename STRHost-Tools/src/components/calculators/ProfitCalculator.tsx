@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { calculateProfit, PROFIT_DEFAULTS } from '@/lib/calc/profit';
-import { formatCurrency, formatPercent } from '@/lib/format';
-import { parse, createDebouncedReplaceState } from '@/lib/url-state';
+import { formatCurrency, formatPercent } from '@str/format';
+import { parse, createDebouncedReplaceState } from '@str/url-state';
 import { Field, Row, Actions } from './ui';
 
 // URL keys -> ProfitInput keys. Short URL keys keep shared links compact.
