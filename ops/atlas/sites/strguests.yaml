@@ -42,7 +42,7 @@ sections:
     items:
       - { name: src/ (Astro static site), url: STRGuests-Tools/src/, kind: code }
       - { name: server/ (Express API),    url: STRGuests-Tools/server/, kind: code }
-      - { name: src/components/chrome,    url: STRGuests-Tools/src/components/chrome/, kind: code }
+      - { name: src/components/AppLayout, url: STRGuests-Tools/src/components/AppLayout.astro, kind: code }
       - { name: src/components/generator, url: STRGuests-Tools/src/components/generator/, kind: code }
       - { name: src/lib/pdf (PDF base),   url: STRGuests-Tools/src/lib/pdf/, kind: code }
       - { name: server/db/schema.sql,     url: STRGuests-Tools/server/db/schema.sql, kind: code }
