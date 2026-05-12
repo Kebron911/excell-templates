@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { computeLinenPar } from '@lib/calc/linen-par';
-import { encodeState, decodeState, browserReplacer } from '@str/url-state';
+import { serialize, parse, createDebouncedReplaceState } from '@str/url-state';
 import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = {
@@ -20,12 +20,14 @@ const defaults: State = {
 
 export default function LinenParCalculator() {
   const [s, setS] = useState<State>(defaults);
-  const replacer = useMemo(() => browserReplacer(200), []);
+  const replacer = useMemo(() => createDebouncedReplaceState(200), []);
   useEffect(() => {
-    if (typeof window !== 'undefined') setS(decodeState(window.location.search, defaults));
+    if (typeof window !== 'undefined') {
+      setS(parse(new URLSearchParams(window.location.search), defaults));
+    }
   }, []);
   useEffect(() => {
-    replacer(encodeState(s));
+    replacer(serialize(s, defaults));
   }, [s, replacer]);
 
   const r = computeLinenPar(s);

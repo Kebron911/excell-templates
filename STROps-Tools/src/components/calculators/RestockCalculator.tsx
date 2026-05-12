@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { computeRestock, type RestockItem } from '@lib/calc/restock';
-import { encodeState, decodeState, browserReplacer } from '@str/url-state';
+import { serialize, parse, createDebouncedReplaceState } from '@str/url-state';
 import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = {
@@ -32,12 +32,14 @@ function parseItems(items: string): RestockItem[] {
 
 export default function RestockCalculator() {
   const [s, setS] = useState<State>(defaults);
-  const replacer = useMemo(() => browserReplacer(200), []);
+  const replacer = useMemo(() => createDebouncedReplaceState(200), []);
   useEffect(() => {
-    if (typeof window !== 'undefined') setS(decodeState(window.location.search, defaults));
+    if (typeof window !== 'undefined') {
+      setS(parse(new URLSearchParams(window.location.search), defaults));
+    }
   }, []);
   useEffect(() => {
-    replacer(encodeState(s));
+    replacer(serialize(s, defaults));
   }, [s, replacer]);
 
   const items = useMemo(() => parseItems(s.items), [s.items]);

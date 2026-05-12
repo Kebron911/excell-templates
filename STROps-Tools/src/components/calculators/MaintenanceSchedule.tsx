@@ -3,7 +3,7 @@ import { buildSchedule } from '@lib/calc/maintenance-schedule';
 import { buildSchedulePdf } from '@lib/pdf/maintenance-schedule';
 import { buildIcs, downloadIcs } from '@lib/calendar/ics';
 import { downloadBytes } from '@lib/pdf/base';
-import { encodeState, decodeState, browserReplacer } from '@str/url-state';
+import { serialize, parse, createDebouncedReplaceState } from '@str/url-state';
 import { track, markCalcRunOnce } from '@lib/analytics';
 import tasks from '@data/tasks.json';
 import type { TaskCatalog } from '@lib/types';
@@ -30,12 +30,14 @@ const defaults: State = {
 
 export default function MaintenanceSchedule() {
   const [s, setS] = useState<State>(defaults);
-  const replacer = useMemo(() => browserReplacer(200), []);
+  const replacer = useMemo(() => createDebouncedReplaceState(200), []);
   useEffect(() => {
-    if (typeof window !== 'undefined') setS(decodeState(window.location.search, defaults));
+    if (typeof window !== 'undefined') {
+      setS(parse(new URLSearchParams(window.location.search), defaults));
+    }
   }, []);
   useEffect(() => {
-    replacer(encodeState(s));
+    replacer(serialize(s, defaults));
   }, [s, replacer]);
 
   const result = useMemo(
