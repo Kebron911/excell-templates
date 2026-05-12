@@ -24,6 +24,13 @@
   --brand-gold-deep:       #A9863A;
   --brand-clay-soft:       #D3A290;
 
+  /* ---- Cluster accent aliases (shared @str/ui-chrome contract) -------
+     The shared Wordmark / Header / Footer / FunnelBand components read
+     --accent-500 and --accent-700. Each site maps these to its own
+     brand accent. STRHost = editorial gold. ----------------------------- */
+  --accent-500:            var(--brand-gold);
+  --accent-700:            var(--brand-gold-deep);
+
   /* ---- Semantic foreground / background ----------------- */
   --fg-1:                  var(--brand-graphite);
   --fg-2:                  #555049;

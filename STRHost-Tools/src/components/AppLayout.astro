@@ -1,0 +1,38 @@
+---
+// AppLayout — thin wrapper around @str/ui-chrome/Layout that injects
+// STRHost-specific global styles. Import this instead of @str/ui-chrome/Layout.astro
+// in all pages so Tailwind + tokens + print styles are present.
+
+import '@/styles/global.css';
+import '@/styles/print.css';
+import PkgLayout from '@str/ui-chrome/Layout.astro';
+import type { SiteConfig } from '@str/seo';
+
+interface Props {
+  siteConfig: SiteConfig;
+  title: string;
+  description: string;
+  path: string;
+  ogImage?: string;
+  noIndex?: boolean;
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
+}
+
+const { siteConfig, title, description, path, ogImage, noIndex, jsonLd } = Astro.props;
+---
+<PkgLayout
+  siteConfig={siteConfig}
+  title={title}
+  description={description}
+  path={path}
+  ogImage={ogImage}
+  noIndex={noIndex}
+  jsonLd={jsonLd}
+>
+  <slot name="head-styles" slot="head-styles" />
+  <slot name="head-extra" slot="head-extra" />
+  <slot name="header-cta" slot="header-cta" />
+  <slot name="funnel-banner-override" slot="funnel-banner-override" />
+  <slot name="footer-extra" slot="footer-extra" />
+  <slot />
+</PkgLayout>

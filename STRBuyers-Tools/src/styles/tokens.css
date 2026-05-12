@@ -36,6 +36,12 @@
   --brand-accent-shade:    #142766;
   --brand-accent-soft:     #E0E5F4;
 
+  /* Cluster accent aliases consumed by shared @str/ui-chrome chrome
+     (Wordmark, Header, Footer, FunnelBand). Map finance-indigo to the
+     500/700 scale so the chrome renders with this site's brand colors. */
+  --accent-500:            var(--brand-accent);
+  --accent-700:            var(--brand-accent-shade);
+
   /* ---- Semantic foreground / background ----------------- */
   --fg-1:                  var(--brand-graphite);
   --fg-2:                  #555049;

@@ -239,6 +239,12 @@ a:hover { color: var(--brand-navy-tint); }
   --accent-glow:   0 0 0 3px rgba(79, 107, 90, 0.25);
   --focus-ring:    0 0 0 3px rgba(79, 107, 90, 0.45);
 
+  /* Cluster accent aliases consumed by shared @str/ui-chrome chrome
+     (Wordmark, Header, Footer, FunnelBand). Map ops-green to the 500/700
+     scale so the chrome renders with this site's brand colors. */
+  --accent-500:    var(--accent);
+  --accent-700:    var(--accent-deep);
+
   /* Re-route gold-named tokens used by ported components to the new accent */
   --brand-gold:        var(--accent);
   --brand-gold-soft:   var(--accent-soft);
