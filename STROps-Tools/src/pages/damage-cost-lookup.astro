@@ -1,10 +1,12 @@
----
+﻿---
 import Layout from '@/layouts/Layout.astro';
-import Sidebar from '@components/chrome/Sidebar.astro';
+import AppSidebar from '@str/ui-chrome/AppSidebar.astro';
+import { siteConfig } from '@/data/site.config';
+import { sidebarItems } from '@/data/sidebar-items';
 import DamageCostLookup from '@components/calculators/DamageCostLookup.tsx';
-import AdSlot from '@components/ads/AdSlot.astro';
-import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
 
@@ -27,15 +29,15 @@ const faqs = [
       <h1>Damage Cost Lookup</h1>
       <p class="lead">Search the replacement-cost catalog before you file the AirCover claim — know what you're asking for.</p>
       <DamageCostLookup client:visible />
-      <AdSlot location="in-content" />
+      <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>
       <p>Each row is a hand-compiled retail mid-market price range plus expected lifespan. Click any row to open the deep-dive page for that item with brand recommendations and how-to-replace guidance.</p>
-      <EmailCaptureCard magnet="maintenance-checklist" tool="damage-cost-lookup" />
+      <EmailCaptureCard siteConfig={siteConfig} magnet="maintenance-checklist" toolSlug="damage-cost-lookup" />
       <h2>FAQ</h2>
       {faqs.map(f => <div><h3>{f.q}</h3><p>{f.a}</p></div>)}
-      <STRLedgerCTA tool="damage-cost-lookup" />
-      <AdSlot location="footer" />
+      <STRLedgerCTA siteConfig={siteConfig} tool="damage-cost-lookup" />
+      <AdSlot siteConfig={siteConfig} location="footer" />
     </article>
-    <Sidebar current="damage-cost-lookup" />
+    <AppSidebar siteConfig={siteConfig} items={sidebarItems} current="damage-cost-lookup" />
   </div>
 </Layout>

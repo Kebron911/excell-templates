@@ -1,10 +1,12 @@
----
+﻿---
 import Layout from '@/layouts/Layout.astro';
-import Sidebar from '@components/chrome/Sidebar.astro';
+import AppSidebar from '@str/ui-chrome/AppSidebar.astro';
+import { siteConfig } from '@/data/site.config';
+import { sidebarItems } from '@/data/sidebar-items';
 import MaintenanceSchedule from '@components/calculators/MaintenanceSchedule.tsx';
-import AdSlot from '@components/ads/AdSlot.astro';
-import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
 
@@ -28,10 +30,10 @@ const faqs = [
       <h1>Maintenance Schedule Generator</h1>
       <p class="lead">Get a year-out schedule of every recurring maintenance task — PDF for your binder, .ics for your calendar app.</p>
       <MaintenanceSchedule client:visible />
-      <AdSlot location="in-content" />
+      <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>
       <p>Each task has a recurring cadence (60 days for HVAC filters, 90 for smoke detectors, 365 for chimney sweeps, etc.). We project occurrences from your start date out to your horizon, filter by property traits (HVAC, fireplace), and emit both a printable PDF and a calendar-ready .ics file.</p>
-      <EmailCaptureCard magnet="maintenance-checklist" tool="maintenance-schedule" />
+      <EmailCaptureCard siteConfig={siteConfig} magnet="maintenance-checklist" toolSlug="maintenance-schedule" />
       <h2>How to use this tool</h2>
       <ol>
         <li>Set your property name and start date.</li>
@@ -41,9 +43,9 @@ const faqs = [
       </ol>
       <h2>FAQ</h2>
       {faqs.map(f => <div><h3>{f.q}</h3><p>{f.a}</p></div>)}
-      <STRLedgerCTA tool="maintenance-schedule" />
-      <AdSlot location="footer" />
+      <STRLedgerCTA siteConfig={siteConfig} tool="maintenance-schedule" />
+      <AdSlot siteConfig={siteConfig} location="footer" />
     </article>
-    <Sidebar current="maintenance-schedule" />
+    <AppSidebar siteConfig={siteConfig} items={sidebarItems} current="maintenance-schedule" />
   </div>
 </Layout>

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { buildDispatch } from '@lib/calc/cleaner-dispatch';
 import { buildDispatchPdf } from '@lib/pdf/cleaner-dispatch';
 import { downloadBytes } from '@lib/pdf/base';
-import { encodeState, decodeState, browserReplacer } from '@lib/url-state';
+import { encodeState, decodeState, browserReplacer } from '@str/url-state';
 import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = { date: string; turnovers: string; cleaners: string };

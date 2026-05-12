@@ -1,9 +1,10 @@
 ---
 import '@/styles/global.css';
-import Header from '@components/chrome/Header.astro';
-import Footer from '@components/chrome/Footer.astro';
-import FunnelBand from '@components/chrome/FunnelBand.astro';
-import ClusterFunnelBlock from '@components/funnel/ClusterFunnelBlock.astro';
+import Header from '@str/ui-chrome/Header.astro';
+import Footer from '@str/ui-chrome/Footer.astro';
+import FunnelBand from '@str/ui-chrome/FunnelBand.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import { siteConfig } from '@/data/site.config';
 
 interface Props {
   title: string;
@@ -102,10 +103,10 @@ const ga4Id = import.meta.env.PUBLIC_GA4_ID;
     <slot name="head" />
   </head>
   <body>
-    <Header />
+    <Header siteConfig={siteConfig} />
     <main id="main"><slot /></main>
-    {showCluster && <ClusterFunnelBlock currentCluster="operations" />}
-    <FunnelBand />
-    <Footer />
+    {showCluster && <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="operations" />}
+    <FunnelBand siteConfig={siteConfig} />
+    <Footer siteConfig={siteConfig} />
   </body>
 </html>

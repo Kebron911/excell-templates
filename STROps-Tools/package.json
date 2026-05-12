@@ -18,6 +18,11 @@
     "lint": "echo \"lint placeholder\""
   },
   "dependencies": {
+    "@str/format": "workspace:*",
+    "@str/seo": "workspace:*",
+    "@str/ui-chrome": "workspace:*",
+    "@str/ui-funnel": "workspace:*",
+    "@str/url-state": "workspace:*",
     "@astrojs/mdx": "^5.0.4",
     "@astrojs/react": "^5.0.4",
     "@astrojs/sitemap": "^3.7.2",

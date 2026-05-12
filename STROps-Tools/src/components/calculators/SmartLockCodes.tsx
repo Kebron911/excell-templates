@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { codeForAsync } from '@lib/calc/smart-lock-codes';
-import { encodeState, decodeState, browserReplacer } from '@lib/url-state';
+import { encodeState, decodeState, browserReplacer } from '@str/url-state';
 import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = { secret: string; digits: number; bookings: string };
