@@ -45,8 +45,10 @@ The flow is **edit JSON in repo → deploy via script → tweak in n8n UI for on
 | File | Workflow name in n8n | Trigger | Status | What it does |
 |---|---|---|---|---|
 | [STR_Stripe_InfluencerSoft_Tagger.json](STR_Stripe_InfluencerSoft_Tagger.json) | `STR_Stripe_InfluencerSoft_Tagger` | Stripe webhook `checkout.session.completed` | uploaded, **inactive** (id: `i3vRINfSQIb2tkHk`) | Verifies Stripe signature → extracts buyer email + SKUs from session → upserts contact in InfluencerSoft with `customer:stripe` tag → loops SKUs and applies `purchased:<SKU>` tag per item. |
+| [STR_Etsy_Token_Refresh.json](STR_Etsy_Token_Refresh.json) | `STR_Etsy_Token_Refresh` | Daily 3am + sub-workflow callable | **inactive** (Etsy shop pending) | Keeps Etsy OAuth refresh token alive (Etsy rotates refresh tokens on every use; without scheduled refresh, integration silently dies at day 90). Also called as sub-workflow by the Order Tagger to fetch the current access_token. Persists token state in workflow staticData. |
+| [STR_Etsy_Order_InfluencerSoft_Tagger.json](STR_Etsy_Order_InfluencerSoft_Tagger.json) | `STR_Etsy_Order_InfluencerSoft_Tagger` | Schedule, every 15 min | **inactive** (Etsy shop pending) | Polls Etsy `/v3/application/shops/{shop_id}/receipts` for new paid orders → extracts buyer email + SKUs → upserts contact in InfluencerSoft with `customer:etsy` tag → loops SKUs and applies `purchased:<SKU>` tag per item. Mirrors the Stripe flow but pull-based instead of webhook-based. |
 
-(More to come: `STR_Stripe_Sheets_Ledger`, `STR_Refund_Recovery`, `STR_Daily_Winback_Scan`.)
+(More to come: `STR_Stripe_Sheets_Ledger`, `STR_Refund_Recovery`, `STR_Daily_Winback_Scan`, `STR_Etsy_Listing_Sync`.)
 
 ---
 
@@ -79,7 +81,11 @@ The workflow JSON references `$env.<NAME>` for secrets. n8n reads these from the
 | Env var | Source | Used by |
 |---|---|---|
 | `STRIPE_WEBHOOK_SECRET` | Stripe Dashboard → Developers → Webhooks → endpoint signing secret | `STR_Stripe_InfluencerSoft_Tagger` (signature verification) |
-| `INFLUENCERSOFT_API_KEY` | repo root `.env` | `STR_Stripe_InfluencerSoft_Tagger` (IS API calls) |
+| `INFLUENCERSOFT_API_KEY` | repo root `.env` | `STR_Stripe_InfluencerSoft_Tagger`, `STR_Etsy_Order_InfluencerSoft_Tagger` (IS API calls) |
+| `ETSY_CLIENT_ID` | Etsy Developer dashboard → app → API key (keystring) | `STR_Etsy_Token_Refresh`, `STR_Etsy_Order_InfluencerSoft_Tagger` (OAuth + `x-api-key` header) |
+| `ETSY_CLIENT_SECRET` | Etsy Developer dashboard → app → shared secret | `STR_Etsy_Token_Refresh` (refresh grant) |
+| `ETSY_REFRESH_TOKEN` | OAuth consent flow (one-time, then auto-rotated by Token Refresh into staticData) | `STR_Etsy_Token_Refresh` (initial seed only — workflow persists rotated tokens to staticData after first run) |
+| `ETSY_SHOP_ID` | Etsy Developer dashboard or `GET /users/__SELF__/shops` | `STR_Etsy_Order_InfluencerSoft_Tagger` (receipts endpoint URL) |
 
 ### Setting them (Docker example)
 
@@ -111,6 +117,59 @@ docker exec n8n env | grep -E "STRIPE|INFLUENCERSOFT"
 If a Code node throws `STRIPE_WEBHOOK_SECRET env var not set on n8n host`, you missed this step.
 
 ---
+
+## Etsy one-time OAuth bootstrap
+
+Etsy uses OAuth 2.0 with PKCE; **n8n cannot complete the consent flow on its own** — you do it once manually to obtain the initial `refresh_token`. After that, the Token Refresh workflow rotates it automatically.
+
+1. **Register an Etsy app** at https://www.etsy.com/developers/your-apps. Note `keystring` (= client_id) and `shared secret`.
+2. **Get the shop_id** via:
+   ```bash
+   curl -H "x-api-key: $ETSY_CLIENT_ID" https://openapi.etsy.com/v3/application/users/__SELF__/shops
+   ```
+   (Requires an access token from step 3 — chicken-and-egg, so easier: just look up your shop URL in Etsy admin; shop_id appears in the URL or under Shop Manager.)
+3. **Get the initial refresh_token** via OAuth consent. Several tools work — easiest is the official Etsy guide at https://developers.etsy.com/documentation/essentials/authentication or a script like:
+   ```bash
+   # Step A: open in browser, log in, click "Allow"
+   #   https://www.etsy.com/oauth/connect?
+   #     response_type=code
+   #     &redirect_uri=http://localhost:3003/callback
+   #     &scope=transactions_r%20listings_r%20shops_r%20shops_w
+   #     &client_id=$ETSY_CLIENT_ID
+   #     &state=anything
+   #     &code_challenge=...  (PKCE — generate via openssl)
+   #     &code_challenge_method=S256
+   # Step B: catch the redirect, extract `code`
+   # Step C: POST to exchange code for tokens:
+   curl -X POST https://api.etsy.com/v3/public/oauth/token \
+     -d "grant_type=authorization_code" \
+     -d "client_id=$ETSY_CLIENT_ID" \
+     -d "redirect_uri=http://localhost:3003/callback" \
+     -d "code=<from step B>" \
+     -d "code_verifier=<PKCE verifier>"
+   # Response: { access_token, refresh_token, expires_in: 3600, ... }
+   ```
+4. **Set env vars on the n8n VPS** (one-time):
+   ```bash
+   # On the box, edit the n8n docker-compose.yml environment block (or env_file):
+   ETSY_CLIENT_ID=...
+   ETSY_CLIENT_SECRET=...
+   ETSY_REFRESH_TOKEN=...   # from step 3
+   ETSY_SHOP_ID=...
+   ```
+   Then `docker compose up -d n8n`.
+5. **Activate** `STR_Etsy_Token_Refresh` first, then run it once manually to verify the refresh exchange works. Check the workflow's staticData (Execution → Inputs/Outputs) shows new `access_token` and `last_refresh_at`.
+6. **Activate** `STR_Etsy_Order_InfluencerSoft_Tagger` second.
+
+### Etsy-specific failure modes
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `Token Refresh returned no access_token` in Order workflow | Refresh hasn't run yet OR Etsy returned an error | Run `STR_Etsy_Token_Refresh` manually; check its last execution log |
+| `invalid_grant` from `/oauth/token` | Refresh token expired (>90 days unused) or was rotated by an out-of-band call | Re-do the OAuth bootstrap (step 3 above) to get a fresh refresh_token; update `ETSY_REFRESH_TOKEN` env var and clear staticData |
+| `unauthorized_client` from Etsy receipts | `x-api-key` header missing or wrong | Confirm `ETSY_CLIENT_ID` env var is the **keystring** (not the OAuth client_id-like UUID); these are the same value but Etsy docs are ambiguous |
+| Empty results despite known orders | `min_created` window covers wrong period OR `was_paid=true` filter excludes them | Lower `was_paid` requirement in workflow if you also want pending orders; verify `last_poll_sec` in staticData |
+| Duplicate buyer tagging | Workflow re-ran on the same receipt (e.g., manual test runs) | Idempotent — IS `AddUpdateLead` upserts by email; tags are set-like so re-applying is a no-op |
 
 ## Stripe webhook setup
 

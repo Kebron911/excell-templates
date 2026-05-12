@@ -1,0 +1,219 @@
+{
+  "name": "STR_Etsy_Token_Refresh",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24,
+              "triggerAtHour": 3
+            }
+          ]
+        }
+      },
+      "id": "node-trigger-daily",
+      "name": "Daily 3am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "node-trigger-manual",
+      "name": "Manual / Sub-workflow input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Load current Etsy token state from workflow staticData (or seed from env on first run).\n//\n// staticData is a per-workflow JSON blob persisted by n8n. We use it to store rotating\n// tokens — Etsy refresh tokens ROTATE on every refresh, so we MUST persist the new one.\n//\n// Initial seed (first time this runs after deploy): pulled from env vars set on the n8n host.\n//   - ETSY_CLIENT_ID         (Etsy developer app key, public)\n//   - ETSY_CLIENT_SECRET     (Etsy developer app secret)\n//   - ETSY_REFRESH_TOKEN     (initial refresh token from OAuth consent — see README)\n//   - ETSY_SHOP_ID           (consumer of the access_token, not used here but checked)\n//\n// After the first run, the access_token + refresh_token live in staticData and are\n// rotated by the refresh call below. The env-var seed becomes a fallback.\n\nconst sd = $getWorkflowStaticData('global');\n\nif (!sd.client_id)    sd.client_id    = $env.ETSY_CLIENT_ID    || null;\nif (!sd.client_secret) sd.client_secret = $env.ETSY_CLIENT_SECRET || null;\nif (!sd.refresh_token) sd.refresh_token = $env.ETSY_REFRESH_TOKEN || null;\nif (!sd.shop_id)       sd.shop_id       = $env.ETSY_SHOP_ID       || null;\n\nif (!sd.client_id || !sd.client_secret || !sd.refresh_token) {\n  throw new Error('Missing ETSY_CLIENT_ID / ETSY_CLIENT_SECRET / ETSY_REFRESH_TOKEN — set them on the n8n host env, then re-run.');\n}\n\nconst nowSec = Math.floor(Date.now() / 1000);\nconst expiresAt = sd.access_token_expires_at || 0;\nconst needsRefresh = !sd.access_token || (expiresAt < nowSec + 60);\n\nreturn [{\n  json: {\n    needsRefresh,\n    client_id: sd.client_id,\n    client_secret: sd.client_secret,\n    refresh_token: sd.refresh_token,\n    access_token: sd.access_token || null,\n    access_token_expires_at: expiresAt,\n    shop_id: sd.shop_id,\n  },\n}];\n"
+      },
+      "id": "node-load-state",
+      "name": "Load token state",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "needs-refresh",
+              "leftValue": "={{ $json.needsRefresh }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-needs-refresh",
+      "name": "Needs refresh?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        680,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.etsy.com/v3/public/oauth/token",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "refresh_token"
+            },
+            {
+              "name": "client_id",
+              "value": "={{ $json.client_id }}"
+            },
+            {
+              "name": "refresh_token",
+              "value": "={{ $json.refresh_token }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "node-etsy-refresh",
+      "name": "Etsy /oauth/token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Persist the new access_token + ROTATING refresh_token back to staticData.\n// Etsy returns:\n//   { access_token, token_type: 'Bearer', expires_in: 3600, refresh_token: '<NEW>' }\n// access_token is good for 1 hour. refresh_token is good for 90 days BUT is rotated on use,\n// so if we don't persist the new one we lose access after ~1 hour.\n\nconst resp = $input.first().json;\nif (!resp.access_token || !resp.refresh_token) {\n  throw new Error('Etsy refresh response missing access_token or refresh_token: ' + JSON.stringify(resp).slice(0, 300));\n}\n\nconst sd = $getWorkflowStaticData('global');\nconst nowSec = Math.floor(Date.now() / 1000);\nsd.access_token = resp.access_token;\nsd.refresh_token = resp.refresh_token;\nsd.access_token_expires_at = nowSec + (resp.expires_in || 3600) - 60;  // 60s safety margin\nsd.last_refresh_at = new Date().toISOString();\n\nreturn [{\n  json: {\n    access_token: sd.access_token,\n    access_token_expires_at: sd.access_token_expires_at,\n    shop_id: sd.shop_id,\n    refreshed: true,\n  },\n}];\n"
+      },
+      "id": "node-save-tokens",
+      "name": "Save new tokens",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// No refresh needed — return current tokens unchanged.\nconst sd = $getWorkflowStaticData('global');\nreturn [{\n  json: {\n    access_token: sd.access_token,\n    access_token_expires_at: sd.access_token_expires_at,\n    shop_id: sd.shop_id,\n    refreshed: false,\n  },\n}];\n"
+      },
+      "id": "node-return-current",
+      "name": "Return current tokens",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        460
+      ]
+    }
+  ],
+  "connections": {
+    "Daily 3am": {
+      "main": [
+        [
+          {
+            "node": "Load token state",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual / Sub-workflow input": {
+      "main": [
+        [
+          {
+            "node": "Load token state",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load token state": {
+      "main": [
+        [
+          {
+            "node": "Needs refresh?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs refresh?": {
+      "main": [
+        [
+          {
+            "node": "Etsy /oauth/token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return current tokens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Etsy /oauth/token": {
+      "main": [
+        [
+          {
+            "node": "Save new tokens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 30,
+    "timezone": "America/Denver",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null
+}

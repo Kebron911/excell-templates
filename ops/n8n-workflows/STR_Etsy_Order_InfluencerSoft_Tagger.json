@@ -1,0 +1,353 @@
+{
+  "name": "STR_Etsy_Order_InfluencerSoft_Tagger",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "node-trigger",
+      "name": "Every 15 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "STR_Etsy_Token_Refresh",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "node-get-tokens",
+      "name": "Get Etsy tokens",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Compute the receipt query window. We poll receipts created since the last successful\n// poll timestamp; if first run, default to 24 hours ago to avoid backfilling years of orders.\n//\n// Etsy receipts API expects min_created as a UNIX timestamp (seconds).\n\nconst sd = $getWorkflowStaticData('global');\nconst nowSec = Math.floor(Date.now() / 1000);\nconst defaultBackfillSec = 24 * 60 * 60;  // 24 hours\nconst lastPollSec = sd.last_poll_sec || (nowSec - defaultBackfillSec);\n\nconst tokens = $input.first().json;\nif (!tokens.access_token) throw new Error('Token Refresh returned no access_token');\nif (!tokens.shop_id) throw new Error('Token Refresh returned no shop_id — set ETSY_SHOP_ID env var');\n\nreturn [{\n  json: {\n    access_token: tokens.access_token,\n    shop_id: tokens.shop_id,\n    client_id: $env.ETSY_CLIENT_ID,\n    min_created_sec: lastPollSec,\n    now_sec: nowSec,\n  },\n}];\n"
+      },
+      "id": "node-window",
+      "name": "Compute poll window",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://openapi.etsy.com/v3/application/shops/{{ $json.shop_id }}/receipts",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "min_created",
+              "value": "={{ $json.min_created_sec }}"
+            },
+            {
+              "name": "was_paid",
+              "value": "true"
+            },
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.access_token }}"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $json.client_id }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "node-fetch-receipts",
+      "name": "Etsy GET /receipts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Flatten Etsy receipts payload into individual buyer-tagging items.\n// Etsy receipt shape (v3):\n//   {\n//     receipt_id, buyer_email, buyer_user_id, name,\n//     transactions: [ { listing_id, sku, product_id, quantity, ... } ],\n//     ...\n//   }\n//\n// We emit one item per RECEIPT (not per transaction); the SKUs are passed as an array\n// for the inner per-SKU loop downstream.\n\nconst resp = $input.first().json;\nconst receipts = (resp.results || []).filter((r) => r.buyer_email);\n\nif (receipts.length === 0) {\n  return [];  // Nothing to do — next node won't fire, but staticData update below still needs to run.\n}\n\nreturn receipts.map((r) => {\n  const skus = (r.transactions || [])\n    .map((t) => t.sku || (t.product_data && t.product_data.sku) || String(t.listing_id))\n    .filter(Boolean);\n  return {\n    json: {\n      email: r.buyer_email,\n      buyer_name: r.name || null,\n      receipt_id: r.receipt_id,\n      skus,\n      grandtotal_amount: r.grandtotal && r.grandtotal.amount,\n      grandtotal_currency: r.grandtotal && r.grandtotal.currency_code,\n      created_at: r.create_timestamp ? new Date(r.create_timestamp * 1000).toISOString() : null,\n    },\n  };\n});\n"
+      },
+      "id": "node-extract-orders",
+      "name": "Extract buyer + SKUs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "node-split-orders",
+      "name": "For each order",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1340,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://kebron.influencersoft.com/api/AddUpdateLead",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "rpsKey",
+              "value": "={{ $env.INFLUENCERSOFT_API_KEY }}"
+            },
+            {
+              "name": "lead_email",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "name": "add_tags",
+              "value": "customer:etsy"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "node-is-upsert",
+      "name": "IS AddUpdateLead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1560,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "node-split-skus",
+      "name": "For each SKU",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1780,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://kebron.influencersoft.com/api/AddTagToLead",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "rpsKey",
+              "value": "={{ $env.INFLUENCERSOFT_API_KEY }}"
+            },
+            {
+              "name": "lead_email",
+              "value": "={{ $('For each order').item.json.email }}"
+            },
+            {
+              "name": "tag_name",
+              "value": "=purchased:{{ $json }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "node-is-tag-sku",
+      "name": "IS AddTagToLead per SKU",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Persist the new last_poll_sec so the next run only picks up receipts AFTER this run.\n// Runs once at end of workflow (no split-batches context).\n\nconst sd = $getWorkflowStaticData('global');\nsd.last_poll_sec = Math.floor(Date.now() / 1000);\nsd.last_run_at = new Date().toISOString();\n\nreturn [{ json: { last_poll_sec: sd.last_poll_sec, last_run_at: sd.last_run_at } }];\n"
+      },
+      "id": "node-update-cursor",
+      "name": "Save last_poll_sec",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2220,
+        220
+      ]
+    }
+  ],
+  "connections": {
+    "Every 15 min": {
+      "main": [
+        [
+          {
+            "node": "Get Etsy tokens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Etsy tokens": {
+      "main": [
+        [
+          {
+            "node": "Compute poll window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute poll window": {
+      "main": [
+        [
+          {
+            "node": "Etsy GET /receipts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Etsy GET /receipts": {
+      "main": [
+        [
+          {
+            "node": "Extract buyer + SKUs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract buyer + SKUs": {
+      "main": [
+        [
+          {
+            "node": "For each order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For each order": {
+      "main": [
+        [
+          {
+            "node": "IS AddUpdateLead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save last_poll_sec",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IS AddUpdateLead": {
+      "main": [
+        [
+          {
+            "node": "For each SKU",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "For each SKU": {
+      "main": [
+        [
+          {
+            "node": "IS AddTagToLead per SKU",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "For each order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IS AddTagToLead per SKU": {
+      "main": [
+        [
+          {
+            "node": "For each SKU",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 120,
+    "timezone": "America/Denver",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null
+}
