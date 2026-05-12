@@ -1,0 +1,56 @@
+name: Lockfile guard
+
+# Runs on every PR or push that touches a package.json or the lockfile,
+# anywhere in the monorepo. Verifies `pnpm install --frozen-lockfile`
+# succeeds — i.e. the committed lockfile matches every package.json.
+#
+# Catches the failure mode where a workspace dep is added to a sub-package
+# but pnpm install wasn't re-run before commit, so deploy workflows fail
+# at install on main. Previously these only surfaced after merge because
+# per-site deploy workflows have `paths:` filters and don't trigger on
+# package-only changes.
+
+on:
+  pull_request:
+    paths:
+      - '**/package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+  push:
+    branches: [main]
+    paths:
+      - '**/package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+
+concurrency:
+  group: lockfile-guard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Verify lockfile in sync with all package.json files
+        run: pnpm install --frozen-lockfile
+
+      - name: Confirm no diff after install
+        run: |
+          if ! git diff --exit-code -- pnpm-lock.yaml; then
+            echo "::error::Lockfile drifted during install. Re-run 'pnpm install' locally and commit pnpm-lock.yaml."
+            exit 1
+          fi
