@@ -1,13 +1,14 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
-import Sidebar from '@/components/chrome/Sidebar.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
+import Sidebar from '@str/ui-chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import Year1CashCalculator from '@/components/calculators/Year1CashCalculator.tsx';
-import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import { buildWebApplication, buildFAQPage } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 
 const faqs = [
   {
@@ -33,7 +34,7 @@ const faqs = [
 ];
 
 const jsonLd = [
-  buildWebApplication({
+  buildWebApplication(siteConfig, {
     name: 'Year 1 Cash Needs Calculator for STR',
     description:
       'Sum every dollar required to close, furnish, reserve, and carry a short-term rental through ramp-up. Five-line breakdown.',
@@ -67,7 +68,7 @@ const jsonLd = [
 
         <AffiliateBlock tool="year-1-cash-needs" vendorIds={["visio", "minoan"]} />
 
-        <AdSlot location="in-content" />
+        <AdSlot siteConfig={siteConfig} location="in-content" />
 
         <section class="mt-9 max-w-2xl prose">
           <h2>How it works</h2>
@@ -92,15 +93,15 @@ const jsonLd = [
           ))}
         </section>
 
-        <EmailCaptureCard magnet="str-buyer-playbook" toolSlug="year-1-cash-needs" />
-        <STRLedgerCTA tool="year-1-cash-needs" />
+        <EmailCaptureCard siteConfig={siteConfig} magnet="str-buyer-playbook" toolSlug="year-1-cash-needs" />
+        <STRLedgerCTA siteConfig={siteConfig} tool="year-1-cash-needs" />
 
-        <AdSlot location="footer" />
+        <AdSlot siteConfig={siteConfig} location="footer" />
       </div>
 
-      <Sidebar current="year-1-cash-needs" />
+      <Sidebar siteConfig={siteConfig} current="year-1-cash-needs" />
     </div>
 
-    <ClusterFunnelBlock currentCluster="acquisition" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="acquisition" />
   </article>
 </Layout>

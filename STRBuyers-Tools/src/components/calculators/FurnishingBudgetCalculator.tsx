@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { calculateFurnishingBudget, type Tier } from '@/lib/calc/furnishing-budget';
-import { formatCurrency } from '@/lib/format';
-import { parse, createDebouncedReplaceState } from '@/lib/url-state';
+import { formatCurrency } from '@str/format';
+import { parse, createDebouncedReplaceState } from '@str/url-state';
 import { trackCalculatorRun } from '@/lib/analytics';
 import { Field, SelectField, Row, Actions } from './ui';
 

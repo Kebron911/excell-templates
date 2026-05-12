@@ -1,7 +1,8 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import { buildArticle, buildBreadcrumb } from '@/lib/seo';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import { buildArticle, buildBreadcrumb } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -44,7 +45,7 @@ const categoryLabels: Record<string, string> = {
   'market-selection': 'Market Selection',
 };
 
-const articleLd = buildArticle({
+const articleLd = buildArticle(siteConfig, {
   headline: post.data.title,
   description: post.data.description,
   slug,
@@ -53,9 +54,9 @@ const articleLd = buildArticle({
   authorName: post.data.author,
 });
 
-const breadcrumbLd = buildBreadcrumb([
-  { name: 'Home', path: '/' },
-  { name: 'Blog', path: '/blog' },
+const breadcrumbLd = buildBreadcrumb(siteConfig, [
+  { name: 'Home', url: '/' },
+  { name: 'Blog', url: '/blog' },
   { name: post.data.title },
 ]);
 ---
@@ -117,7 +118,7 @@ const breadcrumbLd = buildBreadcrumb([
       </nav>
     )}
 
-    <ClusterFunnelBlock currentCluster="acquisition" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="acquisition" />
   </article>
 </Layout>
 

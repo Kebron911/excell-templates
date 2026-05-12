@@ -1,6 +1,7 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import { siteConfig } from '@/data/site.config';
 ---
 <Layout
   title="Page not found — strbuyers.tools"
@@ -68,5 +69,5 @@ import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
     </div>
   </section>
 
-  <ClusterFunnelBlock currentCluster="acquisition" />
+  <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="acquisition" />
 </Layout>

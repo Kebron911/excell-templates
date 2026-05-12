@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { scoreMarket, type RegulationStatus, type SaturationTier } from '@/lib/calc/market-score';
-import { formatCurrency, formatPercent, formatNumber } from '@/lib/format';
-import { parse, createDebouncedReplaceState } from '@/lib/url-state';
+import { formatCurrency, formatPercent, formatNumber } from '@str/format';
+import { parse, createDebouncedReplaceState } from '@str/url-state';
 import { trackCalculatorRun } from '@/lib/analytics';
 import { Field, SelectField, Row, Actions } from './ui';
 import { getCity, type RegulationStatus as CityRegulationStatus, type SaturationTier as CitySaturationTier } from '@/data/cities';

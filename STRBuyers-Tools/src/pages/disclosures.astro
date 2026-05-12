@@ -1,7 +1,8 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import affiliates from '@/data/affiliates.json';
+import { siteConfig } from '@/data/site.config';
 
 interface Vendor {
   id: string;
@@ -144,6 +145,6 @@ const lastUpdated = '2026-05-08';
       </section>
     </div>
 
-    <ClusterFunnelBlock currentCluster="acquisition" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="acquisition" />
   </article>
 </Layout>

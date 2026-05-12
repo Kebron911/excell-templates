@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { compareLoans } from '@/lib/calc/down-payment';
 import { LOAN_TYPES } from '@/lib/calc/loan-types';
-import { formatCurrency, formatPercent, formatNumber } from '@/lib/format';
-import { parse, createDebouncedReplaceState } from '@/lib/url-state';
+import { formatCurrency, formatPercent, formatNumber } from '@str/format';
+import { parse, createDebouncedReplaceState } from '@str/url-state';
 import { trackCalculatorRun } from '@/lib/analytics';
 import { Field, Actions } from './ui';
 

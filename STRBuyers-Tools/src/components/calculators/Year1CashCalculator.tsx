@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { calculateYear1Cash } from '@/lib/calc/year-1-cash';
-import { formatCurrency } from '@/lib/format';
-import { parse, createDebouncedReplaceState } from '@/lib/url-state';
+import { formatCurrency } from '@str/format';
+import { parse, createDebouncedReplaceState } from '@str/url-state';
 import { trackCalculatorRun } from '@/lib/analytics';
 import { Field, Row, Actions } from './ui';
 

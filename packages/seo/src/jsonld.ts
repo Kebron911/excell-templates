@@ -176,8 +176,9 @@ export interface BreadcrumbItem {
   /**
    * Absolute URL or site-relative path (e.g. '/templates').
    * Relative paths are resolved against siteConfig.url.canonical via canonical().
+   * Omit for the current page (last item) — Google accepts both styles.
    */
-  url: string;
+  url?: string;
 }
 
 /**
@@ -197,9 +198,11 @@ export function buildBreadcrumb(siteConfig: SiteConfig, items: BreadcrumbItem[])
       '@type': 'ListItem',
       position: idx + 1,
       name: item.name,
-      item: item.url.startsWith('http')
-        ? item.url
-        : canonical(siteConfig, item.url),
+      ...(item.url !== undefined && {
+        item: item.url.startsWith('http')
+          ? item.url
+          : canonical(siteConfig, item.url),
+      }),
     })),
   };
 }

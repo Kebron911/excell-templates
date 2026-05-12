@@ -1,13 +1,14 @@
 ---
 import Layout from '@/components/chrome/Layout.astro';
-import Sidebar from '@/components/chrome/Sidebar.astro';
-import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
-import AdSlot from '@/components/ads/AdSlot.astro';
+import Sidebar from '@str/ui-chrome/Sidebar.astro';
+import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
-import EmailCaptureCard from '@/components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@/components/funnel/STRLedgerCTA.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import FurnishingBudgetCalculator from '@/components/calculators/FurnishingBudgetCalculator.tsx';
-import { buildWebApplication, buildFAQPage } from '@/lib/seo';
+import { buildWebApplication, buildFAQPage } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 
 const faqs = [
   {
@@ -33,7 +34,7 @@ const faqs = [
 ];
 
 const jsonLd = [
-  buildWebApplication({
+  buildWebApplication(siteConfig, {
     name: 'Airbnb Furnishing Budget Calculator',
     description:
       'Three-tier furnishing budget estimate by bedrooms, bathrooms, and square footage. Budget, mid, or luxury — full breakdown by room.',
@@ -67,7 +68,7 @@ const jsonLd = [
 
         <AffiliateBlock tool="furnishing-budget" vendorIds={["stage-by-hand", "minoan"]} />
 
-        <AdSlot location="in-content" />
+        <AdSlot siteConfig={siteConfig} location="in-content" />
 
         <section class="mt-9 max-w-2xl prose">
           <h2>How it works</h2>
@@ -91,15 +92,15 @@ const jsonLd = [
           ))}
         </section>
 
-        <EmailCaptureCard magnet="str-buyer-playbook" toolSlug="furnishing-budget" />
-        <STRLedgerCTA tool="furnishing-budget" />
+        <EmailCaptureCard siteConfig={siteConfig} magnet="str-buyer-playbook" toolSlug="furnishing-budget" />
+        <STRLedgerCTA siteConfig={siteConfig} tool="furnishing-budget" />
 
-        <AdSlot location="footer" />
+        <AdSlot siteConfig={siteConfig} location="footer" />
       </div>
 
-      <Sidebar current="furnishing-budget" />
+      <Sidebar siteConfig={siteConfig} current="furnishing-budget" />
     </div>
 
-    <ClusterFunnelBlock currentCluster="acquisition" />
+    <ClusterFunnelBlock siteConfig={siteConfig} currentCluster="acquisition" />
   </article>
 </Layout>

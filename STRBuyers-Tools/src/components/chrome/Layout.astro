@@ -1,10 +1,11 @@
 ---
 import '@/styles/global.css';
 import '@/styles/print.css';
-import Header from './Header.astro';
-import Footer from './Footer.astro';
-import FunnelBand from './FunnelBand.astro';
-import { canonical, ogImageFor, buildOrganization } from '@/lib/seo';
+import Header from '@str/ui-chrome/Header.astro';
+import Footer from '@str/ui-chrome/Footer.astro';
+import FunnelBand from '@str/ui-chrome/FunnelBand.astro';
+import { canonical, ogImageFor, buildOrganization } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 
 interface Props {
   title: string;
@@ -16,9 +17,9 @@ interface Props {
 }
 
 const { title, description, path, ogImage, noIndex = false, jsonLd } = Astro.props;
-const canonicalUrl = canonical(path);
-const ogImg = ogImage ?? ogImageFor(path);
-const orgLd = buildOrganization();
+const canonicalUrl = canonical(siteConfig, path);
+const ogImg = ogImage ?? ogImageFor(siteConfig, path);
+const orgLd = buildOrganization(siteConfig);
 
 const lds = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 ---
@@ -74,11 +75,11 @@ const lds = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     )}
   </head>
   <body class="min-h-screen flex flex-col">
-    <Header />
+    <Header siteConfig={siteConfig} />
     <main class="flex-1">
       <slot />
     </main>
-    <FunnelBand />
-    <Footer />
+    <FunnelBand siteConfig={siteConfig} />
+    <Footer siteConfig={siteConfig} />
   </body>
 </html>
