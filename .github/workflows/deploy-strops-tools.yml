@@ -33,11 +33,13 @@ jobs:
         with:
           node-version: '22'
           cache: 'pnpm'
-          cache-dependency-path: STROps-Tools/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
-      - name: Install
-        working-directory: STROps-Tools
+      - name: Install (workspace root)
         run: pnpm install --frozen-lockfile
+
+      - name: Build workspace packages
+        run: pnpm -r --filter './packages/**' build
 
       - name: Typecheck
         working-directory: STROps-Tools
