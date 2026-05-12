@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { computeLinenPar } from '@lib/calc/linen-par';
-import { encodeState, decodeState, browserReplacer } from '@lib/url-state';
+import { encodeState, decodeState, browserReplacer } from '@str/url-state';
 import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = {

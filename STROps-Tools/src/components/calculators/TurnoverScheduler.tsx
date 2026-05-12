@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { computeSchedule, type Booking } from '@lib/calc/turnover';
-import { encodeState, decodeState, browserReplacer } from '@lib/url-state';
+import { encodeState, decodeState, browserReplacer } from '@str/url-state';
 import { track, markCalcRunOnce } from '@lib/analytics';
 
 type State = { turnoverHours: number; rows: string };

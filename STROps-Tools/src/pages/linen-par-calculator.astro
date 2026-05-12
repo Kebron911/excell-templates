@@ -1,10 +1,12 @@
----
+﻿---
 import Layout from '@/layouts/Layout.astro';
-import Sidebar from '@components/chrome/Sidebar.astro';
+import AppSidebar from '@str/ui-chrome/AppSidebar.astro';
+import { siteConfig } from '@/data/site.config';
+import { sidebarItems } from '@/data/sidebar-items';
 import LinenParCalculator from '@components/calculators/LinenParCalculator.tsx';
-import AdSlot from '@components/ads/AdSlot.astro';
-import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
@@ -30,10 +32,10 @@ const faqs = [
       <h1>Linen Par Calculator</h1>
       <p class="lead">Stop running short on changeovers. Plug in your bedroom and bathroom counts and get a clean par-level target.</p>
       <LinenParCalculator client:visible />
-      <AdSlot location="in-content" />
+      <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>
       <p>For each bedroom we multiply by your sheet-sets-per-bed (default 3 — one on the bed, one in the wash, one on the shelf). For bathrooms we multiply by towel-sets-per-bath. The king/queen split lets you separate sheet purchases by size.</p>
-      <EmailCaptureCard magnet="supply-par" tool="linen-par-calculator" />
+      <EmailCaptureCard siteConfig={siteConfig} magnet="supply-par" toolSlug="linen-par-calculator" />
       <h2>How to use this tool</h2>
       <ol>
         <li>Enter bedroom and bathroom counts.</li>
@@ -43,10 +45,10 @@ const faqs = [
       </ol>
       <h2>FAQ</h2>
       {faqs.map(f => <div><h3>{f.q}</h3><p>{f.a}</p></div>)}
-      <STRLedgerCTA tool="linen-par-calculator" />
+      <STRLedgerCTA siteConfig={siteConfig} tool="linen-par-calculator" />
       <AffiliateCard {...(affiliates as any)['turno']} vendorId="turno" />
-      <AdSlot location="footer" />
+      <AdSlot siteConfig={siteConfig} location="footer" />
     </article>
-    <Sidebar current="linen-par-calculator" />
+    <AppSidebar siteConfig={siteConfig} items={sidebarItems} current="linen-par-calculator" />
   </div>
 </Layout>

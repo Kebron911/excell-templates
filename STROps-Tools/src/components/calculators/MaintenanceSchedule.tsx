@@ -3,7 +3,7 @@ import { buildSchedule } from '@lib/calc/maintenance-schedule';
 import { buildSchedulePdf } from '@lib/pdf/maintenance-schedule';
 import { buildIcs, downloadIcs } from '@lib/calendar/ics';
 import { downloadBytes } from '@lib/pdf/base';
-import { encodeState, decodeState, browserReplacer } from '@lib/url-state';
+import { encodeState, decodeState, browserReplacer } from '@str/url-state';
 import { track, markCalcRunOnce } from '@lib/analytics';
 import tasks from '@data/tasks.json';
 import type { TaskCatalog } from '@lib/types';

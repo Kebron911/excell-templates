@@ -1,10 +1,12 @@
----
+﻿---
 import Layout from '@/layouts/Layout.astro';
-import Sidebar from '@components/chrome/Sidebar.astro';
+import AppSidebar from '@str/ui-chrome/AppSidebar.astro';
+import { siteConfig } from '@/data/site.config';
+import { sidebarItems } from '@/data/sidebar-items';
 import SmartLockCodes from '@components/calculators/SmartLockCodes.tsx';
-import AdSlot from '@components/ads/AdSlot.astro';
-import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import AdSlot from '@str/ui-funnel/AdSlot.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
@@ -31,10 +33,10 @@ const faqs = [
       <h1>Smart Lock Code Generator</h1>
       <p class="lead">Generate per-booking lock codes you can re-derive on demand. Same booking ID + secret produces the same code, every time.</p>
       <SmartLockCodes client:visible />
-      <AdSlot location="in-content" />
+      <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>
       <p>We compute HMAC-SHA-256 of your booking ID using your secret as the key, then take the result mod 10^digits and zero-pad to length. The output is deterministic and unique-by-booking — no storage required.</p>
-      <EmailCaptureCard magnet="cleaner-sop" tool="smart-lock-codes" />
+      <EmailCaptureCard siteConfig={siteConfig} magnet="cleaner-sop" toolSlug="smart-lock-codes" />
       <h2>How to use this tool</h2>
       <ol>
         <li>Pick a strong host secret (treat like a password).</li>
@@ -44,12 +46,12 @@ const faqs = [
       </ol>
       <h2>FAQ</h2>
       {faqs.map(f => <div><h3>{f.q}</h3><p>{f.a}</p></div>)}
-      <STRLedgerCTA tool="smart-lock-codes" />
+      <STRLedgerCTA siteConfig={siteConfig} tool="smart-lock-codes" />
       <AffiliateCard {...(affiliates as any)['august']} vendorId="august" />
       <AffiliateCard {...(affiliates as any)['schlage']} vendorId="schlage" />
       <AffiliateCard {...(affiliates as any)['remotelock']} vendorId="remotelock" />
-      <AdSlot location="footer" />
+      <AdSlot siteConfig={siteConfig} location="footer" />
     </article>
-    <Sidebar current="smart-lock-codes" />
+    <AppSidebar siteConfig={siteConfig} items={sidebarItems} current="smart-lock-codes" />
   </div>
 </Layout>

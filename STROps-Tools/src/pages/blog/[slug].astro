@@ -1,8 +1,9 @@
----
+﻿---
 import Layout from '@/layouts/Layout.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import EmailCaptureCard from '@components/funnel/EmailCaptureCard.astro';
-import STRLedgerCTA from '@components/funnel/STRLedgerCTA.astro';
+import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
+import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import { siteConfig } from '@/data/site.config';
 import {
   orgJsonLd,
   blogPostingJsonLd,
@@ -231,11 +232,11 @@ const toc = (headings ?? []).filter((h: { depth: number }) => h.depth === 2);
     )}
 
     <div class="mx-auto max-w-3xl px-6 mt-10">
-      <EmailCaptureCard magnet={post.data.magnet} tool={`blog-${slug}`} />
+      <EmailCaptureCard siteConfig={siteConfig} magnet={post.data.magnet} toolSlug={`blog-${slug}`} />
     </div>
 
     <div class="mx-auto max-w-3xl px-6 mt-6">
-      <STRLedgerCTA tool={related[0]?.slug ?? 'turnover-scheduler'} />
+      <STRLedgerCTA siteConfig={siteConfig} tool={related[0]?.slug ?? 'turnover-scheduler'} />
     </div>
 
     {(newerLink || olderLink) && (
