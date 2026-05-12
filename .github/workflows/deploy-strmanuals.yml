@@ -86,6 +86,22 @@ jobs:
           STRMANUALS_DOWNLOAD_HASH: ${{ secrets.STRMANUALS_DOWNLOAD_HASH }}
         run: pnpm build
 
+      - name: DIAG — inspect rendered Stripe-link state
+        working-directory: STRManuals/site
+        run: |
+          echo "=== .env present? ==="
+          ls -la .env 2>&1 | head -3
+          echo "=== .env line count + first chars per line ==="
+          while IFS= read -r line; do
+            key="${line%%=*}"
+            val_len="${#line}"
+            echo "  $key (line len: $val_len)"
+          done < .env
+          echo "=== Stripe href in tax-01 (BuyButton area) ==="
+          grep -A 1 -B 1 'btn-primary' dist/manuals/tax-01/index.html 2>&1 | head -20
+          echo "=== Any href containing #? (orphan buttons) ==="
+          grep -c 'href="#"' dist/manuals/tax-01/index.html 2>&1 || true
+
       - name: Verify build output
         working-directory: STRManuals/site
         run: |
