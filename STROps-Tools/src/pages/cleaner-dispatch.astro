@@ -9,7 +9,7 @@ import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+import { buildWebApplication, buildFAQPage } from '@str/seo';
 import affiliates from '@data/affiliates.json';
 
 const url = 'https://strops.tools/cleaner-dispatch';
@@ -23,8 +23,8 @@ const faqs = [
 <Layout title="Airbnb Cleaner Dispatch Generator — strops.tools" description="Round-robin assign turnovers to cleaners, generate SMS templates, and download a branded PDF dispatch sheet." canonical={url} ogImage="/og/cleaner-dispatch.png">
   <Fragment slot="head">
     <JsonLd data={[
-      webApplicationJsonLd({ name: 'Airbnb Cleaner Dispatch Generator', url, description: 'Assign turnovers to cleaners and generate SMS dispatch templates.' }),
-      faqJsonLd(faqs),
+      buildWebApplication(siteConfig, { name: 'Airbnb Cleaner Dispatch Generator', description: 'Assign turnovers to cleaners and generate SMS dispatch templates.', toolPath: '/cleaner-dispatch', applicationCategory: 'BusinessApplication' }),
+      buildFAQPage(faqs.map(f => ({ question: f.q, answer: f.a }))),
     ]} />
   </Fragment>
   <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">

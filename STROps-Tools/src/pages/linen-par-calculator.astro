@@ -9,7 +9,7 @@ import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+import { buildWebApplication, buildFAQPage } from '@str/seo';
 import affiliates from '@data/affiliates.json';
 
 const url = 'https://strops.tools/linen-par-calculator';
@@ -23,8 +23,8 @@ const faqs = [
 <Layout title="Airbnb Linen Par Calculator — strops.tools" description="Calculate sheet and towel par levels per property — never run short on a turnover." canonical={url} ogImage="/og/linen-par-calculator.png">
   <Fragment slot="head">
     <JsonLd data={[
-      webApplicationJsonLd({ name: 'Airbnb Linen Par Calculator', url, description: 'Sheet and towel par levels per property.' }),
-      faqJsonLd(faqs),
+      buildWebApplication(siteConfig, { name: 'Airbnb Linen Par Calculator', description: 'Sheet and towel par levels per property.', toolPath: '/linen-par-calculator', applicationCategory: 'BusinessApplication' }),
+      buildFAQPage(faqs.map(f => ({ question: f.q, answer: f.a }))),
     ]} />
   </Fragment>
   <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">

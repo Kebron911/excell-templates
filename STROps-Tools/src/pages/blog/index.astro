@@ -1,7 +1,8 @@
 ﻿---
 import Layout from '@/layouts/Layout.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { orgJsonLd } from '@lib/seo';
+import { buildOrganization } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 import { getCollection } from 'astro:content';
 
 const all = await getCollection('posts');
@@ -40,7 +41,7 @@ const blogLd = {
   name: 'strops.tools — Operations Notebook',
   url,
   description,
-  publisher: orgJsonLd(),
+  publisher: buildOrganization(siteConfig),
   blogPost: posts.map((p) => ({
     '@type': 'BlogPosting',
     headline: p.title,
@@ -58,7 +59,7 @@ const blogLd = {
   ogImage="/og/blog.png"
 >
   <Fragment slot="head">
-    <JsonLd data={[orgJsonLd(), blogLd]} />
+    <JsonLd data={[buildOrganization(siteConfig), blogLd]} />
     <link rel="alternate" type="application/rss+xml" title="strops.tools" href="/feed.xml" />
   </Fragment>
 

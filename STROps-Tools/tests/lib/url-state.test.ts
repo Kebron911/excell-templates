@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { encodeState, decodeState, makeReplacer } from '@lib/url-state';
+import { encodeState, decodeState, makeReplacer } from '@str/url-state';
 
 describe('url-state', () => {
   it('round-trips primitives', () => {

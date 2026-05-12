@@ -9,7 +9,7 @@ import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+import { buildWebApplication, buildFAQPage } from '@str/seo';
 import affiliates from '@data/affiliates.json';
 
 const url = 'https://strops.tools/restock-calculator';
@@ -22,8 +22,8 @@ const faqs = [
 <Layout title="Airbnb Supply Restock Calculator — strops.tools" description="Project monthly and yearly consumable usage from booking volume." canonical={url} ogImage="/og/restock-calculator.png">
   <Fragment slot="head">
     <JsonLd data={[
-      webApplicationJsonLd({ name: 'Airbnb Supply Restock Calculator', url, description: 'Project consumable usage from booking volume and per-guest rates.' }),
-      faqJsonLd(faqs),
+      buildWebApplication(siteConfig, { name: 'Airbnb Supply Restock Calculator', description: 'Project consumable usage from booking volume and per-guest rates.', toolPath: '/restock-calculator', applicationCategory: 'BusinessApplication' }),
+      buildFAQPage(faqs.map(f => ({ question: f.q, answer: f.a }))),
     ]} />
   </Fragment>
   <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">

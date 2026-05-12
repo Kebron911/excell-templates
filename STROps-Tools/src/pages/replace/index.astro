@@ -3,20 +3,22 @@ import Layout from '@/layouts/Layout.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import itemsData from '@data/items.json';
 import type { ItemCatalog } from '@lib/types';
-import { itemListJsonLd, breadcrumbJsonLd } from '@lib/seo';
+import { buildItemList, buildBreadcrumb } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 
 const items = itemsData as unknown as ItemCatalog;
 const list = Object.entries(items).sort(([, a], [, b]) => a.name.localeCompare(b.name));
 const url = 'https://strops.tools/replace/';
 
 const ld = [
-  itemListJsonLd(
-    list.map(([slug, item]) => ({
+  buildItemList(siteConfig, {
+    name: 'STR Replacement Cost Index',
+    items: list.map(([slug, item]) => ({
       name: item.name,
-      url: `https://strops.tools/replace/${slug}/`,
+      path: `/replace/${slug}/`,
     })),
-  ),
-  breadcrumbJsonLd([
+  }),
+  buildBreadcrumb(siteConfig, [
     { name: 'Home', url: 'https://strops.tools/' },
     { name: 'Replacement costs', url },
   ]),

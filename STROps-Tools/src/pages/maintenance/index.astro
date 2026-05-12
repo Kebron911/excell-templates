@@ -3,20 +3,22 @@ import Layout from '@/layouts/Layout.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import tasksData from '@data/tasks.json';
 import type { TaskCatalog } from '@lib/types';
-import { itemListJsonLd, breadcrumbJsonLd } from '@lib/seo';
+import { buildItemList, buildBreadcrumb } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 
 const tasks = tasksData as unknown as TaskCatalog;
 const list = Object.entries(tasks).sort(([, a], [, b]) => a.cadenceDays - b.cadenceDays);
 const url = 'https://strops.tools/maintenance/';
 
 const ld = [
-  itemListJsonLd(
-    list.map(([slug, task]) => ({
+  buildItemList(siteConfig, {
+    name: 'STR Maintenance Tasks',
+    items: list.map(([slug, task]) => ({
       name: task.name,
-      url: `https://strops.tools/maintenance/${slug}/`,
+      path: `/maintenance/${slug}/`,
     })),
-  ),
-  breadcrumbJsonLd([
+  }),
+  buildBreadcrumb(siteConfig, [
     { name: 'Home', url: 'https://strops.tools/' },
     { name: 'Maintenance schedule', url },
   ]),

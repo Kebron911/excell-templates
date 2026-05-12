@@ -9,7 +9,7 @@ import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+import { buildWebApplication, buildFAQPage } from '@str/seo';
 import affiliates from '@data/affiliates.json';
 
 const url = 'https://strops.tools/turnover-scheduler';
@@ -24,8 +24,8 @@ const faqs = [
 <Layout title="Airbnb Turnover Scheduler — strops.tools" description="Spot tight turnovers and conflicts across multiple Airbnb properties." canonical={url} ogImage="/og/turnover-scheduler.png">
   <Fragment slot="head">
     <JsonLd data={[
-      webApplicationJsonLd({ name: 'Airbnb Turnover Scheduler', url, description: 'Spot tight turnovers and booking conflicts.' }),
-      faqJsonLd(faqs),
+      buildWebApplication(siteConfig, { name: 'Airbnb Turnover Scheduler', description: 'Spot tight turnovers and booking conflicts.', toolPath: '/turnover-scheduler', applicationCategory: 'BusinessApplication' }),
+      buildFAQPage(faqs.map(f => ({ question: f.q, answer: f.a }))),
     ]} />
   </Fragment>
   <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">

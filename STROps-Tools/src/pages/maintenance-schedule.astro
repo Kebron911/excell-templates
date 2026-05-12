@@ -8,7 +8,7 @@ import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+import { buildWebApplication, buildFAQPage } from '@str/seo';
 
 const url = 'https://strops.tools/maintenance-schedule';
 const faqs = [
@@ -21,8 +21,8 @@ const faqs = [
 <Layout title="Airbnb Maintenance Schedule Generator — strops.tools" description="Annual maintenance schedule with PDF and .ics calendar export." canonical={url} ogImage="/og/maintenance-schedule.png">
   <Fragment slot="head">
     <JsonLd data={[
-      webApplicationJsonLd({ name: 'Airbnb Maintenance Schedule Generator', url, description: 'Annual maintenance schedule with PDF + ICS export.' }),
-      faqJsonLd(faqs),
+      buildWebApplication(siteConfig, { name: 'Airbnb Maintenance Schedule Generator', description: 'Annual maintenance schedule with PDF + ICS export.', toolPath: '/maintenance-schedule', applicationCategory: 'BusinessApplication' }),
+      buildFAQPage(faqs.map(f => ({ question: f.q, answer: f.a }))),
     ]} />
   </Fragment>
   <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">

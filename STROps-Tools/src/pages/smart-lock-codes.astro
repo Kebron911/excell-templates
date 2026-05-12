@@ -9,7 +9,7 @@ import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+import { buildWebApplication, buildFAQPage } from '@str/seo';
 import affiliates from '@data/affiliates.json';
 
 const url = 'https://strops.tools/smart-lock-codes';
@@ -24,8 +24,8 @@ const faqs = [
 <Layout title="Airbnb Smart Lock Code Generator — strops.tools" description="Deterministic per-booking lock codes — same booking, same code, no storage required." canonical={url} ogImage="/og/smart-lock-codes.png">
   <Fragment slot="head">
     <JsonLd data={[
-      webApplicationJsonLd({ name: 'Airbnb Smart Lock Code Generator', url, description: 'Deterministic per-booking smart lock codes via HMAC-SHA-256.' }),
-      faqJsonLd(faqs),
+      buildWebApplication(siteConfig, { name: 'Airbnb Smart Lock Code Generator', description: 'Deterministic per-booking smart lock codes via HMAC-SHA-256.', toolPath: '/smart-lock-codes', applicationCategory: 'BusinessApplication' }),
+      buildFAQPage(faqs.map(f => ({ question: f.q, answer: f.a }))),
     ]} />
   </Fragment>
   <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">

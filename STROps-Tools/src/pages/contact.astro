@@ -1,7 +1,8 @@
 ﻿---
 import Layout from '@/layouts/Layout.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { orgJsonLd, breadcrumbJsonLd } from '@lib/seo';
+import { buildOrganization, buildBreadcrumb } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 
 const url = 'https://strops.tools/contact';
 const title = 'Contact strops.tools';
@@ -18,9 +19,9 @@ const contactPageJsonLd = {
 <Layout title={title} description={description} canonical={url} ogImage="/og/contact.png">
   <Fragment slot="head">
     <JsonLd data={[
-      orgJsonLd(),
+      buildOrganization(siteConfig),
       contactPageJsonLd,
-      breadcrumbJsonLd([
+      buildBreadcrumb(siteConfig, [
         { name: 'Home', url: 'https://strops.tools/' },
         { name: 'Contact', url },
       ]),

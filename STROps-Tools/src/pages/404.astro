@@ -1,7 +1,8 @@
 ﻿---
 import Layout from '@/layouts/Layout.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { orgJsonLd } from '@lib/seo';
+import { buildOrganization } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 import tools from '@data/tools.json';
 
 type ToolEntry = { title: string; primary_keyword: string; magnet: string; blurb: string; affiliates: string[] };
@@ -25,7 +26,7 @@ const description = 'That page does not exist. Browse the seven free STR operati
   noindex={true}
 >
   <Fragment slot="head">
-    <JsonLd data={[orgJsonLd()]} />
+    <JsonLd data={[buildOrganization(siteConfig)]} />
   </Fragment>
 
   <section class="mx-auto max-w-5xl px-6 py-16">

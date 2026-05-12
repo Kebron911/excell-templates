@@ -8,7 +8,7 @@ import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { webApplicationJsonLd, faqJsonLd } from '@lib/seo';
+import { buildWebApplication, buildFAQPage } from '@str/seo';
 
 const url = 'https://strops.tools/damage-cost-lookup';
 const faqs = [
@@ -20,8 +20,8 @@ const faqs = [
 <Layout title="Airbnb Damage Cost Lookup — strops.tools" description="Replacement cost reference for common Airbnb furniture, electronics, and finishes." canonical={url} ogImage="/og/damage-cost-lookup.png">
   <Fragment slot="head">
     <JsonLd data={[
-      webApplicationJsonLd({ name: 'Airbnb Damage Cost Lookup', url, description: 'Replacement cost reference for common Airbnb items.' }),
-      faqJsonLd(faqs),
+      buildWebApplication(siteConfig, { name: 'Airbnb Damage Cost Lookup', description: 'Replacement cost reference for common Airbnb items.', toolPath: '/damage-cost-lookup', applicationCategory: 'BusinessApplication' }),
+      buildFAQPage(faqs.map(f => ({ question: f.q, answer: f.a }))),
     ]} />
   </Fragment>
   <div class="mx-auto max-w-6xl px-6 py-10 flex gap-10">

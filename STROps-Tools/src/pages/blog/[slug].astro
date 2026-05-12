@@ -5,11 +5,11 @@ import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import { siteConfig } from '@/data/site.config';
 import {
-  orgJsonLd,
-  blogPostingJsonLd,
-  breadcrumbJsonLd,
-  faqJsonLd,
-} from '@lib/seo';
+  buildOrganization,
+  buildBlogPosting,
+  buildBreadcrumb,
+  buildFAQPage,
+} from '@str/seo';
 import tools from '@data/tools.json';
 import { getCollection, render } from 'astro:content';
 
@@ -79,11 +79,10 @@ const breadcrumbs = [
   { name: post.data.title, url },
 ];
 
-const articleLd = blogPostingJsonLd({
+const articleLd = buildBlogPosting(siteConfig, {
   headline: post.data.title,
   description: post.data.description,
   url,
-  slug,
   image: ogImageAbs,
   datePublished: post.data.datePublished,
   dateModified,
@@ -94,12 +93,12 @@ const articleLd = blogPostingJsonLd({
 });
 
 const jsonLdBlocks: object[] = [
-  orgJsonLd(),
+  buildOrganization(siteConfig),
   articleLd,
-  breadcrumbJsonLd(breadcrumbs),
+  buildBreadcrumb(siteConfig, breadcrumbs),
 ];
 if (post.data.faq?.length) {
-  jsonLdBlocks.push(faqJsonLd(post.data.faq));
+  jsonLdBlocks.push(buildFAQPage(post.data.faq.map((f: { q: string; a: string }) => ({ question: f.q, answer: f.a }))));
 }
 
 // TOC: limit to depth 2 (H2 only) to avoid noise.

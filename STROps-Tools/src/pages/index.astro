@@ -1,7 +1,8 @@
 ﻿---
 import Layout from '@/layouts/Layout.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { orgJsonLd, webApplicationJsonLd } from '@lib/seo';
+import { buildOrganization, buildWebApplication } from '@str/seo';
+import { siteConfig } from '@/data/site.config';
 import tools from '@data/tools.json';
 import { getCollection } from 'astro:content';
 
@@ -47,11 +48,12 @@ const description = 'Seven free tools and three printable PDFs for short-term re
 >
   <Fragment slot="head">
     <JsonLd data={[
-      orgJsonLd(),
-      webApplicationJsonLd({
+      buildOrganization(siteConfig),
+      buildWebApplication(siteConfig, {
         name: 'strops.tools',
-        url,
         description,
+        toolPath: '/',
+        applicationCategory: 'BusinessApplication',
       }),
     ]} />
   </Fragment>

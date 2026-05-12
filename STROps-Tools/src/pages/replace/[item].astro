@@ -5,7 +5,7 @@ import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import { siteConfig } from '@/data/site.config';
 import JsonLd from '@components/seo/JsonLd.astro';
-import { howToJsonLd, faqJsonLd, breadcrumbJsonLd } from '@lib/seo';
+import { buildHowTo, buildFAQPage, buildBreadcrumb } from '@str/seo';
 import { getEntry, render } from 'astro:content';
 import itemsData from '@data/items.json';
 import type { ItemCatalog } from '@lib/types';
@@ -53,9 +53,9 @@ const steps = [
 >
   <Fragment slot="head">
     <JsonLd data={[
-      howToJsonLd({ name: `Replace a ${lowerName} in an STR`, description: 'Replacement steps and capex hygiene.', steps }),
-      faqJsonLd(faqs),
-      breadcrumbJsonLd([
+      buildHowTo({ name: `Replace a ${lowerName} in an STR`, description: 'Replacement steps and capex hygiene.', steps }),
+      buildFAQPage(faqs.map(f => ({ question: f.q, answer: f.a }))),
+      buildBreadcrumb(siteConfig, [
         { name: 'Home', url: 'https://strops.tools/' },
         { name: 'Replacement cost', url: 'https://strops.tools/replace/' },
         { name: it.name, url },
