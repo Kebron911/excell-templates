@@ -2,7 +2,20 @@
 /**
  * n8n-etsy-credential-setup.mjs — Register the Etsy OAuth2 credential in n8n.
  *
- * Two modes:
+ * ⚠️  KNOWN LIMITATION (2026-05-12, n8n self-hosted at n8ncde.cdeprosperity.com):
+ *     n8n's PUBLIC REST API uses a stricter `oAuth2Api` schema than its internal UI.
+ *     POST /api/v1/credentials rejects this script's payload with:
+ *       "is not allowed to have the additional property 'enablePKCE'"
+ *       "requires property 'serverUrl'"
+ *     Etsy mandates PKCE; without enablePKCE this credential won't work.
+ *     RECOMMENDED PATH for now: create the Etsy OAuth2 credential through the
+ *     n8n UI (Credentials → +Add → OAuth2 API). See docs/runbooks/etsy-n8n-credential.md
+ *     or the project's etsy-manual-setup-guide.md for the field-by-field walkthrough.
+ *
+ * This script is kept for future use if/when n8n's public API accepts PKCE
+ * credentials (n8n issue tracker: search "oAuth2Api enablePKCE public API").
+ *
+ * Two modes (when the API permits):
  *
  * 1. SKELETON (default — Etsy app not yet OAuth-bootstrapped):
  *    Creates credential with authUrl/accessTokenUrl/clientId/clientSecret/scope/PKCE
