@@ -54,7 +54,19 @@ State stored in workflow static data:
 | `expires_at` | number | unix ms; refreshed if `expires_at - now < 5 min` |
 | `keystring` | string | 24-char Etsy app keystring |
 | `shared_secret` | string | 10-char Etsy app shared secret |
+| `shop_id` | string | Etsy shop ID (sourced from `$env.ETSY_SHOP_ID` or literal fallback `65957104`) |
 | `last_refresh` | string | ISO timestamp for debugging |
+
+Build Auth Headers output (what other workflows receive via Execute Workflow):
+
+| Field | Example | Use |
+|---|---|---|
+| `Authorization` | `Bearer 12416722.LuBh...` | Plug straight into HTTP Request `Authorization` header |
+| `x-api-key` | `2ldcoqaen...:cctxe0fnx4` | Plug straight into HTTP Request `x-api-key` header (`keystring:secret` is the Personal Access format) |
+| `access_token` | `12416722.LuBh...` | Raw token if you need to construct headers yourself |
+| `shop_id` | `65957104` | Plug into Etsy URL paths like `/v3/application/shops/{shop_id}/...` |
+| `expires_at` | unix ms | Inspect for debugging |
+| `refreshed` | boolean | True if this call triggered a refresh |
 
 ## One-time bootstrap
 
