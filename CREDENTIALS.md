@@ -23,6 +23,7 @@
 | **IP hash salt** | `IP_HASH_SALT` | `STRGuests-Tools/.env.local` | — | ✅ set |
 | **Etsy** | `ETSY_API_KEY`, `ETSY_OAUTH_SECRET`, `ETSY_SHOP_ID`, `ETSY_ACCESS_TOKEN`, `ETSY_REFRESH_TOKEN`, `ETSY_TOKEN_EXPIRES_AT` | `./.env` (repo root) + n8n workflow static data (W31 — Etsy Token Manager) | `etsy.com/shop/thestrledger` (shop ID `65957104`) | ✅ OAuth bootstrapped, refresh rotation live. n8n W31 cron auto-refreshes every 50 min; other workflows consume via Execute Workflow sub-call. Scope: 4 minimum (`email_r listings_r listings_w transactions_r`) — Personal Access tier. |
 | **Anthropic (optional fallback)** | `ANTHROPIC_API_KEY` | not set — would go in `STRGuests-Tools/.env.local` if used | — | ❌ not used (OpenAI chosen) |
+| **Google AI (Gemini)** | `GEMINI_API_KEY` | `./.env` (repo root) | aistudio.google.com | ⏳ pending — used by `Tools/N8n-Builder/scripts/blog-hero.mjs` (author-time blog hero images) + n8n workflow `tAjD44AkUEN7NWl7`. Get key at https://aistudio.google.com/apikey |
 | **n8n Docker host (SSH)** | `N8N_SSH_HOST/USER/KEY_PATH` + compose paths (see block below) | `./.env` (repo root) | same VPS as `n8ncde.cdeprosperity.com` | ⏳ template — fill in to enable platform-layer ops |
 
 ---

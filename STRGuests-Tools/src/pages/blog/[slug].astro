@@ -53,6 +53,10 @@ const categoryLabels: Record<string, string> = {
   acquisition: 'Acquisition',
 };
 
+const heroImage = post.data.heroImage;
+const heroAlt = post.data.heroAlt ?? post.data.title;
+const heroThumb = heroImage ? heroImage.replace(/\/hero\.webp$/, '/thumb.webp') : undefined;
+
 const articleLd = buildArticle(siteConfig, {
   headline: post.data.title,
   description: post.data.description,
@@ -60,6 +64,7 @@ const articleLd = buildArticle(siteConfig, {
   datePublished: post.data.datePublished,
   dateModified: post.data.dateModified ?? post.data.datePublished,
   authorName: post.data.author,
+  imageUrl: heroImage ? new URL(heroImage, siteConfig.url.canonical).toString() : undefined,
 });
 ---
 
@@ -89,6 +94,23 @@ const articleLd = buildArticle(siteConfig, {
       </h1>
       <p class="mt-4 text-lead text-ink-2">{post.data.description}</p>
     </div>
+
+    {heroImage && (
+      <figure class="mx-auto max-w-3xl px-5 mb-7">
+        <picture>
+          <source media="(min-width: 768px)" srcset={heroImage} type="image/webp" />
+          <img
+            src={heroThumb ?? heroImage}
+            alt={heroAlt}
+            width="1200"
+            height="630"
+            loading="eager"
+            decoding="async"
+            class="w-full h-auto rounded-md border border-rule"
+          />
+        </picture>
+      </figure>
+    )}
 
     <div class="mx-auto max-w-3xl px-5 prose">
       <Content />

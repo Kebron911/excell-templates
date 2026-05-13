@@ -23,6 +23,8 @@ const posts = defineCollection({
     keyword: z.string(),
     relatedTools: z.array(z.string()).default([]),
     readMinutes: z.number().int().positive(),
+    heroImage: z.string().optional(),
+    heroAlt: z.string().optional(),
   }),
 });
 

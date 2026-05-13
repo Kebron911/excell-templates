@@ -52,6 +52,7 @@ A footer block on every page links to the other three tool sites + The STR Ledge
 - **AI rate limit** — 5 generations / hour / IP without email; 50 / day with verified email. Prevents API cost runaway.
 - **AI provider:** Claude (claude-haiku-4-5 for cost) — open question, see spec §13.
 - **Pinterest distribution** — invest in pin-optimized OG images per generator output. Reuse Excel-Templates' Pinterest UI kit (`design-system/ui_kits/pinterest/`).
+- **Blog hero images are mandatory and automated.** Every `src/content/posts/*.mdx` must have a `heroImage` field pointing to `/images/blog/<slug>/hero.webp`. When creating a new post, run `pnpm hero -- src/content/posts/<slug>.mdx` **before committing** — it calls Gemini, writes 3 WebP variants (hero/thumb/social) to `public/images/blog/<slug>/`, and patches the frontmatter. The post + its image ship in one atomic commit. Requires `GEMINI_API_KEY` in `Excel-Templates/.env` (see CREDENTIALS.md).
 
 ## Things to Remember
 

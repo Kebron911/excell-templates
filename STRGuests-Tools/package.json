@@ -18,7 +18,8 @@
     "server:dev": "tsx watch server/index.ts",
     "server:build": "tsc -p server/tsconfig.json",
     "server:start": "node server/dist/index.js",
-    "db:migrate": "tsx server/db/migrate.ts"
+    "db:migrate": "tsx server/db/migrate.ts",
+    "hero": "node ./scripts/blog-hero.mjs"
   },
   "dependencies": {
     "@str/email-gate": "workspace:*",
