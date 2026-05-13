@@ -58,9 +58,12 @@ const SKIP_BASENAMES = new Set([
   'hero-magnet.md',
 ]);
 
-// Etsy v3 taxonomy IDs — "Other Digital Downloads → Business & Office Supplies"
-// (single value used for all listings until we differentiate categories later)
-const DEFAULT_TAXONOMY_ID = 6800; // Digital Prints — confirmed-stable placeholder; update post-approval
+// Etsy v3 taxonomy ID — verified live 2026-05-13 against shop 65957104.
+// The placeholder listing created during onboarding 2.4 came back with taxonomy_id=12487,
+// which corresponds to the "Templates" / digital-download category Etsy auto-selected.
+// All Wave-1 SKUs use the same category for now; differentiate later via /v3/application/seller-taxonomy/nodes
+// if we want sub-category-specific routing.
+const DEFAULT_TAXONOMY_ID = 12487;
 
 // ---------- Helpers ----------
 
