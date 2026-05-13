@@ -35,14 +35,12 @@
 const CREDENTIAL_NAME = 'Etsy OAuth2 — STR Ledger';
 const CREDENTIAL_TYPE = 'oAuth2Api';
 
+// Etsy Personal Access — empirically minimum scope set (see
+// scripts/etsy-oauth-bootstrap.mjs comment for rationale). Keep in sync.
 const SCOPES = [
   'email_r',
-  'listings_r', 'listings_w', 'listings_d',
-  'transactions_r', 'transactions_w',
-  'address_r', 'address_w',
-  'profile_r',
-  'feedback_r',
-  'shops_r', 'shops_w',
+  'listings_r', 'listings_w',
+  'transactions_r',
 ].join(' ');
 
 // ---------- pre-flight ----------

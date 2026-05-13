@@ -45,14 +45,20 @@ const ENV_FILE = process.argv[2] || path.join(REPO_ROOT, '.env');
 const PORT = 3456;
 const REDIRECT_URI = `http://localhost:${PORT}/callback`;
 
+// Etsy Personal Access — empirically minimum scope set that authorizes for this
+// app type (verified 2026-05-12). Broader sets (incl. shops_r/w, transactions_w,
+// listings_d, profile_r, feedback_r) trigger Etsy's generic error.php. To request
+// broader scopes, Etsy requires public-app review.
+//
+// Covers Wave-1 + post-purchase + refund flows:
+//   email_r        — buyer email for post-purchase IS tagging
+//   listings_r     — verify drafts after publish
+//   listings_w     — bulk publish listings (PUT/POST listings)
+//   transactions_r — order webhook + refund event polling
 const SCOPES = [
   'email_r',
-  'listings_r', 'listings_w', 'listings_d',
-  'transactions_r', 'transactions_w',
-  'address_r', 'address_w',
-  'profile_r',
-  'feedback_r',
-  'shops_r', 'shops_w',
+  'listings_r', 'listings_w',
+  'transactions_r',
 ].join(' ');
 
 const AUTH_URL = 'https://www.etsy.com/oauth/connect';
