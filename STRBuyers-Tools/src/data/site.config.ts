@@ -40,17 +40,12 @@ export const siteConfig: SiteConfig = {
         ],
       },
       {
-        title: 'Markets',
-        links: [
-          { label: 'Markets directory', href: '/cities/' },
-        ],
-      },
-      {
         title: 'Site',
         links: [
           { label: 'About', href: '/about' },
           { label: 'Contact', href: '/contact' },
           { label: 'Blog', href: '/blog' },
+          { label: 'Markets directory', href: '/cities/' },
           { label: 'Buyer checklist', href: '/get-the-buyer-checklist' },
         ],
       },
