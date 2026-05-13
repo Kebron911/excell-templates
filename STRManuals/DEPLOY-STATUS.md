@@ -26,7 +26,7 @@ yet wired:
   copies the 6 manuscript PDFs + free explainer into `dist/dl/<HASH>/<slug>/v1.pdf`
   at build time, gated on `STRMANUALS_DOWNLOAD_HASH` env var. W01b and
   W08 read the same hash to compose the URL in the order/magnet email.
-- **CPA review** of TAX-01 / TAX-02 / LGL-01 — charter §11 risk-mitigation.
+- ~~**CPA review** of TAX-01 / TAX-02 / LGL-01~~ — DONE 2026-05-13 (charter §11 risk-mitigation).
 
 If you deploy now, customers can buy and Stripe will charge them, but
 they will receive no email and no download link. That's a refund event
@@ -36,21 +36,27 @@ waiting to happen.
 
 Pre-launch checklist (all must be true):
 
-- [ ] n8n W01 receives Stripe `checkout.session.completed` events for
-      source = "strmanuals-v1" (6 SKUs) and triggers the IS sequence
-      `strmanuals-order-confirmation` with the buyer's email + SKU.
-- [ ] n8n W08 receives `/webhook/lead-magnet-strmanuals-tax-explainer`
-      POSTs and triggers the IS sequence `strmanuals-free-magnet`.
+- [x] n8n W01b imported + active at
+      `https://n8ncde.cdeprosperity.com/webhook/order-stripe-strmanuals`
+      (workflow id `R86CnDKHTVpWdIjt`, 2026-05-13). Receives Stripe
+      `checkout.session.completed` events for the 6 strmanuals SKUs and
+      triggers the IS sequence `strmanuals-order-confirmation` with the
+      buyer's email + SKU.
+- [x] n8n W08 imported + active at
+      `https://n8ncde.cdeprosperity.com/webhook/lead-magnet-strmanuals-tax-explainer`
+      (workflow id `BzYPy1Gnt6esY8e2`, 2026-05-13). Receives the `/free`
+      form POSTs and triggers the IS sequence `strmanuals-free-magnet`.
 - [ ] Both IS sequences exist and Email 1 of each carries a working
       download URL (pre-signed bucket link, OR Hostinger SSH-hosted
       static PDF at a non-guessable path).
-- [ ] Stripe webhook destination is repointed at the n8n URL (was
-      `https://strmanuals.com/api/stripe-webhook` from earlier wiring —
-      that endpoint no longer exists post-Path-B).
+- [x] Stripe webhook destination repointed at the n8n URL (endpoint
+      `we_1TVy9hFz8hgT5NXgK7Vqd5q6`, 2026-05-13). Was
+      `https://strmanuals.com/api/stripe-webhook` (dead post-Path-B),
+      now `https://n8ncde.cdeprosperity.com/webhook/order-stripe-strmanuals`.
 - [ ] One end-to-end smoke test: pay $19 for MAN-REV-01 via the live
       payment link, confirm receipt of an email containing the PDF
       link within 5 minutes, confirm the link downloads the file.
-- [ ] CPA sign-off on TAX-01 / TAX-02 / LGL-01 manuscripts.
+- [x] CPA sign-off on TAX-01 / TAX-02 / LGL-01 manuscripts. (2026-05-13)
 
 Then:
 1. Remove the `DRAFT - DO NOT DEPLOY` line above (change to `READY`).
