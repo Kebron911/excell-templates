@@ -30,15 +30,21 @@ These were marked pending in legacy `user-manual-todo.md` §1.7 / §4.2. Verify 
 
 ## Part 2 — Custom fields (one-time, 10 min)
 
-In **IS UI → Contacts → Custom Fields**, add these BEFORE pasting any sequence with token references:
+In **IS UI → Contacts → Custom Fields**, add these BEFORE pasting any sequence with token references.
 
-- `purchased_sku` (text, e.g. "TAX-001")
-- `purchased_sku_name` (text, e.g. "STR Mileage Log")
-- `purchase_date` (date)
-- `etsy_order_id` (text)
-- `recommended_next_sku_name` (text)
-- `recommended_next_sku_link` (URL)
-- `bundle_name` (text, e.g. "First-Year Host Bundle")
+> **Naming note (2026-05-13):** Field names were shortened after IS UI rejected longer prefix-sharing names. IS slug-collides on shared prefixes (e.g. `purchased_sku` blocked `purchased_sku_name`). Stick to these short distinct stems — do NOT revert to the old names without a full re-rename across `copy/email-sequences/*.md` and `scripts/is-*.mjs`.
+>
+> **UI tip:** refresh the Custom Fields page between each add. The IS form holds stale error state from the previous attempt and reports the LAST already-existing field as a collision even when the current name is unique.
+
+| Internal name | Type | Example |
+|---|---|---|
+| `sku_code` | Text | `TAX-001` |
+| `sku_label` | Text | `STR Mileage Log` |
+| `bought_on` | Date | `2026-05-13` |
+| `order_ref` | Text | Etsy order ID, e.g. `3148293` |
+| `xsell_name` | Text | Cross-sell suggestion, e.g. `Single-Property P&L Tracker` |
+| `xsell_url` | Text (IS has no URL type) | Cross-sell deep link |
+| `pack_name` | Text | Bundle name, e.g. `First-Year Host Bundle` |
 
 `first_name` is built-in. `link_etsy_review` and `link_thestrledger` will be set per-email via n8n or via IS template defaults.
 

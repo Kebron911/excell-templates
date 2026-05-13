@@ -1,26 +1,35 @@
-# Bundle Cross-Sell Sequence — Year-2 Operator Bundle
+# Paste Sheet — BUNDLE-03-year-2-operator
 
-**Bundle:** BUNDLE-03 Year-2 Operator ($147 — saves $41 vs $188 à la carte)
-**Trigger:** customer bought FIN-001 / REV-001 / MKT-001 / OPS-002 individually
-**Tag at entry:** `bundle-cross:year-2-operator`
-**Sequence length:** 3 emails over 10 days
-**Target conversion:** 12-18% — this cohort is operator-mode, knows what optimization means, converts faster than first-year or pre-host.
+> **Auto-generated from:** `copy\email-sequences\bundles\BUNDLE-03-year-2-operator.md`
+> **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
 
-**Tokens:** standard (`{{ first_name }}`, `{{ sku_label }}`, `{{ link_bundle }}`, `{{ bundle_credit_amount }}`)
+## IS UI setup
 
-**Suppression:**
-- If on `bundle-cross:portfolio` (higher tier) — exit
-- If purchase trigger was a Wave 1 SKU (early-launch buyer) — wait 60 days post-purchase before starting this sequence (they're still ramping up)
+1. **Automations → New Sequence**
+2. **Name:** `BUNDLE-03-year-2-operator`
+3. **Trigger:** When tag `bundle-cross:year-2-operator` is added
+4. **Then add 3 email(s) below in order.** Set the delay per the header on each.
+5. **Save and Activate** when the last email is in.
+
+When done, mark this sequence done in your tracker.
 
 ---
 
-## Email 1 — Day 3 — Three more levers an experienced host actually controls
+### Email 1 of 3 — Three more levers an experienced host actually controls
 
-**Subject:** The three other levers a Year-2 host actually controls
+- **Delay (set in IS):** Day 3
+- **Subject (copy):**
 
-**Preheader:** You bought one. Here's the other three. They compose into a system.
+      The three other levers a Year-2 host actually controls
 
-```
+- **Preheader (copy):**
+
+      You bought one. Here's the other three. They compose into a system.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN BUNDLE-03-year-2-operator EMAIL 1 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 You picked up {{ sku_label }}. Year-2 territory.
@@ -41,17 +50,24 @@ Your ${{ bundle_credit_amount }} purchase of {{ sku_label }} credits toward the 
 — Emily · The STR Ledger
 
 P.S. The 22% bundle savings is smaller than the First-Year Bundle (30%) — by design. Year-2 buyers want most of these workbooks individually, so the discount is the kicker not the headline.
-```
 
----
+-----8<----- END EMAIL 1 -----8<-----
 
-## Email 2 — Day 7 — The recovery rate gap
+### Email 2 of 3 — The recovery rate gap
 
-**Subject:** Why most hosts only recover 35% of damage claims
+- **Delay (set in IS):** Day 7
+- **Subject (copy):**
 
-**Preheader:** The evidence isn't structured. Here's how to fix that.
+      Why most hosts only recover 35% of damage claims
 
-```
+- **Preheader (copy):**
+
+      The evidence isn't structured. Here's how to fix that.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN BUNDLE-03-year-2-operator EMAIL 2 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 A specific Year-2 number that surprises most hosts:
@@ -72,17 +88,24 @@ For a host filing 2-3 claims/year averaging $1,800 each: lifting recovery from 3
 — Emily
 
 P.S. Most operators undervalue claim documentation until the first $4K loss they don't recover. The bundle pays for itself on the first prevented denial.
-```
 
----
+-----8<----- END EMAIL 2 -----8<-----
 
-## Email 3 — Day 10 — Last note + the SEO audit
+### Email 3 of 3 — Last note + the SEO audit
 
-**Subject:** Last note + the listing-rank lever most hosts ignore
+- **Delay (set in IS):** Day 10
+- **Subject (copy):**
 
-**Preheader:** 25 criteria. Each one ranked by impact.
+      Last note + the listing-rank lever most hosts ignore
 
-```
+- **Preheader (copy):**
+
+      25 criteria. Each one ranked by impact.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN BUNDLE-03-year-2-operator EMAIL 3 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Last note on the bundle.
@@ -103,16 +126,5 @@ Talk soon,
 Emily · The STR Ledger
 
 P.S. If you bought the bundle already, IS will catch up overnight and move you off this sequence.
-```
 
----
-
-## After sequence
-
-- **Tags set:** `bundle-cross:year-2-operator:converted` OR `:declined`
-- **Next sequence trigger:** "pricing-tool-roi" — REV-006 cross-sell + general nurture
-- **Suppression:** 12 months on this bundle
-
-## Iteration log
-
-- `2026-05-05` — Initial draft. Shorter sequence (3 emails) than first-year (4) because Year-2 cohort converts faster + has shorter attention for marketing email. Day-7 email (recovery rate) is the most-converting hook based on operator-pattern data.
+-----8<----- END EMAIL 3 -----8<-----

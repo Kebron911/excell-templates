@@ -1,27 +1,35 @@
-# Bundle Cross-Sell Sequence — Aspiring Host Bundle
+# Paste Sheet — BUNDLE-02-aspiring-host
 
-**Bundle:** BUNDLE-02 Aspiring Host ($97 — saves $71 vs $168 à la carte)
-**Trigger:** customer bought STR-001 / ACQ-001 / ACQ-002 / ACQ-003 individually
-**Tag at entry:** `bundle-cross:aspiring-host`
-**Sequence length:** 4 emails over 14 days
-**Target conversion:** 10-15% of triggered list (pre-host buyers convert harder than mid-funnel; warmer cohort).
+> **Auto-generated from:** `copy\email-sequences\bundles\BUNDLE-02-aspiring-host.md`
+> **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
 
-**Tokens:** same as BUNDLE-01 (`{{ first_name }}`, `{{ sku_label }}`, `{{ link_bundle }}`, `{{ bundle_credit_amount }}`)
+## IS UI setup
 
-**Suppression:**
-- If customer is on `bundle-cross:portfolio` or `bundle-cross:pro-manager`, exit (those are higher-tier portfolios)
-- If customer purchased Wave 1 SKUs (GST-001, OPS-001), they're past the aspiring stage — exit
-- If customer is on the Welcome Book Magnet sequence, stack carefully — Aspiring sequence focuses on pre-purchase planning, Welcome Book on operating. They can run in parallel.
+1. **Automations → New Sequence**
+2. **Name:** `BUNDLE-02-aspiring-host`
+3. **Trigger:** When tag `bundle-cross:aspiring-host` is added
+4. **Then add 4 email(s) below in order.** Set the delay per the header on each.
+5. **Save and Activate** when the last email is in.
+
+When done, mark this sequence done in your tracker.
 
 ---
 
-## Email 1 — Day 2 — Run all four scenarios
+### Email 1 of 4 — Run all four scenarios
 
-**Subject:** You ran one scenario. Here's the other three.
+- **Delay (set in IS):** Day 2
+- **Subject (copy):**
 
-**Preheader:** The deal, the budget, the timeline, the no-money-down option — all four answer different questions.
+      You ran one scenario. Here's the other three.
 
-```
+- **Preheader (copy):**
+
+      The deal, the budget, the timeline, the no-money-down option — all four answer different questions.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN BUNDLE-02-aspiring-host EMAIL 1 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 You picked up {{ sku_label }} a couple days back. Solid choice — it's one piece of the math an aspiring STR host actually needs to run.
@@ -44,17 +52,24 @@ Your ${{ bundle_credit_amount }} for {{ sku_label }} credits toward the bundle.
 — Emily · The STR Ledger
 
 P.S. If you're 6+ months out from buying, all four workbooks pay back time-spent in your decision. The lifetime-updates clause means if I improve any of them, you get the update automatically.
-```
 
----
+-----8<----- END EMAIL 1 -----8<-----
 
-## Email 2 — Day 7 — The arbitrage question
+### Email 2 of 4 — The arbitrage question
 
-**Subject:** "Could I just lease + sublet on Airbnb?"
+- **Delay (set in IS):** Day 7
+- **Subject (copy):**
 
-**Preheader:** The question every aspiring STR host quietly asks themselves at least once.
+      "Could I just lease + sublet on Airbnb?"
 
-```
+- **Preheader (copy):**
+
+      The question every aspiring STR host quietly asks themselves at least once.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN BUNDLE-02-aspiring-host EMAIL 2 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 A question I get from aspiring STR investors more than any other:
@@ -78,17 +93,24 @@ You don't have to commit to arbitrage to run the numbers. You DO have to run the
 — Emily
 
 P.S. Most W2 readers don't realize arbitrage is a path until they see the analyzer. Then they realize it's a path that doesn't work in their specific market. Either way — the workbook saves them from making the decision on vibes.
-```
 
----
+-----8<----- END EMAIL 2 -----8<-----
 
-## Email 3 — Day 11 — Quit-date math
+### Email 3 of 4 — Quit-date math
 
-**Subject:** When can you actually quit?
+- **Delay (set in IS):** Day 11
+- **Subject (copy):**
 
-**Preheader:** Not "soon." Not "when the cash flow is good." A specific date.
+      When can you actually quit?
 
-```
+- **Preheader (copy):**
+
+      Not "soon." Not "when the cash flow is good." A specific date.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN BUNDLE-02-aspiring-host EMAIL 3 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 The conversation aspiring STR investors have with their spouse — at some point, in some form — is the same:
@@ -113,17 +135,24 @@ It's $47 individually. In the Aspiring Host Bundle ($97) you also get the Deal A
 — Emily
 
 P.S. The healthcare bridge math is the one most planners skip. It changes the answer by 12-30 months for most W2-quitters. Worth running.
-```
 
----
+-----8<----- END EMAIL 3 -----8<-----
 
-## Email 4 — Day 14 — Last note
+### Email 4 of 4 — Last note
 
-**Subject:** Last note on the Aspiring Host Bundle
+- **Delay (set in IS):** Day 14
+- **Subject (copy):**
 
-**Preheader:** Won't keep emailing. One last reminder.
+      Last note on the Aspiring Host Bundle
 
-```
+- **Preheader (copy):**
+
+      Won't keep emailing. One last reminder.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN BUNDLE-02-aspiring-host EMAIL 4 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Last note on the bundle.
@@ -140,16 +169,5 @@ Talk soon,
 Emily · The STR Ledger
 
 P.S. If you've already grabbed the bundle, IS will move you off this sequence by tomorrow morning. Sorry for the timing overlap.
-```
 
----
-
-## After sequence
-
-- **Tags set:** `bundle-cross:aspiring-host:converted` OR `bundle-cross:aspiring-host:declined`
-- **Next sequence trigger:** "first-acquisition-mistake-70pct" — sets up the path to First-Year Bundle once they actually buy
-- **Suppression:** 12 months on this same bundle sequence
-
-## Iteration log
-
-- `2026-05-05` — Initial draft. Pre-host cohort warms slower than buyer cohort — sequence stays at 4 emails to give time without exhausting the list. Day 7 (arbitrage) and Day 11 (quit-date) are the two biggest emotional hooks for aspiring buyers; both are bundle-only SKUs by design.
+-----8<----- END EMAIL 4 -----8<-----

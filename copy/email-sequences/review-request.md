@@ -5,7 +5,7 @@
 **Sequence length:** 2 emails (Day 7 ask, Day 14 last-chance) — short by design
 **Target outcome:** 10-15% review rate — Etsy review-rate baseline is 5-8%; doubling that requires asking once well, not nagging.
 
-**Tokens:** `{{ first_name }}`, `{{ purchased_sku_name }}`, `{{ purchased_sku_code }}`, `{{ link_etsy_review }}`, `{{ link_support }}`
+**Tokens:** `{{ first_name }}`, `{{ sku_label }}`, `{{ sku_code }}`, `{{ link_etsy_review }}`, `{{ link_support }}`
 
 **Suppression:**
 - If customer is on `bundle-cross:*` and has clicked a bundle link, defer review ask by 7 days (avoid mixing pitch + ask)
@@ -23,14 +23,14 @@
 
 ## Email 1 — Day 7 — The ask
 
-**Subject:** Quick favor — 60-second review of {{ purchased_sku_name }}?
+**Subject:** Quick favor — 60-second review of {{ sku_label }}?
 
 **Preheader:** If it's working. If it's not, please email me first.
 
 ```
 {{ first_name | default: "Hey" }},
 
-A week in with {{ purchased_sku_name }} — how's it going?
+A week in with {{ sku_label }} — how's it going?
 
 If it's working: would you take 60 seconds and leave an honest Etsy review? Reviews are how new buyers decide whether to trust a small shop, and yours genuinely moves the needle for me.
 
@@ -56,15 +56,15 @@ P.S. If you've already left one — thank you. Skip this email.
 ```
 {{ first_name | default: "Hey" }},
 
-Two weeks since you picked up {{ purchased_sku_name }}. One more nudge then I'll stop.
+Two weeks since you picked up {{ sku_label }}. One more nudge then I'll stop.
 
 If the workbook is doing the job — an honest Etsy review helps the next buyer figure out whether it's right for them:
 
-→ [Review {{ purchased_sku_name }}]({{ link_etsy_review }})
+→ [Review {{ sku_label }}]({{ link_etsy_review }})
 
 If it's NOT doing the job, I want to know. Reply to this email or write to hello@thestrledger.com. Specific feedback ("the depreciation tab confused me", "I expected a feature that wasn't there") makes the next version better — for you and for everyone else.
 
-Either way — review, feedback, or silence — that's the last you'll hear from me on this. Different topic next week: the most-overlooked Schedule E line for {{ purchased_sku_code }} buyers (it's not what you think).
+Either way — review, feedback, or silence — that's the last you'll hear from me on this. Different topic next week: the most-overlooked Schedule E line for {{ sku_code }} buyers (it's not what you think).
 
 Thanks again for picking up the workbook.
 
