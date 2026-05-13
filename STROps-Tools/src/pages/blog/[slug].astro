@@ -11,6 +11,7 @@ import {
   buildFAQPage,
 } from '@str/seo';
 import tools from '@data/tools.json';
+import { magnetCopyFor } from '@/data/magnet-copy';
 import { getCollection, render } from 'astro:content';
 
 type ToolEntry = { title: string; primary_keyword: string; magnet: string; blurb: string };
@@ -48,6 +49,9 @@ const navLink = (p: typeof newer) =>
   };
 const newerLink = navLink(newer);
 const olderLink = navLink(older);
+
+const magnet = post.data.magnet ?? 'cleaner-sop';
+const copy = magnetCopyFor(magnet);
 
 const categoryLabels: Record<string, string> = {
   operations: 'Operations',
@@ -252,7 +256,14 @@ const toc = (headings ?? []).filter((h: { depth: number }) => h.depth === 2);
     )}
 
     <div class="mx-auto max-w-3xl px-6 mt-10">
-      <EmailCaptureCard siteConfig={siteConfig} magnet={post.data.magnet} toolSlug={`blog-${slug}`} />
+      <EmailCaptureCard
+        siteConfig={siteConfig}
+        magnet={magnet}
+        toolSlug={`blog-${slug}`}
+        headline={copy.headline}
+        blurb={copy.blurb}
+        cta={copy.cta}
+      />
     </div>
 
     <div class="mx-auto max-w-3xl px-6 mt-6">

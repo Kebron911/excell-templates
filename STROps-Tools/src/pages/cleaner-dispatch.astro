@@ -8,6 +8,7 @@ import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@components/funnel/RelatedPosts.astro';
+import { magnetCopyFor } from '@/data/magnet-copy';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
@@ -15,6 +16,7 @@ import affiliates from '@data/affiliates.json';
 import PageHero from '@/components/PageHero.astro';
 
 const url = 'https://strops.tools/cleaner-dispatch';
+const magnetCopy = magnetCopyFor('cleaner-sop');
 const faqs = [
   { q: 'How are cleaners assigned?', a: 'Round-robin — turnovers are distributed evenly across the cleaner list in order.' },
   { q: 'Can I customize the SMS template?', a: 'Not in this version — the template is fixed for consistency. Edit the PDF after download if you need to.' },
@@ -39,7 +41,7 @@ const faqs = [
       <h2>How it works</h2>
       <p>Each turnover is paired with the next cleaner in your roster, cycling through the list. The SMS template fills cleaner name, address, date, and bedroom count. Download the dispatch sheet as a PDF for printing, or copy the SMS lines into your messaging app.</p>
       <RelatedPosts toolKey="cleaner-dispatch" variant="section" />
-      <EmailCaptureCard siteConfig={siteConfig} magnet="cleaner-sop" toolSlug="cleaner-dispatch" />
+      <EmailCaptureCard siteConfig={siteConfig} magnet="cleaner-sop" toolSlug="cleaner-dispatch" headline={magnetCopy.headline} blurb={magnetCopy.blurb} cta={magnetCopy.cta} />
       <h2>How to use this tool</h2>
       <ol>
         <li>Set the dispatch date.</li>

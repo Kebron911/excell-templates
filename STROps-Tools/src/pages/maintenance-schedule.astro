@@ -8,11 +8,13 @@ import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@components/funnel/RelatedPosts.astro';
+import { magnetCopyFor } from '@/data/magnet-copy';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import PageHero from '@/components/PageHero.astro';
 
 const url = 'https://strops.tools/maintenance-schedule';
+const magnetCopy = magnetCopyFor('maintenance-checklist');
 const faqs = [
   { q: 'What goes in the schedule?', a: 'HVAC filter changes, AC tune-ups, smoke/CO checks, deep cleans, gutters, water heater flush, dryer vent, pest control, caulk inspection, and chimney sweeps if applicable.' },
   { q: 'Can I import to Google/Apple Calendar?', a: 'Yes — download the .ics file and open it. Each task becomes a 1-hour event at 9 AM.' },
@@ -37,7 +39,7 @@ const faqs = [
       <h2>How it works</h2>
       <p>Each task has a recurring cadence (60 days for HVAC filters, 90 for smoke detectors, 365 for chimney sweeps, etc.). We project occurrences from your start date out to your horizon, filter by property traits (HVAC, fireplace), and emit both a printable PDF and a calendar-ready .ics file.</p>
       <RelatedPosts toolKey="maintenance-schedule" variant="section" />
-      <EmailCaptureCard siteConfig={siteConfig} magnet="maintenance-checklist" toolSlug="maintenance-schedule" />
+      <EmailCaptureCard siteConfig={siteConfig} magnet="maintenance-checklist" toolSlug="maintenance-schedule" headline={magnetCopy.headline} blurb={magnetCopy.blurb} cta={magnetCopy.cta} />
       <h2>How to use this tool</h2>
       <ol>
         <li>Set your property name and start date.</li>

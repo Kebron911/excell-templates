@@ -8,6 +8,7 @@ import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@components/funnel/RelatedPosts.astro';
+import { magnetCopyFor } from '@/data/magnet-copy';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
@@ -15,6 +16,7 @@ import affiliates from '@data/affiliates.json';
 import PageHero from '@/components/PageHero.astro';
 
 const url = 'https://strops.tools/smart-lock-codes';
+const magnetCopy = magnetCopyFor('cleaner-sop');
 const faqs = [
   { q: 'Is the code unique to each booking?', a: 'Yes. Same booking ID + secret -> same code; different booking ID -> different code.' },
   { q: 'Why deterministic?', a: 'You can regenerate the same code at any time without storing it — useful when guests forget or your PMS loses the value.' },
@@ -40,7 +42,7 @@ const faqs = [
       <h2>How it works</h2>
       <p>We compute HMAC-SHA-256 of your booking ID using your secret as the key, then take the result mod 10^digits and zero-pad to length. The output is deterministic and unique-by-booking — no storage required.</p>
       <RelatedPosts toolKey="smart-lock-codes" variant="section" />
-      <EmailCaptureCard siteConfig={siteConfig} magnet="cleaner-sop" toolSlug="smart-lock-codes" />
+      <EmailCaptureCard siteConfig={siteConfig} magnet="cleaner-sop" toolSlug="smart-lock-codes" headline={magnetCopy.headline} blurb={magnetCopy.blurb} cta={magnetCopy.cta} />
       <h2>How to use this tool</h2>
       <ol>
         <li>Pick a strong host secret (treat like a password).</li>

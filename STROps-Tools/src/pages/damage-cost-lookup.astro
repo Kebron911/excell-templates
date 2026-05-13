@@ -8,11 +8,13 @@ import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@components/funnel/RelatedPosts.astro';
+import { magnetCopyFor } from '@/data/magnet-copy';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import PageHero from '@/components/PageHero.astro';
 
 const url = 'https://strops.tools/damage-cost-lookup';
+const magnetCopy = magnetCopyFor('maintenance-checklist');
 const faqs = [
   { q: 'Where do these costs come from?', a: 'Hand-compiled from major retailer pricing snapshots. Always verify against current quotes for your market.' },
   { q: 'Are these wholesale or retail?', a: 'Retail mid-market — what you would pay walking into a Home Depot or ordering from Wayfair.' },
@@ -36,7 +38,7 @@ const faqs = [
       <h2>How it works</h2>
       <p>Each row is a hand-compiled retail mid-market price range plus expected lifespan. Click any row to open the deep-dive page for that item with brand recommendations and how-to-replace guidance.</p>
       <RelatedPosts toolKey="damage-cost-lookup" variant="section" />
-      <EmailCaptureCard siteConfig={siteConfig} magnet="maintenance-checklist" toolSlug="damage-cost-lookup" />
+      <EmailCaptureCard siteConfig={siteConfig} magnet="maintenance-checklist" toolSlug="damage-cost-lookup" headline={magnetCopy.headline} blurb={magnetCopy.blurb} cta={magnetCopy.cta} />
       <h2>FAQ</h2>
       {faqs.map(f => <div><h3>{f.q}</h3><p>{f.a}</p></div>)}
       <STRLedgerCTA siteConfig={siteConfig} tool="damage-cost-lookup" />

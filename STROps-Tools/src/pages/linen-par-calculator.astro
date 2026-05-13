@@ -8,6 +8,7 @@ import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import RelatedPosts from '@components/funnel/RelatedPosts.astro';
+import { magnetCopyFor } from '@/data/magnet-copy';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
@@ -15,6 +16,7 @@ import affiliates from '@data/affiliates.json';
 import PageHero from '@/components/PageHero.astro';
 
 const url = 'https://strops.tools/linen-par-calculator';
+const magnetCopy = magnetCopyFor('supply-par');
 const faqs = [
   { q: 'What is "par"?', a: 'The number of complete sets you keep on hand so cleaners can swap dirty for fresh without waiting on laundry.' },
   { q: 'Why 3 sets per bed?', a: 'One on the bed, one in the wash, one on the shelf — the standard rotation for back-to-back turnovers.' },
@@ -39,7 +41,7 @@ const faqs = [
       <h2>How it works</h2>
       <p>For each bedroom we multiply by your sheet-sets-per-bed (default 3 — one on the bed, one in the wash, one on the shelf). For bathrooms we multiply by towel-sets-per-bath. The king/queen split lets you separate sheet purchases by size.</p>
       <RelatedPosts toolKey="linen-par-calculator" variant="section" />
-      <EmailCaptureCard siteConfig={siteConfig} magnet="supply-par" toolSlug="linen-par-calculator" />
+      <EmailCaptureCard siteConfig={siteConfig} magnet="supply-par" toolSlug="linen-par-calculator" headline={magnetCopy.headline} blurb={magnetCopy.blurb} cta={magnetCopy.cta} />
       <h2>How to use this tool</h2>
       <ol>
         <li>Enter bedroom and bathroom counts.</li>
