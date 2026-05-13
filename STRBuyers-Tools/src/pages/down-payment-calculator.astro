@@ -11,6 +11,7 @@ import DownPaymentCalculator from '@/components/calculators/DownPaymentCalculato
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import { sidebarItems } from '@/data/sidebar-items';
+import PageHero from '@/components/PageHero.astro';
 
 const faqs = [
   {
@@ -63,7 +64,9 @@ const jsonLd = [
             One price, four loan types side by side — DSCR, conventional, second-home, FHA.
             See the cash you need and the monthly carry for each.
           </p>
-        </header>
+        
+      <PageHero slug="down-payment-calculator" alt="Down payment calculator - How much cash you need by loan type — DSCR, conventional, second home." />
+    </header>
 
         <div class="mt-7">
           <DownPaymentCalculator client:visible />

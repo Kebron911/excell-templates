@@ -12,6 +12,7 @@ import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import { sidebarItems } from '@/data/sidebar-items';
 import tools from '@/data/tools.json';
+import PageHero from '@/components/PageHero.astro';
 
 const tool = tools['break-even-calculator'];
 
@@ -49,7 +50,9 @@ const jsonLd = [
           <p class="mt-3 text-lead text-ink-2 max-w-2xl">
             What occupancy do you need to keep the lights on? Enter fixed costs and per-night economics; see the floor.
           </p>
-        </header>
+        
+      <PageHero slug="break-even-calculator" alt="Break-even occupancy calculator - What occupancy do you need to keep the lights on?" />
+    </header>
 
         <div class="mt-7">
           <BreakEvenCalculator client:visible />

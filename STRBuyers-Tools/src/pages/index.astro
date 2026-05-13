@@ -3,6 +3,7 @@ import Layout from '@/components/chrome/Layout.astro';
 import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import DisclosureBanner from '@/components/affiliate/DisclosureBanner.astro';
+import PageHero from '@/components/PageHero.astro';
 import tools from '@/data/tools.json';
 import { siteConfig } from '@/data/site.config';
 import { getCollection } from 'astro:content';
@@ -60,6 +61,8 @@ const featuredCities = [
       Year 1 cash, and furnishing — plus market reports on 219 STR cities. No accounts,
       no popups, no paywalls.
     </p>
+    <PageHero slug="homepage" alt="strbuyers.tools - free calculators for short-term rental investors" />
+
     <div class="mt-7 flex flex-wrap gap-3">
       <a
         href="#tools"

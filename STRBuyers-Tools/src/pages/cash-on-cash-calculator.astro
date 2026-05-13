@@ -11,6 +11,7 @@ import CashOnCashCalculator from '@/components/calculators/CashOnCashCalculator.
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import { sidebarItems } from '@/data/sidebar-items';
+import PageHero from '@/components/PageHero.astro';
 
 const faqs = [
   {
@@ -62,7 +63,9 @@ const jsonLd = [
           <p class="mt-3 text-lead text-ink-2 max-w-2xl">
             Annual cash flow ÷ total cash invested = your real yield. Tier-classified against the 2/5/8% buyer benchmarks.
           </p>
-        </header>
+        
+      <PageHero slug="cash-on-cash" alt="Cash-on-cash return calculator - What return your cash earns once the property is up and renting." />
+    </header>
 
         <div class="mt-7">
           <CashOnCashCalculator client:visible />

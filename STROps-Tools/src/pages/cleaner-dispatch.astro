@@ -1,4 +1,4 @@
-﻿---
+---
 import Layout from '@/layouts/Layout.astro';
 import AppSidebar from '@str/ui-chrome/AppSidebar.astro';
 import { siteConfig } from '@/data/site.config';
@@ -12,6 +12,7 @@ import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import affiliates from '@data/affiliates.json';
+import PageHero from '@/components/PageHero.astro';
 
 const url = 'https://strops.tools/cleaner-dispatch';
 const faqs = [
@@ -32,6 +33,7 @@ const faqs = [
     <article class="flex-1 prose">
       <h1>Cleaner Dispatch Generator</h1>
       <p class="lead">Round-robin assign your turnovers, draft the SMS, and print or PDF a branded dispatch sheet.</p>
+      <PageHero slug="cleaner-dispatch" alt="Cleaner dispatch - Generate a per-cleaner assignment table, SMS templates, and a printable PDF." />
       <CleanerDispatch client:visible />
       <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>

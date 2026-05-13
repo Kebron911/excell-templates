@@ -23,7 +23,8 @@
     "server:test": "vitest run -c server/vitest.config.ts",
     "migrate": "tsx server/src/scripts/migrate.ts",
     "build:og": "node ./scripts/build-og.mjs",
-    "hero": "node ./scripts/blog-hero.mjs"
+    "hero": "node ./scripts/blog-hero.mjs",
+    "page-hero": "node ./scripts/page-hero.mjs"
   },
   "dependencies": {
     "@str/format": "workspace:*",

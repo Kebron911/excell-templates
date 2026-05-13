@@ -19,7 +19,8 @@
     "server:build": "tsc -p server/tsconfig.json",
     "server:start": "node server/dist/index.js",
     "db:migrate": "tsx server/db/migrate.ts",
-    "hero": "node ./scripts/blog-hero.mjs"
+    "hero": "node ./scripts/blog-hero.mjs",
+    "page-hero": "node ./scripts/page-hero.mjs"
   },
   "dependencies": {
     "@str/email-gate": "workspace:*",

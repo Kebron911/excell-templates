@@ -11,6 +11,7 @@ import DscrCalculator from '@/components/calculators/DscrCalculator.tsx';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import { sidebarItems } from '@/data/sidebar-items';
+import PageHero from '@/components/PageHero.astro';
 
 const faqs = [
   {
@@ -67,7 +68,9 @@ const jsonLd = [
           <p class="mt-3 text-lead text-ink-2 max-w-2xl">
             Punch in rent, opex, and the loan terms a DSCR lender just quoted. Live result against the 1.0, 1.25, and 1.5x thresholds.
           </p>
-        </header>
+        
+      <PageHero slug="dscr-calculator" alt="DSCR loan calculator — Will an STR property qualify for a no-income-verification DSCR loan?" />
+    </header>
 
         <div class="mt-7">
           <DscrCalculator client:visible />

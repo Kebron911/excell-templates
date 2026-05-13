@@ -12,6 +12,7 @@ import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import { sidebarItems } from '@/data/sidebar-items';
 import tools from '@/data/tools.json';
+import PageHero from '@/components/PageHero.astro';
 
 const tool = tools['profit-calculator'];
 
@@ -70,7 +71,9 @@ const jsonLd = [
           <p class="mt-3 text-lead text-ink-2 max-w-2xl">
             Itemize revenue, variable costs, and fixed costs. See your real net profit and margin — no spreadsheet required.
           </p>
-        </header>
+        
+      <PageHero slug="profit-calculator" alt="STR profitability calculator - Turn ADR + occupancy + costs into monthly cash flow." />
+    </header>
 
         <div class="mt-7">
           <ProfitCalculator client:visible />

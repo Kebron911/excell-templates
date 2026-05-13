@@ -12,6 +12,7 @@ import ListingDescriptionGenerator from '@/components/generators/ListingDescript
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
+import PageHero from '@/components/PageHero.astro';
 
 const tool = tools['listing-description'];
 const path = tool.path;
@@ -48,6 +49,8 @@ const faq = buildFAQPage([
       <p class="mt-3 text-lead text-ink-2 max-w-2xl leading-snug">
         {tool.tagline} Four-section output (headline, the space, guest access, other things to note) drawn only from what you tell it.
       </p>
+    
+      <PageHero slug="listing-description" alt="Listing Description Generator — AI-written Airbnb listing copy in your voice." />
     </header>
 
     <AiRateLimitNotice toolSlug="listing-description" />

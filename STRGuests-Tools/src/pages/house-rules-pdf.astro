@@ -13,6 +13,7 @@ import HouseRulesGenerator from '@/components/generators/HouseRulesGenerator.tsx
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
+import PageHero from '@/components/PageHero.astro';
 
 const tool = tools['house-rules-pdf'];
 const path = tool.path;
@@ -62,6 +63,8 @@ const faq = buildFAQPage([
         {tool.tagline} Pick from 22 presets or write your own. Generates entirely in
         your browser — nothing uploaded, nothing tracked.
       </p>
+    
+      <PageHero slug="house-rules-pdf" alt="House Rules PDF Generator — Branded printable house rules in 60 seconds." />
     </header>
 
     <section class="mt-7">

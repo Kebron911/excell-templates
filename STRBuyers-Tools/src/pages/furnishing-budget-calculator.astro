@@ -11,6 +11,7 @@ import FurnishingBudgetCalculator from '@/components/calculators/FurnishingBudge
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import { sidebarItems } from '@/data/sidebar-items';
+import PageHero from '@/components/PageHero.astro';
 
 const faqs = [
   {
@@ -62,7 +63,9 @@ const jsonLd = [
           <p class="mt-3 text-lead text-ink-2 max-w-2xl">
             Three tiers — budget, mid, luxury — with per-room breakdown. See the total, the per-sqft, and where the money goes.
           </p>
-        </header>
+        
+      <PageHero slug="furnishing-budget" alt="Furnishing budget calculator - What it costs to outfit a 2BR / 3BR / 4BR STR to a competitive standard." />
+    </header>
 
         <div class="mt-7">
           <FurnishingBudgetCalculator client:visible />

@@ -15,7 +15,8 @@
     "test:e2e": "playwright test --project=chromium",
     "e2e:install": "playwright install --with-deps chromium",
     "lint": "eslint --ext .ts,.tsx,.astro src tests",
-    "hero": "node ./scripts/blog-hero.mjs"
+    "hero": "node ./scripts/blog-hero.mjs",
+    "page-hero": "node ./scripts/page-hero.mjs"
   },
   "dependencies": {
     "@str/format": "workspace:*",

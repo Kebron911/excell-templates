@@ -13,6 +13,7 @@ import CheckinInstructionsGenerator from '@/components/generators/CheckinInstruc
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
+import PageHero from '@/components/PageHero.astro';
 
 const tool = tools['check-in-instructions'];
 const path = tool.path;
@@ -58,6 +59,8 @@ const faq = buildFAQPage([
         {tool.tagline} Photos and credentials embed directly in your browser
         — nothing uploaded.
       </p>
+    
+      <PageHero slug="check-in-instructions" alt="Check-in Instructions PDF — Step-by-step arrival guide with photos and door codes." />
     </header>
 
     <section class="mt-7">

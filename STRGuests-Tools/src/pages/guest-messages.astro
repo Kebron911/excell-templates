@@ -12,6 +12,7 @@ import GuestMessageGenerator from '@/components/generators/GuestMessageGenerator
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
+import PageHero from '@/components/PageHero.astro';
 
 const tool = tools['guest-messages'];
 const path = tool.path;
@@ -48,6 +49,8 @@ const faq = buildFAQPage([
       <p class="mt-3 text-lead text-ink-2 max-w-2xl leading-snug">
         {tool.tagline} Under 120 words, with placeholder names you can swap per booking.
       </p>
+    
+      <PageHero slug="guest-messages" alt="Guest Message Templates — Booking, pre-arrival, mid-stay, and post-checkout templates." />
     </header>
 
     <AiRateLimitNotice toolSlug="guest-messages" />

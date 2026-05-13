@@ -13,6 +13,7 @@ import WelcomeBookBuilder from '@/components/generators/WelcomeBookBuilder.tsx';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
+import PageHero from '@/components/PageHero.astro';
 
 const tool = tools['welcome-book'];
 const path = tool.path;
@@ -58,6 +59,8 @@ const faq = buildFAQPage([
         {tool.tagline} Toggle sections, fill in details, and download a multi-page
         guidebook PDF. Generates in your browser — nothing uploaded.
       </p>
+    
+      <PageHero slug="welcome-book" alt="Welcome Book Builder — Multi-page guidebook PDF with photos, wifi, and local picks." />
     </header>
 
     <section class="mt-7">

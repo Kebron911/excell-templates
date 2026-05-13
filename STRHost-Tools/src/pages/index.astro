@@ -4,6 +4,7 @@ import { siteConfig } from '@/data/site.config';
 import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import PageHero from '@/components/PageHero.astro';
 import tools from '@/data/tools.json';
 import { getCollection } from 'astro:content';
 
@@ -51,6 +52,7 @@ const categoryLabels: Record<string, string> = {
         No signup. Pick one below.
       </p>
     </div>
+    <PageHero slug="homepage" alt="strhost.tools - free calculators for short-term rental hosts" />
   </section>
 
   {/* Tool picker — the home page IS the menu. 3 columns at lg so all 7
