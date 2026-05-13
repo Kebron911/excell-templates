@@ -38,6 +38,8 @@ const navLink = (p: typeof newer) =>
     slug: p.id.replace(/\.mdx$/, ''),
     title: p.data.title,
     readMinutes: p.data.readMinutes,
+    heroImage: p.data.heroImage,
+    heroAlt: p.data.heroAlt,
   };
 const newerLink = navLink(newer);
 const olderLink = navLink(older);
@@ -146,21 +148,47 @@ const articleLd = buildArticle(siteConfig, {
           {newerLink ? (
             <a
               href={`/blog/${newerLink.slug}`}
-              class="group block rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-gold hover:shadow-card transition-all duration-std"
+              class="group flex gap-4 items-center rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-gold hover:shadow-card transition-all duration-std overflow-hidden"
             >
-              <p class="text-caption text-gold-deep">← Newer</p>
-              <p class="mt-1 font-serif text-h3 text-navy leading-snug group-hover:text-navy-tint">{newerLink.title}</p>
-              <p class="mt-2 text-caption text-ink-3 font-mono">{newerLink.readMinutes} min read</p>
+              {newerLink.heroImage && (
+                <img
+                  src={newerLink.heroImage.replace(/\/hero\.webp$/, '/thumb.webp')}
+                  alt={newerLink.heroAlt ?? newerLink.title}
+                  width="120"
+                  height="63"
+                  loading="lazy"
+                  decoding="async"
+                  class="shrink-0 w-24 h-auto aspect-[1200/630] object-cover rounded-sm border border-rule"
+                />
+              )}
+              <div class="min-w-0">
+                <p class="text-caption text-gold-deep">← Newer</p>
+                <p class="mt-1 font-serif text-h3 text-navy leading-snug group-hover:text-navy-tint">{newerLink.title}</p>
+                <p class="mt-2 text-caption text-ink-3 font-mono">{newerLink.readMinutes} min read</p>
+              </div>
             </a>
           ) : <span aria-hidden="true" />}
           {olderLink ? (
             <a
               href={`/blog/${olderLink.slug}`}
-              class="group block rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-gold hover:shadow-card transition-all duration-std md:text-right"
+              class="group flex gap-4 items-center rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-gold hover:shadow-card transition-all duration-std overflow-hidden md:flex-row-reverse md:text-right"
             >
-              <p class="text-caption text-gold-deep">Older →</p>
-              <p class="mt-1 font-serif text-h3 text-navy leading-snug group-hover:text-navy-tint">{olderLink.title}</p>
-              <p class="mt-2 text-caption text-ink-3 font-mono">{olderLink.readMinutes} min read</p>
+              {olderLink.heroImage && (
+                <img
+                  src={olderLink.heroImage.replace(/\/hero\.webp$/, '/thumb.webp')}
+                  alt={olderLink.heroAlt ?? olderLink.title}
+                  width="120"
+                  height="63"
+                  loading="lazy"
+                  decoding="async"
+                  class="shrink-0 w-24 h-auto aspect-[1200/630] object-cover rounded-sm border border-rule"
+                />
+              )}
+              <div class="min-w-0">
+                <p class="text-caption text-gold-deep">Older →</p>
+                <p class="mt-1 font-serif text-h3 text-navy leading-snug group-hover:text-navy-tint">{olderLink.title}</p>
+                <p class="mt-2 text-caption text-ink-3 font-mono">{olderLink.readMinutes} min read</p>
+              </div>
             </a>
           ) : <span aria-hidden="true" />}
         </div>
