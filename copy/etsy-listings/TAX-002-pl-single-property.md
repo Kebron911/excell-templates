@@ -41,9 +41,9 @@ number. The built-in depreciation tab calculates straight-line residential renta
 (27.5 years, mid-month convention) — auto-fills Line 20 for you. Hand the Schedule E
 Summary tab to your CPA and they copy your numbers straight into the form.
 
-═══════════════════════════════════════════
+───────────────────────
 WHAT'S INCLUDED
-═══════════════════════════════════════════
+───────────────────────
 
 📋 Property Info
    · Address, purchase price, closing costs, loan terms
@@ -78,15 +78,9 @@ WHAT'S INCLUDED
    · Schedule E vs Schedule C routing footnote
    · Print area set — letter portrait, ready to print
 
-📋 Settings
-   · Active tax year (drives all date filters)
-   · Schedule E vs Schedule C classification
-   · 17-category dropdown source
-   · Year-end archive ritual
-
-═══════════════════════════════════════════
+───────────────────────
 WHY STR HOSTS NEED THIS
-═══════════════════════════════════════════
+───────────────────────
 
 Two problems every single-property host has at tax time:
 
@@ -102,9 +96,9 @@ Two problems every single-property host has at tax time:
 This template solves both: enforced Schedule E categories on every
 expense row, and a depreciation tab that does the 27.5-year math for you.
 
-═══════════════════════════════════════════
+───────────────────────
 WHO THIS IS FOR
-═══════════════════════════════════════════
+───────────────────────
 
 · Airbnb / VRBO / direct-booking hosts with ONE rental property
 · Hosts whose CPA charges by the hour to "clean up" their spreadsheet
@@ -112,9 +106,9 @@ WHO THIS IS FOR
 · First-year hosts who need to file Schedule E in April
 · Side-Hustle Sam (1 listing) and Semi-Pro Sarah's first property
 
-═══════════════════════════════════════════
+───────────────────────
 HOW IT WORKS
-═══════════════════════════════════════════
+───────────────────────
 
 1. Setup (10 min): fill the Property Info tab — purchase, loan,
    in-service date. Most fields auto-pull into the Depreciation tab.
@@ -125,9 +119,9 @@ HOW IT WORKS
 5. April: print the Schedule E Summary tab. Hand it to your CPA.
    They copy numbers into Schedule E Lines 3–26.
 
-═══════════════════════════════════════════
+───────────────────────
 NEED MORE THAN ONE PROPERTY?
-═══════════════════════════════════════════
+───────────────────────
 
 This is a single-property tracker. If you own multiple rentals, want
 asset-by-asset depreciation (furniture 5-yr, appliances 5-yr,
@@ -135,29 +129,28 @@ improvements 15-yr) with bonus depreciation, or run multiple LLCs,
 upgrade to the Portfolio P&L Master at thestrledger.com/portfolio-master
 ($97), or save with the Portfolio Bundle ($397).
 
-═══════════════════════════════════════════
+───────────────────────
 FILE COMPATIBILITY
-═══════════════════════════════════════════
+───────────────────────
 
 ✅ Microsoft Excel 2016+ (Windows and Mac)
 ✅ Microsoft Excel 365
 ✅ Google Sheets
 
-═══════════════════════════════════════════
+───────────────────────
 REFUNDS + SUPPORT
-═══════════════════════════════════════════
+───────────────────────
 
-14-day refund, no questions asked. Email hello@thestrledger.com — real humans,
-fast replies. If the file doesn't work on your setup, we'll make it right.
+14-day refund, no questions asked. Email hello@thestrledger.com — we reply fast.
 
-═══════════════════════════════════════════
+───────────────────────
 ABOUT THE STR LEDGER
-═══════════════════════════════════════════
+───────────────────────
 
 Business-grade Excel systems for serious short-term rental hosts.
 Full template library at thestrledger.com.
 
-═══════════════════════════════════════════
+───────────────────────
 
 ⚠ Digital product. Not tax advice. Consult your CPA for your specific situation.
    IRS Publication 527 (Residential Rental Property) is the canonical reference
@@ -173,13 +166,13 @@ Full template library at thestrledger.com.
 3. `str tax template`
 4. `rental property pl`
 5. `vacation rental tax`
-6. `depreciation calculator`
+6. `airbnb depreciation`
 7. `single property pl`
 8. `airbnb schedule e`
 9. `vrbo tax tracker`
 10. `str profit loss`
-11. `rental property excel`
-12. `landlord tax template`
+11. `rental p&l excel`
+12. `landlord tax excel`
 13. `cpa schedule e`
 
 ---

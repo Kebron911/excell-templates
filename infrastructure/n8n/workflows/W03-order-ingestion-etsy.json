@@ -1,456 +1,365 @@
-{
-  "name": "W03 — Order Ingestion (Etsy polling)",
-  "nodes": [
-    {
-      "id": "w03-n01",
-      "name": "Every 15 Minutes",
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.2,
-      "position": [250, 300],
-      "parameters": {
-        "rule": {
-          "interval": [
-            {
-              "field": "cronExpression",
-              "expression": "*/15 * * * *"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "w03-n02",
-      "name": "Get Last Poll Timestamp",
-      "type": "n8n-nodes-base.airtable",
-      "typeVersion": 2.1,
-      "position": [500, 300],
-      "onError": "continueErrorOutput",
-      "parameters": {
-        "operation": "search",
-        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
-        "table": { "__rl": true, "value": "TABLE_ID_CONFIG", "mode": "id" },
-        "filterByFormula": "={{ \"{Key} = 'etsy_last_poll'\" }}",
-        "options": { "fields": ["Key", "Value"] }
-      },
-      "credentials": {
-        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
-      }
-    },
-    {
-      "id": "w03-n03",
-      "name": "Compute Poll Window",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [750, 300],
-      "parameters": {
-        "jsCode": "const items = $input.all();\nconst now = new Date();\nconst fallbackWindowSec = 60 * 60; // 1 hour fallback if no config row\n\nlet lastPollSec;\nlet configRecordId = null;\n\nif (items.length && items[0].json && items[0].json.fields) {\n  const v = items[0].json.fields.Value;\n  configRecordId = items[0].json.id;\n  lastPollSec = v ? Math.floor(new Date(v).getTime() / 1000) : Math.floor(now.getTime() / 1000) - fallbackWindowSec;\n} else {\n  lastPollSec = Math.floor(now.getTime() / 1000) - fallbackWindowSec;\n}\n\n// Cap window to avoid Etsy API misuse if last_poll is very old (> 7 days)\nconst maxWindowSec = 7 * 24 * 60 * 60;\nconst nowSec = Math.floor(now.getTime() / 1000);\nif (nowSec - lastPollSec > maxWindowSec) {\n  lastPollSec = nowSec - maxWindowSec;\n}\n\nreturn [{ json: {\n  min_last_modified: lastPollSec,\n  poll_started_at: now.toISOString(),\n  config_record_id: configRecordId,\n  shop_id: $env.ETSY_SHOP_ID || ''\n}}];"
-      }
-    },
-    {
-      "id": "w03-n04",
-      "name": "Etsy GET Receipts",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [1000, 300],
-      "onError": "continueErrorOutput",
-      "parameters": {
-        "method": "GET",
-        "url": "={{ 'https://openapi.etsy.com/v3/application/shops/' + $env.ETSY_SHOP_ID + '/receipts' }}",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "etsyOAuth2Api",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            { "name": "was_paid", "value": "true" },
-            { "name": "min_last_modified", "value": "={{ $json.min_last_modified }}" },
-            { "name": "limit", "value": "100" },
-            { "name": "offset", "value": "0" }
-          ]
-        },
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "x-api-key", "value": "={{ $env.ETSY_KEYSTRING }}" }
-          ]
-        },
-        "options": {
-          "response": { "response": { "fullResponse": false } }
-        }
-      },
-      "credentials": {
-        "etsyOAuth2Api": { "id": "4", "name": "Etsy OAuth2 account" }
-      }
-    },
-    {
-      "id": "w03-n05",
-      "name": "Iterate Receipts",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [1250, 300],
-      "parameters": {
-        "jsCode": "const data = $input.first().json;\nconst pollMeta = $node['Compute Poll Window'].json;\nconst receipts = data.results || [];\n\nif (!receipts.length) {\n  return [{ json: {\n    __empty: true,\n    poll_started_at: pollMeta.poll_started_at,\n    config_record_id: pollMeta.config_record_id,\n    receipt_count: 0\n  }}];\n}\n\nconst out = [];\nfor (const r of receipts) {\n  const email = (r.buyer_email || '').toLowerCase();\n  const firstName = (r.name || '').split(' ')[0] || '';\n  const grossCents = (r.grandtotal && r.grandtotal.amount) ? r.grandtotal.amount : (r.total_price && r.total_price.amount) || 0;\n  const divisor = (r.grandtotal && r.grandtotal.divisor) || (r.total_price && r.total_price.divisor) || 100;\n  const grossAmount = grossCents / divisor;\n  const taxCents = (r.total_tax_cost && r.total_tax_cost.amount) || 0;\n  const taxDivisor = (r.total_tax_cost && r.total_tax_cost.divisor) || 100;\n  const shipCents = (r.total_shipping_cost && r.total_shipping_cost.amount) || 0;\n  const shipDivisor = (r.total_shipping_cost && r.total_shipping_cost.divisor) || 100;\n  const discountCents = (r.discount_amt && r.discount_amt.amount) || 0;\n  const discountDivisor = (r.discount_amt && r.discount_amt.divisor) || 100;\n\n  // Etsy 6.5% transaction fee + $0.20 listing renewal proxy + 3% payment processing\n  const platformFee = grossAmount * 0.065 + 0.20 + (grossAmount * 0.03 + 0.25);\n\n  const transactions = r.transactions || [];\n  const productSkus = transactions.map(t => t.sku || ('etsy-listing-' + t.listing_id)).filter(Boolean);\n\n  const isRefund = !!r.is_refund || (r.status && String(r.status).toLowerCase() === 'refunded') || ((r.refunds || []).length > 0);\n\n  out.push({ json: {\n    receipt_id: String(r.receipt_id),\n    order_id: 'etsy-' + r.receipt_id,\n    timestamp: new Date((r.create_timestamp || r.created_timestamp || Math.floor(Date.now()/1000)) * 1000).toISOString(),\n    last_modified_ts: r.update_timestamp || r.updated_timestamp || null,\n    email,\n    first_name: firstName,\n    gross_amount: grossAmount,\n    tax_collected: taxCents / taxDivisor,\n    shipping: shipCents / shipDivisor,\n    discount_amount: discountCents / discountDivisor,\n    platform_fee: Math.round(platformFee * 100) / 100,\n    currency: (r.grandtotal && r.grandtotal.currency_code) || 'USD',\n    platform: 'etsy',\n    products: productSkus,\n    transaction_ids: transactions.map(t => String(t.transaction_id)),\n    is_refund: isRefund,\n    raw_payload: JSON.stringify(r).slice(0, 5000),\n    poll_started_at: pollMeta.poll_started_at,\n    config_record_id: pollMeta.config_record_id\n  }});\n}\n\nreturn out;"
-      }
-    },
-    {
-      "id": "w03-n06",
-      "name": "Has Receipts?",
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.2,
-      "position": [1500, 300],
-      "parameters": {
-        "rules": {
-          "values": [
-            {
-              "outputKey": "empty",
-              "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "" },
-                "conditions": [
+﻿{
+    "name":  "STR_Etsy_Order_InfluencerSoft_Tagger",
+    "nodes":  [
                   {
-                    "leftValue": "={{ $json.__empty }}",
-                    "rightValue": true,
-                    "operator": { "type": "boolean", "operation": "true", "singleValue": true }
-                  }
-                ],
-                "combinator": "and"
-              }
-            },
-            {
-              "outputKey": "hasItems",
-              "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "" },
-                "conditions": [
+                      "parameters":  {
+                                         "rule":  {
+                                                      "interval":  [
+                                                                       {
+                                                                           "field":  "minutes",
+                                                                           "minutesInterval":  15
+                                                                       }
+                                                                   ]
+                                                  }
+                                     },
+                      "id":  "node-trigger",
+                      "name":  "Every 15 min",
+                      "type":  "n8n-nodes-base.scheduleTrigger",
+                      "typeVersion":  1.2,
+                      "position":  [
+                                       240,
+                                       300
+                                   ]
+                  },
                   {
-                    "leftValue": "={{ $json.receipt_id }}",
-                    "rightValue": "",
-                    "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
-                  }
-                ],
-                "combinator": "and"
-              }
-            }
-          ]
-        },
-        "options": {}
-      }
-    },
-    {
-      "id": "w03-n07",
-      "name": "Upsert Customer",
-      "type": "n8n-nodes-base.airtable",
-      "typeVersion": 2.1,
-      "position": [1750, 400],
-      "onError": "continueErrorOutput",
-      "parameters": {
-        "operation": "upsert",
-        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
-        "table": { "__rl": true, "value": "TABLE_ID_CUSTOMERS", "mode": "id" },
-        "matchingColumns": ["Email"],
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "Email": "={{ $json.email || ('etsy-buyer-' + $json.receipt_id + '@unknown.local') }}",
-            "First name": "={{ $json.first_name }}",
-            "Acquisition source": "etsy",
-            "First contact date": "={{ $json.timestamp }}",
-            "First purchase date": "={{ $json.timestamp }}",
-            "Last purchase date": "={{ $json.timestamp }}",
-            "Etsy buyer?": true
-          },
-          "schema": []
-        }
-      },
-      "credentials": {
-        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
-      }
-    },
-    {
-      "id": "w03-n08",
-      "name": "Upsert Order",
-      "type": "n8n-nodes-base.airtable",
-      "typeVersion": 2.1,
-      "position": [2000, 400],
-      "onError": "continueErrorOutput",
-      "parameters": {
-        "operation": "upsert",
-        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
-        "table": { "__rl": true, "value": "TABLE_ID_ORDERS", "mode": "id" },
-        "matchingColumns": ["Order ID"],
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "Order ID": "={{ $json.order_id }}",
-            "Timestamp": "={{ $json.timestamp }}",
-            "Platform": "etsy",
-            "Gross amount": "={{ $json.gross_amount }}",
-            "Platform fee": "={{ $json.platform_fee }}",
-            "Tax collected": "={{ $json.tax_collected }}",
-            "Shipping": "={{ $json.shipping }}",
-            "Discount amount": "={{ $json.discount_amount }}",
-            "Currency": "={{ $json.currency }}",
-            "OrderBump taken?": false,
-            "OTO taken?": false,
-            "Refund status": "={{ $json.is_refund ? 'refunded' : 'none' }}",
-            "Etsy receipt ID": "={{ $json.receipt_id }}",
-            "Raw webhook payload": "={{ $json.raw_payload }}"
-          },
-          "schema": []
-        }
-      },
-      "credentials": {
-        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
-      }
-    },
-    {
-      "id": "w03-n09",
-      "name": "Refund Switch",
-      "type": "n8n-nodes-base.switch",
-      "typeVersion": 3.2,
-      "position": [2250, 400],
-      "parameters": {
-        "rules": {
-          "values": [
-            {
-              "outputKey": "refund",
-              "conditions": {
-                "options": { "caseSensitive": true, "leftValue": "" },
-                "conditions": [
+                      "parameters":  {
+                                         "workflowId":  {
+                                                            "mode":  "id",
+                                                            "__rl":  true,
+                                                            "cachedResultName":  "W31 - Etsy Token Manager",
+                                                            "value":  "HglDEuu4dvTxR2SH"
+                                                        },
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "id":  "node-get-tokens",
+                      "name":  "Get Etsy tokens",
+                      "type":  "n8n-nodes-base.executeWorkflow",
+                      "typeVersion":  1.2,
+                      "position":  [
+                                       460,
+                                       300
+                                   ]
+                  },
                   {
-                    "leftValue": "={{ $json.is_refund }}",
-                    "rightValue": true,
-                    "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+                      "parameters":  {
+                                         "jsCode":  "// Receipt poll window. Consumes W31 - Etsy Token Manager output:\n//   { Authorization, \"x-api-key\", access_token, shop_id, expires_at, refreshed }\n// Passes auth headers through verbatim; downstream Etsy node uses them as-is.\n\nconst sd = $getWorkflowStaticData(\u0027global\u0027);\nconst nowSec = Math.floor(Date.now() / 1000);\nconst defaultBackfillSec = 24 * 60 * 60;\nconst lastPollSec = sd.last_poll_sec || (nowSec - defaultBackfillSec);\n\nconst tokens = $input.first().json;\nif (!tokens.access_token) throw new Error(\u0027W31 returned no access_token\u0027);\nif (!tokens.shop_id) throw new Error(\u0027W31 returned no shop_id\u0027);\nif (!tokens.Authorization) throw new Error(\u0027W31 returned no Authorization header\u0027);\nif (!tokens[\u0027x-api-key\u0027]) throw new Error(\u0027W31 returned no x-api-key header\u0027);\n\nreturn [{\n  json: {\n    authorization:   tokens.Authorization,\n    x_api_key:       tokens[\u0027x-api-key\u0027],\n    shop_id:         tokens.shop_id,\n    min_created_sec: lastPollSec,\n    now_sec:         nowSec,\n  },\n}];"
+                                     },
+                      "id":  "node-window",
+                      "name":  "Compute poll window",
+                      "type":  "n8n-nodes-base.code",
+                      "typeVersion":  2,
+                      "position":  [
+                                       680,
+                                       300
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "method":  "GET",
+                                         "url":  "=https://openapi.etsy.com/v3/application/shops/{{ $json.shop_id }}/receipts",
+                                         "sendQuery":  true,
+                                         "queryParameters":  {
+                                                                 "parameters":  [
+                                                                                    {
+                                                                                        "name":  "min_created",
+                                                                                        "value":  "={{ $json.min_created_sec }}"
+                                                                                    },
+                                                                                    {
+                                                                                        "name":  "was_paid",
+                                                                                        "value":  "true"
+                                                                                    },
+                                                                                    {
+                                                                                        "name":  "limit",
+                                                                                        "value":  "100"
+                                                                                    }
+                                                                                ]
+                                                             },
+                                         "sendHeaders":  true,
+                                         "headerParameters":  {
+                                                                  "parameters":  [
+                                                                                     {
+                                                                                         "value":  "={{ $json.authorization }}",
+                                                                                         "name":  "Authorization"
+                                                                                     },
+                                                                                     {
+                                                                                         "value":  "={{ $json.x_api_key }}",
+                                                                                         "name":  "x-api-key"
+                                                                                     }
+                                                                                 ]
+                                                              },
+                                         "options":  {
+                                                         "timeout":  20000
+                                                     }
+                                     },
+                      "id":  "node-fetch-receipts",
+                      "name":  "Etsy GET /receipts",
+                      "type":  "n8n-nodes-base.httpRequest",
+                      "typeVersion":  4.2,
+                      "position":  [
+                                       900,
+                                       300
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "jsCode":  "// Flatten Etsy receipts payload into individual buyer-tagging items.\n// Etsy receipt shape (v3):\n//   {\n//     receipt_id, buyer_email, buyer_user_id, name,\n//     transactions: [ { listing_id, sku, product_id, quantity, ... } ],\n//     ...\n//   }\n//\n// We emit one item per RECEIPT (not per transaction); the SKUs are passed as an array\n// for the inner per-SKU loop downstream.\n\nconst resp = $input.first().json;\nconst receipts = (resp.results || []).filter((r) =\u003e r.buyer_email);\n\nif (receipts.length === 0) {\n  return [];  // Nothing to do - next node won\u0027t fire, but staticData update below still needs to run.\n}\n\nreturn receipts.map((r) =\u003e {\n  const skus = (r.transactions || [])\n    .map((t) =\u003e t.sku || (t.product_data \u0026\u0026 t.product_data.sku) || String(t.listing_id))\n    .filter(Boolean);\n  return {\n    json: {\n      email: r.buyer_email,\n      buyer_name: r.name || null,\n      receipt_id: r.receipt_id,\n      skus,\n      grandtotal_amount: r.grandtotal \u0026\u0026 r.grandtotal.amount,\n      grandtotal_currency: r.grandtotal \u0026\u0026 r.grandtotal.currency_code,\n      created_at: r.create_timestamp ? new Date(r.create_timestamp * 1000).toISOString() : null,\n    },\n  };\n});\n"
+                                     },
+                      "id":  "node-extract-orders",
+                      "name":  "Extract buyer + SKUs",
+                      "type":  "n8n-nodes-base.code",
+                      "typeVersion":  2,
+                      "position":  [
+                                       1120,
+                                       220
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "batchSize":  1,
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "id":  "node-split-orders",
+                      "name":  "For each order",
+                      "type":  "n8n-nodes-base.splitInBatches",
+                      "typeVersion":  3,
+                      "position":  [
+                                       1340,
+                                       220
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "method":  "POST",
+                                         "url":  "=https://kebron.influencersoft.com/api/AddUpdateLead",
+                                         "sendBody":  true,
+                                         "contentType":  "form-urlencoded",
+                                         "bodyParameters":  {
+                                                                "parameters":  [
+                                                                                   {
+                                                                                       "name":  "rpsKey",
+                                                                                       "value":  "={{ $env.INFLUENCERSOFT_API_KEY }}"
+                                                                                   },
+                                                                                   {
+                                                                                       "name":  "lead_email",
+                                                                                       "value":  "={{ $json.email }}"
+                                                                                   },
+                                                                                   {
+                                                                                       "name":  "add_tags",
+                                                                                       "value":  "customer:etsy"
+                                                                                   }
+                                                                               ]
+                                                            },
+                                         "options":  {
+                                                         "timeout":  10000
+                                                     }
+                                     },
+                      "id":  "node-is-upsert",
+                      "name":  "IS AddUpdateLead",
+                      "type":  "n8n-nodes-base.httpRequest",
+                      "typeVersion":  4.2,
+                      "position":  [
+                                       1560,
+                                       220
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "batchSize":  1,
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "id":  "node-split-skus",
+                      "name":  "For each SKU",
+                      "type":  "n8n-nodes-base.splitInBatches",
+                      "typeVersion":  3,
+                      "position":  [
+                                       1780,
+                                       220
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "method":  "POST",
+                                         "url":  "=https://kebron.influencersoft.com/api/AddTagToLead",
+                                         "sendBody":  true,
+                                         "contentType":  "form-urlencoded",
+                                         "bodyParameters":  {
+                                                                "parameters":  [
+                                                                                   {
+                                                                                       "name":  "rpsKey",
+                                                                                       "value":  "={{ $env.INFLUENCERSOFT_API_KEY }}"
+                                                                                   },
+                                                                                   {
+                                                                                       "name":  "lead_email",
+                                                                                       "value":  "={{ $(\u0027For each order\u0027).item.json.email }}"
+                                                                                   },
+                                                                                   {
+                                                                                       "name":  "tag_name",
+                                                                                       "value":  "=purchased:{{ $json }}"
+                                                                                   }
+                                                                               ]
+                                                            },
+                                         "options":  {
+                                                         "timeout":  10000
+                                                     }
+                                     },
+                      "id":  "node-is-tag-sku",
+                      "name":  "IS AddTagToLead per SKU",
+                      "type":  "n8n-nodes-base.httpRequest",
+                      "typeVersion":  4.2,
+                      "position":  [
+                                       2000,
+                                       220
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "jsCode":  "// Persist the new last_poll_sec so the next run only picks up receipts AFTER this run.\n// Runs once at end of workflow (no split-batches context).\n\nconst sd = $getWorkflowStaticData(\u0027global\u0027);\nsd.last_poll_sec = Math.floor(Date.now() / 1000);\nsd.last_run_at = new Date().toISOString();\n\nreturn [{ json: { last_poll_sec: sd.last_poll_sec, last_run_at: sd.last_run_at } }];\n"
+                                     },
+                      "id":  "node-update-cursor",
+                      "name":  "Save last_poll_sec",
+                      "type":  "n8n-nodes-base.code",
+                      "typeVersion":  2,
+                      "position":  [
+                                       2220,
+                                       220
+                                   ]
                   }
-                ],
-                "combinator": "and"
-              }
-            }
-          ]
-        },
-        "options": { "fallbackOutput": "extra" }
-      }
-    },
-    {
-      "id": "w03-n10",
-      "name": "Trigger W07 Refund Handler",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [2500, 300],
-      "onError": "continueErrorOutput",
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $env.N8N_BASE_URL + '/webhook/refund-handler' }}",
-        "sendBody": true,
-        "contentType": "json",
-        "body": "={{ JSON.stringify({ source: 'etsy', order_id: $json.order_id, receipt_id: $json.receipt_id, email: $json.email, gross_amount: $json.gross_amount, currency: $json.currency, raw: $json.raw_payload }) }}"
-      }
-    },
-    {
-      "id": "w03-n11",
-      "name": "Aggregate Run Summary",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [2750, 400],
-      "parameters": {
-        "jsCode": "const items = $input.all();\nlet receiptCount = 0;\nlet refundCount = 0;\nlet grossTotal = 0;\nlet pollStartedAt = null;\nlet configRecordId = null;\n\nfor (const it of items) {\n  const j = it.json || {};\n  if (j.receipt_id) receiptCount++;\n  if (j.is_refund) refundCount++;\n  if (typeof j.gross_amount === 'number') grossTotal += j.gross_amount;\n  pollStartedAt = pollStartedAt || j.poll_started_at;\n  configRecordId = configRecordId || j.config_record_id;\n}\n\nreturn [{ json: {\n  receipt_count: receiptCount,\n  refund_count: refundCount,\n  gross_total: Math.round(grossTotal * 100) / 100,\n  poll_started_at: pollStartedAt || new Date().toISOString(),\n  config_record_id: configRecordId,\n  next_last_poll: new Date().toISOString()\n}}];"
-      }
-    },
-    {
-      "id": "w03-n12",
-      "name": "Update Last Poll Timestamp",
-      "type": "n8n-nodes-base.airtable",
-      "typeVersion": 2.1,
-      "position": [3000, 400],
-      "onError": "continueErrorOutput",
-      "parameters": {
-        "operation": "upsert",
-        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
-        "table": { "__rl": true, "value": "TABLE_ID_CONFIG", "mode": "id" },
-        "matchingColumns": ["Key"],
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "Key": "etsy_last_poll",
-            "Value": "={{ $json.next_last_poll }}",
-            "Updated at": "={{ $json.next_last_poll }}"
-          },
-          "schema": []
-        }
-      },
-      "credentials": {
-        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
-      }
-    },
-    {
-      "id": "w03-n13",
-      "name": "Slack Poll Summary",
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
-      "position": [3250, 400],
-      "parameters": {
-        "resource": "message",
-        "operation": "post",
-        "channel": { "__rl": true, "value": "#str-platform-wins", "mode": "name" },
-        "text": "={{ $node['Aggregate Run Summary'].json.receipt_count > 0 ? ('Etsy poll: ' + $node['Aggregate Run Summary'].json.receipt_count + ' receipt(s), $' + $node['Aggregate Run Summary'].json.gross_total + ' gross, ' + $node['Aggregate Run Summary'].json.refund_count + ' refund(s).') : 'Etsy poll: no new receipts.' }}",
-        "otherOptions": {}
-      },
-      "credentials": {
-        "slackApi": { "id": "3", "name": "Slack account" }
-      }
-    },
-    {
-      "id": "w03-n14",
-      "name": "No-Op Empty Window",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [1750, 200],
-      "parameters": {}
-    },
-    {
-      "id": "w03-err01",
-      "name": "Build Error Envelope",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [1500, 700],
-      "parameters": {
-        "jsCode": "const input = $input.first().json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  workflow: 'W03-order-ingestion-etsy',\n  node: $node.name || 'unknown',\n  error_message: input.error?.message || JSON.stringify(input).slice(0, 500),\n  payload: JSON.stringify(input).slice(0, 500),\n  status: 'Open'\n}}];"
-      }
-    },
-    {
-      "id": "w03-err02",
-      "name": "Log Error to Airtable",
-      "type": "n8n-nodes-base.airtable",
-      "typeVersion": 2.1,
-      "position": [1750, 700],
-      "parameters": {
-        "operation": "create",
-        "base": { "__rl": true, "value": "BASE_ID_PLACEHOLDER", "mode": "id" },
-        "table": { "__rl": true, "value": "TABLE_ID_ERRORS", "mode": "id" },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "Timestamp": "={{ $json.timestamp }}",
-            "Workflow": "={{ $json.workflow }}",
-            "Node": "={{ $json.node }}",
-            "Error message": "={{ $json.error_message }}",
-            "Payload": "={{ $json.payload }}",
-            "Status": "Open"
-          },
-          "schema": []
-        }
-      },
-      "credentials": {
-        "airtableTokenApi": { "id": "1", "name": "Airtable account" }
-      }
-    },
-    {
-      "id": "w03-err03",
-      "name": "Slack Error Alert",
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
-      "position": [2000, 700],
-      "parameters": {
-        "resource": "message",
-        "operation": "post",
-        "channel": { "__rl": true, "value": "#str-platform-alerts", "mode": "name" },
-        "text": "={{ 'W03 Etsy Ingestion FAILED\\nNode: ' + $json.node + '\\nError: ' + $json.error_message + '\\nPayload: ' + $json.payload }}",
-        "otherOptions": {}
-      },
-      "credentials": {
-        "slackApi": { "id": "3", "name": "Slack account" }
-      }
-    }
-  ],
-  "connections": {
-    "Every 15 Minutes": {
-      "main": [
-        [{ "node": "Get Last Poll Timestamp", "type": "main", "index": 0 }]
-      ]
-    },
-    "Get Last Poll Timestamp": {
-      "main": [
-        [{ "node": "Compute Poll Window", "type": "main", "index": 0 }],
-        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
-      ]
-    },
-    "Compute Poll Window": {
-      "main": [
-        [{ "node": "Etsy GET Receipts", "type": "main", "index": 0 }]
-      ]
-    },
-    "Etsy GET Receipts": {
-      "main": [
-        [{ "node": "Iterate Receipts", "type": "main", "index": 0 }],
-        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
-      ]
-    },
-    "Iterate Receipts": {
-      "main": [
-        [{ "node": "Has Receipts?", "type": "main", "index": 0 }]
-      ]
-    },
-    "Has Receipts?": {
-      "main": [
-        [{ "node": "No-Op Empty Window", "type": "main", "index": 0 }],
-        [{ "node": "Upsert Customer", "type": "main", "index": 0 }]
-      ]
-    },
-    "No-Op Empty Window": {
-      "main": [
-        [{ "node": "Aggregate Run Summary", "type": "main", "index": 0 }]
-      ]
-    },
-    "Upsert Customer": {
-      "main": [
-        [{ "node": "Upsert Order", "type": "main", "index": 0 }],
-        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
-      ]
-    },
-    "Upsert Order": {
-      "main": [
-        [{ "node": "Refund Switch", "type": "main", "index": 0 }],
-        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
-      ]
-    },
-    "Refund Switch": {
-      "main": [
-        [{ "node": "Trigger W07 Refund Handler", "type": "main", "index": 0 }],
-        [{ "node": "Aggregate Run Summary", "type": "main", "index": 0 }]
-      ]
-    },
-    "Trigger W07 Refund Handler": {
-      "main": [
-        [{ "node": "Aggregate Run Summary", "type": "main", "index": 0 }],
-        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
-      ]
-    },
-    "Aggregate Run Summary": {
-      "main": [
-        [{ "node": "Update Last Poll Timestamp", "type": "main", "index": 0 }]
-      ]
-    },
-    "Update Last Poll Timestamp": {
-      "main": [
-        [{ "node": "Slack Poll Summary", "type": "main", "index": 0 }],
-        [{ "node": "Build Error Envelope", "type": "main", "index": 0 }]
-      ]
-    },
-    "Build Error Envelope": {
-      "main": [
-        [{ "node": "Log Error to Airtable", "type": "main", "index": 0 }]
-      ]
-    },
-    "Log Error to Airtable": {
-      "main": [
-        [{ "node": "Slack Error Alert", "type": "main", "index": 0 }]
-      ]
-    }
-  },
-  "settings": {
-    "executionOrder": "v1",
-    "saveManualExecutions": true,
-    "saveExecutionProgress": true,
-    "executionTimeout": 120,
-    "timezone": "America/New_York",
-    "errorWorkflow": "vQKuXqX6mzCEGmaE"
-  },
-  "pinData": {}
+              ],
+    "connections":  {
+                        "Every 15 min":  {
+                                             "main":  [
+                                                          [
+                                                              {
+                                                                  "node":  "Get Etsy tokens",
+                                                                  "type":  "main",
+                                                                  "index":  0
+                                                              }
+                                                          ]
+                                                      ]
+                                         },
+                        "Get Etsy tokens":  {
+                                                "main":  [
+                                                             [
+                                                                 {
+                                                                     "node":  "Compute poll window",
+                                                                     "type":  "main",
+                                                                     "index":  0
+                                                                 }
+                                                             ]
+                                                         ]
+                                            },
+                        "Compute poll window":  {
+                                                    "main":  [
+                                                                 [
+                                                                     {
+                                                                         "node":  "Etsy GET /receipts",
+                                                                         "type":  "main",
+                                                                         "index":  0
+                                                                     }
+                                                                 ]
+                                                             ]
+                                                },
+                        "Etsy GET /receipts":  {
+                                                   "main":  [
+                                                                [
+                                                                    {
+                                                                        "node":  "Extract buyer + SKUs",
+                                                                        "type":  "main",
+                                                                        "index":  0
+                                                                    }
+                                                                ]
+                                                            ]
+                                               },
+                        "Extract buyer + SKUs":  {
+                                                     "main":  [
+                                                                  [
+                                                                      {
+                                                                          "node":  "For each order",
+                                                                          "type":  "main",
+                                                                          "index":  0
+                                                                      }
+                                                                  ]
+                                                              ]
+                                                 },
+                        "For each order":  {
+                                               "main":  [
+                                                            [
+                                                                {
+                                                                    "node":  "IS AddUpdateLead",
+                                                                    "type":  "main",
+                                                                    "index":  0
+                                                                }
+                                                            ],
+                                                            [
+                                                                {
+                                                                    "node":  "Save last_poll_sec",
+                                                                    "type":  "main",
+                                                                    "index":  0
+                                                                }
+                                                            ]
+                                                        ]
+                                           },
+                        "IS AddUpdateLead":  {
+                                                 "main":  [
+                                                              [
+                                                                  {
+                                                                      "node":  "For each SKU",
+                                                                      "type":  "main",
+                                                                      "index":  0
+                                                                  }
+                                                              ]
+                                                          ]
+                                             },
+                        "For each SKU":  {
+                                             "main":  [
+                                                          [
+                                                              {
+                                                                  "node":  "IS AddTagToLead per SKU",
+                                                                  "type":  "main",
+                                                                  "index":  0
+                                                              }
+                                                          ],
+                                                          [
+                                                              {
+                                                                  "node":  "For each order",
+                                                                  "type":  "main",
+                                                                  "index":  0
+                                                              }
+                                                          ]
+                                                      ]
+                                         },
+                        "IS AddTagToLead per SKU":  {
+                                                        "main":  [
+                                                                     [
+                                                                         {
+                                                                             "node":  "For each SKU",
+                                                                             "type":  "main",
+                                                                             "index":  0
+                                                                         }
+                                                                     ]
+                                                                 ]
+                                                    }
+                    },
+    "settings":  {
+                     "saveExecutionProgress":  true,
+                     "saveManualExecutions":  true,
+                     "saveDataErrorExecution":  "all",
+                     "saveDataSuccessExecution":  "all",
+                     "executionTimeout":  120,
+                     "timezone":  "America/Denver",
+                     "callerPolicy":  "workflowsFromSameOwner",
+                     "availableInMCP":  true
+                 },
+    "tags":  [
+
+             ],
+    "pinData":  {
+
+                }
 }

@@ -21,7 +21,7 @@
 | **GA4** | `PUBLIC_GA4_ID` (public, build-time) | `STRGuests-Tools/.env.local` | — | ❌ measurement ID pending |
 | **Email verify HMAC** | `EMAIL_VERIFY_SECRET` | `STRGuests-Tools/.env.local` | — | ✅ set (32+ bytes random) |
 | **IP hash salt** | `IP_HASH_SALT` | `STRGuests-Tools/.env.local` | — | ✅ set |
-| **Etsy** | OAuth client + secret + refresh token | Vaultwarden (pending) | seller account pending | ❌ shop not yet open |
+| **Etsy** | `ETSY_API_KEY`, `ETSY_OAUTH_SECRET`, `ETSY_SHOP_ID`, `ETSY_ACCESS_TOKEN`, `ETSY_REFRESH_TOKEN`, `ETSY_TOKEN_EXPIRES_AT` | `./.env` (repo root) + n8n workflow static data (W31 — Etsy Token Manager) | `etsy.com/shop/thestrledger` (shop ID `65957104`) | ✅ OAuth bootstrapped, refresh rotation live. n8n W31 cron auto-refreshes every 50 min; other workflows consume via Execute Workflow sub-call. Scope: 4 minimum (`email_r listings_r listings_w transactions_r`) — Personal Access tier. |
 | **Anthropic (optional fallback)** | `ANTHROPIC_API_KEY` | not set — would go in `STRGuests-Tools/.env.local` if used | — | ❌ not used (OpenAI chosen) |
 | **n8n Docker host (SSH)** | `N8N_SSH_HOST/USER/KEY_PATH` + compose paths (see block below) | `./.env` (repo root) | same VPS as `n8ncde.cdeprosperity.com` | ⏳ template — fill in to enable platform-layer ops |
 
@@ -110,4 +110,4 @@ When you (the user or any agent) add a new platform integration:
 2. Add a row to `ops/credentials-inventory.md` with account-level info.
 3. Commit both in the same commit. They must not drift.
 
-Last updated: 2026-05-12 (n8n Docker host SSH template added — pending fill-in to enable platform-layer ops).
+Last updated: 2026-05-13 (Etsy OAuth bootstrapped + W31 token manager live in n8n; n8n Docker host SSH template added — pending fill-in to enable platform-layer ops).

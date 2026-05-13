@@ -1,0 +1,407 @@
+﻿{
+    "name":  "W31 - Etsy Token Manager",
+    "nodes":  [
+                  {
+                      "parameters":  {
+                                         "url":  " https://openapi.etsy.com/v3/application/users/me",
+                                         "authentication":  "genericCredentialType",
+                                         "genericAuthType":  "httpCustomAuth",
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "type":  "n8n-nodes-base.httpRequest",
+                      "typeVersion":  4.3,
+                      "position":  [
+                                       336,
+                                       -128
+                                   ],
+                      "id":  "e9f96be0-20c1-4a40-947b-21a795154d79",
+                      "name":  "HTTP Request",
+                      "credentials":  {
+                                          "httpCustomAuth":  {
+                                                                 "id":  "wQUX5NmpXV2iChSc",
+                                                                 "name":  "Etsy API - STR Ledger"
+                                                             }
+                                      }
+                  },
+                  {
+                      "parameters":  {
+
+                                     },
+                      "id":  "9f0fb44b-83c0-48e1-b4e2-110b82fd47ff",
+                      "name":  "Manual Trigger (init/test)",
+                      "type":  "n8n-nodes-base.manualTrigger",
+                      "typeVersion":  1,
+                      "position":  [
+                                       -240,
+                                       16
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "rule":  {
+                                                      "interval":  [
+                                                                       {
+                                                                           "field":  "minutes",
+                                                                           "minutesInterval":  50
+                                                                       }
+                                                                   ]
+                                                  }
+                                     },
+                      "id":  "f22aad60-2e0b-4e1e-8c71-bf54fcfe2665",
+                      "name":  "Cron Every 50 Min",
+                      "type":  "n8n-nodes-base.scheduleTrigger",
+                      "typeVersion":  1.2,
+                      "position":  [
+                                       -240,
+                                       224
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+
+                                     },
+                      "id":  "913118eb-850c-4ffd-9cf4-2d4ada4c1749",
+                      "name":  "Called by Sub-Workflow",
+                      "type":  "n8n-nodes-base.executeWorkflowTrigger",
+                      "typeVersion":  1,
+                      "position":  [
+                                       -240,
+                                       416
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "jsCode":  "// Etsy Token Manager - single source of truth for current access_token + shop_id.\n// State lives in workflow static data ($getWorkflowStaticData(\u0027global\u0027))\n// which n8n persists across workflow runs.\n\nconst sd = $getWorkflowStaticData(\u0027global\u0027);\nconst input = $input.first()?.json || {};\n\n// One-time init from Manual Trigger input\nif (input.init_refresh_token) {\n  sd.refresh_token = String(input.init_refresh_token).trim();\n  sd.keystring     = String(input.init_keystring || \u0027\u0027).trim();\n  sd.shared_secret = String(input.init_shared_secret || \u0027\u0027).trim();\n  sd.expires_at    = 0;\n  console.log(\u0027Initialized static data from input\u0027);\n}\n\n// shop_id sourced from env (preferred) or literal fallback. Single-shop instance.\nif (!sd.shop_id) {\n  sd.shop_id = String($env.ETSY_SHOP_ID || \u002765957104\u0027);\n}\n\nif (!sd.refresh_token || !sd.keystring || !sd.shared_secret) {\n  throw new Error(\u0027Token manager not initialized. Run the Manual Trigger with { init_refresh_token, init_keystring, init_shared_secret } in the input first.\u0027);\n}\n\nconst now = Date.now();\nconst expiresAt = Number(sd.expires_at) || 0;\nconst BUFFER_MS = 5 * 60 * 1000;\nconst needsRefresh = (expiresAt - now) \u003c BUFFER_MS;\n\nreturn [{\n  json: {\n    needs_refresh: needsRefresh,\n    refresh_token: sd.refresh_token,\n    keystring: sd.keystring,\n    shared_secret: sd.shared_secret,\n    shop_id: sd.shop_id,\n    current_access_token: sd.access_token || null,\n    current_expires_at: expiresAt,\n    now,\n  }\n}];"
+                                     },
+                      "id":  "494461d7-5951-490f-b296-266b8ceb78a3",
+                      "name":  "Read State + Check Expiry",
+                      "type":  "n8n-nodes-base.code",
+                      "typeVersion":  2,
+                      "position":  [
+                                       80,
+                                       224
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "conditions":  {
+                                                            "options":  {
+                                                                            "caseSensitive":  true,
+                                                                            "leftValue":  "",
+                                                                            "typeValidation":  "strict"
+                                                                        },
+                                                            "conditions":  [
+                                                                               {
+                                                                                   "leftValue":  "={{ $json.needs_refresh }}",
+                                                                                   "rightValue":  true,
+                                                                                   "operator":  {
+                                                                                                    "type":  "boolean",
+                                                                                                    "operation":  "true",
+                                                                                                    "singleValue":  true
+                                                                                                }
+                                                                               }
+                                                                           ],
+                                                            "combinator":  "and"
+                                                        },
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "id":  "cfeb5a28-002e-477f-816d-4cdc1b659e8f",
+                      "name":  "Needs Refresh?",
+                      "type":  "n8n-nodes-base.if",
+                      "typeVersion":  2,
+                      "position":  [
+                                       368,
+                                       224
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "method":  "POST",
+                                         "url":  "https://api.etsy.com/v3/public/oauth/token",
+                                         "sendHeaders":  true,
+                                         "headerParameters":  {
+                                                                  "parameters":  [
+                                                                                     {
+                                                                                         "name":  "Content-Type",
+                                                                                         "value":  "application/x-www-form-urlencoded"
+                                                                                     }
+                                                                                 ]
+                                                              },
+                                         "sendBody":  true,
+                                         "contentType":  "form-urlencoded",
+                                         "bodyParameters":  {
+                                                                "parameters":  [
+                                                                                   {
+                                                                                       "name":  "grant_type",
+                                                                                       "value":  "refresh_token"
+                                                                                   },
+                                                                                   {
+                                                                                       "name":  "client_id",
+                                                                                       "value":  "={{ $json.keystring }}"
+                                                                                   },
+                                                                                   {
+                                                                                       "name":  "refresh_token",
+                                                                                       "value":  "={{ $json.refresh_token }}"
+                                                                                   }
+                                                                               ]
+                                                            },
+                                         "options":  {
+                                                         "response":  {
+                                                                          "response":  {
+
+                                                                                       }
+                                                                      }
+                                                     }
+                                     },
+                      "id":  "0fb1959e-0557-4c3f-8bdb-a01d915365e9",
+                      "name":  "Refresh Etsy Token",
+                      "type":  "n8n-nodes-base.httpRequest",
+                      "typeVersion":  4.2,
+                      "position":  [
+                                       672,
+                                       64
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "jsCode":  "const sd = $getWorkflowStaticData(\u0027global\u0027);\nconst resp = $input.first().json;\n\nif (!resp.access_token || !resp.refresh_token) {\n  throw new Error(\u0027Refresh response missing tokens: \u0027 + JSON.stringify(resp).slice(0, 200));\n}\n\nsd.access_token  = String(resp.access_token);\nsd.refresh_token = String(resp.refresh_token);\nsd.expires_at    = Date.now() + (Number(resp.expires_in || 3600) - 60) * 1000;\nsd.last_refresh  = new Date().toISOString();\n\nreturn [{\n  json: {\n    refreshed: true,\n    access_token: sd.access_token,\n    keystring: sd.keystring,\n    shared_secret: sd.shared_secret,\n    shop_id: sd.shop_id,\n    expires_at: sd.expires_at,\n    expires_at_iso: new Date(sd.expires_at).toISOString(),\n  }\n}];"
+                                     },
+                      "id":  "a6803564-0015-4f08-83e3-df57e4f7349b",
+                      "name":  "Persist New Tokens",
+                      "type":  "n8n-nodes-base.code",
+                      "typeVersion":  2,
+                      "position":  [
+                                       976,
+                                       64
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "assignments":  {
+                                                             "assignments":  [
+                                                                                 {
+                                                                                     "id":  "a1",
+                                                                                     "name":  "refreshed",
+                                                                                     "value":  false,
+                                                                                     "type":  "boolean"
+                                                                                 },
+                                                                                 {
+                                                                                     "id":  "a2",
+                                                                                     "name":  "access_token",
+                                                                                     "value":  "={{ $json.current_access_token }}",
+                                                                                     "type":  "string"
+                                                                                 },
+                                                                                 {
+                                                                                     "id":  "a3",
+                                                                                     "name":  "keystring",
+                                                                                     "value":  "={{ $json.keystring }}",
+                                                                                     "type":  "string"
+                                                                                 },
+                                                                                 {
+                                                                                     "id":  "a4",
+                                                                                     "name":  "shared_secret",
+                                                                                     "value":  "={{ $json.shared_secret }}",
+                                                                                     "type":  "string"
+                                                                                 },
+                                                                                 {
+                                                                                     "id":  "a5",
+                                                                                     "name":  "expires_at",
+                                                                                     "value":  "={{ $json.current_expires_at }}",
+                                                                                     "type":  "number"
+                                                                                 },
+                                                                                 {
+                                                                                     "id":  "a6",
+                                                                                     "name":  "expires_at_iso",
+                                                                                     "value":  "={{ new Date($json.current_expires_at).toISOString() }}",
+                                                                                     "type":  "string"
+                                                                                 },
+                                                                                 {
+                                                                                     "type":  "string",
+                                                                                     "name":  "shop_id",
+                                                                                     "id":  "a7",
+                                                                                     "value":  "={{ $json.shop_id }}"
+                                                                                 }
+                                                                             ]
+                                                         },
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "id":  "b275404e-782b-4f2b-be41-6c13e679a333",
+                      "name":  "Use Current Token",
+                      "type":  "n8n-nodes-base.set",
+                      "typeVersion":  3.4,
+                      "position":  [
+                                       672,
+                                       368
+                                   ]
+                  },
+                  {
+                      "parameters":  {
+                                         "assignments":  {
+                                                             "assignments":  [
+                                                                                 {
+                                                                                     "id":  "h1",
+                                                                                     "name":  "Authorization",
+                                                                                     "value":  "=Bearer {{ $json.access_token }}",
+                                                                                     "type":  "string"
+                                                                                 },
+                                                                                 {
+                                                                                     "id":  "h2",
+                                                                                     "name":  "x-api-key",
+                                                                                     "value":  "={{ $json.keystring }}:{{ $json.shared_secret }}",
+                                                                                     "type":  "string"
+                                                                                 },
+                                                                                 {
+                                                                                     "id":  "h3",
+                                                                                     "name":  "access_token",
+                                                                                     "value":  "={{ $json.access_token }}",
+                                                                                     "type":  "string"
+                                                                                 },
+                                                                                 {
+                                                                                     "id":  "h4",
+                                                                                     "name":  "expires_at",
+                                                                                     "value":  "={{ $json.expires_at }}",
+                                                                                     "type":  "number"
+                                                                                 },
+                                                                                 {
+                                                                                     "id":  "h5",
+                                                                                     "name":  "refreshed",
+                                                                                     "value":  "={{ $json.refreshed }}",
+                                                                                     "type":  "boolean"
+                                                                                 },
+                                                                                 {
+                                                                                     "type":  "string",
+                                                                                     "name":  "shop_id",
+                                                                                     "id":  "h6",
+                                                                                     "value":  "={{ $json.shop_id }}"
+                                                                                 }
+                                                                             ]
+                                                         },
+                                         "options":  {
+
+                                                     }
+                                     },
+                      "id":  "5db13e65-9c0d-4675-9710-8ac24b2b31bc",
+                      "name":  "Build Auth Headers",
+                      "type":  "n8n-nodes-base.set",
+                      "typeVersion":  3.4,
+                      "position":  [
+                                       1280,
+                                       224
+                                   ]
+                  }
+              ],
+    "connections":  {
+                        "Manual Trigger (init/test)":  {
+                                                           "main":  [
+                                                                        [
+                                                                            {
+                                                                                "node":  "Read State + Check Expiry",
+                                                                                "type":  "main",
+                                                                                "index":  0
+                                                                            }
+                                                                        ]
+                                                                    ]
+                                                       },
+                        "Cron Every 50 Min":  {
+                                                  "main":  [
+                                                               [
+                                                                   {
+                                                                       "node":  "Read State + Check Expiry",
+                                                                       "type":  "main",
+                                                                       "index":  0
+                                                                   }
+                                                               ]
+                                                           ]
+                                              },
+                        "Called by Sub-Workflow":  {
+                                                       "main":  [
+                                                                    [
+                                                                        {
+                                                                            "node":  "Read State + Check Expiry",
+                                                                            "type":  "main",
+                                                                            "index":  0
+                                                                        }
+                                                                    ]
+                                                                ]
+                                                   },
+                        "Read State + Check Expiry":  {
+                                                          "main":  [
+                                                                       [
+                                                                           {
+                                                                               "node":  "Needs Refresh?",
+                                                                               "type":  "main",
+                                                                               "index":  0
+                                                                           }
+                                                                       ]
+                                                                   ]
+                                                      },
+                        "Needs Refresh?":  {
+                                               "main":  [
+                                                            [
+                                                                {
+                                                                    "node":  "Refresh Etsy Token",
+                                                                    "type":  "main",
+                                                                    "index":  0
+                                                                }
+                                                            ],
+                                                            [
+                                                                {
+                                                                    "node":  "Use Current Token",
+                                                                    "type":  "main",
+                                                                    "index":  0
+                                                                }
+                                                            ]
+                                                        ]
+                                           },
+                        "Refresh Etsy Token":  {
+                                                   "main":  [
+                                                                [
+                                                                    {
+                                                                        "node":  "Persist New Tokens",
+                                                                        "type":  "main",
+                                                                        "index":  0
+                                                                    }
+                                                                ]
+                                                            ]
+                                               },
+                        "Persist New Tokens":  {
+                                                   "main":  [
+                                                                [
+                                                                    {
+                                                                        "node":  "Build Auth Headers",
+                                                                        "type":  "main",
+                                                                        "index":  0
+                                                                    }
+                                                                ]
+                                                            ]
+                                               },
+                        "Use Current Token":  {
+                                                  "main":  [
+                                                               [
+                                                                   {
+                                                                       "node":  "Build Auth Headers",
+                                                                       "type":  "main",
+                                                                       "index":  0
+                                                                   }
+                                                               ]
+                                                           ]
+                                              }
+                    },
+    "settings":  {
+                     "executionOrder":  "v1",
+                     "availableInMCP":  true,
+                     "callerPolicy":  "workflowsFromSameOwner"
+                 },
+    "tags":  [
+
+             ],
+    "pinData":  {
+
+                }
+}
