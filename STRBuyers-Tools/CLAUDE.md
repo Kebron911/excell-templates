@@ -52,6 +52,8 @@ A footer block on every page links to the other three tool sites + The STR Ledge
 - **MVP-first.** Ship the 7 calculators + 200 city pages. No live AirDNA API integration at launch.
 - **Lead with weaknesses.** Flag affiliate-disclosure gaps, data freshness, or programmatic-page thinness first.
 
+- **Blog hero images are mandatory and automated.** Every post in `src/content/posts/*.mdx` must have a `heroImage` field. When creating a new post, run `pnpm hero -- src/content/posts/<slug>.mdx` **before committing** — it calls Gemini, writes 3 WebP variants to `public/images/blog/<slug>/`, and patches frontmatter. See `docs/CLUSTER-BLOG-STANDARD.md`.
+
 ## Things to Remember
 
 - **Site is LIVE at https://strbuyers.tools/ as of 2026-05-08** (v0.1.0

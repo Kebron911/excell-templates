@@ -70,6 +70,9 @@ const formatDate = (iso: string) =>
 const url = `https://strops.tools/blog/${slug}`;
 const ogImagePath = post.data.ogImage ?? `/og/blog-${slug}.png`;
 const ogImageAbs = `https://strops.tools${ogImagePath}`;
+const heroImage = post.data.heroImage;
+const heroAlt = post.data.heroAlt ?? post.data.title;
+const heroThumb = heroImage ? heroImage.replace(/\/hero\.webp$/, '/thumb.webp') : undefined;
 const dateModified = post.data.dateModified ?? post.data.datePublished;
 const wordCount = (remarkPluginFrontmatter as { wordCount?: number } | undefined)?.wordCount;
 
@@ -162,6 +165,24 @@ const toc = (headings ?? []).filter((h: { depth: number }) => h.depth === 2);
         By <span itemprop="author">{post.data.author}</span>
       </p>
     </header>
+
+    {heroImage && (
+      <figure class="mx-auto max-w-3xl px-6 mb-6">
+        <picture>
+          <source media="(min-width: 768px)" srcset={heroImage} type="image/webp" />
+          <img
+            src={heroThumb ?? heroImage}
+            alt={heroAlt}
+            width="1200"
+            height="630"
+            loading="eager"
+            decoding="async"
+            class="w-full h-auto rounded-md border border-rule"
+            itemprop="image"
+          />
+        </picture>
+      </figure>
+    )}
 
     {post.data.keyTakeaways.length > 0 && (
       <aside

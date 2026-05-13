@@ -120,21 +120,41 @@ const description = 'Seven free tools and three printable PDFs for short-term re
           <a href="/blog" class="text-sm text-ink2 hover:text-ink no-underline">All posts →</a>
         </div>
         <ul class="grid md:grid-cols-3 gap-6">
-          {latestPosts.map((p) => (
+          {latestPosts.map((p) => {
+            const thumbSrc = p.heroImage
+              ? p.heroImage.replace(/\/hero\.webp$/, '/thumb.webp')
+              : null;
+            return (
             <li>
               <a
                 href={`/blog/${p.slug}`}
-                class="block h-full border border-rule bg-parchment p-5 hover:border-accent transition-colors"
+                class="group block h-full border border-rule bg-parchment hover:border-accent transition-colors overflow-hidden"
               >
-                <div class="text-xs uppercase tracking-widest text-accent mb-2">
-                  {p.category}
+                {thumbSrc && (
+                  <div class="aspect-[1200/630] overflow-hidden bg-parchment-alt border-b border-rule">
+                    <img
+                      src={thumbSrc}
+                      alt={p.heroAlt ?? p.title}
+                      width="600"
+                      height="315"
+                      loading="lazy"
+                      decoding="async"
+                      class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
+                    />
+                  </div>
+                )}
+                <div class="p-5">
+                  <div class="text-xs uppercase tracking-widest text-accent mb-2">
+                    {p.category}
+                  </div>
+                  <div class="font-semibold leading-snug">{p.title}</div>
+                  <p class="text-ink2 text-sm mt-2 leading-snug">{p.description}</p>
+                  <div class="text-xs text-ink3 mt-3 font-mono">{p.readMinutes} min read</div>
                 </div>
-                <div class="font-semibold leading-snug">{p.title}</div>
-                <p class="text-ink2 text-sm mt-2 leading-snug">{p.description}</p>
-                <div class="text-xs text-ink3 mt-3 font-mono">{p.readMinutes} min read</div>
               </a>
             </li>
-          ))}
+            );
+          })}
         </ul>
       </div>
     </section>

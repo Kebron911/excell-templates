@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test --project=chromium",
     "typecheck": "astro check && tsc --noEmit",
-    "lint": "echo \"lint placeholder\""
+    "lint": "echo \"lint placeholder\"",
+    "hero": "node ./scripts/blog-hero.mjs"
   },
   "dependencies": {
     "@str/format": "workspace:*",

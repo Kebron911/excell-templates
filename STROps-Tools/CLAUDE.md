@@ -54,6 +54,8 @@ A footer block on every page links to the other three tool sites + The STR Ledge
 - **Tools are the magnet.** Repeat use is the moat. Optimize for "I need to do this every week" workflows.
 - **Affiliate placements are subtle** — ops audience is sophisticated and tunes out hard sells. Recommendations only after value delivered.
 
+- **Blog hero images are mandatory and automated.** Every post in `src/content/posts/*.mdx` must have a `heroImage` field. When creating a new post, run `pnpm hero -- src/content/posts/<slug>.mdx` **before committing** — it calls Gemini, writes 3 WebP variants to `public/images/blog/<slug>/`, and patches frontmatter. See `docs/CLUSTER-BLOG-STANDARD.md`.
+
 ## Things to Remember
 
 - Tech stack inherits from strhost.tools (Astro 4.x static, sister sub-brand) — but with PDF generation infrastructure added.

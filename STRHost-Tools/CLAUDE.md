@@ -101,6 +101,8 @@ strhost.tools      → Tools, calculators, blog
 - **Lead with weaknesses.** Flag SEO gaps, technical debt, and soft-funnel friction first.
 - **Backups religious.** Repo + deploy logs + content exports.
 
+- **Blog hero images are mandatory and automated.** Every post in `src/content/posts/*.mdx` must have a `heroImage` field. When creating a new post, run `pnpm hero -- src/content/posts/<slug>.mdx` **before committing** — it calls Gemini, writes 3 WebP variants to `public/images/blog/<slug>/`, and patches frontmatter. See `docs/CLUSTER-BLOG-STANDARD.md`.
+
 ## Things to Remember
 
 - Tech stack is **not yet decided** — open to Next.js (static export), Astro, or pure HTML+JS. Decide during planning based on programmatic page support, OG image generation, and embed-widget portability.

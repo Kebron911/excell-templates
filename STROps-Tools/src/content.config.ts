@@ -40,6 +40,8 @@ const posts = defineCollection({
     keyTakeaways: z.array(z.string()).default([]),
     faq: z.array(z.object({ q: z.string(), a: z.string() })).default([]),
     ogImage: z.string().optional(),
+    heroImage: z.string().optional(),
+    heroAlt: z.string().optional(),
   }),
 });
 
