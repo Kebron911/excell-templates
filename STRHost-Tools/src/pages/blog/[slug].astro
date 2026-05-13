@@ -5,6 +5,9 @@ import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import tools from '@/data/tools.json';
+import { magnetCopyFor } from '@/data/magnet-copy';
+
+const hostMagnetCopy = magnetCopyFor('str-host-income-report-2026');
 import { buildArticle } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import { getCollection, render } from 'astro:content';
@@ -172,6 +175,9 @@ const articleLd = buildArticle(siteConfig, {
       <EmailCaptureCard siteConfig={siteConfig}
         magnet="str-host-income-report-2026"
         toolSlug={`blog-${slug}`}
+        headline={hostMagnetCopy.headline}
+        blurb={hostMagnetCopy.blurb}
+        cta={hostMagnetCopy.cta}
       />
     </div>
 

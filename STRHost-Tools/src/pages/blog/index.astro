@@ -4,7 +4,10 @@ import { siteConfig } from '@/data/site.config';
 import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import { magnetCopyFor } from '@/data/magnet-copy';
 import { getCollection } from 'astro:content';
+
+const hostMagnetCopy = magnetCopyFor('str-host-income-report-2026');
 
 // Posts collection — sorted newest first.
 const all = await getCollection('posts');
@@ -107,6 +110,9 @@ const formatDate = (iso: string) =>
       <EmailCaptureCard siteConfig={siteConfig}
         magnet="str-host-income-report-2026"
         toolSlug="blog-index"
+        headline={hostMagnetCopy.headline}
+        blurb={hostMagnetCopy.blurb}
+        cta={hostMagnetCopy.cta}
       />
     </div>
   </section>
