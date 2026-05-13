@@ -132,7 +132,9 @@ if (DRY) {
 }
 
 // ─── call Gemini ───────────────────────────────────────────────────────────
-const endpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image-preview:generateContent';
+// Stable image-gen model. Override with GEMINI_IMAGE_MODEL to try gemini-3.1-flash-image-preview etc.
+const MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image';
+const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 const body = {
   contents: [{ role: 'user', parts: [{ text: prompt }] }],
   generationConfig: { responseModalities: ['IMAGE'], temperature: 0.85 },
