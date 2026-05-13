@@ -1,39 +1,35 @@
-# Post-Purchase Etsy Buyer Sequence (W23)
+# Paste Sheet — post-purchase-etsy-buyer
 
-**Spec reference:** PROGRESS.md P0.0 — "post-purchase Etsy buyer 10-email sequence (W23 fires this)"
-**Trigger:** Etsy order webhook → W01 sets `customer:etsy` tag → W23 fires this sequence
-**Audience:** every Etsy buyer of any individual SKU (NOT bundles — those have their own cross-sell)
-**Sequence length:** 10 emails over 60 days
-**Target outcomes:**
-- Etsy review requested + delivered (Days 5-9 sequence emails)
-- Email opt-in retained (`hello@` becomes welcome inbox, not Promotions)
-- 8-15% repeat-purchase rate within 60 days
-- Below 4% repeat = sequence rewrite
+> **Auto-generated from:** `copy\email-sequences\post-purchase-etsy-buyer.md`
+> **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
 
-**Tokens:**
-- `{{ first_name | default: "there" }}`
-- `{{ sku_code }}` — e.g., "TAX-001"
-- `{{ sku_label }}` — e.g., "STR Mileage Log"
-- `{{ bought_on }}`
-- `{{ order_ref }}`
-- `{{ link_etsy_review }}` — direct link to leave review on the specific order
-- `{{ link_thestrledger }}` — `https://thestrledger.com/?utm_source=email&utm_campaign=post-purchase&utm_content=email{N}`
-- `{{ xsell_name }}`, `{{ xsell_url }}` — auto-populated from cross-sell map
+## IS UI setup
 
-**Suppression:**
-- If customer files refund → exit, switch to `refund-recovery` sequence
-- If customer is on `bundle-cross:*` → run in parallel; bundle takes precedence on cross-sell email
-- If customer purchases a bundle → drop emails 8-10 (the cross-sell tail)
+1. **Automations → New Sequence**
+2. **Name:** `post-purchase-etsy-buyer`
+3. **Trigger:** When tag `customer:etsy` is added
+4. **Then add 10 email(s) below in order.** Set the delay per the header on each.
+5. **Save and Activate** when the last email is in.
+
+When done, mark this sequence done in your tracker.
 
 ---
 
-## Email 1 — Day 0 (within 5 minutes of order) — Order received + delivery
+### Email 1 of 10 — Order received + delivery
 
-**Subject:** Your {{ sku_label }} is ready (download + 3 things to read)
+- **Delay (set in IS):** Day 0 (within 5 minutes of order)
+- **Subject (copy):**
 
-**Preheader:** Order #{{ order_ref }}. Plus the one tab nobody opens until they need it.
+      Your {{ sku_label }} is ready (download + 3 things to read)
 
-```
+- **Preheader (copy):**
+
+      Order #{{ order_ref }}. Plus the one tab nobody opens until they need it.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN post-purchase-etsy-buyer EMAIL 1 -----8<-----
+
 Hey {{ first_name | default: "there" }},
 
 Order #{{ order_ref }} just landed. Here's what you do next:
@@ -59,17 +55,24 @@ Emily · The STR Ledger
 P.S. If this email landed in Promotions, drag it to Primary so the next 9 emails arrive in your main inbox. Email providers are weird about new senders.
 
 P.P.S. Anything broken in the file? Reply to this email — real humans, fast replies. We respond within 1 business day.
-```
 
----
+-----8<----- END EMAIL 1 -----8<-----
 
-## Email 2 — Day 2 — Use it on something specific
+### Email 2 of 10 — Use it on something specific
 
-**Subject:** Use {{ sku_label }} on this specific thing
+- **Delay (set in IS):** Day 2
+- **Subject (copy):**
 
-**Preheader:** Don't read the manual. Pick the one row that maps to a real situation.
+      Use {{ sku_label }} on this specific thing
 
-```
+- **Preheader (copy):**
+
+      Don't read the manual. Pick the one row that maps to a real situation.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN post-purchase-etsy-buyer EMAIL 2 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Most STR templates die on the desktop because the buyer never actually fills them out. The DEMO data is sample data; your data is real and feels different.
@@ -96,17 +99,24 @@ Two minutes of "real data, one row" beats two hours of "I'll customize everythin
 — Emily
 
 P.S. Stuck somewhere? Reply to this email with what you're stuck on. Real humans, fast replies.
-```
 
----
+-----8<----- END EMAIL 2 -----8<-----
 
-## Email 3 — Day 5 — The free 47-deductions guide (hero magnet pitch)
+### Email 3 of 10 — The free 47-deductions guide (hero magnet pitch)
 
-**Subject:** The 47 Airbnb tax deductions most hosts miss (free guide)
+- **Delay (set in IS):** Day 5
+- **Subject (copy):**
 
-**Preheader:** A reader of {{ sku_label }} sent me this. Most overlap with what you already track.
+      The 47 Airbnb tax deductions most hosts miss (free guide)
 
-```
+- **Preheader (copy):**
+
+      A reader of {{ sku_label }} sent me this. Most overlap with what you already track.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN post-purchase-etsy-buyer EMAIL 3 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Quick one. Free thing.
@@ -124,17 +134,24 @@ It pairs with {{ sku_label }} — the workbook tracks the deductions; the guide 
 — Emily
 
 P.S. The guide includes a companion Excel checklist. Captured? Y/N + YTD $ tracking per row. Same Excel + Google Sheets compatibility. Free with the PDF.
-```
 
----
+-----8<----- END EMAIL 3 -----8<-----
 
-## Email 4 — Day 9 — Etsy review request
+### Email 4 of 10 — Etsy review request
 
-**Subject:** Quick favor (worth 4 minutes of your morning)
+- **Delay (set in IS):** Day 9
+- **Subject (copy):**
 
-**Preheader:** Etsy reviews are how new sellers like me get found. Honest feedback only, including the tough kind.
+      Quick favor (worth 4 minutes of your morning)
 
-```
+- **Preheader (copy):**
+
+      Etsy reviews are how new sellers like me get found. Honest feedback only, including the tough kind.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN post-purchase-etsy-buyer EMAIL 4 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Quick ask.
@@ -156,17 +173,24 @@ That's it. No incentive, no discount, no nudge — Etsy ToS prohibits incentiviz
 — Emily
 
 P.S. Even if you don't leave a review: thank you for buying. Etsy sellers see who bought what; you supported a small operator + the templates you got back.
-```
 
----
+-----8<----- END EMAIL 4 -----8<-----
 
-## Email 5 — Day 14 — The 1 mistake your tax form makes
+### Email 5 of 10 — The 1 mistake your tax form makes
 
-**Subject:** The Schedule E mistake your tax form makes by default
+- **Delay (set in IS):** Day 14
+- **Subject (copy):**
 
-**Preheader:** TurboTax + H&R Block both default-categorize cleaning fees this way. It's wrong.
+      The Schedule E mistake your tax form makes by default
 
-```
+- **Preheader (copy):**
+
+      TurboTax + H&R Block both default-categorize cleaning fees this way. It's wrong.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN post-purchase-etsy-buyer EMAIL 5 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 A tax-day landmine specific to STR hosts:
@@ -186,17 +210,24 @@ If you did, run a sanity-check on last year's filing. Most hosts find at least o
 — Emily
 
 P.S. This is also why I built the 47-deductions guide. If you didn't grab it: [Download here]({{ link_thestrledger }}/47).
-```
 
----
+-----8<----- END EMAIL 5 -----8<-----
 
-## Email 6 — Day 21 — The cross-sell pivot
+### Email 6 of 10 — The cross-sell pivot
 
-**Subject:** Hosts who bought {{ sku_label }} usually grab this next
+- **Delay (set in IS):** Day 21
+- **Subject (copy):**
 
-**Preheader:** Not because I sell it. Because the math chains.
+      Hosts who bought {{ sku_label }} usually grab this next
 
-```
+- **Preheader (copy):**
+
+      Not because I sell it. Because the math chains.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN post-purchase-etsy-buyer EMAIL 6 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Three weeks in. Quick check-in.
@@ -221,17 +252,24 @@ If you've already bought it, ignore this. I'll send you something different on M
 — Emily
 
 P.S. If you're in the market for multiple workbooks, the bundles save more than à la carte: [Bundles overview]({{ link_thestrledger }}/bundles). Won't pitch the bundles directly in this sequence — that's a separate flow if you bought one of the bundle's component SKUs.
-```
 
----
+-----8<----- END EMAIL 6 -----8<-----
 
-## Email 7 — Day 30 — The single biggest STR tax trap
+### Email 7 of 10 — The single biggest STR tax trap
 
-**Subject:** The biggest tax trap for serious STR hosts (it's not what you think)
+- **Delay (set in IS):** Day 30
+- **Subject (copy):**
 
-**Preheader:** It's not depreciation. It's not the home office deduction. It's the schedule.
+      The biggest tax trap for serious STR hosts (it's not what you think)
 
-```
+- **Preheader (copy):**
+
+      It's not depreciation. It's not the home office deduction. It's the schedule.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN post-purchase-etsy-buyer EMAIL 7 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Quick story from a host I worked with last year.
@@ -253,17 +291,24 @@ The Self-Employment Tax Calculator (TAX-008) walks the decision cleanly. It also
 — Emily
 
 P.S. If you're sure you're Schedule E (no substantial services, no material participation flip), ignore. Most STR hosts ARE Schedule E. But knowing for sure beats assuming.
-```
 
----
+-----8<----- END EMAIL 7 -----8<-----
 
-## Email 8 — Day 40 — Bundle hint (light touch)
+### Email 8 of 10 — Bundle hint (light touch)
 
-**Subject:** Quick math: 4 STR workbooks for $97 (vs $138 à la carte)
+- **Delay (set in IS):** Day 40
+- **Subject (copy):**
 
-**Preheader:** Most buyers of {{ sku_label }} eventually grab 3-4 more. Bundle is cheaper.
+      Quick math: 4 STR workbooks for $97 (vs $138 à la carte)
 
-```
+- **Preheader (copy):**
+
+      Most buyers of {{ sku_label }} eventually grab 3-4 more. Bundle is cheaper.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN post-purchase-etsy-buyer EMAIL 8 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Math note.
@@ -285,17 +330,24 @@ If you don't need more right now, ignore. The à la carte SKUs stay available in
 — Emily
 
 P.S. Etsy doesn't carry the Portfolio Bundle (own-site only — premium tier). The First-Year and Year-2 bundles are on both.
-```
 
----
+-----8<----- END EMAIL 8 -----8<-----
 
-## Email 9 — Day 50 — Free guide reminder + soft cross-sell
+### Email 9 of 10 — Free guide reminder + soft cross-sell
 
-**Subject:** Did you grab the 47-deductions guide?
+- **Delay (set in IS):** Day 50
+- **Subject (copy):**
 
-**Preheader:** Some readers buy the workbook, skip the free guide, miss the deductions. Don't.
+      Did you grab the 47-deductions guide?
 
-```
+- **Preheader (copy):**
+
+      Some readers buy the workbook, skip the free guide, miss the deductions. Don't.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN post-purchase-etsy-buyer EMAIL 9 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Touchpoint check.
@@ -309,17 +361,24 @@ The PDF is the read-once version. The Excel checklist is the year-round capture 
 — Emily
 
 P.S. The Excel checklist's biggest value is the YTD $ rollup — running total of deductions captured across all 47 categories. Most hosts under-claim by $5-15K/year because they forget what they're entitled to. The checklist + the workbook you bought together close that gap.
-```
 
----
+-----8<----- END EMAIL 9 -----8<-----
 
-## Email 10 — Day 60 — Last note in this sequence + what's next
+### Email 10 of 10 — Last note in this sequence + what's next
 
-**Subject:** Last note in this sequence (subscribe to the newsletter?)
+- **Delay (set in IS):** Day 60
+- **Subject (copy):**
 
-**Preheader:** You'll hear less from me after this. Once a week if you stay subscribed.
+      Last note in this sequence (subscribe to the newsletter?)
 
-```
+- **Preheader (copy):**
+
+      You'll hear less from me after this. Once a week if you stay subscribed.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN post-purchase-etsy-buyer EMAIL 10 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Last email in the post-purchase sequence.
@@ -339,16 +398,5 @@ Thanks for buying {{ sku_label }}. Hope it's been useful.
 — Emily · The STR Ledger
 
 P.S. If you ever have a question, hit reply. Real humans, fast replies. Even after the sequences end.
-```
 
----
-
-## After sequence
-
-- **Tags set:** `customer:etsy:tenured` (off the cold-buyer flag)
-- **Newsletter:** customer remains subscribed unless they unsub via Email 10's link
-- **Cross-sell metrics tracked:** which email drove the second purchase (if any) — feeds REV-006-equivalent A/B for sequence iteration
-
-## Iteration log
-
-- `2026-05-05` — Initial draft. Email 4 (review request) is the most-converting in this sequence and has the highest cost-of-getting-wrong (negative reviews tank Etsy rank); voice deliberately frank + low-pressure. Email 7 (Schedule E vs C trap) is the highest-cross-sell email per spec — heaviest narrative payload. Email 10 funnel-out keeps deliverability healthy.
+-----8<----- END EMAIL 10 -----8<-----

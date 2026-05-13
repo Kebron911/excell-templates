@@ -1,32 +1,35 @@
-# Bundle Cross-Sell Sequence — First-Year Host Bundle
+# Paste Sheet — BUNDLE-01-first-year-host
 
-**Bundle:** BUNDLE-01 First-Year Host ($97 — saves $41 vs $138 à la carte)
-**Trigger:** customer bought ACQ-001 / ACQ-002 / OPS-003 / FIN-002 individually
-**Tag at entry:** `bundle-cross:first-year-host`
-**Sequence length:** 4 emails over 14 days
-**Target conversion:** 8-12% of triggered list to bundle purchase. Below 4% = sequence rewrite.
+> **Auto-generated from:** `copy\email-sequences\bundles\BUNDLE-01-first-year-host.md`
+> **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
 
-**Tokens:**
-- `{{ first_name | default: "there" }}`
-- `{{ sku_code }}` — the SKU that triggered the sequence (ACQ-001 / ACQ-002 / OPS-003 / FIN-002)
-- `{{ sku_label }}` — human-readable name
-- `{{ link_bundle }}` — `/p/bundles/first-year-host?utm_source=email&utm_campaign=bundle-cross-01&utm_content=email{N}`
-- `{{ bundle_credit_amount }}` — what they paid for the trigger SKU (auto-credited toward bundle)
+## IS UI setup
 
-**Suppression rules:**
-- If customer already owns the bundle, exit sequence
-- If customer has a refund pending on the trigger SKU, hold sequence until resolved
-- If customer is on `bundle-cross:portfolio` (higher-tier bundle), exit — Portfolio supersedes
+1. **Automations → New Sequence**
+2. **Name:** `BUNDLE-01-first-year-host`
+3. **Trigger:** When tag `bundle-cross:first-year-host` is added
+4. **Then add 4 email(s) below in order.** Set the delay per the header on each.
+5. **Save and Activate** when the last email is in.
+
+When done, mark this sequence done in your tracker.
 
 ---
 
-## Email 1 — Day 2 — "You bought one piece"
+### Email 1 of 4 — "You bought one piece"
 
-**Subject:** You just bought one piece of the first-year stack
+- **Delay (set in IS):** Day 2
+- **Subject (copy):**
 
-**Preheader:** The other three are the ones nobody tells you about until it's too late.
+      You just bought one piece of the first-year stack
 
-```
+- **Preheader (copy):**
+
+      The other three are the ones nobody tells you about until it's too late.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN BUNDLE-01-first-year-host EMAIL 1 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Couple days ago you grabbed {{ sku_label }}. Welcome — it's one of the four workbooks I built specifically for first-year STR hosts.
@@ -49,17 +52,24 @@ Note: your purchase of {{ sku_label }} (${{ bundle_credit_amount }}) credits tow
 — Emily · The STR Ledger
 
 P.S. If you bought {{ sku_label }} this week and you're not sure why I'm offering you a bundle that includes it: read it as a discounted upgrade, not a duplicate purchase. The math works because the bundle SKUs flow data into each other — cleaner than running them separately.
-```
 
----
+-----8<----- END EMAIL 1 -----8<-----
 
-## Email 2 — Day 7 — The first-year landmine you didn't think you had
+### Email 2 of 4 — The first-year landmine you didn't think you had
 
-**Subject:** The first-year STR landmine that hits 60% of new hosts
+- **Delay (set in IS):** Day 7
+- **Subject (copy):**
 
-**Preheader:** It's not the deal. It's not the launch. It's the thing your city's website buries on page 47.
+      The first-year STR landmine that hits 60% of new hosts
 
-```
+- **Preheader (copy):**
+
+      It's not the deal. It's not the launch. It's the thing your city's website buries on page 47.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN BUNDLE-01-first-year-host EMAIL 2 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Quick story.
@@ -81,17 +91,24 @@ Most hosts don't think they need permit tracking until they get the letter.
 — Emily
 
 P.S. The county didn't refund Sarah's fine. It took her tax filing for the next two years to absorb the hit. The workbook bundle is $97. The fine was $4,200. Math.
-```
 
----
+-----8<----- END EMAIL 2 -----8<-----
 
-## Email 3 — Day 11 — The cleanest version of the math
+### Email 3 of 4 — The cleanest version of the math
 
-**Subject:** Quick math on the bundle
+- **Delay (set in IS):** Day 11
+- **Subject (copy):**
 
-**Preheader:** $97 vs $138, plus the credit you've already paid.
+      Quick math on the bundle
 
-```
+- **Preheader (copy):**
+
+      $97 vs $138, plus the credit you've already paid.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN BUNDLE-01-first-year-host EMAIL 3 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Cutting straight today.
@@ -116,17 +133,24 @@ Here's what the other 3 do:
 — Emily
 
 P.S. Lifetime updates included on every workbook. When any one gets a new version, you get it automatically.
-```
 
----
+-----8<----- END EMAIL 3 -----8<-----
 
-## Email 4 — Day 14 — Last note
+### Email 4 of 4 — Last note
 
-**Subject:** Last note on the First-Year Bundle
+- **Delay (set in IS):** Day 14
+- **Subject (copy):**
 
-**Preheader:** I won't keep emailing about this. One last reminder.
+      Last note on the First-Year Bundle
 
-```
+- **Preheader (copy):**
+
+      I won't keep emailing about this. One last reminder.
+
+- **Body (copy everything between the lines below):**
+
+-----8<----- BEGIN BUNDLE-01-first-year-host EMAIL 4 -----8<-----
+
 {{ first_name | default: "Hey" }},
 
 Last note on the First-Year Host Bundle.
@@ -143,16 +167,5 @@ Talk Monday,
 Emily · The STR Ledger
 
 P.S. If you've already purchased the bundle, ignore this email — IS will catch up overnight and you'll be moved off this sequence by tomorrow.
-```
 
----
-
-## After sequence
-
-- **Tags set:** `bundle-cross:first-year-host:converted` (if purchased) OR `bundle-cross:first-year-host:declined` (if exited Day 14 without purchase)
-- **Next sequence trigger:** First-April-tax-moves (TAX-001 cross-sell if not already owned, otherwise general nurture)
-- **Suppression added:** customer won't see this same bundle sequence again for 12 months
-
-## Iteration log
-
-- `2026-05-05` — Initial draft. Email 2 uses a real-feeling story for OPS-003 angle (most-emotionally-charged of the 4). Math email Day 11 is the closer for analytical buyers; story email Day 7 is the closer for narrative buyers; redundancy is intentional.
+-----8<----- END EMAIL 4 -----8<-----
