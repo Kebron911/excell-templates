@@ -24,7 +24,7 @@ const bundlePaymentLink = import.meta.env.STRIPE_LINK_BUNDLE;
       <span class="price-mono text-lg" style="color: var(--color-mute); text-decoration: line-through;">${total}</span>
     </div>
 
-    <BuyButton price={bundlePrice} paymentLink={bundlePaymentLink} label="Buy the bundle" size="large" />
+    <BuyButton price={bundlePrice} paymentLink={bundlePaymentLink} sku="MAN-BUNDLE-01" label="Buy the bundle" size="large" />
     <p class="text-xs mt-4" style="color: var(--color-mute);">Instant download · 14-day refund · Free updates within v1</p>
   </section>
 
@@ -54,7 +54,7 @@ const bundlePaymentLink = import.meta.env.STRIPE_LINK_BUNDLE;
       <p class="eyebrow mb-4">Total package</p>
       <p class="text-2xl mb-2">{manuals.length} manuals · {totalPages} pages · 5 companion workbooks</p>
       <p class="mb-8" style="color: var(--color-mute);">For the price of a decent dinner.</p>
-      <BuyButton price={bundlePrice} paymentLink={bundlePaymentLink} label="Buy the bundle" size="large" />
+      <BuyButton price={bundlePrice} paymentLink={bundlePaymentLink} sku="MAN-BUNDLE-01" label="Buy the bundle" size="large" />
     </div>
   </section>
 </Base>

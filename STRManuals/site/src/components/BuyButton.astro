@@ -1,28 +1,49 @@
 ---
 // Path B (static-only): buyers go straight to Stripe-hosted payment
 // links (https://buy.stripe.com/...). No /api/checkout server round-trip.
-// `paymentLink` is the preferred prop; `stripePriceId` is kept as a
-// fallback in case a future caller wants to use the API checkout route
-// — but in static mode it falls back to # and is non-functional.
+//
+// `paymentLink` is required in production. If a STRIPE_LINK_* env var
+// is missing at build time and we tried to silently render a dead
+// button, customers would see a disabled CTA and bounce — that's a
+// worse failure mode than catching it at build time. So: hard-fail
+// the production build instead.
 interface Props {
   price: number;
   paymentLink?: string;
-  stripePriceId?: string;
+  /** Optional SKU for the build-error message — helps debug which env var is missing. */
+  sku?: string;
   label?: string;
   size?: 'default' | 'large';
 }
-const { price, paymentLink, stripePriceId, label = 'Buy', size = 'default' } = Astro.props;
-const href = paymentLink ?? (stripePriceId ? `/api/checkout?price=${stripePriceId}` : '#');
+const { price, paymentLink, sku, label = 'Buy', size = 'default' } = Astro.props;
+
+if (!paymentLink && import.meta.env.PROD) {
+  throw new Error(
+    `BuyButton: missing Stripe payment link${sku ? ` for ${sku}` : ''}. ` +
+    `Set the corresponding STRIPE_LINK_* env var before building. ` +
+    `See ops/strmanuals-stripe-results.csv for the value.`
+  );
+}
+
 const padding = size === 'large' ? '1rem 2rem' : '0.75rem 1.5rem';
 const fontSize = size === 'large' ? '1.0625rem' : '1rem';
-const disabled = href === '#';
+const isPlaceholder = !paymentLink;
 ---
-<a
-  href={href}
-  class="btn-primary"
-  style={`padding: ${padding}; font-size: ${fontSize};${disabled ? ' opacity: 0.5; pointer-events: none;' : ''}`}
-  data-stripe-price={stripePriceId}
-  aria-disabled={disabled ? 'true' : undefined}
->
-  {label} <span class="price-mono">— ${price}</span>
-</a>
+{isPlaceholder ? (
+  <span
+    class="btn-primary"
+    style={`padding: ${padding}; font-size: ${fontSize}; opacity: 0.5; cursor: not-allowed;`}
+    aria-disabled="true"
+    title="Stripe payment link not configured for this product yet"
+  >
+    Coming soon
+  </span>
+) : (
+  <a
+    href={paymentLink}
+    class="btn-primary"
+    style={`padding: ${padding}; font-size: ${fontSize};`}
+  >
+    {label} <span class="price-mono">— ${price}</span>
+  </a>
+)}

@@ -1,40 +1,83 @@
 ---
 import Base from '../layouts/Base.astro';
+
+// Path B (static-only): the customer's download link is delivered by
+// n8n W01b via email. This page is the "yes, the order went through"
+// landing — NOT the download UI. Stripe payment links should be
+// configured to land here with `?session_id={CHECKOUT_SESSION_ID}` so
+// we can show an order reference for support tickets.
+//
+// If you change behavior here, also update each Stripe payment link's
+// "After payment" URL in the Stripe dashboard.
 ---
-<Base title="Thanks for your purchase" description="Your manual is ready to download.">
+<Base title="Thanks for your purchase" description="Your manual is on its way to your inbox.">
   <section class="container-page py-24">
     <div class="max-w-2xl mx-auto text-center">
-      <p class="eyebrow mb-6">Order confirmed</p>
+      <p class="eyebrow mb-6" style="color: var(--color-accent-2);">Order confirmed</p>
       <h1 class="mb-6">Thank you.</h1>
       <p class="text-lg mb-10" style="color: var(--color-mute);">
-        Your download link is on its way to your inbox. You can also grab it below — the
-        link expires in 24 hours, but you can re-request anytime from
-        <a href="/downloads" class="underline">/downloads</a>.
+        Your download link is on its way to the email address you used at checkout.
+        Most arrive within 2 minutes; allow up to 10 if your inbox is busy.
       </p>
 
-      <div class="p-8 mb-12" style="background: var(--color-paper-2); border: 1px solid var(--color-rule);">
-        <p class="eyebrow mb-3">Your manual</p>
-        <h3 class="mb-4" id="manual-title">Loading...</h3>
-        <a href="#" class="btn-primary" id="download-link">Download PDF →</a>
+      <div class="p-8 mb-12 text-left" style="background: var(--color-paper-2); border: 1px solid var(--color-rule);">
+        <p class="eyebrow mb-3">If the email doesn't arrive</p>
+        <ul class="space-y-2 text-base" style="color: var(--color-mute);">
+          <li>— Check your Promotions or Spam folder, then drag it to Primary.</li>
+          <li>— The download link is valid for 7 days from purchase.</li>
+          <li>
+            — Still nothing? Email
+            <a href="mailto:hello@strmanuals.com" class="underline" style="color: var(--color-ink);">hello@strmanuals.com</a>
+            with your order reference (below) and we'll resend within a few hours.
+          </li>
+        </ul>
+        <p class="eyebrow mt-6 mb-2">Order reference</p>
+        <p class="price-mono text-sm" id="order-ref" style="color: var(--color-ink);">—</p>
       </div>
 
       <div class="text-left">
-        <p class="eyebrow mb-4">What's next</p>
+        <p class="eyebrow mb-4">While you wait</p>
         <ul class="space-y-4">
-          <li class="p-5" style="border: 1px solid var(--color-rule);">
-            <p class="font-medium mb-2">Open the companion workbook.</p>
-            <p class="text-sm" style="color: var(--color-mute);">
-              The PDF references a fillable Excel/Sheets template. Link is on the last page.
-            </p>
-          </li>
           <li class="p-5" style="border: 1px solid var(--color-rule);">
             <p class="font-medium mb-2">Block 60 minutes this week.</p>
             <p class="text-sm" style="color: var(--color-mute);">
-              These manuals are designed to be read in one sitting. Don't bookmark it for "later."
+              These manuals are designed to be read in one sitting. Don't bookmark it for "later" —
+              the value compounds from acting on it within the week.
+            </p>
+          </li>
+          <li class="p-5" style="border: 1px solid var(--color-rule);">
+            <p class="font-medium mb-2">The companion workbook link is on the last page.</p>
+            <p class="text-sm" style="color: var(--color-mute);">
+              Open the manual first, find the workbook URL on the back page, and fill it in
+              alongside reading.
             </p>
           </li>
         </ul>
       </div>
+
+      <p class="text-sm mt-12">
+        <a href="/" class="underline" style="color: var(--color-mute);">← Back to the library</a>
+      </p>
     </div>
   </section>
+
+  <script is:inline>
+    // Surface the Stripe session ID as an order reference for support emails.
+    // Stripe payment links substitute {CHECKOUT_SESSION_ID} at redirect time
+    // when the payment link's "After payment" URL is set to
+    // https://strmanuals.com/thank-you?session_id={CHECKOUT_SESSION_ID}
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var sid = params.get('session_id');
+      var el = document.getElementById('order-ref');
+      if (!el) return;
+      if (sid) {
+        // Last 12 chars: short enough to read on a phone, unique enough
+        // for n8n/Stripe ops to search by suffix.
+        el.textContent = sid.slice(-12).toUpperCase();
+      } else {
+        el.textContent = 'Not available — use the order confirmation in your email instead.';
+      }
+    })();
+  </script>
 </Base>

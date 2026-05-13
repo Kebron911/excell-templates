@@ -29,6 +29,8 @@ const navLink = (p: typeof newer) =>
     slug: p.id.replace(/\.mdx$/, ''),
     title: p.data.title,
     readMinutes: p.data.readMinutes,
+    heroImage: p.data.heroImage,
+    heroAlt: p.data.heroAlt,
   };
 const newerLink = navLink(newer);
 const olderLink = navLink(older);
@@ -116,26 +118,46 @@ const breadcrumbLd = buildBreadcrumb(siteConfig, [
       <nav class="mx-auto max-w-3xl px-5 mt-9" aria-label="Other posts">
         <p class="label text-navy">Keep reading</p>
         <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-          {newerLink ? (
+          {newerLink ? (() => {
+            const thumb = newerLink.heroImage?.replace(/\/hero\.webp$/, '/thumb.webp');
+            return (
             <a
               href={`/blog/${newerLink.slug}/`}
-              class="group block rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-accent hover:shadow-card transition-all"
+              class="group block rounded-md border border-rule bg-parchment-light no-underline hover:border-accent hover:shadow-card transition-all overflow-hidden"
             >
-              <p class="text-caption text-accent">← Newer</p>
-              <p class="mt-1 font-serif text-h3 text-navy leading-snug group-hover:text-accent">{newerLink.title}</p>
-              <p class="mt-2 text-caption text-ink-3 font-mono">{newerLink.readMinutes} min read</p>
+              {thumb && (
+                <div class="aspect-[1200/630] overflow-hidden bg-parchment-alt border-b border-rule">
+                  <img src={thumb} alt={newerLink.heroAlt ?? newerLink.title} width="600" height="315" loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-std group-hover:scale-[1.02]" />
+                </div>
+              )}
+              <div class="p-4">
+                <p class="text-caption text-accent">← Newer</p>
+                <p class="mt-1 font-serif text-h3 text-navy leading-snug group-hover:text-accent">{newerLink.title}</p>
+                <p class="mt-2 text-caption text-ink-3 font-mono">{newerLink.readMinutes} min read</p>
+              </div>
             </a>
-          ) : <span aria-hidden="true" />}
-          {olderLink ? (
+            );
+          })() : <span aria-hidden="true" />}
+          {olderLink ? (() => {
+            const thumb = olderLink.heroImage?.replace(/\/hero\.webp$/, '/thumb.webp');
+            return (
             <a
               href={`/blog/${olderLink.slug}/`}
-              class="group block rounded-md border border-rule bg-parchment-light p-4 no-underline hover:border-accent hover:shadow-card transition-all md:text-right"
+              class="group block rounded-md border border-rule bg-parchment-light no-underline hover:border-accent hover:shadow-card transition-all overflow-hidden md:text-right"
             >
-              <p class="text-caption text-accent">Older →</p>
-              <p class="mt-1 font-serif text-h3 text-navy leading-snug group-hover:text-accent">{olderLink.title}</p>
-              <p class="mt-2 text-caption text-ink-3 font-mono">{olderLink.readMinutes} min read</p>
+              {thumb && (
+                <div class="aspect-[1200/630] overflow-hidden bg-parchment-alt border-b border-rule">
+                  <img src={thumb} alt={olderLink.heroAlt ?? olderLink.title} width="600" height="315" loading="lazy" decoding="async" class="w-full h-full object-cover transition-transform duration-std group-hover:scale-[1.02]" />
+                </div>
+              )}
+              <div class="p-4">
+                <p class="text-caption text-accent">Older →</p>
+                <p class="mt-1 font-serif text-h3 text-navy leading-snug group-hover:text-accent">{olderLink.title}</p>
+                <p class="mt-2 text-caption text-ink-3 font-mono">{olderLink.readMinutes} min read</p>
+              </div>
             </a>
-          ) : <span aria-hidden="true" />}
+            );
+          })() : <span aria-hidden="true" />}
         </div>
       </nav>
     )}

@@ -4,13 +4,26 @@ interface Props {
   subhead?: string;
   cta?: string;
   variant?: 'block' | 'inline';
+  /** n8n webhook path (under PUBLIC_N8N_WEBHOOK_BASE). Default = the tax-loophole lead magnet (W08). */
+  webhookPath?: string;
 }
 const {
   heading = 'Free: The STR Tax Loophole Explainer',
   subhead = "The 8-page primer pulled from chapter 1 of the playbook. We'll send one new manual preview every other week.",
   cta = 'Send me the PDF',
   variant = 'block',
+  webhookPath = '/webhook/lead-magnet-strmanuals-tax-explainer',
 } = Astro.props;
+
+// Path B: form posts directly to n8n (same pattern as /free). PUBLIC_-prefixed
+// env is inlined at build time. Build hard-fails below if missing.
+const N8N_BASE = import.meta.env.PUBLIC_N8N_WEBHOOK_BASE ?? '';
+if (!N8N_BASE && import.meta.env.PROD) {
+  throw new Error('EmailCapture: PUBLIC_N8N_WEBHOOK_BASE is required in production builds');
+}
+const formAction = N8N_BASE
+  ? `${N8N_BASE.replace(/\/$/, '')}${webhookPath}`
+  : '#';
 ---
 <section
   class={variant === 'block' ? 'container-page py-16' : ''}
@@ -23,7 +36,7 @@ const {
     <h2 class="mb-3" style="font-size: 2rem;">{heading}</h2>
     <p class="measure mb-6" style="color: var(--color-mute);">{subhead}</p>
     <form
-      action="/api/subscribe"
+      action={formAction}
       method="POST"
       class="flex flex-col sm:flex-row gap-3 max-w-2xl"
     >

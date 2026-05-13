@@ -80,7 +80,7 @@ const pageLds = [productLd, breadcrumbLd, ...(faqLd ? [faqLd] : [])];
           <span class="price-mono" style="font-size: 1.75rem;">${d.price}</span>
           <span class="price-mono text-sm" style="color: var(--color-mute);">{d.pages} pages</span>
         </div>
-        <BuyButton price={d.price} paymentLink={resolvedPaymentLink} size="large" />
+        <BuyButton price={d.price} paymentLink={resolvedPaymentLink} sku={d.sku} size="large" />
         <p class="text-xs mt-4" style="color: var(--color-mute);">Instant download · 14-day refund · Free updates within v1</p>
       </div>
     </div>
@@ -177,11 +177,11 @@ const pageLds = [productLd, breadcrumbLd, ...(faqLd ? [faqLd] : [])];
   <section class="container-page py-12 text-center" style="border-top: 1px solid var(--color-rule);">
     <p class="eyebrow mb-4">{d.sku}</p>
     <h2 class="mb-6">{d.title}</h2>
-    <BuyButton price={d.price} stripePriceId={d.stripePriceId} size="large" />
+    <BuyButton price={d.price} paymentLink={resolvedPaymentLink} sku={d.sku} size="large" />
   </section>
 
   <!-- Related -->
-  <section class="container-page py-16" style="border-top: 1px solid var(--color-rule);">
+  <section class="container-page py-16 pb-24 md:pb-16" style="border-top: 1px solid var(--color-rule);">
     <p class="eyebrow mb-6">Related manuals</p>
     <div class="grid md:grid-cols-2 gap-6">
       {related.map((r) => (
@@ -194,6 +194,30 @@ const pageLds = [productLd, breadcrumbLd, ...(faqLd ? [faqLd] : [])];
       ))}
     </div>
   </section>
+
+  {/* Mobile sticky Buy bar — visible only below md breakpoint, where the
+       PDP scrolls past the initial hero CTA. Hidden on desktop where the
+       buy section is in the sidebar above the fold. */}
+  {resolvedPaymentLink && (
+    <div
+      class="md:hidden fixed inset-x-0 bottom-0 z-40 shadow-lg"
+      style="background: var(--color-paper); border-top: 1px solid var(--color-rule);"
+    >
+      <div class="flex items-center justify-between gap-3 px-4 py-3">
+        <div class="min-w-0 flex-1">
+          <p class="text-xs truncate" style="color: var(--color-mute);">{d.title}</p>
+          <p class="price-mono" style="font-size: 1.125rem;">${d.price}</p>
+        </div>
+        <a
+          href={resolvedPaymentLink}
+          class="btn-primary whitespace-nowrap"
+          style="padding: 0.75rem 1.25rem; font-size: 0.9375rem;"
+        >
+          Buy →
+        </a>
+      </div>
+    </div>
+  )}
 </Base>
 
 <style>
