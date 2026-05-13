@@ -7,6 +7,7 @@ import LinenParCalculator from '@components/calculators/LinenParCalculator.tsx';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@components/funnel/RelatedPosts.astro';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
@@ -35,6 +36,7 @@ const faqs = [
       <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>
       <p>For each bedroom we multiply by your sheet-sets-per-bed (default 3 — one on the bed, one in the wash, one on the shelf). For bathrooms we multiply by towel-sets-per-bath. The king/queen split lets you separate sheet purchases by size.</p>
+      <RelatedPosts toolKey="linen-par-calculator" variant="section" />
       <EmailCaptureCard siteConfig={siteConfig} magnet="supply-par" toolSlug="linen-par-calculator" />
       <h2>How to use this tool</h2>
       <ol>

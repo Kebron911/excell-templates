@@ -7,6 +7,7 @@ import SmartLockCodes from '@components/calculators/SmartLockCodes.tsx';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@components/funnel/RelatedPosts.astro';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
@@ -36,6 +37,7 @@ const faqs = [
       <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>
       <p>We compute HMAC-SHA-256 of your booking ID using your secret as the key, then take the result mod 10^digits and zero-pad to length. The output is deterministic and unique-by-booking — no storage required.</p>
+      <RelatedPosts toolKey="smart-lock-codes" variant="section" />
       <EmailCaptureCard siteConfig={siteConfig} magnet="cleaner-sop" toolSlug="smart-lock-codes" />
       <h2>How to use this tool</h2>
       <ol>

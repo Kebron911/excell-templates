@@ -7,6 +7,7 @@ import RestockCalculator from '@components/calculators/RestockCalculator.tsx';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@components/funnel/RelatedPosts.astro';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
@@ -34,6 +35,7 @@ const faqs = [
       <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>
       <p>Per-item usage = bookings/month × guests/stay × avg nights × per-guest-night rate. Multiply by 12 for the annual figure. The result is your purchasing baseline — adjust for the long tail (storage, gifts, breakage) per item.</p>
+      <RelatedPosts toolKey="restock-calculator" variant="section" />
       <EmailCaptureCard siteConfig={siteConfig} magnet="supply-par" toolSlug="restock-calculator" />
       <h2>How to use this tool</h2>
       <ol>
