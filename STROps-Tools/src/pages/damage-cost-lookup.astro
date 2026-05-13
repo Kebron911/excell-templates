@@ -7,6 +7,7 @@ import DamageCostLookup from '@components/calculators/DamageCostLookup.tsx';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@components/funnel/RelatedPosts.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 
@@ -32,6 +33,7 @@ const faqs = [
       <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>
       <p>Each row is a hand-compiled retail mid-market price range plus expected lifespan. Click any row to open the deep-dive page for that item with brand recommendations and how-to-replace guidance.</p>
+      <RelatedPosts toolKey="damage-cost-lookup" variant="section" />
       <EmailCaptureCard siteConfig={siteConfig} magnet="maintenance-checklist" toolSlug="damage-cost-lookup" />
       <h2>FAQ</h2>
       {faqs.map(f => <div><h3>{f.q}</h3><p>{f.a}</p></div>)}

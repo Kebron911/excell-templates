@@ -6,6 +6,7 @@ import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import AffiliateBlock from '@/components/affiliate/AffiliateBlock.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@/components/funnel/RelatedPosts.astro';
 import DscrCalculator from '@/components/calculators/DscrCalculator.tsx';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
@@ -102,6 +103,7 @@ const jsonLd = [
           ))}
         </section>
 
+        <RelatedPosts toolKey="dscr" variant="section" />
         <EmailCaptureCard siteConfig={siteConfig} magnet="str-buyer-playbook" toolSlug="dscr-calculator" />
         <STRLedgerCTA siteConfig={siteConfig} tool="dscr-calculator" />
 

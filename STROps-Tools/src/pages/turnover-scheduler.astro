@@ -7,6 +7,7 @@ import TurnoverScheduler from '@components/calculators/TurnoverScheduler.tsx';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@components/funnel/RelatedPosts.astro';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
@@ -36,6 +37,7 @@ const faqs = [
       <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>
       <p>Each booking gets a check-out time of 11:00 UTC and the next a check-in of 15:00 UTC. We sort per-property, compute the gap in hours, and flag any below your "turnover hours required" threshold. Same-property check-out before the previous check-out is reported as a conflict.</p>
+      <RelatedPosts toolKey="turnover-scheduler" variant="section" />
       <EmailCaptureCard siteConfig={siteConfig} magnet="cleaner-sop" toolSlug="turnover-scheduler" />
       <h2>How to use this tool</h2>
       <ol>

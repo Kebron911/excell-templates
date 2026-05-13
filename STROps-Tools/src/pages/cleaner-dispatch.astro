@@ -7,6 +7,7 @@ import CleanerDispatch from '@components/calculators/CleanerDispatch.tsx';
 import AdSlot from '@str/ui-funnel/AdSlot.astro';
 import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
+import RelatedPosts from '@components/funnel/RelatedPosts.astro';
 import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
@@ -35,6 +36,7 @@ const faqs = [
       <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>
       <p>Each turnover is paired with the next cleaner in your roster, cycling through the list. The SMS template fills cleaner name, address, date, and bedroom count. Download the dispatch sheet as a PDF for printing, or copy the SMS lines into your messaging app.</p>
+      <RelatedPosts toolKey="cleaner-dispatch" variant="section" />
       <EmailCaptureCard siteConfig={siteConfig} magnet="cleaner-sop" toolSlug="cleaner-dispatch" />
       <h2>How to use this tool</h2>
       <ol>
