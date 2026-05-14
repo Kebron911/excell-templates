@@ -1,0 +1,1048 @@
+{
+  "scraped_at": "2026-05-14T12:51:13.358Z",
+  "category_id": "360003438411",
+  "category_url": "https://help.influencersoft.com/hc/en-us/categories/360003438411-General",
+  "sections": [
+    {
+      "id": 360010796951,
+      "name": "Funnels",
+      "url": "https://help.influencersoft.com/hc/en-us/sections/360010796951-Funnels",
+      "position": 0,
+      "articles": [
+        {
+          "id": 360050387592,
+          "title": "Funnel Categories",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050387592-Funnel-Categories"
+        },
+        {
+          "id": 360050387612,
+          "title": "Getting Started With Funnels ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050387612-Getting-Started-With-Funnels"
+        },
+        {
+          "id": 360050850731,
+          "title": "How to Create and Edit a Sales Funnel",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050850731-How-to-Create-and-Edit-a-Sales-Funnel"
+        }
+      ]
+    },
+    {
+      "id": 360009245591,
+      "name": "API 1.0",
+      "url": "https://help.influencersoft.com/hc/en-us/sections/360009245591-API-1-0",
+      "position": 4,
+      "articles": [
+        {
+          "id": 360050671852,
+          "title": "AddGood. Creating a New Product",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050671852-AddGood-Creating-a-New-Product"
+        },
+        {
+          "id": 360050392312,
+          "title": "API Response Statuses, Codes, and Descriptions ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050392312-API-Response-Statuses-Codes-and-Descriptions"
+        },
+        {
+          "id": 360050435412,
+          "title": "API: Adding a Contact to a Group ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050435412-API-Adding-a-Contact-to-a-Group"
+        },
+        {
+          "id": 360050903411,
+          "title": "API: Getting the Number of Store’s/Group’s Contacts ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050903411-API-Getting-the-Number-of-Store-s-Group-s-Contacts"
+        },
+        {
+          "id": 360050867391,
+          "title": "Countries’ Identifiers ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050867391-Countries-Identifiers"
+        },
+        {
+          "id": 360050502452,
+          "title": "CreateOrder. Creating a New Invoice ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050502452-CreateOrder-Creating-a-New-Invoice"
+        },
+        {
+          "id": 360051022491,
+          "title": "Creating and Canceling the Invoice Script Notification ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051022491-Creating-and-Canceling-the-Invoice-Script-Notification"
+        },
+        {
+          "id": 360050672152,
+          "title": "DeleteGood. Deleting a Product",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050672152-DeleteGood-Deleting-a-Product"
+        },
+        {
+          "id": 360050556792,
+          "title": "DeleteOrder. Deleting/Hiding an Invoice ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050556792-DeleteOrder-Deleting-Hiding-an-Invoice"
+        },
+        {
+          "id": 360050901211,
+          "title": "DeleteSubscribe. Unsubscribe a Contact from a Group",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050901211-DeleteSubscribe-Unsubscribe-a-Contact-from-a-Group"
+        },
+        {
+          "id": 360050867731,
+          "title": "Enabling API to Get Started",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050867731-Enabling-API-to-Get-Started"
+        },
+        {
+          "id": 360050868031,
+          "title": "General Principles of Working with API",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050868031-General-Principles-of-Working-with-API"
+        },
+        {
+          "id": 360051157731,
+          "title": "GetAllGoods. Getting a List of All Products",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051157731-GetAllGoods-Getting-a-List-of-All-Products"
+        },
+        {
+          "id": 360050436312,
+          "title": "GetAllGroups. Receiving a List of All Contact Groups from the Account",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050436312-GetAllGroups-Receiving-a-List-of-All-Contact-Groups-from-the-Account"
+        },
+        {
+          "id": 360050557192,
+          "title": "GetBills. Receiving a List of Invoices and Its Data by Customer’s Email",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050557192-GetBills-Receiving-a-List-of-Invoices-and-Its-Data-by-Customer-s-Email"
+        },
+        {
+          "id": 360050902811,
+          "title": "GetLeadGroups. Receiving a List of All Contact Groups",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050902811-GetLeadGroups-Receiving-a-List-of-All-Contact-Groups"
+        },
+        {
+          "id": 360050901691,
+          "title": "GetLeadGroupStatuses. Receiving a List of All Contact Groups with a Subscription Status ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050901691-GetLeadGroupStatuses-Receiving-a-List-of-All-Contact-Groups-with-a-Subscription-Status"
+        },
+        {
+          "id": 360050558052,
+          "title": "GetOrderDetails. Getting Detailed Invoice Information",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050558052-GetOrderDetails-Getting-Detailed-Invoice-Information"
+        },
+        {
+          "id": 360050664772,
+          "title": "GetOrderInfo. Getting Invoice Information ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050664772-GetOrderInfo-Getting-Invoice-Information"
+        },
+        {
+          "id": 360051149571,
+          "title": "GetOrders. Getting a List of All Invoices ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051149571-GetOrders-Getting-a-List-of-All-Invoices"
+        },
+        {
+          "id": 360051149651,
+          "title": "GetOrdersWithGoods. Getting a Maximally Detailed List of All Accounts",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051149651-GetOrdersWithGoods-Getting-a-Maximally-Detailed-List-of-All-Accounts"
+        },
+        {
+          "id": 360050671232,
+          "title": "GetPartnerStats. Get Partner’s Statistics ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050671232-GetPartnerStats-Get-Partner-s-Statistics"
+        },
+        {
+          "id": 360050406312,
+          "title": "Integration with Zapier.com",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050406312-Integration-with-Zapier-com"
+        },
+        {
+          "id": 360050672292,
+          "title": "PostBack Notifications",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050672292-PostBack-Notifications"
+        },
+        {
+          "id": 360050665012,
+          "title": "Script Notification for Prepayment of the Invoice, for Its Paying Off, and for Refund (Moneyback) ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050665012-Script-Notification-for-Prepayment-of-the-Invoice-for-Its-Paying-Off-and-for-Refund-Moneyback"
+        },
+        {
+          "id": 360050437792,
+          "title": "The Script Notification When Subscribing for Your Newsletters ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050437792-The-Script-Notification-When-Subscribing-for-Your-Newsletters"
+        },
+        {
+          "id": 360050443012,
+          "title": "The Script Notification When Unsubscribing from Your Newsletters ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050443012-The-Script-Notification-When-Unsubscribing-from-Your-Newsletters"
+        },
+        {
+          "id": 360050672212,
+          "title": "UpdateGood. Changing the Settings of the Existing Product ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050672212-UpdateGood-Changing-the-Settings-of-the-Existing-Product"
+        },
+        {
+          "id": 360050670752,
+          "title": "UpdateOrderStatus. Changing Invoice Status ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050670752-UpdateOrderStatus-Changing-Invoice-Status"
+        },
+        {
+          "id": 360050501952,
+          "title": "UpdateSubscriberData. Editing the Existing Contact’s Data ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050501952-UpdateSubscriberData-Editing-the-Existing-Contact-s-Data"
+        }
+      ]
+    },
+    {
+      "id": 360012725711,
+      "name": "API 2.0",
+      "url": "https://help.influencersoft.com/hc/en-us/sections/360012725711-API-2-0",
+      "position": 5,
+      "articles": [
+        {
+          "id": 360058445991,
+          "title": "Adding tags to a contact – addtagtolead",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360058445991-Adding-tags-to-a-contact-addtagtolead"
+        },
+        {
+          "id": 360057803232,
+          "title": "Create or edit a contact – addupdatelead",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360057803232-Create-or-edit-a-contact-addupdatelead"
+        },
+        {
+          "id": 360058446851,
+          "title": "Get a list of additional users – getpersonalmanagers",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360058446851-Get-a-list-of-additional-users-getpersonalmanagers"
+        },
+        {
+          "id": 360058447251,
+          "title": "Getting a list of all coupons (discounts) – getcoupons",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360058447251-Getting-a-list-of-all-coupons-discounts-getcoupons"
+        },
+        {
+          "id": 360057987072,
+          "title": "Getting a list of groups (subscriptions) – getalllists",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360057987072-Getting-a-list-of-groups-subscriptions-getalllists"
+        },
+        {
+          "id": 360057987312,
+          "title": "Getting a list of products – getgoods",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360057987312-Getting-a-list-of-products-getgoods"
+        },
+        {
+          "id": 360058446591,
+          "title": "Order creation – createorder",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360058446591-Order-creation-createorder"
+        },
+        {
+          "id": 360058445811,
+          "title": "Removing a contact from a group – removeleadfromlist",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360058445811-Removing-a-contact-from-a-group-removeleadfromlist"
+        },
+        {
+          "id": 360057986352,
+          "title": "Removing tags from a contact – removetagfromlead",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360057986352-Removing-tags-from-a-contact-removetagfromlead"
+        },
+        {
+          "id": 360058281031,
+          "title": "What if I’m not a programmer? (API 2.0)",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360058281031-What-if-I-m-not-a-programmer-API-2-0"
+        }
+      ]
+    },
+    {
+      "id": 360009245531,
+      "name": "Advertise",
+      "url": "https://help.influencersoft.com/hc/en-us/sections/360009245531-Advertise",
+      "position": 6,
+      "articles": [
+        {
+          "id": 360050852531,
+          "title": "Advertising Blanks for Partner Registration ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050852531-Advertising-Blanks-for-Partner-Registration"
+        },
+        {
+          "id": 360050391032,
+          "title": "Contact the Author ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050391032-Contact-the-Author"
+        },
+        {
+          "id": 360050852691,
+          "title": "How to Add Instructions in the Partner's Cabinet",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050852691-How-to-Add-Instructions-in-the-Partner-s-Cabinet"
+        },
+        {
+          "id": 360050391392,
+          "title": "Leads ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050391392-Leads"
+        },
+        {
+          "id": 360050391492,
+          "title": "Offers",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050391492-Offers"
+        },
+        {
+          "id": 360050391512,
+          "title": "Orders",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050391512-Orders"
+        },
+        {
+          "id": 360050391592,
+          "title": "Partner’s Cabinet ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050391592-Partner-s-Cabinet"
+        },
+        {
+          "id": 360050852851,
+          "title": "Partners from You ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050852851-Partners-from-You"
+        },
+        {
+          "id": 360050852971,
+          "title": "Payments ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050852971-Payments"
+        },
+        {
+          "id": 360050853051,
+          "title": "Promotional Drafts for Free Products",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050853051-Promotional-Drafts-for-Free-Products"
+        },
+        {
+          "id": 360050391872,
+          "title": "Promotional Drafts for Paid Products",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050391872-Promotional-Drafts-for-Paid-Products"
+        },
+        {
+          "id": 360050853351,
+          "title": "Referrals ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050853351-Referrals"
+        }
+      ]
+    },
+    {
+      "id": 360009245511,
+      "name": "Affiliates",
+      "url": "https://help.influencersoft.com/hc/en-us/sections/360009245511-Affiliates",
+      "position": 7,
+      "articles": [
+        {
+          "id": 360050526631,
+          "title": "Adding and Editing Free Products",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050526631-Adding-and-Editing-Free-Products"
+        },
+        {
+          "id": 360050065912,
+          "title": "Adding the Commissions for the Selected Partner ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050065912-Adding-the-Commissions-for-the-Selected-Partner"
+        },
+        {
+          "id": 360050057752,
+          "title": "Affiliate Management and Reporting ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050057752-Affiliate-Management-and-Reporting"
+        },
+        {
+          "id": 360050852111,
+          "title": "Drafts for Partners. Adding and Editing a Subscription Form ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050852111-Drafts-for-Partners-Adding-and-Editing-a-Subscription-Form"
+        },
+        {
+          "id": 360050390452,
+          "title": "Drafts for Partners. Adding and Editing an Advertising Banner ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050390452-Drafts-for-Partners-Adding-and-Editing-an-Advertising-Banner"
+        },
+        {
+          "id": 360050390592,
+          "title": "Drafts for Partners. Adding and Editing an Advertising Text ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050390592-Drafts-for-Partners-Adding-and-Editing-an-Advertising-Text"
+        },
+        {
+          "id": 360050390812,
+          "title": "How to Setup an Affiliate Program",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050390812-How-to-Setup-an-Affiliate-Program"
+        },
+        {
+          "id": 360050525811,
+          "title": "Paying Off the Commissions to the Partner ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050525811-Paying-Off-the-Commissions-to-the-Partner"
+        },
+        {
+          "id": 360050525831,
+          "title": "Promo for Affiliates. Free Product Promotional Materials ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050525831-Promo-for-Affiliates-Free-Product-Promotional-Materials"
+        },
+        {
+          "id": 360050065192,
+          "title": "Promo for Affiliates. Multi-leveled Affiliates Program Promotional Materials ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050065192-Promo-for-Affiliates-Multi-leveled-Affiliates-Program-Promotional-Materials"
+        },
+        {
+          "id": 360050525951,
+          "title": "Promo for Affiliates. Paid Product Promotional Materials ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050525951-Promo-for-Affiliates-Paid-Product-Promotional-Materials"
+        },
+        {
+          "id": 360050526011,
+          "title": "Promotional Materials for Attracting the Partners ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050526011-Promotional-Materials-for-Attracting-the-Partners"
+        },
+        {
+          "id": 360050852291,
+          "title": "Selected Free Product Promotional Materials ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050852291-Selected-Free-Product-Promotional-Materials"
+        },
+        {
+          "id": 360050852311,
+          "title": "Selected Paid Product Promotional Materials ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050852311-Selected-Paid-Product-Promotional-Materials"
+        },
+        {
+          "id": 360051189571,
+          "title": "Settings of the Partner Profile",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051189571-Settings-of-the-Partner-Profile"
+        },
+        {
+          "id": 360050526431,
+          "title": "The Commissions for the Selected Partner ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050526431-The-Commissions-for-the-Selected-Partner"
+        },
+        {
+          "id": 360050852331,
+          "title": "The History of Payments to Partners ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050852331-The-History-of-Payments-to-Partners"
+        }
+      ]
+    },
+    {
+      "id": 360009133772,
+      "name": "Reports",
+      "url": "https://help.influencersoft.com/hc/en-us/sections/360009133772-Reports",
+      "position": 8,
+      "articles": [
+        {
+          "id": 360051073692,
+          "title": "Advertising (The Efficiency of the Advertising Campaign)",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051073692-Advertising-The-Efficiency-of-the-Advertising-Campaign"
+        },
+        {
+          "id": 360051073652,
+          "title": "How to Import Expenses into your Reports",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051073652-How-to-Import-Expenses-into-your-Reports"
+        },
+        {
+          "id": 360051550771,
+          "title": "New Campaign ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051550771-New-Campaign"
+        },
+        {
+          "id": 360051187591,
+          "title": "Payments to the Managers",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051187591-Payments-to-the-Managers"
+        },
+        {
+          "id": 360050698152,
+          "title": "Sales Department Statistics",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050698152-Sales-Department-Statistics"
+        },
+        {
+          "id": 360051185591,
+          "title": "Sales Funnel Analytics",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051185591-Sales-Funnel-Analytics"
+        },
+        {
+          "id": 360051187031,
+          "title": "Sales Statistics (Sales Report)",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051187031-Sales-Statistics-Sales-Report"
+        },
+        {
+          "id": 360050696792,
+          "title": "Statistics via Email",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050696792-Statistics-via-Email"
+        },
+        {
+          "id": 360050855011,
+          "title": "Subscription Statistics ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050855011-Subscription-Statistics"
+        },
+        {
+          "id": 360050699852,
+          "title": "The Sales Funnel – Additional Fields",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050699852-The-Sales-Funnel-Additional-Fields"
+        },
+        {
+          "id": 360051185971,
+          "title": "The Sales Funnels – Cohorts",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051185971-The-Sales-Funnels-Cohorts"
+        },
+        {
+          "id": 360051185531,
+          "title": "The Sales Funnels – Making a Funnel",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051185531-The-Sales-Funnels-Making-a-Funnel"
+        },
+        {
+          "id": 360051186891,
+          "title": "The Sales Funnels – Sources",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051186891-The-Sales-Funnels-Sources"
+        }
+      ]
+    },
+    {
+      "id": 360009245471,
+      "name": "Courses",
+      "url": "https://help.influencersoft.com/hc/en-us/sections/360009245471-Courses",
+      "position": 9,
+      "articles": [
+        {
+          "id": 360050398132,
+          "title": "Course Pricing Plan ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050398132-Course-Pricing-Plan"
+        },
+        {
+          "id": 360050694052,
+          "title": "Creating and Editing the Lessons in Web Page Designer Tool",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050694052-Creating-and-Editing-the-Lessons-in-Web-Page-Designer-Tool"
+        },
+        {
+          "id": 360050695232,
+          "title": "How to Create a Course or Membership",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050695232-How-to-Create-a-Course-or-Membership"
+        },
+        {
+          "id": 360051184971,
+          "title": "Lesson Creation and Settings",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051184971-Lesson-Creation-and-Settings"
+        },
+        {
+          "id": 360051181091,
+          "title": "Overview of Student’s Account",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051181091-Overview-of-Student-s-Account"
+        },
+        {
+          "id": 360051180011,
+          "title": "Reports and Work with Them",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051180011-Reports-and-Work-with-Them"
+        },
+        {
+          "id": 360051183991,
+          "title": "Student Registration",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051183991-Student-Registration"
+        },
+        {
+          "id": 360051184111,
+          "title": "User’s Profile",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051184111-User-s-Profile"
+        }
+      ]
+    },
+    {
+      "id": 360009245431,
+      "name": "Automation",
+      "url": "https://help.influencersoft.com/hc/en-us/sections/360009245431-Automation",
+      "position": 10,
+      "articles": [
+        {
+          "id": 360051178071,
+          "title": "Creating and Editing Processes",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051178071-Creating-and-Editing-Processes"
+        },
+        {
+          "id": 360051179551,
+          "title": "Processes",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051179551-Processes"
+        },
+        {
+          "id": 360051178391,
+          "title": "Rules",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051178391-Rules"
+        },
+        {
+          "id": 360050859551,
+          "title": "Tasks",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050859551-Tasks"
+        }
+      ]
+    },
+    {
+      "id": 360009245391,
+      "name": "Contacts",
+      "url": "https://help.influencersoft.com/hc/en-us/sections/360009245391-Contacts",
+      "position": 11,
+      "articles": [
+        {
+          "id": 360050400832,
+          "title": "Add and Edit Categories in Contacts",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050400832-Add-and-Edit-Categories-in-Contacts"
+        },
+        {
+          "id": 360050400392,
+          "title": "Add and Edit Contact Auto-Lists",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050400392-Add-and-Edit-Contact-Auto-Lists"
+        },
+        {
+          "id": 360050400112,
+          "title": "Add and Edit Contact List",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050400112-Add-and-Edit-Contact-List"
+        },
+        {
+          "id": 360051165971,
+          "title": "Adding and Editing a Call Assignment",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051165971-Adding-and-Editing-a-Call-Assignment"
+        },
+        {
+          "id": 360050861631,
+          "title": "Adding and Editing a Group of Inactive Contacts",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050861631-Adding-and-Editing-a-Group-of-Inactive-Contacts"
+        },
+        {
+          "id": 360050690672,
+          "title": "Adding and Editing a User",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050690672-Adding-and-Editing-a-User"
+        },
+        {
+          "id": 360051550811,
+          "title": "Calling Tasks",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051550811-Calling-Tasks"
+        },
+        {
+          "id": 360050862271,
+          "title": "Configuring Invisible reCAPTCHA",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050862271-Configuring-Invisible-reCAPTCHA"
+        },
+        {
+          "id": 360050397772,
+          "title": "Contact History",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050397772-Contact-History"
+        },
+        {
+          "id": 360050401352,
+          "title": "Contact Lists",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050401352-Contact-Lists"
+        },
+        {
+          "id": 360050679832,
+          "title": "Contacts",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050679832-Contacts"
+        },
+        {
+          "id": 360051177251,
+          "title": "Creating and Managing Users",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051177251-Creating-and-Managing-Users"
+        },
+        {
+          "id": 360051177871,
+          "title": "CRM Settings",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051177871-CRM-Settings"
+        },
+        {
+          "id": 360050394552,
+          "title": "Form Constructor (Subscriptions and Orders)",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050394552-Form-Constructor-Subscriptions-and-Orders"
+        },
+        {
+          "id": 360050677012,
+          "title": "How to Add a New Lead (Contact)",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050677012-How-to-Add-a-New-Lead-Contact"
+        },
+        {
+          "id": 4408979658004,
+          "title": "How to enable integration with Zoom for organizing meetings",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/4408979658004-How-to-enable-integration-with-Zoom-for-organizing-meetings"
+        },
+        {
+          "id": 360050401032,
+          "title": "How to Import Contacts From a CSV File",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050401032-How-to-Import-Contacts-From-a-CSV-File"
+        },
+        {
+          "id": 360051177191,
+          "title": "How to Track Statistics using Tags",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051177191-How-to-Track-Statistics-using-Tags"
+        },
+        {
+          "id": 360050698292,
+          "title": "How to view User Click History (Activities)",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050698292-How-to-view-User-Click-History-Activities"
+        },
+        {
+          "id": 360050680012,
+          "title": "Importing Contacts through Text Import",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050680012-Importing-Contacts-through-Text-Import"
+        },
+        {
+          "id": 360050399232,
+          "title": "Lead Card",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050399232-Lead-Card"
+        },
+        {
+          "id": 360050398252,
+          "title": "Lead Card in Call Tasks",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050398252-Lead-Card-in-Call-Tasks"
+        },
+        {
+          "id": 360050400732,
+          "title": "Setting Categories in Contacts",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050400732-Setting-Categories-in-Contacts"
+        },
+        {
+          "id": 360050393752,
+          "title": "Teams ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050393752-Teams"
+        }
+      ]
+    },
+    {
+      "id": 360009245371,
+      "name": "Campaigns",
+      "url": "https://help.influencersoft.com/hc/en-us/sections/360009245371-Campaigns",
+      "position": 12,
+      "articles": [
+        {
+          "id": 360050385272,
+          "title": "Add, Edit, and Copy Email Series  ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050385272-Add-Edit-and-Copy-Email-Series"
+        },
+        {
+          "id": 360051550871,
+          "title": "Analytics of Automatic Email",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360051550871-Analytics-of-Automatic-Email"
+        },
+        {
+          "id": 360050385472,
+          "title": "Broadcasts Message Analytics ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050385472-Broadcasts-Message-Analytics"
+        },
+        {
+          "id": 360050384772,
+          "title": "Configuring FBL for Your Domains ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050384772-Configuring-FBL-for-Your-Domains"
+        },
+        {
+          "id": 360050848191,
+          "title": "Configuring the Digital Signature of DKIM",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050848191-Configuring-the-Digital-Signature-of-DKIM"
+        },
+        {
+          "id": 360050385032,
+          "title": "Configuring the SPF Record and DMARC Policy ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050385032-Configuring-the-SPF-Record-and-DMARC-Policy"
+        },
+        {
+          "id": 360050848231,
+          "title": "Creating a G Suite Account for Your Business Mail",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050848231-Creating-a-G-Suite-Account-for-Your-Business-Mail"
+        },
+        {
+          "id": 360050848251,
+          "title": "Creating Corporate Mail on Your Domain ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050848251-Creating-Corporate-Mail-on-Your-Domain"
+        },
+        {
+          "id": 360050848431,
+          "title": "Email Broadcasts ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050848431-Email-Broadcasts"
+        },
+        {
+          "id": 360050848551,
+          "title": "Email Sequences ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050848551-Email-Sequences"
+        },
+        {
+          "id": 360050848451,
+          "title": "Email Series ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050848451-Email-Series"
+        },
+        {
+          "id": 360050848471,
+          "title": "How to setup your business Email (Mailing Settings)",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050848471-How-to-setup-your-business-Email-Mailing-Settings"
+        },
+        {
+          "id": 360050848491,
+          "title": "Message Constructor ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050848491-Message-Constructor"
+        },
+        {
+          "id": 360050848271,
+          "title": "Recommendations for Maintaining Mailings ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050848271-Recommendations-for-Maintaining-Mailings"
+        },
+        {
+          "id": 360050385632,
+          "title": "Sending and Editing Email by Activity ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050385632-Sending-and-Editing-Email-by-Activity"
+        },
+        {
+          "id": 360050848511,
+          "title": "Sending and Editing Emails by Lists ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050848511-Sending-and-Editing-Emails-by-Lists"
+        },
+        {
+          "id": 360050385192,
+          "title": "Set up Digital Signatures ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050385192-Set-up-Digital-Signatures"
+        },
+        {
+          "id": 360050850591,
+          "title": "Subscribers ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050850591-Subscribers"
+        },
+        {
+          "id": 360050848311,
+          "title": "What Should I Do if My Emails Go Into Spam? ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050848311-What-Should-I-Do-if-My-Emails-Go-Into-Spam"
+        }
+      ]
+    },
+    {
+      "id": 360009245331,
+      "name": "Website",
+      "url": "https://help.influencersoft.com/hc/en-us/sections/360009245331-Website",
+      "position": 13,
+      "articles": [
+        {
+          "id": 360050851291,
+          "title": "Adding and Editing a Promotion ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851291-Adding-and-Editing-a-Promotion"
+        },
+        {
+          "id": 360050851311,
+          "title": "Adding and Editing Surveys ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851311-Adding-and-Editing-Surveys"
+        },
+        {
+          "id": 360050388752,
+          "title": "Creating and Editing Pages in the Page Builder",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050388752-Creating-and-Editing-Pages-in-the-Page-Builder"
+        },
+        {
+          "id": 360050388792,
+          "title": "File Manager ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050388792-File-Manager"
+        },
+        {
+          "id": 360050851711,
+          "title": "How to bind your own domain",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851711-How-to-bind-your-own-domain"
+        },
+        {
+          "id": 360058485492,
+          "title": "How to bind your own subdomain",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360058485492-How-to-bind-your-own-subdomain"
+        },
+        {
+          "id": 360050388812,
+          "title": "How to Block Cookies on the Site Until the Visitor Agrees to Their Use ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050388812-How-to-Block-Cookies-on-the-Site-Until-the-Visitor-Agrees-to-Their-Use"
+        },
+        {
+          "id": 360050389112,
+          "title": "How to Build Website Pages",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050389112-How-to-Build-Website-Pages"
+        },
+        {
+          "id": 360050388832,
+          "title": "How to Choose Hosting? ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050388832-How-to-Choose-Hosting"
+        },
+        {
+          "id": 360050851531,
+          "title": "How to Create and Edit an Autowebinar? ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851531-How-to-Create-and-Edit-an-Autowebinar"
+        },
+        {
+          "id": 360050388652,
+          "title": "How to create Automated Webinars ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050388652-How-to-create-Automated-Webinars"
+        },
+        {
+          "id": 360050851551,
+          "title": "How to Make a Broadcast Page for a Webinar in 5 Minutes ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851551-How-to-Make-a-Broadcast-Page-for-a-Webinar-in-5-Minutes"
+        },
+        {
+          "id": 360050851631,
+          "title": "How to Paste Your Landing Page Into Influencersoft ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851631-How-to-Paste-Your-Landing-Page-Into-Influencersoft"
+        },
+        {
+          "id": 360050851651,
+          "title": "Integration With Google Analytics and the E-Commerce Module ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851651-Integration-With-Google-Analytics-and-the-E-Commerce-Module"
+        },
+        {
+          "id": 360050389092,
+          "title": "Interactive Blocks ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050389092-Interactive-Blocks"
+        },
+        {
+          "id": 360050851671,
+          "title": "Recommendations (Viral Promotion and Viral Action) ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851671-Recommendations-Viral-Promotion-and-Viral-Action"
+        },
+        {
+          "id": 360050851751,
+          "title": "Surveys ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851751-Surveys"
+        },
+        {
+          "id": 360050389332,
+          "title": "Surveys statistics ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050389332-Surveys-statistics"
+        },
+        {
+          "id": 360050851391,
+          "title": "Viral Promotion Registration Form ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851391-Viral-Promotion-Registration-Form"
+        },
+        {
+          "id": 360050389292,
+          "title": "Viral promotion statistics ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050389292-Viral-promotion-statistics"
+        },
+        {
+          "id": 360060272152,
+          "title": "Website Page Settings",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360060272152-Website-Page-Settings"
+        },
+        {
+          "id": 360050389252,
+          "title": "Website Settings",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050389252-Website-Settings"
+        }
+      ]
+    },
+    {
+      "id": 360009133412,
+      "name": "Store",
+      "url": "https://help.influencersoft.com/hc/en-us/sections/360009133412-Store",
+      "position": 14,
+      "articles": [
+        {
+          "id": 360050850751,
+          "title": "Add and Edit a Series of Payment Reminders via Email",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050850751-Add-and-Edit-a-Series-of-Payment-Reminders-via-Email"
+        },
+        {
+          "id": 360044767631,
+          "title": "Add and Edit a Series of Payment Reminders via Email",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360044767631-Add-and-Edit-a-Series-of-Payment-Reminders-via-Email"
+        },
+        {
+          "id": 360050850771,
+          "title": "Adding and Editing a Co-Author",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050850771-Adding-and-Editing-a-Co-Author"
+        },
+        {
+          "id": 360050850791,
+          "title": "Adding and Editing a Joint Product ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050850791-Adding-and-Editing-a-Joint-Product"
+        },
+        {
+          "id": 360050387952,
+          "title": "Adding and Editing a Payment Reminder Email ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050387952-Adding-and-Editing-a-Payment-Reminder-Email"
+        },
+        {
+          "id": 360044319292,
+          "title": "Adding and Editing a Payment Reminder Letter",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360044319292-Adding-and-Editing-a-Payment-Reminder-Letter"
+        },
+        {
+          "id": 360050850851,
+          "title": "Adding and Editing a Product ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050850851-Adding-and-Editing-a-Product"
+        },
+        {
+          "id": 360050850911,
+          "title": "Adding and Editing Product Categories ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050850911-Adding-and-Editing-Product-Categories"
+        },
+        {
+          "id": 360050387992,
+          "title": "Co-Authors ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050387992-Co-Authors"
+        },
+        {
+          "id": 360044318192,
+          "title": "Create an Order",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360044318192-Create-an-Order"
+        },
+        {
+          "id": 360050850951,
+          "title": "Create an Order ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050850951-Create-an-Order"
+        },
+        {
+          "id": 360050388132,
+          "title": "How to create  or  edit a discount ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050388132-How-to-create-or-edit-a-discount"
+        },
+        {
+          "id": 360044766911,
+          "title": "How to Create a Discount",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360044766911-How-to-Create-a-Discount"
+        },
+        {
+          "id": 360050388012,
+          "title": "How to Create Coupons ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050388012-How-to-Create-Coupons"
+        },
+        {
+          "id": 360044767691,
+          "title": "Integration with Facebook and automation via chatbot",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360044767691-Integration-with-Facebook-and-automation-via-chatbot"
+        },
+        {
+          "id": 360050850991,
+          "title": "Order Buttons ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050850991-Order-Buttons"
+        },
+        {
+          "id": 360050851011,
+          "title": "Order Management (Order Card) ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851011-Order-Management-Order-Card"
+        },
+        {
+          "id": 360050851031,
+          "title": "Orders ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851031-Orders"
+        },
+        {
+          "id": 360050851091,
+          "title": "Payment Method Setup in the Store - PayPal",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851091-Payment-Method-Setup-in-the-Store-PayPal"
+        },
+        {
+          "id": 360050851071,
+          "title": "Payment reminder emails ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851071-Payment-reminder-emails"
+        },
+        {
+          "id": 360050388292,
+          "title": "Product Categories  ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050388292-Product-Categories"
+        },
+        {
+          "id": 360050388332,
+          "title": "Products ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050388332-Products"
+        },
+        {
+          "id": 360050851131,
+          "title": "Products of the Co-Author ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851131-Products-of-the-Co-Author"
+        },
+        {
+          "id": 360050388432,
+          "title": "Store Settings ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050388432-Store-Settings"
+        },
+        {
+          "id": 360050388452,
+          "title": "The manager handles the order and the client. What is the difference? ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050388452-The-manager-handles-the-order-and-the-client-What-is-the-difference"
+        },
+        {
+          "id": 360044767611,
+          "title": "The Manager Is Responsible for the Order and for the Client. What Is the Difference?",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360044767611-The-Manager-Is-Responsible-for-the-Order-and-for-the-Client-What-Is-the-Difference"
+        },
+        {
+          "id": 360050851251,
+          "title": "Upsell Settings ",
+          "url": "https://help.influencersoft.com/hc/en-us/articles/360050851251-Upsell-Settings"
+        }
+      ]
+    }
+  ]
+}
