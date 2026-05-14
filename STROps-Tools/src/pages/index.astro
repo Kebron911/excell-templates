@@ -5,7 +5,6 @@ import { buildOrganization, buildWebApplication } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import tools from '@data/tools.json';
 import { getCollection } from 'astro:content';
-import HomeProductPreview from '@/components/HomeProductPreview.astro';
 
 type ToolEntry = { title: string; primary_keyword: string; magnet: string; blurb: string; affiliates: string[] };
 const list = Object.entries(tools as Record<string, ToolEntry>);
@@ -68,7 +67,6 @@ const description = 'Seven free tools and three printable PDFs for short-term re
       Calculators, generators, and printable SOPs that pay for themselves on the first turn.
       No accounts, no upsells in the calculator. The math runs in your browser; the URL is the save file.
     </p>
-    <HomeProductPreview />
   </section>
 
   <section class="border-t border-rule">

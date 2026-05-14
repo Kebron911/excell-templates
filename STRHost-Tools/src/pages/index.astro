@@ -6,7 +6,6 @@ import EmailCaptureCard from '@str/ui-funnel/EmailCaptureCard.astro';
 import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import tools from '@/data/tools.json';
 import { getCollection } from 'astro:content';
-import HomeProductPreview from '@/components/HomeProductPreview.astro';
 
 const toolsList = Object.values(tools);
 
@@ -52,8 +51,6 @@ const categoryLabels: Record<string, string> = {
         No signup. Pick one below.
       </p>
     </div>
-    <HomeProductPreview />
-    <div class="pb-6"></div>
   </section>
 
   {/* Tool picker — the home page IS the menu. 3 columns at lg so all 7
