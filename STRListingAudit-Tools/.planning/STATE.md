@@ -1,7 +1,7 @@
 # STATE
 
-**Current phase:** 5 — Distribution surface
-**Current task:** Phase 5 content seed complete, awaiting commit
+**Current phase:** 6 — Analytics + deploy
+**Current task:** v0.1.0 shipped — tag `strlistingaudit-tools-v0.1.0` (commit 37104b7)
 **Last update:** 2026-05-14
 
 ---
@@ -77,7 +77,26 @@ Distribution surface — content seed + programmatic SEO + legal/about pages.
 - [x] Task 7 — Astro content collection (`src/content/config.ts`) + 5 markdown blog posts covering title / photos / amenities / reviews / pre-launch.
 - [x] Task 8 — `src/pages/blog/index.astro` + `[...slug].astro` pages.
 - [x] Task 9 — `public/robots.txt` (sitemap pointer + audit-result + share-image exclusions).
-- [ ] Task 10 — Pinterest / OG image generators (scripts/build-pins.mjs + build-og.mjs). Carving these to Phase 6 alongside the deploy workflow they're consumed by.
+- [x] Task 10 — Pinterest / OG image generators wired in Phase 6 (scripts/build-pins.mjs + build-og.mjs).
+
+## Phase 6 progress (complete — 2026-05-14, commit 37104b7, tag `strlistingaudit-tools-v0.1.0`)
+
+- [x] Task 1 — `scripts/build-og.mjs` Satori → sharp 1200×630 OG generator.
+- [x] Task 2 — `scripts/build-pins.mjs` 1000×1500 Pinterest pin generator.
+- [x] Task 3 — `scripts/smoke.mjs` dep-free post-deploy smoke (8 routes).
+- [x] Task 4 — `playwright.config.ts` + `tests/e2e/smoke.spec.ts` (7 E2E checks).
+- [x] Task 5 — `.github/workflows/deploy-strlistingaudit-tools.yml` fork of strguests workflow.
+- [x] Task 6 — `packages/ui-chrome/src/Layout.astro` GA4 linker domains extended with `listingaudit.tools`.
+- [x] Task 7 — Tagged `strlistingaudit-tools-v0.1.0` (annotated tag on commit 37104b7).
+
+### Phase 6 follow-ups (post-launch, not blockers)
+
+- IndexNow submit on deploy (mirror strguests pattern; trivial fork)
+- `@str/ui-chrome/Footer.astro` cross-link rows to listingaudit.tools from sibling sites
+- Phase 4b: PDF + email-verify + EmailGate wiring
+- Live-API smoke once `ANTHROPIC_API_KEY` and `APIFY_TOKEN` are provisioned in `STRListingAudit-Tools/.env.local`
+- Hostinger MySQL provisioning for `strlistingaudit` DB (see open question in STATE.md)
+- Domain registration + DNS for `listingaudit.tools`
 
 ---
 
@@ -131,6 +150,15 @@ Distribution surface — content seed + programmatic SEO + legal/about pages.
 - **No /audit/[id]/[og:image] dynamic per-audit OG tags in v0.1.** Static index page can't customize meta per id. The share image at `/share/[id].png` carries the score visually for native shares (copy-paste link with image preview generated separately).
 - **`public/robots.txt` excludes `/audit/?id=` and `/share/`.** No SEO value in indexing individual audit results — every result is the same template with different data. Sitemap routes (`/sitemap-index.xml`) handle the discoverable pages.
 - **Contact page is a single mailto.** Brief said "AI-native automation, 80-90% hands-off." A contact form is the opposite of that. mailto links plus a subject-prefill cover the use cases.
+
+### Phase 6
+- **Stub-mode OG/pin scripts.** Generated only the pages we know exist (no runtime route discovery). Adding a page in the future means appending the slug to the script — keeps the build script obvious and grep-able.
+- **Smoke script is dep-free.** Plain Node + native `fetch`. Runs before any application deps are installed. 1+ failure exits non-zero so the workflow fails red and visibly.
+- **Playwright preview-mode in CI.** `pnpm preview` serves the static build; no Express server in v0.1 CI. Full audit-pipeline E2E with mocked Apify/Anthropic at the network layer is a Phase 4b deliverable.
+- **GA4 linker domain list edited in `@str/ui-chrome/Layout.astro`.** Single source of truth across the empire. Smallest cross-empire change for cross-domain attribution.
+- **PR gates fire on every PR; deploy fires only on push to main.** Mirrors strguests posture.
+- **`LISTINGAUDIT_GA4_ID` is a separate secret from STRGUESTS_GA4_ID.** Per-property streams stay clean while cluster-funnel attribution still works through the shared linker domain list.
+- **Concurrency group `deploy-strlistingaudit-tools`.** Stops two PRs from racing the same deploy slot.
 
 ---
 
