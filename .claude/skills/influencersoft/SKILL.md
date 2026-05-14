@@ -15,6 +15,77 @@ email lifecycle (11 sequences — 6 lifecycle + 5 bundle cross-sells), tags ever
 buyer from Etsy and Stripe, hosts the affiliate program, and serves the
 lead-magnet welcome funnels. 13 top-level modules total (11 main + Email Series + Advertise).
 
+## 0. ⚠️ Critical gotchas — read BEFORE answering any IS question
+
+These five facts are repeatedly forgotten or replaced with training-data
+defaults. They have been validated against the help-center guide and the live
+`kebron` tenant. If your answer contradicts any of them, your answer is wrong.
+
+### 0.1 API 1.0 hash is **MD5 with concatenation** — NOT HMAC, NOT SHA-256, NOT SHA-1
+
+The training-data default for "API hash signing" is HMAC. InfluencerSoft does
+**not** use HMAC of any kind. It uses plain MD5 over a concatenated string with
+PHP-style URL encoding. **If you write `crypto.createHmac(...)`, your request
+fails.** If your section heading or prose says "HMAC signing", your answer is
+wrong even if the code below it uses MD5 — readers trust the prose.
+
+```
+hash = MD5( buildQuery(params) + "::" + username + "::" + apikey )
+```
+
+- `buildQuery` = PHP `http_build_query()` style: sort params, URL-encode,
+  spaces become `+` (not `%20`)
+- Separator is literal `::` (two colons)
+- Reuse `infrastructure/influencersoft/push_products.js` — don't re-derive
+
+### 0.2 `AddGood` is **gated per-account** — error_code 2 means "endpoint disabled"
+
+Before promising any bulk-product code path: API 1.0's `AddGood` is silently
+disabled by default per-tenant. As of 2026-05-08, it was disabled for
+`kebron`. The endpoint returns `error_code 2` regardless of payload.
+
+**Resolution path:** email `support@influencersoft.com` OR raise at the weekly
+Tech Tuesday mentoring call. Usually enabled within a day. Don't write code
+that assumes the endpoint is on without flagging this. The
+`infrastructure/influencersoft/push_products.js` script already handles the
+idempotent state tracking — reuse it, don't reinvent.
+
+### 0.3 Never log full POST bodies — `rpsKey` leakage
+
+`rpsKey` travels in the POST form body (not an Authorization header). Logging
+the full payload writes the API key to logs/stdout/telemetry. The client lib
+`scripts/lib/influencersoft.mjs` already enforces this — don't add
+`console.log(payload)`, don't dump request bodies to debug output, don't
+return them in error messages.
+
+### 0.4 Manually-added contacts cannot receive email
+
+Creating a contact via UI `Contacts → Leads → Create` or API `AddUpdateLead`
+without going through a subscription opt-in / activation flow leaves them in
+"not-activated" state. **They will not receive any sequence, broadcast, or
+transactional email** through IS servers. To make a contact emailable: add
+them to a list via a real subscription form (or via `AddLeadToGroup` with
+activation-email enabled).
+
+### 0.5 Custom-field naming uses these exact short stems
+
+IS rejects custom-field names that share a prefix with an existing field and
+shows a STALE error from the previous attempt. Use these short distinct stems
+already in the project — don't invent longer names that collide:
+
+`sku_code`, `sku_label`, `bought_on`, `order_ref`, `xsell_name`, `xsell_url`, `pack_name`
+
+When adding a new field: pick a short stem with no prefix overlap (e.g.
+`ref_src`, not `referral_source` — `referral_*` may collide later). **Refresh
+the Custom Fields page between each attempt** to clear the stale error.
+
+### 0.6 Triple-check before answering
+
+If the user's question involves products, hashes, deliverability, custom
+fields, or contact creation — re-read the matching gotcha above before
+composing your answer. The training-data default is wrong for this API in
+each of these cases.
+
 ## 1. Canonical docs index (read these first)
 
 When a task touches one of these areas, the project doc below is the source of

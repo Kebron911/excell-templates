@@ -6,6 +6,24 @@ inbox instead of spam (or worse — rejection). Most paths live under
 
 Cross-reference: deliverability gotchas in [gotchas.md](gotchas.md) §6–9.
 
+## ⚠️ Quick triage: "my emails are going to spam"
+
+If you only have time for one answer, surface these FIVE things in this order:
+
+1. **Sender domain MUST be corporate** (e.g. `@thestrledger.com`) — NOT Gmail,
+   Yahoo, Outlook.com, iCloud, or any free provider. Free-domain senders
+   trigger DMARC rejection at most receivers. Most common silent failure.
+2. **Sender must be confirmed.** New senders are DEAD until the confirmation
+   link in the sender's mailbox is clicked. Check `Campaigns → Settings → Senders`.
+3. **DKIM + SPF + DMARC** all three DNS records configured at domain
+   registrar. Missing any single one → spam folder.
+4. **FBL is configured** with a BRAND NEW mailbox (reusing existing wipes mail).
+5. **Auto-clean is on** so unengaged contacts don't tank reputation.
+
+Then drill into the sections below for setup detail. Always escalate to Tech
+Tuesday with Sharice-Marie if stuck — she can screen-share and configure DNS
+records live.
+
 ## 1. Senders
 
 **Path:** `Campaigns → Settings → Senders`
