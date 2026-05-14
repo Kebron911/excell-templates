@@ -1,0 +1,37 @@
+{
+  "skill_name": "influencersoft",
+  "evals": [
+    {
+      "id": 0,
+      "name": "tag-etsy-buyer",
+      "prompt": "I just got a new Etsy order for buyer jane@example.com (first name Jane), and she purchased my product with SKU TAX-001 (the STR Mileage Log). Write me Node.js code to add her as a contact in InfluencerSoft and tag her so the post-purchase sequence fires. Use whatever existing helpers the project has.",
+      "expected_output": "Node.js code using scripts/lib/influencersoft.mjs that calls addUpdateLead with email + first name, sets add_tags including 'customer:etsy' (the trigger tag) and 'product:tax-001-mileage-log' (the SKU tag in correct format). Should reference tag-dictionary.md as source of truth. Should NOT log full POST body.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 1,
+      "name": "emails-going-to-spam",
+      "prompt": "Emails from my welcome-book-magnet sequence in InfluencerSoft are landing in spam. What should I check first?",
+      "expected_output": "Diagnostic checklist covering: (1) sender is corporate domain not Gmail/Yahoo, (2) sender confirmation link was clicked, (3) DKIM/SPF/DMARC DNS records configured, (4) FBL set up with a BRAND NEW mailbox (warning that reusing one wipes mail), (5) auto-clean enabled, (6) check Campaigns -> Analytics for patterns. Should escalate to Tech Tuesday if persistent.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 2,
+      "name": "add-custom-field",
+      "prompt": "I want to add a new custom field in InfluencerSoft called 'referral_source'. Anything I should know before I do it?",
+      "expected_output": "Warning about slug collision: IS rejects names sharing prefix with existing fields; the UI shows STALE error for the LAST collision. Instruction to refresh the Custom Fields page between each add. Mention the existing short-stem naming convention (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name) and recommend a short distinct stem like 'ref_src' or similar to avoid future collisions. Path: Contacts -> Custom Fields.",
+      "files": [],
+      "assertions": []
+    },
+    {
+      "id": 3,
+      "name": "bulk-product-upload",
+      "prompt": "Can I bulk-upload my 70-product catalog to InfluencerSoft via API instead of clicking through the UI? Stripe integration is in place.",
+      "expected_output": "Yes, via API 1.0 AddGood endpoint with hash auth (MD5(buildQuery(params)::username::apikey)). Bulk script exists at infrastructure/influencersoft/push_products.js. KNOWN ISSUE: AddGood may be disabled per-account (returns error_code 2). Must email support@influencersoft.com or raise at Tech Tuesday to enable. As of 2026-05-08, was disabled for kebron tenant - verify before retry.",
+      "files": [],
+      "assertions": []
+    }
+  ]
+}

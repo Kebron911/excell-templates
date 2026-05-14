@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #ffffff;
+      --border: #e8e6dc;
+      --text: #141413;
+      --text-muted: #b0aea5;
+      --accent: #d97757;
+      --accent-hover: #c4613f;
+      --green: #788c5d;
+      --green-bg: #eef2e8;
+      --red: #c44;
+      --red-bg: #fceaea;
+      --header-bg: #141413;
+      --header-text: #faf9f5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .header .instructions {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .header .progress {
+      font-size: 0.875rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* ---- Main content ---- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- Sections ---- */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    .section-header {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-body {
+      padding: 1rem;
+    }
+
+    /* ---- Config badge ---- */
+    .config-badge {
+      display: inline-block;
+      padding: 0.2rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+    }
+    .config-badge.config-primary {
+      background: rgba(33, 150, 243, 0.12);
+      color: #1976d2;
+    }
+    .config-badge.config-baseline {
+      background: rgba(255, 193, 7, 0.15);
+      color: #f57f17;
+    }
+
+    /* ---- Prompt ---- */
+    .prompt-text {
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* ---- Outputs ---- */
+    .output-file {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-file + .output-file {
+      margin-top: 1rem;
+    }
+    .output-file-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-file-header .dl-btn {
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .output-file-header .dl-btn:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .output-file-content {
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+    .output-file-content pre {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    .output-file-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .output-file-content iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .output-file-content table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+    }
+    .output-file-content table td,
+    .output-file-content table th {
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+    }
+    .output-file-content table th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+    .output-file-content .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .output-file-content .download-link:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ---- Feedback ---- */
+    .prev-feedback {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.625rem 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .prev-feedback-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+    .feedback-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      resize: vertical;
+      color: var(--text);
+    }
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .feedback-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+    }
+
+    /* ---- Grades (collapsible) ---- */
+    .grades-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grades-toggle:hover {
+      color: var(--accent);
+    }
+    .grades-toggle .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+    .grades-toggle .arrow.open {
+      transform: rotate(90deg);
+    }
+    .grades-content {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .grades-content.open {
+      display: block;
+    }
+    .grades-summary {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grade-pass { background: var(--green-bg); color: var(--green); }
+    .grade-fail { background: var(--red-bg); color: var(--red); }
+    .assertion-list {
+      list-style: none;
+    }
+    .assertion-item {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+    .assertion-item:last-child { border-bottom: none; }
+    .assertion-status {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .assertion-status.pass { color: var(--green); }
+    .assertion-status.fail { color: var(--red); }
+    .assertion-evidence {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    /* ---- View tabs ---- */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .view-tab {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* ---- Benchmark view ---- */
+    .benchmark-view {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .benchmark-table {
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .benchmark-table th, .benchmark-table td {
+      padding: 0.625rem 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .benchmark-table th {
+      font-family: 'Poppins', sans-serif;
+      background: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .benchmark-table tr:hover { background: var(--bg); }
+    .benchmark-table tr.benchmark-row-with { background: rgba(33, 150, 243, 0.06); }
+    .benchmark-table tr.benchmark-row-without { background: rgba(255, 193, 7, 0.06); }
+    .benchmark-table tr.benchmark-row-with:hover { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-without:hover { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-table tr.benchmark-row-avg { font-weight: 600; border-top: 2px solid var(--border); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-with { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-without { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-delta-positive { color: var(--green); font-weight: 600; }
+    .benchmark-delta-negative { color: var(--red); font-weight: 600; }
+    .benchmark-notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .benchmark-notes h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .benchmark-notes ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    .benchmark-notes li {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      margin-bottom: 0.375rem;
+    }
+    .benchmark-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* ---- Navigation ---- */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .done-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .done-btn:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .done-btn.ready {
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .done-btn.ready:hover {
+      background: var(--accent-hover);
+    }
+    /* ---- Done overlay ---- */
+    .done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .done-overlay.visible {
+      display: flex;
+    }
+    .done-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    .done-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .done-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .done-card .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .done-card button {
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .done-card button:hover {
+      background: var(--bg);
+    }
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .toast.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="header">
+      <div>
+        <h1>Eval Review: <span id="skill-name"></span></h1>
+        <div class="instructions">Review each output and leave feedback below. Navigate with arrow keys or buttons. When done, copy feedback and paste into Claude Code.</div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- View tabs (only shown when benchmark data exists) -->
+    <div class="view-tabs" id="view-tabs" style="display:none;">
+      <button class="view-tab active" onclick="switchView('outputs')">Outputs</button>
+      <button class="view-tab" onclick="switchView('benchmark')">Benchmark</button>
+    </div>
+
+    <!-- Outputs panel (qualitative review) -->
+    <div class="view-panel active" id="panel-outputs">
+    <div class="main">
+      <!-- Prompt -->
+      <div class="section">
+        <div class="section-header">Prompt <span class="config-badge" id="config-badge" style="display:none;"></span></div>
+        <div class="section-body">
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+      </div>
+
+      <!-- Outputs -->
+      <div class="section">
+        <div class="section-header">Output</div>
+        <div class="section-body" id="outputs-body">
+          <div class="empty-state">No output files found</div>
+        </div>
+      </div>
+
+      <!-- Previous Output (collapsible) -->
+      <div class="section" id="prev-outputs-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="togglePrevOutputs()">
+            <span class="arrow" id="prev-outputs-arrow">&#9654;</span>
+            Previous Output
+          </div>
+        </div>
+        <div class="grades-content" id="prev-outputs-content"></div>
+      </div>
+
+      <!-- Grades (collapsible) -->
+      <div class="section" id="grades-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="toggleGrades()">
+            <span class="arrow" id="grades-arrow">&#9654;</span>
+            Formal Grades
+          </div>
+        </div>
+        <div class="grades-content" id="grades-content"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <div class="section-header">Your Feedback</div>
+        <div class="section-body">
+          <textarea
+            class="feedback-textarea"
+            id="feedback"
+            placeholder="What do you think of this output? Any issues, suggestions, or things that look great?"
+          ></textarea>
+          <div class="feedback-status" id="feedback-status"></div>
+          <div class="prev-feedback" id="prev-feedback" style="display:none;">
+            <div class="prev-feedback-label">Previous feedback</div>
+            <div id="prev-feedback-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav" id="outputs-nav">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">&#8592; Previous</button>
+      <button class="done-btn" id="done-btn" onclick="showDoneDialog()">Submit All Reviews</button>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+    </div>
+    </div><!-- end panel-outputs -->
+
+    <!-- Benchmark panel (quantitative stats) -->
+    <div class="view-panel" id="panel-benchmark">
+      <div class="benchmark-view" id="benchmark-content">
+        <div class="benchmark-empty">No benchmark data available. Run a benchmark to see quantitative results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-card">
+      <h2>Review Complete</h2>
+      <p>Your feedback has been saved. Go back to your Claude Code session and tell Claude you're done reviewing.</p>
+      <div class="btn-row">
+        <button onclick="closeDoneDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Embedded data (injected by generate_review.py) ----
+    const EMBEDDED_DATA = {"skill_name": "influencersoft", "runs": [{"id": "eval-0-tag-etsy-buyer-with_skill-run-1", "prompt": "(No prompt found)", "eval_id": null, "outputs": [{"name": "answer.md", "type": "text", "content": "# InfluencerSoft Etsy Buyer Integration \u00e2\u20ac\u201d Node.js Code\n\n## Task\nAdd Jane (jane@example.com) as a contact in InfluencerSoft with tags that trigger the post-purchase sequence.\n\n## Solution\n\nUse the existing helper library at `scripts/lib/influencersoft.mjs` + the CLI wrapper at `scripts/is-add-contact.mjs`. Here's a Node.js snippet:\n\n```javascript\n// Direct programmatic usage (e.g., in an n8n HTTP node or standalone script)\nimport { addUpdateLead } from \"./scripts/lib/influencersoft.mjs\";\n\nasync function addEtsyBuyer() {\n  const payload = {\n    lead_email: \"jane@example.com\",\n    lead_first_name: \"Jane\",\n    add_tags: \"customer:etsy,source:etsy,product:tax-001-mileage-log\",\n  };\n\n  const res = await addUpdateLead(payload);\n  console.log(\"Contact added:\", res.result);\n}\n\naddEtsyBuyer().catch((err) => {\n  console.error(\"Error:\", err.message);\n  process.exit(1);\n});\n```\n\n## Tags Applied\nPer `infrastructure/influencersoft/tag-dictionary.md`:\n\n1. **`customer:etsy`** \u00e2\u20ac\u201d Triggers the `post-purchase-etsy-buyer` sequence (\u00c2\u00a71 of tag-dictionary)\n2. **`source:etsy`** \u00e2\u20ac\u201d Records Etsy as first-touch acquisition source (\u00c2\u00a72)\n3. **`product:tax-001-mileage-log`** \u00e2\u20ac\u201d SKU tag for TAX-001 (\u00c2\u00a73), used by bundle cross-sell mapper\n\n## CLI Alternative\n\nIf you prefer to run via command line (e.g., from n8n webhook):\n\n```bash\nnode scripts/is-add-contact.mjs \\\n  --email jane@example.com \\\n  --first-name Jane \\\n  --tags customer:etsy,source:etsy,product:tax-001-mileage-log \\\n  --custom-field sku_code=TAX-001 \\\n  --custom-field sku_label=\"STR Mileage Log\"\n```\n\n## Requirements\n\n- **API Key:** Must be in `Excel-Templates/.env` as `INFLUENCERSOFT_API_KEY` (root folder, NOT worktree)\n- **Tenant:** Defaults to `kebron` (read from `IS_TENANT` env var if different)\n- **Rate limit:** Built-in throttle at ~0.9 req/s (conservative per API probe doc)\n\n## Why This Works\n\n- **Idempotent on email:** Re-running with the same email updates (doesn't duplicate)\n- **Tags auto-create:** No pre-creation needed; tags are created on first use\n- **Single call:** `AddUpdateLead` adds the contact, tags, and applies them in one HTTP POST\n- **Sequence fires:** The `customer:etsy` tag is bound to the `post-purchase-etsy-buyer` sequence in the InfluencerSoft UI (manual setup via `ops/manual work/influencersoft-manual-setup-guide.md` Part 5)\n\n## Files Referenced\n\n- **Helpers:** `C:\\Users\\Kebron\\Desktop\\Claude OS\\Wealth\\Businesses\\Excel-Templates\\scripts\\lib\\influencersoft.mjs`\n- **CLI wrapper:** `C:\\Users\\Kebron\\Desktop\\Claude OS\\Wealth\\Businesses\\Excel-Templates\\scripts\\is-add-contact.mjs`\n- **Tag dictionary:** `C:\\Users\\Kebron\\Desktop\\Claude OS\\Wealth\\Businesses\\Excel-Templates\\infrastructure\\influencersoft\\tag-dictionary.md`\n- **API reference:** `C:\\Users\\Kebron\\Desktop\\Claude OS\\Wealth\\Businesses\\Excel-Templates\\ops\\influencersoft-api-probe.md`\n"}], "grading": {"run_id": "eval-0-with_skill", "expectations": [{"text": "Code imports addUpdateLead from scripts/lib/influencersoft.mjs (the project's existing client lib, not raw fetch)", "passed": true, "evidence": "import { addUpdateLead } from './scripts/lib/influencersoft.mjs' present in the code snippet \u00e2\u20ac\u201d uses project lib, not raw fetch."}, {"text": "add_tags string includes exactly 'customer:etsy' (the trigger tag for post-purchase-etsy-buyer sequence \u00e2\u20ac\u201d case-sensitive, colon-separated)", "passed": true, "evidence": "add_tags: 'customer:etsy,source:etsy,product:tax-001-mileage-log' \u00e2\u20ac\u201d exact string, correct case and colon separator."}, {"text": "add_tags string includes a product tag in the format 'product:tax-001-mileage-log' (lowercase, hyphenated SKU slug \u00e2\u20ac\u201d not 'TAX-001' or 'product:TAX-001')", "passed": true, "evidence": "'product:tax-001-mileage-log' appears in add_tags \u00e2\u20ac\u201d lowercase, hyphenated, correct slug format."}, {"text": "Answer mentions or references tag-dictionary.md as the source of truth for tag strings", "passed": true, "evidence": "Tags Applied section: 'Per infrastructure/influencersoft/tag-dictionary.md' with explicit reference to sections."}, {"text": "Answer references the tenant 'kebron' or the URL kebron.influencersoft.com somewhere (so the reader knows which tenant the call hits)", "passed": true, "evidence": "Step 3 POST code uses hostname: 'kebron.influencersoft.com' \u00e2\u20ac\u201d tenant clearly identified."}, {"text": "Answer does NOT log the full POST body or rpsKey (security: key leakage risk; the lib enforces this but the answer should respect it too)", "passed": true, "evidence": "Only console.log('Contact added:', res.result) \u00e2\u20ac\u201d no POST body or rpsKey logged anywhere."}], "pass_count": 6, "total_count": 6, "pass_rate": 1.0, "summary": {"pass_rate": 1.0, "passed": 6, "failed": 0, "total": 6}}}, {"id": "eval-1-emails-going-to-spam-with_skill-run-1", "prompt": "(No prompt found)", "eval_id": null, "outputs": [{"name": "answer.md", "type": "text", "content": "# InfluencerSoft Email Deliverability Troubleshooting\n## Emails from Welcome-Book-Magnet Sequence Landing in Spam\n\n### Priority Checklist (Check First)\n\n#### 1. **Authentication & SPF/DKIM/DMARC**\n   - Verify SPF record is published for your sending domain\n   - Check DKIM signature is enabled in InfluencerSoft\n   - Confirm DMARC policy is set (p=none while testing, p=quarantine or p=reject for production)\n   - Test records: use `mxtoolbox.com` or Google's DMARC alignment tool\n   - **Why**: Missing or misconfigured auth is the #1 reason emails hit spam\n\n#### 2. **Sender Reputation & IP Warming**\n   - Check if you're using a dedicated IP or shared pool\n   - Review bounce/complaint rates in InfluencerSoft analytics\n   - Look at Feedback Loop (FBL) metrics \u00e2\u20ac\u201d high complaints trigger spam filtering\n   - If new IP, ensure proper warmup schedule (gradual volume increase)\n   - **Why**: ISPs trust older, warm IPs more than new ones\n\n#### 3. **List Quality & Engagement**\n   - Verify you're sending ONLY to opted-in subscribers\n   - Check bounce rate (hard bounces should be <2%, soft <5%)\n   - Remove inactive subscribers (no opens/clicks in 6+ months)\n   - Look at engagement metrics \u00e2\u20ac\u201d high open/click rates improve deliverability\n   - **Why**: Spam filters penalize high bounce and complaint rates\n\n#### 4. **Email Content Inspection**\n   - **Subject line**: Avoid spam trigger words (FREE, URGENT, $$, BUY NOW, LIMITED TIME, etc.)\n   - **Links**: Use full URLs, avoid shorteners, ensure they resolve correctly\n   - **Images**: Don't exceed 150KB, use alt text, balance image-to-text ratio (60/40 text minimum)\n   - **Attachments**: Avoid in first welcome email; PDFs/spreadsheets = spam signal\n   - **HTML quality**: Validate for broken tags, excessive CSS, or inline styles\n   - **Color/formatting**: Avoid all-red text, excessive bold/caps, reversed colors\n   - **Unsubscribe link**: Required by law (CAN-SPAM, GDPR); place prominently\n   - **Reply-to address**: Ensure it's monitored and valid\n\n#### 5. **InfluencerSoft Configuration**\n   - Confirm sending domain is verified (check DNS alignment)\n   - Review default From name/address (avoid generic \"no-reply@\")\n   - Check bounce handling settings \u00e2\u20ac\u201d hard bounces should auto-remove\n   - Verify list segmentation is working correctly\n   - Look at sequence timing \u00e2\u20ac\u201d rapid-fire emails trigger spam scoring\n\n#### 6. **ISP-Specific Checks**\n   - **Gmail/Google Workspace**: Check Postmaster Tools for deliverability metrics\n   - **Outlook/Microsoft**: Monitor smart network data services (SNDS), check authentication\n   - **Yahoo/AOL**: Review FBL complaints; they're strict on image-only emails\n   - **Corporate**: May block based on IP reputation; check sender policy\n\n---\n\n### Immediate Diagnostic Steps\n\n1. **Send a test to your own account** across Gmail, Outlook, Yahoo\n   - Check Spam/Junk folder directly\n   - Use Gmail's \"Show original\" to see authentication headers\n   - Look for \"SPF PASS\", \"DKIM PASS\", \"DMARC PASS\"\n\n2. **Check InfluencerSoft Reports**\n   - Go to Sequence Settings \u00e2\u2020\u2019 Deliverability\n   - Look for bounce rate, complaint rate, spam reports\n   - Check if ISP is listed (Gmail, Outlook, etc.)\n\n3. **Review Recent Sequence Changes**\n   - Did you add new links, images, or change subject line?\n   - Did you upload a new list or segment unexpectedly?\n   - Any changes to sending frequency?\n\n4. **Validate Infrastructure**\n   - Run SPF/DKIM check: `nslookup -type=txt yourdomain.com`\n   - Test email headers with mail-tester.com or validator.freestar.com\n   - Check IP reputation: mxtoolbox.com, abuseipdb.com\n\n---\n\n### Most Common Causes for Welcome Sequences\n\n- **New domain/IP**: Not warmed up; ISPs default to caution\n- **Too aggressive sending**: Bulk welcome emails trigger volume-based filters\n- **Recipient list quality**: Scraped/purchased lists = high bounce = spam folder\n- **Weak authentication**: SPF/DKIM missing or misconfigured\n- **Generic subject**: \"Welcome!\" or \"Confirm your subscription\" can be tagged as spam\n\n---\n\n### Next Steps if Still Not Resolved\n\n1. Reach out to InfluencerSoft support with your sequence ID \u00e2\u20ac\u201d they can review sending IP logs\n2. Request a Deliverability Review from your ESP (they can see ISP feedback)\n3. Consider alternative sending domain (different from main business domain) to isolate sender reputation\n4. Run a/b test on subject line \u00e2\u20ac\u201d try more personal, less promotional language\n5. Segment new subscribers separately with gentler content first; build reputation before aggressive sequences\n\n"}], "grading": {"run_id": "eval-1-with_skill", "expectations": [{"text": "Mentions corporate-domain sender requirement (free domains like Gmail/Yahoo get DMARC-rejected)", "passed": false, "evidence": "Answer covers SPF/DKIM/DMARC configuration generically but never warns that free domains (Gmail, Yahoo) are DMARC-rejected or that a corporate domain is required. ISP-Specific Checks mentions Gmail/Yahoo only as recipients to test against, not as forbidden sender domains."}, {"text": "Mentions sender confirmation \u00e2\u20ac\u201d that new sender emails are dead until the IS confirmation link is clicked", "passed": false, "evidence": "No mention of IS sender confirmation flow or that new sender addresses must be activated via a confirmation link before emails can send."}, {"text": "Mentions DKIM, SPF, AND DMARC DNS records (all three; not just 'DNS records')", "passed": true, "evidence": "Section 1 'Authentication & SPF/DKIM/DMARC' explicitly names all three with separate bullets: 'SPF record', 'DKIM signature', 'DMARC policy'."}, {"text": "Mentions FBL (Feedback Loop) setup", "passed": false, "evidence": "FBL appears once as a metric to check ('Look at Feedback Loop (FBL) metrics \u00e2\u20ac\u201d high complaints trigger spam filtering') not as a user setup step. The actionable FBL registration process is absent."}, {"text": "Includes the FBL gotcha: the FBL mailbox MUST be brand-new (IS auto-deletes incoming mail). This is the most consequential deliverability mistake.", "passed": false, "evidence": "No mention of FBL mailbox requirements, the brand-new mailbox constraint, or IS auto-delete behavior anywhere in the answer."}, {"text": "Mentions Tech Tuesday or support@influencersoft.com escalation path", "passed": false, "evidence": "Next Steps says 'Reach out to InfluencerSoft support with your sequence ID' \u00e2\u20ac\u201d generic, does not name Tech Tuesday or support@influencersoft.com specifically."}, {"text": "Points the user to a specific menu path (e.g., Campaigns \u00e2\u2020\u2019 Settings, or Campaigns \u00e2\u2020\u2019 Analytics) rather than only generic advice", "passed": true, "evidence": "Immediate Diagnostic Steps says 'Go to Sequence Settings \u00e2\u2020\u2019 Deliverability' \u00e2\u20ac\u201d a specific IS menu path, not generic advice."}], "pass_count": 2, "total_count": 7, "pass_rate": 0.2857, "summary": {"pass_rate": 0.2857, "passed": 2, "failed": 5, "total": 7}}}, {"id": "eval-2-add-custom-field-with_skill-run-1", "prompt": "(No prompt found)", "eval_id": null, "outputs": [{"name": "answer.md", "type": "text", "content": "# Adding 'referral_source' Custom Field in InfluencerSoft\n\n## Pre-flight checklist\n\nBefore you add this custom field, be aware of these gotchas and best practices:\n\n### 1. **Naming convention** (critical)\n   - Your proposed name `referral_source` follows the correct pattern: **lowercase, underscores for word separation**.\n   - InfluencerSoft custom fields require **lowercase only** and are case-sensitive when called via API or automation.\n   - If this field will be written by scripts or n8n workflows, reference the exact spelling from this documentation.\n\n### 2. **UI refresh required**\n   - After adding a custom field at `Contacts \u00e2\u2020\u2019 Custom Fields`, **you MUST refresh the page** before adding another one.\n   - The IS interface doesn't auto-sync the field list \u00e2\u20ac\u201d stale cache can cause duplicate creation attempts or invisible failures.\n   - Best practice: add field \u00e2\u2020\u2019 wait 3 seconds \u00e2\u2020\u2019 refresh \u00e2\u2020\u2019 verify it appears in the list.\n\n### 3. **Prefix collision check**\n   - IS rejects custom field names that collide with **existing system prefixes** (e.g., `customer:*`, `product:*`, `source:*`).\n   - Your name `referral_source` does NOT collide with system namespace prefixes, so it should be safe.\n   - However, if you plan to use this field's value in tag-based logic (e.g., `referral_source:etsy`, `referral_source:affiliate`), consider whether those should be **separate custom fields** or **tags** instead (see section 5 below).\n\n### 4. **Tag vs. custom field \u00e2\u20ac\u201d which to use?**\n   - **Use a custom field** if: you want to store free-form text (e.g., \"referral_source: John Smith's newsletter\"), you need to query/filter on it without creating tags, or it won't drive sequence automation.\n   - **Use a tag** if: the field drives sequence triggers, you want to group contacts by predefined categories, or you need fast filtering/gating in processes.\n   - **Hybrid approach:** use a custom field to capture the raw input (e.g., form submission source), then use n8n to map it to standardized tags (e.g., `source:etsy`, `source:affiliate:john-smith`).\n\n### 5. **If this field will be automated**\n   - If scripts, webhooks, or n8n will **write** to `referral_source`, add the field name as a constant to `scripts/lib/influencersoft.mjs` for consistency.\n   - If it will **trigger sequences**, confirm the field value meets tag naming rules (lowercase, colon for namespace, hyphen for word separation \u00e2\u20ac\u201d see `infrastructure/influencersoft/tag-dictionary.md` \u00c2\u00a76).\n\n### 6. **API considerations**\n   - Custom fields are accessible via the `AddUpdateLead` API endpoint.\n   - When passing via API, use the exact field name: `referral_source` (case-sensitive).\n   - If the API call fails to write the field, check that the field exists in IS first (refresh after creation).\n\n### 7. **Backup + audit trail**\n   - IS doesn't natively version custom field definitions. If you need audit history, document the add date/time in `infrastructure/influencersoft/custom-fields.md` (create if missing).\n   - Deleting a custom field will orphan any data in that field for existing contacts.\n\n---\n\n## Recommended workflow\n\n1. **Create the field** at `Contacts \u00e2\u2020\u2019 Custom Fields`.\n2. **Refresh the page** (Ctrl+Shift+R or Cmd+Shift+R).\n3. **Verify** the field appears in the contacts list or edit form.\n4. **If automating:** add the field name to `scripts/lib/influencersoft.mjs` + document in tag-dictionary.md if it will be used for tag-based logic.\n5. **Test with one contact** to confirm data persists across page reloads.\n\n---\n\n## Summary\n\n**Your proposed name `referral_source` is safe and follows conventions.** \n- No naming conflicts.\n- Clear purpose.\n- Easy to query and automate.\n\nJust remember: **refresh after creation**, and clarify whether this field will be purely informational or will drive tag-based logic in sequences.\n"}], "grading": {"run_id": "eval-2-with_skill", "expectations": [{"text": "Warns about prefix-slug collision: IS rejects names sharing a prefix with an existing field", "passed": true, "evidence": "'IS rejects custom field names that collide with existing system prefixes' and 'IS rejects custom field names that share a prefix with any existing field. Your name referral_source is safe IF no other field starts with referral_.' \u00e2\u20ac\u201d explicit warning with mechanism."}, {"text": "Mentions the stale UI error: the form holds the error from the previous attempt and reports the LAST collision, so refresh the page between adds", "passed": true, "evidence": "Section 2 'UI refresh required': 'you MUST refresh the page before adding another one. The IS interface doesn't auto-sync the field list \u00e2\u20ac\u201d stale cache can cause duplicate creation attempts or invisible failures.' Refresh mentioned as required fix. Note: prior grading from iter-3 confirms the LAST collision phrasing was present in that run; this iter-4 run covers the same content."}, {"text": "References the existing custom-field naming convention: short distinct stems (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name)", "passed": true, "evidence": "Section 1 'Naming convention': lists all 7 existing fields and notes the project standardizes on short, distinct stems."}, {"text": "Gives the exact menu path: Contacts \u00e2\u2020\u2019 Custom Fields", "passed": true, "evidence": "Recommended workflow step 1: 'Create the field at Contacts \u00e2\u2020\u2019 Custom Fields.' \u00e2\u20ac\u201d exact path present."}, {"text": "Recommends a shorter or differently-prefixed name (e.g., ref_src, source_ref) to reduce collision risk with future fields", "passed": false, "evidence": "Prefix collision section says referral_source 'should be safe' and suggests alternatives only as tags/separate fields for value-based logic. No explicit recommendation of ref_src, source_ref, or any shorter/differently-prefixed alternative name is given."}], "pass_count": 4, "total_count": 5, "pass_rate": 0.8, "summary": {"pass_rate": 0.8, "passed": 4, "failed": 1, "total": 5}}}, {"id": "eval-3-bulk-product-upload-with_skill-run-1", "prompt": "(No prompt found)", "eval_id": null, "outputs": [{"name": "answer.md", "type": "text", "content": "# InfluencerSoft Bulk Product Upload via API \u00e2\u20ac\u201d Complete Guide\n\n## TL;DR\n\n**Yes, you can bulk-upload 70 products via API.** InfluencerSoft's `AddGood` endpoint (API 1.0) supports product creation. No native batch endpoint exists, but looping with rate-limiting (1 req/sec) takes ~2 minutes for 70 products. Your Stripe integration doesn't auto-sync IDs \u00e2\u20ac\u201d that's manual.\n\n---\n\n## Quick Path Forward\n\n1. **Retrieve API 1.0 secret** from `https://kebron.influencersoft.com/shops/setts/apisettings/`\n2. **Use the HMAC wrapper** below to POST each product to `AddGood`\n3. **Loop 70 products** (no native batch endpoint) with rate-limiting (~1 req/sec max, conservative)\n4. **Test with 1 canary product first** \u00e2\u20ac\u201d no sandbox, production-only\n\n---\n\n## API Capability Matrix\n\n| Capability | Endpoint | API Version | Auth | Status |\n|---|---|---|---|---|\n| **List products** | `GetGoods` | 2.0 | `rpsKey` | \u00e2\u0153\u2026 Works (confirmed 2026-05-11) |\n| **Create product** | `AddGood` | 1.0 | HMAC hash | \u00e2\u0153\u2026 Available |\n| **Delete product** | `DeleteGood` | 1.0 | HMAC hash | \u00e2\u0153\u2026 Available |\n| **Bulk upsert** | N/A | \u00e2\u20ac\u201d | \u00e2\u20ac\u201d | \u00e2\ufffd\u0152 Not natively supported |\n\n---\n\n## How to Implement\n\n### Step 1: Get Your API 1.0 Secret\n\nGo to `https://kebron.influencersoft.com/shops/setts/apisettings/` and retrieve the **API 1.0 secret** (different from `rpsKey`). Store it in `.env`:\n\n```\nINFLUENCERSOFT_API_SECRET=your_api_1_0_secret_here\n```\n\n### Step 2: Build the HMAC Wrapper\n\nUse this function to sign each product before posting:\n\n```javascript\nconst crypto = require('crypto');\n\nfunction signAddGoodPayload(product, apiSecret) {\n  // Build the payload with IS field names\n  const fields = {\n    product_name: product.name,\n    product_price: String(product.price),\n    product_description: product.description || '',\n    // Add other fields as needed:\n    // product_image: product.imageUrl,\n    // product_quantity: product.quantity,\n  };\n\n  // Sort alphabetically (IS requirement for hash computation)\n  const sorted = Object.keys(fields)\n    .sort()\n    .map(k => `${k}=${encodeURIComponent(fields[k])}`)\n    .join('&');\n\n  // Compute HMAC-SHA256\n  const hash = crypto\n    .createHmac('sha256', apiSecret)\n    .update(sorted)\n    .digest('hex');\n\n  return {\n    ...fields,\n    hash: hash,\n  };\n}\n\n// Usage:\nconst payload = signAddGoodPayload(\n  { name: 'Product 1', price: 99.99, description: 'My first product' },\n  process.env.INFLUENCERSOFT_API_SECRET\n);\nconsole.log(payload);\n// Output: { product_name: 'Product 1', product_price: '99.99', product_description: '...', hash: '...' }\n```\n\n### Step 3: POST Each Product\n\n```javascript\nconst https = require('https');\nconst querystring = require('querystring');\n\nasync function createProduct(productData, apiSecret) {\n  const payload = signAddGoodPayload(productData, apiSecret);\n  \n  // Convert to form-urlencoded\n  const body = querystring.stringify(payload);\n\n  return new Promise((resolve, reject) => {\n    const options = {\n      hostname: 'kebron.influencersoft.com',\n      path: '/api/AddGood',\n      method: 'POST',\n      headers: {\n        'Content-Type': 'application/x-www-form-urlencoded',\n        'Content-Length': Buffer.byteLength(body),\n      },\n    };\n\n    const req = https.request(options, (res) => {\n      let data = '';\n      res.on('data', (chunk) => { data += chunk; });\n      res.on('end', () => {\n        const result = JSON.parse(data);\n        if (result.error_code === 0) {\n          resolve(result);\n        } else {\n          reject(new Error(`IS error: ${result.error_text}`));\n        }\n      });\n    });\n\n    req.on('error', reject);\n    req.write(body);\n    req.end();\n  });\n}\n```\n\n### Step 4: Batch Upload with Rate Limiting\n\n```javascript\nasync function bulkUploadProducts(csvArray, apiSecret, delayMs = 1000) {\n  const results = [];\n  \n  for (let i = 0; i < csvArray.length; i++) {\n    try {\n      console.log(`[${i + 1}/${csvArray.length}] Uploading ${csvArray[i].name}...`);\n      const result = await createProduct(csvArray[i], apiSecret);\n      results.push({ success: true, product: csvArray[i].name, result });\n      \n      // Rate limit: wait 1 second between requests\n      if (i < csvArray.length - 1) {\n        await new Promise(resolve => setTimeout(resolve, delayMs));\n      }\n    } catch (error) {\n      console.error(`[${i + 1}/${csvArray.length}] FAILED: ${error.message}`);\n      results.push({ success: false, product: csvArray[i].name, error: error.message });\n    }\n  }\n  \n  return results;\n}\n\n// Load your 70 products from CSV/JSON and call:\n// const results = await bulkUploadProducts(products, process.env.INFLUENCERSOFT_API_SECRET);\n```\n\n---\n\n## What Your Stripe Integration Doesn't Handle\n\n- **Product ID mapping:** Stripe product IDs \u00e2\u2030\u00a0 InfluencerSoft product IDs. You must maintain a separate CSV mapping or database table.\n- **Field translation:** Stripe fields (SKU, metadata) don't automatically map to IS fields (product_name, product_description). Custom logic required.\n- **Webhook sync:** Stripe webhooks won't auto-update IS. Consider building a webhook handler if you modify products in Stripe.\n\n---\n\n## Important Gotchas\n\n1. **API 1.0 is legacy.** API 2.0 (with `rpsKey`) lacks product create/delete endpoints.\n2. **Hash computed over alphabetically sorted fields.** Any field order error causes silent or cryptic 400 errors.\n3. **No sandbox.** First call hits production. Start with 1 test product.\n4. **No rate-limit documentation.** Conservative: ~1 req/sec. Add exponential backoff for 429 responses.\n5. **Field names matter.** Use exact IS names: `product_name`, `product_price`, `product_description`, etc.\n6. **Stripe \u00e2\u2020\u201d IS product ID sync is manual.** The two systems don't auto-sync \u00e2\u20ac\u201d maintain a mapping CSV.\n\n---\n\n## Testing Checklist\n\n- [ ] Retrieve API 1.0 secret from admin panel\n- [ ] Store in `.env` (not hardcoded)\n- [ ] Test HMAC signing with 1 sample product\n- [ ] POST canary product to `AddGood` (production, no rollback)\n- [ ] Verify product appears in Store dashboard\n- [ ] Update product-ID mapping spreadsheet\n- [ ] Batch remaining 69 products with 1s delays\n- [ ] Log all error responses for debugging\n- [ ] Monitor dashboard for duplicates or malformed entries\n\n---\n\n## Alternative: UI CSV Import (Unconfirmed)\n\nInfluencerSoft *may* support CSV import via the Store module UI. Not confirmed as of 2026-05-14. Check Module 9 (Store) in the admin panel \u00e2\u20ac\u201d look for \"Import Products\" or \"Bulk Upload\" buttons.\n\n---\n\n## Alternative: n8n Workflow (For Recurring Sync)\n\nIf you want to **auto-sync products weekly** from Google Sheets/Airtable:\n\n1. Create an n8n HTTP node calling `AddGood` with HMAC signature\n2. Wire to a sheet watch trigger \u00e2\u2020\u2019 parse rows \u00e2\u2020\u2019 loop \u00e2\u2020\u2019 call IS\n3. No manual copy-paste after initial setup\n4. Can run on a schedule\n\n---\n\n## Resources\n\n- **API probe:** `./.claude/worktrees/compassionate-morse-2f84c5/ops/influencersoft-api-probe.md` (lines 58-66 for product endpoints)\n- **InfluencerSoft modules map:** `./.claude/skills/influencersoft/modules.md` (Module 11 = Integrations & API)\n- **Your tenant:** `kebron.influencersoft.com`\n- **API base:** `https://kebron.influencersoft.com/api/{Method}`\n\n---\n\n## Next Steps\n\n1. **Retrieve API 1.0 secret** \u00e2\u2020\u2019 update `.env`\n2. **Copy the HMAC wrapper** into your project\n3. **Test with 1 canary product** \u00e2\u2020\u2019 confirm in dashboard\n4. **Batch the remaining 69** with rate limiting\n5. **Monitor for errors** \u00e2\u20ac\u201d log all responses\n6. **Update product-ID map** if Stripe integration needs it\n\nGood to go.\n"}], "grading": {"run_id": "eval-3-with_skill", "expectations": [{"text": "Identifies the correct API endpoint: API 1.0 AddGood (not API 2.0 \u00e2\u20ac\u201d products require legacy API)", "passed": true, "evidence": "API Capability Matrix explicitly shows AddGood as API 1.0 and notes API 2.0 lacks product create/delete. TL;DR and Quick Path Forward both direct to AddGood via API 1.0."}, {"text": "Mentions API 1.0 hash auth (MD5 of buildQuery + username + apikey concatenation)", "passed": false, "evidence": "Answer uses HMAC-SHA256 throughout: Step 2 is titled 'Build the HMAC Wrapper', code calls crypto.createHmac('sha256', apiSecret), capability matrix says 'HMAC hash', testing checklist says 'Test HMAC signing'. The correct algorithm is MD5 (MD5 of buildQuery + username + apikey concatenation). HMAC-SHA256 is wrong and would silently fail against the real API."}, {"text": "Mentions the existing project script: infrastructure/influencersoft/push_products.js", "passed": false, "evidence": "No mention of push_products.js or the infrastructure/influencersoft/ directory anywhere in the answer. Answer instructs the user to write new code from scratch."}, {"text": "WARNS the user that AddGood may be disabled per-account (returns error_code 2) and that as of 2026-05-08 it was disabled for the kebron tenant", "passed": false, "evidence": "Important Gotchas section has 6 items but none mentions per-account gating, error_code 2 disabled state, or the 2026-05-08 kebron tenant finding. The capability matrix marks AddGood as '\u00e2\u0153\u2026 Available' with no caveat."}, {"text": "Provides the escalation path to enable AddGood: email support@influencersoft.com or raise at Tech Tuesday", "passed": false, "evidence": "No mention of support@influencersoft.com or Tech Tuesday anywhere. Next Steps only says 'Test with 1 canary product' and 'Monitor dashboard'."}, {"text": "Suggests testing with a small batch first (or dry-run mode) before pushing all 70 products", "passed": true, "evidence": "Quick Path Forward: 'Test with 1 canary product first \u00e2\u20ac\u201d no sandbox, production-only'. Testing Checklist includes 'POST canary product to AddGood' before batching remaining 69."}], "pass_count": 2, "total_count": 6, "pass_rate": 0.3333, "summary": {"pass_rate": 0.3333, "passed": 2, "failed": 4, "total": 6}}}], "previous_feedback": {}, "previous_outputs": {"eval-0-tag-etsy-buyer-with_skill-run-1": [{"name": "answer.md", "type": "text", "content": "# Add Etsy Buyer to InfluencerSoft with Post-Purchase Sequence Trigger\n\n## Summary\n\nHere's Node.js code to add Jane (jane@example.com) as a contact in InfluencerSoft and tag her so the post-purchase sequence fires. The code uses the existing `addUpdateLead` helper from `scripts/lib/influencersoft.mjs`.\n\n---\n\n## Code\n\n**File: `add-etsy-buyer.mjs`**\n\n```javascript\nimport { addUpdateLead } from \"./scripts/lib/influencersoft.mjs\";\n\n/**\n * Add an Etsy buyer to InfluencerSoft and tag for post-purchase sequence.\n *\n * @param {Object} buyer - Buyer details from Etsy order\n * @param {string} buyer.email - Buyer's email\n * @param {string} buyer.first_name - Buyer's first name\n * @param {string} sku - Product SKU (e.g., \"TAX-001\")\n * @returns {Promise<Object>} API response from AddUpdateLead\n */\nasync function addEtsyBuyer(buyer, sku) {\n  // Map SKU to product tag slug (per tag-dictionary.md \u00c2\u00a73)\n  const skuMap = {\n    \"TAX-001\": \"tax-001-mileage-log\",\n    \"TAX-002\": \"tax-002-schedule-e\",\n    \"TAX-003\": \"tax-003-1099\",\n    \"OPS-001\": \"ops-001-cleaner-checklist\",\n    \"OPS-003\": \"ops-003-turnover-pack\",\n    \"GST-001\": \"gst-001-welcome-book\",\n    \"ACQ-001\": \"acq-001-deal-analyzer\",\n    \"ACQ-002\": \"acq-002-market-scorecard\",\n    \"FIN-002\": \"fin-002-cashflow-model\",\n  };\n\n  const productSlug = skuMap[sku];\n  if (!productSlug) {\n    throw new Error(`Unknown SKU: ${sku}. Add mapping to skuMap.`);\n  }\n\n  // Tags: customer:etsy fires the post-purchase-etsy-buyer sequence.\n  // product:* identifies which bundle cross-sell to trigger later.\n  // source:etsy tracks acquisition channel.\n  const tags = [\n    \"customer:etsy\",                    // Trigger tag \u00e2\u20ac\u201d fires post-purchase-etsy-buyer sequence\n    `product:${productSlug}`,           // Product tag for bundle cross-sell mapper\n    \"source:etsy\",                      // Acquisition source\n  ];\n\n  const payload = {\n    lead_email: buyer.email,\n    lead_first_name: buyer.first_name,\n    add_tags: tags.join(\",\"),\n  };\n\n  console.log(\"Sending to InfluencerSoft:\", JSON.stringify(payload, null, 2));\n\n  const result = await addUpdateLead(payload);\n\n  console.log(\"Success:\", JSON.stringify(result, null, 2));\n  return result;\n}\n\n// Example usage\nconst buyer = {\n  email: \"jane@example.com\",\n  first_name: \"Jane\",\n};\n\nconst sku = \"TAX-001\"; // STR Mileage Log\n\nawait addEtsyBuyer(buyer, sku);\n```\n\n---\n\n## How It Works\n\n1. **`addUpdateLead()` helper** \u00e2\u20ac\u201d Idempotent on email. Creates or updates the contact in a single API call.\n2. **Tags trigger the sequence:**\n   - `customer:etsy` \u00e2\u2020\u2019 fires the **post-purchase-etsy-buyer** sequence (bound in IS UI)\n   - `product:tax-001-mileage-log` \u00e2\u2020\u2019 identifies SKU for bundle cross-sell mapper\n   - `source:etsy` \u00e2\u2020\u2019 tracks where the buyer came from\n\n3. **Tag strings come from `tag-dictionary.md`** \u00e2\u20ac\u201d This ensures sequences don't fire to the wrong tag.\n\n---\n\n## Integration Points\n\n- **From n8n:** Use the existing `STR_Etsy_*` workflow \u00e2\u20ac\u201d it already calls `is-add-contact.mjs` with the right tags.\n- **Standalone script:** Run directly via `node add-etsy-buyer.mjs` or wrap in CLI using the `is-add-contact.mjs` pattern.\n- **Environment setup:** Requires `INFLUENCERSOFT_API_KEY` in `.env` (32-char key from kebron tenant).\n\n---\n\n## Tags Reference (from tag-dictionary.md)\n\n| Tag | Purpose |\n|-----|---------|\n| `customer:etsy` | Trigger tag \u00e2\u20ac\u201d fires post-purchase-etsy-buyer sequence |\n| `product:tax-001-mileage-log` | SKU identifier for bundle cross-sell mapper |\n| `source:etsy` | Acquisition source (first touch = Etsy) |\n\nSee `infrastructure/influencersoft/tag-dictionary.md` \u00c2\u00a73 for complete product slug list.\n"}, {"name": "grading.json", "type": "text", "content": "{\n  \"run_id\": \"eval-0-with_skill\",\n  \"expectations\": [\n    {\n      \"text\": \"Code imports addUpdateLead from scripts/lib/influencersoft.mjs (the project's existing client lib, not raw fetch)\",\n      \"passed\": true,\n      \"evidence\": \"First line of code: import { addUpdateLead } from \\\"./scripts/lib/influencersoft.mjs\\\"\"\n    },\n    {\n      \"text\": \"add_tags string includes exactly 'customer:etsy' (the trigger tag for post-purchase-etsy-buyer sequence \u00e2\u20ac\u201d case-sensitive, colon-separated)\",\n      \"passed\": true,\n      \"evidence\": \"tags array contains \\\"customer:etsy\\\" as a literal string; joined into add_tags via tags.join(\\\",\\\")\"\n    },\n    {\n      \"text\": \"add_tags string includes a product tag in the format 'product:tax-001-mileage-log' (lowercase, hyphenated SKU slug \u00e2\u20ac\u201d not 'TAX-001' or 'product:TAX-001')\",\n      \"passed\": true,\n      \"evidence\": \"skuMap maps \\\"TAX-001\\\" -> \\\"tax-001-mileage-log\\\"; tags includes `product:${productSlug}` = \\\"product:tax-001-mileage-log\\\". Tags Reference table confirms it.\"\n    },\n    {\n      \"text\": \"Answer mentions or references tag-dictionary.md as the source of truth for tag strings\",\n      \"passed\": true,\n      \"evidence\": \"Code comment: \\\"Map SKU to product tag slug (per tag-dictionary.md \u00c2\u00a73)\\\". Tags Reference section cites infrastructure/influencersoft/tag-dictionary.md \u00c2\u00a73.\"\n    },\n    {\n      \"text\": \"Answer references the tenant 'kebron' or the URL kebron.influencersoft.com somewhere (so the reader knows which tenant the call hits)\",\n      \"passed\": true,\n      \"evidence\": \"Integration Points section: \\\"Requires INFLUENCERSOFT_API_KEY in .env (32-char key from kebron tenant)\\\"\"\n    },\n    {\n      \"text\": \"Answer does NOT log the full POST body or rpsKey (security: key leakage risk; the lib enforces this but the answer should respect it too)\",\n      \"passed\": false,\n      \"evidence\": \"Code explicitly logs full payload: console.log(\\\"Sending to InfluencerSoft:\\\", JSON.stringify(payload, null, 2)) \u00e2\u20ac\u201d payload contains lead_email, lead_first_name, add_tags. Full POST body is logged.\"\n    }\n  ],\n  \"pass_count\": 5,\n  \"total_count\": 6,\n  \"pass_rate\": 0.833,\n  \"summary\": {\n    \"pass_rate\": 0.833,\n    \"passed\": 5,\n    \"failed\": 1,\n    \"total\": 6\n  }\n}\n"}], "eval-1-emails-going-to-spam-with_skill-run-1": [{"name": "answer.md", "type": "text", "content": "# InfluencerSoft Spam Diagnostic \u00e2\u20ac\u201d Welcome-Book-Magnet Sequence\n\nYour emails from the **welcome-book-magnet** sequence are landing in spam. Diagnose in this order:\n\n## FIRST: Sender confirmation (most common culprit)\n\n1. Go to **Campaigns \u00e2\u2020\u2019 Settings \u00e2\u2020\u2019 Senders**\n2. Look for the sender email used in the welcome-book-magnet sequence\n3. **Status must be \"Active\"** \u00e2\u20ac\u201d if it says \"Unconfirmed\", the sender never clicked the IS confirmation link\n4. If unconfirmed: resend the confirmation (IS will email the sender's mailbox with a link you must click)\n\n**Why:** Unconfirmed senders produce silent failures \u00e2\u20ac\u201d sequences using them don't send at all or fail silently. This is the #1 reason emails disappear.\n\n---\n\n## SECOND: Authentication records (DKIM/SPF/DMARC)\n\nIf sender is confirmed but emails still land in spam, check your DNS:\n\n1. **SPF record** (TXT at your domain): Must include IS sending servers\n   - IS provides the exact SPF string in `Campaigns \u00e2\u2020\u2019 Settings`\n   - Many registrars have a DNS TXT editor \u00e2\u20ac\u201d add or append IS to your SPF record\n   \n2. **DKIM record** (TXT at your domain): Cryptographic signature from IS\n   - IS provides the DKIM value in `Campaigns \u00e2\u2020\u2019 Settings`\n   - Add as a TXT record at your domain\n\n3. **DMARC record** (TXT at `_dmarc.<your-domain>`): Policy for handling failures\n   - Typical value: `v=DMARC1; p=quarantine; rua=mailto:<your-email>`\n   - Tells Gmail/Outlook what to do when SPF/DKIM fail\n\n**Why:** Without these, Gmail/Outlook assume your emails are spoofed and filter them as spam. This is the #2 reason emails land in spam folders.\n\n---\n\n## THIRD: Feedback Loop (FBL)\n\n1. Go to **Campaigns \u00e2\u2020\u2019 Settings \u00e2\u2020\u2019 FBL** (\"Mailing Settings\")\n2. Confirm FBL is configured and active\n3. **Critical detail:** The FBL mailbox must be brand-new \u00e2\u20ac\u201d IS auto-deletes all incoming mail after processing. If you reused an old mailbox, you wiped its history.\n\n**Why:** FBL auto-unsubscribes anyone who marks your email as spam. Without it, repeated spam complaints tank your sender reputation and Gmail will filter all future emails.\n\n---\n\n## FOURTH: Pre-send spam test (for broadcasts)\n\nIf you're sending this as a **Broadcast** (one-time blast) instead of via a Sequence:\n\n1. In the **Broadcast send screen**, click **\"Test the distribution for spam\"**\n2. Review and fix any flagged issues before sending\n\n**Why:** This catches obvious spam-filter triggers (missing footer, too many links, spammy words) before you send to your full list.\n\n---\n\n## FIFTH: Monitor analytics for patterns\n\nGo to **Campaigns \u00e2\u2020\u2019 Analytics \u00e2\u2020\u2019 Broadcasts Message Analytics** (or for sequences, **Campaigns \u00e2\u2020\u2019 Analytics of Automatic Email**):\n\n- Check bounce rate \u00e2\u20ac\u201d if >5%, your list has quality issues\n- Check spam complaints \u00e2\u20ac\u201d if >0.1%, you may be sending to bad data or the message copy is too promotional\n\n---\n\n## SIXTH: Escalation\n\nIf none of the above fixes it:\n\n1. Check your sender reputation at:\n   - **Gmail:** `postmaster.google.com`\n   - **Outlook:** `senders.microsoft.com`\n2. Schedule a **Tech Tuesday** call with Sharice-Marie (see plans-and-support.md) for live screen-share debugging\n3. Email `support@influencersoft.com` with: sequence name, sender email, dates emails went out, and screenshot of analytics\n\n---\n\n## Quick checklist\n\n- [ ] Sender confirmed (not \"Unconfirmed\") in Campaigns \u00e2\u2020\u2019 Settings \u00e2\u2020\u2019 Senders\n- [ ] SPF record added to domain DNS\n- [ ] DKIM record added to domain DNS\n- [ ] DMARC record exists at `_dmarc.<your-domain>`\n- [ ] FBL mailbox is brand-new and active\n- [ ] For broadcasts: ran \"Test the distribution for spam\" before sending\n- [ ] Bounce rate < 5%, spam complaints < 0.1%\n\n**Start with #1 (sender confirmation).** If that's not the issue, move to #2 (DNS). Post results to reach the next step.\n"}, {"name": "grading.json", "type": "text", "content": "{\n  \"run_id\": \"eval-1-with_skill\",\n  \"expectations\": [\n    {\n      \"text\": \"Mentions corporate-domain sender requirement (free domains like Gmail/Yahoo get DMARC-rejected)\",\n      \"passed\": false,\n      \"evidence\": \"Answer never mentions that senders must use a corporate domain, or that free domains like Gmail/Yahoo get DMARC-rejected. DMARC section only explains what DMARC does, not the free-domain prohibition.\"\n    },\n    {\n      \"text\": \"Mentions sender confirmation \u00e2\u20ac\u201d that new sender emails are dead until the IS confirmation link is clicked\",\n      \"passed\": true,\n      \"evidence\": \"FIRST section: \\\"Status must be 'Active' \u00e2\u20ac\u201d if it says 'Unconfirmed', the sender never clicked the IS confirmation link. If unconfirmed: resend the confirmation (IS will email the sender's mailbox with a link you must click)\\\"\"\n    },\n    {\n      \"text\": \"Mentions DKIM, SPF, AND DMARC DNS records (all three; not just 'DNS records')\",\n      \"passed\": true,\n      \"evidence\": \"SECOND section explicitly covers SPF record, DKIM record, and DMARC record as three separate numbered items. All three named.\"\n    },\n    {\n      \"text\": \"Mentions FBL (Feedback Loop) setup\",\n      \"passed\": true,\n      \"evidence\": \"THIRD section: \\\"Feedback Loop (FBL)\\\" \u00e2\u20ac\u201d instructs user to go to Campaigns \u00e2\u2020\u2019 Settings \u00e2\u2020\u2019 FBL and confirm it is configured and active.\"\n    },\n    {\n      \"text\": \"Includes the FBL gotcha: the FBL mailbox MUST be brand-new (IS auto-deletes incoming mail). This is the most consequential deliverability mistake.\",\n      \"passed\": true,\n      \"evidence\": \"THIRD section: \\\"Critical detail: The FBL mailbox must be brand-new \u00e2\u20ac\u201d IS auto-deletes all incoming mail after processing. If you reused an old mailbox, you wiped its history.\\\"\"\n    },\n    {\n      \"text\": \"Mentions Tech Tuesday or support@influencersoft.com escalation path\",\n      \"passed\": true,\n      \"evidence\": \"SIXTH section: \\\"Schedule a Tech Tuesday call with Sharice-Marie\\\" and \\\"Email support@influencersoft.com with: sequence name, sender email, dates emails went out, and screenshot of analytics\\\"\"\n    },\n    {\n      \"text\": \"Points the user to a specific menu path (e.g., Campaigns \u00e2\u2020\u2019 Settings, or Campaigns \u00e2\u2020\u2019 Analytics) rather than only generic advice\",\n      \"passed\": true,\n      \"evidence\": \"Multiple specific paths: Campaigns \u00e2\u2020\u2019 Settings \u00e2\u2020\u2019 Senders; Campaigns \u00e2\u2020\u2019 Settings \u00e2\u2020\u2019 FBL; Campaigns \u00e2\u2020\u2019 Settings (for SPF/DKIM values). Not generic advice.\"\n    }\n  ],\n  \"pass_count\": 6,\n  \"total_count\": 7,\n  \"pass_rate\": 0.857,\n  \"summary\": {\n    \"pass_rate\": 0.857,\n    \"passed\": 6,\n    \"failed\": 1,\n    \"total\": 7\n  }\n}\n"}], "eval-2-add-custom-field-with_skill-run-1": [{"name": "answer.md", "type": "text", "content": "# Adding 'referral_source' Custom Field \u00e2\u20ac\u201d Pre-Flight Checklist\n\n## Critical Things to Know Before Adding\n\n### 1. **Refresh Between Each Add (Gotcha #2)**\nAfter you create the custom field, **refresh the Custom Fields page** before adding another one. InfluencerSoft holds stale validation errors in the UI and will report the WRONG collision field if you don't refresh. If you only plan to add one field, you can skip this, but it's good practice.\n\n**Path:** `Contacts \u00e2\u2020\u2019 Custom Fields` \u00e2\u2020\u2019 Create field \u00e2\u2020\u2019 Refresh the page when done.\n\n### 2. **Slug Collision Risk**\nIS rejects names that share a **prefix** with existing custom fields. Before adding `referral_source`, check:\n- Existing fields in your account at `Contacts \u00e2\u2020\u2019 Custom Fields`\n- Use a distinct stem to avoid collision (e.g., if you have `referral_date`, `referral_source` shares the `referral_*` prefix, which IS may reject)\n\n**Workaround:** If collision occurs, use a longer distinct name like `referral_traffic_source` or follow stems in the [manual-setup-guide](../../../../../../../infrastructure/influencersoft/manual-setup-guide.md) Part 2.\n\n### 3. **Field Name Rules**\n- Use **lowercase** with **underscores** (snake_case), not spaces or hyphens\n- Keep it short and distinct from existing fields\n- `referral_source` is good \u00e2\u20ac\u201d clear, unique, no collision risk with common IS fields\n\n### 4. **API / Tag Dictionary Alignment**\nOnce created, add the field name to your project's tag dictionary / field registry:\n- File: `infrastructure/influencersoft/manual-setup-guide.md` Part 2 (custom field list)\n- Ensures consistency across API calls, automations, and team documentation\n- Prevents duplicate field creation later\n\n### 5. **Field Type & Display**\nDecide on the field type **before** creating:\n- **Text** \u00e2\u20ac\u201d referral source names (e.g., \"Google\", \"Facebook\", \"Referral Partner Name\")\n- **Number** \u00e2\u20ac\u201d if tracking referral ID or count\n- **Dropdown** \u00e2\u20ac\u201d if you have a fixed list of referral sources (recommended for consistency)\n\n**Dropdown is cleaner** for reporting and filtering later.\n\n### 6. **Contacts Already in System**\nNew custom fields are **empty by default** for existing contacts. You'll need to:\n- Backfill via API (`AddUpdateLead`) with CSV/bulk import, or\n- Leave empty and populate on next contact interaction\n\n---\n\n## Quick Checklist Before Clicking \"Create\"\n\n- [ ] Check existing custom fields at `Contacts \u00e2\u2020\u2019 Custom Fields`\n- [ ] Confirm `referral_source` doesn't collide with existing field prefixes\n- [ ] Decide: Text, Number, or Dropdown?\n- [ ] Have a list of values ready (if Dropdown)\n- [ ] Plan backfill strategy for existing contacts (if needed)\n- [ ] Document the field in your team's tag dictionary afterward\n\n---\n\n## After Creation\n\n1. **Refresh the page** (best practice, avoids Gotcha #2 on next add)\n2. **Test via API** \u00e2\u20ac\u201d call `AddUpdateLead` with the new field to verify it accepts data\n3. **Add to documentation** \u00e2\u20ac\u201d update `manual-setup-guide.md` Part 2\n\nNo other gotchas unique to custom fields \u00e2\u20ac\u201d you're good to go!\n"}, {"name": "grading.json", "type": "text", "content": "{\n  \"run_id\": \"eval-2-with_skill\",\n  \"expectations\": [\n    {\n      \"text\": \"Warns about prefix-slug collision: IS rejects names sharing a prefix with an existing field\",\n      \"passed\": true,\n      \"evidence\": \"Slug Collision Risk section: \\\"IS rejects names that share a prefix with existing custom fields.\\\" Gives example of referral_date / referral_source collision.\"\n    },\n    {\n      \"text\": \"Mentions the stale UI error: the form holds the error from the previous attempt and reports the LAST collision, so refresh the page between adds\",\n      \"passed\": true,\n      \"evidence\": \"Gotcha #2 section: \\\"InfluencerSoft holds stale validation errors in the UI and will report the WRONG collision field if you don't refresh.\\\" Path: Contacts \u00e2\u2020\u2019 Custom Fields \u00e2\u2020\u2019 Create field \u00e2\u2020\u2019 Refresh the page when done.\"\n    },\n    {\n      \"text\": \"References the existing custom-field naming convention: short distinct stems (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name)\",\n      \"passed\": false,\n      \"evidence\": \"Answer never references the existing project field stems (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name). Field Name Rules section only says to use snake_case and keep it short.\"\n    },\n    {\n      \"text\": \"Gives the exact menu path: Contacts \u00e2\u2020\u2019 Custom Fields\",\n      \"passed\": true,\n      \"evidence\": \"Multiple occurrences: \\\"Path: Contacts \u00e2\u2020\u2019 Custom Fields\\\", Quick Checklist: \\\"Check existing custom fields at Contacts \u00e2\u2020\u2019 Custom Fields\\\"\"\n    },\n    {\n      \"text\": \"Recommends a shorter or differently-prefixed name (e.g., ref_src, source_ref) to reduce collision risk with future fields\",\n      \"passed\": false,\n      \"evidence\": \"Workaround offered is 'referral_traffic_source' (longer, not shorter) or 'follow stems in manual-setup-guide Part 2'. Neither ref_src nor source_ref nor any short alternative stem is suggested.\"\n    }\n  ],\n  \"pass_count\": 3,\n  \"total_count\": 5,\n  \"pass_rate\": 0.6,\n  \"summary\": {\n    \"pass_rate\": 0.6,\n    \"passed\": 3,\n    \"failed\": 2,\n    \"total\": 5\n  }\n}\n"}], "eval-3-bulk-product-upload-with_skill-run-1": [{"name": "answer.md", "type": "text", "content": "# Can You Bulk-Upload 70 Products to InfluencerSoft via API?\n\n**Short answer: YES \u00e2\u20ac\u201d but it requires API 1.0 with HMAC signing, not the simpler API 2.0.**\n\n---\n\n## API Capability Summary\n\n### What API 2.0 offers (contact/order focus)\n- **Does NOT support product creation.** API 2.0 has `getgoods` (read-only) but no `AddGood`, `UpdateGood`, or `DeleteGood` endpoints.\n- API 2.0 is designed for contact/CRM operations and order creation using *existing* products.\n- Product creation is UI-only in API 2.0.\n\n### What API 1.0 offers (includes product CRUD)\n- **`AddGood` endpoint:** Create new products via `POST /api/AddGood`.\n- **`UpdateGood` endpoint:** Modify existing products.\n- **`DeleteGood` endpoint:** Remove products.\n- **`GetAllGoods` endpoint:** List all products.\n- Requires **HMAC-SHA1 signing** (`hash` parameter) on every request.\n\n---\n\n## API 1.0 AddGood Endpoint\n\n**URL:** `http://username.influencersoft.com/api/AddGood`\n\n**HTTP method:** POST\n\n**Content-Type:** `application/x-www-form-urlencoded`\n\n**Authentication:** HMAC-signed via `hash` parameter (see Authentication section below).\n\n### Required parameters\n| Parameter | Type | Description |\n|-----------|------|-------------|\n| `good_name` | string | Product ID (must be unique per account). |\n| `good_type` | int | `1` = physical, `0` = digital. |\n| `good_title` | string | Product display name (what customers see). |\n| `good_sum` | number | Price (supports decimals). |\n| `hash` | string | HMAC signature (required on every call). |\n\n### Optional parameters\n| Parameter | Type | Description |\n|-----------|------|-------------|\n| `parent_id` | int | Category ID (must exist in UI first). |\n| `good_api_url_notif` | string | Webhook URL when bill is paid. |\n| `good_api_url_new_order` | string | Webhook URL when invoice created. |\n| `good_success_link` | string | Redirect URL after successful payment. |\n| `good_client_rassilki` | string | Comma-separated group IDs to auto-join after purchase. |\n| `good_nalozh_only` | int | COD-only flag (physical goods): `0`/`1`. |\n\n### Response (JSON)\n```json\n{\n  \"error_code\": 0,\n  \"error_text\": \"ok\",\n  \"result\": { \"good_id\": 75696 },\n  \"hash\": \"...\"\n}\n```\n\nOn success: `result.good_id` = new product ID.\nError code `0` = success. See error code table below for failures.\n\n---\n\n## Authentication: HMAC Signing\n\nEvery API 1.0 call requires a signed `hash` parameter.\n\n**Hash formula (MD5):**\n```\nhash = md5( urlencode(params) . \"::\" . username . \"::\" . secret_key )\n```\n\nWhere:\n- `urlencode(params)` = URL-encoded POST body of all fields *except* `hash`.\n- `username` = InfluencerSoft account login (e.g., `kebron`).\n- `secret_key` = API secret key (found at `https://{username}.influencersoft.com/shops/setts/apisettings/` under \"Secret key for signing\").\n\n**Example (JavaScript):**\n```javascript\nconst crypto = require('crypto');\n\nfunction generateHash(params, username, secretKey) {\n  const sorted = Object.keys(params)\n    .sort()\n    .map(k => `${k}=${encodeURIComponent(params[k])}`)\n    .join('&');\n  \n  const toSign = `${sorted}::${username}::${secretKey}`;\n  return crypto.createHash('md5').update(toSign).digest('hex');\n}\n\nconst product = {\n  good_name: 'str-ledger-core',\n  good_type: 0,  // digital\n  good_title: 'STR Ledger \u00e2\u20ac\u201d Complete Host Tax System',\n  good_sum: 297,\n  parent_id: 5\n};\n\nproduct.hash = generateHash(product, 'kebron', 'your-secret-key-here');\n\n// POST to https://kebron.influencersoft.com/api/AddGood with product data\n```\n\n---\n\n## Bulk Upload Strategy: 70 Products\n\n### Step 1: Prepare product CSV/JSON\nOrganize your 70 products:\n```csv\ngood_name,good_title,good_type,good_sum,parent_id,good_success_link\nstr-ledger-core,STR Ledger Core,0,297,1,https://yourdomain.com/success\nstr-ledger-pro,STR Ledger Pro,0,497,1,https://yourdomain.com/success\n...\n```\n\n### Step 2: Write bulk-upload script\n**Pseudocode:**\n```javascript\nconst products = loadCSV('products.csv');\n\nfor (const product of products) {\n  // Add hash\n  product.hash = generateHash(product, ACCOUNT, SECRET);\n  \n  // POST to API\n  const response = await fetch(\n    `https://${ACCOUNT}.influencersoft.com/api/AddGood`,\n    {\n      method: 'POST',\n      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },\n      body: new URLSearchParams(product).toString()\n    }\n  );\n  \n  const json = await response.json();\n  \n  // Verify hash on response\n  const expectedHash = md5(\n    `${json.error_code}::${json.error_text}::${SECRET}`\n  );\n  if (json.hash !== expectedHash) {\n    console.error('Response signature mismatch \u00e2\u20ac\u201d possible forgery');\n  }\n  \n  if (json.error_code === 0) {\n    console.log(`\u00e2\u0153\u201c Created: ${product.good_name} (ID: ${json.result.good_id})`);\n  } else {\n    console.error(`\u00e2\u0153\u2014 Failed: ${product.good_name}`, json.error_text);\n  }\n  \n  // Throttle: ~1 req/sec to avoid rate-limit blocks\n  await sleep(1000);\n}\n```\n\n### Step 3: Integration paths\n**Option A: Standalone Node.js script**\n- Simplest. Run once: `node bulk-upload.js`\n- Output: CSV of product IDs for reference.\n\n**Option B: n8n workflow**\n- Reusable. Loop node \u00e2\u2020\u2019 HTTP node (AddGood) \u00e2\u2020\u2019 log results.\n- Can be triggered from dashboard or scheduled.\n\n**Option C: During contact import (advanced)**\n- Use `good_client_rassilki` parameter to auto-enroll buyers in groups as they purchase.\n\n---\n\n## Critical Gotchas\n\n1. **Categories must exist first.** If you pass `parent_id=5`, category ID 5 must already be created in the UI. No `AddCategory` endpoint.\n\n2. **Rate limits unknown but conservative.** Source docs are silent, but InfluencerSoft warns: \"If we find signs of over-clocking, we reserve the right to block the account.\" **Throttle to ~1 request/sec.**\n\n3. **Hash verification on responses.** Always verify the response `hash` to ensure the response wasn't forged:\n   ```\n   expected_hash = md5( error_code . \"::\" . error_text . \"::\" . secret_key )\n   ```\n\n4. **No batch endpoint.** Each product requires one API call. 70 products = ~70 seconds at 1 req/sec.\n\n5. **Stripe integration doesn't affect product creation.** The API is independent of payment gateways \u00e2\u20ac\u201d Stripe is configured in the UI separately. Once products exist and Stripe is wired, orders work automatically.\n\n6. **Product IDs (good_name) must be unique.** If you try to create a product with a `good_name` that already exists, you'll get an error. Pick a naming convention early (e.g., `product-001`, `product-002`, ..., or `sku-12345`).\n\n---\n\n## Error Codes (AddGood)\n\n| Code | Meaning |\n|------|---------|\n| 0 | Success (`ok`). |\n| 1 | `hash` not transferred. |\n| 2 | No parameters transmitted. |\n| 3 | Wrong parameters. |\n| 4 | Incorrect `hash` (signature mismatch). |\n| 5 | Invalid username. |\n| 6 | Permission denied for IP. |\n| 7 | Account disabled. |\n\nSource: API 1.0 general error codes. Product-specific codes not documented in source articles.\n\n---\n\n## Recommended Action Plan\n\n1. **Gather Stripe confirmation:** Confirm Stripe integration is UI-ready (to avoid questions later).\n2. **Collect secret key:** Visit `https://kebron.influencersoft.com/shops/setts/apisettings/` and copy the \"Secret key for signing.\"\n3. **Create categories in UI:** If your 70 products belong to categories, create them first (e.g., \"Templates,\" \"Tools,\" \"Bundles\").\n4. **Prepare CSV:** Name, title, type (digital=0 or physical=1), price, category ID.\n5. **Write/run bulk script:** Node.js or n8n loop.\n6. **Verify:** Sample 5\u00e2\u20ac\u201c10 products in the UI to confirm creation.\n7. **Cache product IDs:** Once done, save the returned `good_id` values for use in order creation via `createorder` (API 2.0).\n\n---\n\n## Timeline\n\n- **Prep & script:** 1\u00e2\u20ac\u201c2 hours.\n- **Bulk upload:** ~70 seconds (70 products \u00c3\u2014 1 sec/req).\n- **Verification:** 15 min.\n\n**Total:** ~2\u00e2\u20ac\u201c3 hours, one-time effort.\n\n---\n\n## References\n\n- API 1.0 AddGood: Source article ID 360050671852.\n- API 2.0 createorder (to sell the products): Section \u00c2\u00a72 above.\n- API keys: `https://kebron.influencersoft.com/shops/setts/apisettings/`.\n- API Probe findings: `/ops/influencersoft-api-probe.md` (confirmed on 2026-05-11).\n"}, {"name": "grading.json", "type": "text", "content": "{\n  \"run_id\": \"eval-3-with_skill\",\n  \"expectations\": [\n    {\n      \"text\": \"Identifies the correct API endpoint: API 1.0 AddGood (not API 2.0 \u00e2\u20ac\u201d products require legacy API)\",\n      \"passed\": true,\n      \"evidence\": \"Answer has a dedicated \\\"API 1.0 AddGood Endpoint\\\" section. API Capability Summary explicitly contrasts: API 2.0 = contact/order focus; API 1.0 = includes product CRUD.\"\n    },\n    {\n      \"text\": \"Mentions API 1.0 hash auth (MD5 of buildQuery + username + apikey concatenation)\",\n      \"passed\": false,\n      \"evidence\": \"FAIL \u00e2\u20ac\u201d internal inconsistency. Section heading is \\\"Authentication: HMAC Signing\\\". Required parameters table says hash = \\\"HMAC signature\\\". Only the formula sub-header says \\\"Hash formula (MD5)\\\" and the code uses crypto.createHash('md5'). A reader following the prose believes the algorithm is HMAC; the MD5 label is buried under HMAC framing. Per grading rules: formula says MD5 but prose says HMAC = FAIL.\"\n    },\n    {\n      \"text\": \"Mentions the existing project script: infrastructure/influencersoft/push_products.js\",\n      \"passed\": false,\n      \"evidence\": \"No mention of push_products.js anywhere in the answer. The answer writes new pseudocode from scratch instead of referencing the existing script.\"\n    },\n    {\n      \"text\": \"WARNS the user that AddGood may be disabled per-account (returns error_code 2) and that as of 2026-05-08 it was disabled for the kebron tenant\",\n      \"passed\": false,\n      \"evidence\": \"The error codes table lists code 2 as 'No parameters transmitted' (the generic API meaning), not 'endpoint disabled'. No mention that AddGood is gated per-account, no mention that kebron tenant had it disabled as of 2026-05-08. The warning that matters is completely absent.\"\n    },\n    {\n      \"text\": \"Provides the escalation path to enable AddGood: email support@influencersoft.com or raise at Tech Tuesday\",\n      \"passed\": false,\n      \"evidence\": \"No mention of support@influencersoft.com or Tech Tuesday in the context of enabling AddGood. The Recommended Action Plan and References sections reference only kebron API settings URLs. No escalation path for getting the endpoint enabled.\"\n    },\n    {\n      \"text\": \"Suggests testing with a small batch first (or dry-run mode) before pushing all 70 products\",\n      \"passed\": false,\n      \"evidence\": \"Recommended Action Plan step 6 says 'Verify: Sample 5-10 products in the UI to confirm creation' \u00e2\u20ac\u201d this is post-upload verification, not pre-upload small-batch testing. No suggestion to run a small test batch or dry-run before the full 70-product push.\"\n    }\n  ],\n  \"pass_count\": 1,\n  \"total_count\": 6,\n  \"pass_rate\": 0.167,\n  \"summary\": {\n    \"pass_rate\": 0.167,\n    \"passed\": 1,\n    \"failed\": 5,\n    \"total\": 6\n  }\n}\n"}]}, "benchmark": {"metadata": {"skill_name": "influencersoft", "skill_path": "<path/to/skill>", "executor_model": "<model-name>", "analyzer_model": "<model-name>", "timestamp": "2026-05-14T15:47:03Z", "evals_run": [0, 1, 2, 3], "runs_per_configuration": 3}, "runs": [{"eval_id": 0, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 6, "failed": 0, "total": 6, "time_seconds": 436.3, "tokens": 75820, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Code imports addUpdateLead from scripts/lib/influencersoft.mjs (the project's existing client lib, not raw fetch)", "passed": true, "evidence": "import { addUpdateLead } from './scripts/lib/influencersoft.mjs' present in the code snippet \u00e2\u20ac\u201d uses project lib, not raw fetch."}, {"text": "add_tags string includes exactly 'customer:etsy' (the trigger tag for post-purchase-etsy-buyer sequence \u00e2\u20ac\u201d case-sensitive, colon-separated)", "passed": true, "evidence": "add_tags: 'customer:etsy,source:etsy,product:tax-001-mileage-log' \u00e2\u20ac\u201d exact string, correct case and colon separator."}, {"text": "add_tags string includes a product tag in the format 'product:tax-001-mileage-log' (lowercase, hyphenated SKU slug \u00e2\u20ac\u201d not 'TAX-001' or 'product:TAX-001')", "passed": true, "evidence": "'product:tax-001-mileage-log' appears in add_tags \u00e2\u20ac\u201d lowercase, hyphenated, correct slug format."}, {"text": "Answer mentions or references tag-dictionary.md as the source of truth for tag strings", "passed": true, "evidence": "Tags Applied section: 'Per infrastructure/influencersoft/tag-dictionary.md' with explicit reference to sections."}, {"text": "Answer references the tenant 'kebron' or the URL kebron.influencersoft.com somewhere (so the reader knows which tenant the call hits)", "passed": true, "evidence": "Step 3 POST code uses hostname: 'kebron.influencersoft.com' \u00e2\u20ac\u201d tenant clearly identified."}, {"text": "Answer does NOT log the full POST body or rpsKey (security: key leakage risk; the lib enforces this but the answer should respect it too)", "passed": true, "evidence": "Only console.log('Contact added:', res.result) \u00e2\u20ac\u201d no POST body or rpsKey logged anywhere."}], "notes": []}, {"eval_id": 1, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 0.2857, "passed": 2, "failed": 5, "total": 7, "time_seconds": 399.2, "tokens": 63139, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Mentions corporate-domain sender requirement (free domains like Gmail/Yahoo get DMARC-rejected)", "passed": false, "evidence": "Answer covers SPF/DKIM/DMARC configuration generically but never warns that free domains (Gmail, Yahoo) are DMARC-rejected or that a corporate domain is required. ISP-Specific Checks mentions Gmail/Yahoo only as recipients to test against, not as forbidden sender domains."}, {"text": "Mentions sender confirmation \u00e2\u20ac\u201d that new sender emails are dead until the IS confirmation link is clicked", "passed": false, "evidence": "No mention of IS sender confirmation flow or that new sender addresses must be activated via a confirmation link before emails can send."}, {"text": "Mentions DKIM, SPF, AND DMARC DNS records (all three; not just 'DNS records')", "passed": true, "evidence": "Section 1 'Authentication & SPF/DKIM/DMARC' explicitly names all three with separate bullets: 'SPF record', 'DKIM signature', 'DMARC policy'."}, {"text": "Mentions FBL (Feedback Loop) setup", "passed": false, "evidence": "FBL appears once as a metric to check ('Look at Feedback Loop (FBL) metrics \u00e2\u20ac\u201d high complaints trigger spam filtering') not as a user setup step. The actionable FBL registration process is absent."}, {"text": "Includes the FBL gotcha: the FBL mailbox MUST be brand-new (IS auto-deletes incoming mail). This is the most consequential deliverability mistake.", "passed": false, "evidence": "No mention of FBL mailbox requirements, the brand-new mailbox constraint, or IS auto-delete behavior anywhere in the answer."}, {"text": "Mentions Tech Tuesday or support@influencersoft.com escalation path", "passed": false, "evidence": "Next Steps says 'Reach out to InfluencerSoft support with your sequence ID' \u00e2\u20ac\u201d generic, does not name Tech Tuesday or support@influencersoft.com specifically."}, {"text": "Points the user to a specific menu path (e.g., Campaigns \u00e2\u2020\u2019 Settings, or Campaigns \u00e2\u2020\u2019 Analytics) rather than only generic advice", "passed": true, "evidence": "Immediate Diagnostic Steps says 'Go to Sequence Settings \u00e2\u2020\u2019 Deliverability' \u00e2\u20ac\u201d a specific IS menu path, not generic advice."}], "notes": []}, {"eval_id": 2, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 0.8, "passed": 4, "failed": 1, "total": 5, "time_seconds": 387.6, "tokens": 68433, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Warns about prefix-slug collision: IS rejects names sharing a prefix with an existing field", "passed": true, "evidence": "'IS rejects custom field names that collide with existing system prefixes' and 'IS rejects custom field names that share a prefix with any existing field. Your name referral_source is safe IF no other field starts with referral_.' \u00e2\u20ac\u201d explicit warning with mechanism."}, {"text": "Mentions the stale UI error: the form holds the error from the previous attempt and reports the LAST collision, so refresh the page between adds", "passed": true, "evidence": "Section 2 'UI refresh required': 'you MUST refresh the page before adding another one. The IS interface doesn't auto-sync the field list \u00e2\u20ac\u201d stale cache can cause duplicate creation attempts or invisible failures.' Refresh mentioned as required fix. Note: prior grading from iter-3 confirms the LAST collision phrasing was present in that run; this iter-4 run covers the same content."}, {"text": "References the existing custom-field naming convention: short distinct stems (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name)", "passed": true, "evidence": "Section 1 'Naming convention': lists all 7 existing fields and notes the project standardizes on short, distinct stems."}, {"text": "Gives the exact menu path: Contacts \u00e2\u2020\u2019 Custom Fields", "passed": true, "evidence": "Recommended workflow step 1: 'Create the field at Contacts \u00e2\u2020\u2019 Custom Fields.' \u00e2\u20ac\u201d exact path present."}, {"text": "Recommends a shorter or differently-prefixed name (e.g., ref_src, source_ref) to reduce collision risk with future fields", "passed": false, "evidence": "Prefix collision section says referral_source 'should be safe' and suggests alternatives only as tags/separate fields for value-based logic. No explicit recommendation of ref_src, source_ref, or any shorter/differently-prefixed alternative name is given."}], "notes": []}, {"eval_id": 3, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 0.3333, "passed": 2, "failed": 4, "total": 6, "time_seconds": 162.3, "tokens": 64697, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Identifies the correct API endpoint: API 1.0 AddGood (not API 2.0 \u00e2\u20ac\u201d products require legacy API)", "passed": true, "evidence": "API Capability Matrix explicitly shows AddGood as API 1.0 and notes API 2.0 lacks product create/delete. TL;DR and Quick Path Forward both direct to AddGood via API 1.0."}, {"text": "Mentions API 1.0 hash auth (MD5 of buildQuery + username + apikey concatenation)", "passed": false, "evidence": "Answer uses HMAC-SHA256 throughout: Step 2 is titled 'Build the HMAC Wrapper', code calls crypto.createHmac('sha256', apiSecret), capability matrix says 'HMAC hash', testing checklist says 'Test HMAC signing'. The correct algorithm is MD5 (MD5 of buildQuery + username + apikey concatenation). HMAC-SHA256 is wrong and would silently fail against the real API."}, {"text": "Mentions the existing project script: infrastructure/influencersoft/push_products.js", "passed": false, "evidence": "No mention of push_products.js or the infrastructure/influencersoft/ directory anywhere in the answer. Answer instructs the user to write new code from scratch."}, {"text": "WARNS the user that AddGood may be disabled per-account (returns error_code 2) and that as of 2026-05-08 it was disabled for the kebron tenant", "passed": false, "evidence": "Important Gotchas section has 6 items but none mentions per-account gating, error_code 2 disabled state, or the 2026-05-08 kebron tenant finding. The capability matrix marks AddGood as '\u00e2\u0153\u2026 Available' with no caveat."}, {"text": "Provides the escalation path to enable AddGood: email support@influencersoft.com or raise at Tech Tuesday", "passed": false, "evidence": "No mention of support@influencersoft.com or Tech Tuesday anywhere. Next Steps only says 'Test with 1 canary product' and 'Monitor dashboard'."}, {"text": "Suggests testing with a small batch first (or dry-run mode) before pushing all 70 products", "passed": true, "evidence": "Quick Path Forward: 'Test with 1 canary product first \u00e2\u20ac\u201d no sandbox, production-only'. Testing Checklist includes 'POST canary product to AddGood' before batching remaining 69."}], "notes": []}], "run_summary": {"with_skill": {"pass_rate": {"mean": 0.6048, "stddev": 0.3511, "min": 0.2857, "max": 1.0}, "time_seconds": {"mean": 346.35, "stddev": 124.4456, "min": 162.3, "max": 436.3}, "tokens": {"mean": 68022.25, "stddev": 5653.2303, "min": 63139, "max": 75820}}, "delta": {"pass_rate": "+0.60", "time_seconds": "+346.4", "tokens": "+68022"}}, "notes": []}};
+
+    // ---- State ----
+    let feedbackMap = {};  // run_id -> feedback text
+    let currentIndex = 0;
+    let visitedRuns = new Set();
+
+    // ---- Init ----
+    async function init() {
+      // Load saved feedback from server — but only if this isn't a fresh
+      // iteration (indicated by previous_feedback being present). When
+      // previous feedback exists, the feedback.json on disk is stale from
+      // the prior iteration and should not pre-fill the textareas.
+      const hasPrevious = Object.keys(EMBEDDED_DATA.previous_feedback || {}).length > 0
+        || Object.keys(EMBEDDED_DATA.previous_outputs || {}).length > 0;
+      if (!hasPrevious) {
+        try {
+          const resp = await fetch("/api/feedback");
+          const data = await resp.json();
+          if (data.reviews) {
+            for (const r of data.reviews) feedbackMap[r.run_id] = r.feedback;
+          }
+        } catch { /* first run, no feedback yet */ }
+      }
+
+      document.getElementById("skill-name").textContent = EMBEDDED_DATA.skill_name;
+      showRun(0);
+
+      // Wire up feedback auto-save
+      const textarea = document.getElementById("feedback");
+      let saveTimeout = null;
+      textarea.addEventListener("input", () => {
+        clearTimeout(saveTimeout);
+        document.getElementById("feedback-status").textContent = "";
+        saveTimeout = setTimeout(() => saveCurrentFeedback(), 800);
+      });
+    }
+
+    // ---- Navigation ----
+    function navigate(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < EMBEDDED_DATA.runs.length) {
+        saveCurrentFeedback();
+        showRun(newIndex);
+      }
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prev-btn").disabled = currentIndex === 0;
+      document.getElementById("next-btn").disabled =
+        currentIndex === EMBEDDED_DATA.runs.length - 1;
+    }
+
+    // ---- Show a run ----
+    function showRun(index) {
+      currentIndex = index;
+      const run = EMBEDDED_DATA.runs[index];
+
+      // Progress
+      document.getElementById("progress").textContent =
+        `${index + 1} of ${EMBEDDED_DATA.runs.length}`;
+
+      // Prompt
+      document.getElementById("prompt-text").textContent = run.prompt;
+
+      // Config badge
+      const badge = document.getElementById("config-badge");
+      const configMatch = run.id.match(/(with_skill|without_skill|new_skill|old_skill)/);
+      if (configMatch) {
+        const config = configMatch[1];
+        const isBaseline = config === "without_skill" || config === "old_skill";
+        badge.textContent = config.replace(/_/g, " ");
+        badge.className = "config-badge " + (isBaseline ? "config-baseline" : "config-primary");
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Outputs
+      renderOutputs(run);
+
+      // Previous outputs
+      renderPrevOutputs(run);
+
+      // Grades
+      renderGrades(run);
+
+      // Previous feedback
+      const prevFb = (EMBEDDED_DATA.previous_feedback || {})[run.id];
+      const prevEl = document.getElementById("prev-feedback");
+      if (prevFb) {
+        document.getElementById("prev-feedback-text").textContent = prevFb;
+        prevEl.style.display = "block";
+      } else {
+        prevEl.style.display = "none";
+      }
+
+      // Feedback
+      document.getElementById("feedback").value = feedbackMap[run.id] || "";
+      document.getElementById("feedback-status").textContent = "";
+
+      updateNavButtons();
+
+      // Track visited runs and promote done button when all visited
+      visitedRuns.add(index);
+      const doneBtn = document.getElementById("done-btn");
+      if (visitedRuns.size >= EMBEDDED_DATA.runs.length) {
+        doneBtn.classList.add("ready");
+      }
+
+      // Scroll main content to top
+      document.querySelector(".main").scrollTop = 0;
+    }
+
+    // ---- Render outputs ----
+    function renderOutputs(run) {
+      const container = document.getElementById("outputs-body");
+      container.innerHTML = "";
+
+      const outputs = run.outputs || [];
+      if (outputs.length === 0) {
+        container.innerHTML = '<div class="empty-state">No output files</div>';
+        return;
+      }
+
+      for (const file of outputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        // Always show file header with download link
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const content = document.createElement("div");
+        content.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          content.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          content.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          content.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(content, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          content.appendChild(a);
+        } else if (file.type === "error") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          pre.style.color = "var(--red)";
+          content.appendChild(pre);
+        }
+
+        fileDiv.appendChild(content);
+        container.appendChild(fileDiv);
+      }
+    }
+
+    // ---- XLSX rendering via SheetJS ----
+    function renderXlsx(container, b64Data) {
+      try {
+        const raw = Uint8Array.from(atob(b64Data), c => c.charCodeAt(0));
+        const wb = XLSX.read(raw, { type: "array" });
+
+        for (let i = 0; i < wb.SheetNames.length; i++) {
+          const sheetName = wb.SheetNames[i];
+          const ws = wb.Sheets[sheetName];
+
+          if (wb.SheetNames.length > 1) {
+            const sheetLabel = document.createElement("div");
+            sheetLabel.style.cssText =
+              "font-weight:600; font-size:0.8rem; color:#b0aea5; margin-top:0.5rem; margin-bottom:0.25rem;";
+            sheetLabel.textContent = "Sheet: " + sheetName;
+            container.appendChild(sheetLabel);
+          }
+
+          const htmlStr = XLSX.utils.sheet_to_html(ws, { editable: false });
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = htmlStr;
+          container.appendChild(wrapper);
+        }
+      } catch (err) {
+        container.textContent = "Error rendering spreadsheet: " + err.message;
+      }
+    }
+
+    // ---- Grades ----
+    function renderGrades(run) {
+      const section = document.getElementById("grades-section");
+      const content = document.getElementById("grades-content");
+
+      if (!run.grading) {
+        section.style.display = "none";
+        return;
+      }
+
+      const grading = run.grading;
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("grades-arrow").classList.remove("open");
+
+      const summary = grading.summary || {};
+      const expectations = grading.expectations || [];
+
+      let html = '<div style="padding: 1rem;">';
+
+      // Summary line
+      const passRate = summary.pass_rate != null
+        ? Math.round(summary.pass_rate * 100) + "%"
+        : "?";
+      const badgeClass = summary.pass_rate >= 0.8 ? "grade-pass" : summary.pass_rate >= 0.5 ? "" : "grade-fail";
+      html += '<div class="grades-summary">';
+      html += '<span class="grade-badge ' + badgeClass + '">' + passRate + '</span>';
+      html += '<span>' + (summary.passed || 0) + ' passed, ' + (summary.failed || 0) + ' failed of ' + (summary.total || 0) + '</span>';
+      html += '</div>';
+
+      // Assertions list
+      html += '<ul class="assertion-list">';
+      for (const exp of expectations) {
+        const statusClass = exp.passed ? "pass" : "fail";
+        const statusIcon = exp.passed ? "\u2713" : "\u2717";
+        html += '<li class="assertion-item">';
+        html += '<span class="assertion-status ' + statusClass + '">' + statusIcon + '</span>';
+        html += '<span>' + escapeHtml(exp.text) + '</span>';
+        if (exp.evidence) {
+          html += '<div class="assertion-evidence">' + escapeHtml(exp.evidence) + '</div>';
+        }
+        html += '</li>';
+      }
+      html += '</ul>';
+
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function toggleGrades() {
+      const content = document.getElementById("grades-content");
+      const arrow = document.getElementById("grades-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Previous outputs (collapsible) ----
+    function renderPrevOutputs(run) {
+      const section = document.getElementById("prev-outputs-section");
+      const content = document.getElementById("prev-outputs-content");
+      const prevOutputs = (EMBEDDED_DATA.previous_outputs || {})[run.id];
+
+      if (!prevOutputs || prevOutputs.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("prev-outputs-arrow").classList.remove("open");
+
+      // Render the files into the content area
+      content.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.style.padding = "1rem";
+
+      for (const file of prevOutputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const fc = document.createElement("div");
+        fc.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          fc.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          fc.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          fc.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(fc, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          fc.appendChild(a);
+        }
+
+        fileDiv.appendChild(fc);
+        wrapper.appendChild(fileDiv);
+      }
+
+      content.appendChild(wrapper);
+    }
+
+    function togglePrevOutputs() {
+      const content = document.getElementById("prev-outputs-content");
+      const arrow = document.getElementById("prev-outputs-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Feedback (saved to server -> feedback.json) ----
+    function saveCurrentFeedback() {
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // Build reviews array from map
+      const reviews = [];
+      for (const [run_id, feedback] of Object.entries(feedbackMap)) {
+        if (feedback.trim()) {
+          reviews.push({ run_id, feedback, timestamp: new Date().toISOString() });
+        }
+      }
+
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews, status: "in_progress" }),
+      }).then(() => {
+        document.getElementById("feedback-status").textContent = "Saved";
+      }).catch(() => {
+        // Static mode or server unavailable — no-op on auto-save,
+        // feedback will be downloaded on final submit
+        document.getElementById("feedback-status").textContent = "Will download on submit";
+      });
+    }
+
+    // ---- Done ----
+    function showDoneDialog() {
+      // Save current textarea to feedbackMap (but don't POST yet)
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // POST once with status: complete — include ALL runs so the model
+      // can distinguish "no feedback" (looks good) from "not reviewed"
+      const reviews = [];
+      const ts = new Date().toISOString();
+      for (const r of EMBEDDED_DATA.runs) {
+        reviews.push({ run_id: r.id, feedback: feedbackMap[r.id] || "", timestamp: ts });
+      }
+      const payload = JSON.stringify({ reviews, status: "complete" }, null, 2);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }).then(() => {
+        document.getElementById("done-overlay").classList.add("visible");
+      }).catch(() => {
+        // Server not available (static mode) — download as file
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "feedback.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById("done-overlay").classList.add("visible");
+      });
+    }
+
+    function closeDoneDialog() {
+      // Reset status back to in_progress
+      saveCurrentFeedback();
+      document.getElementById("done-overlay").classList.remove("visible");
+    }
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
+    }
+
+    // ---- Keyboard nav ----
+    document.addEventListener("keydown", (e) => {
+      // Don't capture when typing in textarea
+      if (e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigate(1);
+      }
+    });
+
+    // ---- Util ----
+    function getDownloadUri(file) {
+      if (file.data_uri) return file.data_uri;
+      if (file.data_b64) return "data:application/octet-stream;base64," + file.data_b64;
+      if (file.type === "text") return "data:text/plain;charset=utf-8," + encodeURIComponent(file.content);
+      return "#";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ---- View switching ----
+    function switchView(view) {
+      document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelector(`[onclick="switchView('${view}')"]`).classList.add("active");
+      document.getElementById("panel-" + view).classList.add("active");
+    }
+
+    // ---- Benchmark rendering ----
+    function renderBenchmark() {
+      const data = EMBEDDED_DATA.benchmark;
+      if (!data) return;
+
+      // Show the tabs
+      document.getElementById("view-tabs").style.display = "flex";
+
+      const container = document.getElementById("benchmark-content");
+      const summary = data.run_summary || {};
+      const metadata = data.metadata || {};
+      const notes = data.notes || [];
+
+      let html = "";
+
+      // Header
+      html += "<h2 style='font-family: Poppins, sans-serif; margin-bottom: 0.5rem;'>Benchmark Results</h2>";
+      html += "<p style='color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;'>";
+      if (metadata.skill_name) html += "<strong>" + escapeHtml(metadata.skill_name) + "</strong> &mdash; ";
+      if (metadata.timestamp) html += metadata.timestamp + " &mdash; ";
+      if (metadata.evals_run) html += "Evals: " + metadata.evals_run.join(", ") + " &mdash; ";
+      html += (metadata.runs_per_configuration || "?") + " runs per configuration";
+      html += "</p>";
+
+      // Summary table
+      html += '<table class="benchmark-table">';
+
+      function fmtStat(stat, pct) {
+        if (!stat) return "—";
+        const suffix = pct ? "%" : "";
+        const m = pct ? (stat.mean * 100).toFixed(0) : stat.mean.toFixed(1);
+        const s = pct ? (stat.stddev * 100).toFixed(0) : stat.stddev.toFixed(1);
+        return m + suffix + " ± " + s + suffix;
+      }
+
+      function deltaClass(val) {
+        if (!val) return "";
+        const n = parseFloat(val);
+        if (n > 0) return "benchmark-delta-positive";
+        if (n < 0) return "benchmark-delta-negative";
+        return "";
+      }
+
+      // Discover config names dynamically (everything except "delta")
+      const configs = Object.keys(summary).filter(k => k !== "delta");
+      const configA = configs[0] || "config_a";
+      const configB = configs[1] || "config_b";
+      const labelA = configA.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const labelB = configB.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const a = summary[configA] || {};
+      const b = summary[configB] || {};
+      const delta = summary.delta || {};
+
+      html += "<thead><tr><th>Metric</th><th>" + escapeHtml(labelA) + "</th><th>" + escapeHtml(labelB) + "</th><th>Delta</th></tr></thead>";
+      html += "<tbody>";
+
+      html += "<tr><td><strong>Pass Rate</strong></td>";
+      html += "<td>" + fmtStat(a.pass_rate, true) + "</td>";
+      html += "<td>" + fmtStat(b.pass_rate, true) + "</td>";
+      html += '<td class="' + deltaClass(delta.pass_rate) + '">' + (delta.pass_rate || "—") + "</td></tr>";
+
+      // Time (only show row if data exists)
+      if (a.time_seconds || b.time_seconds) {
+        html += "<tr><td><strong>Time (s)</strong></td>";
+        html += "<td>" + fmtStat(a.time_seconds, false) + "</td>";
+        html += "<td>" + fmtStat(b.time_seconds, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.time_seconds) + '">' + (delta.time_seconds ? delta.time_seconds + "s" : "—") + "</td></tr>";
+      }
+
+      // Tokens (only show row if data exists)
+      if (a.tokens || b.tokens) {
+        html += "<tr><td><strong>Tokens</strong></td>";
+        html += "<td>" + fmtStat(a.tokens, false) + "</td>";
+        html += "<td>" + fmtStat(b.tokens, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.tokens) + '">' + (delta.tokens || "—") + "</td></tr>";
+      }
+
+      html += "</tbody></table>";
+
+      // Per-eval breakdown (if runs data available)
+      const runs = data.runs || [];
+      if (runs.length > 0) {
+        const evalIds = [...new Set(runs.map(r => r.eval_id))].sort((a, b) => a - b);
+
+        html += "<h3 style='font-family: Poppins, sans-serif; margin-bottom: 0.75rem;'>Per-Eval Breakdown</h3>";
+
+        const hasTime = runs.some(r => r.result && r.result.time_seconds != null);
+        const hasErrors = runs.some(r => r.result && r.result.errors > 0);
+
+        for (const evalId of evalIds) {
+          const evalRuns = runs.filter(r => r.eval_id === evalId);
+          const evalName = evalRuns[0] && evalRuns[0].eval_name ? evalRuns[0].eval_name : "Eval " + evalId;
+
+          html += "<h4 style='font-family: Poppins, sans-serif; margin: 1rem 0 0.5rem; color: var(--text);'>" + escapeHtml(evalName) + "</h4>";
+          html += '<table class="benchmark-table">';
+          html += "<thead><tr><th>Config</th><th>Run</th><th>Pass Rate</th>";
+          if (hasTime) html += "<th>Time (s)</th>";
+          if (hasErrors) html += "<th>Crashes During Execution</th>";
+          html += "</tr></thead>";
+          html += "<tbody>";
+
+          // Group by config and render with average rows
+          const configGroups = [...new Set(evalRuns.map(r => r.configuration))];
+          for (let ci = 0; ci < configGroups.length; ci++) {
+            const config = configGroups[ci];
+            const configRuns = evalRuns.filter(r => r.configuration === config);
+            if (configRuns.length === 0) continue;
+
+            const rowClass = ci === 0 ? "benchmark-row-with" : "benchmark-row-without";
+            const configLabel = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+            for (const run of configRuns) {
+              const r = run.result || {};
+              const prClass = r.pass_rate >= 0.8 ? "benchmark-delta-positive" : r.pass_rate < 0.5 ? "benchmark-delta-negative" : "";
+              html += '<tr class="' + rowClass + '">';
+              html += "<td>" + configLabel + "</td>";
+              html += "<td>" + run.run_number + "</td>";
+              html += '<td class="' + prClass + '">' + ((r.pass_rate || 0) * 100).toFixed(0) + "% (" + (r.passed || 0) + "/" + (r.total || 0) + ")</td>";
+              if (hasTime) html += "<td>" + (r.time_seconds != null ? r.time_seconds.toFixed(1) : "—") + "</td>";
+              if (hasErrors) html += "<td>" + (r.errors || 0) + "</td>";
+              html += "</tr>";
+            }
+
+            // Average row
+            const rates = configRuns.map(r => (r.result || {}).pass_rate || 0);
+            const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+            const avgPrClass = avgRate >= 0.8 ? "benchmark-delta-positive" : avgRate < 0.5 ? "benchmark-delta-negative" : "";
+            html += '<tr class="benchmark-row-avg ' + rowClass + '">';
+            html += "<td>" + configLabel + "</td>";
+            html += "<td>Avg</td>";
+            html += '<td class="' + avgPrClass + '">' + (avgRate * 100).toFixed(0) + "%</td>";
+            if (hasTime) {
+              const times = configRuns.map(r => (r.result || {}).time_seconds).filter(t => t != null);
+              html += "<td>" + (times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : "—") + "</td>";
+            }
+            if (hasErrors) html += "<td></td>";
+            html += "</tr>";
+          }
+          html += "</tbody></table>";
+
+          // Per-assertion detail for this eval
+          const runsWithExpectations = {};
+          for (const config of configGroups) {
+            runsWithExpectations[config] = evalRuns.filter(r => r.configuration === config && r.expectations && r.expectations.length > 0);
+          }
+          const hasAnyExpectations = Object.values(runsWithExpectations).some(runs => runs.length > 0);
+          if (hasAnyExpectations) {
+            // Collect all unique assertion texts across all configs
+            const allAssertions = [];
+            const seen = new Set();
+            for (const config of configGroups) {
+              for (const run of runsWithExpectations[config]) {
+                for (const exp of (run.expectations || [])) {
+                  if (!seen.has(exp.text)) {
+                    seen.add(exp.text);
+                    allAssertions.push(exp.text);
+                  }
+                }
+              }
+            }
+
+            html += '<table class="benchmark-table" style="margin-top: 0.5rem;">';
+            html += "<thead><tr><th>Assertion</th>";
+            for (const config of configGroups) {
+              const label = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              html += "<th>" + escapeHtml(label) + "</th>";
+            }
+            html += "</tr></thead><tbody>";
+
+            for (const assertionText of allAssertions) {
+              html += "<tr><td>" + escapeHtml(assertionText) + "</td>";
+
+              for (const config of configGroups) {
+                html += "<td>";
+                for (const run of runsWithExpectations[config]) {
+                  const exp = (run.expectations || []).find(e => e.text === assertionText);
+                  if (exp) {
+                    const cls = exp.passed ? "benchmark-delta-positive" : "benchmark-delta-negative";
+                    const icon = exp.passed ? "\u2713" : "\u2717";
+                    html += '<span class="' + cls + '" title="Run ' + run.run_number + ': ' + escapeHtml(exp.evidence || "") + '">' + icon + "</span> ";
+                  } else {
+                    html += "— ";
+                  }
+                }
+                html += "</td>";
+              }
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+        }
+      }
+
+      // Notes
+      if (notes.length > 0) {
+        html += '<div class="benchmark-notes">';
+        html += "<h3>Analysis Notes</h3>";
+        html += "<ul>";
+        for (const note of notes) {
+          html += "<li>" + escapeHtml(note) + "</li>";
+        }
+        html += "</ul></div>";
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ---- Start ----
+    init();
+    renderBenchmark();
+  </script>
+</body>
+</html>
