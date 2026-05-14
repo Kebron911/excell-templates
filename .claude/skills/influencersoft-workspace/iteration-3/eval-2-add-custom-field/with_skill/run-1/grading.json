@@ -1,0 +1,39 @@
+{
+  "run_id": "eval-2-with_skill",
+  "expectations": [
+    {
+      "text": "Warns about prefix-slug collision: IS rejects names sharing a prefix with an existing field",
+      "passed": true,
+      "evidence": "Slug Collision Risk section: \"IS rejects names that share a prefix with existing custom fields.\" Gives example of referral_date / referral_source collision."
+    },
+    {
+      "text": "Mentions the stale UI error: the form holds the error from the previous attempt and reports the LAST collision, so refresh the page between adds",
+      "passed": true,
+      "evidence": "Gotcha #2 section: \"InfluencerSoft holds stale validation errors in the UI and will report the WRONG collision field if you don't refresh.\" Path: Contacts → Custom Fields → Create field → Refresh the page when done."
+    },
+    {
+      "text": "References the existing custom-field naming convention: short distinct stems (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name)",
+      "passed": false,
+      "evidence": "Answer never references the existing project field stems (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name). Field Name Rules section only says to use snake_case and keep it short."
+    },
+    {
+      "text": "Gives the exact menu path: Contacts → Custom Fields",
+      "passed": true,
+      "evidence": "Multiple occurrences: \"Path: Contacts → Custom Fields\", Quick Checklist: \"Check existing custom fields at Contacts → Custom Fields\""
+    },
+    {
+      "text": "Recommends a shorter or differently-prefixed name (e.g., ref_src, source_ref) to reduce collision risk with future fields",
+      "passed": false,
+      "evidence": "Workaround offered is 'referral_traffic_source' (longer, not shorter) or 'follow stems in manual-setup-guide Part 2'. Neither ref_src nor source_ref nor any short alternative stem is suggested."
+    }
+  ],
+  "pass_count": 3,
+  "total_count": 5,
+  "pass_rate": 0.6,
+  "summary": {
+    "pass_rate": 0.6,
+    "passed": 3,
+    "failed": 2,
+    "total": 5
+  }
+}

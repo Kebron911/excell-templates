@@ -1,0 +1,44 @@
+{
+  "run_id": "eval-0-with_skill",
+  "expectations": [
+    {
+      "text": "Code imports addUpdateLead from scripts/lib/influencersoft.mjs (the project's existing client lib, not raw fetch)",
+      "passed": true,
+      "evidence": "First line of code: import { addUpdateLead } from \"./scripts/lib/influencersoft.mjs\""
+    },
+    {
+      "text": "add_tags string includes exactly 'customer:etsy' (the trigger tag for post-purchase-etsy-buyer sequence — case-sensitive, colon-separated)",
+      "passed": true,
+      "evidence": "tags array contains \"customer:etsy\" as a literal string; joined into add_tags via tags.join(\",\")"
+    },
+    {
+      "text": "add_tags string includes a product tag in the format 'product:tax-001-mileage-log' (lowercase, hyphenated SKU slug — not 'TAX-001' or 'product:TAX-001')",
+      "passed": true,
+      "evidence": "skuMap maps \"TAX-001\" -> \"tax-001-mileage-log\"; tags includes `product:${productSlug}` = \"product:tax-001-mileage-log\". Tags Reference table confirms it."
+    },
+    {
+      "text": "Answer mentions or references tag-dictionary.md as the source of truth for tag strings",
+      "passed": true,
+      "evidence": "Code comment: \"Map SKU to product tag slug (per tag-dictionary.md §3)\". Tags Reference section cites infrastructure/influencersoft/tag-dictionary.md §3."
+    },
+    {
+      "text": "Answer references the tenant 'kebron' or the URL kebron.influencersoft.com somewhere (so the reader knows which tenant the call hits)",
+      "passed": true,
+      "evidence": "Integration Points section: \"Requires INFLUENCERSOFT_API_KEY in .env (32-char key from kebron tenant)\""
+    },
+    {
+      "text": "Answer does NOT log the full POST body or rpsKey (security: key leakage risk; the lib enforces this but the answer should respect it too)",
+      "passed": false,
+      "evidence": "Code explicitly logs full payload: console.log(\"Sending to InfluencerSoft:\", JSON.stringify(payload, null, 2)) — payload contains lead_email, lead_first_name, add_tags. Full POST body is logged."
+    }
+  ],
+  "pass_count": 5,
+  "total_count": 6,
+  "pass_rate": 0.833,
+  "summary": {
+    "pass_rate": 0.833,
+    "passed": 5,
+    "failed": 1,
+    "total": 6
+  }
+}

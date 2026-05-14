@@ -1,0 +1,44 @@
+{
+  "run_id": "eval-3-with_skill",
+  "expectations": [
+    {
+      "text": "Identifies the correct API endpoint: API 1.0 AddGood (not API 2.0 — products require legacy API)",
+      "passed": true,
+      "evidence": "Answer has a dedicated \"API 1.0 AddGood Endpoint\" section. API Capability Summary explicitly contrasts: API 2.0 = contact/order focus; API 1.0 = includes product CRUD."
+    },
+    {
+      "text": "Mentions API 1.0 hash auth (MD5 of buildQuery + username + apikey concatenation)",
+      "passed": false,
+      "evidence": "FAIL — internal inconsistency. Section heading is \"Authentication: HMAC Signing\". Required parameters table says hash = \"HMAC signature\". Only the formula sub-header says \"Hash formula (MD5)\" and the code uses crypto.createHash('md5'). A reader following the prose believes the algorithm is HMAC; the MD5 label is buried under HMAC framing. Per grading rules: formula says MD5 but prose says HMAC = FAIL."
+    },
+    {
+      "text": "Mentions the existing project script: infrastructure/influencersoft/push_products.js",
+      "passed": false,
+      "evidence": "No mention of push_products.js anywhere in the answer. The answer writes new pseudocode from scratch instead of referencing the existing script."
+    },
+    {
+      "text": "WARNS the user that AddGood may be disabled per-account (returns error_code 2) and that as of 2026-05-08 it was disabled for the kebron tenant",
+      "passed": false,
+      "evidence": "The error codes table lists code 2 as 'No parameters transmitted' (the generic API meaning), not 'endpoint disabled'. No mention that AddGood is gated per-account, no mention that kebron tenant had it disabled as of 2026-05-08. The warning that matters is completely absent."
+    },
+    {
+      "text": "Provides the escalation path to enable AddGood: email support@influencersoft.com or raise at Tech Tuesday",
+      "passed": false,
+      "evidence": "No mention of support@influencersoft.com or Tech Tuesday in the context of enabling AddGood. The Recommended Action Plan and References sections reference only kebron API settings URLs. No escalation path for getting the endpoint enabled."
+    },
+    {
+      "text": "Suggests testing with a small batch first (or dry-run mode) before pushing all 70 products",
+      "passed": false,
+      "evidence": "Recommended Action Plan step 6 says 'Verify: Sample 5-10 products in the UI to confirm creation' — this is post-upload verification, not pre-upload small-batch testing. No suggestion to run a small test batch or dry-run before the full 70-product push."
+    }
+  ],
+  "pass_count": 1,
+  "total_count": 6,
+  "pass_rate": 0.167,
+  "summary": {
+    "pass_rate": 0.167,
+    "passed": 1,
+    "failed": 5,
+    "total": 6
+  }
+}
