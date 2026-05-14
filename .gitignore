@@ -10,7 +10,9 @@ desktop.ini
 *.swp
 *.swo
 *~
-.claude/
+.claude/*
+!.claude/skills/
+!.claude/skills/**
 .claire/
 
 # Temp / backup

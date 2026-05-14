@@ -1,0 +1,12 @@
+{
+  "eval_id": 2,
+  "eval_name": "add-custom-field",
+  "prompt": "I want to add a new custom field in InfluencerSoft called 'referral_source'. Anything I should know before I do it?",
+  "assertions": [
+    {"text": "Warns about prefix-slug collision: IS rejects names sharing a prefix with an existing field"},
+    {"text": "Mentions the stale UI error: the form holds the error from the previous attempt and reports the LAST collision, so refresh the page between adds"},
+    {"text": "References the existing custom-field naming convention: short distinct stems (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name)"},
+    {"text": "Gives the exact menu path: Contacts → Custom Fields"},
+    {"text": "Recommends a shorter or differently-prefixed name (e.g., ref_src, source_ref) to reduce collision risk with future fields"}
+  ]
+}

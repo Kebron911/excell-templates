@@ -1,0 +1,49 @@
+{
+  "run_id": "eval-1-with_skill",
+  "expectations": [
+    {
+      "text": "Mentions corporate-domain sender requirement (free domains like Gmail/Yahoo get DMARC-rejected)",
+      "passed": false,
+      "evidence": "Answer covers SPF/DKIM/DMARC configuration generically but never warns that free domains (Gmail, Yahoo) are DMARC-rejected or that a corporate domain is required. ISP-Specific Checks mentions Gmail/Yahoo only as recipients to test against, not as forbidden sender domains."
+    },
+    {
+      "text": "Mentions sender confirmation — that new sender emails are dead until the IS confirmation link is clicked",
+      "passed": false,
+      "evidence": "No mention of IS sender confirmation flow or that new sender addresses must be activated via a confirmation link before emails can send."
+    },
+    {
+      "text": "Mentions DKIM, SPF, AND DMARC DNS records (all three; not just 'DNS records')",
+      "passed": true,
+      "evidence": "Section 1 'Authentication & SPF/DKIM/DMARC' explicitly names all three with separate bullets: 'SPF record', 'DKIM signature', 'DMARC policy'."
+    },
+    {
+      "text": "Mentions FBL (Feedback Loop) setup",
+      "passed": false,
+      "evidence": "FBL appears once as a metric to check ('Look at Feedback Loop (FBL) metrics — high complaints trigger spam filtering') not as a user setup step. The actionable FBL registration process is absent."
+    },
+    {
+      "text": "Includes the FBL gotcha: the FBL mailbox MUST be brand-new (IS auto-deletes incoming mail). This is the most consequential deliverability mistake.",
+      "passed": false,
+      "evidence": "No mention of FBL mailbox requirements, the brand-new mailbox constraint, or IS auto-delete behavior anywhere in the answer."
+    },
+    {
+      "text": "Mentions Tech Tuesday or support@influencersoft.com escalation path",
+      "passed": false,
+      "evidence": "Next Steps says 'Reach out to InfluencerSoft support with your sequence ID' — generic, does not name Tech Tuesday or support@influencersoft.com specifically."
+    },
+    {
+      "text": "Points the user to a specific menu path (e.g., Campaigns → Settings, or Campaigns → Analytics) rather than only generic advice",
+      "passed": true,
+      "evidence": "Immediate Diagnostic Steps says 'Go to Sequence Settings → Deliverability' — a specific IS menu path, not generic advice."
+    }
+  ],
+  "pass_count": 2,
+  "total_count": 7,
+  "pass_rate": 0.2857,
+  "summary": {
+    "pass_rate": 0.2857,
+    "passed": 2,
+    "failed": 5,
+    "total": 7
+  }
+}

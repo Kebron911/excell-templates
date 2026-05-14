@@ -1,0 +1,49 @@
+{
+  "run_id": "eval-1-with_skill",
+  "expectations": [
+    {
+      "text": "Mentions corporate-domain sender requirement (free domains like Gmail/Yahoo get DMARC-rejected)",
+      "passed": true,
+      "evidence": "Section 2 header: 'Sender Domain Is Corporate, Not Gmail/Yahoo \u2014 DMARC authentication rejects free-domain senders across most email providers.' Explicit warning with fix instructions."
+    },
+    {
+      "text": "Mentions sender confirmation \u2014 that new sender emails are dead until the IS confirmation link is clicked",
+      "passed": true,
+      "evidence": "Section 1: 'IS sent a confirmation link to that mailbox... Without this, sequences silently fail to send \u2014 recipients get nothing (not spam, just dead).' Named as #1 check."
+    },
+    {
+      "text": "Mentions DKIM, SPF, AND DMARC DNS records (all three; not just 'DNS records')",
+      "passed": true,
+      "evidence": "Section 3 names all three explicitly: 'SPF record exists', 'DKIM record exists', 'DMARC record exists' \u2014 each with format examples and separate bullets."
+    },
+    {
+      "text": "Mentions FBL (Feedback Loop) setup",
+      "passed": true,
+      "evidence": "Section 4 is titled 'Feedback Loop (FBL) Is Enabled' and covers setup, path (Campaigns \u2192 Settings \u2192 FBL), and consequences of missing it."
+    },
+    {
+      "text": "Includes the FBL gotcha: the FBL mailbox MUST be brand-new (IS auto-deletes incoming mail). This is the most consequential deliverability mistake.",
+      "passed": true,
+      "evidence": "'Do NOT reuse an existing mailbox or IS will auto-delete all its contents. Must be brand new.' \u2014 exact gotcha stated under section 4 'If misconfigured (CRITICAL warning in gotcha #4)'."
+    },
+    {
+      "text": "Mentions Tech Tuesday or support@influencersoft.com escalation path",
+      "passed": true,
+      "evidence": "Key Resources section: 'Tech Tuesday \u2014 Live support call with IS team; can screen-share to configure DNS live.' Tech Tuesday named explicitly."
+    },
+    {
+      "text": "Points the user to a specific menu path (e.g., Campaigns \u2192 Settings, or Campaigns \u2192 Analytics) rather than only generic advice",
+      "passed": true,
+      "evidence": "Multiple specific paths given: 'Campaigns \u2192 Settings \u2192 Senders', 'Campaigns \u2192 Settings \u2192 FBL', 'Campaigns \u2192 Analytics \u2192 Broadcasts Message Analytics', 'Campaigns \u2192 Settings \u2192 Auto-clean'."
+    }
+  ],
+  "pass_count": 7,
+  "total_count": 7,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 7,
+    "failed": 0,
+    "total": 7
+  }
+}

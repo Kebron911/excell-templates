@@ -1,0 +1,44 @@
+{
+  "run_id": "eval-0-with_skill",
+  "expectations": [
+    {
+      "text": "Code imports addUpdateLead from scripts/lib/influencersoft.mjs (the project's existing client lib, not raw fetch)",
+      "passed": true,
+      "evidence": "import { addUpdateLead } from './scripts/lib/influencersoft.mjs' present in the code snippet — uses project lib, not raw fetch."
+    },
+    {
+      "text": "add_tags string includes exactly 'customer:etsy' (the trigger tag for post-purchase-etsy-buyer sequence — case-sensitive, colon-separated)",
+      "passed": true,
+      "evidence": "add_tags: 'customer:etsy,source:etsy,product:tax-001-mileage-log' — exact string, correct case and colon separator."
+    },
+    {
+      "text": "add_tags string includes a product tag in the format 'product:tax-001-mileage-log' (lowercase, hyphenated SKU slug — not 'TAX-001' or 'product:TAX-001')",
+      "passed": true,
+      "evidence": "'product:tax-001-mileage-log' appears in add_tags — lowercase, hyphenated, correct slug format."
+    },
+    {
+      "text": "Answer mentions or references tag-dictionary.md as the source of truth for tag strings",
+      "passed": true,
+      "evidence": "Tags Applied section: 'Per infrastructure/influencersoft/tag-dictionary.md' with explicit reference to sections."
+    },
+    {
+      "text": "Answer references the tenant 'kebron' or the URL kebron.influencersoft.com somewhere (so the reader knows which tenant the call hits)",
+      "passed": true,
+      "evidence": "Step 3 POST code uses hostname: 'kebron.influencersoft.com' — tenant clearly identified."
+    },
+    {
+      "text": "Answer does NOT log the full POST body or rpsKey (security: key leakage risk; the lib enforces this but the answer should respect it too)",
+      "passed": true,
+      "evidence": "Only console.log('Contact added:', res.result) — no POST body or rpsKey logged anywhere."
+    }
+  ],
+  "pass_count": 6,
+  "total_count": 6,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 6,
+    "failed": 0,
+    "total": 6
+  }
+}

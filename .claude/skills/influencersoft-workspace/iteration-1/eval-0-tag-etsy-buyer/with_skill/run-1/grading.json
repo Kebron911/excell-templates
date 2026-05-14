@@ -1,0 +1,44 @@
+{
+  "run_id": "eval-0-with_skill",
+  "expectations": [
+    {
+      "text": "Code imports addUpdateLead from scripts/lib/influencersoft.mjs (the project's existing client lib, not raw fetch)",
+      "passed": true,
+      "evidence": "Option 1 and 2 both import addUpdateLead from './lib/influencersoft.mjs' \u2014 the project's existing helper, not a raw fetch implementation."
+    },
+    {
+      "text": "add_tags string includes exactly 'customer:etsy' (the trigger tag for post-purchase-etsy-buyer sequence \u2014 case-sensitive, colon-separated)",
+      "passed": true,
+      "evidence": "add_tags: 'customer:etsy,source:etsy,...' appears in both Option 1 and Option 2. Exact string, correct case."
+    },
+    {
+      "text": "add_tags string includes a product tag in the format 'product:tax-001-mileage-log' (lowercase, hyphenated SKU slug \u2014 not 'TAX-001' or 'product:TAX-001')",
+      "passed": true,
+      "evidence": "product:tax-001-mileage-log present in skuMap and tags array. Correct format: lowercase, hyphenated slug."
+    },
+    {
+      "text": "Answer mentions or references tag-dictionary.md as the source of truth for tag strings",
+      "passed": true,
+      "evidence": "JSDoc comment '// Map SKU to product tag per tag-dictionary.md \u00a73' and Tag Reference section cites 'infrastructure/influencersoft/tag-dictionary.md (121 lines, authoritative)'."
+    },
+    {
+      "text": "Answer references the tenant 'kebron' or the URL kebron.influencersoft.com somewhere (so the reader knows which tenant the call hits)",
+      "passed": true,
+      "evidence": "n8n section shows POST URL 'https://kebron.influencersoft.com/api/AddUpdateLead' and API Key section references IS_TENANT=kebron."
+    },
+    {
+      "text": "Answer does NOT log the full POST body or rpsKey (security: key leakage risk; the lib enforces this but the answer should respect it too)",
+      "passed": true,
+      "evidence": "Console.log calls only emit email and success message. No POST body, no rpsKey logged anywhere."
+    }
+  ],
+  "pass_count": 6,
+  "total_count": 6,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 6,
+    "failed": 0,
+    "total": 6
+  }
+}

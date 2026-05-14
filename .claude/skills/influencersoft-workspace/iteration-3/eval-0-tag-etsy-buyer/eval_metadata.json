@@ -1,0 +1,13 @@
+{
+  "eval_id": 0,
+  "eval_name": "tag-etsy-buyer",
+  "prompt": "I just got a new Etsy order for buyer jane@example.com (first name Jane), and she purchased my product with SKU TAX-001 (the STR Mileage Log). Write me Node.js code to add her as a contact in InfluencerSoft and tag her so the post-purchase sequence fires. Use whatever existing helpers the project has.",
+  "assertions": [
+    {"text": "Code imports addUpdateLead from scripts/lib/influencersoft.mjs (the project's existing client lib, not raw fetch)"},
+    {"text": "add_tags string includes exactly 'customer:etsy' (the trigger tag for post-purchase-etsy-buyer sequence — case-sensitive, colon-separated)"},
+    {"text": "add_tags string includes a product tag in the format 'product:tax-001-mileage-log' (lowercase, hyphenated SKU slug — not 'TAX-001' or 'product:TAX-001')"},
+    {"text": "Answer mentions or references tag-dictionary.md as the source of truth for tag strings"},
+    {"text": "Answer references the tenant 'kebron' or the URL kebron.influencersoft.com somewhere (so the reader knows which tenant the call hits)"},
+    {"text": "Answer does NOT log the full POST body or rpsKey (security: key leakage risk; the lib enforces this but the answer should respect it too)"}
+  ]
+}

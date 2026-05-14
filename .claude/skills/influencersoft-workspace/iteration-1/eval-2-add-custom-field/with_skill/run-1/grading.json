@@ -1,0 +1,39 @@
+{
+  "run_id": "eval-2-with_skill",
+  "expectations": [
+    {
+      "text": "Warns about prefix-slug collision: IS rejects names sharing a prefix with an existing field",
+      "passed": true,
+      "evidence": "'InfluencerSoft rejects custom field names that share a prefix with any existing field. Your name referral_source is safe IF no other field starts with referral_.' \u2014 explicit warning with the exact mechanism."
+    },
+    {
+      "text": "Mentions the stale UI error: the form holds the error from the previous attempt and reports the LAST collision, so refresh the page between adds",
+      "passed": true,
+      "evidence": "'the form will hold that error even after you fix the name and try again. The error message may not reflect your current attempt \u2014 it shows the LAST collision instead.' Fix: 'Always refresh the Custom Fields page between each field addition attempt.'"
+    },
+    {
+      "text": "References the existing custom-field naming convention: short distinct stems (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name)",
+      "passed": true,
+      "evidence": "'The project standardizes on short, distinct stems: sku_, bought_, order_, xsell_, pack_.' Also lists all 7 existing fields by name: sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name."
+    },
+    {
+      "text": "Gives the exact menu path: Contacts \u2192 Custom Fields",
+      "passed": true,
+      "evidence": "'Go to: Contacts \u2192 Custom Fields (in IS UI)' \u2014 exact path given under section 3 Menu Path."
+    },
+    {
+      "text": "Recommends a shorter or differently-prefixed name (e.g., ref_src, source_ref) to reduce collision risk with future fields",
+      "passed": true,
+      "evidence": "'Consider: ref_src (matches the short-stem style) / source_ref (alternative prefix). The longer name is valid, but shorter stems reduce future collision risk if you add referral_status, referral_date, etc. later.'"
+    }
+  ],
+  "pass_count": 5,
+  "total_count": 5,
+  "pass_rate": 1.0,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  }
+}

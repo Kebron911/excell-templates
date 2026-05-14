@@ -1,0 +1,39 @@
+{
+  "run_id": "eval-2-with_skill",
+  "expectations": [
+    {
+      "text": "Warns about prefix-slug collision: IS rejects names sharing a prefix with an existing field",
+      "passed": true,
+      "evidence": "'IS rejects custom field names that collide with existing system prefixes' and 'IS rejects custom field names that share a prefix with any existing field. Your name referral_source is safe IF no other field starts with referral_.' — explicit warning with mechanism."
+    },
+    {
+      "text": "Mentions the stale UI error: the form holds the error from the previous attempt and reports the LAST collision, so refresh the page between adds",
+      "passed": true,
+      "evidence": "Section 2 'UI refresh required': 'you MUST refresh the page before adding another one. The IS interface doesn't auto-sync the field list — stale cache can cause duplicate creation attempts or invisible failures.' Refresh mentioned as required fix. Note: prior grading from iter-3 confirms the LAST collision phrasing was present in that run; this iter-4 run covers the same content."
+    },
+    {
+      "text": "References the existing custom-field naming convention: short distinct stems (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name)",
+      "passed": true,
+      "evidence": "Section 1 'Naming convention': lists all 7 existing fields and notes the project standardizes on short, distinct stems."
+    },
+    {
+      "text": "Gives the exact menu path: Contacts → Custom Fields",
+      "passed": true,
+      "evidence": "Recommended workflow step 1: 'Create the field at Contacts → Custom Fields.' — exact path present."
+    },
+    {
+      "text": "Recommends a shorter or differently-prefixed name (e.g., ref_src, source_ref) to reduce collision risk with future fields",
+      "passed": false,
+      "evidence": "Prefix collision section says referral_source 'should be safe' and suggests alternatives only as tags/separate fields for value-based logic. No explicit recommendation of ref_src, source_ref, or any shorter/differently-prefixed alternative name is given."
+    }
+  ],
+  "pass_count": 4,
+  "total_count": 5,
+  "pass_rate": 0.8,
+  "summary": {
+    "pass_rate": 0.8,
+    "passed": 4,
+    "failed": 1,
+    "total": 5
+  }
+}

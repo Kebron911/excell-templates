@@ -1,0 +1,450 @@
+{
+  "metadata": {
+    "skill_name": "influencersoft",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-05-14T13:55:11Z",
+    "evals_run": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 421.2,
+        "tokens": 85101,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Code imports addUpdateLead from scripts/lib/influencersoft.mjs (the project's existing client lib, not raw fetch)",
+          "passed": true,
+          "evidence": "Option 1 and 2 both import addUpdateLead from './lib/influencersoft.mjs' \u2014 the project's existing helper, not a raw fetch implementation."
+        },
+        {
+          "text": "add_tags string includes exactly 'customer:etsy' (the trigger tag for post-purchase-etsy-buyer sequence \u2014 case-sensitive, colon-separated)",
+          "passed": true,
+          "evidence": "add_tags: 'customer:etsy,source:etsy,...' appears in both Option 1 and Option 2. Exact string, correct case."
+        },
+        {
+          "text": "add_tags string includes a product tag in the format 'product:tax-001-mileage-log' (lowercase, hyphenated SKU slug \u2014 not 'TAX-001' or 'product:TAX-001')",
+          "passed": true,
+          "evidence": "product:tax-001-mileage-log present in skuMap and tags array. Correct format: lowercase, hyphenated slug."
+        },
+        {
+          "text": "Answer mentions or references tag-dictionary.md as the source of truth for tag strings",
+          "passed": true,
+          "evidence": "JSDoc comment '// Map SKU to product tag per tag-dictionary.md \u00a73' and Tag Reference section cites 'infrastructure/influencersoft/tag-dictionary.md (121 lines, authoritative)'."
+        },
+        {
+          "text": "Answer references the tenant 'kebron' or the URL kebron.influencersoft.com somewhere (so the reader knows which tenant the call hits)",
+          "passed": true,
+          "evidence": "n8n section shows POST URL 'https://kebron.influencersoft.com/api/AddUpdateLead' and API Key section references IS_TENANT=kebron."
+        },
+        {
+          "text": "Answer does NOT log the full POST body or rpsKey (security: key leakage risk; the lib enforces this but the answer should respect it too)",
+          "passed": true,
+          "evidence": "Console.log calls only emit email and success message. No POST body, no rpsKey logged anywhere."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 234.1,
+        "tokens": 70212,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Mentions corporate-domain sender requirement (free domains like Gmail/Yahoo get DMARC-rejected)",
+          "passed": true,
+          "evidence": "Section 2 header: 'Sender Domain Is Corporate, Not Gmail/Yahoo \u2014 DMARC authentication rejects free-domain senders across most email providers.' Explicit warning with fix instructions."
+        },
+        {
+          "text": "Mentions sender confirmation \u2014 that new sender emails are dead until the IS confirmation link is clicked",
+          "passed": true,
+          "evidence": "Section 1: 'IS sent a confirmation link to that mailbox... Without this, sequences silently fail to send \u2014 recipients get nothing (not spam, just dead).' Named as #1 check."
+        },
+        {
+          "text": "Mentions DKIM, SPF, AND DMARC DNS records (all three; not just 'DNS records')",
+          "passed": true,
+          "evidence": "Section 3 names all three explicitly: 'SPF record exists', 'DKIM record exists', 'DMARC record exists' \u2014 each with format examples and separate bullets."
+        },
+        {
+          "text": "Mentions FBL (Feedback Loop) setup",
+          "passed": true,
+          "evidence": "Section 4 is titled 'Feedback Loop (FBL) Is Enabled' and covers setup, path (Campaigns \u2192 Settings \u2192 FBL), and consequences of missing it."
+        },
+        {
+          "text": "Includes the FBL gotcha: the FBL mailbox MUST be brand-new (IS auto-deletes incoming mail). This is the most consequential deliverability mistake.",
+          "passed": true,
+          "evidence": "'Do NOT reuse an existing mailbox or IS will auto-delete all its contents. Must be brand new.' \u2014 exact gotcha stated under section 4 'If misconfigured (CRITICAL warning in gotcha #4)'."
+        },
+        {
+          "text": "Mentions Tech Tuesday or support@influencersoft.com escalation path",
+          "passed": true,
+          "evidence": "Key Resources section: 'Tech Tuesday \u2014 Live support call with IS team; can screen-share to configure DNS live.' Tech Tuesday named explicitly."
+        },
+        {
+          "text": "Points the user to a specific menu path (e.g., Campaigns \u2192 Settings, or Campaigns \u2192 Analytics) rather than only generic advice",
+          "passed": true,
+          "evidence": "Multiple specific paths given: 'Campaigns \u2192 Settings \u2192 Senders', 'Campaigns \u2192 Settings \u2192 FBL', 'Campaigns \u2192 Analytics \u2192 Broadcasts Message Analytics', 'Campaigns \u2192 Settings \u2192 Auto-clean'."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 328.2,
+        "tokens": 67364,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Warns about prefix-slug collision: IS rejects names sharing a prefix with an existing field",
+          "passed": true,
+          "evidence": "'InfluencerSoft rejects custom field names that share a prefix with any existing field. Your name referral_source is safe IF no other field starts with referral_.' \u2014 explicit warning with the exact mechanism."
+        },
+        {
+          "text": "Mentions the stale UI error: the form holds the error from the previous attempt and reports the LAST collision, so refresh the page between adds",
+          "passed": true,
+          "evidence": "'the form will hold that error even after you fix the name and try again. The error message may not reflect your current attempt \u2014 it shows the LAST collision instead.' Fix: 'Always refresh the Custom Fields page between each field addition attempt.'"
+        },
+        {
+          "text": "References the existing custom-field naming convention: short distinct stems (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name)",
+          "passed": true,
+          "evidence": "'The project standardizes on short, distinct stems: sku_, bought_, order_, xsell_, pack_.' Also lists all 7 existing fields by name: sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name."
+        },
+        {
+          "text": "Gives the exact menu path: Contacts \u2192 Custom Fields",
+          "passed": true,
+          "evidence": "'Go to: Contacts \u2192 Custom Fields (in IS UI)' \u2014 exact path given under section 3 Menu Path."
+        },
+        {
+          "text": "Recommends a shorter or differently-prefixed name (e.g., ref_src, source_ref) to reduce collision risk with future fields",
+          "passed": true,
+          "evidence": "'Consider: ref_src (matches the short-stem style) / source_ref (alternative prefix). The longer name is valid, but shorter stems reduce future collision risk if you add referral_status, referral_date, etc. later.'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.333,
+        "passed": 2,
+        "failed": 4,
+        "total": 6,
+        "time_seconds": 541.6,
+        "tokens": 73642,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies the correct API endpoint: API 1.0 AddGood (not API 2.0 \u2014 products require legacy API)",
+          "passed": true,
+          "evidence": "TL;DR states 'InfluencerSoft's AddGood endpoint (API 1.0)'. Capability matrix table also lists AddGood under API 1.0."
+        },
+        {
+          "text": "Mentions API 1.0 hash auth (MD5 of buildQuery + username + apikey concatenation)",
+          "passed": false,
+          "evidence": "Step 2 header says 'Build the HMAC Wrapper' and code uses crypto.createHmac('sha256', apiSecret). Algorithm is HMAC-SHA256, not MD5. The skill (api-quickref.md \u00a73) explicitly states MD5."
+        },
+        {
+          "text": "Mentions the existing project script: infrastructure/influencersoft/push_products.js",
+          "passed": false,
+          "evidence": "Resources section references 'ops/influencersoft-api-probe.md' and 'modules.md' but never mentions infrastructure/influencersoft/push_products.js."
+        },
+        {
+          "text": "WARNS the user that AddGood may be disabled per-account (returns error_code 2) and that as of 2026-05-08 it was disabled for the kebron tenant",
+          "passed": false,
+          "evidence": "Gotchas section lists 5 items (legacy API, hash sort order, no sandbox, rate limiting, field names). No mention of error_code 2 or per-account disablement. The critical 'endpoint disabled for kebron' warning is absent."
+        },
+        {
+          "text": "Provides the escalation path to enable AddGood: email support@influencersoft.com or raise at Tech Tuesday",
+          "passed": false,
+          "evidence": "No mention of support@influencersoft.com or Tech Tuesday anywhere in the answer. The 'Contact InfluencerSoft support' suggestion appears only in the unrelated n8n section context."
+        },
+        {
+          "text": "Suggests testing with a small batch first (or dry-run mode) before pushing all 70 products",
+          "passed": true,
+          "evidence": "Testing Checklist step: 'POST canary product to AddGood (production, no rollback)' and Step 2 says 'Test with 1 canary product first \u2014 no sandbox, production-only'."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.333,
+        "passed": 2,
+        "failed": 4,
+        "total": 6,
+        "time_seconds": 374.1,
+        "tokens": 82388,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Code imports addUpdateLead from scripts/lib/influencersoft.mjs (the project's existing client lib, not raw fetch)",
+          "passed": false,
+          "evidence": "Answer builds its own fetch wrapper from scratch using URLSearchParams and raw fetch. Never imports from scripts/lib/influencersoft.mjs or references the project client lib."
+        },
+        {
+          "text": "add_tags string includes exactly 'customer:etsy' (the trigger tag for post-purchase-etsy-buyer sequence \u2014 case-sensitive, colon-separated)",
+          "passed": false,
+          "evidence": "Tags used are 'etsy-buyer', 'sku-tax-001', 'post-purchase-sequence', 'mileage-log-buyer'. The required 'customer:etsy' trigger tag is absent entirely."
+        },
+        {
+          "text": "add_tags string includes a product tag in the format 'product:tax-001-mileage-log' (lowercase, hyphenated SKU slug \u2014 not 'TAX-001' or 'product:TAX-001')",
+          "passed": false,
+          "evidence": "Product tag is formatted as 'sku-tax-001' (generated by template literal stripping non-alphanumeric chars). The required 'product:tax-001-mileage-log' format is not used."
+        },
+        {
+          "text": "Answer mentions or references tag-dictionary.md as the source of truth for tag strings",
+          "passed": false,
+          "evidence": "No reference to tag-dictionary.md anywhere. Tag naming is invented from first principles without citing any project convention."
+        },
+        {
+          "text": "Answer references the tenant 'kebron' or the URL kebron.influencersoft.com somewhere (so the reader knows which tenant the call hits)",
+          "passed": true,
+          "evidence": "INFLUENCERSOFT_SUBDOMAIN hardcoded as 'kebron' with comment 'From CREDENTIALS.md: kebron.influencersoft.com'. Tenant clearly identified."
+        },
+        {
+          "text": "Answer does NOT log the full POST body or rpsKey (security: key leakage risk; the lib enforces this but the answer should respect it too)",
+          "passed": true,
+          "evidence": "Logs only 'Contact created/updated: ${email}' and 'Tags applied: ${allTags.join(...)}'. No POST body or rpsKey in any console.log call."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.286,
+        "passed": 2,
+        "failed": 5,
+        "total": 7,
+        "time_seconds": 29.7,
+        "tokens": 56042,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Mentions corporate-domain sender requirement (free domains like Gmail/Yahoo get DMARC-rejected)",
+          "passed": false,
+          "evidence": "Answer discusses SPF/DKIM/DMARC configuration and alignment but never warns that free domains (Gmail, Yahoo) are DMARC-rejected by IS or that a corporate domain is required."
+        },
+        {
+          "text": "Mentions sender confirmation \u2014 that new sender emails are dead until the IS confirmation link is clicked",
+          "passed": false,
+          "evidence": "No mention anywhere of a sender confirmation link or the concept that new IS sender addresses must be activated before emails are live."
+        },
+        {
+          "text": "Mentions DKIM, SPF, AND DMARC DNS records (all three; not just 'DNS records')",
+          "passed": true,
+          "evidence": "Section 1 explicitly names all three: 'SPF record', 'DKIM signing', 'DMARC policy' \u2014 each with its own bullet and explanation."
+        },
+        {
+          "text": "Mentions FBL (Feedback Loop) setup",
+          "passed": false,
+          "evidence": "Only vague passing reference: 'They can debug on the platform side (ISP feedback loops, rate limiting, etc.)' \u2014 treated as a platform-side concern, not a user setup step."
+        },
+        {
+          "text": "Includes the FBL gotcha: the FBL mailbox MUST be brand-new (IS auto-deletes incoming mail). This is the most consequential deliverability mistake.",
+          "passed": false,
+          "evidence": "FBL mailbox requirements are not mentioned at all. The brand-new mailbox requirement and auto-delete behavior are absent."
+        },
+        {
+          "text": "Mentions Tech Tuesday or support@influencersoft.com escalation path",
+          "passed": false,
+          "evidence": "Answer says 'Contact InfluencerSoft support with email headers + full sequence setup' but never names Tech Tuesday or support@influencersoft.com specifically."
+        },
+        {
+          "text": "Points the user to a specific menu path (e.g., Campaigns \u2192 Settings, or Campaigns \u2192 Analytics) rather than only generic advice",
+          "passed": true,
+          "evidence": "Answer references 'InfluencerSoft settings \u2192 Email Authentication \u2192 DKIM status' and 'InfluencerSoft subscribers \u2192 status field' \u2014 specific UI paths, not generic advice."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.2,
+        "passed": 1,
+        "failed": 4,
+        "total": 5,
+        "time_seconds": 1198.5,
+        "tokens": 64695,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Warns about prefix-slug collision: IS rejects names sharing a prefix with an existing field",
+          "passed": false,
+          "evidence": "Answer covers positional indexing, deletion risks, data-type choices, and YAML source-of-truth updates \u2014 but never mentions prefix-slug collision or that IS rejects names sharing a prefix with an existing field."
+        },
+        {
+          "text": "Mentions the stale UI error: the form holds the error from the previous attempt and reports the LAST collision, so refresh the page between adds",
+          "passed": false,
+          "evidence": "No mention of the stale UI error or the page-refresh workaround anywhere in the answer."
+        },
+        {
+          "text": "References the existing custom-field naming convention: short distinct stems (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name)",
+          "passed": false,
+          "evidence": "Lists the 7 existing fields (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name) but frames them as positional references only \u2014 never mentions a naming convention or short-stem pattern."
+        },
+        {
+          "text": "Gives the exact menu path: Contacts \u2192 Custom Fields",
+          "passed": true,
+          "evidence": "Section 1 references 'the Contacts \u2192 Custom Fields admin list' as the positional ordering source \u2014 the exact path is present even if incidental to the main point."
+        },
+        {
+          "text": "Recommends a shorter or differently-prefixed name (e.g., ref_src, source_ref) to reduce collision risk with future fields",
+          "passed": false,
+          "evidence": "No recommendation for a shorter or differently-prefixed name. The answer treats 'referral_source' as acceptable and focuses on positional indexing concerns instead."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.167,
+        "passed": 1,
+        "failed": 5,
+        "total": 6,
+        "time_seconds": 77.9,
+        "tokens": 58247,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies the correct API endpoint: API 1.0 AddGood (not API 2.0 \u2014 products require legacy API)",
+          "passed": false,
+          "evidence": "Answer opens 'InfluencerSoft does not appear to have a publicly documented bulk product API.' Never identifies AddGood or API 1.0. Recommends Stripe API or CSV import instead."
+        },
+        {
+          "text": "Mentions API 1.0 hash auth (MD5 of buildQuery + username + apikey concatenation)",
+          "passed": false,
+          "evidence": "No hash authentication or API 1.0 auth method mentioned anywhere. Answer doesn't know the API exists."
+        },
+        {
+          "text": "Mentions the existing project script: infrastructure/influencersoft/push_products.js",
+          "passed": false,
+          "evidence": "No reference to any project script. Answer is written as if no project-specific infrastructure exists."
+        },
+        {
+          "text": "WARNS the user that AddGood may be disabled per-account (returns error_code 2) and that as of 2026-05-08 it was disabled for the kebron tenant",
+          "passed": false,
+          "evidence": "AddGood not identified at all, so per-account disablement and error_code 2 are not mentioned."
+        },
+        {
+          "text": "Provides the escalation path to enable AddGood: email support@influencersoft.com or raise at Tech Tuesday",
+          "passed": true,
+          "evidence": "Path C section explicitly says 'Email support@influencersoft.com and request API documentation for batch product creation'. support@influencersoft.com named. Tech Tuesday not mentioned but email path satisfies OR condition."
+        },
+        {
+          "text": "Suggests testing with a small batch first (or dry-run mode) before pushing all 70 products",
+          "passed": false,
+          "evidence": "No suggestion to test with a small batch or canary product. Answer focuses on verifying Stripe sync and CSV import paths, not API testing."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.8333,
+        "stddev": 0.3335,
+        "min": 0.333,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 381.275,
+        "stddev": 131.3717,
+        "min": 234.1,
+        "max": 541.6
+      },
+      "tokens": {
+        "mean": 74079.75,
+        "stddev": 7782.895,
+        "min": 67364,
+        "max": 85101
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.2465,
+        "stddev": 0.0764,
+        "min": 0.167,
+        "max": 0.333
+      },
+      "time_seconds": {
+        "mean": 420.05,
+        "stddev": 540.8436,
+        "min": 29.7,
+        "max": 1198.5
+      },
+      "tokens": {
+        "mean": 65343.0,
+        "stddev": 11941.716,
+        "min": 56042,
+        "max": 82388
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.59",
+      "time_seconds": "-38.8",
+      "tokens": "+8737"
+    }
+  },
+  "notes": []
+}

@@ -1,0 +1,49 @@
+{
+  "run_id": "eval-1-with_skill",
+  "expectations": [
+    {
+      "text": "Mentions corporate-domain sender requirement (free domains like Gmail/Yahoo get DMARC-rejected)",
+      "passed": false,
+      "evidence": "Answer never mentions that senders must use a corporate domain, or that free domains like Gmail/Yahoo get DMARC-rejected. DMARC section only explains what DMARC does, not the free-domain prohibition."
+    },
+    {
+      "text": "Mentions sender confirmation — that new sender emails are dead until the IS confirmation link is clicked",
+      "passed": true,
+      "evidence": "FIRST section: \"Status must be 'Active' — if it says 'Unconfirmed', the sender never clicked the IS confirmation link. If unconfirmed: resend the confirmation (IS will email the sender's mailbox with a link you must click)\""
+    },
+    {
+      "text": "Mentions DKIM, SPF, AND DMARC DNS records (all three; not just 'DNS records')",
+      "passed": true,
+      "evidence": "SECOND section explicitly covers SPF record, DKIM record, and DMARC record as three separate numbered items. All three named."
+    },
+    {
+      "text": "Mentions FBL (Feedback Loop) setup",
+      "passed": true,
+      "evidence": "THIRD section: \"Feedback Loop (FBL)\" — instructs user to go to Campaigns → Settings → FBL and confirm it is configured and active."
+    },
+    {
+      "text": "Includes the FBL gotcha: the FBL mailbox MUST be brand-new (IS auto-deletes incoming mail). This is the most consequential deliverability mistake.",
+      "passed": true,
+      "evidence": "THIRD section: \"Critical detail: The FBL mailbox must be brand-new — IS auto-deletes all incoming mail after processing. If you reused an old mailbox, you wiped its history.\""
+    },
+    {
+      "text": "Mentions Tech Tuesday or support@influencersoft.com escalation path",
+      "passed": true,
+      "evidence": "SIXTH section: \"Schedule a Tech Tuesday call with Sharice-Marie\" and \"Email support@influencersoft.com with: sequence name, sender email, dates emails went out, and screenshot of analytics\""
+    },
+    {
+      "text": "Points the user to a specific menu path (e.g., Campaigns → Settings, or Campaigns → Analytics) rather than only generic advice",
+      "passed": true,
+      "evidence": "Multiple specific paths: Campaigns → Settings → Senders; Campaigns → Settings → FBL; Campaigns → Settings (for SPF/DKIM values). Not generic advice."
+    }
+  ],
+  "pass_count": 6,
+  "total_count": 7,
+  "pass_rate": 0.857,
+  "summary": {
+    "pass_rate": 0.857,
+    "passed": 6,
+    "failed": 1,
+    "total": 7
+  }
+}

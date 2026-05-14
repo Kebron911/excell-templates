@@ -1,0 +1,14 @@
+{
+  "eval_id": 1,
+  "eval_name": "emails-going-to-spam",
+  "prompt": "Emails from my welcome-book-magnet sequence in InfluencerSoft are landing in spam. What should I check first?",
+  "assertions": [
+    {"text": "Mentions corporate-domain sender requirement (free domains like Gmail/Yahoo get DMARC-rejected)"},
+    {"text": "Mentions sender confirmation — that new sender emails are dead until the IS confirmation link is clicked"},
+    {"text": "Mentions DKIM, SPF, AND DMARC DNS records (all three; not just 'DNS records')"},
+    {"text": "Mentions FBL (Feedback Loop) setup"},
+    {"text": "Includes the FBL gotcha: the FBL mailbox MUST be brand-new (IS auto-deletes incoming mail). This is the most consequential deliverability mistake."},
+    {"text": "Mentions Tech Tuesday or support@influencersoft.com escalation path"},
+    {"text": "Points the user to a specific menu path (e.g., Campaigns → Settings, or Campaigns → Analytics) rather than only generic advice"}
+  ]
+}
