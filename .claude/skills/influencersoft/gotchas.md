@@ -17,6 +17,7 @@ Each row: **gotcha → why → how to apply.**
 | 3 | Lesson "copy" is linked, not duplicated | Copying a course doesn't duplicate the lessons — they remain pointers to the original | If you want an independent copy, create the lesson from scratch. Edits to a copied lesson mutate the original course. |
 | 4 | FBL mailbox must be brand new | IS auto-deletes all incoming mail after processing — reusing a live mailbox WIPES it | Provision a fresh mailbox (e.g. `fbl@kebron-domain.com`) before configuring FBL. See [deliverability.md](deliverability.md) §FBL. |
 | 5 | PascalCase endpoint names | `getalllists` 307-redirects to `GetAllGroups`; lowercase fails on some methods | Use [client lib](../../../scripts/lib/influencersoft.mjs) helpers — they're already PascalCase. If writing raw fetch, use PascalCase. |
+| 6 | Manually-added contacts cannot receive email | Creating a contact via UI "Create Contact" or API `AddUpdateLead` without going through a subscription/activation flow marks them non-emailable | To send email to a contact, they must subscribe via an opt-in form or be activated via the double opt-in link. Manual creation alone is not enough. |
 
 ## Email deliverability
 
@@ -35,6 +36,7 @@ Each row: **gotcha → why → how to apply.**
 | 11 | `Click.js` script missing → silent affiliate tracking failure | The script is what parses UTM tags + sets cookies tying clicks to partners | Paste the snippet from `Affiliates → Offers` into the `<HEAD>` tag of every external landing page (WordPress, Calendly, etc.). |
 | 12 | Upsell variables are special | One-click charging requires exact button variable names | Use `#upsell_yes` (charge + advance) and `#upsell_no` (refuse + downsell). `#nextpage` for normal navigation. |
 | 13 | Note blocks for documentation | Don't put inline comments in JSON — the canvas has a Note action block | Drag a Note block onto the canvas to leave context for yourself or teammates. |
+| 13a | "Selected" area — emails/pages NOT in Selected are deleted with the funnel | "Selected" is a saved-templates area. Items moved to Selected survive funnel deletion. Items left only inside a funnel are destroyed when the funnel is deleted. | Before deleting a funnel, move any reusable emails or pages to Selected. See [ui-walkthrough.md](ui-walkthrough.md) §5a. |
 | 14 | Internal screenshots as block icons | IS auto-captures your page screenshots to show as flowchart icons | Re-edit a page → the icon updates. Useful for visually distinguishing similar pages. |
 
 ## E-commerce
@@ -53,6 +55,7 @@ Each row: **gotcha → why → how to apply.**
 | 19 | Tags are case-sensitive and auto-create on first use | No pre-create endpoint; whatever string you send creates the tag verbatim (case included) | Stick strictly to [tag-dictionary.md](../../../infrastructure/influencersoft/tag-dictionary.md) — typos or case drift create orphan tags. |
 | 20 | Tags don't trigger sequences retroactively for sequences that aren't bound to that tag | Sequence trigger is configured in UI; API can't "fire" a sequence directly | The trigger is set in UI, FIRED by API tagging — bind first, tag second. |
 | 21 | List IDs are opaque numerics | E.g. `1594725950.5982672784` — you can't guess them | Call `GetAllGroups` once after creating lists in UI; cache in `infrastructure/influencersoft/lists.yaml` via `scripts/is-probe.mjs`. |
+| 21a | Filter results expire in 5 minutes | When you apply a filter on the Contacts screen, the resulting set is held for only 5 minutes before expiring | Apply the filter, then immediately act (import, group, tag). If you wait >5 min, re-run the filter — otherwise the bulk action runs against the full database. |
 | 22 | Behavioral segmenting pattern | Marketing automation tip from founder | When a purchase succeeds, in a Process block: ADD buyer tag AND REMOVE from retargeting list in one move. |
 
 ## Courses / LMS
@@ -79,7 +82,7 @@ Each row: **gotcha → why → how to apply.**
 
 | # | Gotcha | Why | How to apply |
 |---|---|---|---|
-| 28 | Rate limit unknown — be conservative | IS docs don't publish a rate limit | Throttle ≤0.9 req/sec (client lib enforces 1100ms). Batch where possible (one `AddUpdateLead` with CSV tags/lists = one call, not N). |
+| 28 | Rate limit is project convention, not IS-imposed | IS docs don't publish a rate limit; the 1100ms throttle is Daniel's conservative choice | Client lib enforces ≤0.9 req/sec. Batch where possible (one `AddUpdateLead` with CSV tags/lists = one call, not N). |
 | 29 | API 1.0 hash auth needs PHP-compatible encoding | `http_build_query()` style — spaces become `+`, not `%20` | Reuse the impl in `infrastructure/influencersoft/push_products.js`. Don't re-derive. |
 | 30 | "Add Tag to Lead" in Zapier fails if lead doesn't exist | API quirk — sequencing matters | Always `Add/Update Lead` BEFORE `Add Tag to Lead` in a Zap chain. |
 
