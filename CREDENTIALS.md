@@ -22,7 +22,13 @@
 | **Email verify HMAC** | `EMAIL_VERIFY_SECRET` | `STRGuests-Tools/.env.local` | — | ✅ set (32+ bytes random) |
 | **IP hash salt** | `IP_HASH_SALT` | `STRGuests-Tools/.env.local` | — | ✅ set |
 | **Etsy** | `ETSY_API_KEY`, `ETSY_OAUTH_SECRET`, `ETSY_SHOP_ID`, `ETSY_ACCESS_TOKEN`, `ETSY_REFRESH_TOKEN`, `ETSY_TOKEN_EXPIRES_AT` | `./.env` (repo root) + n8n workflow static data (W31 — Etsy Token Manager) | `etsy.com/shop/thestrledger` (shop ID `65957104`) | ✅ OAuth bootstrapped, refresh rotation live. n8n W31 cron auto-refreshes every 50 min; other workflows consume via Execute Workflow sub-call. Scope: 4 minimum (`email_r listings_r listings_w transactions_r`) — Personal Access tier. |
-| **Anthropic (optional fallback)** | `ANTHROPIC_API_KEY` | not set — would go in `STRGuests-Tools/.env.local` if used | — | ❌ not used (OpenAI chosen) |
+| **Anthropic (listingaudit)** | `ANTHROPIC_API_KEY` | `STRListingAudit-Tools/.env.local` | n/a — models `claude-sonnet-4-5` (synth) + `claude-haiku-4-5` (per-dim) | ⏳ pending — required for Phase 3 scorecard engine |
+| **Apify (listingaudit)** | `APIFY_TOKEN`, `APIFY_AIRBNB_ACTOR` | `STRListingAudit-Tools/.env.local` | apify.com console | ⏳ pending — actor default `tri_angle/airbnb-scraper`, swap if budget breaches |
+| **Admin token (listingaudit)** | `ADMIN_TOKEN` | `STRListingAudit-Tools/.env.local` | — | ⏳ pending — gates `POST /api/scrape` debug endpoint |
+| **MySQL (listingaudit)** | `MYSQL_HOST/PORT/USER/PASSWORD/DATABASE` | `STRListingAudit-Tools/.env.local` | Hostinger Business MySQL — DB `strlistingaudit` (open question: shared instance with strguests or new?) | ⏳ pending |
+| **Email verify HMAC (listingaudit)** | `EMAIL_VERIFY_SECRET` | `STRListingAudit-Tools/.env.local` | — | ⏳ pending — 32+ bytes random |
+| **IP hash salt (listingaudit)** | `IP_HASH_SALT` | `STRListingAudit-Tools/.env.local` | — | ⏳ pending — 32+ bytes random |
+| **GA4 (listingaudit)** | `PUBLIC_GA4_ID` | `STRListingAudit-Tools/.env.local` | — | ⏳ pending — Phase 6 |
 | **Google AI (Gemini)** | `GEMINI_API_KEY` | `./.env` (repo root) | aistudio.google.com | ⏳ pending — used by `Tools/N8n-Builder/scripts/blog-hero.mjs` (author-time blog hero images) + n8n workflow `tAjD44AkUEN7NWl7`. Get key at https://aistudio.google.com/apikey |
 | **n8n Docker host (SSH)** | `N8N_SSH_HOST/USER/KEY_PATH` + compose paths (see block below) | `./.env` (repo root) | same VPS as `n8ncde.cdeprosperity.com` | ⏳ template — fill in to enable platform-layer ops |
 
@@ -111,4 +117,4 @@ When you (the user or any agent) add a new platform integration:
 2. Add a row to `ops/credentials-inventory.md` with account-level info.
 3. Commit both in the same commit. They must not drift.
 
-Last updated: 2026-05-13 (Etsy OAuth bootstrapped + W31 token manager live in n8n; n8n Docker host SSH template added — pending fill-in to enable platform-layer ops).
+Last updated: 2026-05-14 (added 7 rows for the new listingaudit.tools site: Anthropic, Apify, admin token, MySQL, email-verify HMAC, IP-hash salt, GA4. All keys pending — fill before Phase 3 / Phase 6 deploy).

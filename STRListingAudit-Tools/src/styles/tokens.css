@@ -1,0 +1,129 @@
+/* ============================================================
+   listingaudit.tools — Design Tokens
+   Cluster position: Optimization (diagnostic). Sister to strguests
+   (terracotta), strhost (finance-blue), strops (utility-green),
+   strbuyers (acquisition). Accent: diagnostic teal — reads as
+   "measurement / scorecard / clinical-but-trustworthy". JetBrains
+   Mono is heavily featured for the 0-100 score numerals.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  /* ---- Cluster-shared core palette ---------------------- */
+  --brand-navy:            #12304E;
+  --brand-parchment:       #F6EFE2;
+  --brand-gold:            #C9A24B;
+  --brand-clay:            #B5725E;
+  --brand-graphite:        #2B2B2B;
+
+  --brand-navy-tint:       #2A4867;
+  --brand-navy-shade:      #0A1F35;
+  --brand-parchment-alt:   #EFE5D0;
+  --brand-parchment-deep:  #E7DCC2;
+  --brand-gold-soft:       #E2C884;
+  --brand-gold-deep:       #A9863A;
+  --brand-clay-soft:       #D3A290;
+
+  /* ---- listingaudit.tools accent — diagnostic teal
+     Distinct from strguests terracotta (#C8684C), strhost finance blue.
+     Reads as analytical / measurement-grade / trustworthy. */
+  --accent-50:             #E6F2F4;
+  --accent-100:            #B9DBE0;
+  --accent-500:            #0E7C8C;   /* main diagnostic teal */
+  --accent-700:            #075B68;
+  --accent-900:            #032E36;
+
+  /* ---- Scorecard semantic colors ----------------------- */
+  --score-good:            #2F7A55;    /* 80+ score */
+  --score-ok:              #C9A24B;    /* 50-79 score, reuses brand-gold */
+  --score-bad:             #B0432E;    /* 0-49 score */
+
+  /* ---- Semantic foreground / background ----------------- */
+  --fg-1:                  var(--brand-graphite);
+  --fg-2:                  #555049;
+  --fg-3:                  #8A8176;
+  --fg-on-navy:            var(--brand-parchment);
+  --fg-on-navy-muted:      #BFB8A7;
+  --fg-accent:             var(--accent-500);
+
+  --bg-1:                  var(--brand-parchment);
+  --bg-2:                  var(--brand-parchment-alt);
+  --bg-3:                  #FBF6EC;
+  --bg-inverse:            var(--brand-navy);
+  --bg-inverse-deep:       var(--brand-navy-shade);
+
+  /* Audit-result surfaces — clinical white with subtle teal undertone. */
+  --bg-result-surface:     #FFFFFF;
+  --bg-result-tile:        #F4F8F9;
+
+  --rule:                  var(--brand-parchment-deep);
+  --rule-strong:           #BEB19A;
+  --rule-accent:           var(--accent-500);
+
+  /* ---- Semantic states ---------------------------------- */
+  --semantic-success:      #3C6B3F;
+  --semantic-error:        #A33A2A;
+  --semantic-warn:         #B38400;
+
+  /* ---- Font stacks -------------------------------------- */
+  --font-display:  "Cormorant Garamond", "Cormorant", Georgia, "Times New Roman", serif;
+  --font-body:     "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --font-wordmark: "Inter Tight", "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono:     "JetBrains Mono", "Menlo", "Consolas", ui-monospace, monospace;
+
+  /* ---- Type scale --------------------------------------- */
+  --t-hero-size:           72px;
+  --t-h1-size:             48px;
+  --t-h2-size:             36px;
+  --t-h3-size:             26px;
+  --t-quote-size:          24px;
+  --t-lead-size:           18px;
+  --t-body-size:           16px;
+  --t-small-size:          14px;
+  --t-caption-size:        12px;
+  --t-ui-size:             14px;
+  --t-label-size:          11px;
+  --t-score-size:          96px;   /* big scorecard numeral */
+
+  /* ---- Spacing scale (8pt + half-steps) ----------------- */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  24px;
+  --sp-6:  32px;
+  --sp-7:  48px;
+  --sp-8:  64px;
+  --sp-9:  96px;
+  --sp-10: 128px;
+
+  /* ---- Radii -------------------------------------------- */
+  --r-0:  0px;
+  --r-1:  2px;
+  --r-2:  4px;
+  --r-3:  6px;
+  --r-4:  10px;
+  --r-pill: 999px;
+
+  /* ---- Shadows ----------------------------------------- */
+  --sh-card:        0 1px 2px rgba(10, 31, 53, 0.06), 0 1px 1px rgba(10, 31, 53, 0.04);
+  --sh-lifted:      0 8px 24px -8px rgba(10, 31, 53, 0.20), 0 2px 6px rgba(10, 31, 53, 0.08);
+  --sh-inset:       inset 0 1px 0 rgba(246, 239, 226, 0.08);
+  --sh-accent-glow: 0 0 0 3px rgba(14, 124, 140, 0.22);
+  --sh-focus-ring:  0 0 0 3px rgba(14, 124, 140, 0.40);
+
+  /* ---- Borders ----------------------------------------- */
+  --border-hairline: 1px solid var(--rule);
+  --border-strong:   1px solid var(--rule-strong);
+  --border-accent:   1px solid var(--accent-500);
+  --border-navy:     1.5px solid var(--brand-navy);
+
+  /* ---- Motion ------------------------------------------ */
+  --ease-std:    cubic-bezier(0.2, 0.6, 0.2, 1);
+  --ease-in:     cubic-bezier(0.4, 0, 1, 1);
+  --ease-out:    cubic-bezier(0, 0, 0.2, 1);
+  --dur-fast:    120ms;
+  --dur-std:     200ms;
+  --dur-slow:    360ms;
+}
