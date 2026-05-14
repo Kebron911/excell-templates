@@ -93,7 +93,23 @@ contacts are separately counted in the contacts limit.
 6. **Daniel asks Sharice-Marie directly** — relationship-based path for
    anything urgent
 
-## 7. Renewal / upgrade
+## 7. reCAPTCHA setup
+
+To protect opt-in forms from bot submissions, IS supports Google reCAPTCHA.
+
+**Path:** `Contacts → Settings` → reCAPTCHA section
+
+**Setup steps:**
+1. Go to `google.com/recaptcha` → register your IS domain.
+2. Get your **Site Key** and **Secret Key**.
+3. In IS: `Contacts → Settings` → paste both keys into the reCAPTCHA fields.
+4. Save. reCAPTCHA will appear on all opt-in forms site-wide.
+
+**Note:** reCAPTCHA v2 ("I'm not a robot" checkbox) is the tested version.
+Confirm the current supported version at `help.influencersoft.com` if IS
+has updated to v3.
+
+## 8. Renewal / upgrade
 
 - LTD = lifetime; no recurring payment for the redeemed tier
 - Upgrades available at AppSumo (if they re-list deal) or directly from IS
