@@ -1,0 +1,139 @@
+{
+  "fixtures": [
+    {
+      "name": "modern-loft-austin-strong",
+      "snapshot": {
+        "platform": "airbnb",
+        "url": "https://www.airbnb.com/rooms/12345",
+        "listingId": "12345",
+        "title": "Modern Loft in East Austin — Walk to Rainey Street",
+        "description": "Stylish 1-bedroom loft with city views, 5 min walk to Rainey Street and downtown. King bed, dedicated workspace, fast wifi, EV charger in garage. Sleeps 2. Self check-in via smart lock. Great for couples, business travelers, or solo work trips.",
+        "photos": [
+          { "url": "p1", "position": 0, "alt": "Living room cover", "aspect": 1.5 },
+          { "url": "p2", "position": 1, "alt": "Kitchen" },
+          { "url": "p3", "position": 2, "alt": "Bedroom" },
+          { "url": "p4", "position": 3, "alt": "Bathroom" },
+          { "url": "p5", "position": 4, "alt": "Workspace" },
+          { "url": "p6", "position": 5, "alt": "View from window" }
+        ],
+        "amenities": ["Wifi", "Free parking", "EV charger", "Air conditioning", "Workspace", "Smart lock", "Kitchen", "Washer"],
+        "reviewSnippets": [
+          { "reviewer": "Jordan", "date": "2026-04-12", "rating": 5, "text": "Loved the location. Walked to dinner every night." },
+          { "reviewer": "Priya", "date": "2026-03-28", "rating": 4, "text": "Great spot but the AC was loud at night." }
+        ],
+        "priceNight": 14500,
+        "location": "Austin, Texas, United States",
+        "ratingAverage": 4.92,
+        "reviewCount": 186,
+        "fetchedAt": "2026-05-14T00:00:00.000Z",
+        "source": "json-ld"
+      },
+      "expectedScoreBand": { "min": 75, "max": 95 }
+    },
+    {
+      "name": "thin-cabin-smokies-weak",
+      "snapshot": {
+        "platform": "airbnb",
+        "url": "https://www.airbnb.com/rooms/9999",
+        "listingId": "9999",
+        "title": "Cabin",
+        "description": "A getaway.",
+        "photos": [{ "url": "p1", "position": 0 }],
+        "amenities": ["Wifi"],
+        "reviewSnippets": [],
+        "location": "Gatlinburg, Tennessee",
+        "ratingAverage": 4.4,
+        "reviewCount": 6,
+        "fetchedAt": "2026-05-14T00:00:00.000Z",
+        "source": "json-ld"
+      },
+      "expectedScoreBand": { "min": 0, "max": 45 }
+    },
+    {
+      "name": "asheville-aframe-strong",
+      "snapshot": {
+        "platform": "airbnb",
+        "url": "https://www.airbnb.com/rooms/55555",
+        "listingId": "55555",
+        "title": "Mountain View A-Frame · Hot Tub · Asheville",
+        "description": "Hand-built A-frame cabin with full mountain views. Outdoor hot tub, wood-burning fireplace, screened porch. Coffee from a local Asheville roaster on the counter. Sleeps 4 — one king upstairs in the loft, one queen on the main floor. Pet-friendly with notice. 12 minutes to downtown Asheville and the River Arts District.",
+        "photos": [
+          { "url": "p1", "position": 0, "alt": "Exterior", "aspect": 1.5 },
+          { "url": "p2", "position": 1, "alt": "Loft bedroom" },
+          { "url": "p3", "position": 2, "alt": "Living room" },
+          { "url": "p4", "position": 3, "alt": "Kitchen" },
+          { "url": "p5", "position": 4, "alt": "Bathroom" },
+          { "url": "p6", "position": 5, "alt": "Hot tub" },
+          { "url": "p7", "position": 6, "alt": "Porch" }
+        ],
+        "amenities": ["Hot tub", "Wifi", "Fireplace", "Mountain view", "Free parking", "Pets allowed", "Coffee maker"],
+        "reviewSnippets": [
+          { "reviewer": "Sam", "date": "2026-04-15", "rating": 5, "text": "Absolutely perfect. Maya thought of everything." },
+          { "reviewer": "Ari", "date": "2026-04-02", "rating": 5, "text": "Hot tub under the stars sold it. Bring boots — the path from the parking spot is steep when wet." }
+        ],
+        "priceNight": 21500,
+        "cleaningFee": 9500,
+        "minNights": 2,
+        "location": "Asheville, North Carolina, United States",
+        "ratingAverage": 4.89,
+        "reviewCount": 247,
+        "fetchedAt": "2026-05-14T00:00:00.000Z",
+        "source": "apify"
+      },
+      "expectedScoreBand": { "min": 70, "max": 95 }
+    },
+    {
+      "name": "vrbo-beach-condo-mid",
+      "snapshot": {
+        "platform": "vrbo",
+        "url": "https://www.vrbo.com/1234567",
+        "listingId": "1234567",
+        "title": "Beachfront Condo with Pool — Outer Banks",
+        "description": "2 BR/2 BA oceanfront condo. Pool, hot tub, gated community. Sleeps 6. Walk to the lighthouse and the pier. Family friendly, beach gear included.",
+        "photos": [
+          { "url": "p1", "position": 0, "alt": "Ocean view from balcony" },
+          { "url": "p2", "position": 1, "alt": "Pool" },
+          { "url": "p3", "position": 2, "alt": "Master bedroom" },
+          { "url": "p4", "position": 3, "alt": "Kitchen" },
+          { "url": "p5", "position": 4, "alt": "Living room" }
+        ],
+        "amenities": ["Pool", "Hot tub", "Beach access", "Wifi", "Parking"],
+        "reviewSnippets": [
+          { "reviewer": "Renee", "date": "2026-03-10", "rating": 4, "text": "Loved the view; AC struggled on hot days." },
+          { "reviewer": "Tom", "date": "2026-02-22", "rating": 4, "text": "Great location but AC unit at the master bedroom was noisy." }
+        ],
+        "priceNight": 32500,
+        "location": "Nags Head, North Carolina, US",
+        "ratingAverage": 4.7,
+        "reviewCount": 92,
+        "fetchedAt": "2026-05-14T00:00:00.000Z",
+        "source": "json-ld"
+      },
+      "expectedScoreBand": { "min": 55, "max": 80 }
+    },
+    {
+      "name": "new-listing-low-review-count",
+      "snapshot": {
+        "platform": "airbnb",
+        "url": "https://www.airbnb.com/rooms/77777",
+        "listingId": "77777",
+        "title": "Cozy 1BR Apartment in Denver",
+        "description": "Nice and clean 1-bedroom apartment in a good location. Quiet building. Walk to coffee shops. Comfortable bed. Cable TV. Microwave available.",
+        "photos": [
+          { "url": "p1", "position": 0, "alt": "Living" },
+          { "url": "p2", "position": 1, "alt": "Bedroom" },
+          { "url": "p3", "position": 2, "alt": "Kitchen" }
+        ],
+        "amenities": ["Wifi", "Kitchen", "TV", "Microwave"],
+        "reviewSnippets": [],
+        "priceNight": 11000,
+        "location": "Denver, Colorado, United States",
+        "ratingAverage": null,
+        "reviewCount": 2,
+        "fetchedAt": "2026-05-14T00:00:00.000Z",
+        "source": "json-ld"
+      },
+      "expectedScoreBand": { "min": 20, "max": 55 }
+    }
+  ]
+}

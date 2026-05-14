@@ -1,7 +1,7 @@
 # STATE
 
-**Current phase:** 2 — Listing scrape layer
-**Current task:** Phase 2 complete, awaiting commit
+**Current phase:** 3 — AI scorecard engine
+**Current task:** Phase 3 complete, awaiting commit
 **Last update:** 2026-05-14
 
 ---
@@ -17,7 +17,7 @@
 - [x] Task 7 — Vitest canary test (Express mounts `/api/health`).
 - [x] Task 8 — `.planning/{PROJECT,ROADMAP,STATE}.md` + root `CREDENTIALS.md` rows.
 
-## Phase 2 progress (in-progress — 2026-05-14)
+## Phase 2 progress (complete — 2026-05-14, commit 4df5c8a)
 
 - [x] Task 1 — `ListingSnapshot` type + `ScrapeProvider` interface + `ScrapeResult`.
 - [x] Task 2 — `jsonld.ts`: cheerio-based JSON-LD parser, platform + listing-id extraction, completeness flag.
@@ -25,6 +25,16 @@
 - [x] Task 4 — `index.ts`: orchestrator with JSON-LD-first + Apify-fallback + hybrid merge.
 - [x] Task 5 — 5 HTML fixtures (3 Airbnb variants, 2 Vrbo variants) + 1 Apify JSON fixture. 15 unit tests covering platform detection, JSON-LD parsing, completeness flag, Apify mapping, orchestrator paths.
 - [x] Task 6 — Admin-gated `POST /api/scrape` debug route gated by `ADMIN_TOKEN` header.
+
+## Phase 3 progress (in-progress — 2026-05-14)
+
+- [x] Task 1 — Anthropic SDK wrapper (`server/lib/ai/anthropic.ts`) — `AiProvider` interface + `AnthropicProvider` with prompt caching on system block + `FixtureAiProvider` for tests. Pricing table at `server/lib/ai/pricing.ts`.
+- [x] Task 2 — 5 per-dimension prompts (`server/lib/ai/prompts/{title,description,photos,amenities,reviews}.ts`) each emitting `{ score, reasoning, fixes[] }`. Shared zod-validated parser at `_shared.ts`.
+- [x] Task 3 — Synthesizer (`server/lib/ai/prompts/synthesizer.ts`) using Sonnet 4.5 — selects top 5 fixes, writes one-paragraph summary. Weighted overall score (title/photos heavier).
+- [x] Task 4 — `scoreListingSnapshot` orchestrator (`server/lib/audit/scorecard.ts`) — 5 parallel Haiku calls + 1 Sonnet synth.
+- [x] Task 5 — Cost tracker (`server/lib/audit/cost-tracker.ts`) — token aggregation + USD computation + `audit_runs` column export.
+- [x] Task 6 — Fixtures (`server/test/fixtures/scorecard-snapshots.json`, 5 listings spanning strong/weak/mid bands) + `MockAiProvider` + `RealisticMockAiProvider` test helpers.
+- [x] Task 7 — `scorecard.test.ts` golden assertions on structure + score-band correctness + synthesizer fallback. `cost-budget.test.ts` enforces avg < $0.08 and per-audit < $0.10.
 
 ---
 
@@ -47,6 +57,17 @@
 - **`source: 'hybrid'` on merged results.** Telemetry-friendly: lets the cost-budget test bucket merged audits separately if we want.
 - **Provider injection in fetchListingSnapshot.** Tests pass StubProvider instances; production wiring passes real providers. No network calls in unit tests.
 - **Apify pricing/cost surfacing is best-effort.** Real telemetry needs the Apify webhook handler; deferred to v0.2.
+
+### Phase 3
+- **Model selection: Haiku 4.5 per-dim + Sonnet 4.5 synth.** Haiku for cheap, parallelizable scoring of 5 dimensions; Sonnet for the synthesis pass that needs deeper reasoning on top-5 fix prioritization.
+- **Prompt caching enabled on the system block of every dim call.** The rubric + output schema is stable across all audits. Cache hit rate >70% after warmup drives per-call cost down ~10x.
+- **One cacheable system block per dimension prompt.** All 5 dims have distinct rubrics, so we get 5 independent cache slots. The synthesizer has its own cache block.
+- **Zod-validated parsing with soft-fail fallback.** If a model returns malformed JSON, the per-dim call returns a neutral 50/100 score rather than killing the whole audit. The synthesizer's deterministic fallback picks top-impact fixes when its own JSON fails.
+- **Dimension weights tilt toward title + photos.** Title 1.2, photos 1.3, reviews 1.1, description 1.0, amenities 0.9. Matches the brief's framing that the scorecard hero metric should reflect what most drives bookings.
+- **Cost guardrail in tests, not at runtime.** `cost-budget.test.ts` fails CI if fixture-set avg cost exceeds $0.08. No runtime kill switch — a single expensive audit doesn't deserve a 502 to the user.
+- **MockAiProvider is the offline test substrate.** No network, no API keys required in CI. The RealisticMockAiProvider mirrors the cache pattern (1 cold call + 4 warm reads) so cost-budget tests reflect realistic warm-state economics.
+- **Synthesizer fallback prefers one fix per dimension.** When the synth call fails, the fallback de-duplicates by dimension before picking top 5.
+- **Pricing table lives in code, not config.** `ANTHROPIC_PRICING` constants in `pricing.ts`. Comment says "verify before each release". Single grep point.
 
 ---
 
