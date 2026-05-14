@@ -21,12 +21,13 @@ top-right of the canvas.
 
 | Report | Menu path | KPIs |
 |---|---|---|
-| **Sales Funnel Analytics** | `Reports → Sales Funnel Analytics` | Subscription activation rate, email open/click within sequence, bill processed → bill paid conversion |
-| **Sales Statistics (Sales Report)** | `Reports → Sales Statistics` | Total revenue, order count, product-level sales, per-funnel profitability |
-| **Subscription Statistics** | `Reports → Subscription Statistics` | List growth, total subscriber count, segmentation breakdown |
-| **Advertising Efficiency** | `Reports → Advertising (The Efficiency of the Advertising Campaign)` | ROI per channel (FB / YouTube / AdWords) by UTM; most profitable traffic source |
-| **Sales Department Statistics** | `Reports → Sales Department Statistics` | Sales manager assignments and productivity |
-| **Expenses Import** | `Reports → How to Import Expenses into your Reports` | Upload external costs (ad spend) to compute true net profit |
+| **Sales Funnel Analytics** | `Reports → Sales Funnel Analytics` | Subscription activation rate, email open/click within sequence, bill processed → bill paid conversion. Includes **Cohorts tab** — groups contacts by funnel-entry period for cohort comparison. |
+| **Sales Statistics (Sales Report)** | `Reports → Sales Statistics` (alt: `Top menu → Analytics → Sales Report`) | Total revenue, order count, product-level sales, per-funnel profitability. Dual entry: both paths open the same report. |
+| **Subscription Statistics** | `Reports → Subscription Statistics` | List growth, total subscriber count, segmentation breakdown. Sub-page: **Statistics via Email** — schedule automatic email delivery of this report. |
+| **Advertising Efficiency** | `Reports → Advertising (The Efficiency of the Advertising Campaign)` | ROI per channel (FB / YouTube / AdWords / Instagram / etc.) by UTM; most profitable traffic source. |
+| **Sales Department Statistics** | `Reports → Sales Department` | Per-manager sales stats + sub-page for "Payments to the managers." |
+| **Expenses Import** | `Reports → How to Import Expenses into your Reports` | Upload external costs (ad spend) to compute true net profit. |
+| **UTM Campaign Builder** | `Reports → New Campaign` | Generate UTM-tagged links for campaigns. Not a report per se — a link builder that feeds into Advertising Efficiency. |
 
 ## 3. Email + sequence analytics
 
@@ -78,10 +79,14 @@ In addition to native reports, push event data out via the HEAD code field:
 | "What % of students finish my course?" | Courses → Reports |
 | "What's my net profit on this funnel?" | Reports → Sales Statistics + Expenses Import |
 | "Is my list growing or shrinking?" | Reports → Subscription Statistics |
+| "How do cohorts from different months compare in this funnel?" | Reports → Sales Funnel Analytics → Cohorts tab |
+| "Get this report emailed to me weekly?" | Reports → Subscription Statistics → Statistics via Email |
+| "Create UTM-tagged links for a new ad campaign?" | Reports → New Campaign |
+| "How is my sales team performing?" | Reports → Sales Department |
 
 ## 8. Limitations
 
 - No native real-time dashboard combining all KPIs (you assemble from above)
 - No export of canvas overlay numbers (must screenshot or use raw report)
-- Funnel-level cohort analysis is limited — for cohort breakdowns, push
-  data to GA or BigQuery
+- Cohort analysis IS available natively via the Cohorts tab in Sales Funnel
+  Analytics — push to GA/BigQuery only for multi-funnel cross-cohort work
