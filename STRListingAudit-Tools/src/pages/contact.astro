@@ -1,0 +1,35 @@
+---
+import Layout from '@/components/AppLayout.astro';
+import { siteConfig } from '@/data/site.config';
+---
+
+<Layout
+  siteConfig={siteConfig}
+  title="Contact · Listing Audit Tools"
+  description="One inbox. We read everything."
+  path="/contact/"
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-2xl px-5 pt-12 pb-16">
+      <p class="label text-[color:var(--accent-700)]">Contact</p>
+      <h1 class="mt-3 font-serif text-h1 text-navy leading-tight">
+        One inbox. We read everything<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-5 text-body text-ink-2 leading-snug">
+        Feature ideas, bug reports, white-label requests, partnership inquiries — same address:
+      </p>
+      <p class="mt-5">
+        <a href="mailto:hello@listingaudit.tools?subject=listingaudit.tools%20%E2%80%94%20"
+           class="font-serif text-h3 text-navy underline decoration-[color:var(--accent-500)] underline-offset-4 hover:text-[color:var(--accent-700)]">
+          hello@listingaudit.tools
+        </a>
+      </p>
+
+      <h2 class="mt-12 font-serif text-h2 text-navy">For STR coaches</h2>
+      <p class="mt-3 text-body text-ink-2 leading-snug">
+        Want a white-labeled version for your audience? Subject line <code>WHITELABEL</code> and we'll
+        send you the v0.2 wait-list details — exportable client reports, custom logo, your own subdomain.
+      </p>
+    </div>
+  </section>
+</Layout>

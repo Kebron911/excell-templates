@@ -1,0 +1,44 @@
+---
+import Layout from '@/components/AppLayout.astro';
+import { siteConfig } from '@/data/site.config';
+import { cities } from '@/data/cities';
+---
+
+<Layout
+  siteConfig={siteConfig}
+  title="City directory · Listing Audit Tools"
+  description="Audit your STR by market — Austin, Nashville, Denver, Asheville, Joshua Tree, Smokies, Outer Banks, Sedona, Park City, Big Bear."
+  path="/audit/cities/"
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-5xl px-5 pt-12 pb-16">
+      <p class="label text-[color:var(--accent-700)]">By market</p>
+      <h1 class="mt-3 font-serif text-h1 text-navy leading-tight">
+        Audit your listing by city<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-5 text-lead text-ink-2 max-w-2xl">
+        Each market has its own search patterns, amenity expectations, and seasonal rhythm.
+        Pick yours for a city-tailored audit hook — the audit itself runs the same five rubrics.
+      </p>
+
+      <ul class="mt-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {cities.map((c) => (
+          <li>
+            <a
+              href={`/audit/cities/${c.slug}/`}
+              class="group block h-full rounded-md border border-rule bg-white p-5 no-underline hover:border-[color:var(--accent-500)] hover:shadow-card transition-all duration-std focus:outline-none focus:shadow-focus"
+            >
+              <p class="font-serif text-h3 text-navy leading-snug">{c.name}</p>
+              <p class="mt-1 text-small text-ink-3">{c.region}</p>
+              <p class="mt-3 text-small text-ink-2 leading-snug">{c.hook}</p>
+              <p class="mt-4 text-caption text-[color:var(--accent-700)] group-hover:text-[color:var(--accent-500)] flex items-center gap-1">
+                Open
+                <span class="inline-block transition-transform duration-std group-hover:translate-x-0.5" aria-hidden="true">→</span>
+              </p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Layout>

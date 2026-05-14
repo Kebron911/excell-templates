@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Result pages contain audit ids that aren't worth indexing on their own.
+Disallow: /audit/?id=
+Disallow: /share/
+
+Sitemap: https://listingaudit.tools/sitemap-index.xml

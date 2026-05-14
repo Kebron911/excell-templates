@@ -1,7 +1,7 @@
 # STATE
 
-**Current phase:** 4 — Result UX + share + email gate
-**Current task:** Phase 4 core complete (email-gated PDF deferred to Phase 4b)
+**Current phase:** 5 — Distribution surface
+**Current task:** Phase 5 content seed complete, awaiting commit
 **Last update:** 2026-05-14
 
 ---
@@ -36,7 +36,7 @@
 - [x] Task 6 — Fixtures (`server/test/fixtures/scorecard-snapshots.json`, 5 listings spanning strong/weak/mid bands) + `MockAiProvider` + `RealisticMockAiProvider` test helpers.
 - [x] Task 7 — `scorecard.test.ts` golden assertions on structure + score-band correctness + synthesizer fallback. `cost-budget.test.ts` enforces avg < $0.08 and per-audit < $0.10.
 
-## Phase 4 progress (in-progress — 2026-05-14)
+## Phase 4 progress (core complete — 2026-05-14, commit 88a1b3d; PDF/email-verify deferred to 4b)
 
 Core E2E funnel shipped. Email-gated PDF carved out as Phase 4b.
 
@@ -63,6 +63,21 @@ Carved out to ship the v0.1 viral funnel without blocking on:
 - [ ] Task 4b.6 — Wire `EmailGate` (from `@str/email-gate`) into `src/pages/audit/index.astro` after scorecard renders.
 
 Rationale: Free scorecard + share image is the viral hook in the locked decisions. Email-gated PDF gates v0.2 monetization but does not block the funnel demo. Phase 4b ships before public launch but doesn't block Phase 5 or 6 in development.
+
+## Phase 5 progress (in-progress — 2026-05-14)
+
+Distribution surface — content seed + programmatic SEO + legal/about pages.
+
+- [x] Task 1 — Landing page polish (FAQ + 3-step explainer added in Phase 4 commit).
+- [x] Task 2 — `src/pages/about.astro` (scoring methodology + what v0.1 deliberately omits + privacy summary).
+- [x] Task 3 — `src/pages/contact.astro` (single hello@ inbox + white-label opt-in).
+- [x] Task 4 — `src/pages/privacy.astro` (data minimization + third-party disclosure + deletion process).
+- [x] Task 5 — `src/data/cities.ts` (10 launch markets: Austin, Nashville, Denver, Asheville, Joshua Tree, Smokies, Outer Banks, Sedona, Park City, Big Bear).
+- [x] Task 6 — `src/pages/audit/cities/index.astro` directory + `[slug].astro` programmatic city pages.
+- [x] Task 7 — Astro content collection (`src/content/config.ts`) + 5 markdown blog posts covering title / photos / amenities / reviews / pre-launch.
+- [x] Task 8 — `src/pages/blog/index.astro` + `[...slug].astro` pages.
+- [x] Task 9 — `public/robots.txt` (sitemap pointer + audit-result + share-image exclusions).
+- [ ] Task 10 — Pinterest / OG image generators (scripts/build-pins.mjs + build-og.mjs). Carving these to Phase 6 alongside the deploy workflow they're consumed by.
 
 ---
 
@@ -107,6 +122,15 @@ Rationale: Free scorecard + share image is the viral hook in the locked decision
 - **`la-verified-email` cookie name** (not `sg-...` from strguests). Single rotation point alongside `EMAIL_VERIFY_SECRET`.
 - **Rate-limit fail-open on DB outage.** Same posture as strguests — a DB hiccup should not 502 the audit submit endpoint. Logged with `[rate-limit]` prefix for ops visibility.
 - **Total cost in audit_runs is `apify_cost_usd + anthropic_total`.** SQL `UPDATE … SET total_cost_usd = apify_cost_usd + ?` reads the row's existing apify cost (set in attachSnapshot) and adds the freshly computed Anthropic cost. One column, two contributors, no race because the pipeline runs sequentially.
+
+### Phase 5
+- **10 launch cities, not 100.** Spec target was hand-curated programmatic SEO at the major STR markets. Going wider waits until v0.2 when we have organic traffic data on which slugs convert. Adding a city is one row in `cities.ts` — cheap to scale incrementally.
+- **City pages share the same AuditForm.** No bespoke per-city audit logic; the audit pipeline is market-agnostic. Per-city differentiation is purely in the surrounding copy (hook, watchOut, marketAmenities).
+- **Astro content collection for blog.** Same pattern as strguests so future cross-empire blog ingestion can normalize. Each post has `{title, description, datePublished, readMinutes, category}` schema.
+- **5 blog posts at launch, one per dimension + one pre-launch checklist.** Each post ends with a CTA to run the audit. Categories map 1:1 to the audit dimensions so future internal-linking can cluster by topic.
+- **No /audit/[id]/[og:image] dynamic per-audit OG tags in v0.1.** Static index page can't customize meta per id. The share image at `/share/[id].png` carries the score visually for native shares (copy-paste link with image preview generated separately).
+- **`public/robots.txt` excludes `/audit/?id=` and `/share/`.** No SEO value in indexing individual audit results — every result is the same template with different data. Sitemap routes (`/sitemap-index.xml`) handle the discoverable pages.
+- **Contact page is a single mailto.** Brief said "AI-native automation, 80-90% hands-off." A contact form is the opposite of that. mailto links plus a subject-prefill cover the use cases.
 
 ---
 

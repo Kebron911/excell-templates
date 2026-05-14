@@ -1,0 +1,83 @@
+---
+import Layout from '@/components/AppLayout.astro';
+import { siteConfig } from '@/data/site.config';
+---
+
+<Layout
+  siteConfig={siteConfig}
+  title="How the scoring works · Listing Audit Tools"
+  description="The five dimensions, the rubric behind each, the trade-offs we made in v0.1, and what's coming in v0.2."
+  path="/about/"
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-16">
+      <p class="label text-[color:var(--accent-700)]">How the scoring works</p>
+      <h1 class="mt-3 font-serif text-h1 text-navy leading-tight">
+        We grade your listing the way a guest skims it<span class="period-accent">.</span>
+      </h1>
+      <p class="mt-5 text-lead text-ink-2">
+        Every audit runs the same five rubrics — the patterns that drive booking conversion on
+        Airbnb and Vrbo. No fluff, no superlatives, no "you're doing great!" filler.
+      </p>
+
+      <h2 class="mt-12 font-serif text-h2 text-navy">The five dimensions</h2>
+
+      <div class="mt-6 space-y-7">
+        <article>
+          <h3 class="font-serif text-h3 text-navy">Title (0–100)</h3>
+          <p class="mt-2 text-body text-ink-2 leading-snug">
+            Length sweet spot 35–60 chars. Hook strength. Inclusion of a searchable amenity or
+            landmark. Penalties for ALL-CAPS, emoji spam, vague superlatives, and platform-banned content.
+          </p>
+        </article>
+        <article>
+          <h3 class="font-serif text-h3 text-navy">Description (0–100)</h3>
+          <p class="mt-2 text-body text-ink-2 leading-snug">
+            Scannability. Section structure (The Space / Sleeping / Bathrooms / Kitchen / Workspace
+            / Outdoor / Location / Rules). Specific named features over generic adjectives. Logistics covered: check-in method, parking, wifi, quirks.
+          </p>
+        </article>
+        <article>
+          <h3 class="font-serif text-h3 text-navy">Photos (0–100) <span class="text-caption text-ink-3 font-sans font-normal align-middle">— metadata only in v0.1</span></h3>
+          <p class="mt-2 text-body text-ink-2 leading-snug">
+            Count, cover-photo strength, sequencing (cover → living → kitchen → bedrooms → bathrooms
+            → outdoor), aspect ratios, and shot-type diversity from caption hints. Image-content
+            analysis (cover quality, missing shot types) lands in v0.2 paid.
+          </p>
+        </article>
+        <article>
+          <h3 class="font-serif text-h3 text-navy">Amenities (0–100)</h3>
+          <p class="mt-2 text-body text-ink-2 leading-snug">
+            Search-filter coverage. Missing the staples (Wifi / Kitchen / Parking / AC / Washer)
+            hides you from search filters. Missing differentiators (Hot tub / EV charger / Pets / Workspace)
+            costs you the segment that filters for those.
+          </p>
+        </article>
+        <article>
+          <h3 class="font-serif text-h3 text-navy">Reviews (0–100)</h3>
+          <p class="mt-2 text-body text-ink-2 leading-snug">
+            Average rating, total count, and recurring complaint themes that appear across multiple
+            reviews. Single-mention complaints are ignored — only repeated patterns count. Praise
+            themes get surfaced so you can amplify them in the description.
+          </p>
+        </article>
+      </div>
+
+      <h2 class="mt-14 font-serif text-h2 text-navy">What v0.1 deliberately doesn't do</h2>
+      <ul class="mt-4 space-y-3 text-body text-ink-2 leading-snug list-disc list-outside pl-5">
+        <li><strong>Score pricing.</strong> Real pricing analysis needs market comparables (PriceLabs/AirDNA-class data). Coming in v0.2 paid.</li>
+        <li><strong>Vision-grade photo audit.</strong> v0.1 reads metadata. v0.2 paid analyzes the cover image and shot sequencing with vision AI.</li>
+        <li><strong>Rewrite your title or description.</strong> v0.1 tells you what to fix. v0.2 paid generates the rewrite.</li>
+        <li><strong>Track changes over time.</strong> Each audit is a snapshot. v0.2 paid stores history and diffs.</li>
+      </ul>
+
+      <h2 class="mt-14 font-serif text-h2 text-navy">Privacy</h2>
+      <p class="mt-3 text-body text-ink-2 leading-snug">
+        We pull listing data the way a guest does — from the public listing page. We never log
+        into your host account, never see your booking history, never store your IP address (only
+        a salted hash for rate-limiting). Audits are stored so you can come back to your result via
+        the share link.
+      </p>
+    </div>
+  </section>
+</Layout>

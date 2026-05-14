@@ -1,0 +1,57 @@
+---
+import Layout from '@/components/AppLayout.astro';
+import { siteConfig } from '@/data/site.config';
+---
+
+<Layout
+  siteConfig={siteConfig}
+  title="Privacy · Listing Audit Tools"
+  description="What we collect, what we don't, how long we keep it, how to delete it."
+  path="/privacy/"
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-16">
+      <p class="label text-[color:var(--accent-700)]">Privacy</p>
+      <h1 class="mt-3 font-serif text-h1 text-navy leading-tight">
+        We collect almost nothing<span class="period-accent">.</span>
+      </h1>
+
+      <h2 class="mt-10 font-serif text-h2 text-navy">What we store</h2>
+      <ul class="mt-3 space-y-2 text-body text-ink-2 leading-snug list-disc list-outside pl-5">
+        <li>The listing URL you paste, plus the audit result we generated for it.</li>
+        <li>A salted hash of your IP address (sha256 of <code>IP_HASH_SALT + ip</code>) — used only for rate limiting. We cannot recover the raw IP from this hash.</li>
+        <li>Your email address if (and only if) you sign up for the email-gated PDF report or empire newsletter.</li>
+        <li>Token-count and cost telemetry per audit, for ops monitoring. No prompt or response content stored at the application layer beyond the scorecard you see.</li>
+      </ul>
+
+      <h2 class="mt-10 font-serif text-h2 text-navy">What we don't store</h2>
+      <ul class="mt-3 space-y-2 text-body text-ink-2 leading-snug list-disc list-outside pl-5">
+        <li>Your raw IP address.</li>
+        <li>Your host account credentials.</li>
+        <li>Your booking history, calendar, or payouts.</li>
+        <li>Personal data from your listing's reviewers beyond the public review snippet text the platform exposes.</li>
+      </ul>
+
+      <h2 class="mt-10 font-serif text-h2 text-navy">Third parties</h2>
+      <ul class="mt-3 space-y-2 text-body text-ink-2 leading-snug list-disc list-outside pl-5">
+        <li><strong>Apify</strong> — managed scraper that fetches the public listing page when our free JSON-LD parse falls short.</li>
+        <li><strong>Anthropic</strong> — the LLM provider that scores each dimension. Anthropic does not train on API traffic.</li>
+        <li><strong>Hostinger</strong> — hosting provider. Their privacy policy governs their server-level logs.</li>
+        <li><strong>Google Analytics 4</strong> — page-view + event analytics. We anonymize IP and disable advertising features.</li>
+      </ul>
+
+      <h2 class="mt-10 font-serif text-h2 text-navy">How to delete your data</h2>
+      <p class="mt-3 text-body text-ink-2 leading-snug">
+        Email <a href="mailto:hello@listingaudit.tools" class="text-navy underline decoration-[color:var(--accent-500)] underline-offset-2">hello@listingaudit.tools</a>
+        with the audit URLs you'd like removed. We delete them within seven days and email
+        confirmation. If you've subscribed to the empire newsletter, every email includes a
+        one-click unsubscribe.
+      </p>
+
+      <h2 class="mt-10 font-serif text-h2 text-navy">Contact</h2>
+      <p class="mt-3 text-body text-ink-2 leading-snug">
+        Privacy questions: <a href="mailto:hello@listingaudit.tools" class="text-navy underline decoration-[color:var(--accent-500)] underline-offset-2">hello@listingaudit.tools</a>.
+      </p>
+    </div>
+  </section>
+</Layout>
