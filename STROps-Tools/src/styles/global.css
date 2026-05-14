@@ -43,13 +43,19 @@
 
   a {
     color: var(--brand-navy);
+    transition: color var(--dur-std) var(--ease-std);
+  }
+  a:hover { color: var(--accent-700); }
+
+  /* Underline anchors inside prose body content only — keeps cards,
+     nav, and chrome links clean while preserving link affordance on
+     in-article references. */
+  .prose a {
     text-decoration: underline;
     text-decoration-color: var(--accent-500);
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
-    transition: color var(--dur-std) var(--ease-std);
   }
-  a:hover { color: var(--accent-700); }
 
   /* Calculator inputs/outputs use mono numerics by default. */
   input[type="number"], input[type="tel"], output {
