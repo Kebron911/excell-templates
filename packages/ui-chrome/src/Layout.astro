@@ -80,7 +80,7 @@ const lds = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
           window.gtag = gtag;
           gtag('js', new Date());
           gtag('config', '${import.meta.env.PUBLIC_GA4_ID}', {
-            linker: { domains: ['strhost.tools', 'thestrledger.com', 'strbuyers.tools', 'strops.tools', 'strguests.tools'] },
+            linker: { domains: ['strhost.tools', 'thestrledger.com', 'strbuyers.tools', 'strops.tools', 'strguests.tools', 'listingaudit.tools'] },
             send_page_view: true
           });
         `} />

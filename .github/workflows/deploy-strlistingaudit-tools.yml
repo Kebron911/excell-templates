@@ -1,0 +1,118 @@
+name: Deploy listingaudit.tools
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'STRListingAudit-Tools/**'
+      - '.github/workflows/deploy-strlistingaudit-tools.yml'
+  pull_request:
+    paths:
+      - 'STRListingAudit-Tools/**'
+      - '.github/workflows/deploy-strlistingaudit-tools.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-strlistingaudit-tools
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install (root workspace)
+        # listingaudit imports from @str/seo, @str/ui-chrome, @str/ui-funnel,
+        # @str/email-gate, @str/format — workspace symlinks resolve via pnpm.
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared packages
+        run: pnpm -r --filter "./packages/*" build
+
+      - name: Typecheck
+        working-directory: STRListingAudit-Tools
+        run: pnpm typecheck
+
+      - name: Unit tests
+        working-directory: STRListingAudit-Tools
+        run: pnpm test
+
+      - name: Build
+        working-directory: STRListingAudit-Tools
+        env:
+          PUBLIC_GA4_ID: ${{ secrets.LISTINGAUDIT_GA4_ID }}
+        run: pnpm build
+
+      - name: Verify build output
+        working-directory: STRListingAudit-Tools
+        run: |
+          set -e
+          test -f dist/index.html
+          test -f dist/about/index.html
+          test -f dist/contact/index.html
+          test -f dist/privacy/index.html
+          test -f dist/audit/index.html
+          test -f dist/audit/cities/index.html
+          test -f dist/audit/cities/austin/index.html
+          test -f dist/blog/index.html
+          test -f dist/sitemap-index.xml
+          test -f dist/robots.txt
+          echo "Build output OK"
+
+      - name: Install Playwright browsers
+        id: pw_install
+        continue-on-error: true
+        working-directory: STRListingAudit-Tools
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: E2E tests
+        if: steps.pw_install.outcome == 'success'
+        working-directory: STRListingAudit-Tools
+        run: pnpm test:e2e
+
+      # Deploy only on push to main. PRs gate on typecheck/test/build/e2e.
+      - name: Set up SSH key
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STR_SSH_KEY }}
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          echo "Key file size: $(wc -c < ~/.ssh/id_ed25519) bytes"
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null && echo "Key parses OK"
+          ssh-keyscan -p 65002 -t ed25519,rsa,ecdsa 195.35.15.247 >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy via rsync over SSH
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+        run: |
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            -e 'ssh -i ~/.ssh/id_ed25519 -p 65002 -o StrictHostKeyChecking=accept-new' \
+            ./STRListingAudit-Tools/dist/ \
+            u470667024@195.35.15.247:/home/u470667024/domains/listingaudit.tools/public_html/
+
+      - name: Pre-launch smoke
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+        working-directory: STRListingAudit-Tools
+        env:
+          SMOKE_BASE_URL: https://listingaudit.tools
+        run: node scripts/smoke.mjs
