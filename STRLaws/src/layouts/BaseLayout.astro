@@ -1,0 +1,96 @@
+---
+import '../styles/globals.css';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogImage?: string;
+  schema?: object | object[];
+}
+
+const { title, description, canonical, ogImage, schema } = Astro.props;
+const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? 'https://strlaws.com';
+const resolvedCanonical = canonical ?? new URL(Astro.url.pathname, siteUrl).toString();
+const resolvedOg = ogImage ?? `${siteUrl}/og-default.png`;
+const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={resolvedCanonical} />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={resolvedCanonical} />
+    <meta property="og:image" content={resolvedOg} />
+    <meta property="og:type" content="website" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={resolvedOg} />
+
+    {schemas.map((s) => (
+      <script type="application/ld+json" set:html={JSON.stringify(s)} />
+    ))}
+  </head>
+  <body>
+    <header class="border-b border-rule bg-parchment">
+      <div class="mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
+        <a href="/" class="font-wordmark text-h3 font-medium text-navy">STRLaws</a>
+        <nav class="flex gap-6 text-ui">
+          <a href="/" class="text-ink-1 hover:text-accent-700">Home</a>
+          <a href="/alerts" class="text-ink-1 hover:text-accent-700">Alerts</a>
+          <a href="/blog" class="text-ink-1 hover:text-accent-700">Blog</a>
+          <a href="/legal/sources" class="text-ink-1 hover:text-accent-700">Methodology</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="border-t border-rule bg-navy text-parchment mt-16">
+      <div class="mx-auto max-w-6xl px-4 py-12 grid gap-8 md:grid-cols-3">
+        <div>
+          <div class="font-wordmark text-h3 mb-2">STRLaws</div>
+          <p class="text-small text-parchment-deep">
+            National short-term rental regulation database covering all 50 US states.
+          </p>
+        </div>
+        <div>
+          <div class="text-label uppercase mb-3 text-gold-soft">Empire Tools</div>
+          <ul class="space-y-2 text-small">
+            <li><a href="https://strbuyers.tools" class="hover:text-gold">STRBuyers.tools</a></li>
+            <li><a href="https://strhost.tools" class="hover:text-gold">STRHost.tools</a></li>
+            <li><a href="https://strops.tools" class="hover:text-gold">STROps.tools</a></li>
+            <li><a href="https://strguests.tools" class="hover:text-gold">STRGuests.tools</a></li>
+            <li><a href="https://thestrledger.com" class="hover:text-gold">The STR Ledger</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-label uppercase mb-3 text-gold-soft">Legal</div>
+          <ul class="space-y-2 text-small">
+            <li><a href="/legal/sources" class="hover:text-gold">Methodology &amp; Sources</a></li>
+            <li><a href="/legal/disclaimer" class="hover:text-gold">Disclaimer</a></li>
+            <li><a href="/legal/privacy" class="hover:text-gold">Privacy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-navy-tint">
+        <div class="mx-auto max-w-6xl px-4 py-4 text-caption text-parchment-deep">
+          STRLaws is an information service, not legal advice. Always verify regulations
+          with your local jurisdiction before making decisions.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

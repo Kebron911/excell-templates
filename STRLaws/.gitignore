@@ -1,0 +1,29 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.local
+.env.*.local
+
+# Astro
+.astro/
+
+# Test outputs
+coverage/
+playwright-report/
+test-results/
+
+# Build artifacts
+server/dist/
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Scrape snapshots (raw text dumps, may contain PII or large)
+data/snapshots/**/*.txt
+!data/snapshots/.gitkeep
+
+# n8n exports may include credentials — only commit sanitized copies
+n8n/workflows/*.local.json

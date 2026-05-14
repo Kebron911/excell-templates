@@ -1,0 +1,53 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="STR Regulation Alerts — Premium Subscription | STRLaws"
+  description="Get instant alerts when short-term rental regulations change in your city. Free tier and premium API access."
+>
+  <section class="mx-auto max-w-3xl px-4 py-16">
+    <h1 class="text-h1 font-wordmark text-navy mb-4">
+      Never miss a regulation change
+    </h1>
+    <p class="text-lead text-ink-2 mb-8">
+      We track 500+ US cities and email you when ordinances change in markets you care about.
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-6 mt-12">
+      <div class="bg-white border border-rule rounded-md p-6">
+        <div class="text-label uppercase text-ink-3 mb-2">Free</div>
+        <div class="text-h2 font-medium text-navy mb-4">$0</div>
+        <ul class="space-y-2 text-small text-ink-2 mb-6">
+          <li>1 city watchlist</li>
+          <li>Daily batched alerts (material changes)</li>
+          <li>Full regulation pages access</li>
+        </ul>
+        <a href="#signup" class="block text-center bg-parchment-alt text-navy py-2 rounded-md hover:bg-parchment-deep">
+          Get free alerts
+        </a>
+      </div>
+
+      <div class="bg-navy text-parchment border-2 border-gold rounded-md p-6">
+        <div class="text-label uppercase text-gold-soft mb-2">Premium</div>
+        <div class="text-h2 font-medium text-parchment mb-1">$14<span class="text-body text-parchment-deep">/mo</span></div>
+        <div class="text-caption text-parchment-deep mb-4">or $140/yr (save $28)</div>
+        <ul class="space-y-2 text-small text-parchment-deep mb-6">
+          <li>Unlimited city watchlist</li>
+          <li>Instant alerts (transactional, not batched)</li>
+          <li>Full change history (&gt;12 months)</li>
+          <li>CSV export</li>
+          <li>REST API (1000 req/day)</li>
+        </ul>
+        <a href="#premium-signup" class="block text-center bg-gold text-navy py-2 rounded-md hover:bg-gold-soft font-medium">
+          Subscribe
+        </a>
+      </div>
+    </div>
+
+    <div id="signup" class="mt-16 bg-white border border-rule rounded-md p-6">
+      <h2 class="text-h2 font-wordmark text-navy mb-4">Sign up for free alerts</h2>
+      <p class="text-ink-2 mb-4">Email signup wired in Phase 5 (Influencersoft).</p>
+    </div>
+  </section>
+</BaseLayout>

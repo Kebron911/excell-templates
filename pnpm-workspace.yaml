@@ -17,6 +17,7 @@ packages:
   - 'STRBuyers-Tools'
   - 'STRGuests-Tools'
   - 'STRHost-Tools'
+  - 'STRLaws'
   - 'STRManuals/site'
   - 'STROps-Tools'
   - 'tools/empire-console'

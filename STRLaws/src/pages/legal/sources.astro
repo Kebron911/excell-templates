@@ -1,0 +1,41 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Methodology & Sources | STRLaws"
+  description="How STRLaws sources, verifies, and updates short-term rental regulation data across the United States."
+>
+  <section class="mx-auto max-w-3xl px-4 py-12 prose">
+    <h1 class="text-h1 font-wordmark text-navy mb-6">Methodology &amp; Sources</h1>
+
+    <h2 class="text-h2 text-navy mt-8">Where regulation data comes from</h2>
+    <p class="text-ink-2">
+      STRLaws scrapes municipal code repositories, city council minutes, state legislative
+      records, and short-term rental program portals for each tracked jurisdiction.
+      Primary sources are linked directly from every city page.
+    </p>
+
+    <h2 class="text-h2 text-navy mt-8">How extractions are verified</h2>
+    <p class="text-ink-2">
+      Each scrape is processed by an AI extraction pipeline (Claude — Anthropic) that
+      produces a structured record with a self-reported confidence score. Extractions
+      below 85% confidence are routed to human review before publication. Extractions
+      above 85% publish automatically and are re-verified on the next weekly scrape.
+    </p>
+
+    <h2 class="text-h2 text-navy mt-8">Update cadence</h2>
+    <p class="text-ink-2">
+      Every tracked city is re-scraped weekly. Changes are diffed against the previous
+      verified state and classified as <em>minor</em>, <em>material</em>, or <em>major</em>.
+      Material and major changes trigger blog posts and subscriber alerts.
+    </p>
+
+    <h2 class="text-h2 text-navy mt-8">Not legal advice</h2>
+    <p class="text-ink-2">
+      STRLaws is an information service. The data here is curated for general guidance,
+      not legal opinion. Always verify regulations directly with the issuing municipality
+      and consult a qualified attorney before making compliance-sensitive decisions.
+    </p>
+  </section>
+</BaseLayout>

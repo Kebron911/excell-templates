@@ -1,0 +1,70 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { StateRow, CityRow } from '@/lib/city-data';
+import { buildBreadcrumbList, buildStateMeta } from '@/lib/seo';
+
+interface Props {
+  state: StateRow;
+  cities: CityRow[];
+}
+
+const { state, cities } = Astro.props;
+const meta = buildStateMeta(state.name, `/${state.slug}`);
+const breadcrumb = buildBreadcrumbList([
+  { name: 'Home', url: '/' },
+  { name: state.name, url: `/${state.slug}` },
+]);
+---
+
+<BaseLayout
+  title={meta.title}
+  description={meta.description}
+  canonical={meta.canonical}
+  ogImage={meta.ogImage}
+  schema={[breadcrumb]}
+>
+  <section class="mx-auto max-w-6xl px-4 py-12">
+    <nav class="text-caption text-ink-3 mb-4">
+      <a href="/" class="hover:underline">Home</a>
+      <span class="mx-2">/</span>
+      <span>{state.name}</span>
+    </nav>
+
+    <h1 class="text-h1 font-wordmark text-navy mb-4">
+      Short-Term Rental Laws in {state.name}
+    </h1>
+
+    <p class="text-lead text-ink-2 max-w-3xl mb-8">
+      {state.summary_md ?? `Current short-term rental regulations across ${state.name}. Compare ${cities.length} cities by permit cost, tax rate, and ban status.`}
+    </p>
+
+    <div class="bg-white border border-rule rounded-md overflow-hidden">
+      <table class="w-full text-small">
+        <thead class="bg-parchment-alt text-label uppercase">
+          <tr>
+            <th class="text-left px-4 py-3">City</th>
+            <th class="text-left px-4 py-3">Market Rank</th>
+            <th class="text-right px-4 py-3">Population</th>
+            <th class="text-left px-4 py-3">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {cities.map((city) => (
+            <tr class="border-t border-rule hover:bg-parchment-alt">
+              <td class="px-4 py-3">
+                <a href={`/${state.slug}/${city.slug}`} class="text-navy hover:text-accent-700 font-medium">
+                  {city.name}
+                </a>
+              </td>
+              <td class="px-4 py-3 text-ink-2">{city.str_market_rank ?? '—'}</td>
+              <td class="px-4 py-3 text-right text-ink-2">
+                {city.population ? city.population.toLocaleString() : '—'}
+              </td>
+              <td class="px-4 py-3 text-ink-3 capitalize">{city.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</BaseLayout>
