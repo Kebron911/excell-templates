@@ -1,6 +1,6 @@
 # InfluencerSoft Module Map
 
-The 11 top-level modules plus secondary surfaces. Each entry lists the exact UI
+The 13 top-level modules plus secondary surfaces. Each entry lists the exact UI
 menu path and the primary thing you do there. Tenant: `kebron.influencersoft.com`.
 
 ## 1. Dashboard
@@ -22,25 +22,55 @@ menu path and the primary thing you do there. Tenant: `kebron.influencersoft.com
 - **What:** Lists/groups (terms used interchangeably in UI), tags, custom
   fields, subscription forms, individual lead activity history.
 - **Add contact:** API (`AddUpdateLead`) or manual via this screen.
+  ⚠️ Manually-added contacts (UI or API without activation email) cannot
+  receive email through IS servers — they must go through a subscription
+  opt-in or activation flow to become emailable.
 - **Custom fields:** `Contacts → Custom Fields` — IS rejects prefix-colliding
   names (refresh page between adds; see [gotchas.md](gotchas.md)).
 - **Naming rules:** see [tag-dictionary.md](../../../infrastructure/influencersoft/tag-dictionary.md) §6.
+- **Calls:** `Contacts → Calls` — call-center call log.
+- **Meetings:** `Contacts → Meetings` — meeting log.
+- **Settings:** `Contacts → Settings` — additional lead fields, reCAPTCHA
+  configuration for forms, call-center scripts.
+  See [plans-and-support.md](plans-and-support.md) for reCAPTCHA setup steps.
 
-## 4. Sequences (Email autoresponders)
-- **Path:** `Campaigns → Sequence`
-- **What:** Linear, scheduled email autoresponders. Purple "+" adds first
-  email, green "+" adds subsequent. Delays are time-based (e.g. 2d after prev)
-  or date-based. "Add option" inside an email = A/B test (auto 50/50 split).
-- **Sequences cannot be created via API** — paste from `.md` drafts. See
+## 4. Sequences (Visual flowchart automations)
+- **Path:** `Campaigns → Sequences`
+- **What:** Visual flowchart automation. Triggers on a tag or event, then
+  fans out through branching nodes: emails, A/B tests, filters, delays,
+  tag-add/remove actions. NOT a linear drip chain — that's Email Series.
+  Purple "+" adds first node, green "+" adds subsequent. "Add option" inside
+  an email node = A/B test (auto 50/50 split).
+- **Cannot be created via API** — paste from `.md` drafts. See
   paste order in [manual-setup-guide.md](../../../ops/manual%20work/influencersoft-manual-setup-guide.md) Part 3.
 
-## 5. Process (Automation)
-- **Path:** `Automation → Process` or canvas Action block
+## 4a. Email Series (Linear drip chain)
+- **Path:** `Campaigns → Email Series`
+- **What:** Time-interval email chain tied to list subscription. The LINEAR
+  product — fixed schedule, no branching. Distinct from Sequences.
+  Segments can be marked **"Inseparable chain"** (green exclamation icon) so
+  broadcasts cannot interrupt them for that subscriber.
+- **Use when:** simple nurture sequence triggered by joining a list.
+- **Use Sequences instead when:** you need branching, filters, or A/B logic.
+
+## 4b. Broadcasts (One-time blasts)
+- **Path:** `Campaigns → Broadcasts`
+- **What:** Single email sent to a chosen list at a scheduled time.
+  Run **"Test the distribution for spam"** pre-send check before sending.
+  Broadcasts respect "Inseparable chain" locks on Email Series segments.
+
+## 5. Process (Advanced automation)
+- **Path:** `Tasks → Processes` or canvas Action block
 - **What:** Advanced visual automation — branching, multi-fire, filters,
   A/B test blocks, action blocks (send email, add tag, move between lists).
-  Use this when a linear sequence can't express the logic.
-- **Warning:** Don't build massive Process flows if a linear sequence works —
+  Use this when a Sequence can't express the logic.
+- **Warning:** Don't build massive Process flows if a Sequence works —
   harder to troubleshoot (founder's own advice).
+
+## 5a. Automatic Rules
+- **Path:** `Tasks → Automatic rules`
+- **What:** Event-triggered rule chains (if-event → then-action). Simpler
+  than Processes — single-condition entry point, no branching canvas.
 
 ## 6. Mailing Settings (deliverability)
 - **Path:** `Campaigns → Settings`
@@ -62,7 +92,7 @@ menu path and the primary thing you do there. Tenant: `kebron.influencersoft.com
   homework status (New/Accepted/Rejected).
 - **Members area:** drag Members Area block in any Funnel to link a course.
 
-## 8. Affiliates
+## 8. Affiliates (program owner view)
 - **Path:** `Affiliates → Offers`
 - **What:** 2-tier affiliate program. Fixed sum OR % commission. Payout via
   PayPal or bank. MoneyBack auto-subtracts commission on refund.
@@ -70,6 +100,25 @@ menu path and the primary thing you do there. Tenant: `kebron.influencersoft.com
   UTM tags + sets browser cookie tying clicks to partners.
 - **Fee Period:** 1–365 days or "forever" (cookie window).
 - **Reports:** `Affiliates → Affiliate Management and Reporting`.
+
+## 8a. Advertise (partner/affiliate view — Partner's Cabinet)
+- **Path:** `Top menu → Advertise`
+- **What:** The *partner side* — what Daniel sees when he is a member of
+  someone else's affiliate program. Each program he joins appears here as a
+  card in the **Partner's Cabinet** catalog.
+- Inside each program, the left nav exposes:
+  - **Offers** — promotional materials and trackable affiliate links
+  - **Instructions** — program owner's notes (if provided)
+  - **Promotional Drafts for Free Products** — ready-made promo copy
+  - **Promotional Drafts for Paid Products**
+  - **Advertising Blanks for Partner Registration**
+  - **Leads** — leads he referred
+  - **Orders** — purchases through his links
+  - **Referrals** — downstream partners he recruited
+  - **Partners From You** — 2nd-tier partners
+  - **Payments** — commissions charged/paid
+  - **Contact the Author** — direct message to program owner
+- **Catalog button** (inside any program) → returns to main Partner's Cabinet.
 
 ## 9. Store (E-commerce)
 - **Path:** `Store → Products`, `Store → Order forms`, `Store → Coupons`
@@ -116,9 +165,19 @@ menu path and the primary thing you do there. Tenant: `kebron.influencersoft.com
 
 ### Website / Domain
 - **Path:** `Websites → Set up`
-- **What:** Link custom domain via CNAME, get free SSL, manage subdomains,
-  paste HEAD code (Google Analytics, Facebook Pixel, custom scripts) under
-  the `More` tab → `Add HEAD code`.
+- **What:** Full website/domain management and page publishing. Surfaces:
+  - **Custom domains:** link via CNAME → free SSL provisioned automatically.
+    Subdomains also supported.
+  - **Page Builder:** drag-drop editor (same engine as Funnel pages) for
+    standalone pages outside funnels.
+  - **File manager:** upload/manage media assets.
+  - **Popup blocks:** configure exit-intent or timed popups.
+  - **Blog:** native blog with posts, categories, SEO fields.
+  - **SEO / social:** per-page meta title, description, OG image.
+  - **Webinar broadcast pages** and **auto-webinar** pages.
+  - **HEAD code:** `More` tab → `Add HEAD code` — paste GA, FB Pixel, or
+    custom scripts site-wide.
+- Guide chapter `02-website.md` covers 31 screens and 35 tasks.
 
 ### Personal Managers / Team
 - **Path:** `Integration and API` (account footer) — also `getpersonalmanagers` API
