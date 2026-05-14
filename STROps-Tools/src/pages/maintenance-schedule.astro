@@ -11,7 +11,6 @@ import RelatedPosts from '@components/funnel/RelatedPosts.astro';
 import { magnetCopyFor } from '@/data/magnet-copy';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
-import PageHero from '@/components/PageHero.astro';
 
 const url = 'https://strops.tools/maintenance-schedule';
 const magnetCopy = magnetCopyFor('maintenance-checklist');
@@ -33,7 +32,6 @@ const faqs = [
     <article class="flex-1 prose">
       <h1>Maintenance Schedule Generator</h1>
       <p class="lead">Get a year-out schedule of every recurring maintenance task — PDF for your binder, .ics for your calendar app.</p>
-      <PageHero slug="maintenance-schedule" alt="Maintenance schedule - Annual schedule with PDF and .ics export. HVAC, smoke detectors, deep cleans, all on cadence." />
       <MaintenanceSchedule client:visible />
       <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>

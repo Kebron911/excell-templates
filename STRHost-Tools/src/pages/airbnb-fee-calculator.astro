@@ -12,7 +12,6 @@ import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import { sidebarItems } from '@/data/sidebar-items';
 import tools from '@/data/tools.json';
-import PageHero from '@/components/PageHero.astro';
 
 const tool = tools['airbnb-fee-calculator'];
 
@@ -73,7 +72,6 @@ const jsonLd = [
             See exactly what Airbnb takes from a booking — and what you really keep. Live updates, shareable URL, clean print.
           </p>
         
-      <PageHero slug="airbnb-fee-calculator" alt="Airbnb fee calculator - What Airbnb really takes from your booking." />
     </header>
 
         {/* 2. Calculator above the fold */}

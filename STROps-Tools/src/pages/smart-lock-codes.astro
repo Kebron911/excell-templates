@@ -13,7 +13,6 @@ import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import affiliates from '@data/affiliates.json';
-import PageHero from '@/components/PageHero.astro';
 
 const url = 'https://strops.tools/smart-lock-codes';
 const magnetCopy = magnetCopyFor('cleaner-sop');
@@ -36,7 +35,6 @@ const faqs = [
     <article class="flex-1 prose">
       <h1>Smart Lock Code Generator</h1>
       <p class="lead">Generate per-booking lock codes you can re-derive on demand. Same booking ID + secret produces the same code, every time.</p>
-      <PageHero slug="smart-lock-codes" alt="Smart lock code rotator - Deterministic per-booking codes (HMAC-SHA-256). No spreadsheets, no reuse." />
       <SmartLockCodes client:visible />
       <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>

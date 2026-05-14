@@ -11,7 +11,6 @@ import RelatedPosts from '@components/funnel/RelatedPosts.astro';
 import { magnetCopyFor } from '@/data/magnet-copy';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
-import PageHero from '@/components/PageHero.astro';
 
 const url = 'https://strops.tools/damage-cost-lookup';
 const magnetCopy = magnetCopyFor('maintenance-checklist');
@@ -32,7 +31,6 @@ const faqs = [
     <article class="flex-1 prose">
       <h1>Damage Cost Lookup</h1>
       <p class="lead">Search the replacement-cost catalog before you file the AirCover claim — know what you're asking for.</p>
-      <PageHero slug="damage-cost-lookup" alt="Damage cost lookup - Searchable replacement-cost table. Know the number before the guest disputes the claim." />
       <DamageCostLookup client:visible />
       <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>

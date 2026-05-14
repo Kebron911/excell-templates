@@ -13,7 +13,6 @@ import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import affiliates from '@data/affiliates.json';
-import PageHero from '@/components/PageHero.astro';
 
 const url = 'https://strops.tools/restock-calculator';
 const magnetCopy = magnetCopyFor('supply-par');
@@ -34,7 +33,6 @@ const faqs = [
     <article class="flex-1 prose">
       <h1>Supply Restock Calculator</h1>
       <p class="lead">Forecast monthly and yearly consumable use so you stop running out mid-stay.</p>
-      <PageHero slug="restock-calculator" alt="Restock calculator - Per-month consumables from your booking volume — coffee, paper, soap, all of it." />
       <RestockCalculator client:visible />
       <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>

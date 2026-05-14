@@ -13,7 +13,6 @@ import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import affiliates from '@data/affiliates.json';
-import PageHero from '@/components/PageHero.astro';
 
 const url = 'https://strops.tools/linen-par-calculator';
 const magnetCopy = magnetCopyFor('supply-par');
@@ -35,7 +34,6 @@ const faqs = [
     <article class="flex-1 prose">
       <h1>Linen Par Calculator</h1>
       <p class="lead">Stop running short on changeovers. Plug in your bedroom and bathroom counts and get a clean par-level target.</p>
-      <PageHero slug="linen-par-calculator" alt="Linen par calculator - Sets per bed and per bath, by king/queen mix. Stop running short on changeover day." />
       <LinenParCalculator client:visible />
       <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>

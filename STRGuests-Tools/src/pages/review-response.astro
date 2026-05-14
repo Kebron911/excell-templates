@@ -12,7 +12,6 @@ import ReviewResponseGenerator from '@/components/generators/ReviewResponseGener
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
-import PageHero from '@/components/PageHero.astro';
 
 const tool = tools['review-response'];
 const path = tool.path;
@@ -50,7 +49,6 @@ const faq = buildFAQPage([
         {tool.tagline} Under 90 words, empathy-first on bad reviews, no defensiveness.
       </p>
     
-      <PageHero slug="review-response" alt="Review Response Generator — Thoughtful replies for 5-star, 4-star, and bad reviews." />
     </header>
 
     <AiRateLimitNotice toolSlug="review-response" />

@@ -15,7 +15,6 @@ import AffiliateCard from '@components/affiliate/AffiliateCard.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import affiliates from '@data/affiliates.json';
-import PageHero from '@/components/PageHero.astro';
 
 const url = 'https://strops.tools/turnover-scheduler';
 const faqs = [
@@ -37,7 +36,6 @@ const faqs = [
     <article class="flex-1 prose">
       <h1>Airbnb Turnover Scheduler</h1>
       <p class="lead">Paste your bookings, set your turnover window, and see every tight changeover and overlap at a glance.</p>
-      <PageHero slug="turnover-scheduler" alt="Turnover scheduler - Spot tight changeovers across multiple properties before they cost you a review." />
       <TurnoverScheduler client:visible />
       <AdSlot siteConfig={siteConfig} location="in-content" />
       <h2>How it works</h2>

@@ -13,7 +13,6 @@ import WifiSignGenerator from '@/components/generators/WifiSignGenerator.tsx';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
-import PageHero from '@/components/PageHero.astro';
 
 const tool = tools['wifi-sign'];
 const path = tool.path;
@@ -60,7 +59,6 @@ const faq = buildFAQPage([
         on every modern smartphone OS.
       </p>
     
-      <PageHero slug="wifi-sign" alt="Wi-Fi Sign Generator — Frame-ready wifi card with multiple design templates." />
     </header>
 
     <section class="mt-7">
