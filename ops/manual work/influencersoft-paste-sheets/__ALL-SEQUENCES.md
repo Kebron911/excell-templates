@@ -32,8 +32,8 @@
 
 ## IS UI setup
 
-1. **Processes → New process** (or open existing)
-2. **Process name:** `post-purchase-etsy-buyer`
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `post-purchase-etsy-buyer`
 3. **Trigger node:** `Tag applied` → tag = `customer:etsy`
    - Toggle ON: "Perform only once for an object"
    - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
@@ -41,7 +41,7 @@
 5. **End of process** node at the end.
 6. **Save and Activate.**
 
-Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
@@ -543,8 +543,8 @@ P.S. If you ever have a question, hit reply. Real humans, fast replies. Even aft
 
 ## IS UI setup
 
-1. **Processes → New process** (or open existing)
-2. **Process name:** `review-request`
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `review-request`
 3. **Trigger node:** `Tag applied` → tag = `purchased:day5`
    - Toggle ON: "Perform only once for an object"
    - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
@@ -552,7 +552,7 @@ P.S. If you ever have a question, hit reply. Real humans, fast replies. Even aft
 5. **End of process** node at the end.
 6. **Save and Activate.**
 
-Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
@@ -657,8 +657,8 @@ P.S. Etsy reviews can be edited later. If you leave 4 stars now and the workbook
 
 ## IS UI setup
 
-1. **Processes → New process** (or open existing)
-2. **Process name:** `refund-recovery`
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `refund-recovery`
 3. **Trigger node:** `Tag applied` → tag = `refund-filed`
    - Toggle ON: "Perform only once for an object"
    - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
@@ -666,7 +666,7 @@ P.S. Etsy reviews can be edited later. If you leave 4 stars now and the workbook
 5. **End of process** node at the end.
 6. **Save and Activate.**
 
-Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
@@ -780,8 +780,8 @@ P.S. If the refund was about the workbook itself (a bug, a confusing tab, a miss
 
 ## IS UI setup
 
-1. **Processes → New process** (or open existing)
-2. **Process name:** `welcome-book-magnet`
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `welcome-book-magnet`
 3. **Trigger node:** `Tag applied` → tag = `lead-magnet:welcome-book`
    - Toggle ON: "Perform only once for an object"
    - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
@@ -789,7 +789,7 @@ P.S. If the refund was about the workbook itself (a bug, a confusing tab, a miss
 5. **End of process** node at the end.
 6. **Save and Activate.**
 
-Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
@@ -1048,8 +1048,8 @@ P.S. The bundle (Welcome Book + Turnover Checklist + Local Recs add-on) is $79 a
 
 ## IS UI setup
 
-1. **Processes → New process** (or open existing)
-2. **Process name:** `abandoned-cart`
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `abandoned-cart`
 3. **Trigger node:** `Tag applied` → tag = `checkout-abandoned`
    - Toggle ON: "Perform only once for an object"
    - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
@@ -1057,7 +1057,7 @@ P.S. The bundle (Welcome Book + Turnover Checklist + Local Recs add-on) is $79 a
 5. **End of process** node at the end.
 6. **Save and Activate.**
 
-Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
@@ -1231,8 +1231,8 @@ P.S. If something about the checkout itself stopped you (card error, confusion a
 
 ## IS UI setup
 
-1. **Processes → New process** (or open existing)
-2. **Process name:** `win-back`
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `win-back`
 3. **Trigger node:** `Tag applied` → tag = `inactive-30d`
    - Toggle ON: "Perform only once for an object"
    - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
@@ -1240,7 +1240,7 @@ P.S. If something about the checkout itself stopped you (card error, confusion a
 5. **End of process** node at the end.
 6. **Save and Activate.**
 
-Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
@@ -1395,8 +1395,8 @@ P.S. If something specific made you tune out (too many emails, wrong topics, lif
 
 ## IS UI setup
 
-1. **Processes → New process** (or open existing)
-2. **Process name:** `BUNDLE-01-first-year-host`
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `BUNDLE-01-first-year-host`
 3. **Trigger node:** `Tag applied` → tag = `bundle-cross:first-year-host`
    - Toggle ON: "Perform only once for an object"
    - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
@@ -1404,7 +1404,7 @@ P.S. If something specific made you tune out (too many emails, wrong topics, lif
 5. **End of process** node at the end.
 6. **Save and Activate.**
 
-Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
@@ -1616,8 +1616,8 @@ P.S. If you've already purchased the bundle, ignore this email — IS will catch
 
 ## IS UI setup
 
-1. **Processes → New process** (or open existing)
-2. **Process name:** `BUNDLE-02-aspiring-host`
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `BUNDLE-02-aspiring-host`
 3. **Trigger node:** `Tag applied` → tag = `bundle-cross:aspiring-host`
    - Toggle ON: "Perform only once for an object"
    - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
@@ -1625,7 +1625,7 @@ P.S. If you've already purchased the bundle, ignore this email — IS will catch
 5. **End of process** node at the end.
 6. **Save and Activate.**
 
-Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
@@ -1839,8 +1839,8 @@ P.S. If you've already grabbed the bundle, IS will move you off this sequence by
 
 ## IS UI setup
 
-1. **Processes → New process** (or open existing)
-2. **Process name:** `BUNDLE-03-year-2-operator`
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `BUNDLE-03-year-2-operator`
 3. **Trigger node:** `Tag applied` → tag = `bundle-cross:year-2-operator`
    - Toggle ON: "Perform only once for an object"
    - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
@@ -1848,7 +1848,7 @@ P.S. If you've already grabbed the bundle, IS will move you off this sequence by
 5. **End of process** node at the end.
 6. **Save and Activate.**
 
-Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
@@ -2009,8 +2009,8 @@ P.S. If you bought the bundle already, IS will catch up overnight and move you o
 
 ## IS UI setup
 
-1. **Processes → New process** (or open existing)
-2. **Process name:** `BUNDLE-04-portfolio`
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `BUNDLE-04-portfolio`
 3. **Trigger node:** `Tag applied` → tag = `bundle-cross:portfolio`
    - Toggle ON: "Perform only once for an object"
    - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
@@ -2018,7 +2018,7 @@ P.S. If you bought the bundle already, IS will catch up overnight and move you o
 5. **End of process** node at the end.
 6. **Save and Activate.**
 
-Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
@@ -2181,8 +2181,8 @@ P.S. The Portfolio Bundle includes Schedule E Tax-Prep + the Multi-Property Mast
 
 ## IS UI setup
 
-1. **Processes → New process** (or open existing)
-2. **Process name:** `BUNDLE-05-pro-manager`
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `BUNDLE-05-pro-manager`
 3. **Trigger node:** `Tag applied` → tag = `bundle-cross:pro-manager`
    - Toggle ON: "Perform only once for an object"
    - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
@@ -2190,7 +2190,7 @@ P.S. The Portfolio Bundle includes Schedule E Tax-Prep + the Multi-Property Mast
 5. **End of process** node at the end.
 6. **Save and Activate.**
 
-Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 

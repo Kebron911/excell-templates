@@ -8,8 +8,8 @@
 
 ## IS UI setup
 
-1. **Processes → New process** (or open existing)
-2. **Process name:** `BUNDLE-04-portfolio`
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `BUNDLE-04-portfolio`
 3. **Trigger node:** `Tag applied` → tag = `bundle-cross:portfolio`
    - Toggle ON: "Perform only once for an object"
    - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
@@ -17,7 +17,7 @@
 5. **End of process** node at the end.
 6. **Save and Activate.**
 
-Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
