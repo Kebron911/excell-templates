@@ -1,0 +1,44 @@
+---
+// HomeProductPreview — three mini calculator-output cards previewing
+// the actual buy-decision math strbuyers.tools delivers. Pure
+// HTML/CSS — no images. Replaces the generic interior hero image.
+---
+
+<div class="mx-auto max-w-6xl px-5 mt-7 mb-3">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    {/* DSCR loan calculator */}
+    <div class="rounded-md border border-rule bg-parchment p-5 shadow-card">
+      <p class="label text-accent">DSCR loan calculator</p>
+      <p class="mt-2 font-serif text-h3 text-navy leading-snug">Will the property qualify?</p>
+      <dl class="mt-3 space-y-1.5 text-small">
+        <div class="flex justify-between"><dt class="text-ink-2">Gross rents (yr)</dt><dd class="font-mono text-navy">$68,400</dd></div>
+        <div class="flex justify-between"><dt class="text-ink-2">PITI annual</dt><dd class="font-mono text-navy">$53,520</dd></div>
+        <div class="flex justify-between border-t border-rule pt-1.5 mt-1.5"><dt class="text-navy font-semibold">DSCR</dt><dd class="font-mono text-navy font-semibold">1.28</dd></div>
+      </dl>
+      <p class="mt-3 text-caption text-accent">✓ Qualifies — most lenders need ≥ 1.25</p>
+    </div>
+
+    {/* Year 1 cash needs */}
+    <div class="rounded-md border border-rule bg-parchment-light p-5 shadow-card">
+      <p class="label text-accent">Year 1 cash calculator</p>
+      <p class="mt-2 font-serif text-h3 text-navy leading-snug">Total before keys</p>
+      <dl class="mt-3 space-y-1.5 text-small">
+        <div class="flex justify-between"><dt class="text-ink-2">Down payment</dt><dd class="font-mono text-navy">$60,000</dd></div>
+        <div class="flex justify-between"><dt class="text-ink-2">Closing costs</dt><dd class="font-mono text-navy">$9,000</dd></div>
+        <div class="flex justify-between"><dt class="text-ink-2">Furnishing</dt><dd class="font-mono text-navy">$18,500</dd></div>
+        <div class="flex justify-between"><dt class="text-ink-2">6 mo reserves</dt><dd class="font-mono text-navy">$22,000</dd></div>
+        <div class="flex justify-between border-t border-rule pt-1.5 mt-1.5"><dt class="text-navy font-semibold">Total</dt><dd class="font-mono text-navy font-semibold">$109,500</dd></div>
+      </dl>
+    </div>
+
+    {/* Market score */}
+    <div class="rounded-md border border-rule bg-parchment p-5 shadow-card">
+      <p class="label text-accent">Market score · 219 cities</p>
+      <p class="mt-2 font-serif text-h3 text-navy leading-snug">Austin, TX</p>
+      <p class="mt-1 text-caption text-ink-3">ADR $278 · Occ 64% · Regulation: open</p>
+      <p class="mt-3 font-serif text-3xl text-accent leading-none">78<span class="text-ink-3 text-h3"> / 100</span></p>
+      <p class="mt-1 text-caption text-ink-3">strong STR market</p>
+      <p class="mt-3 text-caption text-accent">+ Nashville · Scottsdale · Asheville</p>
+    </div>
+  </div>
+</div>

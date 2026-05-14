@@ -1,0 +1,56 @@
+---
+// HomeProductPreview — three mini ops-output cards previewing the
+// actual schedules, par levels, and SOP rows strops.tools generates.
+// Pure HTML/CSS — no images. Replaces the generic interior hero image.
+---
+
+<div class="mx-auto max-w-5xl px-6 mt-7 mb-3">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+    {/* Linen par calculator */}
+    <div class="border border-rule bg-parchment p-5">
+      <div class="text-label uppercase tracking-widest text-accent mb-2">Linen par calculator</div>
+      <p class="font-semibold text-lg text-ink">3BR / 2BA · 8 sleeps</p>
+      <table class="mt-3 w-full text-sm">
+        <thead>
+          <tr class="border-b border-rule">
+            <th class="text-left pb-1 text-ink3 font-mono uppercase text-xs">Item</th>
+            <th class="text-right pb-1 text-ink3 font-mono uppercase text-xs">Sets</th>
+          </tr>
+        </thead>
+        <tbody class="text-ink2">
+          <tr><td class="py-0.5">King sheets</td><td class="text-right font-mono text-ink">3</td></tr>
+          <tr><td class="py-0.5">Queen sheets</td><td class="text-right font-mono text-ink">3</td></tr>
+          <tr><td class="py-0.5">Bath towels</td><td class="text-right font-mono text-ink">16</td></tr>
+          <tr><td class="py-0.5">Hand towels</td><td class="text-right font-mono text-ink">12</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    {/* Restock calculator */}
+    <div class="border border-rule bg-parchment-alt p-5">
+      <div class="text-label uppercase tracking-widest text-accent mb-2">Restock calculator</div>
+      <p class="font-semibold text-lg text-ink">~ 14 turns / month</p>
+      <ul class="mt-3 space-y-1 text-sm text-ink2">
+        <li class="flex justify-between"><span>Coffee pods</span><span class="font-mono text-ink">112</span></li>
+        <li class="flex justify-between"><span>Hand soap (8oz)</span><span class="font-mono text-ink">7</span></li>
+        <li class="flex justify-between"><span>Toilet paper rolls</span><span class="font-mono text-ink">56</span></li>
+        <li class="flex justify-between"><span>Trash bags</span><span class="font-mono text-ink">42</span></li>
+        <li class="flex justify-between"><span>Dishwasher pods</span><span class="font-mono text-ink">28</span></li>
+      </ul>
+    </div>
+
+    {/* Maintenance schedule */}
+    <div class="border border-rule bg-parchment p-5">
+      <div class="text-label uppercase tracking-widest text-accent mb-2">Maintenance schedule</div>
+      <p class="font-semibold text-lg text-ink">Annual cadence</p>
+      <ul class="mt-3 space-y-1.5 text-sm text-ink2">
+        <li class="flex justify-between gap-3"><span>Smoke detector test</span><span class="font-mono text-ink3 uppercase text-xs">monthly</span></li>
+        <li class="flex justify-between gap-3"><span>HVAC filter swap</span><span class="font-mono text-ink3 uppercase text-xs">quarterly</span></li>
+        <li class="flex justify-between gap-3"><span>Dryer vent clean</span><span class="font-mono text-ink3 uppercase text-xs">2× yr</span></li>
+        <li class="flex justify-between gap-3"><span>Caulk + grout check</span><span class="font-mono text-ink3 uppercase text-xs">annual</span></li>
+        <li class="flex justify-between gap-3"><span>Roof + gutter inspect</span><span class="font-mono text-ink3 uppercase text-xs">annual</span></li>
+      </ul>
+      <p class="mt-3 text-xs text-ink3 font-mono">PDF + .ics export</p>
+    </div>
+  </div>
+</div>

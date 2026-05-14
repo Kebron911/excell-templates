@@ -6,6 +6,7 @@ import DisclosureBanner from '@/components/affiliate/DisclosureBanner.astro';
 import tools from '@/data/tools.json';
 import { siteConfig } from '@/data/site.config';
 import { getCollection } from 'astro:content';
+import HomeProductPreview from '@/components/HomeProductPreview.astro';
 
 const toolsList = Object.entries(tools);
 
@@ -62,6 +63,8 @@ const featuredCities = [
       Year 1 cash, and furnishing — plus market reports on 219 STR cities. No accounts,
       no popups, no paywalls.
     </p>
+    <HomeProductPreview />
+
     <div class="mt-7 flex flex-wrap gap-3">
       <a
         href="#tools"

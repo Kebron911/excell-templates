@@ -1,0 +1,58 @@
+---
+// HomeProductPreview — three mini "document" cards that preview the
+// actual outputs of strguests.tools generators. Pure HTML/CSS — no
+// images, no LCP cost. Replaces the generic interior hero image.
+---
+
+<div class="mx-auto max-w-6xl px-5 mt-7 mb-3">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    {/* House Rules PDF preview */}
+    <div class="rounded-md border border-rule bg-parchment p-5 shadow-card-soft">
+      <p class="label text-[color:var(--accent-700)]">House Rules · PDF</p>
+      <p class="mt-2 font-serif text-h3 text-navy leading-snug">Lakeview Cottage</p>
+      <p class="text-caption text-ink-3 mt-0.5">Quiet hours: 10pm – 8am</p>
+      <ul class="mt-3 space-y-1.5 text-small text-ink-2">
+        <li class="flex gap-2"><span class="text-[color:var(--accent-500)]">•</span> No smoking, indoors or out</li>
+        <li class="flex gap-2"><span class="text-[color:var(--accent-500)]">•</span> Max occupancy: 6 guests</li>
+        <li class="flex gap-2"><span class="text-[color:var(--accent-500)]">•</span> Pets welcome, $50 fee</li>
+        <li class="flex gap-2"><span class="text-[color:var(--accent-500)]">•</span> Check-out by 11am</li>
+      </ul>
+      <p class="mt-4 text-caption text-ink-3 font-mono">house-rules.pdf · 1 page</p>
+    </div>
+
+    {/* Welcome Book preview */}
+    <div class="rounded-md border border-rule bg-parchment-light p-5 shadow-card-soft">
+      <p class="label text-[color:var(--accent-700)]">Welcome Book · PDF</p>
+      <p class="mt-2 font-serif text-h3 text-navy leading-snug italic">Welcome.</p>
+      <p class="text-caption text-ink-3 mt-0.5">Everything you need for your stay</p>
+      <div class="mt-3 space-y-2">
+        <div class="border-t border-rule pt-2">
+          <p class="label text-navy text-[10px]">Wi-Fi</p>
+          <p class="text-small text-ink-2 font-mono">lake-guest · welcome24</p>
+        </div>
+        <div class="border-t border-rule pt-2">
+          <p class="label text-navy text-[10px]">Local picks</p>
+          <p class="text-small text-ink-2">Coffee · Hikes · Dinner</p>
+        </div>
+      </div>
+      <p class="mt-4 text-caption text-ink-3 font-mono">welcome-book.pdf · 8 pages</p>
+    </div>
+
+    {/* Message templates preview */}
+    <div class="rounded-md border border-rule bg-parchment p-5 shadow-card-soft">
+      <p class="label text-[color:var(--accent-700)]">Messages · 26 templates</p>
+      <p class="mt-2 font-serif text-h3 text-navy leading-snug">Late checkout request</p>
+      <div class="mt-3 rounded-sm bg-parchment-light border border-rule p-3">
+        <p class="text-small text-ink-2 leading-snug">
+          Hi {'{first_name}'} — happy to extend checkout to 1pm for $35.
+          Just reply <span class="font-semibold text-navy">yes</span> and
+          I'll confirm before the cleaners arrive.
+        </p>
+      </div>
+      <p class="mt-3 text-caption text-ink-3">
+        <span class="text-[color:var(--accent-700)]">+ 25 more:</span>
+        cancellation · noise · review · special occasion
+      </p>
+    </div>
+  </div>
+</div>

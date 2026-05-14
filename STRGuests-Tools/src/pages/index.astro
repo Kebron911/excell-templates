@@ -6,6 +6,7 @@ import STRLedgerCTA from '@str/ui-funnel/STRLedgerCTA.astro';
 import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
 import { getCollection } from 'astro:content';
+import HomeProductPreview from '@/components/HomeProductPreview.astro';
 
 const toolsList = Object.values(tools);
 const pdfTools = toolsList.filter((t: any) => t.kind === 'pdf');
@@ -56,6 +57,8 @@ const categoryLabels: Record<string, string> = {
         Browser-side, no signup, soft email gate that downloads either way.
       </p>
     </div>
+    <HomeProductPreview />
+    <div class="pb-6"></div>
   </section>
 
   {/* PDF tools section */}
