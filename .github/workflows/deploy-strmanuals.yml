@@ -62,6 +62,7 @@ jobs:
             echo "STRIPE_LINK_BUNDLE=${{ secrets.STRMANUALS_STRIPE_LINK_BUNDLE }}"
             echo "PUBLIC_N8N_WEBHOOK_BASE=${{ secrets.PUBLIC_N8N_WEBHOOK_BASE }}"
             echo "STRMANUALS_DOWNLOAD_HASH=${{ secrets.STRMANUALS_DOWNLOAD_HASH }}"
+            echo "PUBLIC_GA4_ID=${{ secrets.STRMANUALS_GA4_ID }}"
           } > .env
           echo ".env written ($(wc -l < .env) lines, $(wc -c < .env) bytes)"
 
@@ -79,6 +80,8 @@ jobs:
           PUBLIC_N8N_WEBHOOK_BASE: ${{ secrets.PUBLIC_N8N_WEBHOOK_BASE }}
           # Unguessable path segment for PDF delivery (see PDF-HOSTING.md Option 1)
           STRMANUALS_DOWNLOAD_HASH: ${{ secrets.STRMANUALS_DOWNLOAD_HASH }}
+          # GA4 measurement ID for the strmanuals web stream
+          PUBLIC_GA4_ID: ${{ secrets.STRMANUALS_GA4_ID }}
         run: pnpm build
 
       - name: DIAG — inspect rendered Stripe-link state

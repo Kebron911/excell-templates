@@ -62,6 +62,25 @@ const allLds = [orgLd, ...pageLds];
     {allLds.map((ld) => (
       <script type="application/ld+json" set:html={JSON.stringify(ld)} />
     ))}
+
+    {/* GA4 — emitted only when PUBLIC_GA4_ID is set. Cross-domain linker
+        keeps a session attributed across the cluster (strops → strledger →
+        strmanuals etc). */}
+    {import.meta.env.PUBLIC_GA4_ID && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${import.meta.env.PUBLIC_GA4_ID}`} />
+        <script is:inline set:html={`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag;
+          gtag('js', new Date());
+          gtag('config', '${import.meta.env.PUBLIC_GA4_ID}', {
+            linker: { domains: ['strmanuals.com', 'thestrledger.com', 'strhost.tools', 'strops.tools', 'strguests.tools', 'strbuyers.tools', 'listingaudit.tools', 'strlaws.com'] },
+            send_page_view: true
+          });
+        `} />
+      </>
+    )}
   </head>
   <body>
     <Header />
