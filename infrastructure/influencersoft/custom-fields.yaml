@@ -1,0 +1,78 @@
+# InfluencerSoft Custom Field Index Map — Source of Truth
+#
+# IS uses POSITIONAL indexing for custom-field merge tags: {$leadExfield[N]}
+# where N is the field's position in Contacts → Custom Fields admin list.
+#
+# WARNING: deleting + re-adding a field changes its index, silently breaking
+# every email that references it. ADD new fields ONLY at the end.
+#
+# Verified against IS UI Contacts → Custom Fields on 2026-05-13.
+
+fields:
+  - index: 1
+    name: sku_code
+    type: text
+    is_token: "{$leadExfield[1]}"
+    liquid_token: "{{ sku_code }}"
+    example: "TAX-001"
+  - index: 2
+    name: sku_label
+    type: text
+    is_token: "{$leadExfield[2]}"
+    liquid_token: "{{ sku_label }}"
+    example: "STR Mileage Log"
+  - index: 3
+    name: bought_on
+    type: date
+    is_token: "{$leadExfield[3]}"
+    liquid_token: "{{ bought_on }}"
+    example: "2026-05-13"
+  - index: 4
+    name: order_ref
+    type: text
+    is_token: "{$leadExfield[4]}"
+    liquid_token: "{{ order_ref }}"
+    example: "3148293"
+  - index: 5
+    name: xsell_name
+    type: text
+    is_token: "{$leadExfield[5]}"
+    liquid_token: "{{ xsell_name }}"
+    example: "Single-Property P&L Tracker"
+  - index: 6
+    name: xsell_url
+    type: text
+    is_token: "{$leadExfield[6]}"
+    liquid_token: "{{ xsell_url }}"
+    example: "https://thestrledger.com/p/single-property-pl"
+  - index: 7
+    name: pack_name
+    type: text
+    is_token: "{$leadExfield[7]}"
+    liquid_token: "{{ pack_name }}"
+    example: "First-Year Host Bundle"
+
+# Built-in IS contact fields used in our email templates.
+# IS uses NAMED tokens for built-ins, not indexed.
+builtins:
+  - name: first_name
+    is_token: "{$name}"
+    notes: "IS strips Liquid filters silently. {{ first_name | default: 'Hey' }} becomes {$name} — if the contact has no first_name, IS renders empty. Write copy that survives an empty first_name (start sentence with comma fallback, etc.)."
+
+# Tokens that appear in source markdown but are NOT IS fields.
+# These need manual handling per email — either hardcode, add as custom field, or inject via n8n.
+non_is_tokens:
+  - name: link_etsy_review
+    handling: "Per-buyer dynamic Etsy review link. Inject via n8n at send time, OR hardcode the seller's review-redirect page."
+  - name: link_thestrledger
+    handling: "Static site URL. Hardcode as https://thestrledger.com (with UTM params per email)."
+  - name: link_bundle
+    handling: "Static bundle landing page URL. Hardcode per bundle, e.g. https://thestrledger.com/p/bundles/first-year-host"
+  - name: link_support
+    handling: "Static support URL. Hardcode as mailto:hello@thestrledger.com or https://thestrledger.com/help"
+  - name: bundle_credit_amount
+    handling: "Per-buyer credit amount. Either add as 8th custom field (and re-renumber would break things — DON'T) or rewrite email copy to use generic 'your purchase credits toward the bundle' phrasing."
+  - name: cart_sku_name
+    handling: "Used in abandoned-cart. Add as future custom field OR rewrite email to generic 'your cart' copy."
+  - name: months_since_last_open
+    handling: "Used in win-back. Computed value, not stored. Drop the dynamic and use generic 'It's been a while' copy."

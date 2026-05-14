@@ -2,37 +2,53 @@
 
 > **Auto-generated from:** `copy\email-sequences\bundles\BUNDLE-02-aspiring-host.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **4 of 4 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `BUNDLE-02-aspiring-host`
-3. **Trigger:** When tag `bundle-cross:aspiring-host` is added
-4. **Then add 4 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **Processes → New process** (or open existing)
+2. **Process name:** `BUNDLE-02-aspiring-host`
+3. **Trigger node:** `Tag applied` → tag = `bundle-cross:aspiring-host`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 4 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 4 — Run all four scenarios
 
-- **Delay (set in IS):** Day 2
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`, `bundle_credit_amount`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      You ran one scenario. Here's the other three.
+**Block name (rename to):** `E1 - Day 2 - Run all four scenarios`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `2 d 0 hrs 0 min`
 
-      The deal, the budget, the timeline, the no-money-down option — all four answer different questions.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+You ran one scenario. Here's the other three.
+~~~
+
+**Preheader (paste):**
+
+~~~
+The deal, the budget, the timeline, the no-money-down option — all four answer different questions.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-02-aspiring-host EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
-You picked up {{ sku_label }} a couple days back. Solid choice — it's one piece of the math an aspiring STR host actually needs to run.
+You picked up {$leadExfield[2]} a couple days back. Solid choice — it's one piece of the math an aspiring STR host actually needs to run.
 
 The other three:
 
@@ -47,7 +63,7 @@ Bundled: $97. À la carte: $168. Save $71 (42% off — bigger than usual because
 
 → [Aspiring Host Bundle — $97]({{ link_bundle }})
 
-Your ${{ bundle_credit_amount }} for {{ sku_label }} credits toward the bundle.
+Your ${{ bundle_credit_amount }} for {$leadExfield[2]} credits toward the bundle.
 
 — Emily · The STR Ledger
 
@@ -57,20 +73,30 @@ P.S. If you're 6+ months out from buying, all four workbooks pay back time-spent
 
 ### Email 2 of 4 — The arbitrage question
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      "Could I just lease + sublet on Airbnb?"
+**Block name (rename to):** `E2 - Day 7 - The arbitrage question`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      The question every aspiring STR host quietly asks themselves at least once.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+"Could I just lease + sublet on Airbnb?"
+~~~
+
+**Preheader (paste):**
+
+~~~
+The question every aspiring STR host quietly asks themselves at least once.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-02-aspiring-host EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 A question I get from aspiring STR investors more than any other:
 
@@ -98,20 +124,30 @@ P.S. Most W2 readers don't realize arbitrage is a path until they see the analyz
 
 ### Email 3 of 4 — Quit-date math
 
-- **Delay (set in IS):** Day 11
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      When can you actually quit?
+**Block name (rename to):** `E3 - Day 11 - Quit-date math`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `4 d 0 hrs 0 min`
 
-      Not "soon." Not "when the cash flow is good." A specific date.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+When can you actually quit?
+~~~
+
+**Preheader (paste):**
+
+~~~
+Not "soon." Not "when the cash flow is good." A specific date.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-02-aspiring-host EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 The conversation aspiring STR investors have with their spouse — at some point, in some form — is the same:
 
@@ -140,24 +176,34 @@ P.S. The healthcare bridge math is the one most planners skip. It changes the an
 
 ### Email 4 of 4 — Last note
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note on the Aspiring Host Bundle
+**Block name (rename to):** `E4 - Day 14 - Last note`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `3 d 0 hrs 0 min`
 
-      Won't keep emailing. One last reminder.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note on the Aspiring Host Bundle
+~~~
+
+**Preheader (paste):**
+
+~~~
+Won't keep emailing. One last reminder.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-02-aspiring-host EMAIL 4 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note on the bundle.
 
-If you've been working through {{ sku_label }} and finding it useful, the other 3 workbooks complete the picture for the aspiring-investor decision.
+If you've been working through {$leadExfield[2]} and finding it useful, the other 3 workbooks complete the picture for the aspiring-investor decision.
 
 → [Aspiring Host Bundle — $97 (saves $71)]({{ link_bundle }})
 

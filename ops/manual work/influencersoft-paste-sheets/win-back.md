@@ -2,35 +2,51 @@
 
 > **Auto-generated from:** `copy\email-sequences\win-back.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **3 of 3 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `win-back`
-3. **Trigger:** When tag `inactive-30d` is added
-4. **Then add 3 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **Processes → New process** (or open existing)
+2. **Process name:** `win-back`
+3. **Trigger node:** `Tag applied` → tag = `inactive-30d`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 3 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 3 — Are you still in?
 
-- **Delay (set in IS):** Day 0
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `months_since_last_open`, `link_newsletter_archive`, `link_unsub`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      {{ first_name | default: "Hey" }} — should I keep emailing you?
+**Block name (rename to):** `E1 - Day 0 - Are you still in?`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **Immediately after previous step** (0 d 0 hrs 0 min)
 
-      Honest question. {{ months_since_last_open }} months since you last opened.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+{$name} — should I keep emailing you?
+~~~
+
+**Preheader (paste):**
+
+~~~
+Honest question. {{ months_since_last_open }} months since you last opened.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN win-back EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Honest question: it's been {{ months_since_last_open | default: "a while" }} months since you opened anything from me, and I'd rather you tell me to leave than keep showing up uninvited.
 
@@ -57,20 +73,30 @@ P.S. If you're still on the fence about STR investing, that's also a perfectly f
 
 ### Email 2 of 3 — One concrete thing you missed
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_top_post`, `link_unsub`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The cleaning-fee mistake costing hosts $4-7K/year
+**Block name (rename to):** `E2 - Day 7 - One concrete thing you missed`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `7 d 0 hrs 0 min`
 
-      Sample of what the newsletter actually sends. Then I'll quiet down.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The cleaning-fee mistake costing hosts $4-7K/year
+~~~
+
+**Preheader (paste):**
+
+~~~
+Sample of what the newsletter actually sends. Then I'll quiet down.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN win-back EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick test before I assume you're gone.
 
@@ -92,20 +118,30 @@ P.S. One more email after this, then I'll go quiet on my own. Promise.
 
 ### Email 3 of 3 — Last note + sunset
 
-- **Delay (set in IS):** Day 21
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `months_since_last_open`, `link_unsub`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Going quiet — last note from me
+**Block name (rename to):** `E3 - Day 21 - Last note + sunset`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `14 d 0 hrs 0 min`
 
-      Removing you from broadcast. Not deleted, just paused.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Going quiet — last note from me
+~~~
+
+**Preheader (paste):**
+
+~~~
+Removing you from broadcast. Not deleted, just paused.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN win-back EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 This is the last one for now.
 

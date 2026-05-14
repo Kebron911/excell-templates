@@ -2,37 +2,53 @@
 
 > **Auto-generated from:** `copy\email-sequences\bundles\BUNDLE-03-year-2-operator.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **3 of 3 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `BUNDLE-03-year-2-operator`
-3. **Trigger:** When tag `bundle-cross:year-2-operator` is added
-4. **Then add 3 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **Processes → New process** (or open existing)
+2. **Process name:** `BUNDLE-03-year-2-operator`
+3. **Trigger node:** `Tag applied` → tag = `bundle-cross:year-2-operator`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 3 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 3 — Three more levers an experienced host actually controls
 
-- **Delay (set in IS):** Day 3
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`, `bundle_credit_amount`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The three other levers a Year-2 host actually controls
+**Block name (rename to):** `E1 - Day 3 - Three more levers an experienced host actually controls`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `3 d 0 hrs 0 min`
 
-      You bought one. Here's the other three. They compose into a system.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The three other levers a Year-2 host actually controls
+~~~
+
+**Preheader (paste):**
+
+~~~
+You bought one. Here's the other three. They compose into a system.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-03-year-2-operator EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
-You picked up {{ sku_label }}. Year-2 territory.
+You picked up {$leadExfield[2]}. Year-2 territory.
 
 The other three workbooks at this tier:
 
@@ -45,7 +61,7 @@ Bundled: $147. À la carte: $188. Save $41.
 
 → [Year-2 Operator Bundle — $147]({{ link_bundle }})
 
-Your ${{ bundle_credit_amount }} purchase of {{ sku_label }} credits toward the bundle.
+Your ${{ bundle_credit_amount }} purchase of {$leadExfield[2]} credits toward the bundle.
 
 — Emily · The STR Ledger
 
@@ -55,20 +71,30 @@ P.S. The 22% bundle savings is smaller than the First-Year Bundle (30%) — by d
 
 ### Email 2 of 3 — The recovery rate gap
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Why most hosts only recover 35% of damage claims
+**Block name (rename to):** `E2 - Day 7 - The recovery rate gap`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `4 d 0 hrs 0 min`
 
-      The evidence isn't structured. Here's how to fix that.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Why most hosts only recover 35% of damage claims
+~~~
+
+**Preheader (paste):**
+
+~~~
+The evidence isn't structured. Here's how to fix that.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-03-year-2-operator EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 A specific Year-2 number that surprises most hosts:
 
@@ -93,24 +119,34 @@ P.S. Most operators undervalue claim documentation until the first $4K loss they
 
 ### Email 3 of 3 — Last note + the SEO audit
 
-- **Delay (set in IS):** Day 10
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note + the listing-rank lever most hosts ignore
+**Block name (rename to):** `E3 - Day 10 - Last note + the SEO audit`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `3 d 0 hrs 0 min`
 
-      25 criteria. Each one ranked by impact.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note + the listing-rank lever most hosts ignore
+~~~
+
+**Preheader (paste):**
+
+~~~
+25 criteria. Each one ranked by impact.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-03-year-2-operator EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note on the bundle.
 
-If you're using {{ sku_label }} and finding it useful, the other three workbooks compose into the same Year-2 operating system. Particularly:
+If you're using {$leadExfield[2]} and finding it useful, the other three workbooks compose into the same Year-2 operating system. Particularly:
 
 The **Listing SEO Audit**. 25 criteria scored, prioritized fix list ranked by estimated rank lift. Most Year-2 operators have an 8-10/25 score and don't know it. A 14-day rewrite to 18+/25 typically lifts bookings by 12-25%.
 

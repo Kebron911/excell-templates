@@ -2,37 +2,51 @@
 
 > **Auto-generated from:** `copy\email-sequences\post-purchase-etsy-buyer.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **9 of 10 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `post-purchase-etsy-buyer`
-3. **Trigger:** When tag `customer:etsy` is added
-4. **Then add 10 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **Processes → New process** (or open existing)
+2. **Process name:** `post-purchase-etsy-buyer`
+3. **Trigger node:** `Tag applied` → tag = `customer:etsy`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 10 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 10 — Order received + delivery
 
-- **Delay (set in IS):** Day 0 (within 5 minutes of order)
-- **Subject (copy):**
+**Block name (rename to):** `E1 - Day 0 (within 5 minutes of order) - Order received + delivery`
 
-      Your {{ sku_label }} is ready (download + 3 things to read)
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **Immediately after previous step** (0 d 0 hrs 0 min)
 
-- **Preheader (copy):**
+**Subject (paste):**
 
-      Order #{{ order_ref }}. Plus the one tab nobody opens until they need it.
+~~~
+Your {$leadExfield[2]} is ready (download + 3 things to read)
+~~~
 
-- **Body (copy everything between the lines below):**
+**Preheader (paste):**
+
+~~~
+Order #{$leadExfield[4]}. Plus the one tab nobody opens until they need it.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 1 -----8<-----
 
-Hey {{ first_name | default: "there" }},
+Hey {$name},
 
-Order #{{ order_ref }} just landed. Here's what you do next:
+Order #{$leadExfield[4]} just landed. Here's what you do next:
 
 **1. Download the files** (you've already got an Etsy email with these):
    · BLANK xlsx — your starter copy
@@ -60,26 +74,36 @@ P.P.S. Anything broken in the file? Reply to this email — real humans, fast re
 
 ### Email 2 of 10 — Use it on something specific
 
-- **Delay (set in IS):** Day 2
-- **Subject (copy):**
+> ⚠️ **TODO — IS does NOT support Liquid conditionals (`{% if %}`).** This email has conditional logic that won't render. Either rewrite as single-version copy OR split into per-SKU branches using Filter Condition nodes on the canvas.
 
-      Use {{ sku_label }} on this specific thing
+**Block name (rename to):** `E2 - Day 2 - Use it on something specific`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `2 d 0 hrs 0 min`
 
-      Don't read the manual. Pick the one row that maps to a real situation.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Use {$leadExfield[2]} on this specific thing
+~~~
+
+**Preheader (paste):**
+
+~~~
+Don't read the manual. Pick the one row that maps to a real situation.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Most STR templates die on the desktop because the buyer never actually fills them out. The DEMO data is sample data; your data is real and feels different.
 
 The cure: pick the most recent specific situation and run it through the workbook.
 
-For {{ sku_label }}, that means: 
+For {$leadExfield[2]}, that means: 
 {% if sku_code contains "TAX-001" %}
 > Pick last week's longest property-related drive. Date, destination, business purpose, miles. One row. The workbook tells you the dollar deduction at the IRS rate.
 {% elsif sku_code contains "TAX-002" %}
@@ -104,20 +128,30 @@ P.S. Stuck somewhere? Reply to this email with what you're stuck on. Real humans
 
 ### Email 3 of 10 — The free 47-deductions guide (hero magnet pitch)
 
-- **Delay (set in IS):** Day 5
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The 47 Airbnb tax deductions most hosts miss (free guide)
+**Block name (rename to):** `E3 - Day 5 - The free 47-deductions guide (hero magnet pitch)`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `3 d 0 hrs 0 min`
 
-      A reader of {{ sku_label }} sent me this. Most overlap with what you already track.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The 47 Airbnb tax deductions most hosts miss (free guide)
+~~~
+
+**Preheader (paste):**
+
+~~~
+A reader of {$leadExfield[2]} sent me this. Most overlap with what you already track.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick one. Free thing.
 
@@ -127,9 +161,9 @@ I wrote it up. 47 deductions, organized by category, each with the Schedule E li
 
 Free for buyers of any STR Ledger workbook:
 
-→ [Download "47 Airbnb Tax Deductions Most Hosts Miss"]({{ link_thestrledger }}/47?email={{ first_name }})
+→ [Download "47 Airbnb Tax Deductions Most Hosts Miss"]({{ link_thestrledger }}/47?email={$name})
 
-It pairs with {{ sku_label }} — the workbook tracks the deductions; the guide tells you which ones to look for in the first place.
+It pairs with {$leadExfield[2]} — the workbook tracks the deductions; the guide tells you which ones to look for in the first place.
 
 — Emily
 
@@ -139,28 +173,38 @@ P.S. The guide includes a companion Excel checklist. Captured? Y/N + YTD $ track
 
 ### Email 4 of 10 — Etsy review request
 
-- **Delay (set in IS):** Day 9
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_etsy_review`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Quick favor (worth 4 minutes of your morning)
+**Block name (rename to):** `E4 - Day 9 - Etsy review request`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `4 d 0 hrs 0 min`
 
-      Etsy reviews are how new sellers like me get found. Honest feedback only, including the tough kind.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Quick favor (worth 4 minutes of your morning)
+~~~
+
+**Preheader (paste):**
+
+~~~
+Etsy reviews are how new sellers like me get found. Honest feedback only, including the tough kind.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 4 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick ask.
 
 Etsy reviews are the single biggest growth lever for new sellers like me. Without them, my listings rank below sellers with hundreds of reviews — even if my templates are better.
 
-If {{ sku_label }} has been useful, would you leave an honest review? Takes 4 minutes:
+If {$leadExfield[2]} has been useful, would you leave an honest review? Takes 4 minutes:
 
-→ [Leave a review for order #{{ order_ref }}]({{ link_etsy_review }})
+→ [Leave a review for order #{$leadExfield[4]}]({{ link_etsy_review }})
 
 A few notes:
 
@@ -178,20 +222,30 @@ P.S. Even if you don't leave a review: thank you for buying. Etsy sellers see wh
 
 ### Email 5 of 10 — The 1 mistake your tax form makes
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The Schedule E mistake your tax form makes by default
+**Block name (rename to):** `E5 - Day 14 - The 1 mistake your tax form makes`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      TurboTax + H&R Block both default-categorize cleaning fees this way. It's wrong.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The Schedule E mistake your tax form makes by default
+~~~
+
+**Preheader (paste):**
+
+~~~
+TurboTax + H&R Block both default-categorize cleaning fees this way. It's wrong.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 5 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 A tax-day landmine specific to STR hosts:
 
@@ -215,24 +269,35 @@ P.S. This is also why I built the 47-deductions guide. If you didn't grab it: [D
 
 ### Email 6 of 10 — The cross-sell pivot
 
-- **Delay (set in IS):** Day 21
-- **Subject (copy):**
+> ⚠️ **TODO — IS does NOT support Liquid conditionals (`{% if %}`).** This email has conditional logic that won't render. Either rewrite as single-version copy OR split into per-SKU branches using Filter Condition nodes on the canvas.
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Hosts who bought {{ sku_label }} usually grab this next
+**Block name (rename to):** `E6 - Day 21 - The cross-sell pivot`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `7 d 0 hrs 0 min`
 
-      Not because I sell it. Because the math chains.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Hosts who bought {$leadExfield[2]} usually grab this next
+~~~
+
+**Preheader (paste):**
+
+~~~
+Not because I sell it. Because the math chains.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 6 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Three weeks in. Quick check-in.
 
-The most-common second-purchase from buyers of {{ sku_label }} is: **{{ xsell_name }}**.
+The most-common second-purchase from buyers of {$leadExfield[2]} is: **{$leadExfield[5]}**.
 
 Why those two together:
 {% if sku_code contains "TAX-001" %}
@@ -245,7 +310,7 @@ The Deal Analyzer underwrites year 1. The next workbook most hosts grab — the 
 The two workbooks share data conventions and compose into one operating system. Buying both saves vs. buying separately.
 {% endif %}
 
-→ [{{ xsell_name }}]({{ xsell_url }})
+→ [{$leadExfield[5]}]({$leadExfield[6]})
 
 If you've already bought it, ignore this. I'll send you something different on Monday.
 
@@ -257,20 +322,30 @@ P.S. If you're in the market for multiple workbooks, the bundles save more than 
 
 ### Email 7 of 10 — The single biggest STR tax trap
 
-- **Delay (set in IS):** Day 30
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The biggest tax trap for serious STR hosts (it's not what you think)
+**Block name (rename to):** `E7 - Day 30 - The single biggest STR tax trap`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `9 d 0 hrs 0 min`
 
-      It's not depreciation. It's not the home office deduction. It's the schedule.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The biggest tax trap for serious STR hosts (it's not what you think)
+~~~
+
+**Preheader (paste):**
+
+~~~
+It's not depreciation. It's not the home office deduction. It's the schedule.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 7 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick story from a host I worked with last year.
 
@@ -296,24 +371,34 @@ P.S. If you're sure you're Schedule E (no substantial services, no material part
 
 ### Email 8 of 10 — Bundle hint (light touch)
 
-- **Delay (set in IS):** Day 40
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Quick math: 4 STR workbooks for $97 (vs $138 à la carte)
+**Block name (rename to):** `E8 - Day 40 - Bundle hint (light touch)`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `10 d 0 hrs 0 min`
 
-      Most buyers of {{ sku_label }} eventually grab 3-4 more. Bundle is cheaper.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Quick math: 4 STR workbooks for $97 (vs $138 à la carte)
+~~~
+
+**Preheader (paste):**
+
+~~~
+Most buyers of {$leadExfield[2]} eventually grab 3-4 more. Bundle is cheaper.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 8 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Math note.
 
-Most buyers of {{ sku_label }} eventually own 3-4 STR Ledger workbooks within 12 months. The most-common combinations form bundles I built specifically for them.
+Most buyers of {$leadExfield[2]} eventually own 3-4 STR Ledger workbooks within 12 months. The most-common combinations form bundles I built specifically for them.
 
 If you're already 1 SKU in and considering more:
 
@@ -335,20 +420,30 @@ P.S. Etsy doesn't carry the Portfolio Bundle (own-site only — premium tier). T
 
 ### Email 9 of 10 — Free guide reminder + soft cross-sell
 
-- **Delay (set in IS):** Day 50
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Did you grab the 47-deductions guide?
+**Block name (rename to):** `E9 - Day 50 - Free guide reminder + soft cross-sell`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `10 d 0 hrs 0 min`
 
-      Some readers buy the workbook, skip the free guide, miss the deductions. Don't.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Did you grab the 47-deductions guide?
+~~~
+
+**Preheader (paste):**
+
+~~~
+Some readers buy the workbook, skip the free guide, miss the deductions. Don't.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 9 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Touchpoint check.
 
@@ -366,20 +461,30 @@ P.S. The Excel checklist's biggest value is the YTD $ rollup — running total o
 
 ### Email 10 of 10 — Last note in this sequence + what's next
 
-- **Delay (set in IS):** Day 60
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note in this sequence (subscribe to the newsletter?)
+**Block name (rename to):** `E10 - Day 60 - Last note in this sequence + what's next`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `10 d 0 hrs 0 min`
 
-      You'll hear less from me after this. Once a week if you stay subscribed.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note in this sequence (subscribe to the newsletter?)
+~~~
+
+**Preheader (paste):**
+
+~~~
+You'll hear less from me after this. Once a week if you stay subscribed.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 10 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last email in the post-purchase sequence.
 
@@ -393,7 +498,7 @@ If that's not your speed: [unsubscribe here]({{ link_thestrledger }}/unsub) — 
 
 If it IS your speed: stay subscribed. The Wednesday newsletter starts next week with a tactic that saves most STR hosts $1,200-$3,800/year (the Augusta rule). Specific, defensible, often missed.
 
-Thanks for buying {{ sku_label }}. Hope it's been useful.
+Thanks for buying {$leadExfield[2]}. Hope it's been useful.
 
 — Emily · The STR Ledger
 

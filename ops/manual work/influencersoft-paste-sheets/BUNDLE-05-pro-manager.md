@@ -2,35 +2,51 @@
 
 > **Auto-generated from:** `copy\email-sequences\bundles\BUNDLE-05-pro-manager.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **3 of 3 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `BUNDLE-05-pro-manager`
-3. **Trigger:** When tag `bundle-cross:pro-manager` is added
-4. **Then add 3 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **Processes → New process** (or open existing)
+2. **Process name:** `BUNDLE-05-pro-manager`
+3. **Trigger node:** `Tag applied` → tag = `bundle-cross:pro-manager`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 3 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 3 — The B2B stack
 
-- **Delay (set in IS):** Day 3
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `company_name`, `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Seven workbooks for {{ company_name | default: "your PM operation" }}
+**Block name (rename to):** `E1 - Day 3 - The B2B stack`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `3 d 0 hrs 0 min`
 
-      PAM-001 + the operating layer underneath. White-labelable.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Seven workbooks for {{ company_name | default: "your PM operation" }}
+~~~
+
+**Preheader (paste):**
+
+~~~
+PAM-001 + the operating layer underneath. White-labelable.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-05-pro-manager EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Thanks for picking up the Owner Reporting Dashboard.
 
@@ -58,20 +74,30 @@ P.S. The launch price is $497 because 3 future B2B SKUs (Cleaner CRM, Co-Host Co
 
 ### Email 2 of 3 — The reason the savings are 6%, not 35%
 
-- **Delay (set in IS):** Day 8
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Why the Pro Manager Bundle saves only 6%
+**Block name (rename to):** `E2 - Day 8 - The reason the savings are 6%, not 35%`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      And why that's the right number for the launch.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Why the Pro Manager Bundle saves only 6%
+~~~
+
+**Preheader (paste):**
+
+~~~
+And why that's the right number for the launch.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-05-pro-manager EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 A note on Pro Manager Bundle pricing — because a B2B buyer notices the math.
 
@@ -101,20 +127,30 @@ P.S. White-labelability is the other reason PMs buy the bundle vs the SKUs indiv
 
 ### Email 3 of 3 — Last note + the future SKUs
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note + the 3 SKUs your bundle will inherit
+**Block name (rename to):** `E3 - Day 14 - Last note + the future SKUs`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `6 d 0 hrs 0 min`
 
-      Won't email again. One last reminder.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note + the 3 SKUs your bundle will inherit
+~~~
+
+**Preheader (paste):**
+
+~~~
+Won't email again. One last reminder.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-05-pro-manager EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note on the Pro Manager Bundle.
 

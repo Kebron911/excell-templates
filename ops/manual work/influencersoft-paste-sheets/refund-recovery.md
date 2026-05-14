@@ -2,35 +2,51 @@
 
 > **Auto-generated from:** `copy\email-sequences\refund-recovery.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **2 of 2 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `refund-recovery`
-3. **Trigger:** When tag `refund-filed` is added
-4. **Then add 2 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **Processes → New process** (or open existing)
+2. **Process name:** `refund-recovery`
+3. **Trigger node:** `Tag applied` → tag = `refund-filed`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 2 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 2 — The apology + the question
 
-- **Delay (set in IS):** Day 1
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `refunded_sku_name`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Sorry the workbook didn't land — quick question
+**Block name (rename to):** `E1 - Day 1 - The apology + the question`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `1 d 0 hrs 0 min`
 
-      Refund processed. One small ask if you have 30 seconds.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Sorry the workbook didn't land — quick question
+~~~
+
+**Preheader (paste):**
+
+~~~
+Refund processed. One small ask if you have 30 seconds.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN refund-recovery EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Just confirmed your refund for {{ refunded_sku_name }} — should be back on your card within 3-5 business days (Etsy/Stripe handles the timing, not me).
 
@@ -55,20 +71,30 @@ P.S. Refunds are part of the deal. The 14-day no-questions policy is real and I 
 
 ### Email 2 of 2 — One last "is there a better fit?"
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `refunded_sku_name`, `refunded_sku_code`, `link_alternate_sku`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      One thought before you go
+**Block name (rename to):** `E2 - Day 7 - One last "is there a better fit?"`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `6 d 0 hrs 0 min`
 
-      A different workbook might fit better. No pressure.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+One thought before you go
+~~~
+
+**Preheader (paste):**
+
+~~~
+A different workbook might fit better. No pressure.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN refund-recovery EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note from me on this.
 

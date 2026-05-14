@@ -48,6 +48,12 @@ In **IS UI → Contacts → Custom Fields**, add these BEFORE pasting any sequen
 
 `first_name` is built-in. `link_etsy_review` and `link_thestrledger` will be set per-email via n8n or via IS template defaults.
 
+> **CRITICAL — IS uses positional indexing for custom-field merge tags.** When you insert `sku_code` from the merge-tag picker, IS writes `{$leadExfield[1]}` (not `{$sku_code}`). The number is the field's row number in the Custom Fields admin list. **Never delete + re-add a field** — every other field's index shifts down by one and silently breaks every email referencing it. Add new fields ONLY at the end. The current mapping lives in [`infrastructure/influencersoft/custom-fields.yaml`](../../infrastructure/influencersoft/custom-fields.yaml) (auto-applied by `scripts/is-paste-helper.mjs`).
+>
+> **Built-in fields use NAMED tokens:** `{$name}` (first name), `{$email}`, etc.
+>
+> **IS does NOT support Liquid:** no `{% if %}` conditionals, no `| default: "..."` filters. Paste sheets flag affected emails with TODO warnings for manual rewrite.
+
 → **Tell Claude:** *"IS custom fields created."*
 
 ---

@@ -2,37 +2,53 @@
 
 > **Auto-generated from:** `copy\email-sequences\review-request.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **2 of 2 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `review-request`
-3. **Trigger:** When tag `purchased:day5` is added
-4. **Then add 2 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **Processes → New process** (or open existing)
+2. **Process name:** `review-request`
+3. **Trigger node:** `Tag applied` → tag = `purchased:day5`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 2 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Process triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 2 — The ask
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_etsy_review`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Quick favor — 60-second review of {{ sku_label }}?
+**Block name (rename to):** `E1 - Day 7 - The ask`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `7 d 0 hrs 0 min`
 
-      If it's working. If it's not, please email me first.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Quick favor — 60-second review of {$leadExfield[2]}?
+~~~
+
+**Preheader (paste):**
+
+~~~
+If it's working. If it's not, please email me first.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN review-request EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
-A week in with {{ sku_label }} — how's it going?
+A week in with {$leadExfield[2]} — how's it going?
 
 If it's working: would you take 60 seconds and leave an honest Etsy review? Reviews are how new buyers decide whether to trust a small shop, and yours genuinely moves the needle for me.
 
@@ -50,30 +66,40 @@ P.S. If you've already left one — thank you. Skip this email.
 
 ### Email 2 of 2 — Last-chance ask
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_etsy_review`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note on this — review or feedback either way
+**Block name (rename to):** `E2 - Day 14 - Last-chance ask`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `7 d 0 hrs 0 min`
 
-      Two weeks in. Won't ask again after this.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note on this — review or feedback either way
+~~~
+
+**Preheader (paste):**
+
+~~~
+Two weeks in. Won't ask again after this.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN review-request EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
-Two weeks since you picked up {{ sku_label }}. One more nudge then I'll stop.
+Two weeks since you picked up {$leadExfield[2]}. One more nudge then I'll stop.
 
 If the workbook is doing the job — an honest Etsy review helps the next buyer figure out whether it's right for them:
 
-→ [Review {{ sku_label }}]({{ link_etsy_review }})
+→ [Review {$leadExfield[2]}]({{ link_etsy_review }})
 
 If it's NOT doing the job, I want to know. Reply to this email or write to hello@thestrledger.com. Specific feedback ("the depreciation tab confused me", "I expected a feature that wasn't there") makes the next version better — for you and for everyone else.
 
-Either way — review, feedback, or silence — that's the last you'll hear from me on this. Different topic next week: the most-overlooked Schedule E line for {{ sku_code }} buyers (it's not what you think).
+Either way — review, feedback, or silence — that's the last you'll hear from me on this. Different topic next week: the most-overlooked Schedule E line for {$leadExfield[1]} buyers (it's not what you think).
 
 Thanks again for picking up the workbook.
 
