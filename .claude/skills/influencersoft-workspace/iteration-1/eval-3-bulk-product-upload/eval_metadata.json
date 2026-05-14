@@ -1,0 +1,13 @@
+{
+  "eval_id": 3,
+  "eval_name": "bulk-product-upload",
+  "prompt": "Can I bulk-upload my 70-product catalog to InfluencerSoft via API instead of clicking through the UI? Stripe integration is in place.",
+  "assertions": [
+    {"text": "Identifies the correct API endpoint: API 1.0 AddGood (not API 2.0 — products require legacy API)"},
+    {"text": "Mentions API 1.0 hash auth (MD5 of buildQuery + username + apikey concatenation)"},
+    {"text": "Mentions the existing project script: infrastructure/influencersoft/push_products.js"},
+    {"text": "WARNS the user that AddGood may be disabled per-account (returns error_code 2) and that as of 2026-05-08 it was disabled for the kebron tenant"},
+    {"text": "Provides the escalation path to enable AddGood: email support@influencersoft.com or raise at Tech Tuesday"},
+    {"text": "Suggests testing with a small batch first (or dry-run mode) before pushing all 70 products"}
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "run_id": "eval-2-without_skill",
+  "expectations": [
+    {
+      "text": "Warns about prefix-slug collision: IS rejects names sharing a prefix with an existing field",
+      "passed": false,
+      "evidence": "Answer covers positional indexing, deletion risks, data-type choices, and YAML source-of-truth updates \u2014 but never mentions prefix-slug collision or that IS rejects names sharing a prefix with an existing field."
+    },
+    {
+      "text": "Mentions the stale UI error: the form holds the error from the previous attempt and reports the LAST collision, so refresh the page between adds",
+      "passed": false,
+      "evidence": "No mention of the stale UI error or the page-refresh workaround anywhere in the answer."
+    },
+    {
+      "text": "References the existing custom-field naming convention: short distinct stems (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name)",
+      "passed": false,
+      "evidence": "Lists the 7 existing fields (sku_code, sku_label, bought_on, order_ref, xsell_name, xsell_url, pack_name) but frames them as positional references only \u2014 never mentions a naming convention or short-stem pattern."
+    },
+    {
+      "text": "Gives the exact menu path: Contacts \u2192 Custom Fields",
+      "passed": true,
+      "evidence": "Section 1 references 'the Contacts \u2192 Custom Fields admin list' as the positional ordering source \u2014 the exact path is present even if incidental to the main point."
+    },
+    {
+      "text": "Recommends a shorter or differently-prefixed name (e.g., ref_src, source_ref) to reduce collision risk with future fields",
+      "passed": false,
+      "evidence": "No recommendation for a shorter or differently-prefixed name. The answer treats 'referral_source' as acceptable and focuses on positional indexing concerns instead."
+    }
+  ],
+  "pass_count": 1,
+  "total_count": 5,
+  "pass_rate": 0.2,
+  "summary": {
+    "pass_rate": 0.2,
+    "passed": 1,
+    "failed": 4,
+    "total": 5
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "run_id": "eval-1-without_skill",
+  "expectations": [
+    {
+      "text": "Mentions corporate-domain sender requirement (free domains like Gmail/Yahoo get DMARC-rejected)",
+      "passed": false,
+      "evidence": "Answer discusses SPF/DKIM/DMARC configuration and alignment but never warns that free domains (Gmail, Yahoo) are DMARC-rejected by IS or that a corporate domain is required."
+    },
+    {
+      "text": "Mentions sender confirmation \u2014 that new sender emails are dead until the IS confirmation link is clicked",
+      "passed": false,
+      "evidence": "No mention anywhere of a sender confirmation link or the concept that new IS sender addresses must be activated before emails are live."
+    },
+    {
+      "text": "Mentions DKIM, SPF, AND DMARC DNS records (all three; not just 'DNS records')",
+      "passed": true,
+      "evidence": "Section 1 explicitly names all three: 'SPF record', 'DKIM signing', 'DMARC policy' \u2014 each with its own bullet and explanation."
+    },
+    {
+      "text": "Mentions FBL (Feedback Loop) setup",
+      "passed": false,
+      "evidence": "Only vague passing reference: 'They can debug on the platform side (ISP feedback loops, rate limiting, etc.)' \u2014 treated as a platform-side concern, not a user setup step."
+    },
+    {
+      "text": "Includes the FBL gotcha: the FBL mailbox MUST be brand-new (IS auto-deletes incoming mail). This is the most consequential deliverability mistake.",
+      "passed": false,
+      "evidence": "FBL mailbox requirements are not mentioned at all. The brand-new mailbox requirement and auto-delete behavior are absent."
+    },
+    {
+      "text": "Mentions Tech Tuesday or support@influencersoft.com escalation path",
+      "passed": false,
+      "evidence": "Answer says 'Contact InfluencerSoft support with email headers + full sequence setup' but never names Tech Tuesday or support@influencersoft.com specifically."
+    },
+    {
+      "text": "Points the user to a specific menu path (e.g., Campaigns \u2192 Settings, or Campaigns \u2192 Analytics) rather than only generic advice",
+      "passed": true,
+      "evidence": "Answer references 'InfluencerSoft settings \u2192 Email Authentication \u2192 DKIM status' and 'InfluencerSoft subscribers \u2192 status field' \u2014 specific UI paths, not generic advice."
+    }
+  ],
+  "pass_count": 2,
+  "total_count": 7,
+  "pass_rate": 0.286,
+  "summary": {
+    "pass_rate": 0.286,
+    "passed": 2,
+    "failed": 5,
+    "total": 7
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "run_id": "eval-3-without_skill",
+  "expectations": [
+    {
+      "text": "Identifies the correct API endpoint: API 1.0 AddGood (not API 2.0 \u2014 products require legacy API)",
+      "passed": false,
+      "evidence": "Answer opens 'InfluencerSoft does not appear to have a publicly documented bulk product API.' Never identifies AddGood or API 1.0. Recommends Stripe API or CSV import instead."
+    },
+    {
+      "text": "Mentions API 1.0 hash auth (MD5 of buildQuery + username + apikey concatenation)",
+      "passed": false,
+      "evidence": "No hash authentication or API 1.0 auth method mentioned anywhere. Answer doesn't know the API exists."
+    },
+    {
+      "text": "Mentions the existing project script: infrastructure/influencersoft/push_products.js",
+      "passed": false,
+      "evidence": "No reference to any project script. Answer is written as if no project-specific infrastructure exists."
+    },
+    {
+      "text": "WARNS the user that AddGood may be disabled per-account (returns error_code 2) and that as of 2026-05-08 it was disabled for the kebron tenant",
+      "passed": false,
+      "evidence": "AddGood not identified at all, so per-account disablement and error_code 2 are not mentioned."
+    },
+    {
+      "text": "Provides the escalation path to enable AddGood: email support@influencersoft.com or raise at Tech Tuesday",
+      "passed": true,
+      "evidence": "Path C section explicitly says 'Email support@influencersoft.com and request API documentation for batch product creation'. support@influencersoft.com named. Tech Tuesday not mentioned but email path satisfies OR condition."
+    },
+    {
+      "text": "Suggests testing with a small batch first (or dry-run mode) before pushing all 70 products",
+      "passed": false,
+      "evidence": "No suggestion to test with a small batch or canary product. Answer focuses on verifying Stripe sync and CSV import paths, not API testing."
+    }
+  ],
+  "pass_count": 1,
+  "total_count": 6,
+  "pass_rate": 0.167,
+  "summary": {
+    "pass_rate": 0.167,
+    "passed": 1,
+    "failed": 5,
+    "total": 6
+  }
+}
