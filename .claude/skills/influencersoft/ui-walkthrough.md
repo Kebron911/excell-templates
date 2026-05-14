@@ -15,15 +15,19 @@ block to open its settings or page editor.
 
 **Pages** (visual website steps):
 - **Opt-in** / **Double Opt-in** — lead capture
-- **Sales / Content** — generic landing/content
-- **Order** — checkout
-- **Payment** — payment page (separate from Order; supports Bump Offers)
+- **Content / Activation / Webinar** — generic landing, content, or webinar page
+- **Order** — checkout via PayPal (routes to PayPal external page for payment)
+- **Payment** — checkout via Stripe (takes card on-page, no redirect). Supports Bump Offers.
+  ⚠️ Order page = PayPal redirect; Payment page = Stripe on-page. Use the right
+  block for your gateway or checkout will silently fail.
 - **Upsell** — one-click upsell page (uses `#upsell_yes` / `#upsell_no`)
 - **Downsell** — fallback after upsell refusal
 - **Webinar** — webinar room
 - **Members Area** — course access gate
 - **Any Page by URL** — track external pages with `Click.js` snippet
 - **Thank You / Confirmation** — post-conversion
+- **Countdown** — page with a pre-installed Timer widget; can serve as a
+  selling or payment page
 
 **Forms** (standalone form blocks, embeddable elsewhere):
 - Opt-in form
@@ -36,11 +40,14 @@ block to open its settings or page editor.
 - **Filter** — split traffic by condition (e.g. "invoice paid")
 - **A/B test** — split traffic between two paths
 - **Process** — embed an advanced automation flow
+- **Custom** — user-defined stage marker with a name and icon, no logic.
+  Use to label a pipeline stage for visual clarity.
 - **Note** — leave inline documentation
 
-**Traffic** (UTM tracking sources):
-- **Facebook**, **YouTube**, **AdWords**, generic — each generates a unique URL
-  tail with auto-tagged UTMs
+**Traffic** (UTM tracking sources — 9 types):
+- **AdWords**, **YouTube**, **Affiliates**, **Facebook**, **Instagram**,
+  **WhatsApp**, **Email**, **CPA**, and generic **Source** — each generates
+  a unique URL tail with auto-tagged UTMs for that channel
 
 ### Hidden UI features
 
@@ -122,6 +129,35 @@ starting blank:
 | Digital Summit Funnel | Multi-speaker online events | Registration → Schedule → Access/Offer |
 | Evergreen Webinar Funnel | 24/7 automated webinar | Invite → Opt-in → Countdown → Replay → Offer |
 | Self-Liquidating Offer (SLO) | Cover ad cost on first transaction | Opt-in → OTO → Downsell → Checkout |
+
+## 5a. Dynamic variables in links and pages
+
+IS supports placeholder variables that resolve at runtime for each contact:
+
+| Variable | Resolves to |
+|---|---|
+| `{$name}` | Contact's first name |
+| `{$email}` | Contact's email address |
+| `#nextpage` | Next page in the funnel sequence (standard navigation) |
+| `#upsell_yes` | Accept upsell — charges card and advances |
+| `#upsell_no` | Decline upsell — routes to Downsell or Thank You |
+
+Use `{$name}` and `{$email}` in order form pre-fill URLs and email body links.
+Use `#nextpage` for any button that should advance to the next funnel step
+without one-click charging.
+
+## 5b. "Selected" — saved-templates area
+
+**What:** A persistent library where individual funnel pages and emails can be
+saved to survive funnel deletion.
+
+- Items inside a funnel but NOT in Selected are **permanently deleted** when
+  the funnel is deleted — there is no trash or recovery.
+- Before deleting a funnel, move any reusable pages or emails to Selected.
+- From any page editor: use the template-save option to add to Selected.
+- Templates in Selected can be pulled into new funnels via the Catalog.
+
+⚠️ See also gotchas.md #13a for the data-loss risk.
 
 ## 6. A/B testing — 3 levels
 
