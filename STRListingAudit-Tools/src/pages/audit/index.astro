@@ -1,0 +1,291 @@
+---
+// Audit result page — fully client-rendered.
+//
+// Reads ?id=ABC123 from URL, polls /api/audit/:id/status until 'ready',
+// then fetches /api/audit/:id and renders the scorecard.
+//
+// We keep this client-side rendered (rather than SSR per id) so the Astro
+// build stays fully static — no Node adapter needed for v0.1. The trade-off
+// is that og:image meta tags can't be customized per audit until v0.2.
+// The share image itself still gets generated server-side at /share/[id].png
+// and rendered into the page for copy/share interactions.
+import Layout from '@/components/AppLayout.astro';
+import { siteConfig } from '@/data/site.config';
+---
+
+<Layout
+  siteConfig={siteConfig}
+  title="Your listing audit · Listing Audit Tools"
+  description="Your live Airbnb / Vrbo listing scorecard with the top 5 prioritized fixes."
+  path="/audit/"
+  noIndex={true}
+>
+  <section class="bg-parchment min-h-[60vh]">
+    <div class="mx-auto max-w-4xl px-5 pt-12 pb-16">
+      {/* Loading skeleton — replaced by JS once result is ready */}
+      <div id="audit-loading" class="text-center">
+        <p class="label text-[color:var(--accent-700)]" id="audit-loading-label">Auditing your listing…</p>
+        <p class="mt-4 font-serif text-h2 text-navy" id="audit-loading-title">Hold on — this takes about 20 seconds.</p>
+        <p class="mt-3 text-body text-ink-2" id="audit-loading-sub">Scraping the listing, scoring five dimensions, and picking your top fixes.</p>
+        <div class="mt-8 flex justify-center" aria-hidden="true">
+          <div class="h-1.5 w-48 bg-parchment-deep rounded-pill overflow-hidden">
+            <div id="audit-progress" class="h-full bg-[color:var(--accent-500)] rounded-pill" style="width:8%; transition: width 600ms cubic-bezier(0.2, 0.6, 0.2, 1);"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Result — hidden until ready */}
+      <article id="audit-result" hidden>
+        <header class="text-center">
+          <p class="label text-[color:var(--accent-700)]">Listing audit</p>
+          <h1 class="mt-2 font-serif text-h1 text-navy leading-tight" id="audit-title">—</h1>
+          <p class="mt-2 text-small text-ink-3" id="audit-location">—</p>
+        </header>
+
+        <div class="mt-9 mx-auto max-w-md text-center">
+          <div class="flex items-end justify-center gap-4">
+            <span id="audit-score" class="score-numeral text-[120px] text-navy leading-none">--</span>
+            <span class="text-h3 text-ink-2 pb-3">/ 100</span>
+          </div>
+          <p id="audit-score-band" class="mt-2 label">—</p>
+          <p id="audit-summary" class="mt-5 text-body text-ink-2 leading-snug">—</p>
+        </div>
+
+        <div class="mt-10 grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <!-- Dimension tiles injected by JS -->
+          <div class="hidden" id="audit-dim-template">
+            <div class="rounded-md border border-rule bg-white p-4 text-center">
+              <p class="label text-ink-3" data-dim-label>—</p>
+              <p class="score-numeral text-h2 mt-2" data-dim-score>--</p>
+            </div>
+          </div>
+          <div id="audit-dims" class="contents"></div>
+        </div>
+
+        <section class="mt-12">
+          <h2 class="font-serif text-h2 text-navy">Your top 5 fixes</h2>
+          <ol class="mt-5 space-y-4" id="audit-fixes"></ol>
+        </section>
+
+        <section class="mt-12 rounded-md border border-rule bg-white p-7">
+          <h2 class="font-serif text-h3 text-navy">Share your score</h2>
+          <p class="mt-2 text-body text-ink-2 leading-snug">
+            Got a fellow host? Share your score and challenge them to beat it.
+          </p>
+          <div class="mt-4 flex flex-wrap items-center gap-3">
+            <img id="audit-share-image" alt="Audit share image" class="rounded-md border border-rule max-w-full sm:max-w-sm" hidden />
+            <div class="flex flex-col gap-2">
+              <button id="audit-copy-link" type="button"
+                class="rounded-md bg-[color:var(--accent-500)] text-white font-medium px-4 py-2 hover:bg-[color:var(--accent-700)] transition-colors duration-std focus:outline-none focus:shadow-focus">
+                Copy result link
+              </button>
+              <a id="audit-twitter" target="_blank" rel="noopener noreferrer"
+                class="text-ui text-navy no-underline hover:text-[color:var(--accent-700)]">Share on X →</a>
+            </div>
+          </div>
+          <p id="audit-copy-confirm" class="mt-3 text-caption text-success" hidden>Link copied.</p>
+        </section>
+
+        <section class="mt-12 rounded-md border border-rule bg-[color:var(--bg-result-tile)] p-7" id="audit-pdf-block">
+          <h2 class="font-serif text-h3 text-navy">Get the full PDF report</h2>
+          <p class="mt-2 text-body text-ink-2 leading-snug">
+            Every fix with detailed reasoning + concrete steps + a printable scorecard. We email it to you.
+          </p>
+          <p class="mt-3 text-caption text-ink-3">v0.1 status: PDF download lands with the email-gate. Coming in a subsequent commit.</p>
+        </section>
+      </article>
+
+      {/* Error state */}
+      <div id="audit-error" hidden class="text-center">
+        <p class="label text-error">Audit failed</p>
+        <h1 class="mt-2 font-serif text-h2 text-navy" id="audit-error-title">Something went wrong</h1>
+        <p class="mt-3 text-body text-ink-2" id="audit-error-message">—</p>
+        <p class="mt-6">
+          <a href="/" class="text-ui text-navy no-underline hover:text-[color:var(--accent-700)]">← Run another audit</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    type StatusResponse =
+      | { status: 'running' }
+      | { status: 'ready'; overallScore?: number; shareImagePath?: string | null }
+      | { status: 'failed'; errorCode?: string; errorMessage?: string };
+
+    interface DimScore {
+      dimension: string;
+      score: number;
+      reasoning: string;
+      fixes: Array<{ id: string; title: string; description: string; impact: string; effort: string }>;
+    }
+    interface AuditPayload {
+      id: string;
+      url: string;
+      snapshot: { title?: string; location?: string };
+      scores: DimScore[];
+      summary: string;
+      overallScore: number;
+      topFixes: Array<{ id: string; dimension: string; title: string; description: string; impact: string; effort: string }>;
+      shareImagePath: string | null;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const auditId = params.get('id');
+
+    const loadingEl = document.getElementById('audit-loading')!;
+    const resultEl = document.getElementById('audit-result')!;
+    const errorEl = document.getElementById('audit-error')!;
+    const progressEl = document.getElementById('audit-progress')! as HTMLElement;
+
+    function showError(title: string, message: string) {
+      loadingEl.hidden = true;
+      resultEl.hidden = true;
+      errorEl.hidden = false;
+      (document.getElementById('audit-error-title') as HTMLElement).textContent = title;
+      (document.getElementById('audit-error-message') as HTMLElement).textContent = message;
+    }
+
+    function scoreBand(score: number): { label: string; tone: string } {
+      if (score >= 80) return { label: 'Strong', tone: 'text-[color:var(--score-good)]' };
+      if (score >= 50) return { label: 'Mixed', tone: 'text-[color:var(--score-ok)]' };
+      return { label: 'Needs work', tone: 'text-[color:var(--score-bad)]' };
+    }
+
+    function renderResult(data: AuditPayload) {
+      (document.getElementById('audit-title') as HTMLElement).textContent =
+        data.snapshot.title ?? 'Your listing';
+      (document.getElementById('audit-location') as HTMLElement).textContent =
+        data.snapshot.location ?? '';
+      (document.getElementById('audit-score') as HTMLElement).textContent = String(data.overallScore);
+      const band = scoreBand(data.overallScore);
+      const bandEl = document.getElementById('audit-score-band') as HTMLElement;
+      bandEl.textContent = band.label;
+      bandEl.className = `mt-2 label ${band.tone}`;
+      (document.getElementById('audit-summary') as HTMLElement).textContent = data.summary ?? '';
+
+      // Dimension tiles
+      const dimsRoot = document.getElementById('audit-dims') as HTMLElement;
+      dimsRoot.innerHTML = '';
+      for (const s of data.scores) {
+        const node = document.createElement('div');
+        node.className = 'rounded-md border border-rule bg-white p-4 text-center';
+        const dimLabel = s.dimension.charAt(0).toUpperCase() + s.dimension.slice(1);
+        const dimBand = scoreBand(s.score);
+        node.innerHTML = `
+          <p class="label text-ink-3">${dimLabel}</p>
+          <p class="score-numeral text-h2 mt-2 ${dimBand.tone}">${s.score}</p>
+        `;
+        dimsRoot.appendChild(node);
+      }
+
+      // Top fixes
+      const fixesRoot = document.getElementById('audit-fixes') as HTMLOListElement;
+      fixesRoot.innerHTML = '';
+      data.topFixes.forEach((f, i) => {
+        const li = document.createElement('li');
+        li.className = 'rounded-md border border-rule bg-white p-5 flex gap-4';
+        const impactColor =
+          f.impact === 'high' ? 'text-[color:var(--score-bad)]' : f.impact === 'medium' ? 'text-[color:var(--score-ok)]' : 'text-ink-3';
+        li.innerHTML = `
+          <span class="font-serif text-h2 text-[color:var(--accent-500)] leading-none">${i + 1}</span>
+          <div class="flex-1">
+            <p class="font-serif text-h3 text-navy leading-snug">${escapeHtml(f.title)}</p>
+            <p class="mt-2 text-small text-ink-2 leading-snug">${escapeHtml(f.description)}</p>
+            <p class="mt-2 text-caption ${impactColor}">
+              ${escapeHtml(f.impact)} impact · ${escapeHtml(f.effort)} effort · ${escapeHtml(f.dimension)}
+            </p>
+          </div>
+        `;
+        fixesRoot.appendChild(li);
+      });
+
+      // Share block
+      const shareImg = document.getElementById('audit-share-image') as HTMLImageElement;
+      if (data.shareImagePath) {
+        shareImg.src = data.shareImagePath;
+        shareImg.hidden = false;
+      }
+      const shareUrl = window.location.href;
+      const tweetText = `My Airbnb scored ${data.overallScore}/100 on Listing Audit. What does yours score?`;
+      const tweetEl = document.getElementById('audit-twitter') as HTMLAnchorElement;
+      tweetEl.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(shareUrl)}`;
+
+      const copyBtn = document.getElementById('audit-copy-link') as HTMLButtonElement;
+      const copyConfirm = document.getElementById('audit-copy-confirm') as HTMLElement;
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          copyConfirm.hidden = false;
+          setTimeout(() => (copyConfirm.hidden = true), 2000);
+        } catch {
+          /* clipboard unavailable */
+        }
+      });
+
+      loadingEl.hidden = true;
+      resultEl.hidden = false;
+    }
+
+    function escapeHtml(value: string): string {
+      return value
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    async function poll() {
+      if (!auditId) {
+        showError('No audit id', 'This page expects ?id=… in the URL. Start a new audit from the homepage.');
+        return;
+      }
+      let attempts = 0;
+      let progress = 8;
+      const maxAttempts = 25; // ~50s at 2s intervals
+      while (attempts < maxAttempts) {
+        attempts += 1;
+        progress = Math.min(95, progress + 6);
+        progressEl.style.width = `${progress}%`;
+        let res: Response;
+        try {
+          res = await fetch(`/api/audit/${encodeURIComponent(auditId)}/status`);
+        } catch {
+          await sleep(2000);
+          continue;
+        }
+        if (res.status === 404) {
+          showError('Audit not found', 'That audit id is unknown. Start a fresh one from the homepage.');
+          return;
+        }
+        const status = (await res.json()) as StatusResponse;
+        if (status.status === 'ready') {
+          const dataRes = await fetch(`/api/audit/${encodeURIComponent(auditId)}`);
+          if (!dataRes.ok) {
+            showError('Could not load result', `Server returned ${dataRes.status}. Try refreshing.`);
+            return;
+          }
+          progressEl.style.width = '100%';
+          renderResult((await dataRes.json()) as AuditPayload);
+          return;
+        }
+        if (status.status === 'failed') {
+          showError(
+            'Audit failed',
+            status.errorMessage ?? 'The audit pipeline could not complete. Try a different listing URL or come back in a few minutes.',
+          );
+          return;
+        }
+        await sleep(2000);
+      }
+      showError('Audit timed out', 'Still waiting after 50 seconds. Refresh the page to keep polling, or run a new audit.');
+    }
+
+    function sleep(ms: number) {
+      return new Promise((r) => setTimeout(r, ms));
+    }
+
+    poll();
+  </script>
+</Layout>

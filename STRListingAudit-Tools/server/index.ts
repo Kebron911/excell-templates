@@ -14,6 +14,13 @@
 import express from 'express';
 import type { Request, Response } from 'express';
 import { scrapeHandler } from './routes/scrape';
+import {
+  auditSubmitMiddleware,
+  auditSubmitHandler,
+  auditStatusHandler,
+  auditGetHandler,
+  rateLimitStatusHandler,
+} from './routes/audit';
 
 const app = express();
 
@@ -30,6 +37,12 @@ app.get('/api/health', (_req: Request, res: Response) => {
 
 // Phase 2: admin-gated scrape debug endpoint.
 app.post('/api/scrape', scrapeHandler);
+
+// Phase 4: audit funnel.
+app.post('/api/audit', auditSubmitMiddleware, auditSubmitHandler);
+app.get('/api/audit/:id', auditGetHandler);
+app.get('/api/audit/:id/status', auditStatusHandler);
+app.get('/api/rate-limit-status', rateLimitStatusHandler);
 
 // Catch-all 404 for /api/* so unknown endpoints don't fall through to a generic
 // Express 404 page. Routes added in later phases register before this.
