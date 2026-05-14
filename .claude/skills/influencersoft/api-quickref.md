@@ -90,10 +90,9 @@ endpoint is disabled for this tenant. Resolution: email
 `support@influencersoft.com` or raise it in Tech Tuesday. As of 2026-05-08
 this was the state for `kebron` tenant — verify before retry.
 
-Bulk product upload script exists at
-infrastructure/influencersoft/push_products.js
-with idempotent state tracking — ready to run once endpoint is enabled.
-(Note: this script lives in a sibling branch awaiting merge; cross-reference once that branch lands in main.)
+Bulk product upload script lives at `infrastructure/influencersoft/push_products.js`
+with idempotent state tracking — ready to run once the endpoint is enabled.
+If the path doesn't exist on your branch, check `git log --all -- infrastructure/influencersoft/push_products.js` to find which branch owns it.
 
 ## 4. Zapier
 

@@ -37,7 +37,7 @@ Sharice-Marie can configure live via screen-share.
 FBL = auto-unsubscribe contacts who mark your emails as spam. Critical for
 sender reputation.
 
-**Path:** `Campaigns → Settings → FBL` (or filed under Mailing Settings)
+**Path:** `Campaigns → Settings → FBL` ("Mailing Settings" is just the display name for `Campaigns → Settings` — same screen.)
 
 ### Setup steps
 

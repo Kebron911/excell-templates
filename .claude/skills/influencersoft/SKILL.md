@@ -11,8 +11,9 @@ funnel + email + CRM + LMS + affiliate + storefront platform. Tenant:
 `INFLUENCERSOFT_API_KEY` (32 chars).
 
 IS is critical infrastructure for the STR Ledger revenue funnel: it owns the
-email lifecycle (10 sequences), tags every buyer from Etsy and Stripe, hosts the
-affiliate program, and serves the lead-magnet welcome funnels.
+email lifecycle (11 sequences — 6 lifecycle + 5 bundle cross-sells), tags every
+buyer from Etsy and Stripe, hosts the affiliate program, and serves the
+lead-magnet welcome funnels.
 
 ## 1. Canonical docs index (read these first)
 
@@ -39,6 +40,7 @@ IS task arrives
 ├── Add / update / tag a contact?
 │   ├── Inside n8n workflow → use existing workflow (STR_Etsy_*, STR_Stripe_*)
 │   ├── New programmatic call → scripts/lib/influencersoft.mjs (API 2.0)
+│   ├── External SaaS without code → Zapier action "Add/Update Lead" (see api-quickref.md §4)
 │   └── One-off manual → IS UI: Contacts → Leads
 │
 ├── Create / edit an email sequence?
@@ -64,7 +66,7 @@ IS task arrives
 │   └── Inbound → POST https://kebron.influencersoft.com/api/AddUpdateLead
 │
 ├── Question about a report or analytics?
-│   └── See reports-analytics.md (9 report types mapped to menu paths)
+│   └── See reports-analytics.md (6 report surfaces + Campaigns/Affiliates/Courses analytics)
 │
 ├── Plan limit, support, mentoring call?
 │   └── See plans-and-support.md
@@ -164,7 +166,7 @@ sequence Day-0 email arrives in test Gmail within 5 minutes.
    - Colon for namespace, hyphen for words (`bundle-cross:first-year-host`, NOT `bundle_cross:firstYearHost`)
    - No spaces
    - Add new tags rather than renaming
-4. **11-sequence paste order:** Etsy post-purchase first (revenue gate), then review/refund, then magnet/cart/winback, then bundle cross-sells. Per `manual-setup-guide.md` Part 3.
+4. **11-sequence paste order** (6 lifecycle + 5 bundle cross-sells): Etsy post-purchase first (revenue gate), then review-request, refund-recovery, welcome-book-magnet, abandoned-cart, win-back — then BUNDLE-01 through BUNDLE-05. Per `manual-setup-guide.md` Part 3.
 5. **Custom-field naming:** `sku_code`, `sku_label`, `bought_on`, `order_ref`, `xsell_name`, `xsell_url`, `pack_name`. Never revert to longer names without renaming across `copy/email-sequences/*.md` AND every `scripts/is-*.mjs`.
 6. **Never log full POST bodies** — key leakage risk. Client lib enforces this.
 7. **Rate limit:** ≤0.9 req/sec (1100ms between calls). Client lib enforces this.
@@ -184,7 +186,14 @@ sequence Day-0 email arrives in test Gmail within 5 minutes.
 
 ## 8. When this skill applies
 
-Triggers (also in frontmatter description):
+The **frontmatter `description:` field above** is the authoritative trigger
+surface — that's what Claude Code reads for auto-discovery. The list below is
+the expanded set (additional trigger phrases plus the description's terms),
+documented here for grep / human reference. If you find a term used commonly in
+your work that isn't auto-discovering this skill, add it to the frontmatter
+description (not just here).
+
+Expanded trigger set:
 InfluencerSoft, IS sequence, addupdatelead, addtagtolead, rpsKey, kebron tenant,
 trigger tag, paste sequence, Click.js, evergreen webinar, FBL, sender domain,
 AppSumo LTD, post-purchase-etsy-buyer, bundle-cross, customer:etsy,
@@ -203,10 +212,14 @@ NotebookLM notebook directly.
   blog reviews) — snapshotted 2026-04-28
 - **Owner:** Daniel
 
-Command:
+Command (the `notebooklm` CLI is installed system-wide via `pip install notebooklm-py` — run directly via the Bash tool):
 ```bash
 notebooklm ask "your question" --notebook 2625477b-aa78-45b0-9ca6-6712d0d2d194
 ```
+
+If Claude doesn't recognize the CLI, first run `notebooklm status` to confirm it's
+installed; if not, fall back to the `/notebooklm` skill (`Skill notebooklm`) which
+documents installation and auth recovery.
 
 When to use:
 - The skill files don't answer the question

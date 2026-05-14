@@ -50,7 +50,7 @@ Each row: **gotcha → why → how to apply.**
 
 | # | Gotcha | Why | How to apply |
 |---|---|---|---|
-| 19 | Tags case-sensitive (assumed) and auto-create | No pre-create endpoint; whatever string you send creates the tag | Stick strictly to [tag-dictionary.md](../../../infrastructure/influencersoft/tag-dictionary.md) — typos create orphan tags. |
+| 19 | Tags are case-sensitive and auto-create on first use | No pre-create endpoint; whatever string you send creates the tag verbatim (case included) | Stick strictly to [tag-dictionary.md](../../../infrastructure/influencersoft/tag-dictionary.md) — typos or case drift create orphan tags. |
 | 20 | Tags don't trigger sequences retroactively for sequences that aren't bound to that tag | Sequence trigger is configured in UI; API can't "fire" a sequence directly | The trigger is set in UI, FIRED by API tagging — bind first, tag second. |
 | 21 | List IDs are opaque numerics | E.g. `1594725950.5982672784` — you can't guess them | Call `GetAllGroups` once after creating lists in UI; cache in `infrastructure/influencersoft/lists.yaml` via `scripts/is-probe.mjs`. |
 | 22 | Behavioral segmenting pattern | Marketing automation tip from founder | When a purchase succeeds, in a Process block: ADD buyer tag AND REMOVE from retargeting list in one move. |

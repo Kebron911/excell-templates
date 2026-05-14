@@ -26,7 +26,7 @@ menu path and the primary thing you do there. Tenant: `kebron.influencersoft.com
   names (refresh page between adds; see [gotchas.md](gotchas.md)).
 - **Naming rules:** see [tag-dictionary.md](../../../infrastructure/influencersoft/tag-dictionary.md) §6.
 
-## 4. Email Sequences (Campaigns)
+## 4. Sequences (Email autoresponders)
 - **Path:** `Campaigns → Sequence`
 - **What:** Linear, scheduled email autoresponders. Purple "+" adds first
   email, green "+" adds subsequent. Delays are time-based (e.g. 2d after prev)
@@ -104,10 +104,8 @@ menu path and the primary thing you do there. Tenant: `kebron.influencersoft.com
 
 ### Surveys
 - **Path:** `Website → Surveys`
-- **What:** Standalone survey builder (Pages + Questions). Multi-language
-  field requirements. Trigger actions on completion (add to list, redirect).
-- **Founder advice:** if you need anything beyond basic, embed Google Forms
-  via the Code widget — native builder is "very simple".
+- **What:** Standalone survey builder (multi-page, multi-language). See
+  [ui-walkthrough.md §9](ui-walkthrough.md) for the full UI tour.
 
 ### Reports
 - **Path:** `Reports` (top-level)
