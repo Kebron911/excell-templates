@@ -69,7 +69,34 @@ Strategic pattern (founder advice):
 2. If they re-engage → tag clears, they stay
 3. If they don't → auto-clean removes them at the 45-day mark
 
-## 5. vCard + spam-button footer
+## 5. Dedicated IP (high-volume option)
+
+For accounts with sufficient send volume, IS can provision a **dedicated
+sending IP address** — improving reputation isolation from other IS tenants.
+
+- Request via `support@influencersoft.com` or raise at Tech Tuesday.
+- Only beneficial at scale (tens of thousands of sends/month with clean lists).
+- Not available by default — must be explicitly provisioned.
+
+## 5a. Email Series — "Inseparable chain" lock
+
+Email Series segments can be marked **"Inseparable chain"** (green exclamation
+icon in the UI). When set, broadcast emails **cannot interrupt** that Series
+for a subscriber mid-chain. Use this to protect critical onboarding or
+post-purchase sequences from being broken by ad-hoc blasts.
+
+## 5b. Pre-send spam check
+
+Before sending a **Broadcast**, run the built-in spam test:
+
+1. In the Broadcast send screen, click **"Test the distribution for spam"**.
+2. IS scores the email against spam filter heuristics.
+3. Review and fix any flagged issues before sending.
+
+This is distinct from FBL (which handles post-send complaints). The spam test
+is a pre-flight check.
+
+## 6. vCard + spam-button footer
 
 **Path:** `Campaigns → Settings → Email templates`
 
@@ -78,7 +105,7 @@ Strategic pattern (founder advice):
 - **Spam-report / unsubscribe footer:** required by law (CAN-SPAM, GDPR); IS
   includes it automatically but you can customize copy
 
-## 6. List hygiene during sequence migration
+## 7. List hygiene during sequence migration
 
 When pasting new sequences (per [manual-setup-guide.md Part 3](../../../ops/manual%20work/influencersoft-manual-setup-guide.md)):
 
@@ -89,7 +116,7 @@ When pasting new sequences (per [manual-setup-guide.md Part 3](../../../ops/manu
 - If hard-bounce rate > 5% or spam complaints > 0.1% — **PAUSE** and
   investigate before exposing full list
 
-## 7. Common deliverability failures
+## 8. Common deliverability failures
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
@@ -99,7 +126,7 @@ When pasting new sequences (per [manual-setup-guide.md Part 3](../../../ops/manu
 | No emails sending at all | Sender not confirmed | Click confirmation link in sender's mailbox |
 | Gmail rejects | DMARC policy + free-domain sender | Switch to corporate-domain sender |
 
-## 8. Escalation
+## 9. Escalation
 
 If deliverability problems persist:
 1. Check `Campaigns → Analytics → Broadcasts Message Analytics` for patterns
