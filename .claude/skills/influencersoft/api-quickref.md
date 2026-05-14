@@ -6,26 +6,50 @@ lists, response shapes, and rate-limit notes lives in
 The rate-limited Node.js client is at
 [scripts/lib/influencersoft.mjs](../../../scripts/lib/influencersoft.mjs).
 
+## 0. Prerequisites — API access must be enabled
+
+> **CRITICAL:** API access on InfluencerSoft is NOT on by default. Accounts
+> that call the API without explicit enablement risk account-level blocking.
+
+**How to enable:**
+1. Send a written request to `support@influencersoft.com` asking for API
+   access on your account.
+2. Specify your intended use (automation, CRM sync, etc.).
+3. Wait for confirmation before making any API calls.
+
+- The `kebron` tenant had API access confirmed as of 2026-05-08 (probe log).
+- If a new account or sub-account is created, repeat this request.
+- If you get unexpected `error_code` responses after a period of inactivity,
+  re-verify access hasn't been suspended.
+
 ## 1. API 2.0 (current — use this by default)
 
 - **Base URL:** `https://kebron.influencersoft.com/api/<Method>`
-- **Method names:** PascalCase (lowercase 307-redirects)
+- **Endpoint naming:** Guide canonical names are **lowercase** (e.g.
+  `addupdatelead`, `getalllists`). The IS server 307-redirects lowercase to
+  PascalCase equivalents (`GetAllGroups`, etc.). The client lib uses PascalCase
+  for readability; both work in practice. Do not present `GetAllGroups` as the
+  canonical endpoint name — the guide canonical is `getalllists`.
 - **Auth:** POST body field `rpsKey=<INFLUENCERSOFT_API_KEY>`
 - **Content-Type:** `application/x-www-form-urlencoded`
 - **Response:** JSON — `{error_code:0, error_text:"OK", result:[...], hash:"..."}`
-- **Rate limit:** undocumented; client throttles to 1100ms (~0.9 req/s)
+- **Rate limit (project convention, not IS-imposed):** IS does not publish a
+  rate limit. Client lib throttles to 1100ms (~0.9 req/s) by Daniel's
+  convention. Do not label this as an IS restriction.
 
 ### Primary endpoints (already wrapped in client lib)
 
-| Endpoint | Helper | Purpose |
+| Guide canonical (lowercase) | Client lib helper | Purpose |
 |---|---|---|
-| `AddUpdateLead` | `addUpdateLead(fields)` | Create or update contact (idempotent on email). Can set tags + lists in one call. Primary tool. |
-| `AddTagToLead` | `addTagToLead(email, tags)` | Add tag(s) to existing contact. Tags auto-create on first use. |
-| `RemoveTagFromLead` | `removeTagFromLead(email, tags)` | Remove tag(s). |
-| `GetAllGroups` | `getAllGroups()` | List all groups/lists with IDs (IDs are opaque numerics — resolve via this). |
-| `GetGoods` | `getGoods()` | List all products. |
-| `GetCoupons` | `getCoupons()` | List all coupons. |
-| `CreateOrder` | not yet wrapped | Create order/invoice for a contact. **Irreversible.** |
+| `addupdatelead` → `AddUpdateLead` | `addUpdateLead(fields)` | Create or update contact (idempotent on email). Can set tags + lists in one call. Primary tool. |
+| `addtagtolead` → `AddTagToLead` | `addTagToLead(email, tags)` | Add tag(s) to existing contact. Tags auto-create on first use. |
+| `removetagfromlead` → `RemoveTagFromLead` | `removeTagFromLead(email, tags)` | Remove tag(s). |
+| `getalllists` → `GetAllGroups` | `getAllGroups()` | List all groups/lists with IDs (IDs are opaque numerics — resolve via this). Note: canonical name is `getalllists`; redirects to `GetAllGroups` server-side. |
+| `getgoods` → `GetGoods` | `getGoods()` | List all products. |
+| `getcoupons` → `GetCoupons` | `getCoupons()` | List all coupons. |
+| `createorder` → `CreateOrder` | not yet wrapped | Create order/invoice for a contact. **Irreversible.** |
+| `removeleadfromlist` | not yet wrapped | Remove a contact from a specific list/group. Use for cleanup after purchase or funnel exit. |
+| `getpersonalmanagers` | not yet wrapped | List personal manager users. Needed to assign a manager to a contact. |
 
 ### Sample call
 
@@ -67,6 +91,12 @@ sequence fires. Bound by exact string in IS UI — renaming breaks silently.
 Only use for verbs API 2.0 lacks: `AddGood` (product create), `AddLeadToGroup`
 (with UTM + activation-email control), `DeleteSubscribe`, `DeleteOrder`,
 `GetCountSubscribers`, `UpdateSubscriberData`.
+
+> **Full inventory:** The guide documents 26 API 1.0 endpoints including
+> `GetLeads`, `GetOrders`, `GetOrdersWithGoods`, `GetPartnerStats`,
+> `UpdateSubscriberData`, `DeleteOrder`, `PostBackNotifications`.
+> Full spec at `scrape-influencersoft/guide-md/11-api-1-0.md`.
+> This section covers only the 4–6 endpoints used in the project.
 
 ### ⚠️ READ FIRST: known issue — `AddGood` "error_code 2 endpoint disabled"
 
@@ -151,9 +181,25 @@ payload contains:
 
 - **Contact:** email, first/middle/last name, phone
 - **Tracking:** utm_source, utm_medium, utm_campaign, utm_content, utm_term
-- **Location:** IP, full billing + shipping address (city/state/zip/country)
+- **Location:** `ip` (subscriber IP at opt-in), full billing + shipping address
+  (city/state/zip/country)
 - **Order:** product name, price, coupon, order ID, status, payment method,
   affiliate name, sales manager, order tags
+
+### API 1.0 subscription notification payload (Script Notifications)
+
+When IS fires a script notification (API 1.0 `PostBackNotifications`-style),
+the subscription event payload includes:
+
+| Field | Values | Notes |
+|---|---|---|
+| `id_group` | numeric | List/group the contact subscribed to |
+| `ip` | string | Subscriber's IP at opt-in time |
+| `status` | `2` = subscription, `1` = activation | Use to distinguish a new subscription from an email activation click |
+| UTM fields | utm_source, utm_medium, utm_campaign, utm_content, utm_term | Full UTM array |
+
+Route inbound webhook events by `status`: `2` = newly subscribed (may not be
+activated), `1` = clicked activation link (now emailable).
 
 ## 7. Security notes
 
