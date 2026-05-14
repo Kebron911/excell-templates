@@ -1,7 +1,6 @@
 ﻿---
 import Layout from '@/layouts/Layout.astro';
 import JsonLd from '@components/seo/JsonLd.astro';
-import PageHero from '@/components/PageHero.astro';
 import { buildOrganization, buildWebApplication } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import tools from '@data/tools.json';
@@ -68,7 +67,6 @@ const description = 'Seven free tools and three printable PDFs for short-term re
       Calculators, generators, and printable SOPs that pay for themselves on the first turn.
       No accounts, no upsells in the calculator. The math runs in your browser; the URL is the save file.
     </p>
-    <PageHero slug="homepage" alt="strops.tools - free calculators and SOPs for short-term rental operators" />
   </section>
 
   <section class="border-t border-rule">
