@@ -1,6 +1,6 @@
 ---
 name: influencersoft
-description: Use when working with InfluencerSoft (kebron tenant) — adding or tagging contacts, pasting email sequences, configuring funnels, debugging email deliverability, integrating Etsy/Stripe orders, or making any IS API call. Covers API 1.0 + 2.0, all 11 modules, sequence trigger tags, and the full UI walkthrough. Triggers on: InfluencerSoft, IS sequence, addupdatelead, addtagtolead, rpsKey, kebron tenant, trigger tag, paste sequence, Click.js, evergreen webinar, FBL, sender domain, AppSumo LTD, post-purchase-etsy-buyer, bundle-cross.
+description: Use when working with InfluencerSoft (kebron tenant) — adding or tagging contacts, pasting email sequences, configuring funnels, debugging email deliverability, integrating Etsy/Stripe orders, or making any IS API call. Covers API 1.0 + 2.0, all 13 modules, sequence trigger tags, and the full UI walkthrough. Triggers on: InfluencerSoft, IS sequence, addupdatelead, addtagtolead, rpsKey, kebron tenant, trigger tag, paste sequence, Click.js, evergreen webinar, FBL, sender domain, AppSumo LTD, post-purchase-etsy-buyer, bundle-cross, Email Series, Broadcasts, Advertise, Partner Cabinet.
 ---
 
 # InfluencerSoft Skill
@@ -13,7 +13,7 @@ funnel + email + CRM + LMS + affiliate + storefront platform. Tenant:
 IS is critical infrastructure for the STR Ledger revenue funnel: it owns the
 email lifecycle (11 sequences — 6 lifecycle + 5 bundle cross-sells), tags every
 buyer from Etsy and Stripe, hosts the affiliate program, and serves the
-lead-magnet welcome funnels.
+lead-magnet welcome funnels. 13 top-level modules total (11 main + Email Series + Advertise).
 
 ## 1. Canonical docs index (read these first)
 
@@ -43,12 +43,25 @@ IS task arrives
 │   ├── External SaaS without code → Zapier action "Add/Update Lead" (see api-quickref.md §4)
 │   └── One-off manual → IS UI: Contacts → Leads
 │
-├── Create / edit an email sequence?
-│   └── ALWAYS UI. No API exists. Follow paste order in
-│       ops/manual work/influencersoft-manual-setup-guide.md (Part 3).
+├── Create / edit a Sequence (visual flowchart automation)?
+│   └── ALWAYS UI. `Campaigns → Sequences`. No API exists.
+│       Follow paste order in ops/manual work/influencersoft-manual-setup-guide.md (Part 3).
+│
+├── Create / edit an Email Series (linear drip on subscription)?
+│   └── ALWAYS UI. `Campaigns → Email Series`. Distinct from Sequences.
+│       Email Series = time-interval chain tied to list subscription.
+│       Can mark segments "Inseparable chain" so broadcasts don't interrupt.
+│
+├── Send a one-time email blast to a list?
+│   └── ALWAYS UI. `Campaigns → Broadcasts`. One-shot send to a chosen list.
+│       Run "Test the distribution for spam" before sending.
 │
 ├── Create / edit a funnel?
 │   └── ALWAYS UI. See ui-walkthrough.md for canvas + page builder tour.
+│
+├── Set up advanced automation / branching logic?
+│   ├── Complex branching → `Tasks → Processes`
+│   └── Event-triggered rule chain → `Tasks → Automatic rules`
 │
 ├── Create a product?
 │   ├── < 5 products → IS UI: Store → Products
@@ -94,11 +107,15 @@ IS task arrives
 | Dashboard | login landing | Startup Checklist, Tech Tuesday timer |
 | Funnels | `Funnels → My Funnels` | Visual flowchart canvas (THE hub) |
 | Contacts | `Contacts → Leads` | CRM, lists, tags, custom fields |
-| Sequences | `Campaigns → Sequence` | Linear email autoresponders |
-| Process | `Automation → Process` | Advanced branching automation |
+| Sequences | `Campaigns → Sequences` | Visual flowchart automations (trigger-based, A/B branches) |
+| Email Series | `Campaigns → Email Series` | Linear drip chain tied to list subscription |
+| Broadcasts | `Campaigns → Broadcasts` | One-time email blasts to a list |
+| Process | `Tasks → Processes` | Advanced branching automation |
+| Automatic Rules | `Tasks → Automatic rules` | Event-triggered rule chains |
 | Mailing Settings | `Campaigns → Settings` | Senders, DKIM/SPF/DMARC, FBL |
 | Courses | `Courses → Add a Course` | LMS — modules, lessons, drip, gating |
-| Affiliates | `Affiliates → Offers` | 2-tier program, Click.js tracking |
+| Affiliates | `Affiliates → Offers` | 2-tier affiliate program (program owner view) |
+| Advertise | `Top menu → Advertise` | Partner's Cabinet (affiliate/partner view) |
 | Store | `Store → Products` | Products, pricing, bumps, coupons |
 | Webinars | `Website → Webinar` | Live external or evergreen rooms |
 | Integrations/API | account footer → `Integration and API` | rpsKey, Zapier, webhooks |
@@ -127,7 +144,7 @@ See `tag-dictionary.md` §1 for the complete trigger-tag map.
 
 1. Read `ops/manual work/influencersoft-manual-setup-guide.md` Parts 3 and 4
 2. Confirm custom fields from Part 2 exist (sku_code, bought_on, etc.)
-3. IS UI → Campaigns → Sequence → Add sequence
+3. IS UI → Campaigns → Sequences → Add sequence
 4. Name = filename without `.md` (e.g. `post-purchase-etsy-buyer`)
 5. Set Trigger = "When tag added" with tag from `tag-dictionary.md` §1
 6. Paste each email body between ` ``` ` fences from the source `.md`
@@ -178,7 +195,7 @@ sequence Day-0 email arrives in test Gmail within 5 minutes.
 4. **11-sequence paste order** (6 lifecycle + 5 bundle cross-sells): Etsy post-purchase first (revenue gate), then review-request, refund-recovery, welcome-book-magnet, abandoned-cart, win-back — then BUNDLE-01 through BUNDLE-05. Per `manual-setup-guide.md` Part 3.
 5. **Custom-field naming:** `sku_code`, `sku_label`, `bought_on`, `order_ref`, `xsell_name`, `xsell_url`, `pack_name`. Never revert to longer names without renaming across `copy/email-sequences/*.md` AND every `scripts/is-*.mjs`.
 6. **Never log full POST bodies** — key leakage risk. Client lib enforces this.
-7. **Rate limit:** ≤0.9 req/sec (1100ms between calls). Client lib enforces this.
+7. **Rate limit (project convention, not IS-imposed):** ≤0.9 req/sec (1100ms between calls). IS does not publish a rate limit; this is Daniel's conservative throttle. Client lib enforces this.
 8. **Tags are source of truth:** scripts MUST pull strings from `tag-dictionary.md`. Hardcoding a tag inline = future drift.
 
 ## 7. Files in this skill
