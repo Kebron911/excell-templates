@@ -49,8 +49,9 @@
 
   /* Underline anchors inside prose body content only — keeps cards,
      nav, and chrome links clean while preserving link affordance on
-     in-article references. */
-  .prose a {
+     in-article references. Excludes anchors tagged `no-underline`
+     (cards rendered inside prose blocks, e.g. RelatedPosts). */
+  .prose a:not(.no-underline) {
     text-decoration: underline;
     text-decoration-color: var(--accent-500);
     text-decoration-thickness: 1px;
