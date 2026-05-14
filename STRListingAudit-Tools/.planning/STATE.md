@@ -1,12 +1,12 @@
 # STATE
 
-**Current phase:** 1 — Foundation
-**Current task:** Phase 1 complete, awaiting commit
+**Current phase:** 2 — Listing scrape layer
+**Current task:** Phase 2 complete, awaiting commit
 **Last update:** 2026-05-14
 
 ---
 
-## Phase 1 progress (in-progress — 2026-05-14)
+## Phase 1 progress (complete — 2026-05-14, commit d160b5a)
 
 - [x] Task 1 — Add `STRListingAudit-Tools/` to `pnpm-workspace.yaml`. Scaffold `package.json` + `astro.config.mjs` + `tsconfig.json`.
 - [x] Task 2 — Tailwind config + design tokens with diagnostic-teal accent.
@@ -16,6 +16,15 @@
 - [x] Task 6 — `.env.local.example` covering Anthropic, Apify, MySQL, email-verify, IP-hash, GA4, admin token.
 - [x] Task 7 — Vitest canary test (Express mounts `/api/health`).
 - [x] Task 8 — `.planning/{PROJECT,ROADMAP,STATE}.md` + root `CREDENTIALS.md` rows.
+
+## Phase 2 progress (in-progress — 2026-05-14)
+
+- [x] Task 1 — `ListingSnapshot` type + `ScrapeProvider` interface + `ScrapeResult`.
+- [x] Task 2 — `jsonld.ts`: cheerio-based JSON-LD parser, platform + listing-id extraction, completeness flag.
+- [x] Task 3 — `apify.ts`: `runApifyActor` REST client + `mapApifyItemToSnapshot` mapper + `ApifyProvider` class.
+- [x] Task 4 — `index.ts`: orchestrator with JSON-LD-first + Apify-fallback + hybrid merge.
+- [x] Task 5 — 5 HTML fixtures (3 Airbnb variants, 2 Vrbo variants) + 1 Apify JSON fixture. 15 unit tests covering platform detection, JSON-LD parsing, completeness flag, Apify mapping, orchestrator paths.
+- [x] Task 6 — Admin-gated `POST /api/scrape` debug route gated by `ADMIN_TOKEN` header.
 
 ---
 
@@ -29,6 +38,15 @@
 - **Vrbo support deferred but schema-ready.** `audit_runs.platform` ENUM includes `'vrbo'` and `'unknown'` from day 1. Vrbo scraping lands in Phase 2 if Apify Vrbo actor is viable.
 - **`@` alias via `fileURLToPath(new URL('./src', import.meta.url))`** in both `astro.config.mjs` and `vitest.config.ts` — cluster-style-guide §10. Naive `.pathname` is Windows-incompatible.
 - **No `/api/click` endpoint** — same deliberate omission as strguests. Listing audit monetizes via paid tier + email list + cross-empire funnel, not affiliate hops.
+
+### Phase 2
+- **JSON-LD-first hybrid scrape.** Try free JSON-LD parse, fall back to Apify only when essential fields are missing (title/description/photos<3/amenities<3). Airbnb's room pages embed enough JSON-LD that the cheap path will hit on the majority of audits, cutting per-audit scrape cost toward zero on the happy path.
+- **Apify actor injected via env, default `tri_angle/airbnb-scraper`.** Allows swapping the actor (or vendor entirely — ScrapingBee, etc.) without code change.
+- **`run-sync-get-dataset-items` (single HTTP call) over webhook orchestration.** Acceptable because the audit pipeline is sync from the user's perspective (they paste URL and wait <25s). Webhook orchestration is overkill at v0.1 volumes.
+- **Cost approximation, not telemetry.** `APIFY_COST_PER_RUN_USD = $0.004` is a flat estimate. Real per-run cost reporting via Apify webhooks lands in v0.2 alongside the broader cost dashboard.
+- **`source: 'hybrid'` on merged results.** Telemetry-friendly: lets the cost-budget test bucket merged audits separately if we want.
+- **Provider injection in fetchListingSnapshot.** Tests pass StubProvider instances; production wiring passes real providers. No network calls in unit tests.
+- **Apify pricing/cost surfacing is best-effort.** Real telemetry needs the Apify webhook handler; deferred to v0.2.
 
 ---
 

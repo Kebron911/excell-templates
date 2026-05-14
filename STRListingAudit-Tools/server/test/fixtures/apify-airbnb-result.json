@@ -1,0 +1,43 @@
+{
+  "name": "Mountain View A-Frame · Hot Tub · Asheville",
+  "description": "Hand-built A-frame cabin with full mountain views. Outdoor hot tub, wood-burning fireplace, screened porch. Coffee from a local Asheville roaster on the counter. Sleeps 4 — one king upstairs in the loft, one queen on the main floor. Pet-friendly with notice. 12 minutes to downtown Asheville and the River Arts District.",
+  "primaryHost": { "firstName": "Maya" },
+  "starRating": 4.89,
+  "reviewsCount": 247,
+  "photos": [
+    { "pictureUrl": "https://muscache.com/cabin-cover.jpg", "caption": "Exterior", "aspectRatio": 1.5 },
+    { "pictureUrl": "https://muscache.com/cabin-loft.jpg", "caption": "Loft bedroom" },
+    { "pictureUrl": "https://muscache.com/cabin-livingroom.jpg" },
+    { "pictureUrl": "https://muscache.com/cabin-kitchen.jpg" },
+    { "pictureUrl": "https://muscache.com/cabin-bathroom.jpg" },
+    { "pictureUrl": "https://muscache.com/cabin-hottub.jpg" },
+    { "pictureUrl": "https://muscache.com/cabin-porch.jpg" }
+  ],
+  "amenities": [
+    { "title": "Hot tub" },
+    { "title": "Wifi" },
+    { "title": "Fireplace" },
+    { "title": "Mountain view" },
+    { "title": "Free parking" },
+    { "title": "Pets allowed" },
+    { "title": "Coffee maker" }
+  ],
+  "reviews": [
+    {
+      "reviewerFirstName": "Sam",
+      "createdAt": "2026-04-15",
+      "rating": 5,
+      "comments": "Absolutely perfect. Maya thought of everything. The coffee was a really nice touch."
+    },
+    {
+      "reviewerFirstName": "Ari",
+      "createdAt": "2026-04-02",
+      "rating": 5,
+      "comments": "Hot tub under the stars sold it. Bring boots — the path from the parking spot is steep when wet."
+    }
+  ],
+  "price": { "rate": 215, "currency": "USD" },
+  "cleaningFee": 95,
+  "minNights": 2,
+  "location": { "city": "Asheville", "state": "North Carolina", "country": "United States" }
+}
