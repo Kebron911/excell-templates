@@ -68,31 +68,45 @@ Only use for verbs API 2.0 lacks: `AddGood` (product create), `AddLeadToGroup`
 (with UTM + activation-email control), `DeleteSubscribe`, `DeleteOrder`,
 `GetCountSubscribers`, `UpdateSubscriberData`.
 
-### Hash algorithm
+### ⚠️ READ FIRST: known issue — `AddGood` "error_code 2 endpoint disabled"
+
+**Most users hit this before they hit the hash algorithm.** `AddGood` is gated
+per-account by IS support and silently disabled by default. If you get
+`error_code 2`, the endpoint is disabled for this tenant.
+
+- **As of 2026-05-08, AddGood was disabled for the `kebron` tenant.** Verify
+  the current state before promising any bulk product upload — don't write
+  code that assumes the endpoint is on.
+- **Resolution path:** email `support@influencersoft.com` OR raise it at the
+  weekly Tech Tuesday mentoring call (see plans-and-support.md). Usually
+  enabled within a day.
+- **Bulk-upload script already exists** at
+  `infrastructure/influencersoft/push_products.js` with idempotent state
+  tracking — ready to run once the endpoint is on. Don't write a new one.
+  If the path doesn't resolve on your branch, run
+  `git log --all -- infrastructure/influencersoft/push_products.js` to find it.
+
+### Hash algorithm — it's **MD5**, not HMAC
+
+> **Anti-pattern alert:** the default LLM training-data assumption for "API
+> hash signing" is HMAC-SHA256. InfluencerSoft does NOT use HMAC. It uses
+> plain MD5 with concatenation and a PHP-style URL-encoded query string. If
+> you write HMAC code for this, your requests WILL fail. This is the single
+> most common mistake on this API.
 
 ```
 hash = MD5(buildQuery(params) + "::" + username + "::" + apikey)
 ```
 
 - `buildQuery(params)` = PHP `http_build_query()` style URL-encoded form body
-  (sort params, then encode — implementation in
-  infrastructure/influencersoft/push_products.js)
+  — sort params alphabetically by key, then URL-encode. **Spaces become `+`,
+  NOT `%20`** (PHP convention, not RFC 3986).
 - `username` = tenant subdomain (`kebron`)
 - `apikey` = `INFLUENCERSOFT_API_KEY`
+- Separator is literal `::` (two colons).
 
-The full hash impl is in `push_products.js` lines that handle PHP-compatible
-encoding (spaces → `+`, special chars escaped). Reuse it; don't re-derive.
-
-### Known issue — AddGood "error_code 2 endpoint disabled"
-
-`AddGood` is gated per-account by IS support. If you get `error_code 2`, the
-endpoint is disabled for this tenant. Resolution: email
-`support@influencersoft.com` or raise it in Tech Tuesday. As of 2026-05-08
-this was the state for `kebron` tenant — verify before retry.
-
-Bulk product upload script lives at `infrastructure/influencersoft/push_products.js`
-with idempotent state tracking — ready to run once the endpoint is enabled.
-If the path doesn't exist on your branch, check `git log --all -- infrastructure/influencersoft/push_products.js` to find which branch owns it.
+The full hash impl is in `push_products.js`. Reuse it verbatim; don't
+re-derive (the URL-encoding edge cases are subtle).
 
 ## 4. Zapier
 

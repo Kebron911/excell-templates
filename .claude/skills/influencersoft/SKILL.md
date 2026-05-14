@@ -53,7 +53,16 @@ IS task arrives
 ├── Create a product?
 │   ├── < 5 products → IS UI: Store → Products
 │   └── Bulk (≥5) → infrastructure/influencersoft/push_products.js
-│       (API 1.0 hash auth — see api-quickref.md §3)
+│       ⚠️ READ FIRST before answering: AddGood is GATED per-account.
+│         As of 2026-05-08 it returns error_code 2 on the kebron tenant
+│         — must email support@influencersoft.com or raise at Tech Tuesday
+│         to enable. Don't promise "just hit the endpoint" — verify gating.
+│       ⚠️ Hash algorithm is **MD5** (NOT HMAC, NOT SHA-256 — common
+│         training-data confusion). Formula:
+│         `MD5(buildQuery(params) + "::" + username + "::" + apikey)`
+│         with PHP `http_build_query()` URL-encoding (spaces → `+`).
+│         Full impl already in push_products.js — reuse, don't re-derive.
+│       → For everything else, see api-quickref.md §3.
 │
 ├── Email landing in spam / not arriving?
 │   └── See deliverability.md → check FBL, DKIM/SPF/DMARC, sender confirmation
