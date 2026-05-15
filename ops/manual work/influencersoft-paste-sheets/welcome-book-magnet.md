@@ -2,35 +2,51 @@
 
 > **Auto-generated from:** `copy\email-sequences\welcome-book-magnet.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **5 of 5 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `welcome-book-magnet`
-3. **Trigger:** When tag `lead-magnet:welcome-book` is added
-4. **Then add 5 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `welcome-book-magnet`
+3. **Trigger node:** `Tag applied` → tag = `lead-magnet:welcome-book`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 5 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 5 — Deliver + the question every welcome book misses
 
-- **Delay (set in IS):** Day 0
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_starter_pdf`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Your 5-Tab Welcome Book Starter (and the question every host misses)
+**Block name (rename to):** `E1 - Day 0 - Deliver + the question every welcome book misses`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **Immediately after previous step** (0 d 0 hrs 0 min)
 
-      It's the one your guest texts you about at 9 PM on a Saturday.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Your 5-Tab Welcome Book Starter (and the question every host misses)
+~~~
+
+**Preheader (paste):**
+
+~~~
+It's the one your guest texts you about at 9 PM on a Saturday.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN welcome-book-magnet EMAIL 1 -----8<-----
 
-Hey {{ first_name | default: "there" }},
+Hey {$name},
 
 Here's the file: [Download The 5-Tab Welcome Book Starter →]({{ link_starter_pdf }})
 
@@ -55,20 +71,30 @@ P.S. If this email landed in Promotions, drag it to Primary so the next four sho
 
 ### Email 2 of 5 — The local guide nobody writes (the 9 PM question)
 
-- **Delay (set in IS):** Day 2
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_welcome_book`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      "Where do you eat?" (the question your welcome book has to answer)
+**Block name (rename to):** `E2 - Day 2 - The local guide nobody writes (the 9 PM question)`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `2 d 0 hrs 0 min`
 
-      It's the most-asked guest question in the history of short-term rentals.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+"Where do you eat?" (the question your welcome book has to answer)
+~~~
+
+**Preheader (paste):**
+
+~~~
+It's the most-asked guest question in the history of short-term rentals.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN welcome-book-magnet EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick one today.
 
@@ -96,20 +122,30 @@ P.S. If you've already filled out the starter and want to upgrade to the full 13
 
 ### Email 3 of 5 — The safety tab most hosts skip (and the new platform rule)
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_welcome_book`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The 6 disclosures Airbnb is about to start asking for
+**Block name (rename to):** `E3 - Day 7 - The safety tab most hosts skip (and the new platform rule)`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      Two of them are already required in three states. The rest are coming.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The 6 disclosures Airbnb is about to start asking for
+~~~
+
+**Preheader (paste):**
+
+~~~
+Two of them are already required in three states. The rest are coming.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN welcome-book-magnet EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 The Welcome Book had 12 tabs until two weeks ago.
 
@@ -136,20 +172,30 @@ P.S. None of this is legal advice. The disclosures cover platform requirements a
 
 ### Email 4 of 5 — What it actually looks like in your guest's hands
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_welcome_book`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      What our guests see when they walk in
+**Block name (rename to):** `E4 - Day 14 - What it actually looks like in your guest's hands`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `7 d 0 hrs 0 min`
 
-      It's a 24-page PDF. Here's how we use it.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+What our guests see when they walk in
+~~~
+
+**Preheader (paste):**
+
+~~~
+It's a 24-page PDF. Here's how we use it.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN welcome-book-magnet EMAIL 4 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 I want to show you the workflow we use, since it's the difference between "I bought a template" and "this saved me an hour a week."
 
@@ -174,20 +220,30 @@ P.S. If the Welcome Book isn't right for you, just hit reply and tell me what's 
 
 ### Email 5 of 5 — The price moves tomorrow
 
-- **Delay (set in IS):** Day 20
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_welcome_book`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Tomorrow the price moves to $67
+**Block name (rename to):** `E5 - Day 20 - The price moves tomorrow`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `6 d 0 hrs 0 min`
 
-      Last note from this sequence — last day at $47.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Tomorrow the price moves to $67
+~~~
+
+**Preheader (paste):**
+
+~~~
+Last note from this sequence — last day at $47.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN welcome-book-magnet EMAIL 5 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note from me on this one.
 

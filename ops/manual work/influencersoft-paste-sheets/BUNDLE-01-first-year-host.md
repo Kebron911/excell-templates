@@ -2,37 +2,53 @@
 
 > **Auto-generated from:** `copy\email-sequences\bundles\BUNDLE-01-first-year-host.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **4 of 4 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `BUNDLE-01-first-year-host`
-3. **Trigger:** When tag `bundle-cross:first-year-host` is added
-4. **Then add 4 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `BUNDLE-01-first-year-host`
+3. **Trigger node:** `Tag applied` → tag = `bundle-cross:first-year-host`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 4 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 4 — "You bought one piece"
 
-- **Delay (set in IS):** Day 2
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`, `bundle_credit_amount`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      You just bought one piece of the first-year stack
+**Block name (rename to):** `E1 - Day 2 - "You bought one piece"`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `2 d 0 hrs 0 min`
 
-      The other three are the ones nobody tells you about until it's too late.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+You just bought one piece of the first-year stack
+~~~
+
+**Preheader (paste):**
+
+~~~
+The other three are the ones nobody tells you about until it's too late.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-01-first-year-host EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
-Couple days ago you grabbed {{ sku_label }}. Welcome — it's one of the four workbooks I built specifically for first-year STR hosts.
+Couple days ago you grabbed {$leadExfield[2]}. Welcome — it's one of the four workbooks I built specifically for first-year STR hosts.
 
 The other three:
 
@@ -47,30 +63,40 @@ Bundle them: $97. À la carte: $138. Save $41.
 
 → [Get the full First-Year Host Bundle]({{ link_bundle }})
 
-Note: your purchase of {{ sku_label }} (${{ bundle_credit_amount }}) credits toward the bundle. The link above auto-applies it — you'll see the discount at checkout.
+Note: your purchase of {$leadExfield[2]} (${{ bundle_credit_amount }}) credits toward the bundle. The link above auto-applies it — you'll see the discount at checkout.
 
 — Emily · The STR Ledger
 
-P.S. If you bought {{ sku_label }} this week and you're not sure why I'm offering you a bundle that includes it: read it as a discounted upgrade, not a duplicate purchase. The math works because the bundle SKUs flow data into each other — cleaner than running them separately.
+P.S. If you bought {$leadExfield[2]} this week and you're not sure why I'm offering you a bundle that includes it: read it as a discounted upgrade, not a duplicate purchase. The math works because the bundle SKUs flow data into each other — cleaner than running them separately.
 
 -----8<----- END EMAIL 1 -----8<-----
 
 ### Email 2 of 4 — The first-year landmine you didn't think you had
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The first-year STR landmine that hits 60% of new hosts
+**Block name (rename to):** `E2 - Day 7 - The first-year landmine you didn't think you had`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      It's not the deal. It's not the launch. It's the thing your city's website buries on page 47.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The first-year STR landmine that hits 60% of new hosts
+~~~
+
+**Preheader (paste):**
+
+~~~
+It's not the deal. It's not the launch. It's the thing your city's website buries on page 47.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-01-first-year-host EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick story.
 
@@ -96,28 +122,38 @@ P.S. The county didn't refund Sarah's fine. It took her tax filing for the next 
 
 ### Email 3 of 4 — The cleanest version of the math
 
-- **Delay (set in IS):** Day 11
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `bundle_credit_amount`, `97 minus bundle_credit_amount`, `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Quick math on the bundle
+**Block name (rename to):** `E3 - Day 11 - The cleanest version of the math`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `4 d 0 hrs 0 min`
 
-      $97 vs $138, plus the credit you've already paid.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Quick math on the bundle
+~~~
+
+**Preheader (paste):**
+
+~~~
+$97 vs $138, plus the credit you've already paid.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-01-first-year-host EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Cutting straight today.
 
-You bought {{ sku_label }} for ${{ bundle_credit_amount }}.
+You bought {$leadExfield[2]} for ${{ bundle_credit_amount }}.
 The First-Year Host Bundle is $97 (4 workbooks).
 À la carte total of those 4: $138.
 
-You paid ${{ bundle_credit_amount }} already. The credit applies. The remaining 3 workbooks cost you ${{ 97 minus bundle_credit_amount }} all-in.
+You paid ${{ bundle_credit_amount }} already. The credit applies. The remaining 3 workbooks cost you $[TODO {{ 97 minus bundle_credit_amount }}] all-in.
 
 Here's what the other 3 do:
 
@@ -138,24 +174,34 @@ P.S. Lifetime updates included on every workbook. When any one gets a new versio
 
 ### Email 4 of 4 — Last note
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note on the First-Year Bundle
+**Block name (rename to):** `E4 - Day 14 - Last note`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `3 d 0 hrs 0 min`
 
-      I won't keep emailing about this. One last reminder.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note on the First-Year Bundle
+~~~
+
+**Preheader (paste):**
+
+~~~
+I won't keep emailing about this. One last reminder.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-01-first-year-host EMAIL 4 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note on the First-Year Host Bundle.
 
-If you're using {{ sku_label }} and finding it useful, the other 3 workbooks are designed to flow data into and out of it. They're not a separate purchase — they're the rest of the same operating system.
+If you're using {$leadExfield[2]} and finding it useful, the other 3 workbooks are designed to flow data into and out of it. They're not a separate purchase — they're the rest of the same operating system.
 
 → [First-Year Host Bundle — $97]({{ link_bundle }})
 

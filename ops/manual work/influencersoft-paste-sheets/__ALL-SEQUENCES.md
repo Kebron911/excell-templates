@@ -1,7 +1,7 @@
 # All InfluencerSoft Sequences — Combined Paste Sheets
 
 > **Auto-generated.** Re-run `node scripts/is-paste-helper.mjs` to refresh.
-> Paste these into IS UI in the order listed.
+> Paste these into IS in the order listed (Processes → New process per row).
 
 ## Order + progress
 
@@ -26,37 +26,51 @@
 
 > **Auto-generated from:** `copy\email-sequences\post-purchase-etsy-buyer.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **9 of 10 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `post-purchase-etsy-buyer`
-3. **Trigger:** When tag `customer:etsy` is added
-4. **Then add 10 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `post-purchase-etsy-buyer`
+3. **Trigger node:** `Tag applied` → tag = `customer:etsy`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 10 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 10 — Order received + delivery
 
-- **Delay (set in IS):** Day 0 (within 5 minutes of order)
-- **Subject (copy):**
+**Block name (rename to):** `E1 - Day 0 (within 5 minutes of order) - Order received + delivery`
 
-      Your {{ sku_label }} is ready (download + 3 things to read)
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **Immediately after previous step** (0 d 0 hrs 0 min)
 
-- **Preheader (copy):**
+**Subject (paste):**
 
-      Order #{{ order_ref }}. Plus the one tab nobody opens until they need it.
+~~~
+Your {$leadExfield[2]} is ready (download + 3 things to read)
+~~~
 
-- **Body (copy everything between the lines below):**
+**Preheader (paste):**
+
+~~~
+Order #{$leadExfield[4]}. Plus the one tab nobody opens until they need it.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 1 -----8<-----
 
-Hey {{ first_name | default: "there" }},
+Hey {$name},
 
-Order #{{ order_ref }} just landed. Here's what you do next:
+Order #{$leadExfield[4]} just landed. Here's what you do next:
 
 **1. Download the files** (you've already got an Etsy email with these):
    · BLANK xlsx — your starter copy
@@ -84,26 +98,36 @@ P.P.S. Anything broken in the file? Reply to this email — real humans, fast re
 
 ### Email 2 of 10 — Use it on something specific
 
-- **Delay (set in IS):** Day 2
-- **Subject (copy):**
+> ⚠️ **TODO — IS does NOT support Liquid conditionals (`{% if %}`).** This email has conditional logic that won't render. Either rewrite as single-version copy OR split into per-SKU branches using Filter Condition nodes on the canvas.
 
-      Use {{ sku_label }} on this specific thing
+**Block name (rename to):** `E2 - Day 2 - Use it on something specific`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `2 d 0 hrs 0 min`
 
-      Don't read the manual. Pick the one row that maps to a real situation.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Use {$leadExfield[2]} on this specific thing
+~~~
+
+**Preheader (paste):**
+
+~~~
+Don't read the manual. Pick the one row that maps to a real situation.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Most STR templates die on the desktop because the buyer never actually fills them out. The DEMO data is sample data; your data is real and feels different.
 
 The cure: pick the most recent specific situation and run it through the workbook.
 
-For {{ sku_label }}, that means: 
+For {$leadExfield[2]}, that means: 
 {% if sku_code contains "TAX-001" %}
 > Pick last week's longest property-related drive. Date, destination, business purpose, miles. One row. The workbook tells you the dollar deduction at the IRS rate.
 {% elsif sku_code contains "TAX-002" %}
@@ -128,20 +152,30 @@ P.S. Stuck somewhere? Reply to this email with what you're stuck on. Real humans
 
 ### Email 3 of 10 — The free 47-deductions guide (hero magnet pitch)
 
-- **Delay (set in IS):** Day 5
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The 47 Airbnb tax deductions most hosts miss (free guide)
+**Block name (rename to):** `E3 - Day 5 - The free 47-deductions guide (hero magnet pitch)`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `3 d 0 hrs 0 min`
 
-      A reader of {{ sku_label }} sent me this. Most overlap with what you already track.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The 47 Airbnb tax deductions most hosts miss (free guide)
+~~~
+
+**Preheader (paste):**
+
+~~~
+A reader of {$leadExfield[2]} sent me this. Most overlap with what you already track.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick one. Free thing.
 
@@ -151,9 +185,9 @@ I wrote it up. 47 deductions, organized by category, each with the Schedule E li
 
 Free for buyers of any STR Ledger workbook:
 
-→ [Download "47 Airbnb Tax Deductions Most Hosts Miss"]({{ link_thestrledger }}/47?email={{ first_name }})
+→ [Download "47 Airbnb Tax Deductions Most Hosts Miss"]({{ link_thestrledger }}/47?email={$name})
 
-It pairs with {{ sku_label }} — the workbook tracks the deductions; the guide tells you which ones to look for in the first place.
+It pairs with {$leadExfield[2]} — the workbook tracks the deductions; the guide tells you which ones to look for in the first place.
 
 — Emily
 
@@ -163,28 +197,38 @@ P.S. The guide includes a companion Excel checklist. Captured? Y/N + YTD $ track
 
 ### Email 4 of 10 — Etsy review request
 
-- **Delay (set in IS):** Day 9
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_etsy_review`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Quick favor (worth 4 minutes of your morning)
+**Block name (rename to):** `E4 - Day 9 - Etsy review request`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `4 d 0 hrs 0 min`
 
-      Etsy reviews are how new sellers like me get found. Honest feedback only, including the tough kind.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Quick favor (worth 4 minutes of your morning)
+~~~
+
+**Preheader (paste):**
+
+~~~
+Etsy reviews are how new sellers like me get found. Honest feedback only, including the tough kind.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 4 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick ask.
 
 Etsy reviews are the single biggest growth lever for new sellers like me. Without them, my listings rank below sellers with hundreds of reviews — even if my templates are better.
 
-If {{ sku_label }} has been useful, would you leave an honest review? Takes 4 minutes:
+If {$leadExfield[2]} has been useful, would you leave an honest review? Takes 4 minutes:
 
-→ [Leave a review for order #{{ order_ref }}]({{ link_etsy_review }})
+→ [Leave a review for order #{$leadExfield[4]}]({{ link_etsy_review }})
 
 A few notes:
 
@@ -202,20 +246,30 @@ P.S. Even if you don't leave a review: thank you for buying. Etsy sellers see wh
 
 ### Email 5 of 10 — The 1 mistake your tax form makes
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The Schedule E mistake your tax form makes by default
+**Block name (rename to):** `E5 - Day 14 - The 1 mistake your tax form makes`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      TurboTax + H&R Block both default-categorize cleaning fees this way. It's wrong.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The Schedule E mistake your tax form makes by default
+~~~
+
+**Preheader (paste):**
+
+~~~
+TurboTax + H&R Block both default-categorize cleaning fees this way. It's wrong.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 5 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 A tax-day landmine specific to STR hosts:
 
@@ -239,24 +293,35 @@ P.S. This is also why I built the 47-deductions guide. If you didn't grab it: [D
 
 ### Email 6 of 10 — The cross-sell pivot
 
-- **Delay (set in IS):** Day 21
-- **Subject (copy):**
+> ⚠️ **TODO — IS does NOT support Liquid conditionals (`{% if %}`).** This email has conditional logic that won't render. Either rewrite as single-version copy OR split into per-SKU branches using Filter Condition nodes on the canvas.
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Hosts who bought {{ sku_label }} usually grab this next
+**Block name (rename to):** `E6 - Day 21 - The cross-sell pivot`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `7 d 0 hrs 0 min`
 
-      Not because I sell it. Because the math chains.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Hosts who bought {$leadExfield[2]} usually grab this next
+~~~
+
+**Preheader (paste):**
+
+~~~
+Not because I sell it. Because the math chains.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 6 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Three weeks in. Quick check-in.
 
-The most-common second-purchase from buyers of {{ sku_label }} is: **{{ xsell_name }}**.
+The most-common second-purchase from buyers of {$leadExfield[2]} is: **{$leadExfield[5]}**.
 
 Why those two together:
 {% if sku_code contains "TAX-001" %}
@@ -269,7 +334,7 @@ The Deal Analyzer underwrites year 1. The next workbook most hosts grab — the 
 The two workbooks share data conventions and compose into one operating system. Buying both saves vs. buying separately.
 {% endif %}
 
-→ [{{ xsell_name }}]({{ xsell_url }})
+→ [{$leadExfield[5]}]({$leadExfield[6]})
 
 If you've already bought it, ignore this. I'll send you something different on Monday.
 
@@ -281,20 +346,30 @@ P.S. If you're in the market for multiple workbooks, the bundles save more than 
 
 ### Email 7 of 10 — The single biggest STR tax trap
 
-- **Delay (set in IS):** Day 30
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The biggest tax trap for serious STR hosts (it's not what you think)
+**Block name (rename to):** `E7 - Day 30 - The single biggest STR tax trap`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `9 d 0 hrs 0 min`
 
-      It's not depreciation. It's not the home office deduction. It's the schedule.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The biggest tax trap for serious STR hosts (it's not what you think)
+~~~
+
+**Preheader (paste):**
+
+~~~
+It's not depreciation. It's not the home office deduction. It's the schedule.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 7 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick story from a host I worked with last year.
 
@@ -320,24 +395,34 @@ P.S. If you're sure you're Schedule E (no substantial services, no material part
 
 ### Email 8 of 10 — Bundle hint (light touch)
 
-- **Delay (set in IS):** Day 40
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Quick math: 4 STR workbooks for $97 (vs $138 à la carte)
+**Block name (rename to):** `E8 - Day 40 - Bundle hint (light touch)`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `10 d 0 hrs 0 min`
 
-      Most buyers of {{ sku_label }} eventually grab 3-4 more. Bundle is cheaper.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Quick math: 4 STR workbooks for $97 (vs $138 à la carte)
+~~~
+
+**Preheader (paste):**
+
+~~~
+Most buyers of {$leadExfield[2]} eventually grab 3-4 more. Bundle is cheaper.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 8 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Math note.
 
-Most buyers of {{ sku_label }} eventually own 3-4 STR Ledger workbooks within 12 months. The most-common combinations form bundles I built specifically for them.
+Most buyers of {$leadExfield[2]} eventually own 3-4 STR Ledger workbooks within 12 months. The most-common combinations form bundles I built specifically for them.
 
 If you're already 1 SKU in and considering more:
 
@@ -359,20 +444,30 @@ P.S. Etsy doesn't carry the Portfolio Bundle (own-site only — premium tier). T
 
 ### Email 9 of 10 — Free guide reminder + soft cross-sell
 
-- **Delay (set in IS):** Day 50
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Did you grab the 47-deductions guide?
+**Block name (rename to):** `E9 - Day 50 - Free guide reminder + soft cross-sell`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `10 d 0 hrs 0 min`
 
-      Some readers buy the workbook, skip the free guide, miss the deductions. Don't.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Did you grab the 47-deductions guide?
+~~~
+
+**Preheader (paste):**
+
+~~~
+Some readers buy the workbook, skip the free guide, miss the deductions. Don't.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 9 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Touchpoint check.
 
@@ -390,20 +485,30 @@ P.S. The Excel checklist's biggest value is the YTD $ rollup — running total o
 
 ### Email 10 of 10 — Last note in this sequence + what's next
 
-- **Delay (set in IS):** Day 60
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_thestrledger`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note in this sequence (subscribe to the newsletter?)
+**Block name (rename to):** `E10 - Day 60 - Last note in this sequence + what's next`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `10 d 0 hrs 0 min`
 
-      You'll hear less from me after this. Once a week if you stay subscribed.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note in this sequence (subscribe to the newsletter?)
+~~~
+
+**Preheader (paste):**
+
+~~~
+You'll hear less from me after this. Once a week if you stay subscribed.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN post-purchase-etsy-buyer EMAIL 10 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last email in the post-purchase sequence.
 
@@ -417,7 +522,7 @@ If that's not your speed: [unsubscribe here]({{ link_thestrledger }}/unsub) — 
 
 If it IS your speed: stay subscribed. The Wednesday newsletter starts next week with a tactic that saves most STR hosts $1,200-$3,800/year (the Augusta rule). Specific, defensible, often missed.
 
-Thanks for buying {{ sku_label }}. Hope it's been useful.
+Thanks for buying {$leadExfield[2]}. Hope it's been useful.
 
 — Emily · The STR Ledger
 
@@ -432,37 +537,53 @@ P.S. If you ever have a question, hit reply. Real humans, fast replies. Even aft
 
 > **Auto-generated from:** `copy\email-sequences\review-request.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **2 of 2 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `review-request`
-3. **Trigger:** When tag `purchased:day5` is added
-4. **Then add 2 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `review-request`
+3. **Trigger node:** `Tag applied` → tag = `purchased:day5`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 2 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 2 — The ask
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_etsy_review`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Quick favor — 60-second review of {{ sku_label }}?
+**Block name (rename to):** `E1 - Day 7 - The ask`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `7 d 0 hrs 0 min`
 
-      If it's working. If it's not, please email me first.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Quick favor — 60-second review of {$leadExfield[2]}?
+~~~
+
+**Preheader (paste):**
+
+~~~
+If it's working. If it's not, please email me first.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN review-request EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
-A week in with {{ sku_label }} — how's it going?
+A week in with {$leadExfield[2]} — how's it going?
 
 If it's working: would you take 60 seconds and leave an honest Etsy review? Reviews are how new buyers decide whether to trust a small shop, and yours genuinely moves the needle for me.
 
@@ -480,30 +601,40 @@ P.S. If you've already left one — thank you. Skip this email.
 
 ### Email 2 of 2 — Last-chance ask
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_etsy_review`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note on this — review or feedback either way
+**Block name (rename to):** `E2 - Day 14 - Last-chance ask`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `7 d 0 hrs 0 min`
 
-      Two weeks in. Won't ask again after this.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note on this — review or feedback either way
+~~~
+
+**Preheader (paste):**
+
+~~~
+Two weeks in. Won't ask again after this.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN review-request EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
-Two weeks since you picked up {{ sku_label }}. One more nudge then I'll stop.
+Two weeks since you picked up {$leadExfield[2]}. One more nudge then I'll stop.
 
 If the workbook is doing the job — an honest Etsy review helps the next buyer figure out whether it's right for them:
 
-→ [Review {{ sku_label }}]({{ link_etsy_review }})
+→ [Review {$leadExfield[2]}]({{ link_etsy_review }})
 
 If it's NOT doing the job, I want to know. Reply to this email or write to hello@thestrledger.com. Specific feedback ("the depreciation tab confused me", "I expected a feature that wasn't there") makes the next version better — for you and for everyone else.
 
-Either way — review, feedback, or silence — that's the last you'll hear from me on this. Different topic next week: the most-overlooked Schedule E line for {{ sku_code }} buyers (it's not what you think).
+Either way — review, feedback, or silence — that's the last you'll hear from me on this. Different topic next week: the most-overlooked Schedule E line for {$leadExfield[1]} buyers (it's not what you think).
 
 Thanks again for picking up the workbook.
 
@@ -520,35 +651,51 @@ P.S. Etsy reviews can be edited later. If you leave 4 stars now and the workbook
 
 > **Auto-generated from:** `copy\email-sequences\refund-recovery.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **2 of 2 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `refund-recovery`
-3. **Trigger:** When tag `refund-filed` is added
-4. **Then add 2 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `refund-recovery`
+3. **Trigger node:** `Tag applied` → tag = `refund-filed`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 2 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 2 — The apology + the question
 
-- **Delay (set in IS):** Day 1
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `refunded_sku_name`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Sorry the workbook didn't land — quick question
+**Block name (rename to):** `E1 - Day 1 - The apology + the question`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `1 d 0 hrs 0 min`
 
-      Refund processed. One small ask if you have 30 seconds.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Sorry the workbook didn't land — quick question
+~~~
+
+**Preheader (paste):**
+
+~~~
+Refund processed. One small ask if you have 30 seconds.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN refund-recovery EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Just confirmed your refund for {{ refunded_sku_name }} — should be back on your card within 3-5 business days (Etsy/Stripe handles the timing, not me).
 
@@ -573,20 +720,30 @@ P.S. Refunds are part of the deal. The 14-day no-questions policy is real and I 
 
 ### Email 2 of 2 — One last "is there a better fit?"
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `refunded_sku_name`, `refunded_sku_code`, `link_alternate_sku`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      One thought before you go
+**Block name (rename to):** `E2 - Day 7 - One last "is there a better fit?"`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `6 d 0 hrs 0 min`
 
-      A different workbook might fit better. No pressure.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+One thought before you go
+~~~
+
+**Preheader (paste):**
+
+~~~
+A different workbook might fit better. No pressure.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN refund-recovery EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note from me on this.
 
@@ -617,35 +774,51 @@ P.S. If the refund was about the workbook itself (a bug, a confusing tab, a miss
 
 > **Auto-generated from:** `copy\email-sequences\welcome-book-magnet.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **5 of 5 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `welcome-book-magnet`
-3. **Trigger:** When tag `lead-magnet:welcome-book` is added
-4. **Then add 5 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `welcome-book-magnet`
+3. **Trigger node:** `Tag applied` → tag = `lead-magnet:welcome-book`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 5 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 5 — Deliver + the question every welcome book misses
 
-- **Delay (set in IS):** Day 0
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_starter_pdf`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Your 5-Tab Welcome Book Starter (and the question every host misses)
+**Block name (rename to):** `E1 - Day 0 - Deliver + the question every welcome book misses`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **Immediately after previous step** (0 d 0 hrs 0 min)
 
-      It's the one your guest texts you about at 9 PM on a Saturday.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Your 5-Tab Welcome Book Starter (and the question every host misses)
+~~~
+
+**Preheader (paste):**
+
+~~~
+It's the one your guest texts you about at 9 PM on a Saturday.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN welcome-book-magnet EMAIL 1 -----8<-----
 
-Hey {{ first_name | default: "there" }},
+Hey {$name},
 
 Here's the file: [Download The 5-Tab Welcome Book Starter →]({{ link_starter_pdf }})
 
@@ -670,20 +843,30 @@ P.S. If this email landed in Promotions, drag it to Primary so the next four sho
 
 ### Email 2 of 5 — The local guide nobody writes (the 9 PM question)
 
-- **Delay (set in IS):** Day 2
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_welcome_book`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      "Where do you eat?" (the question your welcome book has to answer)
+**Block name (rename to):** `E2 - Day 2 - The local guide nobody writes (the 9 PM question)`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `2 d 0 hrs 0 min`
 
-      It's the most-asked guest question in the history of short-term rentals.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+"Where do you eat?" (the question your welcome book has to answer)
+~~~
+
+**Preheader (paste):**
+
+~~~
+It's the most-asked guest question in the history of short-term rentals.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN welcome-book-magnet EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick one today.
 
@@ -711,20 +894,30 @@ P.S. If you've already filled out the starter and want to upgrade to the full 13
 
 ### Email 3 of 5 — The safety tab most hosts skip (and the new platform rule)
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_welcome_book`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The 6 disclosures Airbnb is about to start asking for
+**Block name (rename to):** `E3 - Day 7 - The safety tab most hosts skip (and the new platform rule)`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      Two of them are already required in three states. The rest are coming.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The 6 disclosures Airbnb is about to start asking for
+~~~
+
+**Preheader (paste):**
+
+~~~
+Two of them are already required in three states. The rest are coming.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN welcome-book-magnet EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 The Welcome Book had 12 tabs until two weeks ago.
 
@@ -751,20 +944,30 @@ P.S. None of this is legal advice. The disclosures cover platform requirements a
 
 ### Email 4 of 5 — What it actually looks like in your guest's hands
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_welcome_book`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      What our guests see when they walk in
+**Block name (rename to):** `E4 - Day 14 - What it actually looks like in your guest's hands`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `7 d 0 hrs 0 min`
 
-      It's a 24-page PDF. Here's how we use it.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+What our guests see when they walk in
+~~~
+
+**Preheader (paste):**
+
+~~~
+It's a 24-page PDF. Here's how we use it.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN welcome-book-magnet EMAIL 4 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 I want to show you the workflow we use, since it's the difference between "I bought a template" and "this saved me an hour a week."
 
@@ -789,20 +992,30 @@ P.S. If the Welcome Book isn't right for you, just hit reply and tell me what's 
 
 ### Email 5 of 5 — The price moves tomorrow
 
-- **Delay (set in IS):** Day 20
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_welcome_book`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Tomorrow the price moves to $67
+**Block name (rename to):** `E5 - Day 20 - The price moves tomorrow`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `6 d 0 hrs 0 min`
 
-      Last note from this sequence — last day at $47.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Tomorrow the price moves to $67
+~~~
+
+**Preheader (paste):**
+
+~~~
+Last note from this sequence — last day at $47.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN welcome-book-magnet EMAIL 5 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note from me on this one.
 
@@ -829,35 +1042,51 @@ P.S. The bundle (Welcome Book + Turnover Checklist + Local Recs add-on) is $79 a
 
 > **Auto-generated from:** `copy\email-sequences\abandoned-cart.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **3 of 3 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `abandoned-cart`
-3. **Trigger:** When tag `checkout-abandoned` is added
-4. **Then add 3 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `abandoned-cart`
+3. **Trigger node:** `Tag applied` → tag = `checkout-abandoned`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 3 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 3 — The friction-finder
 
-- **Delay (set in IS):** 1 hour after abandonment
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `cart_sku_name`, `cart_price`, `link_product_page`, `link_resume_checkout`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Your cart for {{ cart_sku_name }} — anything I can fix?
+**Block name (rename to):** `E1 - 1 hour after abandonment - The friction-finder`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `0 d 1 hrs 0 min`
 
-      Came up to checkout and stopped. No pressure — just want to know if something's broken.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Your cart for {{ cart_sku_name }} — anything I can fix?
+~~~
+
+**Preheader (paste):**
+
+~~~
+Came up to checkout and stopped. No pressure — just want to know if something's broken.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN abandoned-cart EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 I noticed you started checkout for {{ cart_sku_name }} ({{ cart_price }}) and didn't finish.
 
@@ -880,20 +1109,31 @@ P.S. The 14-day no-questions refund is real. If you're worried about buyer's rem
 
 ### Email 2 of 3 — The "why operators buy this" pitch
 
-- **Delay (set in IS):** 24 hours later
-- **Subject (copy):**
+> ⚠️ **TODO — IS does NOT support Liquid conditionals (`{% if %}`).** This email has conditional logic that won't render. Either rewrite as single-version copy OR split into per-SKU branches using Filter Condition nodes on the canvas.
+> ⚠️ **TODO — Tokens NOT in IS field map:** `cart_sku_name`, `cart_price`, `link_resume_checkout`, `link_product_page`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Re: {{ cart_sku_name }} — one specific use-case
+**Block name (rename to):** `E2 - 24 hours later - The "why operators buy this" pitch`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `0 d 23 hrs 0 min`
 
-      What this saves vs the manual version.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Re: {{ cart_sku_name }} — one specific use-case
+~~~
+
+**Preheader (paste):**
+
+~~~
+What this saves vs the manual version.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN abandoned-cart EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick follow-up on {{ cart_sku_name }}.
 
@@ -933,20 +1173,30 @@ P.S. If you're holding back because of price — the bundles ($97-497) often pen
 
 ### Email 3 of 3 — Last note
 
-- **Delay (set in IS):** 72 hours later
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `cart_sku_name`, `cart_price`, `link_resume_checkout`, `link_product_page`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note on {{ cart_sku_name }}
+**Block name (rename to):** `E3 - 72 hours later - Last note`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `2 d 0 hrs 0 min`
 
-      Going quiet on this. Newsletter continues.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note on {{ cart_sku_name }}
+~~~
+
+**Preheader (paste):**
+
+~~~
+Going quiet on this. Newsletter continues.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN abandoned-cart EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note on the cart you started — {{ cart_sku_name }} at {{ cart_price }}.
 
@@ -975,35 +1225,51 @@ P.S. If something about the checkout itself stopped you (card error, confusion a
 
 > **Auto-generated from:** `copy\email-sequences\win-back.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **3 of 3 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `win-back`
-3. **Trigger:** When tag `inactive-30d` is added
-4. **Then add 3 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `win-back`
+3. **Trigger node:** `Tag applied` → tag = `inactive-30d`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 3 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 3 — Are you still in?
 
-- **Delay (set in IS):** Day 0
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `months_since_last_open`, `link_newsletter_archive`, `link_unsub`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      {{ first_name | default: "Hey" }} — should I keep emailing you?
+**Block name (rename to):** `E1 - Day 0 - Are you still in?`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **Immediately after previous step** (0 d 0 hrs 0 min)
 
-      Honest question. {{ months_since_last_open }} months since you last opened.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+{$name} — should I keep emailing you?
+~~~
+
+**Preheader (paste):**
+
+~~~
+Honest question. {{ months_since_last_open }} months since you last opened.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN win-back EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Honest question: it's been {{ months_since_last_open | default: "a while" }} months since you opened anything from me, and I'd rather you tell me to leave than keep showing up uninvited.
 
@@ -1030,20 +1296,30 @@ P.S. If you're still on the fence about STR investing, that's also a perfectly f
 
 ### Email 2 of 3 — One concrete thing you missed
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_top_post`, `link_unsub`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The cleaning-fee mistake costing hosts $4-7K/year
+**Block name (rename to):** `E2 - Day 7 - One concrete thing you missed`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `7 d 0 hrs 0 min`
 
-      Sample of what the newsletter actually sends. Then I'll quiet down.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The cleaning-fee mistake costing hosts $4-7K/year
+~~~
+
+**Preheader (paste):**
+
+~~~
+Sample of what the newsletter actually sends. Then I'll quiet down.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN win-back EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick test before I assume you're gone.
 
@@ -1065,20 +1341,30 @@ P.S. One more email after this, then I'll go quiet on my own. Promise.
 
 ### Email 3 of 3 — Last note + sunset
 
-- **Delay (set in IS):** Day 21
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `months_since_last_open`, `link_unsub`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Going quiet — last note from me
+**Block name (rename to):** `E3 - Day 21 - Last note + sunset`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `14 d 0 hrs 0 min`
 
-      Removing you from broadcast. Not deleted, just paused.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Going quiet — last note from me
+~~~
+
+**Preheader (paste):**
+
+~~~
+Removing you from broadcast. Not deleted, just paused.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN win-back EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 This is the last one for now.
 
@@ -1103,37 +1389,53 @@ P.S. If something specific made you tune out (too many emails, wrong topics, lif
 
 > **Auto-generated from:** `copy\email-sequences\bundles\BUNDLE-01-first-year-host.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **4 of 4 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `BUNDLE-01-first-year-host`
-3. **Trigger:** When tag `bundle-cross:first-year-host` is added
-4. **Then add 4 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `BUNDLE-01-first-year-host`
+3. **Trigger node:** `Tag applied` → tag = `bundle-cross:first-year-host`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 4 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 4 — "You bought one piece"
 
-- **Delay (set in IS):** Day 2
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`, `bundle_credit_amount`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      You just bought one piece of the first-year stack
+**Block name (rename to):** `E1 - Day 2 - "You bought one piece"`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `2 d 0 hrs 0 min`
 
-      The other three are the ones nobody tells you about until it's too late.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+You just bought one piece of the first-year stack
+~~~
+
+**Preheader (paste):**
+
+~~~
+The other three are the ones nobody tells you about until it's too late.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-01-first-year-host EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
-Couple days ago you grabbed {{ sku_label }}. Welcome — it's one of the four workbooks I built specifically for first-year STR hosts.
+Couple days ago you grabbed {$leadExfield[2]}. Welcome — it's one of the four workbooks I built specifically for first-year STR hosts.
 
 The other three:
 
@@ -1148,30 +1450,40 @@ Bundle them: $97. À la carte: $138. Save $41.
 
 → [Get the full First-Year Host Bundle]({{ link_bundle }})
 
-Note: your purchase of {{ sku_label }} (${{ bundle_credit_amount }}) credits toward the bundle. The link above auto-applies it — you'll see the discount at checkout.
+Note: your purchase of {$leadExfield[2]} (${{ bundle_credit_amount }}) credits toward the bundle. The link above auto-applies it — you'll see the discount at checkout.
 
 — Emily · The STR Ledger
 
-P.S. If you bought {{ sku_label }} this week and you're not sure why I'm offering you a bundle that includes it: read it as a discounted upgrade, not a duplicate purchase. The math works because the bundle SKUs flow data into each other — cleaner than running them separately.
+P.S. If you bought {$leadExfield[2]} this week and you're not sure why I'm offering you a bundle that includes it: read it as a discounted upgrade, not a duplicate purchase. The math works because the bundle SKUs flow data into each other — cleaner than running them separately.
 
 -----8<----- END EMAIL 1 -----8<-----
 
 ### Email 2 of 4 — The first-year landmine you didn't think you had
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The first-year STR landmine that hits 60% of new hosts
+**Block name (rename to):** `E2 - Day 7 - The first-year landmine you didn't think you had`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      It's not the deal. It's not the launch. It's the thing your city's website buries on page 47.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The first-year STR landmine that hits 60% of new hosts
+~~~
+
+**Preheader (paste):**
+
+~~~
+It's not the deal. It's not the launch. It's the thing your city's website buries on page 47.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-01-first-year-host EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick story.
 
@@ -1197,28 +1509,38 @@ P.S. The county didn't refund Sarah's fine. It took her tax filing for the next 
 
 ### Email 3 of 4 — The cleanest version of the math
 
-- **Delay (set in IS):** Day 11
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `bundle_credit_amount`, `97 minus bundle_credit_amount`, `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Quick math on the bundle
+**Block name (rename to):** `E3 - Day 11 - The cleanest version of the math`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `4 d 0 hrs 0 min`
 
-      $97 vs $138, plus the credit you've already paid.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Quick math on the bundle
+~~~
+
+**Preheader (paste):**
+
+~~~
+$97 vs $138, plus the credit you've already paid.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-01-first-year-host EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Cutting straight today.
 
-You bought {{ sku_label }} for ${{ bundle_credit_amount }}.
+You bought {$leadExfield[2]} for ${{ bundle_credit_amount }}.
 The First-Year Host Bundle is $97 (4 workbooks).
 À la carte total of those 4: $138.
 
-You paid ${{ bundle_credit_amount }} already. The credit applies. The remaining 3 workbooks cost you ${{ 97 minus bundle_credit_amount }} all-in.
+You paid ${{ bundle_credit_amount }} already. The credit applies. The remaining 3 workbooks cost you $[TODO {{ 97 minus bundle_credit_amount }}] all-in.
 
 Here's what the other 3 do:
 
@@ -1239,24 +1561,34 @@ P.S. Lifetime updates included on every workbook. When any one gets a new versio
 
 ### Email 4 of 4 — Last note
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note on the First-Year Bundle
+**Block name (rename to):** `E4 - Day 14 - Last note`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `3 d 0 hrs 0 min`
 
-      I won't keep emailing about this. One last reminder.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note on the First-Year Bundle
+~~~
+
+**Preheader (paste):**
+
+~~~
+I won't keep emailing about this. One last reminder.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-01-first-year-host EMAIL 4 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note on the First-Year Host Bundle.
 
-If you're using {{ sku_label }} and finding it useful, the other 3 workbooks are designed to flow data into and out of it. They're not a separate purchase — they're the rest of the same operating system.
+If you're using {$leadExfield[2]} and finding it useful, the other 3 workbooks are designed to flow data into and out of it. They're not a separate purchase — they're the rest of the same operating system.
 
 → [First-Year Host Bundle — $97]({{ link_bundle }})
 
@@ -1278,37 +1610,53 @@ P.S. If you've already purchased the bundle, ignore this email — IS will catch
 
 > **Auto-generated from:** `copy\email-sequences\bundles\BUNDLE-02-aspiring-host.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **4 of 4 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `BUNDLE-02-aspiring-host`
-3. **Trigger:** When tag `bundle-cross:aspiring-host` is added
-4. **Then add 4 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `BUNDLE-02-aspiring-host`
+3. **Trigger node:** `Tag applied` → tag = `bundle-cross:aspiring-host`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 4 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 4 — Run all four scenarios
 
-- **Delay (set in IS):** Day 2
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`, `bundle_credit_amount`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      You ran one scenario. Here's the other three.
+**Block name (rename to):** `E1 - Day 2 - Run all four scenarios`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `2 d 0 hrs 0 min`
 
-      The deal, the budget, the timeline, the no-money-down option — all four answer different questions.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+You ran one scenario. Here's the other three.
+~~~
+
+**Preheader (paste):**
+
+~~~
+The deal, the budget, the timeline, the no-money-down option — all four answer different questions.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-02-aspiring-host EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
-You picked up {{ sku_label }} a couple days back. Solid choice — it's one piece of the math an aspiring STR host actually needs to run.
+You picked up {$leadExfield[2]} a couple days back. Solid choice — it's one piece of the math an aspiring STR host actually needs to run.
 
 The other three:
 
@@ -1323,7 +1671,7 @@ Bundled: $97. À la carte: $168. Save $71 (42% off — bigger than usual because
 
 → [Aspiring Host Bundle — $97]({{ link_bundle }})
 
-Your ${{ bundle_credit_amount }} for {{ sku_label }} credits toward the bundle.
+Your ${{ bundle_credit_amount }} for {$leadExfield[2]} credits toward the bundle.
 
 — Emily · The STR Ledger
 
@@ -1333,20 +1681,30 @@ P.S. If you're 6+ months out from buying, all four workbooks pay back time-spent
 
 ### Email 2 of 4 — The arbitrage question
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      "Could I just lease + sublet on Airbnb?"
+**Block name (rename to):** `E2 - Day 7 - The arbitrage question`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      The question every aspiring STR host quietly asks themselves at least once.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+"Could I just lease + sublet on Airbnb?"
+~~~
+
+**Preheader (paste):**
+
+~~~
+The question every aspiring STR host quietly asks themselves at least once.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-02-aspiring-host EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 A question I get from aspiring STR investors more than any other:
 
@@ -1374,20 +1732,30 @@ P.S. Most W2 readers don't realize arbitrage is a path until they see the analyz
 
 ### Email 3 of 4 — Quit-date math
 
-- **Delay (set in IS):** Day 11
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      When can you actually quit?
+**Block name (rename to):** `E3 - Day 11 - Quit-date math`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `4 d 0 hrs 0 min`
 
-      Not "soon." Not "when the cash flow is good." A specific date.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+When can you actually quit?
+~~~
+
+**Preheader (paste):**
+
+~~~
+Not "soon." Not "when the cash flow is good." A specific date.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-02-aspiring-host EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 The conversation aspiring STR investors have with their spouse — at some point, in some form — is the same:
 
@@ -1416,24 +1784,34 @@ P.S. The healthcare bridge math is the one most planners skip. It changes the an
 
 ### Email 4 of 4 — Last note
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note on the Aspiring Host Bundle
+**Block name (rename to):** `E4 - Day 14 - Last note`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `3 d 0 hrs 0 min`
 
-      Won't keep emailing. One last reminder.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note on the Aspiring Host Bundle
+~~~
+
+**Preheader (paste):**
+
+~~~
+Won't keep emailing. One last reminder.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-02-aspiring-host EMAIL 4 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note on the bundle.
 
-If you've been working through {{ sku_label }} and finding it useful, the other 3 workbooks complete the picture for the aspiring-investor decision.
+If you've been working through {$leadExfield[2]} and finding it useful, the other 3 workbooks complete the picture for the aspiring-investor decision.
 
 → [Aspiring Host Bundle — $97 (saves $71)]({{ link_bundle }})
 
@@ -1455,37 +1833,53 @@ P.S. If you've already grabbed the bundle, IS will move you off this sequence by
 
 > **Auto-generated from:** `copy\email-sequences\bundles\BUNDLE-03-year-2-operator.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **3 of 3 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `BUNDLE-03-year-2-operator`
-3. **Trigger:** When tag `bundle-cross:year-2-operator` is added
-4. **Then add 3 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `BUNDLE-03-year-2-operator`
+3. **Trigger node:** `Tag applied` → tag = `bundle-cross:year-2-operator`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 3 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 3 — Three more levers an experienced host actually controls
 
-- **Delay (set in IS):** Day 3
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`, `bundle_credit_amount`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The three other levers a Year-2 host actually controls
+**Block name (rename to):** `E1 - Day 3 - Three more levers an experienced host actually controls`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `3 d 0 hrs 0 min`
 
-      You bought one. Here's the other three. They compose into a system.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The three other levers a Year-2 host actually controls
+~~~
+
+**Preheader (paste):**
+
+~~~
+You bought one. Here's the other three. They compose into a system.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-03-year-2-operator EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
-You picked up {{ sku_label }}. Year-2 territory.
+You picked up {$leadExfield[2]}. Year-2 territory.
 
 The other three workbooks at this tier:
 
@@ -1498,7 +1892,7 @@ Bundled: $147. À la carte: $188. Save $41.
 
 → [Year-2 Operator Bundle — $147]({{ link_bundle }})
 
-Your ${{ bundle_credit_amount }} purchase of {{ sku_label }} credits toward the bundle.
+Your ${{ bundle_credit_amount }} purchase of {$leadExfield[2]} credits toward the bundle.
 
 — Emily · The STR Ledger
 
@@ -1508,20 +1902,30 @@ P.S. The 22% bundle savings is smaller than the First-Year Bundle (30%) — by d
 
 ### Email 2 of 3 — The recovery rate gap
 
-- **Delay (set in IS):** Day 7
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Why most hosts only recover 35% of damage claims
+**Block name (rename to):** `E2 - Day 7 - The recovery rate gap`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `4 d 0 hrs 0 min`
 
-      The evidence isn't structured. Here's how to fix that.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Why most hosts only recover 35% of damage claims
+~~~
+
+**Preheader (paste):**
+
+~~~
+The evidence isn't structured. Here's how to fix that.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-03-year-2-operator EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 A specific Year-2 number that surprises most hosts:
 
@@ -1546,24 +1950,34 @@ P.S. Most operators undervalue claim documentation until the first $4K loss they
 
 ### Email 3 of 3 — Last note + the SEO audit
 
-- **Delay (set in IS):** Day 10
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note + the listing-rank lever most hosts ignore
+**Block name (rename to):** `E3 - Day 10 - Last note + the SEO audit`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `3 d 0 hrs 0 min`
 
-      25 criteria. Each one ranked by impact.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note + the listing-rank lever most hosts ignore
+~~~
+
+**Preheader (paste):**
+
+~~~
+25 criteria. Each one ranked by impact.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-03-year-2-operator EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note on the bundle.
 
-If you're using {{ sku_label }} and finding it useful, the other three workbooks compose into the same Year-2 operating system. Particularly:
+If you're using {$leadExfield[2]} and finding it useful, the other three workbooks compose into the same Year-2 operating system. Particularly:
 
 The **Listing SEO Audit**. 25 criteria scored, prioritized fix list ranked by estimated rank lift. Most Year-2 operators have an 8-10/25 score and don't know it. A 14-day rewrite to 18+/25 typically lifts bookings by 12-25%.
 
@@ -1589,35 +2003,51 @@ P.S. If you bought the bundle already, IS will catch up overnight and move you o
 
 > **Auto-generated from:** `copy\email-sequences\bundles\BUNDLE-04-portfolio.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **3 of 3 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `BUNDLE-04-portfolio`
-3. **Trigger:** When tag `bundle-cross:portfolio` is added
-4. **Then add 3 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `BUNDLE-04-portfolio`
+3. **Trigger node:** `Tag applied` → tag = `bundle-cross:portfolio`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 3 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 3 — Fourteen workbooks is an operating system
 
-- **Delay (set in IS):** Day 5
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `skus_owned_list`, `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Fourteen workbooks. One operating system. $397.
+**Block name (rename to):** `E1 - Day 5 - Fourteen workbooks is an operating system`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      When you scale past one property, individual workbooks stop being the right unit.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Fourteen workbooks. One operating system. $397.
+~~~
+
+**Preheader (paste):**
+
+~~~
+When you scale past one property, individual workbooks stop being the right unit.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-04-portfolio EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 You're past the single-property stage. The signal — you've bought {{ skus_owned_list }}, which means you're operating across multiple workbooks already, manually.
 
@@ -1644,20 +2074,30 @@ P.S. The bundle is own-site only (not on Etsy). Etsy's price-anchor doesn't serv
 
 ### Email 2 of 3 — The hidden value isn't the savings
 
-- **Delay (set in IS):** Day 9
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The portfolio bundle's real value isn't the 33% off
+**Block name (rename to):** `E2 - Day 9 - The hidden value isn't the savings`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `4 d 0 hrs 0 min`
 
-      It's the consistency of conventions. You don't see it until you've integrated them.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The portfolio bundle's real value isn't the 33% off
+~~~
+
+**Preheader (paste):**
+
+~~~
+It's the consistency of conventions. You don't see it until you've integrated them.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-04-portfolio EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Most pitches for a 14-product bundle lead with the dollar savings. $196 off. 33% discount.
 
@@ -1686,20 +2126,30 @@ P.S. If you've already integrated the workbooks you own and aren't running into 
 
 ### Email 3 of 3 — Last note
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `skus_owned_list`, `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last Portfolio Bundle note
+**Block name (rename to):** `E3 - Day 14 - Last note`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      Won't keep emailing about this. One last reminder.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last Portfolio Bundle note
+~~~
+
+**Preheader (paste):**
+
+~~~
+Won't keep emailing about this. One last reminder.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-04-portfolio EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note on the Portfolio Bundle.
 
@@ -1725,35 +2175,51 @@ P.S. The Portfolio Bundle includes Schedule E Tax-Prep + the Multi-Property Mast
 
 > **Auto-generated from:** `copy\email-sequences\bundles\BUNDLE-05-pro-manager.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **3 of 3 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `BUNDLE-05-pro-manager`
-3. **Trigger:** When tag `bundle-cross:pro-manager` is added
-4. **Then add 3 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `BUNDLE-05-pro-manager`
+3. **Trigger node:** `Tag applied` → tag = `bundle-cross:pro-manager`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 3 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 3 — The B2B stack
 
-- **Delay (set in IS):** Day 3
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `company_name`, `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Seven workbooks for {{ company_name | default: "your PM operation" }}
+**Block name (rename to):** `E1 - Day 3 - The B2B stack`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `3 d 0 hrs 0 min`
 
-      PAM-001 + the operating layer underneath. White-labelable.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Seven workbooks for {{ company_name | default: "your PM operation" }}
+~~~
+
+**Preheader (paste):**
+
+~~~
+PAM-001 + the operating layer underneath. White-labelable.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-05-pro-manager EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Thanks for picking up the Owner Reporting Dashboard.
 
@@ -1781,20 +2247,30 @@ P.S. The launch price is $497 because 3 future B2B SKUs (Cleaner CRM, Co-Host Co
 
 ### Email 2 of 3 — The reason the savings are 6%, not 35%
 
-- **Delay (set in IS):** Day 8
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Why the Pro Manager Bundle saves only 6%
+**Block name (rename to):** `E2 - Day 8 - The reason the savings are 6%, not 35%`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      And why that's the right number for the launch.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Why the Pro Manager Bundle saves only 6%
+~~~
+
+**Preheader (paste):**
+
+~~~
+And why that's the right number for the launch.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-05-pro-manager EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 A note on Pro Manager Bundle pricing — because a B2B buyer notices the math.
 
@@ -1824,20 +2300,30 @@ P.S. White-labelability is the other reason PMs buy the bundle vs the SKUs indiv
 
 ### Email 3 of 3 — Last note + the future SKUs
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note + the 3 SKUs your bundle will inherit
+**Block name (rename to):** `E3 - Day 14 - Last note + the future SKUs`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `6 d 0 hrs 0 min`
 
-      Won't email again. One last reminder.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note + the 3 SKUs your bundle will inherit
+~~~
+
+**Preheader (paste):**
+
+~~~
+Won't email again. One last reminder.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-05-pro-manager EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note on the Pro Manager Bundle.
 

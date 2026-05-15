@@ -112,6 +112,37 @@ Every sequence wired in IS UI MUST have these in **exit conditions**: `unsubscri
 
 ---
 
+## 6.5. Behavioral patterns (from skill gotchas)
+
+### Purchase → simultaneously tag buyer AND remove from retargeting list
+
+Per founder advice (skill gotcha #22): when a purchase succeeds, in a single
+Sequence/Process block do BOTH:
+1. **Add tag** `customer:etsy` (or whatever buyer state tag applies)
+2. **Remove from list** `STR Ledger — Retargeting` (or whatever ad-retargeting list)
+
+Reasoning: a contact who just bought should not see "buy now" retargeting ads
+in their feed. Doing both actions in one block prevents the race condition
+where the ad fires before the list-remove.
+
+### Activation state — manually-added contacts are NOT emailable
+
+Skill gotcha #6: contacts created via UI `Create Contact` or API `AddUpdateLead`
+without a subscription/activation flow are flagged non-emailable by IS. They
+won't receive any sequence or broadcast email regardless of which tags are
+applied or which sequence triggers fire.
+
+**Implication for our tag dictionary:** applying `customer:etsy` to a contact
+that was manually inserted does NOT make them receive the post-purchase
+sequence. Either:
+- Push them through a real subscription form, OR
+- Use API 1.0 `AddLeadToGroup` with activation-email flag
+
+This affects E2E testing: see `scripts/is-end-to-end-test.mjs` for the canary
+setup that respects activation state.
+
+---
+
 ## 7. Adding a new tag
 
 1. Add the row to the right section of this file.

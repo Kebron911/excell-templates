@@ -8,7 +8,7 @@
 > - ✅ LTD license redeemed, tenant `kebron.influencersoft.com`
 > - ✅ `INFLUENCERSOFT_API_KEY` set in `./.env` (32 chars)
 > - ✅ Live API probe confirmed `GetAllGroups` + `GetGoods` return 200 OK
-> - ✅ Auth header pattern confirmed: `Authorization: Bearer <key>`
+> - ✅ Auth pattern confirmed: `rpsKey` in POST form body (NOT Bearer header — common training-data confusion)
 > - ⚠️ 2FA enrollment pending (verify in Part 1)
 > - ⚠️ Custom fields not yet created in IS UI
 > - ⚠️ 11 sequences not yet pasted
@@ -25,6 +25,22 @@ These were marked pending in legacy `user-manual-todo.md` §1.7 / §4.2. Verify 
 4. **API base URL:** `https://kebron.influencersoft.com/api/<Method>` (PascalCase methods, e.g. `GetAllGroups`, `AddTagToLead`).
 
 → **Tell Claude:** *"IS account verified — 2FA on, API key valid."*
+
+---
+
+## Part 1.5 — Deliverability prerequisites (do BEFORE first send) ⚠️
+
+Sequences will fire silently into spam without these. **No live email tests until this part is green.** See [influencersoft-deliverability-prereqs.md](influencersoft-deliverability-prereqs.md) for the full checklist. Summary:
+
+- [ ] Corporate-domain sender added in `Campaigns → Settings → Senders` (NOT Gmail/Yahoo — DMARC rejects free domains)
+- [ ] Sender confirmation link clicked in the destination mailbox (IS silently fails to send from unconfirmed senders)
+- [ ] DKIM record published in DNS
+- [ ] SPF record published in DNS
+- [ ] DMARC record published in DNS
+- [ ] FBL mailbox set up (fresh, never-used — IS auto-deletes incoming mail)
+- [ ] Legacy `Reliable Income Master <admin@mentalversatility.com>` sender removed or replaced as default
+
+→ **Tell Claude:** *"deliverability green."*
 
 ---
 
@@ -47,6 +63,12 @@ In **IS UI → Contacts → Custom Fields**, add these BEFORE pasting any sequen
 | `pack_name` | Text | Bundle name, e.g. `First-Year Host Bundle` |
 
 `first_name` is built-in. `link_etsy_review` and `link_thestrledger` will be set per-email via n8n or via IS template defaults.
+
+> **CRITICAL — IS uses positional indexing for custom-field merge tags.** When you insert `sku_code` from the merge-tag picker, IS writes `{$leadExfield[1]}` (not `{$sku_code}`). The number is the field's row number in the Custom Fields admin list. **Never delete + re-add a field** — every other field's index shifts down by one and silently breaks every email referencing it. Add new fields ONLY at the end. The current mapping lives in [`infrastructure/influencersoft/custom-fields.yaml`](../../infrastructure/influencersoft/custom-fields.yaml) (auto-applied by `scripts/is-paste-helper.mjs`).
+>
+> **Built-in fields use NAMED tokens:** `{$name}` (first name), `{$email}`, etc.
+>
+> **IS does NOT support Liquid:** no `{% if %}` conditionals, no `| default: "..."` filters. Paste sheets flag affected emails with TODO warnings for manual rewrite.
 
 → **Tell Claude:** *"IS custom fields created."*
 
@@ -76,16 +98,23 @@ Later-phase sequences (don't paste in Wave 1): `launch-12-new-templates`, `strma
 
 ## Part 4 — Universal paste recipe (per sequence)
 
-1. **IS UI → Automations → New Sequence.**
+> **CORRECT MODULE: `Campaigns → Sequences` (NOT `Tasks → Processes`).** Sequences is the right tool for our trigger-based email drips. Processes is for "advanced branching automation" and the IS founder explicitly warns against using it when a Sequence would do (skill gotcha #27). The canvases look almost identical — pay attention to which top-nav module you're under.
+
+1. **IS UI → `Campaigns → Sequences → Add sequence`.**
 2. **Name:** match the filename without `.md` (e.g. `post-purchase-etsy-buyer`).
-3. **Trigger:** "When tag X is added" — see trigger-tag map in Part 5.
-4. **For each email in the markdown file:**
-   - Copy the **Subject** line into the IS subject field.
-   - Copy the **Preheader** into the preheader field (if IS supports it; some plans don't).
-   - Copy the email body between the ` ``` ` fences into the email composer.
-   - Set **send delay** per the email header (e.g. "Day 0 — within 5 minutes" → send immediately; "Day 5" → 5-day delay).
-5. **Save and activate.**
-6. **Token substitution:** IS uses `{{ token_name }}` syntax which matches the markdown. Custom tokens depend on Part 2 fields existing first.
+3. **Trigger node:** `Tag applied` → tag = (see trigger-tag map in Part 5).
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter (the "Only contacts that match" section on the trigger node): exclude contacts with tag `do-not-email`, `refund-filed`, OR `unsubscribed`.
+4. **For each email step**, use the auto-generated paste sheet in [`ops/manual work/influencersoft-paste-sheets/`](influencersoft-paste-sheets/) — each block has IS-correct tokens (`{$name}`, `{$leadExfield[N]}`) plus exact delay setting.
+   - **Send email node** → Block name (use the `E1 - Day 0 - ...` convention from the paste sheet)
+   - "Perform this step → after the previous one with a delay" → set d/h/m per paste sheet
+   - From: STR Ledger sender (NOT the legacy `Reliable Income Master` — fix globally in `Campaigns → Settings → Senders` first)
+   - Subject, Preheader, Body — paste from sheet
+5. **End of process** node at the end.
+6. **Save and activate.**
+7. **Tokens:** IS uses `{$xxx}` syntax (NOT Liquid `{{ }}`). Built-ins → `{$name}`, `{$email}`. Custom fields → `{$leadExfield[N]}` (positional — see `infrastructure/influencersoft/custom-fields.yaml`). The paste-helper auto-converts.
+
+> **Liquid conditionals (`{% if %}`) are NOT supported.** Two emails in post-purchase reference these — marked TODO in their paste sheets and need single-version rewrite before pasting.
 
 → **Tell Claude:** *"sequences pasted."* (When all 11 are live + active.)
 

@@ -2,35 +2,51 @@
 
 > **Auto-generated from:** `copy\email-sequences\bundles\BUNDLE-04-portfolio.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **3 of 3 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `BUNDLE-04-portfolio`
-3. **Trigger:** When tag `bundle-cross:portfolio` is added
-4. **Then add 3 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `BUNDLE-04-portfolio`
+3. **Trigger node:** `Tag applied` → tag = `bundle-cross:portfolio`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 3 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 3 — Fourteen workbooks is an operating system
 
-- **Delay (set in IS):** Day 5
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `skus_owned_list`, `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Fourteen workbooks. One operating system. $397.
+**Block name (rename to):** `E1 - Day 5 - Fourteen workbooks is an operating system`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      When you scale past one property, individual workbooks stop being the right unit.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Fourteen workbooks. One operating system. $397.
+~~~
+
+**Preheader (paste):**
+
+~~~
+When you scale past one property, individual workbooks stop being the right unit.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-04-portfolio EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 You're past the single-property stage. The signal — you've bought {{ skus_owned_list }}, which means you're operating across multiple workbooks already, manually.
 
@@ -57,20 +73,30 @@ P.S. The bundle is own-site only (not on Etsy). Etsy's price-anchor doesn't serv
 
 ### Email 2 of 3 — The hidden value isn't the savings
 
-- **Delay (set in IS):** Day 9
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      The portfolio bundle's real value isn't the 33% off
+**Block name (rename to):** `E2 - Day 9 - The hidden value isn't the savings`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `4 d 0 hrs 0 min`
 
-      It's the consistency of conventions. You don't see it until you've integrated them.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+The portfolio bundle's real value isn't the 33% off
+~~~
+
+**Preheader (paste):**
+
+~~~
+It's the consistency of conventions. You don't see it until you've integrated them.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-04-portfolio EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Most pitches for a 14-product bundle lead with the dollar savings. $196 off. 33% discount.
 
@@ -99,20 +125,30 @@ P.S. If you've already integrated the workbooks you own and aren't running into 
 
 ### Email 3 of 3 — Last note
 
-- **Delay (set in IS):** Day 14
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `skus_owned_list`, `link_bundle`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last Portfolio Bundle note
+**Block name (rename to):** `E3 - Day 14 - Last note`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `5 d 0 hrs 0 min`
 
-      Won't keep emailing about this. One last reminder.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last Portfolio Bundle note
+~~~
+
+**Preheader (paste):**
+
+~~~
+Won't keep emailing about this. One last reminder.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN BUNDLE-04-portfolio EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note on the Portfolio Bundle.
 

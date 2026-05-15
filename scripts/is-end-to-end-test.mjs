@@ -3,11 +3,27 @@
 // PROGRESS.md P0.0 hard gate — proves: AddUpdateLead with `customer:etsy` tag
 // triggers post-purchase-etsy-buyer sequence Email 1 within 5 minutes.
 //
+// ⚠️ CRITICAL CAVEAT (skill gotcha #6 — manually-added contacts cannot receive email):
+// A contact created via API `AddUpdateLead` without going through a subscription /
+// activation flow is flagged non-emailable by IS. Even if the sequence fires and
+// Email 1 is scheduled, IS will SILENTLY DROP THE SEND.
+//
+// This script alone cannot prove "Email 1 arrived in inbox" without a proper canary.
+// Proper canary setup options:
+//   A) Subscribe a test email via a real opt-in form on your published site,
+//      THEN run this script to ADD the trigger tag to that already-emailable contact.
+//   B) Use API 1.0 `AddLeadToGroup` with activation-email enabled (more complex —
+//      requires the MD5-concatenation hash auth, see api-probe.md).
+//   C) Manually subscribe via the IS UI list signup form, then tag via this script.
+//
+// The script below uses path A by default — it assumes you've ALREADY subscribed
+// the canary email via a real opt-in. If you haven't, the API call will succeed
+// but no email will arrive (false negative).
+//
 // Flow:
-//   1. Push a canary contact (your secondary Gmail) via AddUpdateLead with `customer:etsy`.
-//   2. Wait/poll up to 6 minutes — checking your Gmail is OUT OF SCOPE here; this script
-//      just verifies the API call succeeded and the contact was created with the tag.
-//   3. Print a checklist for you to manually verify the email actually arrived.
+//   1. Tag a pre-existing emailable contact via AddUpdateLead (idempotent — won't recreate).
+//   2. Verify the API call succeeded.
+//   3. Print a checklist for you to manually verify the email actually arrived in 5 min.
 //
 // Usage:
 //   node scripts/is-end-to-end-test.mjs --canary-email yourcanary@gmail.com
@@ -81,18 +97,25 @@ async function main() {
   // Step 3 — print human checklist.
   console.log(`[${ts()}] step 3: HUMAN VERIFICATION REQUIRED`);
   console.log(`  ┌─────────────────────────────────────────────────────────────────┐`);
+  console.log(`  │ PREREQ — canary must be an EMAILABLE contact (subscribed via    │`);
+  console.log(`  │ real opt-in form, NOT just created in IS UI/API). See gotcha #6 │`);
+  console.log(`  │                                                                  │`);
   console.log(`  │ Check ${args.email} inbox in 5 minutes:                          `);
   console.log(`  │                                                                  │`);
   console.log(`  │ [ ] Email 1 of the "${args.trigger}" sequence arrived            `);
-  console.log(`  │ [ ] Tokens rendered (no raw {{ first_name }} visible)            │`);
+  console.log(`  │ [ ] Tokens rendered (no raw {$leadExfield[N]} visible)          │`);
   console.log(`  │ [ ] Landed in PRIMARY (not Promotions / Spam)                   │`);
   console.log(`  │ [ ] Reply-to address is correct (hello@thestrledger.com)        │`);
   console.log(`  │ [ ] All links work (review link, site link)                     │`);
   console.log(`  └─────────────────────────────────────────────────────────────────┘`);
   console.log();
   console.log(`  If email arrived → P0.0 gate PASSES. Sequence wiring is live.`);
-  console.log(`  If no email in 10 min → check IS UI: is the sequence Activated?`);
-  console.log(`  If email arrived in Promotions → fix sender authentication (SPF/DKIM/DMARC).`);
+  console.log(`  If no email in 10 min, debug in this order:`);
+  console.log(`    1. Is the canary contact EMAILABLE? (subscribed via opt-in form, not manual create)`);
+  console.log(`    2. Is the Sequence (Campaigns → Sequences) Activated, not Draft?`);
+  console.log(`    3. Are DKIM/SPF/DMARC published in DNS? See ops/manual work/influencersoft-deliverability-prereqs.md`);
+  console.log(`    4. Did the canary land in Promotions/Spam? → DKIM/DMARC fix.`);
+  console.log(`    5. Is the From sender confirmed? (Click confirmation link in sender's mailbox.)`);
 
   if (args.cleanup) {
     console.log();

@@ -2,35 +2,51 @@
 
 > **Auto-generated from:** `copy\email-sequences\abandoned-cart.md`
 > **DO NOT EDIT.** Re-run `node scripts/is-paste-helper.mjs` after editing the source.
+> **Token format:** IS `{$xxx}` (NOT Liquid `{{ xxx }}`). Built-ins → `{$name}`. Custom fields → `{$leadExfield[N]}`.
+
+> ⚠️ **3 of 3 email(s) need manual rewrite before pasting.** See per-email TODOs below.
 
 ## IS UI setup
 
-1. **Automations → New Sequence**
-2. **Name:** `abandoned-cart`
-3. **Trigger:** When tag `checkout-abandoned` is added
-4. **Then add 3 email(s) below in order.** Set the delay per the header on each.
-5. **Save and Activate** when the last email is in.
+1. **`Campaigns → Sequences → Add sequence`** — NOT `Tasks → Processes`. Sequences is the correct module for trigger-based email drips. (Founder explicitly warns against Process for this use case — gotchas.md #27.)
+2. **Sequence name:** `abandoned-cart`
+3. **Trigger node:** `Tag applied` → tag = `checkout-abandoned`
+   - Toggle ON: "Perform only once for an object"
+   - Entry filter: `Tags | Doesn't match | do-not-email` (+ `refund-filed`, `unsubscribed` as additional rows)
+4. **Add 3 Send email node(s)** below in order. Per-email config follows.
+5. **End of process** node at the end.
+6. **Save and Activate.**
 
-When done, mark this sequence done in your tracker.
+Repeat for kill-switch: separate small Sequence triggered by `Tag applied = do-not-email` → Remove from list `STR Ledger — Contacts` → End of process. (Built once, applies to every sequence.)
 
 ---
 
 ### Email 1 of 3 — The friction-finder
 
-- **Delay (set in IS):** 1 hour after abandonment
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `cart_sku_name`, `cart_price`, `link_product_page`, `link_resume_checkout`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Your cart for {{ cart_sku_name }} — anything I can fix?
+**Block name (rename to):** `E1 - 1 hour after abandonment - The friction-finder`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `0 d 1 hrs 0 min`
 
-      Came up to checkout and stopped. No pressure — just want to know if something's broken.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Your cart for {{ cart_sku_name }} — anything I can fix?
+~~~
+
+**Preheader (paste):**
+
+~~~
+Came up to checkout and stopped. No pressure — just want to know if something's broken.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN abandoned-cart EMAIL 1 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 I noticed you started checkout for {{ cart_sku_name }} ({{ cart_price }}) and didn't finish.
 
@@ -53,20 +69,31 @@ P.S. The 14-day no-questions refund is real. If you're worried about buyer's rem
 
 ### Email 2 of 3 — The "why operators buy this" pitch
 
-- **Delay (set in IS):** 24 hours later
-- **Subject (copy):**
+> ⚠️ **TODO — IS does NOT support Liquid conditionals (`{% if %}`).** This email has conditional logic that won't render. Either rewrite as single-version copy OR split into per-SKU branches using Filter Condition nodes on the canvas.
+> ⚠️ **TODO — Tokens NOT in IS field map:** `cart_sku_name`, `cart_price`, `link_resume_checkout`, `link_product_page`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Re: {{ cart_sku_name }} — one specific use-case
+**Block name (rename to):** `E2 - 24 hours later - The "why operators buy this" pitch`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `0 d 23 hrs 0 min`
 
-      What this saves vs the manual version.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Re: {{ cart_sku_name }} — one specific use-case
+~~~
+
+**Preheader (paste):**
+
+~~~
+What this saves vs the manual version.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN abandoned-cart EMAIL 2 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Quick follow-up on {{ cart_sku_name }}.
 
@@ -106,20 +133,30 @@ P.S. If you're holding back because of price — the bundles ($97-497) often pen
 
 ### Email 3 of 3 — Last note
 
-- **Delay (set in IS):** 72 hours later
-- **Subject (copy):**
+> ⚠️ **TODO — Tokens NOT in IS field map:** `cart_sku_name`, `cart_price`, `link_resume_checkout`, `link_product_page`. Either hardcode the value, add a new custom field, or inject via n8n at send time. See `infrastructure/influencersoft/custom-fields.yaml` § non_is_tokens.
 
-      Last note on {{ cart_sku_name }}
+**Block name (rename to):** `E3 - 72 hours later - Last note`
 
-- **Preheader (copy):**
+**IS delay setting** (Perform this step → after the previous one with a delay):
+- **after the previous one with a delay:** `2 d 0 hrs 0 min`
 
-      Going quiet on this. Newsletter continues.
+**Subject (paste):**
 
-- **Body (copy everything between the lines below):**
+~~~
+Last note on {{ cart_sku_name }}
+~~~
+
+**Preheader (paste):**
+
+~~~
+Going quiet on this. Newsletter continues.
+~~~
+
+**Body (paste between fences):**
 
 -----8<----- BEGIN abandoned-cart EMAIL 3 -----8<-----
 
-{{ first_name | default: "Hey" }},
+{$name},
 
 Last note on the cart you started — {{ cart_sku_name }} at {{ cart_price }}.
 
