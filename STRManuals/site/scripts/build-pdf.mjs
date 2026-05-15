@@ -33,7 +33,10 @@ if (targets.length === 0) {
 }
 
 async function buildOne(browser, target) {
-  const url = `${SITE}/render/manuals/${target.slug}`;
+  // Trailing slash matters: astro.config.mjs sets trailingSlash: 'always',
+  // so the bare path 308-redirects only on the prod build but the dev
+  // server returns 404. Hit the canonical form directly.
+  const url = `${SITE}/render/manuals/${target.slug}/`;
   console.log(`→ ${target.slug}: ${url}`);
 
   const page = await browser.newPage();
