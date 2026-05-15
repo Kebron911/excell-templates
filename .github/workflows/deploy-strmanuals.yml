@@ -120,11 +120,17 @@ jobs:
           test -f dist/disclosures/index.html
           test -f dist/sitemap-index.xml
           test -f dist/robots.txt
-          # Critical: confirm Buy buttons resolve to Stripe payment links.
-          # If env vars were missing at build time, hrefs collapse to "#"
-          # and customers can't pay.
-          grep -q 'href="https://buy.stripe.com/' dist/manuals/tax-01/index.html
-          grep -q 'href="https://buy.stripe.com/' dist/bundle/index.html
+          # PAUSED — Coming-Soon mode (BuyButton.astro forces isPlaceholder=true).
+          # Stripe links are intentionally absent until PDF fulfillment is
+          # verified end-to-end. Restore the two greps below when the
+          # BuyButton "FORCED" line is reverted.
+          #
+          # grep -q 'href="https://buy.stripe.com/' dist/manuals/tax-01/index.html
+          # grep -q 'href="https://buy.stripe.com/' dist/bundle/index.html
+          # Sanity replacement: at least one "Coming soon" placeholder must render
+          # so we know the disable shipped instead of an empty/blown-up build.
+          grep -q 'Coming soon' dist/manuals/tax-01/index.html
+          grep -q 'Coming soon' dist/bundle/index.html
           # PDF copies in dist/dl/ are tolerated-missing in CI (n8n is the
           # canonical PDF delivery path; PDFs aren't in repo). copy-pdfs-to-dist.mjs
           # logs a warning but exits 0 in CI when source PDFs are absent. The
