@@ -1,0 +1,135 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { StateRow, CityRow, RegulationRow } from '@/lib/city-data';
+import {
+  buildBreadcrumbList,
+  buildCityMeta,
+  buildGovernmentServiceSchema,
+  buildFaqSchema,
+} from '@/lib/seo';
+
+interface Props {
+  state: StateRow;
+  city: CityRow;
+  regulation: RegulationRow | null;
+}
+
+const { state, city, regulation } = Astro.props;
+
+const verifiedDate = city.last_verified_at ?? regulation?.id ? new Date().toISOString().slice(0, 10) : null;
+const monthYear = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
+const slug = `/${state.slug}/${city.slug}`;
+const meta = buildCityMeta(city.name, state.name, slug, monthYear);
+
+const breadcrumb = buildBreadcrumbList([
+  { name: 'Home', url: '/' },
+  { name: state.name, url: `/${state.slug}` },
+  { name: city.name, url: slug },
+]);
+
+const govService = buildGovernmentServiceSchema({
+  cityName: city.name,
+  stateName: state.name,
+  pageUrl: slug,
+  permitCostUsd: regulation?.permit_cost_usd ?? null,
+  permitRequired: regulation?.permit_required === 1,
+  taxRatePct: regulation?.tax_rate_pct ?? null,
+  banStatus: regulation?.ban_status ?? null,
+  lastVerifiedAt: city.last_verified_at,
+});
+
+const faq = buildFaqSchema([
+  {
+    question: `Is Airbnb legal in ${city.name}, ${state.name}?`,
+    answer: regulation?.ban_status === 'full'
+      ? `Short-term rentals are banned in ${city.name}.`
+      : regulation?.ban_status === 'partial'
+        ? `Short-term rentals are restricted in parts of ${city.name}. See the regulation breakdown below.`
+        : `Yes, short-term rentals are legal in ${city.name}, subject to local permit and tax requirements.`,
+  },
+  {
+    question: `How much does an STR permit cost in ${city.name}?`,
+    answer: regulation?.permit_cost_usd != null
+      ? `The current STR permit fee in ${city.name} is approximately $${regulation.permit_cost_usd}.`
+      : `Permit costs for ${city.name} are being verified. Check back soon.`,
+  },
+  {
+    question: `What is the occupancy tax rate for short-term rentals in ${city.name}?`,
+    answer: regulation?.tax_rate_pct != null
+      ? `Short-term rentals in ${city.name} are subject to a tax rate of ${regulation.tax_rate_pct}%.`
+      : `Tax rates for ${city.name} are being verified.`,
+  },
+]);
+
+const banLabel = {
+  none: 'Legal',
+  partial: 'Restricted',
+  full: 'Banned',
+  moratorium: 'Moratorium',
+}[regulation?.ban_status ?? 'none'];
+---
+
+<BaseLayout
+  title={meta.title}
+  description={meta.description}
+  canonical={meta.canonical}
+  ogImage={meta.ogImage}
+  schema={[breadcrumb, govService, faq]}
+>
+  <section class="mx-auto max-w-6xl px-4 py-12">
+    <nav class="text-caption text-ink-3 mb-4">
+      <a href="/" class="hover:underline">Home</a>
+      <span class="mx-2">/</span>
+      <a href={`/${state.slug}`} class="hover:underline">{state.name}</a>
+      <span class="mx-2">/</span>
+      <span>{city.name}</span>
+    </nav>
+
+    <h1 class="text-h1 font-wordmark text-navy mb-4">
+      Short-Term Rental Laws in {city.name}, {state.name}
+    </h1>
+
+    {verifiedDate && (
+      <p class="text-caption text-ink-3 mb-8">
+        Last verified: <time datetime={verifiedDate}>{verifiedDate}</time>
+      </p>
+    )}
+
+    <div class="grid gap-4 md:grid-cols-4 mb-8">
+      <div class="bg-white border border-rule rounded-md p-4">
+        <div class="text-label uppercase text-ink-3 mb-1">Status</div>
+        <div class="text-h3 font-medium text-navy">{banLabel}</div>
+      </div>
+      <div class="bg-white border border-rule rounded-md p-4">
+        <div class="text-label uppercase text-ink-3 mb-1">Permit Fee</div>
+        <div class="text-h3 font-medium text-navy">
+          {regulation?.permit_cost_usd != null ? `$${regulation.permit_cost_usd}` : '—'}
+        </div>
+      </div>
+      <div class="bg-white border border-rule rounded-md p-4">
+        <div class="text-label uppercase text-ink-3 mb-1">Tax Rate</div>
+        <div class="text-h3 font-medium text-navy">
+          {regulation?.tax_rate_pct != null ? `${regulation.tax_rate_pct}%` : '—'}
+        </div>
+      </div>
+      <div class="bg-white border border-rule rounded-md p-4">
+        <div class="text-label uppercase text-ink-3 mb-1">Occupancy Cap</div>
+        <div class="text-h3 font-medium text-navy">
+          {regulation?.occupancy_cap_persons != null ? regulation.occupancy_cap_persons : '—'}
+        </div>
+      </div>
+    </div>
+
+    {regulation == null && (
+      <div class="bg-warn/10 border border-warn rounded-md p-6 text-ink-1">
+        <strong>Regulation data verification pending.</strong>
+        <p class="mt-2 text-small">
+          We're currently scraping and verifying {city.name}'s most recent ordinances.
+          Check back within 24–72 hours.
+        </p>
+      </div>
+    )}
+
+    <slot />
+  </section>
+</BaseLayout>

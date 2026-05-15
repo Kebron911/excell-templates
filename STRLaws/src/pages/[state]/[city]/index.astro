@@ -1,0 +1,75 @@
+---
+import CityLayout from '@/layouts/CityLayout.astro';
+import {
+  getAllActiveCitiesWithState,
+  getStateBySlug,
+  getCityBySlug,
+  getLatestRegulation,
+} from '@/lib/city-data';
+
+export async function getStaticPaths() {
+  const cities = await getAllActiveCitiesWithState();
+  return cities.map((c) => ({
+    params: { state: c.state_slug, city: c.slug },
+    props: { stateSlug: c.state_slug, citySlug: c.slug },
+  }));
+}
+
+const { stateSlug, citySlug } = Astro.props;
+const state = await getStateBySlug(stateSlug);
+const city = await getCityBySlug(stateSlug, citySlug);
+
+if (!state || !city) {
+  return Astro.redirect('/404');
+}
+
+const regulation = await getLatestRegulation(city.id);
+---
+
+<CityLayout state={state} city={city} regulation={regulation}>
+  <section class="prose max-w-none mt-8">
+    <h2 class="text-h2 font-wordmark text-navy mb-4">Regulation Breakdown</h2>
+    {regulation == null ? (
+      <p class="text-ink-2">
+        Detailed regulation data for {city.name} is being verified. Check back soon.
+      </p>
+    ) : (
+      <>
+        {regulation.registration_required === 1 && (
+          <section class="mb-6">
+            <h3 class="text-h3 text-navy mb-2">Registration</h3>
+            <p class="text-ink-2">
+              Operators must register with the city.
+              {regulation.registration_url && (
+                <> <a href={regulation.registration_url} class="text-accent-700 underline">Registration portal</a>.</>
+              )}
+            </p>
+          </section>
+        )}
+        {regulation.primary_residence_only === 1 && (
+          <section class="mb-6">
+            <h3 class="text-h3 text-navy mb-2">Primary Residence Requirement</h3>
+            <p class="text-ink-2">
+              STRs are limited to operator's primary residence.
+              {regulation.max_nights_per_year && (
+                <> Maximum {regulation.max_nights_per_year} nights per year.</>
+              )}
+            </p>
+          </section>
+        )}
+        {regulation.zoning_notes_md && (
+          <section class="mb-6">
+            <h3 class="text-h3 text-navy mb-2">Zoning</h3>
+            <p class="text-ink-2">{regulation.zoning_notes_md}</p>
+          </section>
+        )}
+        {regulation.enforcement_notes_md && (
+          <section class="mb-6">
+            <h3 class="text-h3 text-navy mb-2">Enforcement</h3>
+            <p class="text-ink-2">{regulation.enforcement_notes_md}</p>
+          </section>
+        )}
+      </>
+    )}
+  </section>
+</CityLayout>
