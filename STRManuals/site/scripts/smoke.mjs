@@ -31,11 +31,20 @@ const checks = [
   { path: '/sitemap-index.xml', contains: '<sitemapindex' },
 ];
 
-// Ensure Buy buttons resolve to live Stripe payment links — the single
-// most important assertion. If this fails, customers can't pay.
+// PAUSED — BuyButton is in Coming-Soon mode (isPlaceholder=true forced)
+// while strmanuals PDF fulfillment is being verified end-to-end. Stripe
+// link is intentionally absent. Sanity-replace: a "Coming soon"
+// placeholder must render on the same page. Restore the Stripe regex
+// when BuyButton's FORCED line is reverted.
+//
+// const linkCheck = {
+//   path: '/manuals/tax-01/',
+//   pattern: /href="https:\/\/buy\.stripe\.com\/[A-Za-z0-9_]+"/,
+// };
 const linkCheck = {
   path: '/manuals/tax-01/',
-  pattern: /href="https:\/\/buy\.stripe\.com\/[A-Za-z0-9_]+"/,
+  pattern: /Coming soon/,
+  failMsg: 'Coming-Soon placeholder missing — BuyButton may have rendered broken',
 };
 
 let failures = 0;
@@ -76,10 +85,10 @@ for (const c of checks) {
 try {
   const { status, text } = await fetchWithTimeout(BASE + linkCheck.path);
   if (status !== 200 || !linkCheck.pattern.test(text)) {
-    console.error(`FAIL ${BASE}${linkCheck.path} → Buy button missing Stripe payment link`);
+    console.error(`FAIL ${BASE}${linkCheck.path} → ${linkCheck.failMsg ?? 'Buy button missing Stripe payment link'}`);
     failures++;
   } else {
-    console.log(`OK   ${BASE}${linkCheck.path} → Buy button wired to Stripe`);
+    console.log(`OK   ${BASE}${linkCheck.path} → linkCheck pattern matched`);
   }
 } catch (e) {
   console.error(`FAIL link check → ${e.message}`);
