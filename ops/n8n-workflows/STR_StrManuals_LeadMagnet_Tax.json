@@ -18,7 +18,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Form posts as application/x-www-form-urlencoded. n8n exposes the parsed\n// fields under .body. Validate, normalize, and prep the IS payload + email.\n\nconst body = $input.first().json.body || {};\nconst email = (body.email || '').toString().trim().toLowerCase();\nconst magnet = (body.magnet || 'str-tax-loophole-explainer').toString().trim();\nconst landingPage = (body.landing_page || 'strmanuals.com/free').toString().trim();\n\nconst emailOk = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\nif (!emailOk) {\n  return [{ json: { ok: false, status: 400, reason: 'invalid_email', received: email } }];\n}\n\nconst PDF_URL = 'https://strmanuals.com/pdfs/str-tax-loophole-explainer.pdf';\nconst CONFIRM_REDIRECT = 'https://strmanuals.com/free/?confirmed=1';\n\nconst emailBody = `Hi —\\n\\nHere is the 8-page STR tax-loophole explainer:\\n\\n${PDF_URL}\\n\\nThe full STR Tax Loophole Playbook ($) is at https://strmanuals.com/manuals/tax-01/ when you want the deep version.\\n\\nOver the next week, you will get:\\n  Day 2 — the \"what counts as 7 days\" trap\\n  Day 4 — material participation, the actual gate\\n  Day 7 — a 48-hour subscriber-only price on the playbook\\n\\nUnsubscribe link is at the bottom of every email.\\n\\n— Daniel`;\n\nreturn [{\n  json: {\n    ok: true,\n    status: 200,\n    email,\n    magnet,\n    landing_page: landingPage,\n    ts: new Date().toISOString(),\n    pdf_url: PDF_URL,\n    confirm_redirect: CONFIRM_REDIRECT,\n    email_subject: 'Your STR Tax Loophole Explainer (8 pages)',\n    email_body: emailBody,\n    // Fill from InfluencerSoft once the list exists.\n    is_list_id: '__SET_ME_TAX_EXPLAINER_LIST_ID__'\n  }\n}];\n"
+        "jsCode": "// Form posts as application/x-www-form-urlencoded. n8n exposes the parsed\n// fields under .body. Validate, normalize, and prep the IS payload + email.\n\nconst body = $input.first().json.body || {};\nconst email = (body.email || '').toString().trim().toLowerCase();\nconst magnet = (body.magnet || 'str-tax-loophole-explainer').toString().trim();\nconst landingPage = (body.landing_page || 'strmanuals.com/free').toString().trim();\n\nconst emailOk = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\nif (!emailOk) {\n  return [{ json: { ok: false, status: 400, reason: 'invalid_email', received: email } }];\n}\n\n// PDF is deployed by STRManuals/site/scripts/copy-pdfs-to-dist.mjs to\n// /dl/{HASH}/free/tax-loophole-explainer.pdf — same hash gate that protects\n// paid manuals. Set STRMANUALS_DOWNLOAD_HASH in n8n env (mirror of the\n// value in STRManuals/site/.env).\nconst HASH = $env.STRMANUALS_DOWNLOAD_HASH;\nif (!HASH) {\n  return [{ json: { ok: false, status: 500, reason: 'missing_download_hash' } }];\n}\nconst PDF_URL = `https://strmanuals.com/dl/${HASH}/free/tax-loophole-explainer.pdf`;\nconst CONFIRM_REDIRECT = 'https://strmanuals.com/free/?confirmed=1';\n\nconst emailBody = `Hi —\\n\\nHere is the 8-page STR tax-loophole explainer:\\n\\n${PDF_URL}\\n\\nThe full STR Tax Loophole Playbook ($) is at https://strmanuals.com/manuals/tax-01/ when you want the deep version.\\n\\nOver the next week, you will get:\\n  Day 2 — the \"what counts as 7 days\" trap\\n  Day 4 — material participation, the actual gate\\n  Day 7 — a 48-hour subscriber-only price on the playbook\\n\\nUnsubscribe link is at the bottom of every email.\\n\\n— Daniel`;\n\nreturn [{\n  json: {\n    ok: true,\n    status: 200,\n    email,\n    magnet,\n    landing_page: landingPage,\n    ts: new Date().toISOString(),\n    pdf_url: PDF_URL,\n    confirm_redirect: CONFIRM_REDIRECT,\n    email_subject: 'Your STR Tax Loophole Explainer (8 pages)',\n    email_body: emailBody\n  }\n}];\n"
       },
       "id": "node-normalize",
       "name": "Validate + prep",
@@ -50,29 +50,30 @@
     },
     {
       "parameters": {
-        "url": "https://kebron.influencersoft.com/api/v1/subscribers",
-        "sendHeaders": true,
-        "headerParameters": {
+        "method": "POST",
+        "url": "=https://kebron.influencersoft.com/api/AddUpdateLead",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
           "parameters": [
-            { "name": "Authorization", "value": "Bearer {{ $env.INFLUENCERSOFT_API_KEY }}" },
-            { "name": "Content-Type", "value": "application/json" }
+            { "name": "rpsKey",     "value": "={{ $env.INFLUENCERSOFT_API_KEY }}" },
+            { "name": "lead_email", "value": "={{ $json.email }}" },
+            { "name": "add_tags",   "value": "magnet:str-tax-loophole-explainer,source:strmanuals.com,funnel:free-to-tax-playbook" }
           ]
         },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"email\": \"{{ $json.email }}\",\n  \"list_id\": \"{{ $json.is_list_id }}\",\n  \"tags\": [\n    \"magnet:str-tax-loophole-explainer\",\n    \"source:strmanuals.com\",\n    \"funnel:free-to-tax-playbook\"\n  ],\n  \"custom_fields\": {\n    \"landing_page\": \"{{ $json.landing_page }}\",\n    \"first_magnet_ts\": \"{{ $json.ts }}\"\n  }\n}",
         "options": {
+          "timeout": 10000,
           "response": {
             "response": { "neverError": true, "responseFormat": "json" }
           }
         }
       },
       "id": "node-is-subscribe",
-      "name": "InfluencerSoft → add to tax-explainer list",
+      "name": "InfluencerSoft → tag lead",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [920, 180],
-      "notes": "Confirm endpoint path + auth scheme against the existing STR_Stripe_InfluencerSoft_Tagger workflow — IS API path is a placeholder."
+      "notes": "Matches cluster convention: form-urlencoded AddUpdateLead with rpsKey + lead_email + add_tags. IS uses tag-based segmentation; the receiving sequence is wired to the magnet:str-tax-loophole-explainer tag in InfluencerSoft. See STR_Stripe_InfluencerSoft_Tagger for the canonical pattern."
     },
     {
       "parameters": {
@@ -182,7 +183,7 @@
     "Valid?": {
       "main": [
         [
-          { "node": "InfluencerSoft → add to tax-explainer list", "type": "main", "index": 0 },
+          { "node": "InfluencerSoft → tag lead", "type": "main", "index": 0 },
           { "node": "SMTP → deliver explainer PDF", "type": "main", "index": 0 },
           { "node": "Sheets → leads backup", "type": "main", "index": 0 }
         ],
@@ -191,7 +192,7 @@
         ]
       ]
     },
-    "InfluencerSoft → add to tax-explainer list": {
+    "InfluencerSoft → tag lead": {
       "main": [
         [{ "node": "Respond 303 → /free?confirmed=1", "type": "main", "index": 0 }]
       ]
