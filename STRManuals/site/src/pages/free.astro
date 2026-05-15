@@ -5,10 +5,15 @@ import Base from '../layouts/Base.astro';
 // lead-magnet webhook (W08). n8n responds with a 303 redirect back
 // to /free/?confirmed=1 once the contact is in IS. PUBLIC_-prefixed
 // vars are inlined into client HTML at build time.
-const N8N_BASE = import.meta.env.PUBLIC_N8N_WEBHOOK_BASE ?? '';
-const FORM_ACTION = N8N_BASE
-  ? `${N8N_BASE.replace(/\/$/, '')}/webhook/lead-magnet-strmanuals-tax-explainer`
-  : '';
+// PAUSED — n8n W08 lead-magnet workflow not yet active and the explainer
+// PDF is not deployed to /dl/<HASH>/free/. Forcing FORM_ACTION='' falls back
+// to the existing Coming-Soon panel. Revert when both ship.
+//
+// const N8N_BASE = import.meta.env.PUBLIC_N8N_WEBHOOK_BASE ?? '';
+// const FORM_ACTION = N8N_BASE
+//   ? `${N8N_BASE.replace(/\/$/, '')}/webhook/lead-magnet-strmanuals-tax-explainer`
+//   : '';
+const FORM_ACTION = '';
 const confirmed = Astro.url.searchParams.get('confirmed') === '1';
 ---
 <Base

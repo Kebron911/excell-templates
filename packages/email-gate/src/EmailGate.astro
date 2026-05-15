@@ -43,34 +43,16 @@ const {
 ---
 
 <div class="email-gate" data-site-id={siteId}>
-  <form
-    class="email-gate__form"
-    method="POST"
-    action={action}
-    data-email-gate-form
-  >
-    <input type="hidden" name="siteId" value={siteId} />
-    <input type="hidden" name="listSegment" value={listSegment} />
-    {source && <input type="hidden" name="source" value={source} />}
-
-    {heading && <p class="email-gate__heading">{heading}</p>}
-
-    <div class="email-gate__row">
-      <input
-        class="email-gate__input"
-        type="email"
-        name="email"
-        placeholder={placeholder}
-        required
-        autocomplete="email"
-        aria-label="Email address"
-      />
-      <button class="email-gate__btn" type="submit">{cta}</button>
-    </div>
-
-    <p class="email-gate__success" aria-live="polite" hidden>{successMsg}</p>
-    <p class="email-gate__error" aria-live="polite" hidden></p>
-  </form>
+  {/* Email gate paused — cluster lead-router (n8n) being wired this week.
+      Revert this stub when STR_Cluster_Lead_Router is live + tested. */}
+  <div class="email-gate__paused" style="border:1px solid rgba(0,0,0,.12); padding:12px 14px; border-radius:6px;">
+    {heading && <p class="email-gate__heading" style="margin:0 0 6px 0; font-weight:600;">{heading}</p>}
+    <p style="margin:0; font-size:.9rem; line-height:1.45;">
+      Email signups are paused while we finish wiring delivery. Email
+      <a href="mailto:hello@thestrledger.com">hello@thestrledger.com</a>
+      if you want this resource now.
+    </p>
+  </div>
 </div>
 
 <script>

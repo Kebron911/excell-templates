@@ -17,17 +17,19 @@ interface Props {
 }
 const { price, paymentLink, sku, label = 'Buy', size = 'default' } = Astro.props;
 
-if (!paymentLink && import.meta.env.PROD) {
-  throw new Error(
-    `BuyButton: missing Stripe payment link${sku ? ` for ${sku}` : ''}. ` +
-    `Set the corresponding STRIPE_LINK_* env var before building. ` +
-    `See ops/strmanuals-stripe-results.csv for the value.`
-  );
-}
+// PAUSED — strmanuals PDFs are not yet on production (/dl/ returns 404).
+// Selling now leaves paid customers with broken download links. Force
+// placeholder mode regardless of paymentLink state. Revert when /dl/ is
+// confirmed live AND a test purchase delivers the PDF end-to-end.
+//
+// if (!paymentLink && import.meta.env.PROD) {
+//   throw new Error(...);
+// }
 
 const padding = size === 'large' ? '1rem 2rem' : '0.75rem 1.5rem';
 const fontSize = size === 'large' ? '1.0625rem' : '1rem';
-const isPlaceholder = !paymentLink;
+const isPlaceholder = true; // FORCED: paymentLink ignored while PDF fulfillment is broken
+void paymentLink; void sku; // silence unused-var lint while paused
 ---
 {isPlaceholder ? (
   <span

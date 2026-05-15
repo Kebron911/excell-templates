@@ -1,0 +1,253 @@
+{
+  "name": "STR_Cluster_Lead_Router",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cluster-lead-router",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "https://strhost.tools,https://strops.tools,https://strguests.tools,https://strbuyers.tools,https://thestrledger.com,https://strmanuals.com,https://listingaudit.tools,https://strlaws.com"
+        }
+      },
+      "id": "node-webhook",
+      "name": "Lead Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [200, 300],
+      "webhookId": "cluster-lead-router"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate + normalize the inbound payload, then look up the magnet config.\n//\n// Payload shape (from packages/ui-funnel/EmailCaptureCard + packages/email-gate):\n//   { email, magnet, source, tool?, utm_source?, utm_medium?, utm_campaign?, ts? }\n//\n// Returns one of:\n//   { json: { ok: true, ...normalized, config } }   -> proceed to fan-out\n//   { json: { ok: false, status: 400, reason } }     -> short-circuit to error response\n\nconst body = $input.first().json.body || $input.first().json || {};\nconst email = (body.email || '').toString().trim().toLowerCase();\nconst magnet = (body.magnet || '').toString().trim();\nconst source = (body.source || '').toString().trim();\nconst tool = (body.tool || '').toString().trim();\n\n// RFC-light email check. Reject obvious garbage; IS does the strict validation downstream.\nconst emailOk = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\nif (!emailOk) {\n  return [{ json: { ok: false, status: 400, reason: 'invalid_email', received: email } }];\n}\nif (!magnet) {\n  return [{ json: { ok: false, status: 400, reason: 'missing_magnet' } }];\n}\n\n// === MAGNET DISPATCH TABLE ===\n// Fill in `is_list_id` from InfluencerSoft once each list is created.\n// `pdf_url` is the deliverable link emailed to the subscriber.\n// `email_subject` / `email_body_md` keep the messaging consistent across the cluster.\n//\n// Add a new entry whenever a new lead magnet ships. The form's `magnet` value\n// must match a key here, or the router falls through to FALLBACK below.\nconst MAGNETS = {\n  'strhost-lodging-tax-report': {\n    is_list_id: '__SET_ME__',\n    pdf_url: 'https://strhost.tools/pdfs/strhost-lodging-tax-quickstart.pdf',\n    email_subject: 'Your STR lodging-tax quick-start',\n    email_body_md: 'Here is your STR lodging-tax quick-start PDF: {{pdf_url}}\\n\\nNo signup gymnastics — one email per resource you grab.'\n  },\n  'strops-cleaner-sop': {\n    is_list_id: '__SET_ME__',\n    pdf_url: 'https://strops.tools/pdfs/cleaner-sop.pdf',\n    email_subject: 'Your STR cleaner SOP template',\n    email_body_md: 'Your editable cleaner SOP is here: {{pdf_url}}'\n  },\n  'strops-maintenance-checklist': {\n    is_list_id: '__SET_ME__',\n    pdf_url: 'https://strops.tools/pdfs/maintenance-checklist.pdf',\n    email_subject: 'Your STR maintenance checklist',\n    email_body_md: 'Your printable maintenance checklist: {{pdf_url}}'\n  },\n  'strops-supply-par-level': {\n    is_list_id: '__SET_ME__',\n    pdf_url: 'https://strops.tools/pdfs/supply-par-level.pdf',\n    email_subject: 'Your STR supply par-level worksheet',\n    email_body_md: 'Your supply par-level worksheet: {{pdf_url}}'\n  },\n  'strguests-template-pack': {\n    is_list_id: '__SET_ME__',\n    pdf_url: 'https://strguests.tools/pdfs/guest-template-pack.zip',\n    email_subject: 'Your guest message template pack',\n    email_body_md: 'Your guest-message template pack (zip): {{pdf_url}}'\n  },\n  'strbuyers-disclosures-checklist': {\n    is_list_id: '__SET_ME__',\n    pdf_url: 'https://strbuyers.tools/pdfs/disclosures-checklist.pdf',\n    email_subject: 'Your STR disclosures checklist',\n    email_body_md: 'Your STR disclosures checklist: {{pdf_url}}'\n  },\n  'strbuyers-buyer-playbook': {\n    is_list_id: '__SET_ME__',\n    pdf_url: 'https://strbuyers.tools/pdfs/buyer-playbook.pdf',\n    email_subject: 'Your STR buyer playbook',\n    email_body_md: 'Your STR buyer playbook: {{pdf_url}}'\n  },\n  'strledger-47-deductions': {\n    is_list_id: '__SET_ME__',\n    pdf_url: 'https://thestrledger.com/pdfs/47-deductions.pdf',\n    email_subject: 'Your 47 STR deductions guide',\n    email_body_md: 'Your 47 STR deductions guide: {{pdf_url}}'\n  },\n  'strmanuals-free-magnet': {\n    is_list_id: '__SET_ME__',\n    pdf_url: 'https://strmanuals.com/pdfs/free-sample-chapter.pdf',\n    email_subject: 'Your free STR manuals sample',\n    email_body_md: 'Your free sample chapter: {{pdf_url}}'\n  }\n};\n\nconst FALLBACK = {\n  is_list_id: '__SET_ME_FALLBACK__',\n  pdf_url: null,\n  email_subject: 'Thanks for subscribing to STR Ledger',\n  email_body_md: 'Thanks for signing up. We did not recognize the lead magnet `{{magnet}}` — a human will look at this within a day. (You will not be charged. Reply to this email if you expected something specific.)'\n};\n\nconst config = MAGNETS[magnet] || FALLBACK;\nconst configMissing = config === FALLBACK || config.is_list_id.startsWith('__SET_ME');\n\n// Render the body now so the SMTP node sends a literal string (no n8n templating).\nconst rendered_body = config.email_body_md\n  .replace('{{pdf_url}}', config.pdf_url || '(no PDF — manual follow-up)')\n  .replace('{{magnet}}', magnet);\n\nreturn [{\n  json: {\n    ok: true,\n    status: 200,\n    email,\n    magnet,\n    source,\n    tool,\n    utm_source: body.utm_source || '',\n    utm_medium: body.utm_medium || '',\n    utm_campaign: body.utm_campaign || '',\n    ts: body.ts || new Date().toISOString(),\n    config: {\n      is_list_id: config.is_list_id,\n      pdf_url: config.pdf_url,\n      email_subject: config.email_subject,\n      email_body: rendered_body,\n      fallback: configMissing\n    }\n  }\n}];\n"
+      },
+      "id": "node-normalize",
+      "name": "Validate + dispatch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "is-ok",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-router-if",
+      "name": "Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://kebron.influencersoft.com/api/v1/subscribers",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer {{ $env.INFLUENCERSOFT_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{ $json.email }}\",\n  \"list_id\": \"{{ $json.config.is_list_id }}\",\n  \"tags\": [\n    \"magnet:{{ $json.magnet }}\",\n    \"source:{{ $json.source || 'unknown' }}\"\n  ],\n  \"custom_fields\": {\n    \"tool\": \"{{ $json.tool }}\",\n    \"utm_source\": \"{{ $json.utm_source }}\",\n    \"utm_medium\": \"{{ $json.utm_medium }}\",\n    \"utm_campaign\": \"{{ $json.utm_campaign }}\"\n  }\n}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "node-is-subscribe",
+      "name": "InfluencerSoft → add subscriber",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 180],
+      "notes": "InfluencerSoft endpoint path is a placeholder — confirm exact path from kebron.influencersoft.com API docs (most likely /api/v1/subscribers or /api/v1/contacts). The `neverError` option keeps the workflow alive if IS rejects (e.g., duplicate email) — the email + Sheets backup still fire."
+    },
+    {
+      "parameters": {
+        "fromEmail": "hello@thestrledger.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "={{ $json.config.email_subject }}",
+        "text": "={{ $json.config.email_body }}",
+        "options": {}
+      },
+      "id": "node-send-email",
+      "name": "SMTP → deliver PDF link",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [920, 300],
+      "credentials": {
+        "smtp": {
+          "id": "__SET_ME__",
+          "name": "Hostinger SMTP — hello@thestrledger.com"
+        }
+      },
+      "notes": "Swap to a Resend/Postmark HTTP node post-launch when volume justifies a transactional ESP. SMTP via Hostinger Business is fine for sub-100 emails/day at launch."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "__SET_ME_SHEET_ID__",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ts": "={{ $json.ts }}",
+            "email": "={{ $json.email }}",
+            "magnet": "={{ $json.magnet }}",
+            "source": "={{ $json.source }}",
+            "tool": "={{ $json.tool }}",
+            "utm_source": "={{ $json.utm_source }}",
+            "utm_medium": "={{ $json.utm_medium }}",
+            "utm_campaign": "={{ $json.utm_campaign }}",
+            "fallback_used": "={{ $json.config.fallback }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "node-sheets-backup",
+      "name": "Sheets → leads backup",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [920, 420],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "__SET_ME__",
+          "name": "Google Sheets — STR Ledger ops"
+        }
+      },
+      "notes": "Belt-and-suspenders: if IS or SMTP ever fail silently, the Sheet has every lead. Create one sheet at ops/google-sheets/leads.xlsx with the 9 header row above."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"ok\": true,\n  \"queued_at\": \"{{ $json.ts }}\",\n  \"magnet\": \"{{ $json.magnet }}\"\n}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" },
+              { "name": "Access-Control-Allow-Methods", "value": "POST, OPTIONS" },
+              { "name": "Access-Control-Allow-Headers", "value": "Content-Type" }
+            ]
+          }
+        }
+      },
+      "id": "node-respond-ok",
+      "name": "Respond 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1180, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"ok\": false,\n  \"reason\": \"{{ $json.reason }}\"\n}",
+        "options": {
+          "responseCode": "={{ $json.status || 400 }}",
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" },
+              { "name": "Access-Control-Allow-Methods", "value": "POST, OPTIONS" },
+              { "name": "Access-Control-Allow-Headers", "value": "Content-Type" }
+            ]
+          }
+        }
+      },
+      "id": "node-respond-err",
+      "name": "Respond 400",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [920, 540]
+    }
+  ],
+  "connections": {
+    "Lead Webhook": {
+      "main": [
+        [
+          { "node": "Validate + dispatch", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Validate + dispatch": {
+      "main": [
+        [
+          { "node": "Valid?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Valid?": {
+      "main": [
+        [
+          { "node": "InfluencerSoft → add subscriber", "type": "main", "index": 0 },
+          { "node": "SMTP → deliver PDF link", "type": "main", "index": 0 },
+          { "node": "Sheets → leads backup", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Respond 400", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "InfluencerSoft → add subscriber": {
+      "main": [
+        [
+          { "node": "Respond 200", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "SMTP → deliver PDF link": {
+      "main": [
+        [
+          { "node": "Respond 200", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Sheets → leads backup": {
+      "main": [
+        [
+          { "node": "Respond 200", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "str-ledger" }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

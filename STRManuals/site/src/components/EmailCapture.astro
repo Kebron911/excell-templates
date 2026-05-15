@@ -35,22 +35,16 @@ const formAction = N8N_BASE
     <p class="eyebrow mb-3">Free PDF</p>
     <h2 class="mb-3" style="font-size: 2rem;">{heading}</h2>
     <p class="measure mb-6" style="color: var(--color-mute);">{subhead}</p>
-    <form
-      action={formAction}
-      method="POST"
-      class="flex flex-col sm:flex-row gap-3 max-w-2xl"
-    >
-      <input
-        type="email"
-        name="email"
-        required
-        placeholder="your@email.com"
-        class="input-text flex-1"
-      />
-      <button type="submit" class="btn-secondary">
-        {cta} →
-      </button>
-    </form>
-    <p class="text-xs mt-3" style="color: var(--color-mute);">No spam. Unsubscribe in one click.</p>
+    {/* PAUSED — n8n W08 lead-magnet workflow not active; PDF not yet on /dl/.
+        Revert this stub when STR_StrManuals_LeadMagnet_Tax is live + PDF deployed. */}
+    <div class="max-w-2xl" style="border: 1px solid var(--color-rule); padding: 14px 16px; border-radius: 6px;">
+      <p class="font-medium" style="margin-bottom: 4px;">Email delivery is paused.</p>
+      <p class="text-sm" style="color: var(--color-mute); margin: 0;">
+        We're wiring email delivery this week so nothing gets dropped. Bookmark the page,
+        or email
+        <a href="mailto:hello@thestrledger.com?subject=Send%20me%20the%20tax%20explainer">hello@thestrledger.com</a>
+        and we'll send it manually.
+      </p>
+    </div>
   </div>
 </section>

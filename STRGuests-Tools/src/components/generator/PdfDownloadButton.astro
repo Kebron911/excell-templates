@@ -139,7 +139,10 @@ const { toolSlug, filename, magnet, label = 'Download PDF' } = Astro.props;
         const bytes = await fn();
         downloadBytes(bytes, filename);
         (window as any).gtag?.('event', 'pdf_downloaded', { tool, filename });
-        if (modal && !isGateDismissed(tool)) modal.showModal();
+        // PAUSED — soft email-gate modal disabled while cluster lead-router is wired.
+        // PDF still downloads. Restore `if (modal && !isGateDismissed(tool)) modal.showModal();`
+        // when STR_Cluster_Lead_Router is live + tested.
+        void modal;
       } catch (err) {
         console.error('[PdfDownloadButton] Generation failed:', err);
       }

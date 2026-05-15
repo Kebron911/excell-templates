@@ -3,21 +3,20 @@ import Layout from '@/components/chrome/Layout.astro';
 import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
 import { buildFAQPage, buildBreadcrumb } from '@/lib/seo';
 
-// Form action target. In production, set PUBLIC_N8N_MAGNET_URL to the
-// n8n webhook for the 47-deductions magnet (see infrastructure/n8n/).
-// The webhook is expected to: (1) accept POST with form-encoded `email`
-// and `magnet`, (2) tag the contact in Influencersoft with
-// `magnet:47-deductions, source:strledger`, (3) trigger the free-magnet
-// email sequence that delivers the PDF.
+// PAUSED — force mailto fallback regardless of PUBLIC_N8N_MAGNET_URL env state
+// until the 47-deductions n8n workflow is built + the PDF is hosted on a
+// verified delivery path. Restore the env-driven branch (commented below)
+// when both ship.
 //
-// When the env var is unset (local dev, draft scaffold), fall back to
-// mailto: so the page still functions as a soft contact channel without
-// silently dropping submissions.
-const n8nUrl = import.meta.env.PUBLIC_N8N_MAGNET_URL;
-const formAction = n8nUrl ?? 'mailto:hello@thestrledger.com?subject=Send%20me%20the%2047%20deductions%20PDF';
-const formMethod = n8nUrl ? 'post' : 'post'; // both POST; method just routes
-const formEnctype = n8nUrl ? 'application/x-www-form-urlencoded' : 'text/plain';
-const usingMailtoFallback = !n8nUrl;
+// const n8nUrl = import.meta.env.PUBLIC_N8N_MAGNET_URL;
+// const formAction = n8nUrl ?? 'mailto:...';
+// const formMethod = n8nUrl ? 'post' : 'post';
+// const formEnctype = n8nUrl ? 'application/x-www-form-urlencoded' : 'text/plain';
+// const usingMailtoFallback = !n8nUrl;
+const formAction = 'mailto:hello@thestrledger.com?subject=Send%20me%20the%2047%20deductions%20PDF';
+const formMethod = 'post';
+const formEnctype = 'text/plain';
+const usingMailtoFallback = true;
 
 const faqs = [
   {

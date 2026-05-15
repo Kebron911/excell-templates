@@ -1,0 +1,220 @@
+{
+  "name": "STR_StrManuals_LeadMagnet_Tax",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-magnet-strmanuals-tax-explainer",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook",
+      "name": "Tax-loophole magnet webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [200, 300],
+      "webhookId": "lead-magnet-strmanuals-tax-explainer",
+      "notes": "Path matches the form action hardcoded in STRManuals/site/src/pages/free.astro and STRManuals/site/src/components/EmailCapture.astro. Changing the path here requires a strmanuals rebuild + redeploy."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Form posts as application/x-www-form-urlencoded. n8n exposes the parsed\n// fields under .body. Validate, normalize, and prep the IS payload + email.\n\nconst body = $input.first().json.body || {};\nconst email = (body.email || '').toString().trim().toLowerCase();\nconst magnet = (body.magnet || 'str-tax-loophole-explainer').toString().trim();\nconst landingPage = (body.landing_page || 'strmanuals.com/free').toString().trim();\n\nconst emailOk = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\nif (!emailOk) {\n  return [{ json: { ok: false, status: 400, reason: 'invalid_email', received: email } }];\n}\n\nconst PDF_URL = 'https://strmanuals.com/pdfs/str-tax-loophole-explainer.pdf';\nconst CONFIRM_REDIRECT = 'https://strmanuals.com/free/?confirmed=1';\n\nconst emailBody = `Hi —\\n\\nHere is the 8-page STR tax-loophole explainer:\\n\\n${PDF_URL}\\n\\nThe full STR Tax Loophole Playbook ($) is at https://strmanuals.com/manuals/tax-01/ when you want the deep version.\\n\\nOver the next week, you will get:\\n  Day 2 — the \"what counts as 7 days\" trap\\n  Day 4 — material participation, the actual gate\\n  Day 7 — a 48-hour subscriber-only price on the playbook\\n\\nUnsubscribe link is at the bottom of every email.\\n\\n— Daniel`;\n\nreturn [{\n  json: {\n    ok: true,\n    status: 200,\n    email,\n    magnet,\n    landing_page: landingPage,\n    ts: new Date().toISOString(),\n    pdf_url: PDF_URL,\n    confirm_redirect: CONFIRM_REDIRECT,\n    email_subject: 'Your STR Tax Loophole Explainer (8 pages)',\n    email_body: emailBody,\n    // Fill from InfluencerSoft once the list exists.\n    is_list_id: '__SET_ME_TAX_EXPLAINER_LIST_ID__'\n  }\n}];\n"
+      },
+      "id": "node-normalize",
+      "name": "Validate + prep",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "is-ok",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-router-if",
+      "name": "Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://kebron.influencersoft.com/api/v1/subscribers",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer {{ $env.INFLUENCERSOFT_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{ $json.email }}\",\n  \"list_id\": \"{{ $json.is_list_id }}\",\n  \"tags\": [\n    \"magnet:str-tax-loophole-explainer\",\n    \"source:strmanuals.com\",\n    \"funnel:free-to-tax-playbook\"\n  ],\n  \"custom_fields\": {\n    \"landing_page\": \"{{ $json.landing_page }}\",\n    \"first_magnet_ts\": \"{{ $json.ts }}\"\n  }\n}",
+        "options": {
+          "response": {
+            "response": { "neverError": true, "responseFormat": "json" }
+          }
+        }
+      },
+      "id": "node-is-subscribe",
+      "name": "InfluencerSoft → add to tax-explainer list",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [920, 180],
+      "notes": "Confirm endpoint path + auth scheme against the existing STR_Stripe_InfluencerSoft_Tagger workflow — IS API path is a placeholder."
+    },
+    {
+      "parameters": {
+        "fromEmail": "hello@thestrledger.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "={{ $json.email_subject }}",
+        "text": "={{ $json.email_body }}",
+        "options": {}
+      },
+      "id": "node-send-email",
+      "name": "SMTP → deliver explainer PDF",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [920, 300],
+      "credentials": {
+        "smtp": {
+          "id": "__SET_ME__",
+          "name": "Hostinger SMTP — hello@thestrledger.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "__SET_ME_SHEET_ID__",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ts": "={{ $json.ts }}",
+            "email": "={{ $json.email }}",
+            "magnet": "={{ $json.magnet }}",
+            "source": "strmanuals.com",
+            "landing_page": "={{ $json.landing_page }}",
+            "tool": "",
+            "utm_source": "",
+            "utm_medium": "",
+            "utm_campaign": "",
+            "fallback_used": false
+          }
+        },
+        "options": {}
+      },
+      "id": "node-sheets-backup",
+      "name": "Sheets → leads backup",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [920, 420],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "__SET_ME__",
+          "name": "Google Sheets — STR Ledger ops"
+        }
+      },
+      "notes": "Safety net: even if IS or SMTP silently fail, the Sheet has every lead. Same Sheet ID as STR_Cluster_Lead_Router uses — single source of truth."
+    },
+    {
+      "parameters": {
+        "respondWith": "redirect",
+        "redirectURL": "={{ $json.confirm_redirect }}",
+        "options": {
+          "responseCode": 303
+        }
+      },
+      "id": "node-respond-redirect",
+      "name": "Respond 303 → /free?confirmed=1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1180, 300],
+      "notes": "303 (See Other) is the correct response after a successful form POST — converts the POST into a GET for the confirm page. The free.astro template reads `?confirmed=1` to render the 'check your inbox' state."
+    },
+    {
+      "parameters": {
+        "respondWith": "redirect",
+        "redirectURL": "=https://strmanuals.com/free/?error={{ $json.reason }}",
+        "options": {
+          "responseCode": 303
+        }
+      },
+      "id": "node-respond-err",
+      "name": "Respond 303 → /free?error=...",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [920, 540],
+      "notes": "Even on invalid input, send the user back to /free with an error param instead of showing them an n8n JSON blob. (free.astro doesn't render an error state yet — add `?error=invalid_email` handling there as a follow-up.)"
+    }
+  ],
+  "connections": {
+    "Tax-loophole magnet webhook": {
+      "main": [
+        [{ "node": "Validate + prep", "type": "main", "index": 0 }]
+      ]
+    },
+    "Validate + prep": {
+      "main": [
+        [{ "node": "Valid?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Valid?": {
+      "main": [
+        [
+          { "node": "InfluencerSoft → add to tax-explainer list", "type": "main", "index": 0 },
+          { "node": "SMTP → deliver explainer PDF", "type": "main", "index": 0 },
+          { "node": "Sheets → leads backup", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Respond 303 → /free?error=...", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "InfluencerSoft → add to tax-explainer list": {
+      "main": [
+        [{ "node": "Respond 303 → /free?confirmed=1", "type": "main", "index": 0 }]
+      ]
+    },
+    "SMTP → deliver explainer PDF": {
+      "main": [
+        [{ "node": "Respond 303 → /free?confirmed=1", "type": "main", "index": 0 }]
+      ]
+    },
+    "Sheets → leads backup": {
+      "main": [
+        [{ "node": "Respond 303 → /free?confirmed=1", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "str-ledger" }
+  ],
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

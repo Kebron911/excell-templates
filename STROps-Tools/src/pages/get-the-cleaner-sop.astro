@@ -20,33 +20,18 @@ const pairs = Object.entries(tools as Record<string, ToolEntry>)
     <h1>{title}</h1>
     <p class="lead">{blurb}</p>
 
-    <form
-      class="magnet-capture border border-rule bg-parchment-alt p-6 my-8"
-      data-magnet={magnet}
-      action={import.meta.env.PUBLIC_ESP_ENDPOINT || ''}
-      method="post"
-      novalidate
-    >
-      <label class="block text-sm font-semibold">
-        Your email
-        <input
-          type="email"
-          name="email"
-          required
-          placeholder="you@host.com"
-          class="block w-full border border-rule px-3 py-2 mt-1 bg-parchment font-normal"
-        />
-      </label>
-      <button
-        type="submit"
-        class="bg-accent text-parchment px-4 py-2 mt-4 font-semibold hover:bg-accent-deep"
-      >
-        Send me the SOP
-      </button>
-      <p class="text-xs text-ink3 mt-3 magnet-status" aria-live="polite">
-        We'll email a download link. Stub preview is also linked below.
+    {/* PAUSED — ESP webhook unset. Restore the original <form class="magnet-capture">
+        block when the cluster lead-router (n8n) is live + tested. Stub preview
+        link below still works. */}
+    <div class="border border-rule bg-parchment-alt p-6 my-8">
+      <p class="font-semibold text-navy mb-1">Email delivery is paused.</p>
+      <p class="text-sm text-ink2">
+        We're finishing the email pipeline this week. The stub preview below is the
+        same file you'd receive — grab it directly, or email
+        <a href="mailto:hello@thestrledger.com?subject=Send%20me%20the%20Cleaner%20SOP" class="underline decoration-accent underline-offset-4">hello@thestrledger.com</a>
+        if you want the polished version.
       </p>
-    </form>
+    </div>
 
     <p>
       <a href={file} class="underline decoration-accent underline-offset-4" data-magnet={magnet}>
