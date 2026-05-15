@@ -34,6 +34,7 @@
     "tailwindcss": "^4.0.0"
   },
   "devDependencies": {
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "puppeteer": "^25.0.2"
   }
 }
