@@ -49,6 +49,19 @@ jobs:
         working-directory: STROps-Tools
         run: pnpm test
 
+      # Astro 6 / Vite 7 reads PUBLIC_* vars from .env files; the env: block
+      # alone has proven unreliable for build-time injection (see strmanuals
+      # comment). Write .env from secrets so PUBLIC_GA4_ID actually reaches
+      # Layout.astro at build time. Mirrors deploy-strmanuals.yml pattern.
+      - name: Write .env from secrets
+        working-directory: STROps-Tools
+        run: |
+          {
+            echo "PUBLIC_GA4_ID=${{ secrets.STROPS_GA4_ID }}"
+            echo "PUBLIC_ESP_ENDPOINT=${{ secrets.STROPS_ESP_ENDPOINT }}"
+          } > .env
+          echo ".env written ($(wc -l < .env) lines, $(wc -c < .env) bytes)"
+
       - name: Build
         working-directory: STROps-Tools
         env:
