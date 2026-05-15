@@ -195,10 +195,10 @@ const pageLds = [productLd, breadcrumbLd, ...(faqLd ? [faqLd] : [])];
     </div>
   </section>
 
-  {/* Mobile sticky Buy bar — visible only below md breakpoint, where the
-       PDP scrolls past the initial hero CTA. Hidden on desktop where the
-       buy section is in the sidebar above the fold. */}
-  {resolvedPaymentLink && (
+  {/* PAUSED — mobile sticky Buy bar bypasses BuyButton (it's a raw <a>).
+      Hide it entirely while sales are paused. Restore by removing the
+      `false &&` wrapper when STRManuals fulfillment is verified. */}
+  {false && resolvedPaymentLink && (
     <div
       class="md:hidden fixed inset-x-0 bottom-0 z-40 shadow-lg"
       style="background: var(--color-paper); border-top: 1px solid var(--color-rule);"

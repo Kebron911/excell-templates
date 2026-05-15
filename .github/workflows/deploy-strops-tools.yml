@@ -85,7 +85,7 @@ jobs:
       # Deploy only on push to main. PRs run through the verification gates above
       # (typecheck/test/build) but do not deploy.
       - name: Set up SSH key
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         env:
           SSH_PRIVATE_KEY: ${{ secrets.STR_SSH_KEY }}
         run: |
@@ -101,7 +101,7 @@ jobs:
           echo "known_hosts entries: $(wc -l < ~/.ssh/known_hosts)"
 
       - name: Deploy via rsync over SSH
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
           rsync -av --delete \
             --exclude='.git' \
@@ -111,7 +111,7 @@ jobs:
             u470667024@195.35.15.247:/home/u470667024/domains/strops.tools/public_html/
 
       - name: Pre-launch smoke
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: STROps-Tools
         env:
           SMOKE_BASE_URL: https://strops.tools
