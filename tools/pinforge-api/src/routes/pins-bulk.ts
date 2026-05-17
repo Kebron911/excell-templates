@@ -1,7 +1,8 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { generateBatch, PinInputSchema } from "@str/pinforge";
-import { createJobId, registerJob, completeJob, failJob } from "../jobs.js";
+import { createJobId, registerJob, completeJob, failJob, getJob } from "../jobs.js";
+import { dispatchWebhook } from "../webhook-dispatcher.js";
 import type { ApiEnv } from "../env.js";
 
 export interface BulkRoutesDeps {
@@ -16,7 +17,8 @@ export function registerBulkRoutes(app: FastifyInstance, deps: BulkRoutesDeps): 
       items: z
         .array(PinInputSchema)
         .min(1, "items must contain at least 1 row")
-        .max(max, `items cannot exceed ${max}`)
+        .max(max, `items cannot exceed ${max}`),
+      callbackUrl: z.string().url().optional()
     });
 
   app.post(
@@ -42,7 +44,8 @@ export function registerBulkRoutes(app: FastifyInstance, deps: BulkRoutesDeps): 
                   destinationUrl: { type: "string", format: "uri" }
                 }
               }
-            }
+            },
+            callbackUrl: { type: "string", format: "uri", description: "Optional URL to POST job-done payload when the job completes" }
           }
         },
         response: {
@@ -77,7 +80,7 @@ export function registerBulkRoutes(app: FastifyInstance, deps: BulkRoutesDeps): 
       return;
     }
 
-    const items = parsed.data.items;
+    const { items, callbackUrl } = parsed.data;
     const jobId = createJobId();
     registerJob(jobId, { total: items.length });
 
@@ -86,7 +89,7 @@ export function registerBulkRoutes(app: FastifyInstance, deps: BulkRoutesDeps): 
       brandsDir: deps.brandsDir,
       outputDir: deps.outputDir
     })
-      .then((result) =>
+      .then((result) => {
         completeJob(jobId, [
           ...result.succeeded.map((s) => ({
             ok: true as const,
@@ -97,9 +100,19 @@ export function registerBulkRoutes(app: FastifyInstance, deps: BulkRoutesDeps): 
             ok: false as const,
             error: f.error
           }))
-        ])
-      )
-      .catch((err) => failJob(jobId, err));
+        ]);
+        if (callbackUrl) {
+          const job = getJob(jobId)!;
+          dispatchWebhook(callbackUrl, job, "").catch(() => {});
+        }
+      })
+      .catch((err) => {
+        failJob(jobId, err);
+        if (callbackUrl) {
+          const job = getJob(jobId)!;
+          dispatchWebhook(callbackUrl, job, "").catch(() => {});
+        }
+      });
 
     reply.code(202).send({
       jobId,
