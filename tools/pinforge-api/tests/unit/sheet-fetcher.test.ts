@@ -1,6 +1,8 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 import { fetchPublishedSheetCsv } from "../../src/sheet-fetcher.js";
 
+const ORIG_FETCH = global.fetch;
+
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -43,5 +45,16 @@ describe("fetchPublishedSheetCsv", () => {
     await expect(
       fetchPublishedSheetCsv("http://docs.google.com/spreadsheets/d/abc/pub?output=csv")
     ).rejects.toThrow("https");
+  });
+
+  it("rejects shadow-domain (e.g., evil-docs.google.com)", async () => {
+    await expect(fetchPublishedSheetCsv("https://evil-docs.google.com/x")).rejects.toThrow(/host/);
+  });
+
+  it("accepts legitimate subdomain (e.g., spreadsheets.docs.google.com)", async () => {
+    global.fetch = vi.fn(async () => new Response("a,b\n1,2\n", { status: 200, headers: { "content-type": "text/csv" } })) as any;
+    const text = await fetchPublishedSheetCsv("https://spreadsheets.docs.google.com/x");
+    expect(text).toContain("a,b");
+    global.fetch = ORIG_FETCH;
   });
 });

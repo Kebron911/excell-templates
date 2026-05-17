@@ -16,7 +16,8 @@ export async function fetchPublishedSheetCsv(
     throw new Error("Sheet URL must use https: protocol");
   }
 
-  if (!parsed.hostname.endsWith("docs.google.com")) {
+  const host = parsed.hostname.toLowerCase();
+  if (host !== "docs.google.com" && !host.endsWith(".docs.google.com")) {
     throw new Error(
       `Sheet URL host must be docs.google.com, got: ${parsed.hostname}`
     );

@@ -98,6 +98,12 @@ export function registerPinsRoutes(app: FastifyInstance, deps: PinsRoutesDeps): 
 
       if (sync) {
         try {
+          // NOTE: Promise.race resolves the reply but does NOT cancel generatePin.
+          // @str/pinforge does not yet accept an AbortSignal. The orphan promise
+          // continues running in the background until natural completion or process exit.
+          // Under heavy sync-mode load this leaks CPU + memory. Track as Phase B follow-up.
+          // For high-throughput use cases, prefer async mode (no ?sync=1) which uses
+          // the proper job registry.
           const result = await Promise.race([
             generatePin(input, {
               env: deps.env.pinforge,

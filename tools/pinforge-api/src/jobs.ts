@@ -19,6 +19,16 @@ export interface JobState {
   fatalError?: { code: string; message: string };
 }
 
+// In-memory job registry.
+//
+// LIMITATIONS:
+// - No TTL / eviction. Entries accumulate until process restart.
+//   Acceptable for low-volume MVP (dozens of jobs/day).
+//   For high-volume production, swap for SQLite-backed store via the
+//   JobStore interface — see Phase B.5 follow-up in BACKLOG.md.
+// - Single-process only. Survives only the current Node instance.
+//   For multi-replica deployment, use a shared store (Redis/SQLite).
+// - Module-level singleton. Tests should call _resetJobs() in beforeEach.
 const JOBS = new Map<string, JobState>();
 
 export function createJobId(): string {
