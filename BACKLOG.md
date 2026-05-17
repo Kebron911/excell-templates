@@ -155,3 +155,19 @@ cp _backups/pre-pause-20260515/product.php product.php
 cp _backups/pre-pause-20260515/bundle.php bundle.php
 # Note: config.php in backup has ga4_id empty; current production has G-ZSNCH6JNW2 — only restore if you want to drop GA4 too
 ```
+
+---
+
+## PinForge — final 2 manual steps (added 2026-05-17)
+
+PinForge Phase A code-side complete and merged. Two user-only steps remain before live use:
+
+- [ ] **Deploy `gemini-pin-image.json` to n8n** — workflow file at `Tools/N8n-Builder/workflows/gemini-pin-image.json` with `Tools/N8n-Builder/workflows/gemini-pin-image.README.md` (includes curl smoke test). Import into n8n UI, activate the webhook, set Gemini API credentials, note the production webhook URL.
+- [ ] **Set live env + run smoke test** — add `N8N_BASE_URL` and `N8N_PIN_KEY` to `Excel-Templates/.env` (matching the deployed workflow), then:
+  ```bash
+  LIVE=1 pnpm -F @str/pinforge test live/smoke
+  ```
+  Expect: 1 test passes. Console prints the path of a generated PNG. Open it — confirm it looks like a real Pinterest pin.
+
+Until both done, PinForge can still generate pins with `backgroundType: solid|gradient` (no n8n needed). Image-mode falls back to Unsplash → solid if n8n is unreachable.
+
