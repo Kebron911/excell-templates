@@ -491,6 +491,15 @@ On failure, `status: "failed"` and `fatalError: {code, message}` is included.
 - Non-2xx responses logged but don't fail the job
 - Errors logged to the API server's Pino logger
 
+### Security
+
+The webhook target URL is validated to be public-routable:
+- Private/loopback IPs (127.x, 10.x, 172.16-31.x, 192.168.x), link-local (169.254.x incl. AWS IMDS), and IPv6 equivalents are rejected with 400
+- Hostnames "localhost", "*.local", "*.internal" are rejected
+- Non-http(s) protocols are rejected
+
+DNS rebinding is NOT protected against — for full defense, operate behind an egress firewall that blocks PinForge from reaching internal subnets.
+
 ---
 
 ## Known Limitations (see BACKLOG.md)
@@ -498,6 +507,6 @@ On failure, `status: "failed"` and `fatalError: {code, message}` is included.
 - **In-memory job store** — jobs are lost on restart. No Redis/DB persistence yet.
 - **No pagination** on `/v1/brands` or `/v1/templates` — fine at current catalog size.
 - **Sync timeout** is a simple `Promise.race` — if the server crashes mid-sync, the client hangs until its own timeout.
-- **Webhook security** — `callbackUrl` validated as a URL only; no allowlist. An internal network SSRF is possible if the API server has access to internal services. For production, add an origin allowlist or restrict to HTTPS public origins only.
+- **Webhook security** — `callbackUrl` validated against private/loopback/link-local ranges at registration time (SSRF hardened). DNS rebinding is not protected — use an egress firewall for full isolation.
 
 See `tools/pinforge-api/BACKLOG.md` for the full list.

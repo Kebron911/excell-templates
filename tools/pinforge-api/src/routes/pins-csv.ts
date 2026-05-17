@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { generateBatch, parsePinInputCsv } from "@str/pinforge";
 import { createJobId, registerJob, completeJob, failJob, getJob } from "../jobs.js";
-import { dispatchWebhook } from "../webhook-dispatcher.js";
+import { dispatchWebhook, isPublicHttpUrl } from "../webhook-dispatcher.js";
 import type { ApiEnv } from "../env.js";
 
 export interface CsvRoutesDeps {
@@ -41,7 +41,12 @@ export function registerCsvRoute(app: FastifyInstance, deps: CsvRoutesDeps): voi
     },
     async (req, reply) => {
     const cb = (req.query as { callback_url?: string }).callback_url;
-    const callbackUrl = cb && /^https?:\/\//.test(cb) ? cb : undefined;
+    const callbackUrl = cb && isPublicHttpUrl(cb) ? cb : undefined;
+
+    if (cb && !callbackUrl) {
+      reply.code(400).send({ error: { code: "VALIDATION", message: "callbackUrl must be a public http(s) URL — private/loopback/link-local addresses are rejected", context: { callbackUrl: cb } } });
+      return;
+    }
 
     const file = await req.file();
     if (!file) {

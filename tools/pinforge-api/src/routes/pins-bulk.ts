@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { generateBatch, PinInputSchema } from "@str/pinforge";
 import { createJobId, registerJob, completeJob, failJob, getJob } from "../jobs.js";
-import { dispatchWebhook } from "../webhook-dispatcher.js";
+import { dispatchWebhook, isPublicHttpUrl } from "../webhook-dispatcher.js";
 import type { ApiEnv } from "../env.js";
 
 export interface BulkRoutesDeps {
@@ -81,6 +81,12 @@ export function registerBulkRoutes(app: FastifyInstance, deps: BulkRoutesDeps): 
     }
 
     const { items, callbackUrl } = parsed.data;
+
+    if (callbackUrl && !isPublicHttpUrl(callbackUrl)) {
+      reply.code(400).send({ error: { code: "VALIDATION", message: "callbackUrl must be a public http(s) URL — private/loopback/link-local addresses are rejected", context: { callbackUrl } } });
+      return;
+    }
+
     const jobId = createJobId();
     registerJob(jobId, { total: items.length });
 

@@ -4,7 +4,7 @@ import { generatePin } from "@str/pinforge";
 import { mapErrorToHttp } from "../errors.js";
 import { PostPinBodySchema, PostPinSyncQuerySchema } from "../schemas.js";
 import { createJobId, registerJob, completeJob, failJob, getJob } from "../jobs.js";
-import { dispatchWebhook } from "../webhook-dispatcher.js";
+import { dispatchWebhook, isPublicHttpUrl } from "../webhook-dispatcher.js";
 import { fetchPinBySlug } from "../slug.js";
 import type { ApiEnv } from "../env.js";
 
@@ -102,7 +102,12 @@ export function registerPinsRoutes(app: FastifyInstance, deps: PinsRoutesDeps): 
       const query = PostPinSyncQuerySchema.parse(req.query ?? {});
       const sync = query.sync === "1" || query.sync === "true";
       const cbRaw = (req.query as { callback_url?: string }).callback_url;
-      const callbackUrl = cbRaw && /^https?:\/\//.test(cbRaw) ? cbRaw : undefined;
+      const callbackUrl = cbRaw && isPublicHttpUrl(cbRaw) ? cbRaw : undefined;
+
+      if (cbRaw && !callbackUrl) {
+        reply.code(400).send({ error: { code: "VALIDATION", message: "callbackUrl must be a public http(s) URL — private/loopback/link-local addresses are rejected", context: { callbackUrl: cbRaw } } });
+        return;
+      }
 
       if (sync) {
         try {

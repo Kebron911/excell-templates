@@ -87,4 +87,19 @@ describe("webhook callback", () => {
     global.fetch = ORIG_FETCH;
     await app.close();
   });
+
+  it("rejects bulk request with private callbackUrl (returns 400)", async () => {
+    const app = await buildServer({ env: makeApiEnv(), brandsDir: "./dummy", outputDir: "./dist/pins" });
+    const res = await app.inject({
+      method: "POST", url: "/v1/pins/bulk",
+      headers: { "x-api-key": TEST_API_KEY, "content-type": "application/json" },
+      payload: {
+        items: [{ brandId: "x", topic: "topic-1", primaryKeyword: "kw", destinationUrl: "https://x.com/" }],
+        callbackUrl: "http://169.254.169.254/latest/meta-data/"
+      }
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json().error.message).toMatch(/private|callbackUrl/);
+    await app.close();
+  });
 });
