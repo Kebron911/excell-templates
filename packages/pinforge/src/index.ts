@@ -43,3 +43,7 @@ export { fetchPinBackground, type N8nOptions } from "./image/n8n-bridge.js";
 export { fetchUnsplash, type UnsplashInput } from "./image/unsplash.js";
 export { generateSolidBackground } from "./image/solid.js";
 export { resolvePinBackground, type ResolveOptions, type ResolvedBackground, type BackgroundSource } from "./image/fallback.js";
+
+export { generatePin, type OrchestratorDeps } from "./orchestrator/index.js";
+export { PinInputSchema, type PinInput, type PinMetadata, type PinResult } from "./input.js";
+export { writePin, type WritePinInput, type WrittenPaths } from "./output/writer.js";
