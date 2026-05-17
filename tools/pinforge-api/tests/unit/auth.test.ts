@@ -6,7 +6,7 @@ const TEST_KEY = "test-api-key-32-chars-min-aaaaaa";
 
 function buildTestApp(skipPaths?: string[]) {
   const app = Fastify({ logger: false });
-  registerAuth(app, { apiKey: TEST_KEY, skipPaths });
+  registerAuth(app, skipPaths !== undefined ? { apiKey: TEST_KEY, skipPaths } : { apiKey: TEST_KEY });
   app.get("/healthz", async () => ({ ok: true }));
   app.get("/protected", async () => ({ data: "secret" }));
   return app;
