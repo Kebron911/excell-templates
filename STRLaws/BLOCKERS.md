@@ -1,6 +1,16 @@
 # STRLaws — Inputs Needed From Daniel
 
-Central list of everything I need from you to keep moving. Update inline (✅ done, ⏳ in progress, ❌ blocking). Nothing here blocks Phase 2.
+Central list of everything I need from you to keep moving. Update inline (✅ done, ⏳ in progress, ❌ blocking).
+
+## Current status snapshot
+
+- **Phase 1 foundation** — ✅ shipped
+- **Phase 2 SEO surface** — ✅ shipped (schema, sitemap, robots, freshness, internal linking)
+- **Phase 3 AI extraction pipeline** — ✅ CODE LANDED, runtime-blocked on `ANTHROPIC_API_KEY`. Tier-1 scraper, Claude client with mandatory prompt caching + $0.05 cost guard, Zod extraction schema, and confidence-gate router (0.85/0.5 thresholds, review_queue reasons) are all merged and unit-tested (69 tests green). The moment a key lands in `.env.local`, end-to-end extraction works.
+- **Migration 0002** — all Phase 3-6 tables (review_queue, regulation_changes, alert_subscribers, alert_subscriptions, alert_dispatches, premium_subscribers, api_request_log) are in `server/db/migrations/0002_pipeline.sql`. Run `pnpm db:migrate` against your MySQL instance whenever it's provisioned.
+- **Phase 4 (diff/auto-publish)** — pending
+- **Phase 5 (alerts)** — pending
+- **Phase 6 (premium + launch)** — pending
 
 ## Phase 3 blockers (AI extraction — weeks 3–4)
 
