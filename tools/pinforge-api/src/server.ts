@@ -9,6 +9,8 @@ import { registerPinsRoutes } from "./routes/pins.js";
 import { registerJobsRoutes } from "./routes/jobs.js";
 import { registerBulkRoutes } from "./routes/pins-bulk.js";
 import { registerCsvRoute } from "./routes/pins-csv.js";
+import { registerSheetRoute } from "./routes/pins-sheet.js";
+import { registerCatalogRoutes } from "./routes/catalog.js";
 
 export interface BuildServerInput {
   env: ApiEnv;
@@ -34,13 +36,15 @@ export async function buildServer(input: BuildServerInput): Promise<FastifyInsta
     limits: { fileSize: env.bodyLimitCsv, files: 1 }
   });
 
-  registerAuth(app, { apiKey: env.apiKey, skipPaths: ["/healthz"] });
+  registerAuth(app, { apiKey: env.apiKey, skipPaths: ["/healthz", "/docs", "/docs/", "/docs/json", "/docs/yaml", "/docs/static/"] });
 
   registerHealthRoutes(app);
   registerPinsRoutes(app, { env: input.env, brandsDir: input.brandsDir, outputDir: input.outputDir });
   registerJobsRoutes(app);
   registerBulkRoutes(app, { env: input.env, brandsDir: input.brandsDir, outputDir: input.outputDir });
   registerCsvRoute(app, { env: input.env, brandsDir: input.brandsDir, outputDir: input.outputDir });
+  registerSheetRoute(app, { env: input.env, brandsDir: input.brandsDir, outputDir: input.outputDir });
+  registerCatalogRoutes(app, { brandsDir: input.brandsDir });
 
   return app;
 }
