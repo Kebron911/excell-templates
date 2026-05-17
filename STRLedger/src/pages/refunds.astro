@@ -1,0 +1,86 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+
+const today = new Date().toISOString().slice(0, 10);
+---
+<Layout
+  title="Refund Policy — The STR Ledger"
+  description="Refund policy for thestrledger.com. 14-day satisfaction window on digital products."
+  path="/refunds"
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9">
+      <p class="label text-gold-deep">Legal</p>
+      <h1 class="mt-3 font-serif text-h1 text-navy leading-tight">
+        Refunds<span class="period-gold">.</span>
+      </h1>
+      <p class="mt-4 text-lead text-ink-2">
+        Short version: 14 days, no questions, full refund. We'd rather solve the problem than collect a refund — but if a refund is what you want, we'll send it.
+      </p>
+      <p class="mt-3 text-caption text-ink-3 font-mono">
+        Last updated <time datetime={today}>{today}</time>
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-3xl px-5 py-9 prose">
+      <h2 class="font-serif text-h2 text-navy">The 14-day satisfaction window</h2>
+      <p class="mt-3 text-body text-ink-2 leading-snug">
+        If you bought from thestrledger.com and the template, guide, or bundle didn't do what we said it would, email <a class="underline" href="mailto:hello@thestrledger.com">hello@thestrledger.com</a> within <strong>14 days of purchase</strong> with:
+      </p>
+      <ol class="mt-3 space-y-2 text-body text-ink-2 leading-snug list-decimal list-outside pl-5">
+        <li>Your order number</li>
+        <li>One sentence describing what didn't match expectations</li>
+      </ol>
+      <p class="mt-4 text-body text-ink-2 leading-snug">
+        We'll refund you in full, no further questions asked. Refunds process within 5 business days to the original payment method.
+      </p>
+
+      <h2 class="mt-10 font-serif text-h2 text-navy">What is covered</h2>
+      <ul class="mt-3 space-y-2 text-body text-ink-2 leading-snug list-disc list-outside pl-5">
+        <li>The file didn't open or was technically broken</li>
+        <li>The product description didn't match what you received</li>
+        <li>You bought a duplicate by mistake</li>
+        <li>The product simply wasn't useful for your situation</li>
+      </ul>
+
+      <h2 class="mt-10 font-serif text-h2 text-navy">What is not covered</h2>
+      <ul class="mt-3 space-y-2 text-body text-ink-2 leading-snug list-disc list-outside pl-5">
+        <li>Requests outside the 14-day window</li>
+        <li>Bundle purchases where you've downloaded 3 or more files of the bundle (partial-bundle refunds aren't technically possible because the goods are permanently in your possession)</li>
+        <li>Purchases made with affiliate credit or referral credit (we'll refund the credit instead)</li>
+        <li>Requests submitted after you've already initiated a chargeback through your bank (those get handled via the chargeback process, not a separate refund)</li>
+      </ul>
+
+      <h2 class="mt-10 font-serif text-h2 text-navy">Etsy and Gumroad purchases</h2>
+      <p class="mt-3 text-body text-ink-2 leading-snug">
+        Purchases made through our Etsy shop or Gumroad listings are handled by Etsy's and Gumroad's policies, not this one. Each platform has its own refund window and process:
+      </p>
+      <ul class="mt-3 space-y-2 text-body text-ink-2 leading-snug list-disc list-outside pl-5">
+        <li><strong>Etsy:</strong> Use the Etsy "Help with order" flow. We approve all reasonable refund requests but Etsy's UI does not let us refund outside that flow.</li>
+        <li><strong>Gumroad:</strong> Email <a class="underline" href="mailto:hello@thestrledger.com">hello@thestrledger.com</a> — we process via Gumroad admin within 1 business day.</li>
+      </ul>
+
+      <h2 class="mt-10 font-serif text-h2 text-navy">Subscriptions and recurring products</h2>
+      <p class="mt-3 text-body text-ink-2 leading-snug">
+        If we introduce subscription products in the future (compliance alerts, AI tool monthly tiers), the cancellation and refund terms will be specifically called out at checkout for those products. We never auto-renew without showing the renewal price and a one-click cancel option at least 7 days before each charge.
+      </p>
+
+      <h2 class="mt-10 font-serif text-h2 text-navy">Chargebacks</h2>
+      <p class="mt-3 text-body text-ink-2 leading-snug">
+        If you initiate a chargeback through your bank without first contacting us, your account is suspended pending review. We respond to the chargeback with the order details, and once the bank resolves it (in either direction), you may contact us to restore account access. For any digital product where a chargeback is ruled in our favor (common, because the file was delivered), the account remains suspended.
+      </p>
+
+      <h2 class="mt-10 font-serif text-h2 text-navy">Honest note</h2>
+      <p class="mt-3 text-body text-ink-2 leading-snug">
+        We are a small operation. We do not want to be in the refund-collection business; we'd much rather solve whatever problem the product didn't solve. If a template needs an update or a guide needs a fix, send the details and we'll fix it for everyone (including you). That is more useful to us than a refund.
+      </p>
+
+      <h2 class="mt-10 font-serif text-h2 text-navy">Contact</h2>
+      <p class="mt-3 text-body text-ink-2 leading-snug">
+        <a class="underline" href="mailto:hello@thestrledger.com">hello@thestrledger.com</a> — replies within 24 hours on weekdays.
+      </p>
+    </div>
+  </section>
+</Layout>

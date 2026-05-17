@@ -1,0 +1,74 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const today = new Date().toISOString().slice(0, 10);
+---
+
+<BaseLayout
+  title="Privacy — STRLaws"
+  description="What we collect, what we don't, how long we keep it, how to delete it."
+>
+  <article class="mx-auto max-w-3xl px-4 py-12 prose">
+    <header>
+      <p class="label text-[color:var(--accent-700)]">Privacy</p>
+      <h1 class="mt-2 font-wordmark text-h1 text-navy">We collect almost nothing.</h1>
+      <p class="mt-3 text-caption text-ink-3 font-mono">
+        Last updated <time datetime={today}>{today}</time>
+      </p>
+    </header>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">What we store</h2>
+      <ul class="mt-3 space-y-2 text-body text-ink-2 leading-snug list-disc list-outside pl-5">
+        <li>Your email address — only if you subscribe to compliance alerts or the newsletter.</li>
+        <li>Your subscribed states/cities, so we know what alerts to send you.</li>
+        <li>Anonymous usage analytics (page views, referrer, broad geography) via Plausible. No cookies, no cross-site tracking, no user-level profiles.</li>
+      </ul>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">What we don't store</h2>
+      <ul class="mt-3 space-y-2 text-body text-ink-2 leading-snug list-disc list-outside pl-5">
+        <li>Your raw IP address. Rate-limiting uses a hashed identifier that cannot be reversed.</li>
+        <li>Your property address. We send alerts at the state and city level; we do not need or want your exact location.</li>
+        <li>Third-party tracking pixels (no Facebook, no Google Ads remarketing).</li>
+        <li>Any data about your bookings, revenue, or platform credentials.</li>
+      </ul>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">Data sources for regulation data</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        Regulation information published on STRLaws is sourced from official state and city government pages, public legislative records, and public legal filings. We do not collect or publish data about individual property owners, listings, or guests.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">Cookies</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        We use one cookie: an "I dismissed the alerts banner" flag, set only if you dismiss the banner. No tracking cookies, no advertising cookies, no third-party cookies.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">Email alerts</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        If you subscribe to alerts, you'll receive a confirmation email (double opt-in). After confirming you'll get alerts when the regulations for your subscribed jurisdictions change, plus an occasional national-roundup summary. Every email has a one-click unsubscribe; we honor it within 5 minutes.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">Data deletion</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        Email <a class="underline" href="mailto:hello@strlaws.com">hello@strlaws.com</a> with the address you want removed. We delete within 48 hours and confirm by reply.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">Changes</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        We update this page when the underlying practices change. The "Last updated" date at the top tracks the version.
+      </p>
+    </section>
+  </article>
+</BaseLayout>

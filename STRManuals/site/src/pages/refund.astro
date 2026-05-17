@@ -1,7 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
+
+const today = new Date().toISOString().slice(0, 10);
 ---
-<Base title="Refund policy">
+<Base title="Refund policy" description="14-day satisfaction window on every manual sold at strmanuals.com." path="/refund">
   <section class="container-page py-20">
     <div class="max-w-2xl mx-auto measure">
       <p class="eyebrow mb-6">Policy</p>
@@ -12,22 +14,44 @@ import Base from '../layouts/Base.astro';
         refund you. No interrogation, no forms, no "tell us why." We don't want
         money from someone who didn't get value.
       </p>
+
       <p class="mb-6">
-        Refunds are processed back to the original card within 3–5 business days.
-        Your download access is revoked at the same time.
+        Refunds process back to the original card within 3–5 business days via
+        Stripe. Your download access is revoked at the same time.
       </p>
+
       <p class="mb-6" style="color: var(--color-mute);">
         Email <a href="mailto:hello@strmanuals.com" class="underline">hello@strmanuals.com</a> with
         your order number to start. That's the whole process.
       </p>
 
+      <p class="text-caption font-mono mb-10" style="color: var(--color-mute);">
+        Last updated <time datetime={today}>{today}</time>
+      </p>
+
       <hr class="rule" />
 
-      <p class="eyebrow mb-3">A note on bundles</p>
-      <p>
+      <h2 class="mt-10 mb-4">A note on bundles</h2>
+      <p class="mb-6">
         Bundle refunds are all-or-nothing — you can't keep three manuals and refund two.
-        If you only want a partial refund, we'll refund the full bundle and you can
-        re-buy individual manuals at list price.
+        If you only want a partial refund on the 5-manual bundle, we'll refund the full bundle
+        and you can re-buy individual manuals at list price. Once you've downloaded 3 or more
+        of the included manuals, the bundle is non-refundable but we'll still help if the
+        issue is technical.
+      </p>
+
+      <h2 class="mt-10 mb-4">A note on download links</h2>
+      <p class="mb-6">
+        Your download link is HMAC-signed and expires 24 hours after issuance. If your link
+        expires before you download, email us — we'll send a fresh one. That's a delivery
+        issue, not a refundable one.
+      </p>
+
+      <h2 class="mt-10 mb-4">Chargebacks</h2>
+      <p class="mb-6">
+        If you initiate a chargeback through your bank without contacting us first, account
+        access is suspended pending review. Email is faster and easier than a chargeback —
+        and we approve all reasonable refund requests within the 14-day window.
       </p>
     </div>
   </section>
