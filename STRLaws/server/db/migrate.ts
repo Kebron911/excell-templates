@@ -7,6 +7,7 @@
  *
  * Usage: pnpm db:migrate
  */
+import 'dotenv/config';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';

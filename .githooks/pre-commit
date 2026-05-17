@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+# Repo-managed pre-commit hook.
+# Enable with: git config core.hooksPath .githooks
+# (Or run `node scripts/install-hooks.mjs`.)
+
+node ./scripts/check-env-leak.mjs

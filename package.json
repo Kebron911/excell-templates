@@ -4,10 +4,16 @@
   "version": "0.0.0",
   "packageManager": "pnpm@9.6.0",
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm sync:env && pnpm -r build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint",
+    "sync:env": "node ./scripts/sync-env.mjs",
+    "sync:env:check": "node ./scripts/sync-env.mjs --check",
+    "migrate:env": "node ./scripts/migrate-env-to-root.mjs",
+    "migrate:env:dry": "node ./scripts/migrate-env-to-root.mjs --dry-run",
+    "check:env-leak": "node ./scripts/check-env-leak.mjs",
+    "postinstall": "node ./scripts/postinstall.mjs",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "pnpm -r build && changeset publish"
