@@ -84,6 +84,26 @@ describe("POST /v1/pins/bulk (JSON)", () => {
     await app.close();
   });
 
+  it("enforces bodyLimitJson — rejects oversized JSON body", async () => {
+    const app = await buildServer({
+      env: makeApiEnv({ bodyLimitJson: 100 }),
+      brandsDir: "./dummy",
+      outputDir: "./dist/pins"
+    });
+    // Craft a payload clearly > 100 bytes
+    const bigPayload = JSON.stringify({ items: [makeItem(1), makeItem(2), makeItem(3)] });
+    expect(bigPayload.length).toBeGreaterThan(100);
+    const res = await app.inject({
+      method: "POST",
+      url: "/v1/pins/bulk",
+      headers: { "x-api-key": TEST_API_KEY, "content-type": "application/json" },
+      payload: bigPayload
+    });
+    // Fastify returns 413 when bodyLimit is exceeded
+    expect(res.statusCode).toBe(413);
+    await app.close();
+  });
+
   it("returns 202 and continues when generateBatch returns mixed succeeded + failed", async () => {
     returnMixed = true;
     try {
