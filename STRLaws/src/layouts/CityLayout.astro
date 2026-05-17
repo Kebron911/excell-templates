@@ -1,6 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
-import type { StateRow, CityRow, RegulationRow } from '@/lib/city-data';
+import type { StateRow, CityRow, RegulationRow, NeighborCity } from '@/lib/city-data';
 import {
   buildBreadcrumbList,
   buildCityMeta,
@@ -12,11 +12,14 @@ interface Props {
   state: StateRow;
   city: CityRow;
   regulation: RegulationRow | null;
+  neighbors?: NeighborCity[];
 }
 
-const { state, city, regulation } = Astro.props;
+const { state, city, regulation, neighbors = [] } = Astro.props;
 
-const verifiedDate = city.last_verified_at ?? regulation?.id ? new Date().toISOString().slice(0, 10) : null;
+const verifiedDate =
+  city.last_verified_at?.slice(0, 10) ??
+  (regulation ? new Date().toISOString().slice(0, 10) : null);
 const monthYear = new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
 const slug = `/${state.slug}/${city.slug}`;
 const meta = buildCityMeta(city.name, state.name, slug, monthYear);
@@ -131,5 +134,34 @@ const banLabel = {
     )}
 
     <slot />
+
+    {neighbors.length > 0 && (
+      <section class="mt-12 border-t border-rule pt-8">
+        <h2 class="text-h2 font-wordmark text-navy mb-4">Nearby Cities</h2>
+        <p class="text-ink-2 mb-4 text-small">
+          STR regulations vary by jurisdiction. Compare {city.name} against nearby markets.
+        </p>
+        <ul class="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
+          {neighbors.map((n) => (
+            <li>
+              <a
+                href={`/${n.state_slug}/${n.slug}`}
+                class="block bg-white border border-rule rounded-md p-3 hover:border-accent hover:shadow-card transition-all"
+              >
+                <div class="text-body font-medium text-navy">{n.name}</div>
+                <div class="text-caption text-ink-3">
+                  {n.state_name} · {Math.round(n.distance_km)} km
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-4 text-caption text-ink-3">
+          <a href={`/${state.slug}`} class="hover:underline text-accent-700">
+            All {state.name} cities →
+          </a>
+        </p>
+      </section>
+    )}
   </section>
 </BaseLayout>

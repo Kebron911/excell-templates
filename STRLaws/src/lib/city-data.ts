@@ -84,3 +84,65 @@ export async function getAllActiveCitiesWithState(): Promise<Array<CityRow & { s
      ORDER BY s.name ASC, c.str_market_rank IS NULL, c.str_market_rank ASC, c.name ASC`,
   );
 }
+
+export interface CityWithState extends CityRow {
+  state_slug: string;
+  state_name: string;
+}
+
+export interface NeighborCity {
+  slug: string;
+  name: string;
+  state_slug: string;
+  state_name: string;
+  distance_km: number;
+}
+
+/**
+ * Haversine distance in kilometers between two lat/lng points.
+ * Exported for unit testing.
+ */
+export function haversineKm(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+): number {
+  const R = 6371;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const sinDLat = Math.sin(dLat / 2);
+  const sinDLng = Math.sin(dLng / 2);
+  const h =
+    sinDLat * sinDLat +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * sinDLng * sinDLng;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+/**
+ * Return the N geographically-nearest active cities to the given anchor.
+ * Cities without lat/lng are skipped. The anchor itself is excluded.
+ */
+export function pickNearestCities(
+  anchor: CityRow,
+  candidates: CityWithState[],
+  limit: number,
+): NeighborCity[] {
+  if (anchor.lat == null || anchor.lng == null) return [];
+  const a = { lat: Number(anchor.lat), lng: Number(anchor.lng) };
+  return candidates
+    .filter((c) => c.id !== anchor.id && c.lat != null && c.lng != null)
+    .map((c) => ({
+      slug: c.slug,
+      name: c.name,
+      state_slug: c.state_slug,
+      state_name: c.state_name,
+      distance_km: haversineKm(a, { lat: Number(c.lat), lng: Number(c.lng) }),
+    }))
+    .sort((x, y) => x.distance_km - y.distance_km)
+    .slice(0, limit);
+}
+
+export async function getNearestCities(city: CityRow, limit = 5): Promise<NeighborCity[]> {
+  const all = await getAllActiveCitiesWithState();
+  return pickNearestCities(city, all, limit);
+}

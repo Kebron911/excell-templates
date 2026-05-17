@@ -10,6 +10,7 @@
  *
  * Usage: pnpm db:seed
  */
+import type { RowDataPacket } from 'mysql2/promise';
 import { getPool, closePool } from '../server/db/pool';
 
 interface StateSeed {
@@ -151,7 +152,7 @@ async function seedCities(): Promise<void> {
   const pool = getPool();
   console.log(`Seeding ${CITIES.length} cities...`);
   for (const city of CITIES) {
-    const [stateRows] = await pool.query<Array<{ id: number }>>(
+    const [stateRows] = await pool.query<RowDataPacket[]>(
       'SELECT id FROM states WHERE slug = ? LIMIT 1',
       [city.stateSlug],
     );
@@ -162,7 +163,7 @@ async function seedCities(): Promise<void> {
     }
     const stateId = stateRow.id;
 
-    const [insertResult] = await pool.query(
+    await pool.query(
       `INSERT INTO cities (state_id, slug, name, population, str_market_rank, lat, lng, status)
        VALUES (?, ?, ?, ?, ?, ?, ?, 'skeleton')
        ON DUPLICATE KEY UPDATE
@@ -175,7 +176,7 @@ async function seedCities(): Promise<void> {
     );
 
     if (city.sourceUrl) {
-      const [cityRows] = await pool.query<Array<{ id: number }>>(
+      const [cityRows] = await pool.query<RowDataPacket[]>(
         'SELECT id FROM cities WHERE state_id = ? AND slug = ? LIMIT 1',
         [stateId, city.slug],
       );

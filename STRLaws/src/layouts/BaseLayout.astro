@@ -38,7 +38,7 @@ const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
     <meta name="twitter:image" content={resolvedOg} />
 
     {schemas.map((s) => (
-      <script type="application/ld+json" set:html={JSON.stringify(s)} />
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(s)} />
     ))}
   </head>
   <body>

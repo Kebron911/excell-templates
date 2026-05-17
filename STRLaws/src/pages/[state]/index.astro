@@ -1,6 +1,6 @@
 ---
 import StateLayout from '@/layouts/StateLayout.astro';
-import { getAllStates, getCitiesByState, getStateBySlug } from '@/lib/city-data';
+import { getAllStates, getCitiesByState } from '@/lib/city-data';
 
 export async function getStaticPaths() {
   const states = await getAllStates();
