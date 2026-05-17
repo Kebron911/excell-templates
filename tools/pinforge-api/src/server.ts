@@ -1,6 +1,8 @@
 import Fastify from "fastify";
 import type { FastifyInstance } from "fastify";
 import multipart from "@fastify/multipart";
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
 import type { ApiEnv } from "./env.js";
 import { registerRateLimit } from "./rate-limit.js";
 import { registerAuth } from "./auth.js";
@@ -36,7 +38,32 @@ export async function buildServer(input: BuildServerInput): Promise<FastifyInsta
     limits: { fileSize: env.bodyLimitCsv, files: 1 }
   });
 
-  registerAuth(app, { apiKey: env.apiKey, skipPaths: ["/healthz", "/docs", "/docs/", "/docs/json", "/docs/yaml", "/docs/static/"] });
+  await app.register(swagger, {
+    openapi: {
+      info: {
+        title: "PinForge API",
+        version: "0.1.0",
+        description: "Pinterest pin generator — REST wrapper for @str/pinforge."
+      },
+      components: {
+        securitySchemes: {
+          apiKey: { type: "apiKey", in: "header", name: "X-API-Key" }
+        }
+      },
+      security: [{ apiKey: [] }]
+    }
+  });
+
+  await app.register(swaggerUi, {
+    routePrefix: "/docs",
+    uiConfig: { docExpansion: "list", deepLinking: false }
+  });
+
+  registerAuth(app, {
+    apiKey: env.apiKey,
+    skipPaths: ["/healthz"],
+    skipPrefixes: ["/docs"]
+  });
 
   registerHealthRoutes(app);
   registerPinsRoutes(app, { env: input.env, brandsDir: input.brandsDir, outputDir: input.outputDir });

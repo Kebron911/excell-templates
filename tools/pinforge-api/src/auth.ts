@@ -4,10 +4,12 @@ import type { FastifyInstance } from "fastify";
 export interface AuthOptions {
   apiKey: string;
   skipPaths?: string[];
+  /** Any URL whose path starts with one of these prefixes is also skipped */
+  skipPrefixes?: string[];
 }
 
 export function registerAuth(app: FastifyInstance, options: AuthOptions): void {
-  const { apiKey, skipPaths = [] } = options;
+  const { apiKey, skipPaths = [], skipPrefixes = [] } = options;
   const keyBuf = Buffer.from(apiKey, "utf8");
 
   app.addHook("onRequest", async (req, reply) => {
@@ -15,6 +17,10 @@ export function registerAuth(app: FastifyInstance, options: AuthOptions): void {
     const path = rawPath.split("?")[0] ?? rawPath;
 
     if (skipPaths.includes(rawPath) || skipPaths.includes(path)) {
+      return;
+    }
+
+    if (skipPrefixes.some((prefix) => path.startsWith(prefix))) {
       return;
     }
 
