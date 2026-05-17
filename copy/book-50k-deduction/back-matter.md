@@ -243,6 +243,29 @@ The STR Ledger builds Excel systems for short-term rental hosts who treat their 
 
 ---
 
+## Section 4.5 — Other Free Tools from The STR Ledger
+
+*Single recto page following "About the Publisher", preceding the Inside Back-Cover Insert. Cormorant Medium 28 pt headline, Inter 400 14 pt body, JetBrains Mono 500 12 pt URLs in Muted Gold. Three-row card stack, generous whitespace.*
+
+### Other Free Tools from The STR Ledger
+
+The workbooks in this book are the tax layer. The portfolio runs on a stack — and most of that stack is free. If you operate one or more short-term rentals, these four tools are the ones we use in-house, all free, no email required to use the core calculators.
+
+| Tool | What it does | URL |
+|---|---|---|
+| **STRLaws** | National short-term-rental regulation database. All 50 states, hundreds of cities. Look up your jurisdiction before you buy, list, or renew. Free; premium change alerts $14/mo. | `strlaws.com` |
+| **ListingAudit** | Paste any Airbnb or VRBO listing URL and get a 0–100 scorecard plus the top 5 fixes in 30 seconds. Free single-listing audit; PDF deep-dive available. | `listingaudit.tools` |
+| **STRBuyers** | DSCR, cash-on-cash, market-score, comp analyzer, and Year 1 cash-needs calculators for the acquisition phase. Free. | `strbuyers.tools` |
+| **STRHost** | Profit, RevPAR, break-even, lodging-tax, and co-host split calculators for the operating phase. Free. | `strhost.tools` |
+| **STRGuests** | Welcome book, house rules, Wi-Fi sign, and message template generators for the guest-experience layer. Free. | `strguests.tools` |
+| **STROps** | Turnover scheduler, cleaner dispatch, smart-lock code generator, linen par, and damage cost lookup for the operations layer. Free. | `strops.tools` |
+
+These tools share the same data spine as the workbooks in this book — the depreciation grid, the deduction map, and the persona profile all live in one place. Cross-domain analytics are honored across the empire; a host who lands on `strbuyers.tools` and later returns through this book is treated as one continuous reader.
+
+*Tax positions taken in jurisdictions with unusual lodging-tax, occupancy, or licensing rules deserve a regulation pass before filing. Start at `strlaws.com`.*
+
+---
+
 ## Section 5 — Inside Back-Cover Insert
 
 *Printed on page 159 of the interior PDF — separate artboard from the cover wrap, per cover-spec §3.6. Parchment ground, Harbor Navy 60-px band at top.*

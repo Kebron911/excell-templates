@@ -50,6 +50,12 @@ export const siteConfig: SiteConfig = {
           { label: 'Terms', href: '/terms' },
         ],
       },
+      {
+        title: 'Read',
+        links: [
+          { label: 'The $50,000 Deduction (book)', href: 'https://thestrledger.com/book' },
+        ],
+      },
     ],
   },
 };
