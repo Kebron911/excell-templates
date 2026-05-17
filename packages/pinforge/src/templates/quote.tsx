@@ -7,10 +7,8 @@ export const quoteTemplate: PinTemplate = {
   supports: ["solid", "gradient", "image"] as const,
   dimensions: { width: 1000, height: 1500 },
   render({ brand, copy, background }) {
-    const lightBg = background.type === "solid" || background.type === "gradient";
-    const color = lightBg ? brand.colors.text : brand.colors.text;
     return (
-      <div style={{ position: "relative", width: 1000, height: 1500, display: "flex", fontFamily: brand.fonts.accent.family, color }}>
+      <div style={{ position: "relative", width: 1000, height: 1500, display: "flex", fontFamily: brand.fonts.accent.family, color: brand.colors.text }}>
         {renderBackground(brand, background)}
         <div style={{ position: "absolute", inset: 0, padding: "0 80px", display: "flex", flexDirection: "column", justifyContent: "center", textAlign: "center" }}>
           <div style={{ fontSize: 180, lineHeight: 1, color: brand.colors.accent, fontFamily: brand.fonts.accent.family }}>"</div>

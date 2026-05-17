@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { TemplateNotFoundError } from "../../src/errors.js";
-import { getTemplate, listTemplateIds, registerTemplate } from "../../src/templates/registry.js";
+import { _resetRegistry, getTemplate, listTemplateIds, registerTemplate } from "../../src/templates/registry.js";
 import type { PinTemplate } from "../../src/templates/types.js";
 
 const fake: PinTemplate = {
@@ -12,6 +12,8 @@ const fake: PinTemplate = {
 };
 
 describe("template registry", () => {
+  beforeEach(() => { _resetRegistry(); });
+
   it("registers + retrieves a template", () => {
     registerTemplate(fake);
     expect(getTemplate("fake-test").id).toBe("fake-test");
