@@ -28,3 +28,6 @@ export { loadEnv, type PinforgeEnv } from "./env.js";
 export { makeSlug, slugify, todayIso, type SlugArgs } from "./slug.js";
 
 export { logger, type PinforgeLogger } from "./logger.js";
+
+export { getTemplate, listTemplateIds, listTemplates } from "./templates/index.js";
+export type { PinTemplate, TemplateInput, RenderedCopy, RenderedBackground } from "./templates/types.js";
