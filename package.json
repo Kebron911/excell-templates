@@ -16,7 +16,11 @@
     "postinstall": "node ./scripts/postinstall.mjs",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "pnpm -r build && changeset publish"
+    "release": "pnpm -r build && changeset publish",
+    "pinforge": "pnpm -F @str/pinforge",
+    "pinforge:build": "pnpm -F @str/pinforge build",
+    "pinforge:test": "pnpm -F @str/pinforge test",
+    "pinforge:cli": "node packages/pinforge/dist/cli.js"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.7",
