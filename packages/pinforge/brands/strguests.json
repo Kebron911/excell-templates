@@ -2,7 +2,7 @@
   "brandId": "strguests",
   "displayName": "STRGuests Tools",
   "domain": "strguests.tools",
-  "voice": "Direct, helpful, no-nonsense. Short sentences. Speaks to STR hosts.",
+  "voice": "Direct, helpful, no-nonsense. Short sentences. Speaks to STR hosts who manage 1-10 properties and want operational shortcuts. Skip jargon.",
   "colors": {
     "primary": "#0f766e",
     "primaryDark": "#134e4a",
@@ -11,16 +11,23 @@
     "textOnLight": "#1c1917"
   },
   "fonts": {
-    "headline": { "family": "Inter", "weight": 800, "file": "fonts/Inter-ExtraBold.ttf" },
-    "body":     { "family": "Inter", "weight": 500, "file": "fonts/Inter-Medium.ttf" },
+    "headline": { "family": "Inter",   "weight": 800, "file": "fonts/Inter-ExtraBold.ttf" },
+    "body":     { "family": "Inter",   "weight": 500, "file": "fonts/Inter-Medium.ttf" },
     "accent":   { "family": "Georgia", "weight": 400, "file": "fonts/Georgia.ttf" }
   },
-  "logo": { "wordmark": "assets/strguests-wordmark.png", "footerText": "STRGUESTS.TOOLS" },
-  "defaults": { "templateId": "big-hook", "backgroundType": "image", "imageTreatment": "duotone", "boardHint": "STR Host Tips" },
+  "logo": { "footerText": "STRGUESTS.TOOLS" },
+  "defaults": {
+    "templateId": "big-hook",
+    "backgroundType": "image",
+    "imageTreatment": "duotone",
+    "boardHint": "STR Host Tips"
+  },
   "seo": {
-    "keywords": ["short-term rental", "airbnb host", "vrbo", "vacation rental"],
-    "disallowedTerms": ["cheap", "easy money"],
+    "keywords": ["short-term rental", "airbnb host", "vrbo", "vacation rental", "STR operator"],
+    "disallowedTerms": ["cheap", "easy money", "passive income guarantee"],
     "ctaSuffix": "→ Free templates at strguests.tools"
   },
-  "allowedDomains": ["strguests.tools"]
+  "allowedDomains": ["strguests.tools"],
+  "imageStyle": "photographic, natural lighting, warm tones, cozy vacation rental aesthetic",
+  "imageKeywords": ["vacation rental interior", "coastal home", "mountain cabin", "airbnb host"]
 }
