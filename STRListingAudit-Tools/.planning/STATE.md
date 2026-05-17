@@ -95,8 +95,25 @@ Distribution surface — content seed + programmatic SEO + legal/about pages.
 - `@str/ui-chrome/Footer.astro` cross-link rows to listingaudit.tools from sibling sites
 - Phase 4b: PDF + email-verify + EmailGate wiring
 - Live-API smoke once `ANTHROPIC_API_KEY` and `APIFY_TOKEN` are provisioned in `STRListingAudit-Tools/.env.local`
-- Hostinger MySQL provisioning for `strlistingaudit` DB (see open question in STATE.md)
-- Domain registration + DNS for `listingaudit.tools`
+
+### Phase 6 follow-ups (in-progress 2026-05-16 — feat/listingaudit-api-deploy branch)
+
+- [x] **Deployment model decision** — Express API runs as Docker container on the n8n VPS, fronted by Traefik at `api.listingaudit.tools` (TLS via Cloudflare DNS challenge). Static frontend stays on Hostinger. Decision rationale: Hostinger Business shared LiteSpeed disallows arbitrary port-binding processes; existing n8n VPS already runs Traefik + Docker, marginal cost ~zero.
+- [x] **Dockerfile** — multi-stage pnpm workspace build, runs `node server/dist/index.js` as non-root.
+- [x] **docker-compose.production.yml** — Traefik labels for `api.listingaudit.tools`, healthcheck, `my_network` external network.
+- [x] **CORS middleware** — env-configurable `ALLOWED_ORIGIN` in `server/index.ts`. Production: `https://listingaudit.tools`.
+- [x] **Frontend `PUBLIC_API_BASE`** — `AuditForm` + `audit/index.astro` now prefix `/api/*` with env-injected base URL (empty in dev = same-origin).
+- [x] **`deploy-strlistingaudit-api.yml`** — build image → push to GHCR → SSH to VPS → `docker compose pull && up -d` → curl-loop health probe.
+- [x] **`deploy-strlistingaudit-tools.yml`** — passes `LISTINGAUDIT_PUBLIC_API_BASE` secret to build + smoke env.
+- [x] **`scripts/smoke.mjs`** — new `SMOKE_API_BASE_URL` env, `/api/health` probes the cross-origin API host.
+- [x] **`DEPLOY-API.md`** — one-time setup runbook (DNS, GH secrets, VPS bootstrap, MySQL provisioning, rollback).
+- [ ] **DNS:** `A api.listingaudit.tools → <vps-ip>` (manual via Cloudflare)
+- [ ] **GH secrets:** `N8N_SSH_HOST/PORT/USER/KEY`, `LISTINGAUDIT_PUBLIC_API_BASE` (manual)
+- [ ] **VPS bootstrap:** create `/home/kebron/git/mydocker/listingaudit-api/`, copy compose + .env, `docker login ghcr.io`, first `docker compose up -d`
+- [ ] **Hostinger MySQL:** create DB `strlistingaudit` on the shared instance strguests already uses, whitelist VPS IP under Remote MySQL, populate `MYSQL_*` in VPS `.env`
+- [ ] **Run migrations** via container once env is in place
+- [ ] **End-to-end smoke** with a real Airbnb URL
+- `@str/ui-chrome/Footer.astro` cross-link rows to listingaudit.tools from sibling sites
 
 ---
 

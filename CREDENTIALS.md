@@ -127,6 +127,24 @@ reads from GitHub Actions secrets and writes a temporary `.env` at build:
 When adding a key that also needs CI: add it to root `.env` AND to GitHub
 Actions secrets. Two consumers, two places.
 
+**Currently in GitHub Actions secrets:**
+
+- `STR_SSH_KEY` / `STR_SSH_HOST` / `STR_SSH_PORT` / `STR_SSH_USER` — Hostinger static-site rsync
+- `LISTINGAUDIT_GA4_ID` — build-time GA4 measurement ID
+- `LISTINGAUDIT_ADMIN_TOKEN` — gates `POST /api/scrape`
+- `LISTINGAUDIT_IP_HASH_SALT` — Phase 4 rate limiter
+- `LISTINGAUDIT_PUBLIC_API_BASE` — build-time API base URL (Astro injects into client bundle); value: `https://api.listingaudit.tools` ⏳ pending
+- `N8N_SSH_HOST` / `N8N_SSH_PORT` / `N8N_SSH_USER` / `N8N_SSH_KEY` — used by `deploy-strlistingaudit-api.yml` to pull updated images on the VPS ⏳ pending
+
+### Container registry (GHCR)
+
+| Key | Used by | Vaultwarden entry |
+|---|---|---|
+| `GHCR_PAT` | one-time `docker login ghcr.io` on n8n VPS so it can pull `ghcr.io/kebron911/listingaudit-api:latest` | `github / ghcr-pat-readonly` ⏳ pending — generate at https://github.com/settings/tokens, classic, scope `read:packages` |
+
+CI itself authenticates to GHCR with `secrets.GITHUB_TOKEN` (no PAT needed for
+push). The PAT is only for the pull side on the VPS.
+
 ---
 
 ## n8n Docker host — SSH details
@@ -176,3 +194,15 @@ See [`docs/env-setup.md`](docs/env-setup.md).
 6. `pnpm sync:env` to regenerate per-project files
 
 All in one commit.
+
+---
+
+## 2026-05-16 — listingaudit.tools Docker-on-VPS deploy (`feat/listingaudit-api-deploy`)
+
+Added to GitHub Actions secrets section + new GHCR row above:
+
+- `LISTINGAUDIT_PUBLIC_API_BASE` ⏳ — build-time `https://api.listingaudit.tools`
+- `N8N_SSH_HOST` / `N8N_SSH_PORT` / `N8N_SSH_USER` / `N8N_SSH_KEY` ⏳ — CI's SSH access to the n8n VPS for `docker compose pull && up -d`
+- `GHCR_PAT` ⏳ (Vaultwarden) — one-time `docker login ghcr.io` on VPS
+
+Same day: marked Anthropic, Apify, GA4 (listingaudit) as ✅ set after stale audit; generated + stored `IP_HASH_SALT` and `ADMIN_TOKEN` in `.env.local` plus Actions secrets `LISTINGAUDIT_IP_HASH_SALT` / `LISTINGAUDIT_ADMIN_TOKEN`. Remaining ⏳ for prod cutover: the four above + MySQL provisioning (open in STATE.md) + `EMAIL_VERIFY_SECRET` (Phase 4b only).

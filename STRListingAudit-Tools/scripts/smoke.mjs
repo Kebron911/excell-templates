@@ -5,10 +5,14 @@
  *
  * Exits non-zero on any failure so the deploy workflow surfaces it.
  *
- * Override base URL: SMOKE_BASE_URL=https://staging.listingaudit.tools node scripts/smoke.mjs
+ * Override base URLs:
+ *   SMOKE_BASE_URL=https://staging.listingaudit.tools \
+ *   SMOKE_API_BASE_URL=https://api.staging.listingaudit.tools \
+ *   node scripts/smoke.mjs
  */
 
 const BASE = process.env.SMOKE_BASE_URL ?? 'https://listingaudit.tools';
+const API_BASE = process.env.SMOKE_API_BASE_URL ?? 'https://api.listingaudit.tools';
 
 const checks = [
   {
@@ -55,6 +59,7 @@ const checks = [
   },
   {
     name: 'api health',
+    base: API_BASE,
     url: '/api/health',
     contentType: 'application/json',
     body: '"ok"',
@@ -63,7 +68,7 @@ const checks = [
 
 let failures = 0;
 for (const check of checks) {
-  const url = `${BASE}${check.url}`;
+  const url = `${check.base ?? BASE}${check.url}`;
   try {
     const res = await fetch(url, { headers: { 'user-agent': 'listingaudit-smoke/0.1' } });
     if (!res.ok) {
