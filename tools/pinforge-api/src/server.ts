@@ -6,6 +6,7 @@ import { registerAuth } from "./auth.js";
 import { registerHealthRoutes } from "./routes/health.js";
 import { registerPinsRoutes } from "./routes/pins.js";
 import { registerJobsRoutes } from "./routes/jobs.js";
+import { registerBulkRoutes } from "./routes/pins-bulk.js";
 
 export interface BuildServerInput {
   env: ApiEnv;
@@ -32,6 +33,7 @@ export async function buildServer(input: BuildServerInput): Promise<FastifyInsta
   registerHealthRoutes(app);
   registerPinsRoutes(app, { env: input.env, brandsDir: input.brandsDir, outputDir: input.outputDir });
   registerJobsRoutes(app);
+  registerBulkRoutes(app, { env: input.env, brandsDir: input.brandsDir, outputDir: input.outputDir });
 
   return app;
 }
