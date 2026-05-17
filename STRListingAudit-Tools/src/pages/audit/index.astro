@@ -11,7 +11,13 @@
 // and rendered into the page for copy/share interactions.
 import Layout from '@/components/AppLayout.astro';
 import { siteConfig } from '@/data/site.config';
+
+const apiBase = import.meta.env.PUBLIC_API_BASE ?? '';
 ---
+
+<script is:inline define:vars={{ apiBase }}>
+  window.__listingaudit_api_base = apiBase || '';
+</script>
 
 <Layout
   siteConfig={siteConfig}
@@ -132,6 +138,7 @@ import { siteConfig } from '@/data/site.config';
 
     const params = new URLSearchParams(window.location.search);
     const auditId = params.get('id');
+    const apiBase = (window as any).__listingaudit_api_base ?? '';
 
     const loadingEl = document.getElementById('audit-loading')!;
     const resultEl = document.getElementById('audit-result')!;
@@ -250,7 +257,7 @@ import { siteConfig } from '@/data/site.config';
         progressEl.style.width = `${progress}%`;
         let res: Response;
         try {
-          res = await fetch(`/api/audit/${encodeURIComponent(auditId)}/status`);
+          res = await fetch(`${apiBase}/api/audit/${encodeURIComponent(auditId)}/status`);
         } catch {
           await sleep(2000);
           continue;
@@ -261,7 +268,7 @@ import { siteConfig } from '@/data/site.config';
         }
         const status = (await res.json()) as StatusResponse;
         if (status.status === 'ready') {
-          const dataRes = await fetch(`/api/audit/${encodeURIComponent(auditId)}`);
+          const dataRes = await fetch(`${apiBase}/api/audit/${encodeURIComponent(auditId)}`);
           if (!dataRes.ok) {
             showError('Could not load result', `Server returned ${dataRes.status}. Try refreshing.`);
             return;

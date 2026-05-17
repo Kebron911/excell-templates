@@ -1,0 +1,32 @@
+# Copy to /home/kebron/git/mydocker/listingaudit-api/docker-compose.yml on the
+# n8n VPS, then `docker compose up -d`. See DEPLOY-API.md for full setup.
+
+services:
+  listingaudit-api:
+    image: ghcr.io/kebron911/listingaudit-api:latest
+    container_name: listingaudit-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    expose:
+      - "3002"
+    networks:
+      - my_network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=my_network"
+      - "traefik.http.routers.listingaudit-api.rule=Host(`api.listingaudit.tools`)"
+      - "traefik.http.routers.listingaudit-api.entrypoints=websecure"
+      - "traefik.http.routers.listingaudit-api.tls=true"
+      - "traefik.http.routers.listingaudit-api.tls.certresolver=cloudflare"
+      - "traefik.http.services.listingaudit-api.loadbalancer.server.port=3002"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3002/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+networks:
+  my_network:
+    external: true

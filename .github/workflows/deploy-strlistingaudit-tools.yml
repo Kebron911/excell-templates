@@ -60,6 +60,7 @@ jobs:
         run: |
           {
             echo "PUBLIC_GA4_ID=${{ secrets.LISTINGAUDIT_GA4_ID }}"
+            echo "PUBLIC_API_BASE=${{ secrets.LISTINGAUDIT_PUBLIC_API_BASE }}"
           } > .env
           echo ".env written ($(wc -l < .env) lines, $(wc -c < .env) bytes)"
 
@@ -67,6 +68,7 @@ jobs:
         working-directory: STRListingAudit-Tools
         env:
           PUBLIC_GA4_ID: ${{ secrets.LISTINGAUDIT_GA4_ID }}
+          PUBLIC_API_BASE: ${{ secrets.LISTINGAUDIT_PUBLIC_API_BASE }}
         run: pnpm build
 
       - name: Verify build output
@@ -127,4 +129,5 @@ jobs:
         working-directory: STRListingAudit-Tools
         env:
           SMOKE_BASE_URL: https://listingaudit.tools
+          SMOKE_API_BASE_URL: https://api.listingaudit.tools
         run: node scripts/smoke.mjs

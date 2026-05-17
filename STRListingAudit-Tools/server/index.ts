@@ -7,12 +7,14 @@
  * Phase 4: adds POST /api/audit, GET /api/audit/:id, GET /api/audit/:id/status,
  *          GET /audit/:id/pdf (email-gated).
  *
- * Deployed to Hostinger Apps on :3002 (strguests holds :3001). A reverse proxy
- * fronts both the static dist (Astro) and this API under one origin.
+ * Production: Docker container on the n8n VPS, fronted by Traefik at
+ * `api.listingaudit.tools` (TLS via Cloudflare DNS challenge). The static
+ * Astro frontend lives on Hostinger at `listingaudit.tools`; CORS allows the
+ * cross-origin XHR.
  */
 
 import express from 'express';
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { scrapeHandler } from './routes/scrape';
 import {
   auditSubmitMiddleware,
@@ -25,6 +27,19 @@ import {
 const app = express();
 
 app.use(express.json({ limit: '256kb' }));
+
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? '*';
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
+  res.setHeader('Vary', 'Origin');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Admin-Token');
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+  next();
+});
 
 // Health check — used by post-deploy smoke + uptime probes.
 app.get('/api/health', (_req: Request, res: Response) => {
