@@ -67,13 +67,31 @@ test('robots.txt and sitemap-index.xml are reachable', async ({ request }) => {
   expect(await sitemap.text()).toContain('<sitemapindex');
 });
 
-test('GA4 snippet is absent without PUBLIC_GA4_ID', async ({ page }) => {
-  // CI runs without PUBLIC_GA4_ID so the gate must hold the snippet out
-  // of the rendered HTML. If a future change breaks the gate this catches it.
+test('GA4 snippet renders when PUBLIC_GA4_ID is set at build time', async ({ page }) => {
+  // GA4 is now permanently wired across the cluster (see deploy-strguests-tools.yml
+  // — secret STRGUESTS_GA4_ID is written to .env before build). The original gate-
+  // off assertion is no longer correct. Instead we read STRGuests-Tools/.env (the
+  // file the deploy workflow writes) at test time to determine whether GA4 should
+  // be in the HTML, and assert accordingly. This works for both CI (writes .env)
+  // and local dev (typically has no .env or no PUBLIC_GA4_ID).
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  let buildGa4Id: string | undefined;
+  try {
+    const env = fs.readFileSync(path.resolve(process.cwd(), '.env'), 'utf8');
+    const match = env.match(/^PUBLIC_GA4_ID=(G-[A-Z0-9]+)\s*$/m);
+    if (match) buildGa4Id = match[1];
+  } catch {
+    // .env absent — local dev without GA4 wiring. Skip rather than fail.
+  }
+
   await page.goto('/');
   const html = await page.content();
-  if (process.env.PUBLIC_GA4_ID) {
-    test.skip(true, 'PUBLIC_GA4_ID set — gate-off case not testable here');
+
+  if (buildGa4Id) {
+    expect(html).toContain('googletagmanager.com/gtag/js');
+    expect(html).toContain(buildGa4Id);
+  } else {
+    expect(html).not.toContain('googletagmanager.com/gtag/js');
   }
-  expect(html).not.toContain('googletagmanager.com/gtag/js');
 });
