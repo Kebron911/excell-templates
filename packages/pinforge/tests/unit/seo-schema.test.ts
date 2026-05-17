@@ -16,22 +16,22 @@ describe("SeoCopySchema", () => {
   });
 
   it("rejects headline over 60 chars", () => {
-    const bad = { headline: "x".repeat(61), pinTitle: "x", description: "y".repeat(150), altText: "z", hashtags: ["#a", "#b", "#c"] };
+    const bad = { headline: "x".repeat(61), pinTitle: "x", description: "y".repeat(150), altText: "Test alt text describing pin", hashtags: ["#a", "#b", "#c"] };
     expect(SeoCopySchema.safeParse(bad).success).toBe(false);
   });
 
   it("rejects description shorter than 150 chars", () => {
-    const bad = { headline: "x", pinTitle: "x", description: "too short", altText: "z", hashtags: ["#a", "#b", "#c"] };
+    const bad = { headline: "x", pinTitle: "x", description: "too short", altText: "Test alt text describing pin", hashtags: ["#a", "#b", "#c"] };
     expect(SeoCopySchema.safeParse(bad).success).toBe(false);
   });
 
   it("rejects fewer than 3 hashtags", () => {
-    const bad = { headline: "x", pinTitle: "x", description: "y".repeat(160), altText: "z", hashtags: ["#a", "#b"] };
+    const bad = { headline: "x", pinTitle: "x", description: "y".repeat(160), altText: "Test alt text describing pin", hashtags: ["#a", "#b"] };
     expect(SeoCopySchema.safeParse(bad).success).toBe(false);
   });
 
   it("rejects hashtag without leading #", () => {
-    const bad = { headline: "x", pinTitle: "x", description: "y".repeat(160), altText: "z", hashtags: ["#a", "bad", "#c"] };
+    const bad = { headline: "x", pinTitle: "x", description: "y".repeat(160), altText: "Test alt text describing pin", hashtags: ["#a", "bad", "#c"] };
     expect(SeoCopySchema.safeParse(bad).success).toBe(false);
   });
 
@@ -40,7 +40,7 @@ describe("SeoCopySchema", () => {
       headline: "5 steps",
       pinTitle: "5 steps to do X",
       description: "y".repeat(160),
-      altText: "z",
+      altText: "Test alt text describing pin",
       hashtags: ["#a", "#b", "#c"],
       items: ["one", "two", "three", "four", "five"],
       stat: "73%"
