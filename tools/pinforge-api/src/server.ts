@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import type { FastifyInstance } from "fastify";
+import multipart from "@fastify/multipart";
 import type { ApiEnv } from "./env.js";
 import { registerRateLimit } from "./rate-limit.js";
 import { registerAuth } from "./auth.js";
@@ -26,6 +27,10 @@ export async function buildServer(input: BuildServerInput): Promise<FastifyInsta
   await registerRateLimit(app, {
     max: env.rateLimitMax,
     windowMs: env.rateLimitWindowMs
+  });
+
+  await app.register(multipart, {
+    limits: { fileSize: env.bodyLimitCsv, files: 1 }
   });
 
   registerAuth(app, { apiKey: env.apiKey, skipPaths: ["/healthz"] });
