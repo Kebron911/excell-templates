@@ -29,41 +29,88 @@ function jobToCsv(job: JobState): string {
   return [header, ...rows].join("\n") + "\n";
 }
 
-export function registerJobsRoutes(app: FastifyInstance): void {
-  app.get("/v1/jobs/:jobId", async (req, reply) => {
-    const jobId = (req.params as { jobId: string }).jobId;
-    const job = getJob(jobId);
-    if (!job) {
-      reply.code(404).send({
-        error: {
-          code: "JOB_NOT_FOUND",
-          message: `No job with id '${jobId}'`,
-          context: { jobId }
-        }
-      });
-      return;
-    }
-    reply.code(200).send(job);
-  });
+const jobIdParams = {
+  type: "object" as const,
+  required: ["jobId"],
+  properties: { jobId: { type: "string" } }
+};
 
-  app.get("/v1/jobs/:jobId/results.csv", async (req, reply) => {
-    const jobId = (req.params as { jobId: string }).jobId;
-    const job = getJob(jobId);
-    if (!job) {
-      reply.code(404).send({
-        error: {
-          code: "JOB_NOT_FOUND",
-          message: `No job with id '${jobId}'`,
-          context: { jobId }
-        }
-      });
-      return;
+const errorSchema = {
+  type: "object" as const,
+  properties: {
+    error: {
+      type: "object",
+      properties: { code: { type: "string" }, message: { type: "string" } }
     }
-    const csv = jobToCsv(job);
-    reply
-      .code(200)
-      .header("content-type", "text/csv; charset=utf-8")
-      .header("content-disposition", `attachment; filename="job-${jobId}-results.csv"`)
-      .send(csv);
-  });
+  }
+};
+
+export function registerJobsRoutes(app: FastifyInstance): void {
+  app.get(
+    "/v1/jobs/:jobId",
+    {
+      schema: {
+        tags: ["jobs"],
+        summary: "Poll job status",
+        params: jobIdParams,
+        response: {
+          200: {
+            type: "object",
+            additionalProperties: true
+          },
+          404: errorSchema
+        }
+      }
+    },
+    async (req, reply) => {
+      const jobId = (req.params as { jobId: string }).jobId;
+      const job = getJob(jobId);
+      if (!job) {
+        reply.code(404).send({
+          error: {
+            code: "JOB_NOT_FOUND",
+            message: `No job with id '${jobId}'`,
+            context: { jobId }
+          }
+        });
+        return;
+      }
+      reply.code(200).send(job);
+    }
+  );
+
+  app.get(
+    "/v1/jobs/:jobId/results.csv",
+    {
+      schema: {
+        tags: ["jobs"],
+        summary: "Download job results as CSV",
+        params: jobIdParams,
+        response: {
+          200: { description: "CSV attachment", type: "string" },
+          404: errorSchema
+        }
+      }
+    },
+    async (req, reply) => {
+      const jobId = (req.params as { jobId: string }).jobId;
+      const job = getJob(jobId);
+      if (!job) {
+        reply.code(404).send({
+          error: {
+            code: "JOB_NOT_FOUND",
+            message: `No job with id '${jobId}'`,
+            context: { jobId }
+          }
+        });
+        return;
+      }
+      const csv = jobToCsv(job);
+      reply
+        .code(200)
+        .header("content-type", "text/csv; charset=utf-8")
+        .header("content-disposition", `attachment; filename="job-${jobId}-results.csv"`)
+        .send(csv);
+    }
+  );
 }

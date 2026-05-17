@@ -10,7 +10,29 @@ export interface CsvRoutesDeps {
 }
 
 export function registerCsvRoute(app: FastifyInstance, deps: CsvRoutesDeps): void {
-  app.post("/v1/pins/csv", async (req, reply) => {
+  app.post(
+    "/v1/pins/csv",
+    {
+      schema: {
+        tags: ["pins"],
+        summary: "Bulk-generate pins from a multipart CSV file upload (async)",
+        consumes: ["multipart/form-data"],
+        description: "Multipart form upload with a 'file' field containing CSV: columns brandId, topic, primaryKeyword, destinationUrl",
+        response: {
+          202: {
+            type: "object",
+            additionalProperties: true
+          },
+          400: {
+            type: "object",
+            properties: {
+              error: { type: "object", properties: { code: { type: "string" }, message: { type: "string" } } }
+            }
+          }
+        }
+      }
+    },
+    async (req, reply) => {
     const file = await req.file();
     if (!file) {
       reply.code(400).send({
@@ -73,5 +95,6 @@ export function registerCsvRoute(app: FastifyInstance, deps: CsvRoutesDeps): voi
       pollUrl: `/v1/jobs/${jobId}`,
       ...(parsed.errors.length > 0 ? { parseErrors: parsed.errors } : {})
     });
-  });
+  }
+  );
 }

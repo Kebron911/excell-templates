@@ -10,7 +10,25 @@ const pkg = JSON.parse(
 const VERSION = pkg.version;
 
 export function registerHealthRoutes(app: FastifyInstance): void {
-  app.get("/healthz", async (_req, reply) => {
-    return reply.code(200).send({ ok: true, version: VERSION });
-  });
+  app.get(
+    "/healthz",
+    {
+      schema: {
+        tags: ["system"],
+        summary: "Health check — no auth required",
+        response: {
+          200: {
+            type: "object",
+            properties: {
+              ok: { type: "boolean" },
+              version: { type: "string" }
+            }
+          }
+        }
+      }
+    },
+    async (_req, reply) => {
+      return reply.code(200).send({ ok: true, version: VERSION });
+    }
+  );
 }

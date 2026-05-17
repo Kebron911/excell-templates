@@ -19,7 +19,52 @@ export function registerBulkRoutes(app: FastifyInstance, deps: BulkRoutesDeps): 
         .max(max, `items cannot exceed ${max}`)
     });
 
-  app.post("/v1/pins/bulk", async (req, reply) => {
+  app.post(
+    "/v1/pins/bulk",
+    {
+      schema: {
+        tags: ["pins"],
+        summary: "Bulk-generate pins from a JSON array (async)",
+        body: {
+          type: "object",
+          required: ["items"],
+          properties: {
+            items: {
+              type: "array",
+              minItems: 1,
+              items: {
+                type: "object",
+                required: ["brandId"],
+                properties: {
+                  brandId: { type: "string" },
+                  topic: { type: "string" },
+                  primaryKeyword: { type: "string" },
+                  destinationUrl: { type: "string", format: "uri" }
+                }
+              }
+            }
+          }
+        },
+        response: {
+          202: {
+            type: "object",
+            properties: {
+              jobId: { type: "string" },
+              count: { type: "number" },
+              pollUrl: { type: "string" }
+            },
+            additionalProperties: true
+          },
+          400: {
+            type: "object",
+            properties: {
+              error: { type: "object", properties: { code: { type: "string" }, message: { type: "string" } } }
+            }
+          }
+        }
+      }
+    },
+    async (req, reply) => {
     const schema = bulkBodySchema(deps.env.bulkMax);
     const parsed = schema.safeParse(req.body);
     if (!parsed.success) {
@@ -61,5 +106,6 @@ export function registerBulkRoutes(app: FastifyInstance, deps: BulkRoutesDeps): 
       count: items.length,
       pollUrl: `/v1/jobs/${jobId}`
     });
-  });
+  }
+  );
 }
