@@ -6,10 +6,11 @@ import { describe, expect, it } from "vitest";
 const CLI = resolve(fileURLToPath(import.meta.url), "..", "..", "..", "dist", "cli.js");
 
 describe("pinforge CLI", () => {
-  it("brands subcommand lists strguests", () => {
+  it("brands subcommand lists strguests and excel-templates", () => {
     const out = spawnSync("node", [CLI, "brands"], { encoding: "utf8" });
     expect(out.status).toBe(0);
     expect(out.stdout).toContain("strguests");
+    expect(out.stdout).toContain("excel-templates");
   });
 
   it("templates subcommand lists big-hook", () => {

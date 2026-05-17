@@ -1,0 +1,33 @@
+{
+  "brandId": "excel-templates",
+  "displayName": "Excel Templates",
+  "domain": "excel-templates.com",
+  "voice": "Practical, expert, no-fluff. Speaks to professionals who need a working spreadsheet today, not a tutorial. Quantify benefits.",
+  "colors": {
+    "primary": "#1d4ed8",
+    "primaryDark": "#1e3a8a",
+    "accent": "#93c5fd",
+    "text": "#ffffff",
+    "textOnLight": "#0f172a"
+  },
+  "fonts": {
+    "headline": { "family": "Inter",   "weight": 800, "file": "fonts/Inter-ExtraBold.ttf" },
+    "body":     { "family": "Inter",   "weight": 500, "file": "fonts/Inter-Medium.ttf" },
+    "accent":   { "family": "Georgia", "weight": 400, "file": "fonts/Georgia.ttf" }
+  },
+  "logo": { "footerText": "EXCEL-TEMPLATES.COM" },
+  "defaults": {
+    "templateId": "big-hook",
+    "backgroundType": "gradient",
+    "imageTreatment": "white-banner",
+    "boardHint": "Excel Templates"
+  },
+  "seo": {
+    "keywords": ["excel template", "spreadsheet", "google sheets template", "budget template", "business spreadsheet"],
+    "disallowedTerms": ["free download"],
+    "ctaSuffix": "→ Download at excel-templates.com"
+  },
+  "allowedDomains": ["excel-templates.com"],
+  "imageStyle": "clean, minimalist, business-casual, modern desk setup",
+  "imageKeywords": ["spreadsheet", "business analytics", "office desk", "data visualization"]
+}
