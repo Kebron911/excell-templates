@@ -28,6 +28,8 @@ program.command("generate")
   .option("--template <id>", "templateId (default: brand default)")
   .option("--bg <type>", "backgroundType: solid|gradient|image")
   .option("--treatment <type>", "imageTreatment: bottom-gradient|white-banner|duotone")
+  .option("--input-mode <mode>", "inputMode: topic|url (default: topic)")
+  .option("--source-url <url>", "source URL to scrape when --input-mode=url")
   .action(async (opts) => {
     const env = loadEnv();
     const result = await generatePin({
@@ -37,7 +39,9 @@ program.command("generate")
       destinationUrl: opts.url,
       templateId: opts.template,
       backgroundType: opts.bg,
-      imageTreatment: opts.treatment
+      imageTreatment: opts.treatment,
+      inputMode: opts.inputMode,
+      sourceUrl: opts.sourceUrl
     }, { env, brandsDir: BRANDS_DIR, outputDir: resolve(process.cwd(), env.outputDir) });
     process.stdout.write(`✓ ${result.paths.png}\n  ${result.paths.json}\n`);
   });

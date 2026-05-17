@@ -36,4 +36,22 @@ describe("parsePinInputCsv", () => {
     const result = parsePinInputCsv(csv);
     expect(result.rows[0]!.topic).toBe("hello, world");
   });
+
+  it("parses URL-mode rows", () => {
+    const csv = `brandId,topic,primaryKeyword,destinationUrl,inputMode,sourceUrl
+strguests,my-topic,kw,https://strguests.tools/dest,url,https://strguests.tools/source`;
+    const result = parsePinInputCsv(csv);
+    expect(result.rows).toHaveLength(1);
+    expect(result.errors).toHaveLength(0);
+    expect(result.rows[0]!.inputMode).toBe("url");
+    expect(result.rows[0]!.sourceUrl).toBe("https://strguests.tools/source");
+  });
+
+  it("rejects URL-mode row missing sourceUrl", () => {
+    const csv = `brandId,topic,primaryKeyword,destinationUrl,inputMode
+strguests,my-topic,kw,https://strguests.tools/dest,url`;
+    const result = parsePinInputCsv(csv);
+    expect(result.rows).toHaveLength(0);
+    expect(result.errors).toHaveLength(1);
+  });
 });
