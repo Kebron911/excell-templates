@@ -9,17 +9,7 @@
 
 ---
 
-## Page 1 — Cover
-
-**Title:** The STR Tax Loophole Explainer
-
-**Subtitle:** What it actually is, who can use it, and the three-question test for whether it applies to you.
-
-**Footer:** STR Manuals · v1 · 2026 edition
-
----
-
-## Page 2 — A short note before we start
+<h2 class="break-before">A short note before we start</h2>
 
 The first time I asked a CPA whether the "STR loophole" applied to me, I got three different answers from three different people. One was technically correct but wrong in spirit. Two were wrong outright. None gave me the actual rule in a sentence I could repeat back.
 
@@ -36,7 +26,7 @@ STR Manuals
 
 ---
 
-## Page 3 — Why the rule exists
+<h2 class="break-before">Why the rule exists</h2>
 
 In 1986, Congress got mad about wealthy people using paper losses from real estate to wipe out their wage income. The fix was a section of the tax code called the Passive Activity Loss rules — Section 469.
 
@@ -50,7 +40,7 @@ The Passive Activity Loss rules have a few exceptions. The one we're talking abo
 
 ---
 
-## Page 4 — The carve-out in plain English
+<h2 class="break-before">The carve-out in plain English</h2>
 
 The Treasury regulations contain a rule (Treas. Reg. § 1.469-1T(e)(3)(ii) if you want the citation) that says:
 
@@ -66,7 +56,7 @@ It's not a hack. It's not something Airbnb hosts discovered by accident. It's be
 
 ---
 
-## Page 5 — What the rule actually does
+<h2 class="break-before">What the rule actually does</h2>
 
 The mechanical effect, in plain English:
 
@@ -84,7 +74,7 @@ A high-earner couple with $300,000 of W-2 income who buys a $400,000 STR and run
 
 ---
 
-## Page 6 — What the rule is NOT
+<h2 class="break-before">What the rule is NOT</h2>
 
 A lot of misinformation floats around on this topic. Here are the most common ones.
 
@@ -102,7 +92,7 @@ A lot of misinformation floats around on this topic. Here are the most common on
 
 ---
 
-## Page 7 — The three-question test
+<h2 class="break-before">The three-question test</h2>
 
 Here's a test for whether the STR loophole is worth your time. If you answer no to any of these, you can stop reading and move on with your life.
 
@@ -126,7 +116,7 @@ The loophole reduces what you owe. If you don't owe much to begin with, it has n
 
 ---
 
-## Page 8 — What to do next
+<h2 class="break-before">What to do next</h2>
 
 If you got two or three yeses on the previous page, the next steps are:
 
@@ -148,9 +138,3 @@ You'll get one more email from me in two days about a specific part of the rule 
 
 — Daniel
 STR Manuals
-
----
-
-## Footer (every page)
-
-`strmanuals.com · The STR Tax Loophole Explainer · Page X of 8 · v1 2026`

@@ -185,9 +185,14 @@ jobs:
       - name: Deploy via rsync over SSH
         if: steps.deploy_gate.outputs.deploy == 'true'
         run: |
+          # /dl/ is excluded from --delete because PDFs live there and are
+          # uploaded out-of-band via SFTP (private/manuals/*.pdf is gitignored,
+          # so CI never has the sources). Without this exclude, every CI deploy
+          # wipes /dl/ off the server. See STRManuals/docs/PDF-HOSTING.md.
           rsync -av --delete \
             --exclude='.git' \
             --exclude='node_modules' \
+            --exclude='dl/' \
             -e 'ssh -i ~/.ssh/id_ed25519 -p 65002 -o StrictHostKeyChecking=accept-new' \
             ./STRManuals/site/dist/ \
             u470667024@195.35.15.247:/home/u470667024/domains/strmanuals.com/public_html/
