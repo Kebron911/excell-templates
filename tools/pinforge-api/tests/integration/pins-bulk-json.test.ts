@@ -2,15 +2,32 @@ import { describe, expect, it, vi } from "vitest";
 import { buildServer, makeApiEnv, TEST_API_KEY } from "../helpers/build.js";
 import { makeFakePin } from "../helpers/mock-pinforge.js";
 
+// Mutable flag to trigger mixed results for Task 16
+let returnMixed = false;
+
 vi.mock("@str/pinforge", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@str/pinforge")>();
   return {
     ...actual,
-    generateBatch: vi.fn(async (inputs: unknown[]) => ({
-      jobId: "job_mocked",
-      succeeded: inputs.map((input) => ({ input, result: makeFakePin() })),
-      failed: []
-    }))
+    generateBatch: vi.fn(async (inputs: unknown[]) => {
+      if (returnMixed) {
+        return {
+          jobId: "job_mocked_mixed",
+          succeeded: [{ input: inputs[0], result: makeFakePin() }],
+          failed: [
+            {
+              input: inputs[1],
+              error: { code: "VALIDATION", message: "bad input", context: {} }
+            }
+          ]
+        };
+      }
+      return {
+        jobId: "job_mocked",
+        succeeded: inputs.map((input) => ({ input, result: makeFakePin() })),
+        failed: []
+      };
+    })
   };
 });
 
@@ -65,5 +82,25 @@ describe("POST /v1/pins/bulk (JSON)", () => {
     });
     expect(res.statusCode).toBe(400);
     await app.close();
+  });
+
+  it("returns 202 and continues when generateBatch returns mixed succeeded + failed", async () => {
+    returnMixed = true;
+    try {
+      const app = await buildServer({ env: makeApiEnv(), brandsDir: "./dummy", outputDir: "./dist/pins" });
+      const items = [makeItem(1), makeItem(2)];
+      const res = await app.inject({
+        method: "POST",
+        url: "/v1/pins/bulk",
+        headers: { "x-api-key": TEST_API_KEY, "content-type": "application/json" },
+        payload: { items }
+      });
+      expect(res.statusCode).toBe(202);
+      expect(res.json().count).toBe(2);
+      expect(res.json().jobId).toMatch(/^job_/);
+      await app.close();
+    } finally {
+      returnMixed = false;
+    }
   });
 });
