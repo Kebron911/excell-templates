@@ -1,0 +1,82 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const today = new Date().toISOString().slice(0, 10);
+---
+
+<BaseLayout
+  title="Terms — STRLaws"
+  description="Terms of use for STRLaws — informational only, not legal advice."
+>
+  <article class="mx-auto max-w-3xl px-4 py-12 prose">
+    <header>
+      <p class="label text-[color:var(--accent-700)]">Legal</p>
+      <h1 class="mt-2 font-wordmark text-h1 text-navy">Terms.</h1>
+      <p class="mt-3 text-caption text-ink-3 font-mono">
+        Last updated <time datetime={today}>{today}</time>
+      </p>
+    </header>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">This is not legal advice</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        STRLaws aggregates publicly-available regulation information about short-term rentals in US states and cities. The information is presented for general educational and operational reference. It is <strong>not legal advice</strong> and is not a substitute for consulting with a licensed attorney in your jurisdiction.
+      </p>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        Short-term rental regulations change frequently. Even when our data is current at the time of last verification, your specific situation — property type, zoning, length-of-stay, owner-occupancy, condo HOA rules, local enforcement actions — may carry obligations not reflected here. Verify directly with your city's licensing department before relying on any information on this site to operate.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">Data accuracy</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        We verify regulation data against official source URLs at the time of publication. Every state and city page includes a "last verified" date and a link to the underlying source. Despite our best efforts, errors and omissions can occur. If you spot an error, email <a class="underline" href="mailto:hello@strlaws.com">hello@strlaws.com</a> and we will research and correct it within 5 business days.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">Use of the alerts service</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        The alerts service is provided to help you stay informed of regulation changes in jurisdictions you've subscribed to. We cannot guarantee 100% completeness — we monitor official sources but a regulation change may take time to appear on those sources, and our system may have downtime. You remain responsible for your own compliance.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">Permitted use</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        You may use the data on STRLaws for personal reference, for client advisory work (if you're an STR coach, real-estate agent, or property manager), and for research purposes including journalism. You may not scrape the site at scale to operate a competing database, repackage the data as your own product, or republish full pages without attribution.
+      </p>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        For data licensing inquiries: <a class="underline" href="mailto:hello@strlaws.com">hello@strlaws.com</a>.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">No warranty</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        The site and its data are provided "as is" without warranty of any kind. We disclaim implied warranties of merchantability, fitness for a particular purpose, and non-infringement.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">Liability</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        To the maximum extent permitted by law, we disclaim all liability for any direct, indirect, incidental, or consequential damages arising from your use of the site or reliance on the data. Our total liability, if any, is limited to the amount you have paid us for any paid subscription tier in the trailing 12 months.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">Changes</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        We may update these terms as the service evolves. The "Last updated" date at the top tracks the current version. Continued use after a change constitutes acceptance.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-wordmark text-h2 text-navy">Contact</h2>
+      <p class="mt-3 text-body text-ink-2 leading-relaxed">
+        Questions: <a class="underline" href="mailto:hello@strlaws.com">hello@strlaws.com</a>.
+      </p>
+    </section>
+  </article>
+</BaseLayout>

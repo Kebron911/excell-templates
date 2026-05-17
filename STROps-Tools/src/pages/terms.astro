@@ -1,0 +1,79 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { siteConfig } from '@/data/site.config';
+
+const today = new Date().toISOString().slice(0, 10);
+---
+
+<Layout
+  siteConfig={siteConfig}
+  title="Terms · strops.tools"
+  description="Terms of use for strops.tools — free tools, no warranty, not professional advice."
+  path="/terms/"
+>
+  <article class="mx-auto max-w-3xl px-5 py-12 prose">
+    <header>
+      <p class="label text-[color:var(--accent-700)]">Legal</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">Terms<span class="period-accent">.</span></h1>
+      <p class="mt-3 text-caption text-ink-3 font-mono">
+        Last updated <time datetime={today}>{today}</time>
+      </p>
+    </header>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Use of the tools</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        The calculators, generators, and downloadable PDFs on strops.tools are provided free of charge for use by short-term-rental hosts and operators. You may use the outputs for your own properties or for client properties without attribution. You may not resell the templates or the generated outputs as a paid product without written permission.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">No warranty</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        The site and its tools are provided "as is" without warranty of any kind. Generated content — cleaner SOPs, maintenance schedules, supply par lists, replacement-cost estimates — is informational and should be reviewed for accuracy against your specific property, jurisdiction, and platform rules before use. Nothing on this site constitutes legal, tax, insurance, or compliance advice.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Estimates and benchmarks</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        Cost benchmarks (cleaning fees, supply par levels, replacement costs) reflect average prices observed across markets at the time of authorship. Your local market may vary significantly. Use the numbers as a starting point, not as a quote.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Affiliate links</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        Some content recommends third-party tools (property management software, smart locks, cleaning marketplaces, noise monitors). When you click those links and make a purchase, we may earn a commission at no additional cost to you. These relationships do not influence our recommendations — we recommend tools we actually use or have tested. Affiliate relationships are disclosed inline on each page.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Email-gated downloads</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        If you request a PDF lead magnet (cleaner SOP, maintenance checklist, supply par sheet), we will ask for your email address to deliver it. By submitting that email you agree to receive the PDF and an occasional related newsletter. You can unsubscribe with one click at any time.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Liability</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        To the maximum extent permitted by law, we disclaim all liability for any direct, indirect, incidental, or consequential damages arising from your use of these tools or reliance on their output. Our total liability, if any, is limited to the amount you have paid us for the tool (which, for the free tools, is $0).
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Changes</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        We may update these terms as the product changes. The "Last updated" date at the top tracks the current version. Continued use of the site after a change constitutes acceptance.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Contact</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        Questions: <a class="underline" href="mailto:hello@strops.tools">hello@strops.tools</a>.
+      </p>
+    </section>
+  </article>
+</Layout>

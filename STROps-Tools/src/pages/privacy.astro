@@ -1,0 +1,77 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { siteConfig } from '@/data/site.config';
+
+const today = new Date().toISOString().slice(0, 10);
+---
+
+<Layout
+  siteConfig={siteConfig}
+  title="Privacy · strops.tools"
+  description="What we collect, what we don't, how long we keep it, how to delete it."
+  path="/privacy/"
+>
+  <article class="mx-auto max-w-3xl px-5 py-12 prose">
+    <header>
+      <p class="label text-[color:var(--accent-700)]">Privacy</p>
+      <h1 class="mt-2 font-serif text-h1 text-navy">We collect almost nothing<span class="period-accent">.</span></h1>
+      <p class="mt-3 text-caption text-ink-3 font-mono">
+        Last updated <time datetime={today}>{today}</time>
+      </p>
+    </header>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">What we store</h2>
+      <ul class="mt-3 space-y-2 text-body text-graphite leading-snug list-disc list-outside pl-5">
+        <li>Your email address — only if you sign up for one of our PDF lead magnets or the newsletter.</li>
+        <li>Anonymous usage analytics (page views, referrer, broad geography) via Plausible. No cookies, no cross-site tracking, no user-level profiles.</li>
+        <li>If you submit a tool output for download (cleaner SOP, maintenance schedule, supply par-level): the form fields you entered, stored only long enough to render the PDF.</li>
+      </ul>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">What we don't store</h2>
+      <ul class="mt-3 space-y-2 text-body text-graphite leading-snug list-disc list-outside pl-5">
+        <li>Your raw IP address. We rate-limit using a hashed identifier that cannot be reversed.</li>
+        <li>Your host platform credentials. We never ask for them and never integrate.</li>
+        <li>Your property addresses unless you choose to enter them into a tool — and those fields stay in your browser only.</li>
+        <li>Any third-party tracking pixels (no Facebook, no Google Ads remarketing).</li>
+      </ul>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Cookies</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        We use one cookie: an "I dismissed the newsletter banner" flag, set only if you dismiss the banner. No tracking cookies, no advertising cookies, no third-party cookies.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Email marketing</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        If you subscribe, you'll receive a confirmation email (double opt-in). After confirming you'll get at most one newsletter per week plus the lead magnet you requested. Every email has a one-click unsubscribe; we honor it within 5 minutes.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Affiliate links</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        Some of our content recommends third-party tools (PMS software, smart locks, cleaning marketplaces). When you click those links, the destination service may set their own cookies for attribution. We disclose affiliate relationships in-line on every page where one appears.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Data deletion</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        Email <a class="underline" href="mailto:hello@strops.tools">hello@strops.tools</a> with the address you want removed. We delete within 48 hours and confirm by reply.
+      </p>
+    </section>
+
+    <section class="mt-7">
+      <h2 class="font-serif text-h2 text-navy">Changes</h2>
+      <p class="mt-3 text-body text-graphite leading-relaxed">
+        We update this page when the underlying practices change. The "Last updated" date at the top tracks the version.
+      </p>
+    </section>
+  </article>
+</Layout>
