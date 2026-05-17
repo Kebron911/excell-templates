@@ -1,0 +1,101 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import { buildFAQPage, buildBreadcrumb } from '@/lib/seo';
+
+// Reader-bonus landing for buyers of *The $50,000 Deduction*. This URL is
+// printed in the book's inside back cover (back-matter.md §5, line 264).
+// QR codes shipped in physical books will hit this route for years —
+// keep the path stable (do not rename).
+
+const formAction = 'mailto:hello@thestrledger.com?subject=Book%20reader%20bonus%20—%20send%20the%2047-deduction%20checklist';
+const formMethod = 'post';
+const formEnctype = 'text/plain';
+
+const faqs = [
+  {
+    question: 'What is the reader bonus?',
+    answer: 'A printable PDF and Excel checklist that maps every one of the 47 deductions in the book to the specific Schedule E line it belongs on, plus the workbook tab that captures each one. Free to readers, no payment.',
+  },
+  {
+    question: 'Do I need to buy the book to claim it?',
+    answer: 'No — but the checklist references the chapters by number, so it is most useful alongside the book. The download is also a fair preview of what is inside.',
+  },
+  {
+    question: 'What email list will I be on?',
+    answer: 'A buyer-qualified branch of our short, operator-focused newsletter — usually 2–4 emails per month, weighted toward tax-season operating moves. Unsubscribe link in every email.',
+  },
+  {
+    question: 'Is there a reader discount on the workbooks?',
+    answer: 'Yes. Reader code STRBOOK30 takes the Tax Season Bundle from $147 to $117, valid for 90 days from when you enter your email here.',
+  },
+];
+
+const faqLd = buildFAQPage(faqs);
+const breadcrumb = buildBreadcrumb([
+  { name: 'Home', url: '/' },
+  { name: 'The $50,000 Deduction', url: '/book/' },
+  { name: 'Reader bonus', url: '/47-book/' },
+]);
+---
+<Layout
+  title="Reader bonus — The 47-Deduction Audit Checklist — The STR Ledger"
+  description="The free printable companion to The $50,000 Deduction. Every one of the 47 deductions mapped to its Schedule E line and the workbook tab that captures it."
+  path="/47-book"
+  jsonLd={[faqLd, breadcrumb]}
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-3xl px-5 pt-12 pb-9">
+      <p class="label text-gold-deep">Reader bonus · Free · No payment</p>
+      <h1 class="mt-3 font-serif text-h1 text-navy leading-tight">
+        The 47-Deduction Audit Checklist<span class="period-gold">.</span>
+      </h1>
+      <p class="mt-2 font-serif text-h3 text-ink-2">Book reader edition.</p>
+      <p class="mt-5 text-lead text-ink-2 max-w-2xl">
+        We built a printable companion checklist that maps each of the 47 deductions in <i>The $50,000 Deduction</i> to the Schedule E line it belongs on, plus the workbook tab that captures it. Free to readers. Bring it to your CPA.
+      </p>
+
+      <form
+        class="mt-7 flex flex-col sm:flex-row gap-3 max-w-xl"
+        action={formAction}
+        method={formMethod}
+        enctype={formEnctype}
+      >
+        <label for="email" class="sr-only">Email address</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          placeholder="you@portfolio.com"
+          required
+          class="flex-1 rounded-md border border-rule-strong bg-parchment-light px-4 py-3 text-body text-navy focus:outline-none focus:shadow-focus"
+        />
+        <input type="hidden" name="magnet" value="47-book-reader-bonus" />
+        <input type="hidden" name="source" value="book-buyer" />
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center gap-2 bg-navy text-parchment px-5 py-3 rounded-md text-ui hover:bg-navy-tint transition-colors"
+        >
+          Send me the checklist
+          <span class="text-gold" aria-hidden="true">→</span>
+        </button>
+      </form>
+      <p class="mt-3 text-caption text-ink-3">
+        Reader code <code class="font-mono text-navy">STRBOOK30</code> arrives in the same email — drops the Tax Season Bundle from $147 to $117 for 90 days.
+      </p>
+    </div>
+  </section>
+
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-3xl px-5 py-9">
+      <h2 class="font-serif text-h2 text-navy">FAQ</h2>
+      <dl class="mt-5 space-y-5">
+        {faqs.map((f) => (
+          <div>
+            <dt class="font-serif text-h3 text-navy leading-snug">{f.question}</dt>
+            <dd class="mt-2 text-body text-ink-2 leading-relaxed">{f.answer}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+</Layout>

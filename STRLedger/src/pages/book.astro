@@ -1,0 +1,175 @@
+---
+import Layout from '@/components/chrome/Layout.astro';
+import ClusterFunnelBlock from '@/components/chrome/ClusterFunnelBlock.astro';
+import { buildFAQPage, buildBreadcrumb } from '@/lib/seo';
+
+// Amazon URL — populated post-KDP-launch. Leave empty string until live;
+// the template renders a "Notify me when it lands" form instead of the buy CTA.
+const amazonUrl = '';
+const launchLive = amazonUrl.length > 0;
+
+const formAction = 'mailto:hello@thestrledger.com?subject=Notify%20me%20when%20The%20%2450%2C000%20Deduction%20launches';
+const formMethod = 'post';
+const formEnctype = 'text/plain';
+
+const faqs = [
+  {
+    question: 'When does the book launch?',
+    answer: 'Manuscript is complete (17 chapters). Cover wrap, interior typesetting, and CPA review are in progress. Enter your email to be notified the day it goes live on Amazon Kindle and paperback.',
+  },
+  {
+    question: 'What does the book cover?',
+    answer: 'The 47 deductions Schedule E short-term rental filers most commonly miss. Cost segregation under §168(k), the Augusta Rule under §280A, the 1099-NEC $600 trigger, home-office allocation, mileage at the standard rate, the de minimis safe harbor, and 41 more — each tied to the Schedule E line it belongs on.',
+  },
+  {
+    question: 'Who is it for?',
+    answer: 'Hosts running 1–10 short-term rentals as a real business. If you have ever finished a tax season thinking you left money on the table but did not know where, the book is the line-by-line walk-through.',
+  },
+  {
+    question: 'How does it relate to the workbooks?',
+    answer: 'The book is the map. The workbooks (TAX-001 mileage log, TAX-004 Schedule E prep, TAX-010 cost-seg DIY, and the rest of the Tax Season Bundle) are the spreadsheets that capture the deductions chapter by chapter. Reader code STRBOOK30 takes the bundle from $147 to $117.',
+  },
+  {
+    question: 'Is this tax advice?',
+    answer: 'No. It is general information about US federal tax law as it applies to short-term rentals. State law varies, facts and circumstances vary. Run any specific position past a qualified tax professional before filing a return based on the book.',
+  },
+];
+
+const faqLd = buildFAQPage(faqs);
+const breadcrumb = buildBreadcrumb([
+  { name: 'Home', url: '/' },
+  { name: 'The $50,000 Deduction', url: '/book/' },
+]);
+
+const bookLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Book',
+  name: 'The $50,000 Deduction',
+  alternateName: 'The $50,000 Deduction: 47 Write-Offs Every STR Host Should Be Claiming',
+  author: { '@type': 'Organization', name: 'The STR Ledger' },
+  publisher: { '@type': 'Organization', name: 'The STR Ledger' },
+  bookFormat: 'https://schema.org/Paperback',
+  inLanguage: 'en-US',
+  numberOfPages: 160,
+  about: 'Short-term rental tax deductions',
+  audience: { '@type': 'Audience', audienceType: 'Short-term rental hosts running 1–10 properties' },
+};
+---
+<Layout
+  title="The $50,000 Deduction — 47 Write-Offs Every STR Host Should Be Claiming"
+  description="A line-by-line walkthrough of the 47 deductions Schedule E short-term rental filers most commonly miss. Cost segregation, Augusta Rule, 1099-NEC, mileage, home office — each tied to the Schedule E line it belongs on."
+  path="/book"
+  jsonLd={[faqLd, breadcrumb, bookLd]}
+>
+  <section class="bg-parchment">
+    <div class="mx-auto max-w-5xl px-5 pt-12 pb-9 grid md:grid-cols-2 gap-10 items-center">
+      <div>
+        <p class="label text-gold-deep">{launchLive ? 'Now on Amazon' : 'Launching soon · Kindle + paperback'}</p>
+        <h1 class="mt-3 font-serif text-h1 text-navy leading-tight">
+          The $50,000 Deduction<span class="period-gold">.</span>
+        </h1>
+        <p class="mt-2 font-serif text-h3 text-ink-2">
+          47 Write-Offs Every STR Host Should Be Claiming
+        </p>
+        <p class="mt-5 text-lead text-ink-2 max-w-prose">
+          Amanda owned three cabins in the Smokies for four years before her new CPA flagged it. Cost segregation. Furniture, fixtures, landscaping — depreciated separately from the building. She amended four years of returns and reclaimed <b>$8,427</b> she had been spreading over 27.5 years. That is <i>one</i> of the 47 deductions in this book.
+        </p>
+
+        {launchLive ? (
+          <div class="mt-7 flex flex-col sm:flex-row gap-3">
+            <a
+              href={amazonUrl}
+              class="inline-flex items-center justify-center gap-2 bg-navy text-parchment px-5 py-3 rounded-md text-ui hover:bg-navy-tint transition-colors"
+            >
+              Get it on Amazon
+              <span class="text-gold" aria-hidden="true">→</span>
+            </a>
+            <a
+              href="/free/47-deductions/"
+              class="inline-flex items-center justify-center gap-2 border border-navy text-navy px-5 py-3 rounded-md text-ui hover:bg-parchment-light transition-colors"
+            >
+              Get the free reader-bonus PDF
+            </a>
+          </div>
+        ) : (
+          <form
+            class="mt-7 flex flex-col sm:flex-row gap-3 max-w-xl"
+            action={formAction}
+            method={formMethod}
+            enctype={formEnctype}
+          >
+            <label for="email" class="sr-only">Email address</label>
+            <input
+              id="email"
+              type="email"
+              name="email"
+              placeholder="you@portfolio.com"
+              required
+              class="flex-1 rounded-md border border-rule-strong bg-parchment-light px-4 py-3 text-body text-navy focus:outline-none focus:shadow-focus"
+            />
+            <input type="hidden" name="magnet" value="book-launch-notify" />
+            <input type="hidden" name="source" value="strledger-book-page" />
+            <button
+              type="submit"
+              class="inline-flex items-center justify-center gap-2 bg-navy text-parchment px-5 py-3 rounded-md text-ui hover:bg-navy-tint transition-colors"
+            >
+              Notify me at launch
+              <span class="text-gold" aria-hidden="true">→</span>
+            </button>
+          </form>
+        )}
+
+        <p class="mt-3 text-caption text-ink-3">
+          Kindle $2.99 · Paperback $9.99 · Reader code <code class="font-mono text-navy">STRBOOK30</code> drops the companion Tax Season Bundle from $147 to $117 for 90 days after purchase.
+        </p>
+      </div>
+
+      <div class="md:justify-self-end">
+        <div class="rounded-lg border border-rule bg-parchment-light p-6 shadow-sm max-w-sm">
+          <div class="aspect-[5/8] bg-navy rounded-sm flex items-center justify-center text-parchment p-6">
+            <div class="text-center">
+              <p class="font-serif text-h3 leading-tight">The <span class="text-gold">$</span>50,000 Deduction<span class="text-gold">.</span></p>
+              <p class="mt-4 text-caption opacity-80 tracking-wide">47 WRITE-OFFS · STR HOSTS</p>
+              <p class="mt-10 text-caption opacity-60 font-mono tracking-wider">THE STR LEDGER<span class="text-gold">.</span></p>
+            </div>
+          </div>
+          <p class="mt-3 text-caption text-ink-3 text-center font-mono">Final cover in production</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-parchment-light border-t border-rule">
+    <div class="mx-auto max-w-3xl px-5 py-9">
+      <h2 class="font-serif text-h2 text-navy">What's inside</h2>
+      <ul class="mt-5 space-y-3 text-body text-ink-2 leading-relaxed">
+        <li><b>The $8,427 cost-seg play (§168(k))</b> — DIY cost segregation on STR properties under ~$500K.</li>
+        <li><b>Schedule E vs. Schedule C</b> — the 7-day and 30-day tests that decide which form you file.</li>
+        <li><b>Bonus depreciation under §168(k)</b> stacked with §179 on furniture and appliances.</li>
+        <li><b>The Augusta Rule (§280A)</b> — 14 days of tax-free rent from your own STR LLC.</li>
+        <li><b>The mileage deduction that survived an IRS audit</b> at the IRS standard rate.</li>
+        <li><b>1099-NEC thresholds</b> — when you must file for cleaners, handymen, and landscapers.</li>
+        <li><b>Home office allocation</b> — square-footage method vs. simplified, with the calculation worked.</li>
+        <li><b>Per-diem meals on property runs</b> — the IRS standard rate, the 50% rule, the receipts.</li>
+        <li><b>Start-up costs (§195)</b> — the $5,000 first-year deduction most second-year hosts forget.</li>
+        <li><b>The 12 deductions QuickBooks routinely miscategorizes</b> — and the right Schedule E line for each.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="bg-parchment border-t border-rule">
+    <div class="mx-auto max-w-3xl px-5 py-9">
+      <h2 class="font-serif text-h2 text-navy">FAQ</h2>
+      <dl class="mt-5 space-y-5">
+        {faqs.map((f) => (
+          <div>
+            <dt class="font-serif text-h3 text-navy leading-snug">{f.question}</dt>
+            <dd class="mt-2 text-body text-ink-2 leading-relaxed">{f.answer}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <ClusterFunnelBlock />
+</Layout>
