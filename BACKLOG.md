@@ -171,3 +171,20 @@ PinForge Phase A code-side complete and merged. Two user-only steps remain befor
 
 Until both done, PinForge can still generate pins with `backgroundType: solid|gradient` (no n8n needed). Image-mode falls back to Unsplash → solid if n8n is unreachable.
 
+### Subitem — `Tools/N8n-Builder` repo decision needed
+
+While creating the pin workflow, the local `Tools/N8n-Builder/` directory was found to have **no git history** (got `git init`'d locally). GitHub `Kebron911/n8n-builder` exists but is a **Claude Code plugin repo** (commands/skills/plugin manifest) — it does NOT contain a `workflows/` directory. The local n8n-builder is therefore a separate workspace that historically held workflow JSON exports but was never tracked or synced.
+
+**Current local state (2026-05-17):**
+- `Tools/N8n-Builder/` has a fresh `.git` with 2 commits on `main` branch (no remote):
+  - `b80041e` chore(init): initial commit — gemini-blog-image-seo workflow and tests
+  - `1af28b2` feat(workflows): gemini-pin-image — Pinterest 2:3 vertical sibling of blog workflow
+- Files committed: `workflows/gemini-blog-image-seo.json`, `workflows/gemini-pin-image.json` (NEW), `workflows/gemini-pin-image.README.md` (NEW), test scripts, `scripts/`
+
+**User decision needed — which option:**
+1. **Push workflows into the plugin repo** at `Kebron911/n8n-builder` (it IS the n8n-builder plugin; workflows fit that scope). Would add a `workflows/` directory to that plugin.
+2. **Create a new dedicated workflows repo** (e.g., `Kebron911/n8n-workflows`) and push there.
+3. **Leave local-only**, treat as personal scratchpad, never push.
+
+Whichever you pick, the new pin workflow + README are safe at commit `1af28b2` on local `main`.
+
