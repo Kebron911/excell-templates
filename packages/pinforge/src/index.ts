@@ -51,3 +51,6 @@ export { writePin, type WritePinInput, type WrittenPaths } from "./output/writer
 export { generateBatch, createJobId, type BatchResult } from "./queue/batch.js";
 export { parsePinInputCsv, type CsvParseError, type CsvParseResult } from "./csv/parse.js";
 export { writeJobSummary, type WriteJobSummaryInput } from "./output/job-writer.js";
+
+export { scrapeUrl, extractContent, fetchHtml, type ScrapedContent, type ScrapeOptions, type FetchHtmlOptions } from "./scrape/index.js";
+export { buildUrlGroundedUserPrompt, type UrlGroundedUserPromptInput } from "./seo/prompts.js";

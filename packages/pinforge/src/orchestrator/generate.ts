@@ -10,7 +10,8 @@ import { composePng } from "../render/compose.js";
 import { loadBrandFonts } from "../render/fonts.js";
 import { renderToSvg } from "../render/satori.js";
 import { OpenAIAdapter, SeoCopyGenerator } from "../seo/openai-adapter.js";
-import { buildSystemPrompt, buildUserPrompt } from "../seo/prompts.js";
+import { buildSystemPrompt, buildUserPrompt, buildUrlGroundedUserPrompt } from "../seo/prompts.js";
+import { scrapeUrl } from "../scrape/index.js";
 import { withSeoRetry } from "../seo/retry.js";
 import { makeSlug, todayIso } from "../slug.js";
 import { getTemplate } from "../templates/registry.js";
@@ -50,7 +51,16 @@ export async function generatePin(raw: unknown, deps: OrchestratorDeps): Promise
     : new SeoCopyGenerator(new OpenAIAdapter({ apiKey: deps.env.openaiApiKey, model: deps.env.openaiModel }), deps.env.openaiModel);
 
   const systemPrompt = buildSystemPrompt(brand);
-  const userPrompt = buildUserPrompt({ brand, topic: input.topic, primaryKeyword: input.primaryKeyword, templateId });
+  let userPrompt: string;
+  if (input.inputMode === "url") {
+    if (!input.sourceUrl) {
+      throw new ValidationError("sourceUrl is required when inputMode is 'url'", { inputMode: input.inputMode });
+    }
+    const scraped = await scrapeUrl(input.sourceUrl);
+    userPrompt = buildUrlGroundedUserPrompt({ brand, scraped, templateId });
+  } else {
+    userPrompt = buildUserPrompt({ brand, topic: input.topic, primaryKeyword: input.primaryKeyword, templateId });
+  }
 
   const [seoCopy, bgResult] = await Promise.all([
     withSeoRetry(() => seoGen.generate({ systemPrompt, userPrompt })),
