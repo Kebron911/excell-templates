@@ -190,3 +190,12 @@ Whichever you pick, the new pin workflow + README are safe at commit `1af28b2` o
 
 **PinForge Phase A.5 (URL input mode) shipped 2026-05-17.** Pass `--input-mode url --source-url <blog-url>` to scrape + ground pin copy in source content. See `packages/pinforge/README.md` for usage.
 
+**PinForge Phase B (REST API) shipped 2026-05-17.** New package `@str/pinforge-api` at `tools/pinforge-api/` — Fastify HTTP service with 11 endpoints, X-API-Key auth, per-key rate limit, bulk via JSON/CSV upload/Google Sheet URL, in-memory job polling, OpenAPI spec at `/docs`. Start with `PINFORGE_API_KEY=... pnpm pinforge-api:start`. See `tools/pinforge-api/README.md`. Final review fixed critical SSRF in sheet-fetcher (shadow-domain bypass) — verify the fix landed before exposing publicly.
+
+**Phase B follow-ups (deferred, not blocking):**
+- In-memory job registry has no TTL — use SQLite-backed store for high-volume production
+- `?sync=1` path's `Promise.race` doesn't cancel `generatePin` — orphan continues in background until completion. Needs AbortSignal support in @str/pinforge first.
+- No CORS plugin — appropriate for backend-to-backend, add if exposing browser UI
+- No webhook callbacks on job completion — polling only
+- Rate limit runs before auth — unauthenticated callers consume quota for any X-API-Key value they send
+
