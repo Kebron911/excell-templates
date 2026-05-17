@@ -1,0 +1,60 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getRecentChanges } from '@/lib/city-data';
+
+const changes = await getRecentChanges(50);
+
+const severityBadge: Record<'minor' | 'material' | 'major', string> = {
+  major: 'bg-warn text-navy',
+  material: 'bg-gold-soft text-navy',
+  minor: 'bg-parchment-deep text-ink-2',
+};
+---
+
+<BaseLayout
+  title="STR Regulation Changes — Blog | STRLaws"
+  description="Auto-published change log: every material or major short-term rental regulation update across all 50 US states, with classification and operator guidance."
+>
+  <section class="mx-auto max-w-3xl px-4 py-12">
+    <h1 class="text-h1 font-wordmark text-navy mb-4">Regulation Change Log</h1>
+    <p class="text-lead text-ink-2 mb-8">
+      Every material and major change to short-term rental regulations across the cities
+      we track — auto-published from our weekly diff engine. Subscribe to <a class="text-accent-700 hover:underline" href="/alerts">alerts</a>
+      to get them delivered to your inbox.
+    </p>
+
+    {changes.length === 0 ? (
+      <div class="bg-white border border-rule rounded-md p-6 text-ink-2">
+        <strong class="text-navy">No regulation changes published yet.</strong>
+        <p class="text-small mt-2">
+          The diff engine publishes here automatically when our weekly scrape detects a material or major change.
+          Check back in a week, or <a class="text-accent-700 hover:underline" href="/alerts">subscribe to alerts</a> to be notified.
+        </p>
+      </div>
+    ) : (
+      <ul class="space-y-4">
+        {changes.map((c) => (
+          <li class="bg-white border border-rule rounded-md p-5 hover:border-accent hover:shadow-card transition-all">
+            <div class="flex items-center gap-3 mb-2">
+              <span class={`inline-block px-2 py-0.5 rounded text-label uppercase ${severityBadge[c.severity]}`}>
+                {c.severity}
+              </span>
+              <span class="text-caption text-ink-3">
+                <time datetime={c.published_at ?? c.created_at}>{(c.published_at ?? c.created_at).slice(0, 10)}</time>
+              </span>
+            </div>
+            <h2 class="text-h3 font-medium text-navy mb-1">
+              <a href={`/blog/${c.blog_post_slug ?? ''}`} class="hover:text-accent-700">
+                {c.city_name}, {c.state_name}
+              </a>
+            </h2>
+            {c.summary_md && <p class="text-ink-2 text-small mb-2">{c.summary_md}</p>}
+            <div class="text-caption text-ink-3">
+              <a href={`/${c.state_slug}/${c.city_slug}`} class="hover:underline">View current regulations →</a>
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</BaseLayout>
