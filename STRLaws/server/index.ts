@@ -1,8 +1,13 @@
 import express, { type Express, type Request, type Response } from 'express';
+import { createAlertsRouter, type AlertsRouterDeps } from './routes/alerts';
 
 const PORT = Number(process.env.PORT ?? 3001);
 
-export function createApp(): Express {
+export interface AppDeps {
+  alerts?: AlertsRouterDeps;
+}
+
+export function createApp(deps: AppDeps = {}): Express {
   const app = express();
   app.use(express.json({ limit: '1mb' }));
 
@@ -13,6 +18,10 @@ export function createApp(): Express {
       timestamp: new Date().toISOString(),
     });
   });
+
+  if (deps.alerts) {
+    app.use('/api/alerts', createAlertsRouter(deps.alerts));
+  }
 
   return app;
 }
