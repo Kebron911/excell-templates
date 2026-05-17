@@ -146,3 +146,84 @@ export async function getNearestCities(city: CityRow, limit = 5): Promise<Neighb
   const all = await getAllActiveCitiesWithState();
   return pickNearestCities(city, all, limit);
 }
+
+export interface RegulationChangeRow {
+  id: number;
+  city_id: number;
+  prev_regulation_id: number | null;
+  next_regulation_id: number;
+  severity: 'minor' | 'material' | 'major';
+  diff_json: string | object;
+  summary_md: string | null;
+  blog_post_slug: string | null;
+  published_at: string | null;
+  alerts_dispatched_at: string | null;
+  created_at: string;
+}
+
+export interface RegulationChangeWithCity extends RegulationChangeRow {
+  city_slug: string;
+  city_name: string;
+  state_slug: string;
+  state_name: string;
+}
+
+/**
+ * Recent regulation_changes across all cities, newest first. Used by the
+ * blog index, the homepage recent-changes feed, and the alert-dispatcher
+ * post-publish lookup.
+ * Returns empty array when the database is unreachable (build-time fallback
+ * so the site still builds before Phase 3 wires up MySQL).
+ */
+export async function getRecentChanges(limit = 25): Promise<RegulationChangeWithCity[]> {
+  try {
+    return await query<RegulationChangeWithCity>(
+      `SELECT rc.*, c.slug AS city_slug, c.name AS city_name,
+              s.slug AS state_slug, s.name AS state_name
+       FROM regulation_changes rc
+       INNER JOIN cities c ON c.id = rc.city_id
+       INNER JOIN states s ON s.id = c.state_id
+       WHERE rc.published_at IS NOT NULL
+       ORDER BY rc.published_at DESC, rc.id DESC
+       LIMIT ?`,
+      [limit],
+    );
+  } catch {
+    return [];
+  }
+}
+
+export async function getChangeBySlug(slug: string): Promise<RegulationChangeWithCity | null> {
+  try {
+    return await queryOne<RegulationChangeWithCity>(
+      `SELECT rc.*, c.slug AS city_slug, c.name AS city_name,
+              s.slug AS state_slug, s.name AS state_name
+       FROM regulation_changes rc
+       INNER JOIN cities c ON c.id = rc.city_id
+       INNER JOIN states s ON s.id = c.state_id
+       WHERE rc.blog_post_slug = ?
+       LIMIT 1`,
+      [slug],
+    );
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Full change history for a single city, newest first. The /history page
+ * gates entries older than 12 months to premium (handled at render time,
+ * not in this query — premium subscribers see everything).
+ */
+export async function getCityHistory(cityId: number): Promise<RegulationChangeRow[]> {
+  try {
+    return await query<RegulationChangeRow>(
+      `SELECT * FROM regulation_changes
+       WHERE city_id = ?
+       ORDER BY created_at DESC, id DESC`,
+      [cityId],
+    );
+  } catch {
+    return [];
+  }
+}

@@ -1,0 +1,120 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import {
+  getAllActiveCitiesWithState,
+  getCityBySlug,
+  getCityHistory,
+  getStateBySlug,
+} from '@/lib/city-data';
+import { buildBreadcrumbList } from '@/lib/seo';
+
+export async function getStaticPaths() {
+  const cities = await getAllActiveCitiesWithState();
+  return cities.map((c) => ({
+    params: { state: c.state_slug, city: c.slug },
+    props: { stateSlug: c.state_slug, citySlug: c.slug },
+  }));
+}
+
+const { stateSlug, citySlug } = Astro.props;
+const state = await getStateBySlug(stateSlug);
+const city = await getCityBySlug(stateSlug, citySlug);
+
+if (!state || !city) {
+  return Astro.redirect('/404');
+}
+
+const allChanges = await getCityHistory(city.id);
+
+// Spec §5: history >12mo gated to premium. Free tier sees the last 12 months;
+// older entries are listed but content is hidden behind an upsell.
+const TWELVE_MONTHS_MS = 365 * 24 * 60 * 60 * 1000;
+const cutoff = Date.now() - TWELVE_MONTHS_MS;
+const recentChanges = allChanges.filter((c) => new Date(c.created_at).getTime() >= cutoff);
+const olderCount = allChanges.length - recentChanges.length;
+
+const breadcrumb = buildBreadcrumbList([
+  { name: 'Home', url: '/' },
+  { name: state.name, url: `/${state.slug}` },
+  { name: city.name, url: `/${state.slug}/${city.slug}` },
+  { name: 'History', url: `/${state.slug}/${city.slug}/history` },
+]);
+
+const severityClass: Record<'minor' | 'material' | 'major', string> = {
+  major: 'border-l-4 border-warn',
+  material: 'border-l-4 border-gold',
+  minor: 'border-l-4 border-rule',
+};
+---
+
+<BaseLayout
+  title={`STR Regulation History — ${city.name}, ${state.name} | STRLaws`}
+  description={`Full change log for short-term rental regulations in ${city.name}, ${state.name}. Auto-tracked weekly.`}
+  schema={[breadcrumb]}
+>
+  <section class="mx-auto max-w-3xl px-4 py-12">
+    <nav class="text-caption text-ink-3 mb-4">
+      <a href="/" class="hover:underline">Home</a>
+      <span class="mx-2">/</span>
+      <a href={`/${state.slug}`} class="hover:underline">{state.name}</a>
+      <span class="mx-2">/</span>
+      <a href={`/${state.slug}/${city.slug}`} class="hover:underline">{city.name}</a>
+      <span class="mx-2">/</span>
+      <span>History</span>
+    </nav>
+
+    <h1 class="text-h1 font-wordmark text-navy mb-4">
+      Regulation History — {city.name}, {state.name}
+    </h1>
+    <p class="text-lead text-ink-2 mb-8">
+      Every classified change to short-term rental regulations in {city.name},
+      newest first. The diff engine runs weekly against the latest scrape.
+    </p>
+
+    {recentChanges.length === 0 && olderCount === 0 && (
+      <div class="bg-white border border-rule rounded-md p-6 text-ink-2">
+        <strong class="text-navy">No regulation changes recorded yet.</strong>
+        <p class="text-small mt-2">
+          {city.name} has not had a tracked regulation update since the diff engine started.
+          You can subscribe to <a class="text-accent-700 hover:underline" href="/alerts">alerts</a> to be notified when one is detected.
+        </p>
+      </div>
+    )}
+
+    {recentChanges.length > 0 && (
+      <ul class="space-y-4 mb-12">
+        {recentChanges.map((c) => (
+          <li class={`bg-white pl-4 pr-5 py-4 rounded-md ${severityClass[c.severity]}`}>
+            <div class="flex items-center gap-3 mb-1">
+              <span class="text-label uppercase text-ink-3">{c.severity}</span>
+              <time class="text-caption text-ink-3" datetime={c.created_at}>
+                {c.created_at.slice(0, 10)}
+              </time>
+            </div>
+            {c.summary_md && <p class="text-ink-1 text-small mb-2">{c.summary_md}</p>}
+            {c.blog_post_slug && (
+              <a class="text-caption text-accent-700 hover:underline" href={`/blog/${c.blog_post_slug}`}>
+                Read the full post →
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+    )}
+
+    {olderCount > 0 && (
+      <div class="bg-navy text-parchment rounded-md p-6">
+        <div class="text-label uppercase text-gold-soft mb-2">Premium</div>
+        <h2 class="text-h3 font-wordmark text-parchment mb-2">
+          {olderCount} additional change{olderCount === 1 ? '' : 's'} older than 12 months
+        </h2>
+        <p class="text-small text-parchment-deep mb-4">
+          Full multi-year regulation history is available to premium subscribers.
+        </p>
+        <a href="/alerts" class="inline-block bg-gold text-navy py-2 px-4 rounded-md font-medium hover:bg-gold-soft">
+          Unlock history →
+        </a>
+      </div>
+    )}
+  </section>
+</BaseLayout>

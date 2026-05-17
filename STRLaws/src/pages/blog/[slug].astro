@@ -1,0 +1,119 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getChangeBySlug, getRecentChanges } from '@/lib/city-data';
+import { buildBreadcrumbList } from '@/lib/seo';
+
+export async function getStaticPaths() {
+  const all = await getRecentChanges(500);
+  return all
+    .filter((c) => !!c.blog_post_slug)
+    .map((c) => ({
+      params: { slug: c.blog_post_slug as string },
+      props: { slug: c.blog_post_slug as string },
+    }));
+}
+
+const { slug } = Astro.props;
+const change = await getChangeBySlug(slug);
+
+if (!change) {
+  return Astro.redirect('/404');
+}
+
+const severityLabel = { minor: 'Minor Update', material: 'Material Update', major: 'Major Change' }[change.severity];
+const breadcrumb = buildBreadcrumbList([
+  { name: 'Home', url: '/' },
+  { name: 'Blog', url: '/blog' },
+  { name: `${change.city_name}, ${change.state_name}`, url: `/blog/${slug}` },
+]);
+
+let parsedDiff: { changes?: Array<{ field: string; description: string; severity: string }> } = {};
+try {
+  parsedDiff = typeof change.diff_json === 'string' ? JSON.parse(change.diff_json) : (change.diff_json as object);
+} catch {
+  parsedDiff = {};
+}
+
+const newsArticleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'NewsArticle',
+  headline: `${severityLabel}: STR Regulations in ${change.city_name}, ${change.state_name}`,
+  datePublished: change.published_at ?? change.created_at,
+  dateModified: change.published_at ?? change.created_at,
+  articleSection: 'Regulation Updates',
+  about: { '@type': 'GovernmentService', name: `STR Regulations — ${change.city_name}` },
+};
+---
+
+<BaseLayout
+  title={`${severityLabel}: ${change.city_name}, ${change.state_name} STR Regulations`}
+  description={change.summary_md ?? `${severityLabel.toLowerCase()} to short-term rental regulations in ${change.city_name}, ${change.state_name}.`}
+  schema={[breadcrumb, newsArticleSchema]}
+>
+  <article class="mx-auto max-w-3xl px-4 py-12 prose">
+    <nav class="text-caption text-ink-3 mb-4 not-prose">
+      <a href="/" class="hover:underline">Home</a>
+      <span class="mx-2">/</span>
+      <a href="/blog" class="hover:underline">Blog</a>
+      <span class="mx-2">/</span>
+      <span>{change.city_name}, {change.state_name}</span>
+    </nav>
+
+    <h1 class="text-h1 font-wordmark text-navy mb-2">
+      {severityLabel}: STR Regulations in {change.city_name}, {change.state_name}
+    </h1>
+
+    <p class="text-caption text-ink-3 mb-8 not-prose">
+      Published <time datetime={change.published_at ?? change.created_at}>{(change.published_at ?? change.created_at).slice(0, 10)}</time>
+      · Severity: <strong class="uppercase">{change.severity}</strong>
+    </p>
+
+    {change.summary_md && <p class="text-lead">{change.summary_md}</p>}
+
+    <h2>What changed</h2>
+    {parsedDiff.changes && parsedDiff.changes.length > 0 ? (
+      <ul>
+        {parsedDiff.changes.map((c) => (
+          <li><strong>{c.field}</strong> <em>({c.severity})</em>: {c.description}</li>
+        ))}
+      </ul>
+    ) : (
+      <p class="text-ink-3">Change details not available for this entry.</p>
+    )}
+
+    <h2>What it means for hosts and investors</h2>
+    {change.severity === 'major' && (
+      <p>
+        Operators in {change.city_name} should review their permit status and consult a STR-specialist attorney.
+        Major changes can require pausing bookings, restructuring listings, or wind-down planning.
+      </p>
+    )}
+    {change.severity === 'material' && (
+      <p>
+        Operators in {change.city_name} should re-check permit fee budget and compliance paperwork.
+        The change is substantive enough to affect unit economics, but does not force a shutdown.
+      </p>
+    )}
+    {change.severity === 'minor' && (
+      <p>
+        Minor update — typically a clarification or note refresh. No immediate action required.
+      </p>
+    )}
+
+    <hr />
+    <p class="not-prose text-small text-ink-3">
+      For the current regulation summary, see the
+      <a class="text-accent-700 hover:underline" href={`/${change.state_slug}/${change.city_slug}`}>
+        {change.city_name} regulation page
+      </a>.
+      For full change history, see
+      <a class="text-accent-700 hover:underline" href={`/${change.state_slug}/${change.city_slug}/history`}>
+        {change.city_name} history
+      </a>.
+    </p>
+    <p class="not-prose text-caption text-ink-3 mt-4">
+      Sources and methodology: <a class="hover:underline" href="/legal/sources">/legal/sources</a>.
+      STRLaws is an information service, not legal advice.
+    </p>
+  </article>
+</BaseLayout>
