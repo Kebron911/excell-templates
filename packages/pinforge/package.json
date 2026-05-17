@@ -13,6 +13,7 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "test:live": "LIVE=1 vitest run tests/live",
     "typecheck": "tsc --project tsconfig.typecheck.json",
@@ -38,6 +39,7 @@
     "pngjs": "^7.0.0",
     "react-dom": "^18.3.0",
     "typescript": "^5.5.3",
+    "@vitest/coverage-v8": "^3.2.4",
     "vitest": "^3.0.0"
   }
 }
