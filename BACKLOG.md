@@ -192,10 +192,11 @@ Whichever you pick, the new pin workflow + README are safe at commit `1af28b2` o
 
 **PinForge Phase B (REST API) shipped 2026-05-17.** New package `@str/pinforge-api` at `tools/pinforge-api/` — Fastify HTTP service with 11 endpoints, X-API-Key auth, per-key rate limit, bulk via JSON/CSV upload/Google Sheet URL, in-memory job polling, OpenAPI spec at `/docs`. Start with `PINFORGE_API_KEY=... pnpm pinforge-api:start`. See `tools/pinforge-api/README.md`. Final review fixed critical SSRF in sheet-fetcher (shadow-domain bypass) — verify the fix landed before exposing publicly.
 
-**Phase B follow-ups (deferred, not blocking):**
-- In-memory job registry has no TTL — use SQLite-backed store for high-volume production
-- `?sync=1` path's `Promise.race` doesn't cancel `generatePin` — orphan continues in background until completion. Needs AbortSignal support in @str/pinforge first.
-- No CORS plugin — appropriate for backend-to-backend, add if exposing browser UI
-- No webhook callbacks on job completion — polling only
-- Rate limit runs before auth — unauthenticated callers consume quota for any X-API-Key value they send
+**Phase B follow-ups (status as of 2026-05-17):**
+- ✅ CORS plugin — shipped. Set `PINFORGE_API_CORS_ORIGINS=https://app.example.com,https://admin.example.com` to enable
+- ✅ Webhook callbacks — shipped. Pass `callbackUrl` (bulk JSON/sheet body or `?callback_url=` query) to get a POST when the job finishes. SSRF-hardened (private/loopback/link-local IPs + `.local`/`.internal` hostnames rejected with 400)
+- ⏭️ **Rate limit before auth** — WON'T FIX. Reviewer flagged "low severity". Real impact: an attacker spamming bad X-API-Key headers consumes rate-limit slots keyed on those bad values — but they can also exhaust per-IP rate-limit slots trivially with any HTTP request. Not a meaningful attack vector.
+- ⏸️ **In-memory job registry has no TTL** — deferred. Acceptable for low-volume MVP (dozens of jobs/day). Swap for SQLite-backed JobStore for high-volume production. Documented in `src/jobs.ts`.
+- ⏸️ **`?sync=1` path's `Promise.race` doesn't cancel `generatePin`** — deferred. Orphan continues in background until natural completion. Needs AbortSignal support in `@str/pinforge` first. Documented in `src/routes/pins.ts`.
+- ⏸️ **DNS rebinding** for webhook callbacks — not protected against. Recommend running behind an egress firewall that blocks PinForge from reaching internal subnets if exposing the API to untrusted callers.
 
