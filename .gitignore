@@ -82,3 +82,7 @@ venv/
 packages/pinforge/dist/pins/
 packages/pinforge/dist/jobs/
 packages/pinforge/dist/*.tmp
+packages/pinforge/coverage/
+tools/pinforge-api/coverage/
+tools/pinforge-api/dist/pins/
+tools/pinforge-api/dist/jobs/
