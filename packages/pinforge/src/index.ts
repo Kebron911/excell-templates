@@ -31,3 +31,9 @@ export { logger, type PinforgeLogger } from "./logger.js";
 
 export { getTemplate, listTemplateIds, listTemplates } from "./templates/index.js";
 export type { PinTemplate, TemplateInput, RenderedCopy, RenderedBackground } from "./templates/types.js";
+
+export { SeoCopySchema, type SeoCopy } from "./seo/schema.js";
+export { buildSystemPrompt, buildUserPrompt, type UserPromptInput } from "./seo/prompts.js";
+export { OpenAIAdapter, SeoCopyGenerator } from "./seo/openai-adapter.js";
+export type { LlmAdapter, LlmAdapterInput, SeoGenerator } from "./seo/adapter.js";
+export { withSeoRetry, type RetryOptions } from "./seo/retry.js";
