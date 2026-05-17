@@ -2,8 +2,8 @@ export abstract class PinforgeError extends Error {
   abstract readonly code: string;
   abstract readonly retryable: boolean;
   readonly context: Record<string, unknown>;
-  constructor(message: string, context: Record<string, unknown> = {}) {
-    super(message);
+  constructor(message: string, context: Record<string, unknown> = {}, cause?: unknown) {
+    super(message, cause !== undefined ? { cause } : undefined);
     this.name = this.constructor.name;
     this.context = context;
   }

@@ -20,4 +20,10 @@ describe("PinforgeError hierarchy", () => {
     const e = new BrandNotFoundError("strguests", ["excel-templates"]);
     expect(e.context.availableBrands).toEqual(["excel-templates"]);
   });
+
+  it("preserves underlying error via cause", () => {
+    const original = new Error("network down");
+    const e = new ValidationError("validation against external check failed", {}, original);
+    expect(e.cause).toBe(original);
+  });
 });
