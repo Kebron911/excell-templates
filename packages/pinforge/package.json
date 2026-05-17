@@ -1,0 +1,45 @@
+{
+  "name": "@str/pinforge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": { "pinforge": "./dist/cli.js" },
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" }
+  },
+  "files": ["dist", "src", "brands"],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "test:live": "LIVE=1 vitest run tests/live",
+    "typecheck": "tsc --project tsconfig.typecheck.json",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "openai": "^4.67.0",
+    "p-queue": "^8.0.1",
+    "react": "^18.3.0",
+    "pino": "^9.5.0",
+    "satori": "^0.10.13",
+    "sharp": "^0.33.5",
+    "undici": "^6.20.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "msw": "^2.4.0",
+    "pixelmatch": "^6.0.0",
+    "pngjs": "^7.0.0",
+    "react-dom": "^18.3.0",
+    "typescript": "^5.5.3",
+    "@vitest/coverage-v8": "^3.2.4",
+    "vitest": "^3.0.0"
+  }
+}

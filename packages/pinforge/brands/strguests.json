@@ -1,0 +1,33 @@
+{
+  "brandId": "strguests",
+  "displayName": "STRGuests Tools",
+  "domain": "strguests.tools",
+  "voice": "Direct, helpful, no-nonsense. Short sentences. Speaks to STR hosts who manage 1-10 properties and want operational shortcuts. Skip jargon.",
+  "colors": {
+    "primary": "#0f766e",
+    "primaryDark": "#134e4a",
+    "accent": "#5eead4",
+    "text": "#ffffff",
+    "textOnLight": "#1c1917"
+  },
+  "fonts": {
+    "headline": { "family": "Inter",   "weight": 800, "file": "fonts/Inter-ExtraBold.ttf" },
+    "body":     { "family": "Inter",   "weight": 500, "file": "fonts/Inter-Medium.ttf" },
+    "accent":   { "family": "Georgia", "weight": 400, "file": "fonts/Georgia.ttf" }
+  },
+  "logo": { "footerText": "STRGUESTS.TOOLS" },
+  "defaults": {
+    "templateId": "big-hook",
+    "backgroundType": "image",
+    "imageTreatment": "duotone",
+    "boardHint": "STR Host Tips"
+  },
+  "seo": {
+    "keywords": ["short-term rental", "airbnb host", "vrbo", "vacation rental", "STR operator"],
+    "disallowedTerms": ["cheap", "easy money", "passive income guarantee"],
+    "ctaSuffix": "→ Free templates at strguests.tools"
+  },
+  "allowedDomains": ["strguests.tools"],
+  "imageStyle": "photographic, natural lighting, warm tones, cozy vacation rental aesthetic",
+  "imageKeywords": ["vacation rental interior", "coastal home", "mountain cabin", "airbnb host"]
+}

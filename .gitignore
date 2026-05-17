@@ -77,3 +77,8 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# PinForge generated artifacts
+packages/pinforge/dist/pins/
+packages/pinforge/dist/jobs/
+packages/pinforge/dist/*.tmp
