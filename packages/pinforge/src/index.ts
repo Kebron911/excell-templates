@@ -47,3 +47,7 @@ export { resolvePinBackground, type ResolveOptions, type ResolvedBackground, typ
 export { generatePin, type OrchestratorDeps } from "./orchestrator/index.js";
 export { PinInputSchema, type PinInput, type PinMetadata, type PinResult } from "./input.js";
 export { writePin, type WritePinInput, type WrittenPaths } from "./output/writer.js";
+
+export { generateBatch, createJobId, type BatchResult } from "./queue/batch.js";
+export { parsePinInputCsv, type CsvParseError, type CsvParseResult } from "./csv/parse.js";
+export { writeJobSummary, type WriteJobSummaryInput } from "./output/job-writer.js";
