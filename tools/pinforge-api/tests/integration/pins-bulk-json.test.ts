@@ -104,6 +104,27 @@ describe("POST /v1/pins/bulk (JSON)", () => {
     await app.close();
   });
 
+  it("concurrent bulk POSTs produce unique jobIds", async () => {
+    const app = await buildServer({ env: makeApiEnv(), brandsDir: "./dummy", outputDir: "./dist/pins" });
+    const payload = { items: [makeItem(1)] };
+    const headers = { "x-api-key": TEST_API_KEY, "content-type": "application/json" };
+
+    const [r1, r2, r3] = await Promise.all([
+      app.inject({ method: "POST", url: "/v1/pins/bulk", headers, payload }),
+      app.inject({ method: "POST", url: "/v1/pins/bulk", headers, payload }),
+      app.inject({ method: "POST", url: "/v1/pins/bulk", headers, payload })
+    ]);
+
+    expect(r1.statusCode).toBe(202);
+    expect(r2.statusCode).toBe(202);
+    expect(r3.statusCode).toBe(202);
+
+    const ids = [r1.json().jobId, r2.json().jobId, r3.json().jobId];
+    const unique = new Set(ids);
+    expect(unique.size).toBe(3);
+    await app.close();
+  });
+
   it("returns 202 and continues when generateBatch returns mixed succeeded + failed", async () => {
     returnMixed = true;
     try {
