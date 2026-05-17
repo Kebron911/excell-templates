@@ -10,6 +10,7 @@
  *
  * Usage: pnpm db:seed
  */
+import 'dotenv/config';
 import type { RowDataPacket } from 'mysql2/promise';
 import { getPool, closePool } from '../server/db/pool';
 
