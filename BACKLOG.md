@@ -188,3 +188,5 @@ While creating the pin workflow, the local `Tools/N8n-Builder/` directory was fo
 
 Whichever you pick, the new pin workflow + README are safe at commit `1af28b2` on local `main`.
 
+**PinForge Phase A.5 (URL input mode) shipped 2026-05-17.** Pass `--input-mode url --source-url <blog-url>` to scrape + ground pin copy in source content. See `packages/pinforge/README.md` for usage.
+

@@ -454,6 +454,7 @@ Phase A.5 — Mode B (URL input)              (~1-2 days)
   M1  Cheerio scraper (title/h1/meta/body sample)
   M2  Scraped-context SEO prompt variant (grounding, not paste)
   M3  inputMode="url" wired through orchestrator + API + CSV
+  ✅ COMPLETED 2026-05-17 — see docs/superpowers/plans/2026-05-17-pinforge-phase-a5.md
 
 Total to "one-stop creator + API": ~8-10 working days
 ```
