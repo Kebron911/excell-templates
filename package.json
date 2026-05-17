@@ -20,7 +20,10 @@
     "pinforge": "pnpm -F @str/pinforge",
     "pinforge:build": "pnpm -F @str/pinforge build",
     "pinforge:test": "pnpm -F @str/pinforge test",
-    "pinforge:cli": "node packages/pinforge/dist/cli.js"
+    "pinforge:cli": "node packages/pinforge/dist/cli.js",
+    "pinforge-api": "pnpm -F @str/pinforge-api",
+    "pinforge-api:start": "pnpm -F @str/pinforge-api start",
+    "pinforge-api:test": "pnpm -F @str/pinforge-api test"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.7",
