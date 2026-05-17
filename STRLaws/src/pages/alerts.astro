@@ -1,5 +1,14 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import AlertSignupForm from '@/components/AlertSignupForm';
+import { getAllActiveCitiesWithState } from '@/lib/city-data';
+
+const allCities = await getAllActiveCitiesWithState();
+const cityOptions = allCities.map((c) => ({
+  id: c.id,
+  name: c.name,
+  state_name: c.state_name,
+}));
 ---
 
 <BaseLayout
@@ -45,9 +54,18 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       </div>
     </div>
 
-    <div id="signup" class="mt-16 bg-white border border-rule rounded-md p-6">
+    <div id="signup" class="mt-16">
       <h2 class="text-h2 font-wordmark text-navy mb-4">Sign up for free alerts</h2>
-      <p class="text-ink-2 mb-4">Email signup wired in Phase 5 (Influencersoft).</p>
+      {cityOptions.length === 0 ? (
+        <div class="bg-white border border-rule rounded-md p-6 text-ink-2">
+          <strong class="text-navy">Signup is warming up.</strong>
+          <p class="text-small mt-2">
+            Our city seed is still loading on the server. Refresh in a few seconds, or come back after we publish the 50-city launch list.
+          </p>
+        </div>
+      ) : (
+        <AlertSignupForm client:load cities={cityOptions} />
+      )}
     </div>
   </section>
 </BaseLayout>
