@@ -7,3 +7,4 @@ export { type JobState, type JobStatus, type JobResultEntry } from "./jobs.js";
 export { fetchPublishedSheetCsv, type FetchSheetOptions } from "./sheet-fetcher.js";
 export { registerAuth, type AuthOptions } from "./auth.js";
 export { registerRateLimit, type RateLimitOptions } from "./rate-limit.js";
+export { dispatchWebhook, type WebhookPayload } from "./webhook-dispatcher.js";
