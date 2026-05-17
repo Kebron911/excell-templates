@@ -1,0 +1,220 @@
+# InfluencerSoft Form Registry — Source of Truth
+#
+# Every email-capture form across the cluster is registered here. Forms create
+# IS contacts and apply tags from tag-dictionary.md. After IS is provisioned,
+# replace __SET_AFTER_IS_LIVE__ with the actual form_id from the IS UI.
+#
+# Schema:
+#   id: stable identifier — used in <form action="..."> on Astro pages
+#   path: site path where the form appears
+#   site: which cluster site renders it
+#   purpose: what magnet/funnel it feeds
+#   tags_on_submit: tags applied at form submit (must exist in tag-dictionary.md)
+#   sequence_after_submit: IS sequence that fires (must exist in sequences/)
+#   redirect_to: post-submit URL (download page or thank-you)
+#   is_form_id: __SET_AFTER_IS_LIVE__
+#   double_opt_in: true|false — required by deliverability runbook
+
+version: 1
+last_reviewed: 2026-05-16
+
+forms:
+
+  # ===== Hero lead magnet =====
+  - id: form-47-deductions
+    path: /47
+    site: strledger
+    purpose: 47 Airbnb Tax Deductions hero magnet
+    tags_on_submit: [source:lead-magnet, lead-magnet:47-deductions, source:thestrledger]
+    sequence_after_submit: nurture-hero-magnet
+    redirect_to: /47/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  - id: form-entity-decision
+    path: /cap/01
+    site: strledger
+    purpose: Entity Decision Flowchart magnet (book Ch1 funnel)
+    tags_on_submit: [source:lead-magnet, lead-magnet:entity-decision]
+    sequence_after_submit: nurture-hero-magnet
+    redirect_to: /cap/01/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  # ===== Mini-magnets per blog post =====
+  - id: form-schedule-e-cheatsheet
+    path: /free/schedule-e-cheatsheet
+    site: strledger
+    purpose: Schedule E line-by-line cheatsheet (blog 02 tie-in)
+    tags_on_submit: [source:lead-magnet, lead-magnet:schedule-e]
+    sequence_after_submit: nurture-hero-magnet
+    redirect_to: /free/schedule-e-cheatsheet/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  - id: form-depreciation-lookup
+    path: /free/depreciation-lookup
+    site: strledger
+    purpose: Depreciation Asset Quick-Lookup (blog 03 tie-in)
+    tags_on_submit: [source:lead-magnet, lead-magnet:depreciation]
+    sequence_after_submit: nurture-hero-magnet
+    redirect_to: /free/depreciation-lookup/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  - id: form-1099-trigger
+    path: /free/1099-trigger-calculator
+    site: strledger
+    purpose: 1099-NEC threshold calculator (blog 04 tie-in)
+    tags_on_submit: [source:lead-magnet, lead-magnet:1099-trigger]
+    sequence_after_submit: nurture-hero-magnet
+    redirect_to: /free/1099-trigger-calculator/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  - id: form-cost-per-stay
+    path: /free/cost-per-stay
+    site: strledger
+    purpose: Cost-Per-Stay calculator (generic blog tie-in)
+    tags_on_submit: [source:lead-magnet, lead-magnet:cost-per-stay]
+    sequence_after_submit: nurture-hero-magnet
+    redirect_to: /free/cost-per-stay/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  - id: form-chart-of-accounts
+    path: /free/chart-of-accounts
+    site: strledger
+    purpose: STR Chart of Accounts Starter (blog 07 tie-in)
+    tags_on_submit: [source:lead-magnet, lead-magnet:chart-of-accounts]
+    sequence_after_submit: nurture-hero-magnet
+    redirect_to: /free/chart-of-accounts/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  - id: form-tax-calendar
+    path: /free/tax-calendar
+    site: strledger
+    purpose: Estimated Tax Due-Date Reminder Calendar (blog 08 tie-in)
+    tags_on_submit: [source:lead-magnet, lead-magnet:tax-calendar]
+    sequence_after_submit: nurture-hero-magnet
+    redirect_to: /free/tax-calendar/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  # ===== Cluster-site lead magnets (routed via STR_Cluster_Lead_Router.json) =====
+
+  - id: form-strhost-lodging-tax
+    path: /get-the-lodging-tax-quickstart
+    site: strhost
+    purpose: Lodging tax quickstart (STRHost-Tools)
+    tags_on_submit: [source:lead-magnet, lead-magnet:strhost-lodging-tax]
+    sequence_after_submit: welcome-book-magnet
+    redirect_to: /get-the-lodging-tax-quickstart/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  - id: form-strops-cleaner-sop
+    path: /get-the-cleaner-sop
+    site: strops
+    purpose: Cleaner SOP (STROps-Tools)
+    tags_on_submit: [source:lead-magnet, lead-magnet:strops-cleaner-sop]
+    sequence_after_submit: welcome-book-magnet
+    redirect_to: /get-the-cleaner-sop/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  - id: form-strops-maintenance
+    path: /get-the-maintenance-checklist
+    site: strops
+    purpose: Maintenance checklist (STROps-Tools)
+    tags_on_submit: [source:lead-magnet, lead-magnet:strops-maintenance]
+    sequence_after_submit: welcome-book-magnet
+    redirect_to: /get-the-maintenance-checklist/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  - id: form-strops-supply-par
+    path: /get-the-supply-par
+    site: strops
+    purpose: Supply par level template (STROps-Tools)
+    tags_on_submit: [source:lead-magnet, lead-magnet:strops-supply-par]
+    sequence_after_submit: welcome-book-magnet
+    redirect_to: /get-the-supply-par/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  - id: form-strguests-template-pack
+    path: /get-the-templates
+    site: strguests
+    purpose: Guest template pack (STRGuests-Tools)
+    tags_on_submit: [source:lead-magnet, lead-magnet:welcome-book]
+    sequence_after_submit: welcome-book-magnet
+    redirect_to: /get-the-templates/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  - id: form-strbuyers-disclosures
+    path: /get-the-disclosures-checklist
+    site: strbuyers
+    purpose: Disclosures checklist (STRBuyers-Tools)
+    tags_on_submit: [source:lead-magnet, lead-magnet:strbuyers-disclosures]
+    sequence_after_submit: welcome-book-magnet
+    redirect_to: /get-the-disclosures-checklist/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  - id: form-strbuyers-playbook
+    path: /get-the-buyer-playbook
+    site: strbuyers
+    purpose: Buyer playbook (STRBuyers-Tools)
+    tags_on_submit: [source:lead-magnet, lead-magnet:strbuyers-playbook]
+    sequence_after_submit: welcome-book-magnet
+    redirect_to: /get-the-buyer-playbook/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  - id: form-strmanuals-free-sample
+    path: /free
+    site: strmanuals
+    purpose: Free sample chapter (STRManuals)
+    tags_on_submit: [source:lead-magnet, lead-magnet:strmanuals-sample, source:strmanuals]
+    sequence_after_submit: strmanuals-free-magnet
+    redirect_to: /free/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  # ===== Alerts subscription (STRLaws compliance alerts SaaS — future) =====
+  - id: form-strlaws-alerts-free
+    path: /alerts
+    site: strlaws
+    purpose: Free state-level law-change alerts (STRLaws subscription gateway)
+    tags_on_submit: [source:lead-magnet, lead-magnet:strlaws-alerts]
+    sequence_after_submit: welcome-book-magnet
+    redirect_to: /alerts/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+  # ===== Audit (STRListingAudit-Tools — future SaaS) =====
+  - id: form-strlistingaudit-trial
+    path: /audit/start
+    site: strlistingaudit
+    purpose: Free Airbnb listing audit (audit-tools-as-SaaS funnel)
+    tags_on_submit: [source:lead-magnet, lead-magnet:listing-audit]
+    sequence_after_submit: welcome-book-magnet
+    redirect_to: /audit/start/thanks
+    is_form_id: __SET_AFTER_IS_LIVE__
+    double_opt_in: true
+
+# ===== Field requirements (all forms enforce) =====
+required_fields:
+  - email
+  - first_name  # used in {{ first_name }} merge tag across all sequences
+
+# ===== Compliance =====
+compliance:
+  unsubscribe_required: true
+  physical_address_required: true  # CAN-SPAM
+  privacy_policy_link_required: true
+  honeypot_field: hp_address  # bot spam mitigation
+  recaptcha_v3: false  # add when spam exceeds 5%/wk

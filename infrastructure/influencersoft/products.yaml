@@ -1,0 +1,525 @@
+# InfluencerSoft Product Registry — Source of Truth
+#
+# Every SKU that gets sold (Stripe, Etsy, Gumroad, Bundle) is registered here.
+# Scripts in scripts/is-*.mjs and n8n workflows pull product:<slug> tags from
+# this file. Slug here MUST match the `product:<slug>` tag in tag-dictionary.md
+# section 3.
+#
+# Schema:
+#   slug: stable identifier — never rename after publish
+#   sku: catalog SKU code (TAX-001, BUNDLE-01, etc.)
+#   name: human display name
+#   category: tax|ops|guests|acq|fin|mkt|rev|str|gst|lgl|bundle|manual|course|book
+#   price_usd: site checkout price (Stripe) — null for free magnets
+#   etsy_price_usd: Etsy variant price (often lower)
+#   gumroad_price_usd: Gumroad variant price (often higher)
+#   tier: starter|core|premium|bundle|magnet
+#   deliverable: xlsx|pdf|zip|pdf+xlsx|video+pdf|hardcover|access
+#   delivery_path: relative path to delivered asset(s)
+#   bundle_eligible_for: list of bundle slugs this SKU rolls into
+#   tags_set_on_purchase: tags applied at order webhook
+#   sequence_after_purchase: IS sequence triggered (must exist in sequences/)
+#   stripe_price_id: __SET_AFTER_STRIPE_LIVE__
+#   etsy_listing_id: __SET_AFTER_ETSY_LIVE__
+#   gumroad_product_id: __SET_AFTER_GUMROAD_LIVE__
+
+version: 1
+last_reviewed: 2026-05-16
+
+# ===== TAX (Wave-1 published-ready) =====
+
+products:
+  - slug: tax-001-mileage-log
+    sku: TAX-001
+    name: STR Mileage & Vehicle Expense Log
+    category: tax
+    price_usd: 17
+    etsy_price_usd: 17
+    gumroad_price_usd: 27
+    tier: starter
+    deliverable: xlsx
+    delivery_path: templates/_delivery/TAX-001/
+    bundle_eligible_for: [bundle-01-first-year-host, bundle-03-year-2-operator]
+    tags_set_on_purchase: [product:tax-001-mileage-log, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+    stripe_price_id: __SET_AFTER_STRIPE_LIVE__
+    etsy_listing_id: __SET_AFTER_ETSY_LIVE__
+    gumroad_product_id: __SET_AFTER_GUMROAD_LIVE__
+
+  - slug: tax-002-schedule-e
+    sku: TAX-002
+    name: Schedule E Workbook (Multi-Property)
+    category: tax
+    price_usd: 27
+    etsy_price_usd: 27
+    gumroad_price_usd: 47
+    tier: core
+    deliverable: xlsx
+    delivery_path: templates/_delivery/TAX-002/
+    bundle_eligible_for: [bundle-01-first-year-host, bundle-03-year-2-operator, bundle-04-portfolio]
+    tags_set_on_purchase: [product:tax-002-schedule-e, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+    stripe_price_id: __SET_AFTER_STRIPE_LIVE__
+    etsy_listing_id: __SET_AFTER_ETSY_LIVE__
+    gumroad_product_id: __SET_AFTER_GUMROAD_LIVE__
+
+  - slug: tax-003-1099-tracker
+    sku: TAX-003
+    name: 1099-NEC Vendor Tracker
+    category: tax
+    price_usd: 17
+    etsy_price_usd: 17
+    gumroad_price_usd: 27
+    tier: starter
+    deliverable: xlsx
+    delivery_path: templates/_delivery/TAX-003/
+    bundle_eligible_for: [bundle-03-year-2-operator]
+    tags_set_on_purchase: [product:tax-003-1099-tracker, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+    stripe_price_id: __SET_AFTER_STRIPE_LIVE__
+    etsy_listing_id: __SET_AFTER_ETSY_LIVE__
+    gumroad_product_id: __SET_AFTER_GUMROAD_LIVE__
+
+# ===== Wave-2 TAX (publish-ready briefs, not yet live) =====
+
+  - slug: tax-004-depreciation-tracker
+    sku: TAX-004
+    name: STR Depreciation Tracker (27.5 + cost seg)
+    category: tax
+    price_usd: 27
+    etsy_price_usd: 27
+    gumroad_price_usd: 47
+    tier: core
+    deliverable: xlsx
+    delivery_path: templates/_delivery/TAX-004/
+    bundle_eligible_for: [bundle-03-year-2-operator, bundle-04-portfolio]
+    tags_set_on_purchase: [product:tax-004-depreciation-tracker, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+    stripe_price_id: __SET_AFTER_STRIPE_LIVE__
+    etsy_listing_id: __SET_AFTER_ETSY_LIVE__
+    gumroad_product_id: __SET_AFTER_GUMROAD_LIVE__
+
+  - slug: tax-005-quarterly-estimator
+    sku: TAX-005
+    name: Quarterly Tax Estimate Calculator
+    category: tax
+    price_usd: 17
+    etsy_price_usd: 17
+    gumroad_price_usd: 27
+    tier: starter
+    deliverable: xlsx
+    delivery_path: templates/_delivery/TAX-005/
+    bundle_eligible_for: [bundle-01-first-year-host]
+    tags_set_on_purchase: [product:tax-005-quarterly-estimator, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+    stripe_price_id: __SET_AFTER_STRIPE_LIVE__
+    etsy_listing_id: __SET_AFTER_ETSY_LIVE__
+    gumroad_product_id: __SET_AFTER_GUMROAD_LIVE__
+
+  - slug: tax-006-cost-segregation
+    sku: TAX-006
+    name: Cost Segregation Worksheet
+    category: tax
+    price_usd: 27
+    gumroad_price_usd: 47
+    tier: core
+    deliverable: xlsx
+    delivery_path: templates/_delivery/TAX-006/
+    bundle_eligible_for: [bundle-04-portfolio]
+    tags_set_on_purchase: [product:tax-006-cost-segregation, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+  - slug: tax-007-chart-of-accounts
+    sku: TAX-007
+    name: STR Chart of Accounts Starter
+    category: tax
+    price_usd: 17
+    gumroad_price_usd: 27
+    tier: starter
+    deliverable: xlsx
+    delivery_path: templates/_delivery/TAX-007/
+    bundle_eligible_for: [bundle-01-first-year-host]
+    tags_set_on_purchase: [product:tax-007-chart-of-accounts, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+  - slug: tax-008-material-participation
+    sku: TAX-008
+    name: Material Participation Hours Log
+    category: tax
+    price_usd: 17
+    gumroad_price_usd: 27
+    tier: starter
+    deliverable: xlsx
+    delivery_path: templates/_delivery/TAX-008/
+    bundle_eligible_for: [bundle-03-year-2-operator, bundle-04-portfolio]
+    tags_set_on_purchase: [product:tax-008-material-participation, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+  - slug: tax-009-augusta-rule
+    sku: TAX-009
+    name: Augusta Rule Documentation Pack
+    category: tax
+    price_usd: 17
+    gumroad_price_usd: 27
+    tier: starter
+    deliverable: xlsx
+    delivery_path: templates/_delivery/TAX-009/
+    tags_set_on_purchase: [product:tax-009-augusta-rule, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+  - slug: tax-010-entity-pl
+    sku: TAX-010
+    name: Multi-Entity P&L (LLC vs Sole Prop)
+    category: tax
+    price_usd: 27
+    gumroad_price_usd: 47
+    tier: core
+    deliverable: xlsx
+    delivery_path: templates/_delivery/TAX-010/
+    bundle_eligible_for: [bundle-04-portfolio]
+    tags_set_on_purchase: [product:tax-010-entity-pl, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+  - slug: tax-011-receipt-log
+    sku: TAX-011
+    name: Receipt Capture Log (OCR-ready)
+    category: tax
+    price_usd: 17
+    gumroad_price_usd: 27
+    tier: starter
+    deliverable: xlsx
+    delivery_path: templates/_delivery/TAX-011/
+    bundle_eligible_for: [bundle-01-first-year-host]
+    tags_set_on_purchase: [product:tax-011-receipt-log, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+  - slug: tax-012-year-end-checklist
+    sku: TAX-012
+    name: Year-End Tax Prep Checklist
+    category: tax
+    price_usd: 17
+    gumroad_price_usd: 27
+    tier: starter
+    deliverable: xlsx
+    delivery_path: templates/_delivery/TAX-012/
+    bundle_eligible_for: [bundle-01-first-year-host, bundle-03-year-2-operator]
+    tags_set_on_purchase: [product:tax-012-year-end-checklist, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+  - slug: tax-013-audit-defense
+    sku: TAX-013
+    name: Audit Defense File Builder
+    category: tax
+    price_usd: 27
+    gumroad_price_usd: 47
+    tier: core
+    deliverable: xlsx
+    delivery_path: templates/_delivery/TAX-013/
+    bundle_eligible_for: [bundle-04-portfolio]
+    tags_set_on_purchase: [product:tax-013-audit-defense, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+# ===== OPS =====
+
+  - slug: ops-001-cleaner-checklist
+    sku: OPS-001
+    name: Cleaner Turnover Checklist
+    category: ops
+    price_usd: 17
+    gumroad_price_usd: 27
+    tier: starter
+    deliverable: xlsx
+    delivery_path: templates/_delivery/OPS-001/
+    bundle_eligible_for: [bundle-01-first-year-host, bundle-05-pro-manager]
+    tags_set_on_purchase: [product:ops-001-cleaner-checklist, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+  - slug: ops-002-maintenance-schedule
+    sku: OPS-002
+    name: Property Maintenance Schedule
+    category: ops
+    price_usd: 17
+    gumroad_price_usd: 27
+    tier: starter
+    deliverable: xlsx
+    delivery_path: templates/_delivery/OPS-002/
+    bundle_eligible_for: [bundle-05-pro-manager]
+    tags_set_on_purchase: [product:ops-002-maintenance-schedule, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+  - slug: ops-003-turnover-pack
+    sku: OPS-003
+    name: Full Turnover Operations Pack
+    category: ops
+    price_usd: 27
+    gumroad_price_usd: 47
+    tier: core
+    deliverable: xlsx
+    delivery_path: templates/_delivery/OPS-003/
+    bundle_eligible_for: [bundle-05-pro-manager]
+    tags_set_on_purchase: [product:ops-003-turnover-pack, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+# ===== GUEST / GST =====
+
+  - slug: gst-001-welcome-book
+    sku: GST-001
+    name: Welcome Book Template
+    category: gst
+    price_usd: 17
+    gumroad_price_usd: 27
+    tier: starter
+    deliverable: xlsx
+    delivery_path: templates/_delivery/GST-001/
+    bundle_eligible_for: [bundle-01-first-year-host, bundle-02-aspiring-host]
+    tags_set_on_purchase: [product:gst-001-welcome-book, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+# ===== ACQUISITION / ACQ =====
+
+  - slug: acq-001-deal-analyzer
+    sku: ACQ-001
+    name: STR Deal Analyzer
+    category: acq
+    price_usd: 27
+    gumroad_price_usd: 47
+    tier: core
+    deliverable: xlsx
+    delivery_path: templates/_delivery/ACQ-001/
+    bundle_eligible_for: [bundle-02-aspiring-host, bundle-04-portfolio]
+    tags_set_on_purchase: [product:acq-001-deal-analyzer, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+  - slug: acq-002-market-scorecard
+    sku: ACQ-002
+    name: Market Scorecard
+    category: acq
+    price_usd: 17
+    gumroad_price_usd: 27
+    tier: starter
+    deliverable: xlsx
+    delivery_path: templates/_delivery/ACQ-002/
+    bundle_eligible_for: [bundle-02-aspiring-host]
+    tags_set_on_purchase: [product:acq-002-market-scorecard, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+# ===== FIN =====
+
+  - slug: fin-002-cashflow-model
+    sku: FIN-002
+    name: 5-Year Cashflow Model
+    category: fin
+    price_usd: 27
+    gumroad_price_usd: 47
+    tier: core
+    deliverable: xlsx
+    delivery_path: templates/_delivery/FIN-002/
+    bundle_eligible_for: [bundle-04-portfolio]
+    tags_set_on_purchase: [product:fin-002-cashflow-model, customer:etsy]
+    sequence_after_purchase: post-purchase-etsy-buyer
+
+# ===== BUNDLES (own-site only — Etsy doesn't allow bundles) =====
+
+  - slug: bundle-01-first-year-host
+    sku: BUNDLE-01
+    name: First-Year Host Bundle
+    category: bundle
+    price_usd: 47
+    tier: bundle
+    deliverable: zip
+    delivery_path: templates/_delivery/_bundles/BUNDLE-01/
+    bundle_eligible_for: []
+    tags_set_on_purchase: [product:bundle-01-first-year-host, customer:thestrledger]
+    sequence_after_purchase: BUNDLE-01-first-year-host
+    stripe_price_id: __SET_AFTER_STRIPE_LIVE__
+
+  - slug: bundle-02-aspiring-host
+    sku: BUNDLE-02
+    name: Aspiring Host Bundle
+    category: bundle
+    price_usd: 47
+    tier: bundle
+    deliverable: zip
+    delivery_path: templates/_delivery/_bundles/BUNDLE-02/
+    tags_set_on_purchase: [product:bundle-02-aspiring-host, customer:thestrledger]
+    sequence_after_purchase: BUNDLE-02-aspiring-host
+
+  - slug: bundle-03-year-2-operator
+    sku: BUNDLE-03
+    name: Year-2 Operator Bundle
+    category: bundle
+    price_usd: 67
+    tier: bundle
+    deliverable: zip
+    delivery_path: templates/_delivery/_bundles/BUNDLE-03/
+    tags_set_on_purchase: [product:bundle-03-year-2-operator, customer:thestrledger]
+    sequence_after_purchase: BUNDLE-03-year-2-operator
+
+  - slug: bundle-04-portfolio
+    sku: BUNDLE-04
+    name: Portfolio Bundle
+    category: bundle
+    price_usd: 97
+    tier: bundle
+    deliverable: zip
+    delivery_path: templates/_delivery/_bundles/BUNDLE-04/
+    tags_set_on_purchase: [product:bundle-04-portfolio, customer:thestrledger]
+    sequence_after_purchase: BUNDLE-04-portfolio
+
+  - slug: bundle-05-pro-manager
+    sku: BUNDLE-05
+    name: Pro Manager Bundle
+    category: bundle
+    price_usd: 67
+    tier: bundle
+    deliverable: zip
+    delivery_path: templates/_delivery/_bundles/BUNDLE-05/
+    tags_set_on_purchase: [product:bundle-05-pro-manager, customer:thestrledger]
+    sequence_after_purchase: BUNDLE-05-pro-manager
+
+# ===== STRMANUALS =====
+
+  - slug: manual-tax-01-loophole-playbook
+    sku: TAX-01
+    name: STR Tax Loophole Playbook
+    category: manual
+    price_usd: 47
+    tier: core
+    deliverable: pdf
+    delivery_path: STRManuals/private/manuals/tax-01/
+    tags_set_on_purchase: [product:manual-tax-01, customer:strmanuals]
+    sequence_after_purchase: strmanuals-order-confirmation
+
+  - slug: manual-tax-02-material-participation
+    sku: TAX-02
+    name: Material Participation Kit
+    category: manual
+    price_usd: 47
+    tier: core
+    deliverable: pdf
+    delivery_path: STRManuals/private/manuals/tax-02/
+    tags_set_on_purchase: [product:manual-tax-02, customer:strmanuals]
+    sequence_after_purchase: strmanuals-order-confirmation
+
+  - slug: manual-lgl-01-permit-survival
+    sku: LGL-01
+    name: Permit Survival Guide
+    category: manual
+    price_usd: 27
+    tier: core
+    deliverable: pdf
+    delivery_path: STRManuals/private/manuals/lgl-01/
+    tags_set_on_purchase: [product:manual-lgl-01, customer:strmanuals]
+    sequence_after_purchase: strmanuals-order-confirmation
+
+  - slug: manual-rev-01-why-bookings-down
+    sku: REV-01
+    name: Why Bookings Are Down (Diagnostic)
+    category: manual
+    price_usd: 27
+    tier: core
+    deliverable: pdf
+    delivery_path: STRManuals/private/manuals/rev-01/
+    tags_set_on_purchase: [product:manual-rev-01, customer:strmanuals]
+    sequence_after_purchase: strmanuals-order-confirmation
+
+  - slug: manual-rev-02-direct-bookings
+    sku: REV-02
+    name: Direct Bookings Starter
+    category: manual
+    price_usd: 47
+    tier: core
+    deliverable: pdf
+    delivery_path: STRManuals/private/manuals/rev-02/
+    tags_set_on_purchase: [product:manual-rev-02, customer:strmanuals]
+    sequence_after_purchase: strmanuals-order-confirmation
+
+# ===== FREE MAGNETS (price_usd: null) =====
+
+  - slug: magnet-47-deductions
+    sku: LM-001
+    name: 47 Airbnb Tax Deductions
+    category: magnet
+    price_usd: null
+    tier: magnet
+    deliverable: pdf+xlsx
+    delivery_path: templates/_delivery/_shared/47-deductions/
+    tags_set_on_purchase: [source:lead-magnet, lead-magnet:47-deductions]
+    sequence_after_purchase: nurture-hero-magnet
+
+  - slug: magnet-entity-decision
+    sku: LM-002
+    name: Entity Decision Flowchart
+    category: magnet
+    price_usd: null
+    tier: magnet
+    deliverable: pdf
+    delivery_path: templates/_delivery/_shared/entity-decision-flowchart.pdf
+    tags_set_on_purchase: [source:lead-magnet, lead-magnet:entity-decision]
+    sequence_after_purchase: nurture-hero-magnet
+
+  - slug: magnet-schedule-e-cheatsheet
+    sku: LM-003
+    name: Schedule E Line-by-Line Cheatsheet
+    category: magnet
+    price_usd: null
+    tier: magnet
+    deliverable: pdf
+    delivery_path: templates/_delivery/_shared/schedule-e-cheatsheet.pdf
+    tags_set_on_purchase: [source:lead-magnet, lead-magnet:schedule-e]
+    sequence_after_purchase: nurture-hero-magnet
+
+  - slug: magnet-depreciation-lookup
+    sku: LM-004
+    name: Depreciation Asset Quick-Lookup
+    category: magnet
+    price_usd: null
+    tier: magnet
+    deliverable: xlsx
+    delivery_path: templates/_delivery/_shared/depreciation-lookup.xlsx
+    tags_set_on_purchase: [source:lead-magnet, lead-magnet:depreciation]
+    sequence_after_purchase: nurture-hero-magnet
+
+  - slug: magnet-1099-trigger-calc
+    sku: LM-005
+    name: 1099-NEC Trigger Threshold Calculator
+    category: magnet
+    price_usd: null
+    tier: magnet
+    deliverable: xlsx
+    delivery_path: templates/_delivery/_shared/1099-trigger-calculator.xlsx
+    tags_set_on_purchase: [source:lead-magnet, lead-magnet:1099-trigger]
+    sequence_after_purchase: nurture-hero-magnet
+
+  - slug: magnet-cost-per-stay
+    sku: LM-006
+    name: Cost-Per-Stay Calculator
+    category: magnet
+    price_usd: null
+    tier: magnet
+    deliverable: xlsx
+    delivery_path: templates/_delivery/_shared/cost-per-stay-calculator.xlsx
+    tags_set_on_purchase: [source:lead-magnet, lead-magnet:cost-per-stay]
+    sequence_after_purchase: nurture-hero-magnet
+
+  - slug: magnet-chart-of-accounts
+    sku: LM-007
+    name: STR Chart of Accounts Starter
+    category: magnet
+    price_usd: null
+    tier: magnet
+    deliverable: xlsx
+    delivery_path: templates/_delivery/_shared/str-chart-of-accounts-starter.xlsx
+    tags_set_on_purchase: [source:lead-magnet, lead-magnet:chart-of-accounts]
+    sequence_after_purchase: nurture-hero-magnet
+
+  - slug: magnet-estimated-tax-calendar
+    sku: LM-008
+    name: Estimated Tax Due-Date Reminder Calendar
+    category: magnet
+    price_usd: null
+    tier: magnet
+    deliverable: pdf
+    delivery_path: templates/_delivery/_shared/estimated-tax-calendar.pdf
+    tags_set_on_purchase: [source:lead-magnet, lead-magnet:tax-calendar]
+    sequence_after_purchase: nurture-hero-magnet
