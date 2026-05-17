@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     include: ["tests/**/*.test.ts"],
     exclude: ["node_modules", "dist"],
+    setupFiles: ["../../packages/pinforge/tests/helpers/msw-server.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
