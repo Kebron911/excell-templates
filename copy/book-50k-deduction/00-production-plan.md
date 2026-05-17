@@ -36,10 +36,10 @@ These items are the inputs. None should change without re-running downstream pha
 - [x] **Hero-magnet 21-day nurture sequence** (the parent the `source:book-buyer` branch will fork from) — [copy/email-sequences/nurture-hero-magnet.md](copy/email-sequences/nurture-hero-magnet.md)
 
 ### 0.4 Cross-deliverable issues to fix during Phase 1+ (already flagged)
-- [ ] **Listing description §168(k) line** — change "what's left of it through 2027" to year-agnostic phrasing matching Ch 7
-- [ ] **A+ Module 1 hero number** — decide whether front cover and A+ both use $50,000, or A+ uses $8,427 (currently inconsistent)
+- [x] **Listing description §168(k) line** — changed "what's left of it through 2027" to year-agnostic phrasing in amazon-listing.md line 47
+- [x] **A+ Module 1 hero number** — decision: $50,000 (matches front cover and book title). Headline reframed in amazon-listing.md from Amanda's $8,427 specific recovery to portfolio-wide $30K–$60K range; Amanda kept as supporting proof point. Image direction updated to "$50,000."
 - [x] **Cost Seg DIY Workbook SKU code + `/cap/07` redirect destination** — confirmed as `TAX-010` at [templates/_masters/TAX-010-cost-segregation-diy-DEMO.xlsx](templates/_masters/TAX-010-cost-segregation-diy-DEMO.xlsx); chapter and funnel references updated
-- [ ] **Listing copy "Depreciation Tracker" references** — listing copy treats it as standalone $47 SKU. Confirmed it's actually a tab inside TAX-004 Schedule E Workbook. Edit the listing description, the A+ Module 5 imagery (drop the standalone Depreciation Tracker cover, replace with another workbook), and the chapter *Capture* sidebars in Ch 5/6/8 to point at TAX-004
+- [x] **Listing copy "Depreciation Tracker" references** — Depreciation Tracker swapped for Cost Seg DIY Workbook (TAX-010) in A+ Module 5 image direction. Chapter Capture sidebars in Ch 5, 6, 8 already correctly reference TAX-004 (no edits needed; verified 2026-05-16).
 
 ---
 

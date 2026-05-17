@@ -44,7 +44,7 @@ We built it after years of watching QuickBooks fail STR hosts — wrong categori
 <ul>
 <li><b>The $8,427 cost-seg play (§168(k))</b> — how DIY cost segregation works on STR properties under ~$500K and why most hosts miss it for years</li>
 <li><b>Schedule E vs. Schedule C</b> — the 7-day and 30-day tests that decide which form you file (and why most STR hosts get it wrong)</li>
-<li><b>Bonus depreciation under §168(k)</b> — what's left of it through 2027 and how to stack it with §179 on furniture and appliances</li>
+<li><b>Bonus depreciation under §168(k)</b> — the current first-year deduction and how to stack it with §179 on furniture and appliances</li>
 <li><b>The Augusta Rule (§280A)</b> — renting your primary residence to your own STR LLC for up to 14 days, tax-free</li>
 <li><b>The mileage deduction that survived an IRS audit</b> — at 70¢/mile, the trip log that closed our 2022 audit in 12 minutes</li>
 <li><b>1099-NEC thresholds</b> — when you must file for cleaners, handymen, and landscapers, and the $600 trigger most hosts get backwards</li>
@@ -115,9 +115,9 @@ Five modules. Image direction follows brand-decisions §3–4 (Harbor Navy, Parc
 
 ### Module 1 — Hero banner
 - **Amazon module type:** Standard Image & Light Text Overlay
-- **Headline:** *The $8,427 deduction most STR hosts miss.*
-- **Body (≤300 chars):** Amanda owned three Smokies cabins for four years before her new CPA flagged it. Cost segregation, line by line, on properties under $500K. She amended four returns and reclaimed $8,427. This book is the checklist she wishes she'd had in year one.
-- **Image direction:** Harbor Navy background, Parchment Cormorant headline, single Muted Gold rule under "$8,427." Book cover floated bottom-right at 30% width. No people, no stock cabins — typography only.
+- **Headline:** *The $50,000 your portfolio is leaving on the table.*
+- **Body (≤300 chars):** Across the 47 deductions in this book, the typical 3–10-property STR portfolio recovers $30K–$60K in year one. Amanda's three Smokies cabins netted $8,427 from cost segregation alone — and that's chapter 7 of 17. This book is the line-by-line checklist.
+- **Image direction:** Harbor Navy background, Parchment Cormorant headline, single Muted Gold rule under "$50,000." Book cover floated bottom-right at 30% width. No people, no stock cabins — typography only.
 
 ### Module 2 — "What's inside" four-quadrant grid
 - **Amazon module type:** Standard Four Image & Text
@@ -143,7 +143,7 @@ Five modules. Image direction follows brand-decisions §3–4 (Harbor Navy, Parc
 - **Amazon module type:** Standard Three Image & Text
 - **Headline:** *The book is the map. The workbooks are the system.*
 - **Body (≤300 chars):** Every chapter ties back to a printable Excel companion most readers wire into their portfolio in a weekend — Schedule E rollup, mileage log, 1099-NEC tracker, depreciation grid, per-diem tracker. The book includes the reader bonus link to the audit checklist edition.
-- **Image direction:** Three Parchment-on-Navy workbook covers in a row — *Schedule E Workbook*, *Depreciation Tracker*, *Mileage Log*. Each shows the SKU in JetBrains Mono tracked-wide at the top corner per brand-decisions §5.4. **No URLs in image text** (Amazon penalizes external links).
+- **Image direction:** Three Parchment-on-Navy workbook covers in a row — *Schedule E Workbook (TAX-004)*, *Cost Seg DIY Workbook (TAX-010)*, *Mileage Log (TAX-001)*. Each shows the SKU in JetBrains Mono tracked-wide at the top corner per brand-decisions §5.4. **No URLs in image text** (Amazon penalizes external links). *Depreciation Tracker was previously listed here but is not a standalone SKU — the depreciation grid is a tab inside TAX-004; swapped for TAX-010 (the Amanda-story flagship workbook).*
 
 ---
 
