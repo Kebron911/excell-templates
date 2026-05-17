@@ -114,11 +114,9 @@ After #3 lands, GA4 `email_captured` and `pdf_downloaded` events resume firing t
 
 ---
 
-## 6 — strguests welcome-book PDF modal form-in-DOM (COSMETIC)
+## 6 — strguests welcome-book PDF modal form-in-DOM (COSMETIC) — ✅ DONE 2026-05-17
 
-`STRGuests-Tools/src/components/generator/PdfDownloadButton.astro` disables `modal.showModal()` but leaves the `<dialog>` element + `<form>` in the rendered HTML. The form is unreachable (modal never opens) but probes flag it.
-
-To clean up: wrap the entire `<dialog>` in `{false && (...)}` so it's stripped at build time. Bonus: shrinks HTML payload on every generator page.
+Wrapped the `<dialog>` block in `{false && (...)}` so it's stripped at build time across all 4 generator pages (welcome-book, wifi-sign, house-rules-pdf, check-in-instructions). Verified: `data-pdf-modal` count = 0 in rendered HTML; `data-pdf-download` count = 1 per page (button still works, PDF still downloads). When BACKLOG #3 cluster lead-router lands, restore both `{false &&` → `{true &&` AND the commented `if (modal && !isGateDismissed(tool)) modal.showModal();` line in the script — comment block in the file explains the dual revert.
 
 ---
 
@@ -130,7 +128,7 @@ A single `git grep -nE 'PAUSED|FORCED:|Coming soon'` should surface all of these
 |---|---|---|
 | `packages/ui-funnel/src/EmailCaptureCard.astro` | Form replaced with Coming-Soon panel | Backlog #3 cluster lead router live |
 | `packages/email-gate/src/EmailGate.astro` | Form replaced with Coming-Soon stub | Backlog #3 cluster lead router live |
-| `STRGuests-Tools/src/components/generator/PdfDownloadButton.astro` | Email modal `showModal()` disabled | Backlog #3 cluster lead router live |
+| `STRGuests-Tools/src/components/generator/PdfDownloadButton.astro` | Email modal `showModal()` disabled AND `<dialog>` wrapped in `{false && (...)}` to strip from DOM | Backlog #3 cluster lead router live — restore BOTH together |
 | `STRManuals/site/src/components/BuyButton.astro` | `isPlaceholder = true` forced | Backlog #1 strmanuals fulfillment verified |
 | `STRManuals/site/src/pages/manuals/[slug].astro` | Mobile sticky Buy bar wrapped `{false && ...}` | Backlog #1 strmanuals fulfillment verified |
 | `STRManuals/site/src/components/EmailCapture.astro` | Form replaced with Coming-Soon panel | Backlog #1 strmanuals W08 workflow live |

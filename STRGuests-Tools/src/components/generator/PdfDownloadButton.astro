@@ -44,47 +44,53 @@ const { toolSlug, filename, magnet, label = 'Download PDF' } = Astro.props;
     {label}
   </button>
 
-  <dialog
-    class="rounded-md border border-rule bg-parchment-light p-6 max-w-md backdrop:bg-navy/60"
-    data-pdf-modal
-    data-tool={toolSlug}
-    data-magnet={magnet}
-    aria-labelledby={`pdf-modal-title-${toolSlug}`}
-  >
-    <p id={`pdf-modal-title-${toolSlug}`} class="font-serif text-h3 text-navy">
-      Want updates when we ship more guest-XP tools?
-    </p>
-    <p class="mt-2 text-small text-ink-2 leading-snug">
-      Your PDF is downloading either way. If you want a heads-up when we ship the next
-      generator, drop your email below.
-    </p>
-    <form class="mt-4 flex flex-col gap-2" data-pdf-modal-form>
-      <input
-        type="email"
-        name="email"
-        autocomplete="email"
-        required
-        placeholder="you@yourdomain.com"
-        class="rounded-md border border-rule bg-parchment px-4 py-2 text-ui text-navy placeholder:text-ink-3 focus:outline-none focus:border-[color:var(--accent-500)] focus:shadow-focus"
-      />
-      <div class="flex flex-col sm:flex-row gap-2 sm:justify-end">
-        <button
-          type="button"
-          class="rounded-md border border-rule bg-parchment text-navy px-4 py-2 text-ui hover:bg-parchment-alt transition-colors duration-std"
-          data-pdf-modal-skip
-        >
-          Skip and download
-        </button>
-        <button
-          type="submit"
-          class="rounded-md text-parchment px-5 py-2 text-ui transition-colors duration-std hover:opacity-90"
-          style="background: var(--accent-500);"
-        >
-          Email me when it ships
-        </button>
-      </div>
-    </form>
-  </dialog>
+  {/* PAUSED — dialog + form removed from DOM while cluster lead-router is wired. */}
+  {/* Probes were flagging the orphan form (modal.showModal() is also disabled below). */}
+  {/* Restore: change `{false &&` below to `{true &&` AND revert the showModal() pause */}
+  {/* in the click handler script — both reverts together when STR_Cluster_Lead_Router lands. */}
+  {false && (
+    <dialog
+      class="rounded-md border border-rule bg-parchment-light p-6 max-w-md backdrop:bg-navy/60"
+      data-pdf-modal
+      data-tool={toolSlug}
+      data-magnet={magnet}
+      aria-labelledby={`pdf-modal-title-${toolSlug}`}
+    >
+      <p id={`pdf-modal-title-${toolSlug}`} class="font-serif text-h3 text-navy">
+        Want updates when we ship more guest-XP tools?
+      </p>
+      <p class="mt-2 text-small text-ink-2 leading-snug">
+        Your PDF is downloading either way. If you want a heads-up when we ship the next
+        generator, drop your email below.
+      </p>
+      <form class="mt-4 flex flex-col gap-2" data-pdf-modal-form>
+        <input
+          type="email"
+          name="email"
+          autocomplete="email"
+          required
+          placeholder="you@yourdomain.com"
+          class="rounded-md border border-rule bg-parchment px-4 py-2 text-ui text-navy placeholder:text-ink-3 focus:outline-none focus:border-[color:var(--accent-500)] focus:shadow-focus"
+        />
+        <div class="flex flex-col sm:flex-row gap-2 sm:justify-end">
+          <button
+            type="button"
+            class="rounded-md border border-rule bg-parchment text-navy px-4 py-2 text-ui hover:bg-parchment-alt transition-colors duration-std"
+            data-pdf-modal-skip
+          >
+            Skip and download
+          </button>
+          <button
+            type="submit"
+            class="rounded-md text-parchment px-5 py-2 text-ui transition-colors duration-std hover:opacity-90"
+            style="background: var(--accent-500);"
+          >
+            Email me when it ships
+          </button>
+        </div>
+      </form>
+    </dialog>
+  )}
 </div>
 
 <script>
@@ -140,8 +146,11 @@ const { toolSlug, filename, magnet, label = 'Download PDF' } = Astro.props;
         downloadBytes(bytes, filename);
         (window as any).gtag?.('event', 'pdf_downloaded', { tool, filename });
         // PAUSED — soft email-gate modal disabled while cluster lead-router is wired.
-        // PDF still downloads. Restore `if (modal && !isGateDismissed(tool)) modal.showModal();`
-        // when STR_Cluster_Lead_Router is live + tested.
+        // The <dialog> + <form> are ALSO removed from the DOM via `{false && (...)}` above
+        // so probes don't flag the orphan form. PDF still downloads.
+        // To restore: flip `{false &&` to `{true &&` above AND uncomment the next line.
+        // Both reverts together when STR_Cluster_Lead_Router lands.
+        // if (modal && !isGateDismissed(tool)) modal.showModal();
         void modal;
       } catch (err) {
         console.error('[PdfDownloadButton] Generation failed:', err);
