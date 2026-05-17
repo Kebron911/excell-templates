@@ -21,7 +21,7 @@ export async function writeJobSummary(input: WriteJobSummaryInput): Promise<stri
     },
     results: {
       succeeded: input.result.succeeded.map(s => ({
-        slug: (s.result.metadata as any).imagePath?.split("/").pop()?.replace(/\.png$/, ""),
+        slug: s.result.metadata.imagePath.split(/[\\/]/).pop()?.replace(/\.png$/, "") ?? "",
         brandId: s.result.metadata.brandId,
         templateId: s.result.metadata.templateId,
         paths: s.result.paths
