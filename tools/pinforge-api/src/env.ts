@@ -12,7 +12,9 @@ const ApiEnvSchema = z.object({
   PINFORGE_API_BODY_LIMIT_JSON: z.coerce.number().int().positive().default(256 * 1024),
   PINFORGE_API_BODY_LIMIT_CSV: z.coerce.number().int().positive().default(5 * 1024 * 1024),
   PINFORGE_API_BULK_MAX: z.coerce.number().int().positive().default(500),
-  PINFORGE_API_SYNC_TIMEOUT_MS: z.coerce.number().int().positive().default(90_000)
+  PINFORGE_API_SYNC_TIMEOUT_MS: z.coerce.number().int().positive().default(90_000),
+  PINFORGE_API_CORS_ORIGINS: z.string().default(""),  // comma-separated list, empty = CORS off
+  PINFORGE_API_CORS_CREDENTIALS: z.coerce.boolean().default(false)
 });
 
 export interface ApiEnv {
@@ -25,6 +27,8 @@ export interface ApiEnv {
   bodyLimitCsv: number;
   bulkMax: number;
   syncTimeoutMs: number;
+  corsOrigins: string[];        // parsed from comma-sep, empty array = CORS off
+  corsCredentials: boolean;
   pinforge: PinforgeEnv;
 }
 
@@ -46,6 +50,8 @@ export function loadApiEnv(source: NodeJS.ProcessEnv = process.env): ApiEnv {
     bodyLimitCsv: e.PINFORGE_API_BODY_LIMIT_CSV,
     bulkMax: e.PINFORGE_API_BULK_MAX,
     syncTimeoutMs: e.PINFORGE_API_SYNC_TIMEOUT_MS,
+    corsOrigins: e.PINFORGE_API_CORS_ORIGINS.split(",").map(s => s.trim()).filter(Boolean),
+    corsCredentials: e.PINFORGE_API_CORS_CREDENTIALS,
     pinforge
   };
 }

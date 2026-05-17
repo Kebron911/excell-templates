@@ -1,7 +1,8 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { generateBatch, parsePinInputCsv } from "@str/pinforge";
-import { createJobId, registerJob, completeJob, failJob } from "../jobs.js";
+import { createJobId, registerJob, completeJob, failJob, getJob } from "../jobs.js";
+import { dispatchWebhook } from "../webhook-dispatcher.js";
 import { fetchPublishedSheetCsv } from "../sheet-fetcher.js";
 import type { ApiEnv } from "../env.js";
 
@@ -12,7 +13,8 @@ export interface SheetRoutesDeps {
 }
 
 const SheetBodySchema = z.object({
-  sheetUrl: z.string().url("sheetUrl must be a valid URL")
+  sheetUrl: z.string().url("sheetUrl must be a valid URL"),
+  callbackUrl: z.string().url().optional()
 });
 
 export function registerSheetRoute(app: FastifyInstance, deps: SheetRoutesDeps): void {
@@ -68,7 +70,7 @@ export function registerSheetRoute(app: FastifyInstance, deps: SheetRoutesDeps):
         });
       }
 
-      const { sheetUrl } = parsed.data;
+      const { sheetUrl, callbackUrl } = parsed.data;
 
       let csvText: string;
       try {
@@ -110,7 +112,7 @@ export function registerSheetRoute(app: FastifyInstance, deps: SheetRoutesDeps):
         brandsDir: deps.brandsDir,
         outputDir: deps.outputDir
       })
-        .then((result) =>
+        .then((result) => {
           completeJob(jobId, [
             ...result.succeeded.map((s) => ({
               ok: true as const,
@@ -121,9 +123,19 @@ export function registerSheetRoute(app: FastifyInstance, deps: SheetRoutesDeps):
               ok: false as const,
               error: f.error
             }))
-          ])
-        )
-        .catch((err) => failJob(jobId, err));
+          ]);
+          if (callbackUrl) {
+            const job = getJob(jobId)!;
+            dispatchWebhook(callbackUrl, job, "").catch(() => {});
+          }
+        })
+        .catch((err) => {
+          failJob(jobId, err);
+          if (callbackUrl) {
+            const job = getJob(jobId)!;
+            dispatchWebhook(callbackUrl, job, "").catch(() => {});
+          }
+        });
 
       return reply.code(202).send({
         jobId,

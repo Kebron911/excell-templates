@@ -3,7 +3,8 @@ import { createReadStream } from "node:fs";
 import { generatePin } from "@str/pinforge";
 import { mapErrorToHttp } from "../errors.js";
 import { PostPinBodySchema, PostPinSyncQuerySchema } from "../schemas.js";
-import { createJobId, registerJob, completeJob, failJob } from "../jobs.js";
+import { createJobId, registerJob, completeJob, failJob, getJob } from "../jobs.js";
+import { dispatchWebhook } from "../webhook-dispatcher.js";
 import { fetchPinBySlug } from "../slug.js";
 import type { ApiEnv } from "../env.js";
 
@@ -56,6 +57,11 @@ export function registerPinsRoutes(app: FastifyInstance, deps: PinsRoutesDeps): 
               type: "string",
               enum: ["0", "1", "true", "false"],
               description: "Set to '1' or 'true' to wait for the result synchronously"
+            },
+            callback_url: {
+              type: "string",
+              format: "uri",
+              description: "Optional URL to POST job-done payload when the async job completes"
             }
           }
         },
@@ -95,6 +101,8 @@ export function registerPinsRoutes(app: FastifyInstance, deps: PinsRoutesDeps): 
 
       const query = PostPinSyncQuerySchema.parse(req.query ?? {});
       const sync = query.sync === "1" || query.sync === "true";
+      const cbRaw = (req.query as { callback_url?: string }).callback_url;
+      const callbackUrl = cbRaw && /^https?:\/\//.test(cbRaw) ? cbRaw : undefined;
 
       if (sync) {
         try {
@@ -132,10 +140,20 @@ export function registerPinsRoutes(app: FastifyInstance, deps: PinsRoutesDeps): 
         brandsDir: deps.brandsDir,
         outputDir: deps.outputDir
       })
-        .then(result =>
-          completeJob(jobId, [{ ok: true, pin: result.metadata, paths: result.paths }])
-        )
-        .catch(err => failJob(jobId, err));
+        .then(result => {
+          completeJob(jobId, [{ ok: true, pin: result.metadata, paths: result.paths }]);
+          if (callbackUrl) {
+            const job = getJob(jobId)!;
+            dispatchWebhook(callbackUrl, job, "").catch(() => {});
+          }
+        })
+        .catch(err => {
+          failJob(jobId, err);
+          if (callbackUrl) {
+            const job = getJob(jobId)!;
+            dispatchWebhook(callbackUrl, job, "").catch(() => {});
+          }
+        });
 
       reply.code(202).send({
         jobId,

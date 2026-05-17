@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import type { FastifyInstance } from "fastify";
+import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
@@ -28,6 +29,16 @@ export async function buildServer(input: BuildServerInput): Promise<FastifyInsta
     bodyLimit: env.bodyLimitJson,
     trustProxy: false
   });
+
+  if (input.env.corsOrigins.length > 0) {
+    await app.register(cors, {
+      origin: input.env.corsOrigins,
+      credentials: input.env.corsCredentials,
+      methods: ["GET", "POST", "OPTIONS"],
+      allowedHeaders: ["X-API-Key", "Content-Type"],
+      exposedHeaders: ["Content-Disposition"]  // for CSV download
+    });
+  }
 
   await registerRateLimit(app, {
     max: env.rateLimitMax,

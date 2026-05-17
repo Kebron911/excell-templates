@@ -34,4 +34,19 @@ describe("loadApiEnv", () => {
     process.env.PINFORGE_API_PORT = "9000";
     expect(loadApiEnv().port).toBe(9000);
   });
+
+  it("parses PINFORGE_API_CORS_ORIGINS comma-list", () => {
+    process.env.PINFORGE_API_KEY = "test-key-32-chars-min-aaaaaaaaaa";
+    process.env.OPENAI_API_KEY = "sk-test";
+    process.env.PINFORGE_API_CORS_ORIGINS = "https://app.example.com, https://admin.example.com";
+    const cfg = loadApiEnv();
+    expect(cfg.corsOrigins).toEqual(["https://app.example.com", "https://admin.example.com"]);
+  });
+
+  it("corsOrigins is empty array when not set", () => {
+    process.env.PINFORGE_API_KEY = "test-key-32-chars-min-aaaaaaaaaa";
+    process.env.OPENAI_API_KEY = "sk-test";
+    delete process.env.PINFORGE_API_CORS_ORIGINS;
+    expect(loadApiEnv().corsOrigins).toEqual([]);
+  });
 });

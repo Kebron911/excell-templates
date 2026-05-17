@@ -456,12 +456,48 @@ pnpm -F @str/pinforge-api test --coverage
 
 ---
 
+## Webhook callbacks (optional)
+
+Bulk endpoints accept an optional `callbackUrl` field. When provided, PinForge POSTs a small JSON payload to that URL when the job completes (success or failure).
+
+```bash
+curl -X POST http://localhost:8787/v1/pins/bulk \
+  -H "X-API-Key: $PINFORGE_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"callbackUrl":"https://my-app.example.com/pinforge-webhook","items":[...]}'
+```
+
+For `/v1/pins/csv` and `/v1/pins/sheet`, pass it as `?callback_url=...` query param.
+
+### Webhook payload
+
+```json
+{
+  "jobId": "job_xxxxx",
+  "status": "done",
+  "progress": {"done": 5, "total": 5, "failed": 0},
+  "completedAt": "2026-05-17T12:00:00.000Z",
+  "resultsUrl": "/v1/jobs/job_xxxxx"
+}
+```
+
+On failure, `status: "failed"` and `fatalError: {code, message}` is included.
+
+### Reliability
+
+- Fire-and-forget — the job completes regardless of webhook success
+- 10s timeout per callback
+- One delivery attempt, no retries (idempotent receivers recommended)
+- Non-2xx responses logged but don't fail the job
+- Errors logged to the API server's Pino logger
+
+---
+
 ## Known Limitations (see BACKLOG.md)
 
 - **In-memory job store** — jobs are lost on restart. No Redis/DB persistence yet.
-- **No CORS** — add `@fastify/cors` if serving a browser client directly.
 - **No pagination** on `/v1/brands` or `/v1/templates` — fine at current catalog size.
 - **Sync timeout** is a simple `Promise.race` — if the server crashes mid-sync, the client hangs until its own timeout.
-- **No webhook callbacks** — async jobs require polling. Webhook delivery is in the backlog.
+- **Webhook security** — `callbackUrl` validated as a URL only; no allowlist. An internal network SSRF is possible if the API server has access to internal services. For production, add an origin allowlist or restrict to HTTPS public origins only.
 
 See `tools/pinforge-api/BACKLOG.md` for the full list.

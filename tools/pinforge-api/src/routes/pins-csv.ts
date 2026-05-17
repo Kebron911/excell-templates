@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { generateBatch, parsePinInputCsv } from "@str/pinforge";
-import { createJobId, registerJob, completeJob, failJob } from "../jobs.js";
+import { createJobId, registerJob, completeJob, failJob, getJob } from "../jobs.js";
+import { dispatchWebhook } from "../webhook-dispatcher.js";
 import type { ApiEnv } from "../env.js";
 
 export interface CsvRoutesDeps {
@@ -17,7 +18,13 @@ export function registerCsvRoute(app: FastifyInstance, deps: CsvRoutesDeps): voi
         tags: ["pins"],
         summary: "Bulk-generate pins from a multipart CSV file upload (async)",
         consumes: ["multipart/form-data"],
-        description: "Multipart form upload with a 'file' field containing CSV: columns brandId, topic, primaryKeyword, destinationUrl",
+        description: "Multipart form upload with a 'file' field containing CSV: columns brandId, topic, primaryKeyword, destinationUrl. Pass ?callback_url=... for webhook notification.",
+        querystring: {
+          type: "object",
+          properties: {
+            callback_url: { type: "string", format: "uri", description: "Optional URL to POST job-done payload when the job completes" }
+          }
+        },
         response: {
           202: {
             type: "object",
@@ -33,6 +40,9 @@ export function registerCsvRoute(app: FastifyInstance, deps: CsvRoutesDeps): voi
       }
     },
     async (req, reply) => {
+    const cb = (req.query as { callback_url?: string }).callback_url;
+    const callbackUrl = cb && /^https?:\/\//.test(cb) ? cb : undefined;
+
     const file = await req.file();
     if (!file) {
       reply.code(400).send({
@@ -74,7 +84,7 @@ export function registerCsvRoute(app: FastifyInstance, deps: CsvRoutesDeps): voi
       brandsDir: deps.brandsDir,
       outputDir: deps.outputDir
     })
-      .then((result) =>
+      .then((result) => {
         completeJob(jobId, [
           ...result.succeeded.map((s) => ({
             ok: true as const,
@@ -85,9 +95,19 @@ export function registerCsvRoute(app: FastifyInstance, deps: CsvRoutesDeps): voi
             ok: false as const,
             error: f.error
           }))
-        ])
-      )
-      .catch((err) => failJob(jobId, err));
+        ]);
+        if (callbackUrl) {
+          const job = getJob(jobId)!;
+          dispatchWebhook(callbackUrl, job, "").catch(() => {});
+        }
+      })
+      .catch((err) => {
+        failJob(jobId, err);
+        if (callbackUrl) {
+          const job = getJob(jobId)!;
+          dispatchWebhook(callbackUrl, job, "").catch(() => {});
+        }
+      });
 
     reply.code(202).send({
       jobId,

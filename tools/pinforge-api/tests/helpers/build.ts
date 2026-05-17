@@ -14,6 +14,8 @@ export function makeApiEnv(overrides: Partial<ApiEnv> = {}): ApiEnv {
     bodyLimitCsv: 5 * 1024 * 1024,
     bulkMax: 500,
     syncTimeoutMs: 90_000,
+    corsOrigins: [],
+    corsCredentials: false,
     pinforge: {
       openaiApiKey: "sk-test",
       openaiModel: "gpt-4o-mini",
