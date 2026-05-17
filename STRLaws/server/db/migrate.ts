@@ -10,6 +10,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { RowDataPacket } from 'mysql2/promise';
 import { getPool, closePool } from './pool';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -28,8 +29,8 @@ async function ensureMigrationsTable(): Promise<void> {
 
 async function getAppliedMigrations(): Promise<Set<string>> {
   const pool = getPool();
-  const [rows] = await pool.query<Array<{ filename: string }> & { constructor: typeof Array }>('SELECT filename FROM _migrations');
-  return new Set((rows as Array<{ filename: string }>).map((r) => r.filename));
+  const [rows] = await pool.query<RowDataPacket[]>('SELECT filename FROM _migrations');
+  return new Set((rows as unknown as Array<{ filename: string }>).map((r) => r.filename));
 }
 
 async function listMigrationFiles(): Promise<string[]> {

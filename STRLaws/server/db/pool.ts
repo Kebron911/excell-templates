@@ -1,4 +1,4 @@
-import mysql, { Pool } from 'mysql2/promise';
+import mysql, { type Pool } from 'mysql2/promise';
 
 let pool: Pool | null = null;
 

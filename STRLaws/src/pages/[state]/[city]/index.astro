@@ -5,6 +5,7 @@ import {
   getStateBySlug,
   getCityBySlug,
   getLatestRegulation,
+  pickNearestCities,
 } from '@/lib/city-data';
 
 export async function getStaticPaths() {
@@ -24,9 +25,11 @@ if (!state || !city) {
 }
 
 const regulation = await getLatestRegulation(city.id);
+const allCities = await getAllActiveCitiesWithState();
+const neighbors = pickNearestCities(city, allCities, 5);
 ---
 
-<CityLayout state={state} city={city} regulation={regulation}>
+<CityLayout state={state} city={city} regulation={regulation} neighbors={neighbors}>
   <section class="prose max-w-none mt-8">
     <h2 class="text-h2 font-wordmark text-navy mb-4">Regulation Breakdown</h2>
     {regulation == null ? (

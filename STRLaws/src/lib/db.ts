@@ -1,4 +1,4 @@
-import mysql from 'mysql2/promise';
+import mysql, { type RowDataPacket } from 'mysql2/promise';
 
 let pool: mysql.Pool | null = null;
 
@@ -18,12 +18,14 @@ export function getPool(): mysql.Pool {
   return pool;
 }
 
-export async function query<T = unknown>(sql: string, params?: Record<string, unknown> | unknown[]): Promise<T[]> {
-  const [rows] = await getPool().execute(sql, params);
-  return rows as T[];
+type QueryParams = ReadonlyArray<unknown> | Record<string, unknown>;
+
+export async function query<T = unknown>(sql: string, params?: QueryParams): Promise<T[]> {
+  const [rows] = await getPool().execute<RowDataPacket[]>(sql, params as never);
+  return rows as unknown as T[];
 }
 
-export async function queryOne<T = unknown>(sql: string, params?: Record<string, unknown> | unknown[]): Promise<T | null> {
+export async function queryOne<T = unknown>(sql: string, params?: QueryParams): Promise<T | null> {
   const rows = await query<T>(sql, params);
   return rows[0] ?? null;
 }
