@@ -12,7 +12,7 @@ export const bigHookTemplate: PinTemplate = {
         {renderBackground(brand, background)}
         <div style={{ position: "absolute", bottom: 120, left: 0, right: 0, padding: "0 60px", display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
           <div style={{ fontSize: 22, letterSpacing: 4, opacity: 0.9, fontFamily: brand.fonts.body.family, fontWeight: brand.fonts.body.weight, textTransform: "uppercase" }}>
-            For {brand.displayName} readers
+            {`For ${brand.displayName} readers`}
           </div>
           <div style={{ marginTop: 24, fontSize: 96, lineHeight: 1.05, fontWeight: brand.fonts.headline.weight }}>
             {copy.headline}

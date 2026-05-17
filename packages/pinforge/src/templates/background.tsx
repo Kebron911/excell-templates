@@ -9,7 +9,7 @@ import type { RenderedBackground } from "./types.js";
  */
 export function renderBackground(brand: BrandKit, bg: RenderedBackground): ReactNode {
   if (bg.type === "solid") {
-    return <div style={{ position: "absolute", inset: 0, background: brand.colors.primaryDark }} />;
+    return <div style={{ position: "absolute", inset: 0, display: "flex", background: brand.colors.primaryDark }} />;
   }
   if (bg.type === "gradient") {
     return (
@@ -17,6 +17,7 @@ export function renderBackground(brand: BrandKit, bg: RenderedBackground): React
         style={{
           position: "absolute",
           inset: 0,
+          display: "flex",
           background: `linear-gradient(135deg, ${brand.colors.primary} 0%, ${brand.colors.primaryDark} 100%)`
         }}
       />
@@ -28,11 +29,12 @@ export function renderBackground(brand: BrandKit, bg: RenderedBackground): React
   }
   const dataUri = `data:image/png;base64,${bg.imageBuffer.toString("base64")}`;
   return (
-    <>
+    <div style={{ position: "absolute", inset: 0, display: "flex" }}>
       <div
         style={{
           position: "absolute",
           inset: 0,
+          display: "flex",
           backgroundImage: `url(${dataUri})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
@@ -44,6 +46,7 @@ export function renderBackground(brand: BrandKit, bg: RenderedBackground): React
           style={{
             position: "absolute",
             inset: 0,
+            display: "flex",
             background: "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.7) 70%, rgba(0,0,0,0.9) 100%)"
           }}
         />
@@ -53,12 +56,12 @@ export function renderBackground(brand: BrandKit, bg: RenderedBackground): React
           style={{
             position: "absolute",
             inset: 0,
-            background: `linear-gradient(135deg, ${brand.colors.primary}DC, ${brand.colors.primaryDark}EB)`,
-            mixBlendMode: "multiply"
+            display: "flex",
+            background: `linear-gradient(135deg, ${brand.colors.primary}CC, ${brand.colors.primaryDark}E0)`
           }}
         />
       )}
-    </>
+    </div>
   );
 }
 
@@ -71,6 +74,9 @@ export function footer(brand: BrandKit): ReactNode {
         left: 0,
         right: 0,
         padding: "20px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         textAlign: "center",
         fontSize: 18,
         letterSpacing: 3,

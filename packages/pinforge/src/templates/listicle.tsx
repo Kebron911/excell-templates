@@ -27,7 +27,7 @@ export const listicleTemplate: PinTemplate = {
           <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 18 }}>
             {items.slice(0, 7).map((item, i) => (
               <div key={i} style={{ display: "flex", gap: 18, fontSize: 36, lineHeight: 1.3 }}>
-                <span style={{ minWidth: 56, fontWeight: brand.fonts.headline.weight, color: useWhiteBanner ? brand.colors.primary : brand.colors.accent }}>{i + 1}.</span>
+                <span style={{ minWidth: 56, fontWeight: brand.fonts.headline.weight, color: useWhiteBanner ? brand.colors.primary : brand.colors.accent }}>{`${i + 1}.`}</span>
                 <span>{item}</span>
               </div>
             ))}
