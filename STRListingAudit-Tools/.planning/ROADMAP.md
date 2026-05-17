@@ -119,11 +119,12 @@ Phase grouping of the v0.1 plan. Each phase ends with an atomic git commit + STA
 
 ## Status
 
-| Phase | Status | Started | Completed |
-|-------|--------|---------|-----------|
-| 1 — Foundation | in-progress | 2026-05-14 | — |
-| 2 — Listing scrape | pending | — | — |
-| 3 — AI scorecard | pending | — | — |
-| 4 — Result UX + email gate | pending | — | — |
-| 5 — Distribution surface | pending | — | — |
-| 6 — Analytics + deploy | pending | — | — |
+| Phase | Status | Started | Completed | Commit |
+|-------|--------|---------|-----------|--------|
+| 1 — Foundation | complete | 2026-05-14 | 2026-05-14 | d160b5a |
+| 2 — Listing scrape | complete | 2026-05-14 | 2026-05-14 | 4df5c8a |
+| 3 — AI scorecard | complete | 2026-05-14 | 2026-05-14 | c2a31ac |
+| 4 — Result UX + share | core complete | 2026-05-14 | 2026-05-14 | 88a1b3d |
+| 4b — PDF + email-verify | deferred | — | — | — |
+| 5 — Distribution surface | complete | 2026-05-14 | 2026-05-14 | (rolled into 6) |
+| 6 — Analytics + deploy | complete | 2026-05-14 | 2026-05-14 | 37104b7 (tag `strlistingaudit-tools-v0.1.0`) |
