@@ -37,3 +37,9 @@ export { buildSystemPrompt, buildUserPrompt, type UserPromptInput } from "./seo/
 export { OpenAIAdapter, SeoCopyGenerator } from "./seo/openai-adapter.js";
 export type { LlmAdapter, LlmAdapterInput, SeoGenerator } from "./seo/adapter.js";
 export { withSeoRetry, type RetryOptions } from "./seo/retry.js";
+
+export { buildPinImagePrompt, type PinImagePromptInput } from "./image/prompt.js";
+export { fetchPinBackground, type N8nOptions } from "./image/n8n-bridge.js";
+export { fetchUnsplash, type UnsplashInput } from "./image/unsplash.js";
+export { generateSolidBackground } from "./image/solid.js";
+export { resolvePinBackground, type ResolveOptions, type ResolvedBackground, type BackgroundSource } from "./image/fallback.js";
