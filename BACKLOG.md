@@ -8,6 +8,50 @@
 
 ---
 
+## 🚧 Manual prerequisites for Tier S / Tier A platform work
+
+These are **user-only / out-of-code** decisions or provisioning steps that block specific platform phases. Pure code work that does not require any of these can continue in parallel.
+
+### Tier S Phase 4 — Contact Graph + Lead Inbox (BLOCKS Tier A Block 3: Webhook Bus, Promo Controller, Attribution Dashboard, AI Concierge)
+
+- [ ] **Postgres database provisioned** — same host as catalog-api (Hostinger or Railway, match Pinforge pattern). Need: hostname, database name, user, password, port. Add to `CREDENTIALS.md`.
+- [ ] **`CATALOG_API_KEY` rotated to a real 32+ char secret** — currently any value works in dev. Generate via `openssl rand -hex 32`, store in `CREDENTIALS.md`, set in production env.
+- [ ] **`dashboard.thestrledger.com` DNS record** — A or CNAME pointing at the host running `tools/catalog-api/` + future `tools/contact-graph/`. Subject to existing thestrledger.com legacy PHP migration (BACKLOG item #2).
+- [ ] **InfluencerSoft API credentials accessible** — `rpsKey` body param + base URL `https://kebron.influencersoft.com/api/AddUpdateLead` already in CREDENTIALS.md. Confirm the same key has permission for list creation + segment export (Phase 4 needs both, not just `AddUpdateLead`).
+- [ ] **Backup destination chosen** — S3 / Backblaze / Hostinger snapshot — for nightly Contact Graph DB dumps.
+
+### Tier A Block 2A — Permit / Regulation Lookup (BLOCKS strlaws.com tool launch)
+
+- [ ] **STR rules data source decision** — paid feed (e.g. Granicus, Rentalscape) vs. hand-curated CSV vs. scrape municipal sites. Need: vendor + license, or commit to manual curation cadence.
+- [ ] **Top 200 cities scoped** — confirm which markets matter most; basis for first batch.
+- [ ] **Legal review** — disclaimer language on "this is not legal advice." Likely templated, but a one-time pass needed.
+
+### Tier A Block 2B — MLS Listing Scraper (BLOCKS strbuyers.tools wrapper)
+
+- [ ] **Scraping policy locked** — public schema-markup only, never behind login. Document in README so future contributors don't broaden it.
+- [ ] **Anti-bot fallback** — accept that Zillow may rate-limit; fallback to manual paste must work. Confirm UX is acceptable.
+
+### Tier A Block 1C — Empire Health Monitor
+
+- [ ] **Alert destination** — Slack workspace + channel, or just email via InfluencerSoft? Need webhook URL or SMTP relay confirmation.
+- [ ] **Hosting decision** — Hostinger PM2 alongside catalog-api, or separate $5/mo VPS for isolation? Recommend co-locating with catalog-api to start.
+
+### Tier A Block 3D — Empire AI Concierge
+
+- [ ] **LLM provider + budget** — Claude (default) vs. OpenAI; expected monthly $ cap; per-IP rate limit number.
+- [ ] **System-prompt review** — owner approves the persona / tone / "don't recommend tools that aren't shipped" guardrail before public launch.
+
+### Tier A Block 4A — Content Syndication
+
+- [ ] **Editorial policy** — confirm "first-published-site is canonical, others get rel=canonical pointing back" is acceptable. Some publishers prefer no-index on duplicates instead.
+
+### Cross-cutting / domain hygiene
+
+- [ ] **Domain registration audit** — confirm `strops.tools`, `strlaws.com`, `strlistingaudit.com` are owned by the same registrar; consolidate if scattered.
+- [ ] **`STRLedger/` Astro scaffold deploy** — blocked by `STRLedger/DEPLOY-STATUS.md` DRAFT gate (BACKLOG item #2). Catalog already references `ledger` site with domain `thestrledger.com`, but the catalog-driven sitemap-index assumes a working `/sitemap.xml` at that domain. Until the legacy PHP migration completes, the empire sitemap-index will 404 on the `ledger` entry.
+
+---
+
 ## ✅ Recently completed
 
 - **#4 strmanuals `/dl/` deploy gap** — root cause: `private/` is gitignored, so PDFs never reach CI's build. Workaround applied: all 6 PDFs (5 paid manuals + 1 free explainer) uploaded out of band to `/home/u470667024/domains/strmanuals.com/public_html/dl/c30ca3787771e91e0fb21716146e2cea/` via SCP. Every `/dl/<HASH>/<slug>/v1.pdf` URL now returns 200 with correct Content-Length. **This means paid Stripe customers from the last week onward have working download links** — but anyone who bought before 2026-05-15 may have gotten broken links and may need a manual re-send. Cross-reference Stripe `checkout.session.completed` events vs the `_data/leads-*.log` on Hostinger to find them.
