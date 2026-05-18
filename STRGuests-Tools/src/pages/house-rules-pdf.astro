@@ -10,6 +10,7 @@ import PdfDownloadButton from '@/components/generator/PdfDownloadButton.astro';
 import PinterestPinButton from '@/components/generator/PinterestPinButton.astro';
 import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import HouseRulesGenerator from '@/components/generators/HouseRulesGenerator.tsx';
+import CrossSiteRelated from '@/components/catalog/CrossSiteRelated.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
@@ -102,6 +103,8 @@ const faq = buildFAQPage([
     </section>
 
     <RelatedPosts toolKey="house-rules-pdf" />
+
+    <CrossSiteRelated toolId="guests.house-rules-pdf" />
 
     <EmailCaptureCard
       siteConfig={siteConfig}

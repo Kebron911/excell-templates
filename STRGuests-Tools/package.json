@@ -23,6 +23,7 @@
     "page-hero": "node ./scripts/page-hero.mjs"
   },
   "dependencies": {
+    "@str/catalog": "workspace:*",
     "@str/email-gate": "workspace:*",
     "@str/format": "workspace:*",
     "@str/seo": "workspace:*",
