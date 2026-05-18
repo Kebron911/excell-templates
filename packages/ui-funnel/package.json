@@ -13,7 +13,10 @@
     "./EmailCaptureCard.astro": "./src/EmailCaptureCard.astro",
     "./STRLedgerCTA.astro": "./src/STRLedgerCTA.astro",
     "./ClusterFunnelBlock.astro": "./src/ClusterFunnelBlock.astro",
-    "./AdSlot.astro": "./src/AdSlot.astro"
+    "./AdSlot.astro": "./src/AdSlot.astro",
+    "./CatalogToolCard.astro": "./src/CatalogToolCard.astro",
+    "./CatalogToolGrid.astro": "./src/CatalogToolGrid.astro",
+    "./CatalogCrossSiteRelated.astro": "./src/CatalogCrossSiteRelated.astro"
   },
   "scripts": {
     "build": "tsc",
@@ -23,6 +26,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@str/catalog": "workspace:*",
     "@str/email-gate": "workspace:*",
     "@str/seo": "workspace:*",
     "@str/ui-chrome": "workspace:*"

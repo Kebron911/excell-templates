@@ -885,6 +885,9 @@ importers:
 
   packages/ui-funnel:
     dependencies:
+      '@str/catalog':
+        specifier: workspace:*
+        version: link:../catalog
       '@str/email-gate':
         specifier: workspace:*
         version: link:../email-gate
