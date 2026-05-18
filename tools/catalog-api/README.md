@@ -52,4 +52,4 @@ tools without leaking analytics events, owner notes, or planned tools.
 ## Deploy
 
 Hostinger / Railway / PM2 — match `tools/pinforge-api`. Public URL is
-`https://dashboard.thestrledger.co/api/catalog/*` (reverse proxy).
+`https://dashboard.thestrledger.com/api/catalog/*` (reverse proxy).

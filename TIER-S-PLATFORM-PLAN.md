@@ -213,7 +213,7 @@ Multi-tool conversion rate per contact 2×+ within 60 days. Email-attributed dow
 | 1 | Backend hosting | **Match Pinforge** — Fastify + PM2/Docker, `X-API-Key` auth, env-driven, pino logging | Proven pattern shipped in `tools/pinforge-api/`; reuse infra knowledge |
 | 2 | DB for Contact Graph | **Postgres** (new, on same host as catalog-api) | jsonb event store, better fit than reusing strguests MySQL |
 | 3 | ESP | **InfluencerSoft** | Existing tool, in-house, has its own skill/integration |
-| 4 | Domain | **dashboard.thestrledger.co** | Catalog API + Lead Inbox + future tools |
+| 4 | Domain | **dashboard.thestrledger.com** | Catalog API + Lead Inbox + future tools |
 | 5 | GA4 event taxonomy | **snake_case `<verb>_<noun>`** — `pdf_download`, `calc_completed`, `lead_captured`, `tool_viewed`, `upsell_clicked` | Lock in Phase 1 catalog schema (`ga4_event` field per tool); enforced by Zod |
 
 ---
