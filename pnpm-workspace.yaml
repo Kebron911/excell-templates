@@ -24,4 +24,5 @@ packages:
   - 'tools/empire-console'
   - 'tools/pinforge-api'
   - 'tools/catalog-api'
+  - 'tools/empire-health'
   - 'packages/*'  # Phase 1 shared packages
