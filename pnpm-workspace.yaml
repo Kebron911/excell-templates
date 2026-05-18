@@ -23,4 +23,5 @@ packages:
   - 'STROps-Tools'
   - 'tools/empire-console'
   - 'tools/pinforge-api'
+  - 'tools/catalog-api'
   - 'packages/*'  # Phase 1 shared packages
