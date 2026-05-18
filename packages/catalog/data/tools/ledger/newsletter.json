@@ -1,0 +1,17 @@
+{
+  "id": "ledger.newsletter",
+  "site": "ledger",
+  "slug": "newsletter",
+  "title": "The STR Ledger Weekly",
+  "shortTitle": "Weekly Newsletter",
+  "description": "Weekly digest of STR market data, regulation updates, and new tools across the empire.",
+  "category": "reference",
+  "audience": ["host", "owner", "buyer"],
+  "keywords": ["str newsletter", "airbnb weekly", "rental news", "market updates"],
+  "path": "/newsletter",
+  "paidTier": "free",
+  "status": "planned",
+  "ga4Event": "newsletter_signup",
+  "related": [],
+  "upsells": ["audit.listing-audit", "buyers.market-score"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "ops.restock-calculator",
+  "site": "ops",
+  "slug": "restock-calculator",
+  "title": "Restock Calculator",
+  "shortTitle": "Restock Calc",
+  "description": "Build a per-property restock list from par levels, current inventory, and upcoming bookings.",
+  "category": "calculator",
+  "audience": ["host", "manager"],
+  "keywords": ["restock", "inventory", "supplies", "par levels"],
+  "path": "/restock-calculator",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["ops.linen-par-calculator"],
+  "upsells": ["manuals.supply-par-sheet"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "host.cleaning-fee-calculator",
+  "site": "host",
+  "slug": "cleaning-fee-calculator",
+  "title": "Cleaning Fee Calculator",
+  "shortTitle": "Cleaning Fee",
+  "description": "Calculate the right cleaning fee for your STR based on labor, supplies, and platform markup.",
+  "category": "calculator",
+  "audience": ["host", "manager"],
+  "keywords": ["cleaning fee", "airbnb fees", "turnover cost", "str pricing"],
+  "path": "/cleaning-fee-calculator",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["host.airbnb-fee-calculator", "ops.linen-par-calculator"],
+  "upsells": ["ops.cleaner-dispatch"]
+}

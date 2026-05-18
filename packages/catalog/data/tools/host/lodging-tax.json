@@ -1,0 +1,17 @@
+{
+  "id": "host.lodging-tax",
+  "site": "host",
+  "slug": "lodging-tax",
+  "title": "Lodging Tax Lookup",
+  "shortTitle": "Lodging Tax",
+  "description": "Look up state, county, and city lodging/occupancy tax rates for short-term rentals.",
+  "category": "lookup",
+  "audience": ["host", "owner"],
+  "keywords": ["lodging tax", "occupancy tax", "hotel tax", "str tax"],
+  "path": "/lodging-tax",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "tool_viewed",
+  "related": ["laws.regulations-lookup", "host.profit-calculator"],
+  "upsells": ["laws.regulations-lookup"]
+}

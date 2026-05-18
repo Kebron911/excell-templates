@@ -1,0 +1,17 @@
+{
+  "id": "buyers.dscr-loan-calculator",
+  "site": "buyers",
+  "slug": "dscr-loan-calculator",
+  "title": "DSCR Loan Calculator",
+  "shortTitle": "DSCR Loan",
+  "description": "Model a DSCR (Debt Service Coverage Ratio) loan for an STR purchase — qualifying ratio, payment, cash needed.",
+  "category": "calculator",
+  "audience": ["buyer"],
+  "keywords": ["dscr loan", "debt service coverage", "str financing", "rental loan"],
+  "path": "/dscr-loan-calculator",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["buyers.cash-on-cash-calculator", "buyers.down-payment-calculator"],
+  "upsells": ["buyers.year-1-cash-needs"]
+}

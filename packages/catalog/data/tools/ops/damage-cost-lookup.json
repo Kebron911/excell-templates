@@ -1,0 +1,17 @@
+{
+  "id": "ops.damage-cost-lookup",
+  "site": "ops",
+  "slug": "damage-cost-lookup",
+  "title": "Damage Cost Lookup",
+  "shortTitle": "Damage Costs",
+  "description": "Look up replacement costs for common STR damage items — useful for filing Airbnb resolution claims.",
+  "category": "lookup",
+  "audience": ["host", "manager"],
+  "keywords": ["damage cost", "resolution center", "airbnb claim", "replacement cost"],
+  "path": "/damage-cost-lookup",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "tool_viewed",
+  "related": ["ops.maintenance-schedule"],
+  "upsells": ["manuals.damage-claim-templates"]
+}

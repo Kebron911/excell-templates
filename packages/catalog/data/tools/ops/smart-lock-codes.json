@@ -1,0 +1,17 @@
+{
+  "id": "ops.smart-lock-codes",
+  "site": "ops",
+  "slug": "smart-lock-codes",
+  "title": "Smart Lock Code Generator",
+  "shortTitle": "Smart Lock Codes",
+  "description": "Generate unique guest door codes from booking data with auto-expiry and cleaner-only codes.",
+  "category": "generator",
+  "audience": ["host", "manager"],
+  "keywords": ["smart lock", "door code", "guest access", "schlage"],
+  "path": "/smart-lock-codes",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["guests.check-in-instructions", "ops.cleaner-dispatch"],
+  "upsells": ["manuals.security-bundle"]
+}

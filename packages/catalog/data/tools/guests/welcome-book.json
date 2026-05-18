@@ -1,0 +1,18 @@
+{
+  "id": "guests.welcome-book",
+  "site": "guests",
+  "slug": "welcome-book",
+  "title": "Welcome Book Builder",
+  "shortTitle": "Welcome Book",
+  "description": "Build a multi-page welcome book PDF with arrival info, house rules, local guide, and Wi-Fi details.",
+  "category": "pdf-generator",
+  "audience": ["host"],
+  "keywords": ["welcome book", "airbnb welcome", "guest pdf", "guidebook"],
+  "path": "/welcome-book",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "pdf_download",
+  "leadMagnet": { "type": "pdf", "title": "Branded Welcome Book PDF" },
+  "related": ["guests.house-rules-pdf", "guests.wifi-sign", "guests.check-in-instructions"],
+  "upsells": ["manuals.guest-experience-bundle"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "host.revpar-calculator",
+  "site": "host",
+  "slug": "revpar-calculator",
+  "title": "RevPAR Calculator",
+  "shortTitle": "RevPAR",
+  "description": "Calculate Revenue Per Available Rental Night (RevPAR) — the key performance metric for STR operators.",
+  "category": "calculator",
+  "audience": ["host", "manager"],
+  "keywords": ["revpar", "revenue per night", "str kpi", "occupancy"],
+  "path": "/revpar-calculator",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["host.profit-calculator", "host.break-even-calculator"],
+  "upsells": ["audit.listing-audit"]
+}

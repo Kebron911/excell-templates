@@ -1,0 +1,17 @@
+{
+  "id": "laws.regulations-lookup",
+  "site": "laws",
+  "slug": "regulations-lookup",
+  "title": "STR Regulations Lookup",
+  "shortTitle": "Regulations Lookup",
+  "description": "Search short-term rental rules by state, county, and city — permits, caps, taxes, registration.",
+  "category": "lookup",
+  "audience": ["host", "buyer", "owner"],
+  "keywords": ["str regulations", "airbnb rules", "permit", "occupancy tax"],
+  "path": "/regulations-lookup",
+  "paidTier": "free",
+  "status": "planned",
+  "ga4Event": "tool_viewed",
+  "related": ["buyers.market-score", "host.lodging-tax"],
+  "upsells": ["manuals.compliance-bundle"]
+}

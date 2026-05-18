@@ -1,0 +1,17 @@
+{
+  "id": "buyers.market-score",
+  "site": "buyers",
+  "slug": "market-score",
+  "title": "STR Market Score",
+  "shortTitle": "Market Score",
+  "description": "Score any U.S. market on STR viability — regulation risk, demand, ADR, seasonality, competition.",
+  "category": "audit",
+  "audience": ["buyer", "owner"],
+  "keywords": ["market score", "str market", "airbnb market", "best markets"],
+  "path": "/market-score",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["buyers.comp-analyzer", "laws.regulations-lookup"],
+  "upsells": ["buyers.comp-analyzer"]
+}

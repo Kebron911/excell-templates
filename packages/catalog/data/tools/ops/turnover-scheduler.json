@@ -1,0 +1,17 @@
+{
+  "id": "ops.turnover-scheduler",
+  "site": "ops",
+  "slug": "turnover-scheduler",
+  "title": "Turnover Scheduler",
+  "shortTitle": "Turnover Scheduler",
+  "description": "Plan back-to-back turnovers with adequate cleaning windows, gaps, and inspection checkpoints.",
+  "category": "scheduler",
+  "audience": ["host", "manager"],
+  "keywords": ["turnover", "back to back", "cleaning window", "str schedule"],
+  "path": "/turnover-scheduler",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "tool_viewed",
+  "related": ["ops.cleaner-dispatch", "ops.maintenance-schedule"],
+  "upsells": ["ops.cleaner-dispatch"]
+}

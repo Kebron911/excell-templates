@@ -1,0 +1,18 @@
+{
+  "id": "guests.guest-messages",
+  "site": "guests",
+  "slug": "guest-messages",
+  "title": "Guest Message Templates Library",
+  "shortTitle": "Guest Messages",
+  "description": "Copy-paste message templates for every stage of the guest journey — inquiry, booking, pre-arrival, mid-stay, departure.",
+  "category": "template",
+  "audience": ["host", "manager"],
+  "keywords": ["guest messages", "airbnb templates", "message library", "host scripts"],
+  "path": "/guest-messages",
+  "paidTier": "lead-magnet",
+  "status": "shipped",
+  "ga4Event": "pdf_download",
+  "leadMagnet": { "type": "pdf", "title": "Guest Message Template Pack" },
+  "related": ["guests.review-response", "guests.listing-description"],
+  "upsells": ["manuals.host-message-pack"]
+}

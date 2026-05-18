@@ -1,0 +1,17 @@
+{
+  "id": "audit.listing-audit",
+  "site": "audit",
+  "slug": "listing-audit",
+  "title": "Airbnb Listing Audit",
+  "shortTitle": "Listing Audit",
+  "description": "Score any Airbnb listing in under five minutes — title, photos, amenities, description, pricing signals.",
+  "category": "audit",
+  "audience": ["host"],
+  "keywords": ["listing audit", "airbnb audit", "listing score", "optimize listing"],
+  "path": "/",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["guests.listing-description", "guests.review-response", "host.revpar-calculator"],
+  "upsells": ["manuals.listing-optimization-bundle"]
+}

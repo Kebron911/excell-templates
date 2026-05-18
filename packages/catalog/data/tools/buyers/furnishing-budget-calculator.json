@@ -1,0 +1,17 @@
+{
+  "id": "buyers.furnishing-budget-calculator",
+  "site": "buyers",
+  "slug": "furnishing-budget-calculator",
+  "title": "Furnishing Budget Calculator",
+  "shortTitle": "Furnishing Budget",
+  "description": "Estimate a realistic furnishing budget for a new STR by room, bed count, and finish tier.",
+  "category": "calculator",
+  "audience": ["buyer", "owner"],
+  "keywords": ["furnishing budget", "str setup cost", "airbnb furnish", "startup cost"],
+  "path": "/furnishing-budget-calculator",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["buyers.year-1-cash-needs", "buyers.cash-on-cash-calculator"],
+  "upsells": ["manuals.furnishing-checklist"]
+}

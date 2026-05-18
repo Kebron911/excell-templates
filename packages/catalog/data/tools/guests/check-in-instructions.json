@@ -1,0 +1,18 @@
+{
+  "id": "guests.check-in-instructions",
+  "site": "guests",
+  "slug": "check-in-instructions",
+  "title": "Check-in Instructions PDF Builder",
+  "shortTitle": "Check-in Instructions",
+  "description": "Build a multi-page arrival guide with door codes, parking, lockbox, and Wi-Fi instructions.",
+  "category": "pdf-generator",
+  "audience": ["host"],
+  "keywords": ["check-in", "arrival instructions", "guest pdf", "lockbox"],
+  "path": "/check-in-instructions",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "pdf_download",
+  "leadMagnet": { "type": "pdf", "title": "Check-in Instructions PDF" },
+  "related": ["guests.welcome-book", "guests.wifi-sign", "ops.smart-lock-codes"],
+  "upsells": ["guests.welcome-book"]
+}

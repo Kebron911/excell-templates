@@ -1,0 +1,17 @@
+{
+  "id": "host.cohost-split-calculator",
+  "site": "host",
+  "slug": "cohost-split-calculator",
+  "title": "Co-Host Revenue Split Calculator",
+  "shortTitle": "Co-Host Split",
+  "description": "Model fair revenue splits between owner and co-host based on services provided and bookings.",
+  "category": "calculator",
+  "audience": ["co-host", "owner", "manager"],
+  "keywords": ["co-host", "revenue split", "property management fee", "owner statement"],
+  "path": "/cohost-split-calculator",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["host.profit-calculator", "host.cleaning-fee-calculator"],
+  "upsells": ["manuals.cohost-agreement"]
+}

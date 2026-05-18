@@ -1,0 +1,17 @@
+{
+  "id": "host.break-even-calculator",
+  "site": "host",
+  "slug": "break-even-calculator",
+  "title": "STR Break-Even Calculator",
+  "shortTitle": "Break-Even",
+  "description": "Find the minimum monthly revenue or occupancy your short-term rental needs to break even.",
+  "category": "calculator",
+  "audience": ["host", "owner"],
+  "keywords": ["break even", "minimum revenue", "occupancy", "str math"],
+  "path": "/break-even-calculator",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["host.profit-calculator", "host.revpar-calculator"],
+  "upsells": ["buyers.cash-on-cash-calculator"]
+}

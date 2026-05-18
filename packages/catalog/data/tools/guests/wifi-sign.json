@@ -1,0 +1,18 @@
+{
+  "id": "guests.wifi-sign",
+  "site": "guests",
+  "slug": "wifi-sign",
+  "title": "Wi-Fi Sign Generator with QR Code",
+  "shortTitle": "Wi-Fi Sign",
+  "description": "Create printable Wi-Fi signs with scannable QR codes that auto-connect guests to your network.",
+  "category": "pdf-generator",
+  "audience": ["host"],
+  "keywords": ["wifi sign", "qr code", "airbnb wifi", "guest wifi"],
+  "path": "/wifi-sign",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "pdf_download",
+  "leadMagnet": { "type": "pdf", "title": "Wi-Fi Sign PDF (3 templates)" },
+  "related": ["guests.house-rules-pdf", "guests.check-in-instructions"],
+  "upsells": ["guests.welcome-book"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "ops.linen-par-calculator",
+  "site": "ops",
+  "slug": "linen-par-calculator",
+  "title": "Linen Par Calculator",
+  "shortTitle": "Linen Par",
+  "description": "Calculate how many sheets, towels, and pillowcases you need on hand to keep turnovers smooth.",
+  "category": "calculator",
+  "audience": ["host", "manager"],
+  "keywords": ["linen par", "towels", "sheets", "str supplies"],
+  "path": "/linen-par-calculator",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["ops.restock-calculator", "ops.cleaner-dispatch"],
+  "upsells": ["manuals.supply-par-sheet"]
+}

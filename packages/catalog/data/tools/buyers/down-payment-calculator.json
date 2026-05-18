@@ -1,0 +1,17 @@
+{
+  "id": "buyers.down-payment-calculator",
+  "site": "buyers",
+  "slug": "down-payment-calculator",
+  "title": "Down Payment Calculator",
+  "shortTitle": "Down Payment",
+  "description": "Calculate required down payment, closing costs, and reserves for an STR purchase across loan types.",
+  "category": "calculator",
+  "audience": ["buyer"],
+  "keywords": ["down payment", "closing costs", "str purchase", "reserves"],
+  "path": "/down-payment-calculator",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["buyers.dscr-loan-calculator", "buyers.year-1-cash-needs"],
+  "upsells": ["buyers.cash-on-cash-calculator"]
+}

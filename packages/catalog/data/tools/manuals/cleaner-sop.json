@@ -1,0 +1,17 @@
+{
+  "id": "manuals.cleaner-sop",
+  "site": "manuals",
+  "slug": "cleaner-sop",
+  "title": "Cleaner SOP Bundle",
+  "shortTitle": "Cleaner SOP",
+  "description": "Premium cleaning standard-operating-procedure templates — room-by-room checklists, photo specs, training.",
+  "category": "template",
+  "audience": ["host", "manager", "cleaner"],
+  "keywords": ["cleaner sop", "cleaning sop", "turnover checklist", "str training"],
+  "path": "/cleaner-sop",
+  "paidTier": "paid",
+  "status": "shipped",
+  "ga4Event": "checkout_started",
+  "related": ["ops.cleaner-dispatch", "ops.turnover-scheduler"],
+  "upsells": []
+}

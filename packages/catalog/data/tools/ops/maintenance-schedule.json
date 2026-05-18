@@ -1,0 +1,17 @@
+{
+  "id": "ops.maintenance-schedule",
+  "site": "ops",
+  "slug": "maintenance-schedule",
+  "title": "Maintenance Schedule Builder",
+  "shortTitle": "Maintenance",
+  "description": "Build a preventive-maintenance schedule for HVAC, appliances, smoke detectors, and seasonal tasks.",
+  "category": "scheduler",
+  "audience": ["host", "owner"],
+  "keywords": ["maintenance", "preventive", "hvac", "str checklist"],
+  "path": "/maintenance-schedule",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "tool_viewed",
+  "related": ["ops.turnover-scheduler", "ops.damage-cost-lookup"],
+  "upsells": ["manuals.maintenance-bundle"]
+}

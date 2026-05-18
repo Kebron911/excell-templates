@@ -1,0 +1,17 @@
+{
+  "id": "host.airbnb-fee-calculator",
+  "site": "host",
+  "slug": "airbnb-fee-calculator",
+  "title": "Airbnb Service Fee Calculator",
+  "shortTitle": "Airbnb Fees",
+  "description": "See exactly what Airbnb keeps from each booking — host fees, guest fees, and net payout.",
+  "category": "calculator",
+  "audience": ["host"],
+  "keywords": ["airbnb fees", "service fee", "host fee", "payout"],
+  "path": "/airbnb-fee-calculator",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["host.cleaning-fee-calculator", "host.profit-calculator"],
+  "upsells": ["host.profit-calculator"]
+}

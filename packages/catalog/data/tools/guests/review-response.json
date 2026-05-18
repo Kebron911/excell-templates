@@ -1,0 +1,17 @@
+{
+  "id": "guests.review-response",
+  "site": "guests",
+  "slug": "review-response",
+  "title": "Review Response Generator",
+  "shortTitle": "Review Response",
+  "description": "Generate professional responses to guest reviews — positive, neutral, and negative — in seconds.",
+  "category": "generator",
+  "audience": ["host"],
+  "keywords": ["review response", "airbnb reviews", "host reply", "guest reviews"],
+  "path": "/review-response",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["guests.guest-messages", "guests.listing-description"],
+  "upsells": ["audit.listing-audit"]
+}

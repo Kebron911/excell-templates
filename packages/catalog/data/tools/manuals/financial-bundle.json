@@ -1,0 +1,17 @@
+{
+  "id": "manuals.financial-bundle",
+  "site": "manuals",
+  "slug": "financial-bundle",
+  "title": "STR Financial Template Bundle",
+  "shortTitle": "Financial Bundle",
+  "description": "Excel templates for owner statements, P&L, tax-prep, depreciation, and reserve planning.",
+  "category": "template",
+  "audience": ["host", "owner", "manager"],
+  "keywords": ["str financials", "owner statement", "p&l template", "schedule e"],
+  "path": "/financial-bundle",
+  "paidTier": "paid",
+  "status": "shipped",
+  "ga4Event": "checkout_started",
+  "related": ["host.profit-calculator", "host.cohost-split-calculator"],
+  "upsells": []
+}

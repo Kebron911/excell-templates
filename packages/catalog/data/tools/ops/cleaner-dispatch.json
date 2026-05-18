@@ -1,0 +1,17 @@
+{
+  "id": "ops.cleaner-dispatch",
+  "site": "ops",
+  "slug": "cleaner-dispatch",
+  "title": "Cleaner Dispatch Tool",
+  "shortTitle": "Cleaner Dispatch",
+  "description": "Auto-generate cleaner assignments from your booking calendar with turnover times and special instructions.",
+  "category": "scheduler",
+  "audience": ["host", "manager", "cleaner"],
+  "keywords": ["cleaner dispatch", "turnover", "cleaning schedule", "airbnb cleaner"],
+  "path": "/cleaner-dispatch",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "tool_viewed",
+  "related": ["ops.turnover-scheduler", "ops.linen-par-calculator"],
+  "upsells": ["manuals.cleaner-sop"]
+}

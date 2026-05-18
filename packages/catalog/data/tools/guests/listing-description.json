@@ -1,0 +1,17 @@
+{
+  "id": "guests.listing-description",
+  "site": "guests",
+  "slug": "listing-description",
+  "title": "Listing Description Generator",
+  "shortTitle": "Listing Description",
+  "description": "AI-assisted Airbnb/Vrbo listing description writer with SEO keywords and amenity callouts.",
+  "category": "generator",
+  "audience": ["host"],
+  "keywords": ["listing description", "airbnb seo", "vrbo description", "rental copy"],
+  "path": "/listing-description",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["guests.review-response", "audit.listing-audit"],
+  "upsells": ["audit.listing-audit"]
+}

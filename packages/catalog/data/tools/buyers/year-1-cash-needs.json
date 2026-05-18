@@ -1,0 +1,17 @@
+{
+  "id": "buyers.year-1-cash-needs",
+  "site": "buyers",
+  "slug": "year-1-cash-needs",
+  "title": "Year 1 Cash Needs Calculator",
+  "shortTitle": "Year 1 Cash",
+  "description": "All-in cash needed in year one — down payment, closing, furnishing, reserves, launch marketing.",
+  "category": "calculator",
+  "audience": ["buyer"],
+  "keywords": ["year 1 cash", "total cash needed", "str startup", "buyer budget"],
+  "path": "/year-1-cash-needs",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["buyers.down-payment-calculator", "buyers.furnishing-budget-calculator", "buyers.cash-on-cash-calculator"],
+  "upsells": ["manuals.acquisition-bundle"]
+}

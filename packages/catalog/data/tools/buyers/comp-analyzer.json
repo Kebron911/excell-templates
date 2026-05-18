@@ -1,0 +1,17 @@
+{
+  "id": "buyers.comp-analyzer",
+  "site": "buyers",
+  "slug": "comp-analyzer",
+  "title": "STR Comp Analyzer",
+  "shortTitle": "Comp Analyzer",
+  "description": "Analyze comparable Airbnb listings in your target market — ADR, occupancy, amenity benchmarks.",
+  "category": "audit",
+  "audience": ["buyer"],
+  "keywords": ["str comps", "airbnb comps", "market analysis", "adr"],
+  "path": "/comp-analyzer",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["buyers.market-score", "buyers.cash-on-cash-calculator"],
+  "upsells": ["audit.listing-audit"]
+}

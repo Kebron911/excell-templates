@@ -1,0 +1,18 @@
+{
+  "id": "guests.house-rules-pdf",
+  "site": "guests",
+  "slug": "house-rules-pdf",
+  "title": "House Rules PDF Generator",
+  "shortTitle": "House Rules PDF",
+  "description": "Generate a printable, branded house-rules PDF for your short-term rental in under two minutes.",
+  "category": "pdf-generator",
+  "audience": ["host"],
+  "keywords": ["house rules", "airbnb pdf", "str template", "rental rules"],
+  "path": "/house-rules-pdf",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "pdf_download",
+  "leadMagnet": { "type": "pdf", "title": "Branded House Rules PDF" },
+  "related": ["guests.welcome-book", "guests.check-in-instructions", "guests.wifi-sign"],
+  "upsells": ["guests.welcome-book", "manuals.cleaner-sop"]
+}

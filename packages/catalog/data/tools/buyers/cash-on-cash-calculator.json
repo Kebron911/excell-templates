@@ -1,0 +1,17 @@
+{
+  "id": "buyers.cash-on-cash-calculator",
+  "site": "buyers",
+  "slug": "cash-on-cash-calculator",
+  "title": "Cash-on-Cash Return Calculator",
+  "shortTitle": "Cash-on-Cash",
+  "description": "Calculate cash-on-cash return for an STR purchase — annual cash flow divided by total cash invested.",
+  "category": "calculator",
+  "audience": ["buyer", "owner"],
+  "keywords": ["cash on cash", "coc return", "str investment", "rental roi"],
+  "path": "/cash-on-cash-calculator",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["buyers.dscr-loan-calculator", "buyers.year-1-cash-needs", "buyers.comp-analyzer"],
+  "upsells": ["buyers.comp-analyzer", "audit.listing-audit"]
+}

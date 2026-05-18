@@ -1,0 +1,74 @@
+[
+  {
+    "id": "ledger",
+    "displayName": "The STR Ledger",
+    "domain": "thestrledger.com",
+    "tagline": "The numbers behind short-term rental success.",
+    "primaryColor": "#0F172A",
+    "audience": ["host", "owner", "buyer"],
+    "description": "Parent brand site — research, analysis, and the empire-wide newsletter."
+  },
+  {
+    "id": "guests",
+    "displayName": "STR Guests Tools",
+    "domain": "strguests.tools",
+    "tagline": "Templates and PDFs that make guests love your stay.",
+    "primaryColor": "#0EA5E9",
+    "audience": ["host", "manager"],
+    "description": "Free PDF generators and templates for the guest-facing side of an STR."
+  },
+  {
+    "id": "host",
+    "displayName": "STR Host Tools",
+    "domain": "strhost.tools",
+    "tagline": "Calculators every short-term rental host needs.",
+    "primaryColor": "#10B981",
+    "audience": ["host", "co-host", "manager"],
+    "description": "Pricing, fees, and profitability calculators for active hosts."
+  },
+  {
+    "id": "ops",
+    "displayName": "STR Ops Tools",
+    "domain": "strops.tools",
+    "tagline": "Run cleanings, turnovers, and maintenance like a pro.",
+    "primaryColor": "#F97316",
+    "audience": ["host", "manager", "cleaner"],
+    "description": "Operations tooling: cleaner dispatch, par sheets, turnover scheduling, maintenance."
+  },
+  {
+    "id": "buyers",
+    "displayName": "STR Buyers Tools",
+    "domain": "strbuyers.tools",
+    "tagline": "Underwrite the next short-term rental in minutes.",
+    "primaryColor": "#6366F1",
+    "audience": ["buyer", "owner"],
+    "description": "Acquisition underwriting: cash-on-cash, DSCR, market scoring, furnishing budget."
+  },
+  {
+    "id": "laws",
+    "displayName": "STR Laws",
+    "domain": "strlaws.com",
+    "tagline": "Short-term rental rules, looked up city by city.",
+    "primaryColor": "#DC2626",
+    "audience": ["host", "buyer", "owner"],
+    "description": "Searchable database of state, county, and city STR regulations."
+  },
+  {
+    "id": "audit",
+    "displayName": "STR Listing Audit",
+    "domain": "strlistingaudit.com",
+    "tagline": "Score and fix your listing in under five minutes.",
+    "primaryColor": "#8B5CF6",
+    "audience": ["host"],
+    "description": "Automated listing audit — title, photos, amenities, description scoring."
+  },
+  {
+    "id": "manuals",
+    "displayName": "STR Manuals",
+    "domain": "strmanuals.com",
+    "tagline": "Premium templates and SOPs for serious operators.",
+    "primaryColor": "#0F766E",
+    "audience": ["host", "manager", "owner"],
+    "description": "Paid storefront for SOPs, manuals, and premium Excel templates."
+  }
+]

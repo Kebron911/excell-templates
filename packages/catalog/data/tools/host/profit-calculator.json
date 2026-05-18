@@ -1,0 +1,17 @@
+{
+  "id": "host.profit-calculator",
+  "site": "host",
+  "slug": "profit-calculator",
+  "title": "STR Profit Calculator",
+  "shortTitle": "Profit Calculator",
+  "description": "Calculate true monthly profit on a short-term rental — revenue minus all expenses, fees, and reserves.",
+  "category": "calculator",
+  "audience": ["host", "owner"],
+  "keywords": ["str profit", "airbnb profit", "rental income", "cash flow"],
+  "path": "/profit-calculator",
+  "paidTier": "free",
+  "status": "shipped",
+  "ga4Event": "calc_completed",
+  "related": ["host.break-even-calculator", "host.revpar-calculator", "buyers.cash-on-cash-calculator"],
+  "upsells": ["manuals.financial-bundle"]
+}
