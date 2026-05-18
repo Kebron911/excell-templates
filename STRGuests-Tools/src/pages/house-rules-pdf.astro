@@ -11,6 +11,7 @@ import PinterestPinButton from '@/components/generator/PinterestPinButton.astro'
 import ClusterFunnelBlock from '@str/ui-funnel/ClusterFunnelBlock.astro';
 import HouseRulesGenerator from '@/components/generators/HouseRulesGenerator.tsx';
 import CrossSiteRelated from '@str/ui-funnel/CatalogCrossSiteRelated.astro';
+import InternalLinks from '@str/ui-funnel/CatalogInternalLinks.astro';
 import { buildWebApplication, buildFAQPage } from '@str/seo';
 import { siteConfig } from '@/data/site.config';
 import tools from '@/data/tools.json';
@@ -103,6 +104,8 @@ const faq = buildFAQPage([
     </section>
 
     <RelatedPosts toolKey="house-rules-pdf" />
+
+    <InternalLinks toolId="guests.house-rules-pdf" limit={5} />
 
     <CrossSiteRelated toolId="guests.house-rules-pdf" />
 

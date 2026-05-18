@@ -1,0 +1,68 @@
+---
+import { findInternalLinks, loadCatalog } from '@str/catalog';
+
+interface Props {
+  /** Source tool id, e.g. "guests.house-rules-pdf". */
+  toolId: string;
+  /** Heading text. Pass empty string to suppress. */
+  heading?: string;
+  /** Max links shown. Default 5. */
+  limit?: number;
+  /** Only show cross-site links. Default false (mixed). */
+  crossSiteOnly?: boolean;
+  /** Inline (one-line) vs block (list) layout. Default 'inline'. */
+  layout?: 'inline' | 'block';
+}
+
+const {
+  toolId,
+  heading = 'See also',
+  limit = 5,
+  crossSiteOnly = false,
+  layout = 'inline',
+} = Astro.props;
+
+const { catalog } = loadCatalog();
+const links = findInternalLinks(catalog, toolId, { limit, crossSiteOnly });
+---
+
+{links.length > 0 && (
+  <aside class={`catalog-internal-links my-6 ${layout === 'inline' ? 'text-sm' : ''}`}>
+    {heading && <span class="font-semibold mr-2">{heading}:</span>}
+    {layout === 'inline' ? (
+      <span>
+        {links.map((l, i) => (
+          <>
+            <a
+              href={l.href}
+              data-event="internal_link_clicked"
+              data-tool-id={l.id}
+              data-cross-site={l.crossSite ? 'true' : 'false'}
+              class="underline hover:no-underline"
+            >
+              {l.label}
+            </a>
+            {i < links.length - 1 && <span class="text-gray-400 mx-1">·</span>}
+          </>
+        ))}
+      </span>
+    ) : (
+      <ul class="mt-2 list-disc list-inside space-y-1">
+        {links.map((l) => (
+          <li>
+            <a
+              href={l.href}
+              data-event="internal_link_clicked"
+              data-tool-id={l.id}
+              data-cross-site={l.crossSite ? 'true' : 'false'}
+              class="underline hover:no-underline"
+            >
+              {l.label}
+            </a>
+            {l.crossSite && <span class="text-xs text-gray-500 ml-1">↗</span>}
+          </li>
+        ))}
+      </ul>
+    )}
+  </aside>
+)}
